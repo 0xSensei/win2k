@@ -139,7 +139,7 @@ typedef enum
     LOGPOPUP_CLEARED,                // Show it when this log fills up
     LOGPOPUP_ALREADY_SHOWN           // Don't show it again until this log is cleared
 }
-LOGPOPUP, *PLOGPOPUP;
+LOGPOPUP, * PLOGPOPUP;
 
 
 
@@ -188,7 +188,7 @@ typedef struct _LOGFILE {
     LOGPOPUP        logpLogPopup;       // "Log full" policy for this log
     PSECURITY_DESCRIPTOR Sd;            // User security object for this log
     RTL_RESOURCE    Resource;
-} LOGFILE, *PLOGFILE;
+} LOGFILE, * PLOGFILE;
 
 
 // Structure containing information on each module that is registered to
@@ -200,7 +200,7 @@ typedef struct _LOGMODULE {
     PWSTR       ModuleName;         // Name of module
     ATOM        ModuleAtom;         // Atom identifying this module
     PLOGFILE    LogFile;            // Log file for this module
-} LOGMODULE, *PLOGMODULE;
+} LOGMODULE, * PLOGMODULE;
 
 
 // Command codes put in the request packets.
@@ -219,7 +219,7 @@ typedef struct _LOGMODULE {
 typedef struct _WRITE_PKT {
     DWORD       Datasize;           // Size of data in the buffer
     PVOID       Buffer;             // Contains filled event log record
-} WRITE_PKT, *PWRITE_PKT;
+} WRITE_PKT, * PWRITE_PKT;
 
 
 
@@ -241,15 +241,15 @@ typedef struct _READ_PKT {
     ULONG       LastSeekRecord;     // Last seek position in terms of records
     ULONG       BytesRead;          // Bytes read - for return to caller
     ULONG       RecordsRead;
-} READ_PKT, *PREAD_PKT;
+} READ_PKT, * PREAD_PKT;
 
 typedef struct _CLEAR_PKT {
     PUNICODE_STRING         BackupFileName; // File to back up current log file (or NULL)
-} CLEAR_PKT, *PCLEAR_PKT;
+} CLEAR_PKT, * PCLEAR_PKT;
 
 typedef struct _BACKUP_PKT {
     PUNICODE_STRING         BackupFileName; // File to back up current log file (or NULL)
-} BACKUP_PKT, *PBACKUP_PKT;
+} BACKUP_PKT, * PBACKUP_PKT;
 
 
 // Flags used in the ELF_REQUEST_RECORD
@@ -274,7 +274,7 @@ typedef struct _ELF_REQUEST_RECORD {
         PCLEAR_PKT      ClearPkt;
         PBACKUP_PKT     BackupPkt;
     } Pkt;
-} ELF_REQUEST_RECORD, *PELF_REQUEST_RECORD;
+} ELF_REQUEST_RECORD, * PELF_REQUEST_RECORD;
 
 typedef
 #ifdef _WIN64
@@ -311,7 +311,7 @@ typedef struct _ELF_QUEUED_EVENT {
         ELF_ALERT_RECORD Alert;
         ELF_MESSAGE_RECORD Message;
     } Event;
-} ELF_QUEUED_EVENT, *PELF_QUEUED_EVENT;
+} ELF_QUEUED_EVENT, * PELF_QUEUED_EVENT;
 
 
 // Structure containing information on callers of ElfChangeNotify
@@ -321,7 +321,7 @@ typedef struct _NOTIFIEE {
     LIST_ENTRY      Next;
     IELF_HANDLE     Handle;
     HANDLE          Event;
-} NOTIFIEE, *PNOTIFIEE;
+} NOTIFIEE, * PNOTIFIEE;
 
 
 
@@ -349,7 +349,7 @@ typedef struct _ELF_LOGFILE_HEADER {
     ULONG       Flags;                  // DIRTY, etc.
     ULONG       Retention;              // Last Retention period.
     ULONG       EndHeaderSize;          // Size of this header
-} ELF_LOGFILE_HEADER, *PELF_LOGFILE_HEADER;
+} ELF_LOGFILE_HEADER, * PELF_LOGFILE_HEADER;
 
 #define     FILEHEADERBUFSIZE       sizeof(ELF_LOGFILE_HEADER)
 #define     ELF_LOG_FILE_SIGNATURE  0x654c664c  // ASCII for eLfL
@@ -391,7 +391,7 @@ typedef struct _ELF_EOF_RECORD {
     ULONG       CurrentRecordNumber;
     ULONG       OldestRecordNumber;
     ULONG       RecordSizeEnd;
-} ELF_EOF_RECORD, *PELF_EOF_RECORD;
+} ELF_EOF_RECORD, * PELF_EOF_RECORD;
 
 #define     ELFEOFRECORDSIZE        sizeof (ELF_EOF_RECORD)
 
@@ -438,7 +438,7 @@ typedef struct _LOG_FILE_INFO {
     ULONG           Retention;
     ULONG           GuestAccessRestriction;
     LOGPOPUP        logpLogPopup;
-} LOG_FILE_INFO, *PLOG_FILE_INFO;
+} LOG_FILE_INFO, * PLOG_FILE_INFO;
 
 
 // DEBUG stuff.
@@ -464,7 +464,7 @@ typedef enum _ELF_LOG_TYPE {
     ElfNormalLog,
     ElfSecurityLog,
     ElfBackupLog
-} ELF_LOG_TYPE, *PELF_LOG_TYPE;
+} ELF_LOG_TYPE, * PELF_LOG_TYPE;
 
 
 
@@ -494,23 +494,23 @@ typedef enum _ELF_LOG_TYPE {
 #define SHUTDOWN_UNPLANNED   0x80000000
 #define SHUTDOWN_REASON_MASK 0xFFFF
 
-typedef enum _TIMESTAMPEVENT{
+typedef enum _TIMESTAMPEVENT {
 
-    EVENT_Boot=0,
+    EVENT_Boot = 0,
     EVENT_NormalShutdown,
     EVENT_AbNormalShutdown
 
-} TIMESTAMPEVENT, *PTIMESTAMPEVENT;
+} TIMESTAMPEVENT, * PTIMESTAMPEVENT;
 
 
 //SS:Clustering specific extensions
-typedef struct _PROPLOGFILEINFO{
+typedef struct _PROPLOGFILEINFO {
     PLOGFILE    pLogFile;
     PVOID       pStartPosition;
     PVOID       pEndPosition;
     ULONG       ulTotalEventSize;
     ULONG       ulNumRecords;
-}PROPLOGFILEINFO, *PPROPLOGFILEINFO;
+}PROPLOGFILEINFO, * PPROPLOGFILEINFO;
 
 //structure for propagation is preallocated.
 #define MAXSIZE_OF_EVENTSTOPROP (1 * 1024)

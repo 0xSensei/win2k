@@ -1,26 +1,19 @@
 /*++
-
 Copyright (c) 1991  Microsoft Corporation
 
 Module Name:
-
     elfclntp.h
 
 Abstract:
-
     Common include file for all the client-side modules for the
     event logging facility.
 
 Author:
-
     Rajen Shah    (rajens)    29-Jul-1991
 
-
 Revision History:
-
     29-Jul-1991     RajenS
         Created
-
 */
 
 #include <nt.h>
@@ -38,8 +31,4 @@ Revision History:
 #include <elfcommn.h>
 
 
-DWORD
-ElfpGetComputerName (
-    OUT  LPSTR   *ComputerNamePtrA,
-    OUT  LPWSTR  *ComputerNamePtrW
-    );
+DWORD ElfpGetComputerName(OUT  LPSTR* ComputerNamePtrA, OUT  LPWSTR* ComputerNamePtrW);

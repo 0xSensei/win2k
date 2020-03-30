@@ -28,12 +28,12 @@ Author:
 
 // GLOBALS
 
-    CRITICAL_SECTION StatusCriticalSection = {0};
-    SERVICE_STATUS   ElStatus              = {0};
-    DWORD            HintCount             = 0;
-    DWORD            ElUninstallCode       = 0;  // reason for uninstalling
-    DWORD            ElSpecificCode        = 0;
-    DWORD            ElState               = STARTING;
+CRITICAL_SECTION StatusCriticalSection = {0};
+SERVICE_STATUS   ElStatus = {0};
+DWORD            HintCount = 0;
+DWORD            ElUninstallCode = 0;  // reason for uninstalling
+DWORD            ElSpecificCode = 0;
+DWORD            ElState = STARTING;
 
 
 
@@ -44,110 +44,109 @@ VOID ElfControlResponse(DWORD   opCode)
     ElfDbgPrint(("[ELF] Inside control handler. Control = %ld\n", opCode));
 
     // Determine the type of service control message and modify the service status, if necessary.
-    switch(opCode)
-    {
-        case SERVICE_CONTROL_SHUTDOWN:
+    switch (opCode) {
+    case SERVICE_CONTROL_SHUTDOWN:
 #if DBG
-        case SERVICE_CONTROL_STOP:
+    case SERVICE_CONTROL_STOP:
 #endif
-        {
-            HKEY    hKey;
-            ULONG   ValueSize;
-            ULONG   ShutdownReason = 0xFF;
-            ULONG   rc;
+    {
+        HKEY    hKey;
+        ULONG   ValueSize;
+        ULONG   ShutdownReason = 0xFF;
+        ULONG   rc;
 
-            // If the service is installed, shut it down and exit.
-            ElfStatusUpdate(STOPPING);
+        // If the service is installed, shut it down and exit.
+        ElfStatusUpdate(STOPPING);
 
-            GetGlobalResource (ELF_GLOBAL_EXCLUSIVE);
+        GetGlobalResource(ELF_GLOBAL_EXCLUSIVE);
 
-            // Cause the timestamp writing thread to exit
-            if (g_hTimestampEvent != NULL) {
-                SetEvent (g_hTimestampEvent);
-            }
-
-            // Indicate a normal shutdown in the registry
-            ElfWriteTimeStamp(EVENT_NormalShutdown, FALSE);
-
-            // Determine the reason for this normal shutdown
-            rc = RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_RELIABILITY, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
-            if (rc == ERROR_SUCCESS) {
-                ValueSize=sizeof(ULONG);
-                rc = RegQueryValueEx(hKey, REGSTR_VAL_SHUTDOWNREASON, 0, NULL, (PUCHAR) &ShutdownReason, &ValueSize);
-                if (rc == ERROR_SUCCESS) {
-                    RegDeleteValue (hKey, REGSTR_VAL_SHUTDOWNREASON);
-                }
-
-                RegCloseKey (hKey);
-            }
-
-            // Log an event that says we're stopping
-            ElfpCreateElfEvent(EVENT_EventlogStopped,
-                               EVENTLOG_INFORMATION_TYPE,
-                               0,                    // EventCategory
-                               0,                    // NumberOfStrings
-                               NULL,                 // Strings
-                               &ShutdownReason,      // Data
-                               sizeof(ULONG),        // Datalength
-                               0                     // flags
-                               );
-
-            // Now force it to be written before we shut down
-            WriteQueuedEvents();
-
-            ReleaseGlobalResource();
-
-            // If the RegistryMonitor is started, wakeup that worker thread and have it handle the rest of the shutdown.
-
-            // Otherwise The main thread should pick up the fact that a shutdown during startup is occuring.
-            if (EventFlags & ELF_STARTED_REGISTRY_MONITOR) {
-                StopRegistryMonitor();
-            }
-
-            break ;
+        // Cause the timestamp writing thread to exit
+        if (g_hTimestampEvent != NULL) {
+            SetEvent(g_hTimestampEvent);
         }
 
+        // Indicate a normal shutdown in the registry
+        ElfWriteTimeStamp(EVENT_NormalShutdown, FALSE);
+
+        // Determine the reason for this normal shutdown
+        rc = RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_RELIABILITY, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
+        if (rc == ERROR_SUCCESS) {
+            ValueSize = sizeof(ULONG);
+            rc = RegQueryValueEx(hKey, REGSTR_VAL_SHUTDOWNREASON, 0, NULL, (PUCHAR)&ShutdownReason, &ValueSize);
+            if (rc == ERROR_SUCCESS) {
+                RegDeleteValue(hKey, REGSTR_VAL_SHUTDOWNREASON);
+            }
+
+            RegCloseKey(hKey);
+        }
+
+        // Log an event that says we're stopping
+        ElfpCreateElfEvent(EVENT_EventlogStopped,
+                           EVENTLOG_INFORMATION_TYPE,
+                           0,                    // EventCategory
+                           0,                    // NumberOfStrings
+                           NULL,                 // Strings
+                           &ShutdownReason,      // Data
+                           sizeof(ULONG),        // Datalength
+                           0                     // flags
+        );
+
+        // Now force it to be written before we shut down
+        WriteQueuedEvents();
+
+        ReleaseGlobalResource();
+
+        // If the RegistryMonitor is started, wakeup that worker thread and have it handle the rest of the shutdown.
+
+        // Otherwise The main thread should pick up the fact that a shutdown during startup is occuring.
+        if (EventFlags & ELF_STARTED_REGISTRY_MONITOR) {
+            StopRegistryMonitor();
+        }
+
+        break;
+    }
+
 #if DBG
-        case SERVICE_CONTROL_PAUSE:
-            // If the service is not already paused, pause it.
-            state = GetElState();
-            if ((state != PAUSED) && (state != PAUSING)) {
-                GetGlobalResource (ELF_GLOBAL_EXCLUSIVE);
+    case SERVICE_CONTROL_PAUSE:
+        // If the service is not already paused, pause it.
+        state = GetElState();
+        if ((state != PAUSED) && (state != PAUSING)) {
+            GetGlobalResource(ELF_GLOBAL_EXCLUSIVE);
 
-                ElfStatusUpdate(PAUSING);// Announce that the service is about to be paused
+            ElfStatusUpdate(PAUSING);// Announce that the service is about to be paused
 
-                // Get into a decent state to pause the service
-                // (i.e., flush all files to disk)
-                ElfpFlushFiles();
+            // Get into a decent state to pause the service
+            // (i.e., flush all files to disk)
+            ElfpFlushFiles();
 
-                ElfStatusUpdate(PAUSED);// Set the status and announce that the service is paused
+            ElfStatusUpdate(PAUSED);// Set the status and announce that the service is paused
 
-                ReleaseGlobalResource();
-            }
+            ReleaseGlobalResource();
+        }
 
-            break ;
-        case SERVICE_CONTROL_CONTINUE:
-            // If the service is not already running, un-pause it.
-            if (GetElState() != RUNNING) {
-                GetGlobalResource (ELF_GLOBAL_EXCLUSIVE);
+        break;
+    case SERVICE_CONTROL_CONTINUE:
+        // If the service is not already running, un-pause it.
+        if (GetElState() != RUNNING) {
+            GetGlobalResource(ELF_GLOBAL_EXCLUSIVE);
 
-                // Set the status and announce that the service
-                // is no longer paused
+            // Set the status and announce that the service
+            // is no longer paused
 
-                ElfStatusUpdate(RUNNING);
+            ElfStatusUpdate(RUNNING);
 
-                ReleaseGlobalResource();
-            }
+            ReleaseGlobalResource();
+        }
 
-            break ;
+        break;
 #endif  // DBG
-        case SERVICE_CONTROL_INTERROGATE:
-            ElfStatusUpdate(UPDATE_ONLY);
-            break;
-        default:
-            // WARNING: This should never happen.
-            ASSERT(FALSE);
-            break ;
+    case SERVICE_CONTROL_INTERROGATE:
+        ElfStatusUpdate(UPDATE_ONLY);
+        break;
+    default:
+        // WARNING: This should never happen.
+        ASSERT(FALSE);
+        break;
     }
 }
 
@@ -157,7 +156,7 @@ ElfBeginForcedShutdown(
     IN BOOL     PendingCode,
     IN DWORD    ExitCode,
     IN DWORD    ServiceSpecificCode
-    )
+)
 {
     DWORD  status;
 
@@ -177,8 +176,7 @@ ElfBeginForcedShutdown(
         if (PendingCode == PENDING) {
             ElStatus.dwCurrentState = SERVICE_STOP_PENDING;
             ElState = STOPPING;
-        }
-        else {
+        } else {
 
             // The shutdown is to take immediate effect.
 
@@ -201,7 +199,7 @@ ElfBeginForcedShutdown(
 
 
     if (g_hTimestampEvent != NULL) {
-        SetEvent (g_hTimestampEvent);
+        SetEvent(g_hTimestampEvent);
     }
 
 
@@ -210,7 +208,7 @@ ElfBeginForcedShutdown(
 
     ASSERT(ElfServiceStatusHandle != 0);
 
-    if (!SetServiceStatus( ElfServiceStatusHandle, &ElStatus )) {
+    if (!SetServiceStatus(ElfServiceStatusHandle, &ElStatus)) {
 
         ElfDbgPrint(("ElfBeginForcedShutdown,SetServiceStatus Failed %d\n",
                      GetLastError()));
@@ -225,7 +223,7 @@ ElfBeginForcedShutdown(
 DWORD
 ElfStatusUpdate(
     IN DWORD    NewState
-    )
+)
 
 /*
 
@@ -281,62 +279,51 @@ Return Value:
             // It was already stopped, don't send another SetServiceStatus.
 
             inhibit = TRUE;
-        }
-        else {
+        } else {
 
             // The shut down is complete, indicate that the eventlog
             // has stopped.
 
-            ElStatus.dwCurrentState =  SERVICE_STOPPED;
+            ElStatus.dwCurrentState = SERVICE_STOPPED;
             ElStatus.dwControlsAccepted = 0;
             ElStatus.dwCheckPoint = 0;
             ElStatus.dwWaitHint = 0;
 
             ElStatus.dwWin32ExitCode = ElUninstallCode;
             ElStatus.dwServiceSpecificExitCode = ElSpecificCode;
-
         }
         ElState = NewState;
-    }
-    else if (NewState != UPDATE_ONLY) {
-
-
+    } else if (NewState != UPDATE_ONLY) {
         // We are not being asked to change to the STOPPED state.
 
-        switch(ElState) {
-
+        switch (ElState) {
         case STARTING:
             if (NewState == STOPPING) {
 
-                ElStatus.dwCurrentState =  SERVICE_STOP_PENDING;
+                ElStatus.dwCurrentState = SERVICE_STOP_PENDING;
                 ElStatus.dwControlsAccepted = 0;
                 ElStatus.dwCheckPoint = HintCount++;
                 ElStatus.dwWaitHint = ELF_WAIT_HINT_TIME;
                 ElState = NewState;
 
                 EventlogShutdown = TRUE;
-            }
-
-            else if (NewState == RUNNING) {
+            } else if (NewState == RUNNING) {
 
 
                 // The Eventlog Service has completed installation.
 
-                ElStatus.dwCurrentState =  SERVICE_RUNNING;
+                ElStatus.dwCurrentState = SERVICE_RUNNING;
                 ElStatus.dwCheckPoint = 0;
                 ElStatus.dwWaitHint = 0;
 
                 ElStatus.dwControlsAccepted = ELF_CONTROLS_ACCEPTED;
                 ElState = NewState;
-            }
-
-            else {
-
+            } else {
                 // The NewState must be STARTING.  So update the pending
                 // count
 
 
-                ElStatus.dwCurrentState =  SERVICE_START_PENDING;
+                ElStatus.dwCurrentState = SERVICE_START_PENDING;
                 ElStatus.dwControlsAccepted = 0;
                 ElStatus.dwCheckPoint = HintCount++;
                 ElStatus.dwWaitHint = ELF_WAIT_HINT_TIME;
@@ -347,7 +334,7 @@ Return Value:
 
             if (NewState == STOPPING) {
 
-                ElStatus.dwCurrentState =  SERVICE_STOP_PENDING;
+                ElStatus.dwCurrentState = SERVICE_STOP_PENDING;
                 ElStatus.dwControlsAccepted = 0;
 
                 EventlogShutdown = TRUE;
@@ -355,10 +342,9 @@ Return Value:
 
 #if DBG
             else if (NewState == PAUSING) {
-                ElStatus.dwCurrentState =  SERVICE_PAUSE_PENDING;
-            }
-            else if (NewState == PAUSED) {
-                ElStatus.dwCurrentState =  SERVICE_PAUSED;
+                ElStatus.dwCurrentState = SERVICE_PAUSE_PENDING;
+            } else if (NewState == PAUSED) {
+                ElStatus.dwCurrentState = SERVICE_PAUSED;
             }
 
 #endif // DBG
@@ -374,16 +360,14 @@ Return Value:
             // No matter what else was passed in, force the status to
             // indicate that a shutdown is pending.
 
-            ElStatus.dwCurrentState =  SERVICE_STOP_PENDING;
+            ElStatus.dwCurrentState = SERVICE_STOP_PENDING;
             ElStatus.dwControlsAccepted = 0;
             ElStatus.dwCheckPoint = HintCount++;
             ElStatus.dwWaitHint = ELF_WAIT_HINT_TIME;
             EventlogShutdown = TRUE;
 
             break;
-
         case STOPPED:
-
             ASSERT(NewState == STARTING);
 
 
@@ -392,7 +376,7 @@ Return Value:
             // failing to start or after the service has been stopped
             // manually on a developer's build.
 
-            ElStatus.dwCurrentState =  SERVICE_START_PENDING;
+            ElStatus.dwCurrentState = SERVICE_START_PENDING;
             ElStatus.dwCheckPoint = 0;
             ElStatus.dwWaitHint = 0;
 
@@ -404,25 +388,20 @@ Return Value:
 
         case PAUSING:
             if (NewState == PAUSED) {
-                ElStatus.dwCurrentState =  SERVICE_PAUSED;
+                ElStatus.dwCurrentState = SERVICE_PAUSED;
                 ElStatus.dwCheckPoint = 0;
                 ElStatus.dwWaitHint = 0;
-            }
-            else {
+            } else {
                 ElStatus.dwCheckPoint = HintCount++;
                 ElStatus.dwWaitHint = ELF_WAIT_HINT_TIME;
             }
             ElState = NewState;
             break;
-
         case PAUSED:
-
             if (NewState == RUNNING) {
-
-
                 // The Eventlog Service has completed installation.
 
-                ElStatus.dwCurrentState =  SERVICE_RUNNING;
+                ElStatus.dwCurrentState = SERVICE_RUNNING;
                 ElStatus.dwCheckPoint = 0;
                 ElStatus.dwWaitHint = 0;
 
@@ -438,12 +417,12 @@ Return Value:
 
     if (!inhibit) {
         ASSERT(ElfServiceStatusHandle != 0);
-        if (!SetServiceStatus( ElfServiceStatusHandle, &ElStatus )) {
+        if (!SetServiceStatus(ElfServiceStatusHandle, &ElStatus)) {
             ElfDbgPrint(("ElfStatusUpdate, SetServiceStatus Failed %d\n", GetLastError()));
         }
     }
 
-    ElfDbgPrint(("ElfStatusUpdate (exit) State = %d\n",ElState));
+    ElfDbgPrint(("ElfStatusUpdate (exit) State = %d\n", ElState));
     status = ElState;
     LeaveCriticalSection(&StatusCriticalSection);
 
@@ -451,7 +430,7 @@ Return Value:
 }
 
 
-DWORD GetElState (VOID)
+DWORD GetElState(VOID)
 /*
 Routine Description:
     Obtains the state of the Eventlog Service.
@@ -477,7 +456,7 @@ Routine Description:
 --*/
 {
     ElStatus.dwCurrentState = SERVICE_START_PENDING;
-    ElStatus.dwServiceType  = SERVICE_WIN32;
+    ElStatus.dwServiceType = SERVICE_WIN32;
 
     InitializeCriticalSection(&StatusCriticalSection);
 }

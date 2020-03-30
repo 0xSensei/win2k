@@ -1,5 +1,4 @@
 /*++
-
 Copyright (c) 1990  Microsoft Corporation
 
 Module Name:
@@ -33,54 +32,32 @@ Revision History:
         referenced when it's handle was removed from the list.  Now this
         is fixed so it advances to the next Notifiee in the list BEFORE the
         buffer is free'd.
-
 --*/
 
 
 // INCLUDES
-
-
 #include <eventp.h>
-
-
 
 extern      DWORD  ElState;
 
 
-VOID
-IELF_HANDLE_rundown(
-    IELF_HANDLE    ElfHandle
-    )
-
+VOID IELF_HANDLE_rundown(IELF_HANDLE    ElfHandle)
 /*++
-
 Routine Description:
-
     This routine is called by the server RPC runtime to run down a
     Context Handle and to free any allocated data.  It also does all
     the work for ElfrCloseEL.
 
-    It has to undo whatever was done in ElfrOpenEventLog in terms of
-    allocating memory.
-
-Arguments:
-
-    None.
-
-Return Value:
-
+    It has to undo whatever was done in ElfrOpenEventLog in terms of allocating memory.
 --*/
-
 {
     PLOGMODULE pModule;
     NTSTATUS Status;
     PNOTIFIEE Notifiee;
     PNOTIFIEE NotifieeToDelete;
 
-
     // Generate an Audit if neccessary
-
-    ElfpCloseAudit(L"EventLog",ElfHandle);
+    ElfpCloseAudit(L"EventLog", ElfHandle);
 
 
     // If the eventlog service is stopped or in the process of
@@ -98,10 +75,10 @@ Return Value:
         return;
     }
 
-    ElfDbgPrint(( "[ELF] Run down context handle - 0x%lx\n", ElfHandle ));
+    ElfDbgPrint(("[ELF] Run down context handle - 0x%lx\n", ElfHandle));
 
     if (ElfHandle->Signature != ELF_CONTEXTHANDLE_SIGN) {
-        ElfDbgPrint (("[ELF] Invalid context handle in rundown routine.\n"));
+        ElfDbgPrint(("[ELF] Invalid context handle in rundown routine.\n"));
         return;
     }
 
@@ -114,21 +91,19 @@ Return Value:
 
     if (!pModule) {
         ElfDbgPrint(("[ELF] - Could not find module for Atom %d on close\n",
-            ElfHandle->Atom));
+                     ElfHandle->Atom));
         return;
     }
 
-    UnlinkContextHandle (ElfHandle);    // Unlink it from the linked list
+    UnlinkContextHandle(ElfHandle);    // Unlink it from the linked list
 
 
     // If this handle was for a backup module, then we need to
     // close the file and clean up the data structures.  The standard logs
     // (application, system and security) are never freed.
 
-
     if (ElfHandle->Flags & ELF_LOG_HANDLE_BACKUP_LOG) {
-
-        Status = ElfpCloseLogFile (pModule->LogFile, ELF_LOG_CLOSE_BACKUP);
+        Status = ElfpCloseLogFile(pModule->LogFile, ELF_LOG_CLOSE_BACKUP);
 
         UnlinkLogModule(pModule);
         DeleteAtom(pModule->ModuleAtom);
@@ -138,81 +113,52 @@ Return Value:
 
         if (pModule->LogFile->RefCount == 0) {
             UnlinkLogFile(pModule->LogFile);
-            RtlDeleteResource ( &pModule->LogFile->Resource );
+            RtlDeleteResource(&pModule->LogFile->Resource);
             RtlDeleteSecurityObject(&pModule->LogFile->Sd);
-            ElfpFreeBuffer (pModule->LogFile->LogFileName);
-            ElfpFreeBuffer (pModule->LogFile->LogModuleName);
-            ElfpFreeBuffer (pModule->LogFile);
+            ElfpFreeBuffer(pModule->LogFile->LogFileName);
+            ElfpFreeBuffer(pModule->LogFile->LogModuleName);
+            ElfpFreeBuffer(pModule->LogFile);
         }
         ElfpFreeBuffer(pModule);
-
-    }
-    else {
-
-
+    } else {
         // See if this handle had a ElfChangeNotify outstanding, and if so,
         // remove it from the list.  ElfChangeNotify can't be called with a
         // handle to a backup file.
 
-
         // Get exclusive access to the log file. This will ensure no one
         // else is accessing the file.
-
-
-        RtlAcquireResourceExclusive (
-                        &pModule->LogFile->Resource,
-                        TRUE                    // Wait until available
-                        );
-
-
+        RtlAcquireResourceExclusive(
+            &pModule->LogFile->Resource,
+            TRUE                    // Wait until available
+        );
 
         // Walk the linked list and remove any entries for this handle
-
-
-        Notifiee = CONTAINING_RECORD (
-                            pModule->LogFile->Notifiees.Flink,
-                            struct _NOTIFIEE,
-                            Next
-                            );
-
+        Notifiee = CONTAINING_RECORD(
+            pModule->LogFile->Notifiees.Flink,
+            struct _NOTIFIEE,
+            Next
+        );
 
         while (Notifiee->Next.Flink != pModule->LogFile->Notifiees.Flink) {
-
-
             // If it's for this handle, remove it from the list
-
-
             if (Notifiee->Handle == ElfHandle) {
-
                 RemoveEntryList(&Notifiee->Next);
                 NtClose(Notifiee->Event);
                 NotifieeToDelete = Notifiee;
 
-                Notifiee = CONTAINING_RECORD(
-                            Notifiee->Next.Flink,
-                            struct _NOTIFIEE,
-                            Next);
+                Notifiee = CONTAINING_RECORD(Notifiee->Next.Flink, struct _NOTIFIEE, Next);
 
                 ElfpFreeBuffer(NotifieeToDelete);
-            }
-            else {
-
-                Notifiee = CONTAINING_RECORD (
-                                    Notifiee->Next.Flink,
-                                    struct _NOTIFIEE,
-                                    Next
-                                    );
+            } else {
+                Notifiee = CONTAINING_RECORD(Notifiee->Next.Flink, struct _NOTIFIEE, Next);
             }
         }
 
-
         // Free the resource
-
-
-        RtlReleaseResource ( &pModule->LogFile->Resource );
+        RtlReleaseResource(&pModule->LogFile->Resource);
     }
 
-    ElfpFreeBuffer (ElfHandle);    // Free the context-handle structure
+    ElfpFreeBuffer(ElfHandle);    // Free the context-handle structure
 
     return;
 }

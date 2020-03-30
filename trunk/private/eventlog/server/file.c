@@ -43,7 +43,7 @@ Revision History:
 BOOLEAN
 VerifyLogIntegrity(
     PLOGFILE pLogFile
-    )
+)
 /*++
 
 Routine Description:
@@ -73,30 +73,30 @@ Note:
     PVOID EndRecord;
 
     pEventLogRecord =
-        (PEVENTLOGRECORD)((PBYTE) pLogFile->BaseAddress + pLogFile->BeginRecord);
+        (PEVENTLOGRECORD)((PBYTE)pLogFile->BaseAddress + pLogFile->BeginRecord);
     PhysicalStart =
-        (PVOID) ((PBYTE) pLogFile->BaseAddress + FILEHEADERBUFSIZE);
+        (PVOID)((PBYTE)pLogFile->BaseAddress + FILEHEADERBUFSIZE);
     PhysicalEOF =
-        (PVOID) ((PBYTE) pLogFile->BaseAddress + pLogFile->ViewSize);
-    BeginRecord = (PVOID)((PBYTE) pLogFile->BaseAddress + pLogFile->BeginRecord);
-    EndRecord = (PVOID)((PBYTE) pLogFile->BaseAddress + pLogFile->EndRecord);
+        (PVOID)((PBYTE)pLogFile->BaseAddress + pLogFile->ViewSize);
+    BeginRecord = (PVOID)((PBYTE)pLogFile->BaseAddress + pLogFile->BeginRecord);
+    EndRecord = (PVOID)((PBYTE)pLogFile->BaseAddress + pLogFile->EndRecord);
 
-    while(pEventLogRecord->Length != ELFEOFRECORDSIZE) {
+    while (pEventLogRecord->Length != ELFEOFRECORDSIZE) {
 
-        pEventLogRecord = (PEVENTLOGRECORD) NextRecordPosition (
+        pEventLogRecord = (PEVENTLOGRECORD)NextRecordPosition(
             EVENTLOG_FORWARDS_READ,
-            (PVOID) pEventLogRecord,
+            (PVOID)pEventLogRecord,
             pEventLogRecord->Length,
             BeginRecord,
             EndRecord,
             PhysicalEOF,
             PhysicalStart
-            );
+        );
 
         if (!pEventLogRecord || pEventLogRecord->Length == 0) {
 
             ElfDbgPrintNC(("[ELF] The %ws logfile is corrupt\n",
-                pLogFile->LogModuleName->Buffer));
+                           pLogFile->LogModuleName->Buffer));
             return(FALSE);
         }
     }
@@ -109,9 +109,9 @@ Note:
 
 
 NTSTATUS
-FlushLogFile (
+FlushLogFile(
     PLOGFILE    pLogFile
-    )
+)
 
 /*++
 
@@ -145,13 +145,13 @@ Note:
 
     if (pLogFile->Flags & ELF_LOGFILE_HEADER_DIRTY) {
 
-        pLogFileHeader = (PELF_LOGFILE_HEADER) pLogFile->BaseAddress;
+        pLogFileHeader = (PELF_LOGFILE_HEADER)pLogFile->BaseAddress;
 
         pLogFile->Flags &= ~ELF_LOGFILE_HEADER_DIRTY; // Remove dirty bit
         pLogFileHeader->Flags = pLogFile->Flags;
 
         pLogFileHeader->StartOffset = pLogFile->BeginRecord;
-        pLogFileHeader->EndOffset   = pLogFile->EndRecord;
+        pLogFileHeader->EndOffset = pLogFile->EndRecord;
         pLogFileHeader->CurrentRecordNumber = pLogFile->CurrentRecordNumber;
         pLogFileHeader->OldestRecordNumber = pLogFile->OldestRecordNumber;
     }
@@ -163,11 +163,11 @@ Note:
     RegionSize = pLogFile->ViewSize;
 
     Status = NtFlushVirtualMemory(
-                    NtCurrentProcess(),
-                    &BaseAddress,
-                    &RegionSize,
-                    &IoStatusBlock
-                    );
+        NtCurrentProcess(),
+        &BaseAddress,
+        &RegionSize,
+        &IoStatusBlock
+    );
 
     return (Status);
 
@@ -176,8 +176,8 @@ Note:
 
 
 NTSTATUS
-ElfpFlushFiles (
-    )
+ElfpFlushFiles(
+)
 
 /*++
 
@@ -208,13 +208,13 @@ Note:
     // Make sure that there's at least one file to flush
 
 
-    if (IsListEmpty (&LogFilesHead) ) {
+    if (IsListEmpty(&LogFilesHead)) {
         return(STATUS_SUCCESS);
     }
 
     pLogFile
         = (PLOGFILE)
-                CONTAINING_RECORD(LogFilesHead.Flink, LOGFILE, FileList);
+        CONTAINING_RECORD(LogFilesHead.Flink, LOGFILE, FileList);
 
 
     // Go through this loop at least once. This ensures that the termination
@@ -222,14 +222,14 @@ Note:
 
     do {
 
-        Status = FlushLogFile (pLogFile);
+        Status = FlushLogFile(pLogFile);
 
         pLogFile =                      // Get next one
             (PLOGFILE)
-                CONTAINING_RECORD(pLogFile->FileList.Flink, LOGFILE, FileList);
+            CONTAINING_RECORD(pLogFile->FileList.Flink, LOGFILE, FileList);
 
-    } while (   (pLogFile->FileList.Flink != LogFilesHead.Flink)
-             && (NT_SUCCESS(Status)) ) ;
+    } while ((pLogFile->FileList.Flink != LogFilesHead.Flink)
+             && (NT_SUCCESS(Status)));
 
     return (Status);
 }
@@ -238,10 +238,10 @@ Note:
 
 
 NTSTATUS
-ElfpCloseLogFile (
+ElfpCloseLogFile(
     PLOGFILE    pLogFile,
     DWORD       Flags
-    )
+)
 
 /*++
 
@@ -268,7 +268,7 @@ Note:
     ULONG Size;
 
     ElfDbgPrint(("[ELF] Closing and unmapping log file:  %ws\n",
-        pLogFile->LogFileName->Buffer));
+                 pLogFile->LogFileName->Buffer));
 
 #ifdef CORRUPTED
 
@@ -277,7 +277,7 @@ Note:
 
 
     if (!VerifyLogIntegrity(pLogFile)) {
-       ElfDbgPrintNC(("[ELF] Integrity check failed in ElfpCloseLogFile\n"));
+        ElfDbgPrintNC(("[ELF] Integrity check failed in ElfpCloseLogFile\n"));
     }
 
 #endif // CORRUPTED
@@ -290,14 +290,14 @@ Note:
 
     if (pLogFile->Flags & ELF_LOGFILE_HEADER_DIRTY &&
         !(Flags & ELF_LOG_CLOSE_BACKUP)) {
-        pLogFileHeader = (PELF_LOGFILE_HEADER) pLogFile->BaseAddress;
+        pLogFileHeader = (PELF_LOGFILE_HEADER)pLogFile->BaseAddress;
         pLogFileHeader->StartOffset = pLogFile->BeginRecord;
-        pLogFileHeader->EndOffset   = pLogFile->EndRecord;
+        pLogFileHeader->EndOffset = pLogFile->EndRecord;
         pLogFileHeader->CurrentRecordNumber = pLogFile->CurrentRecordNumber;
         pLogFileHeader->OldestRecordNumber = pLogFile->OldestRecordNumber;
         pLogFile->Flags &= ~(ELF_LOGFILE_HEADER_DIRTY |
-                                ELF_LOGFILE_ARCHIVE_SET);   // Remove dirty &
-                                                            // archive bits
+                             ELF_LOGFILE_ARCHIVE_SET);   // Remove dirty &
+                                                         // archive bits
         pLogFileHeader->Flags = pLogFile->Flags;
     }
 
@@ -315,16 +315,16 @@ Note:
 
 
         if (pLogFile->BaseAddress)     // Unmap it if it was allocated
-            NtUnmapViewOfSection (
+            NtUnmapViewOfSection(
                 NtCurrentProcess(),
                 pLogFile->BaseAddress
-                );
+            );
 
         if (pLogFile->SectionHandle)
-            NtClose ( pLogFile->SectionHandle );
+            NtClose(pLogFile->SectionHandle);
 
         if (pLogFile->FileHandle)
-            NtClose ( pLogFile->FileHandle );
+            NtClose(pLogFile->FileHandle);
     }
 
     return (Status);
@@ -333,10 +333,10 @@ Note:
 
 
 NTSTATUS
-RevalidateLogHeader (
+RevalidateLogHeader(
     PELF_LOGFILE_HEADER pLogFileHeader,
     PLOGFILE pLogFile
-    )
+)
 /*++
 
 Routine Description:
@@ -387,9 +387,9 @@ Note:
         // Physical start and end of log file (skipping header)
 
 
-        Start = (PVOID) ((PBYTE)pLogFile->BaseAddress + FILEHEADERBUFSIZE);
-        End = (PVOID) ((PBYTE)pLogFile->BaseAddress +
-            pLogFile->ActualMaxFileSize);
+        Start = (PVOID)((PBYTE)pLogFile->BaseAddress + FILEHEADERBUFSIZE);
+        End = (PVOID)((PBYTE)pLogFile->BaseAddress +
+                      pLogFile->ActualMaxFileSize);
 
 
         // First see if the log has wrapped.  The EOFRECORDSIZE is for the one
@@ -397,22 +397,21 @@ Note:
         // the next records starting length
 
 
-        pEvent = (PEVENTLOGRECORD) Start;
+        pEvent = (PEVENTLOGRECORD)Start;
 
         if (pEvent->Reserved != ELF_LOG_FILE_SIGNATURE
-             ||
-             pEvent->RecordNumber != 1
-             ||
-             pEvent->Length == ELFEOFRECORDSIZE) {
+            ||
+            pEvent->RecordNumber != 1
+            ||
+            pEvent->Length == ELFEOFRECORDSIZE) {
 
 
             // Log has already wrapped, go looking for the first valid record
 
 
-            for (pSignature = (PDWORD) Start;
-                    (PVOID) pSignature < End;
-                    pSignature++)
-            {
+            for (pSignature = (PDWORD)Start;
+                 (PVOID)pSignature < End;
+                 pSignature++) {
                 if (*pSignature == ELF_LOG_FILE_SIGNATURE) {
 
 
@@ -421,8 +420,7 @@ Note:
 
                     pEvent = CONTAINING_RECORD(pSignature, EVENTLOGRECORD, Reserved);
 
-                    if (!ValidFilePos(pEvent, Start, End, End, pLogFileHeader, TRUE))
-                    {
+                    if (!ValidFilePos(pEvent, Start, End, End, pLogFileHeader, TRUE)) {
 
                         // Nope, not really, keep trying
 
@@ -444,29 +442,27 @@ Note:
 
                     while (pEvent
                            &&
-                           ValidFilePos(pEvent, Start, End, End, pLogFileHeader, TRUE))
-                    {
+                           ValidFilePos(pEvent, Start, End, End, pLogFileHeader, TRUE)) {
 
                         // See if it's the EOF record
 
 
                         if (IS_EOF(pEvent,
-                                   min (ELFEOFUNIQUEPART,
-                                   (ULONG_PTR) ((PBYTE) End - (PBYTE) pEvent))))
-                        {
+                                   min(ELFEOFUNIQUEPART,
+                                       (ULONG_PTR)((PBYTE)End - (PBYTE)pEvent)))) {
                             break;
                         }
 
                         pLastGoodRecord = pEvent;
-                        pEvent = NextRecordPosition (
-                                     EVENTLOG_SEQUENTIAL_READ |
-                                         EVENTLOG_BACKWARDS_READ,
-                                     pEvent,
-                                     pEvent->Length,
-                                     0,
-                                     0,
-                                     End,
-                                     Start);
+                        pEvent = NextRecordPosition(
+                            EVENTLOG_SEQUENTIAL_READ |
+                            EVENTLOG_BACKWARDS_READ,
+                            pEvent,
+                            pEvent->Length,
+                            0,
+                            0,
+                            End,
+                            Start);
 
 
                         // Make sure we're not in an infinite loop
@@ -486,8 +482,7 @@ Note:
                 }
             }
 
-            if (pSignature == End || pLastGoodRecord == NULL)
-            {
+            if (pSignature == End || pLastGoodRecord == NULL) {
 
                 // Either there were no valid records in the file or
                 // the only valid record was the EOF record (which
@@ -497,8 +492,7 @@ Note:
 
                 return(STATUS_UNSUCCESSFUL);
             }
-        }
-        else {
+        } else {
 
 
             // We haven't wrapped yet
@@ -520,14 +514,14 @@ Note:
             // See if it's the EOF record
 
 
-            if (IS_EOF(pEvent, min (ELFEOFUNIQUEPART,
-                (ULONG_PTR) ((PBYTE) End - (PBYTE) pEvent)))) {
+            if (IS_EOF(pEvent, min(ELFEOFUNIQUEPART,
+                                   (ULONG_PTR)((PBYTE)End - (PBYTE)pEvent)))) {
 
                 break;
             }
 
             pLastGoodRecord = pEvent;
-            pEvent = NextRecordPosition (
+            pEvent = NextRecordPosition(
                 EVENTLOG_SEQUENTIAL_READ | EVENTLOG_FORWARDS_READ,
                 pEvent,
                 pEvent->Length,
@@ -553,14 +547,14 @@ Note:
         // First the EOF record
 
 
-        EOFRecord.BeginRecord = (ULONG) ((PBYTE) FirstRecord - (PBYTE) pLogFileHeader);
-        EOFRecord.EndRecord = (ULONG) ((PBYTE) pEvent - (PBYTE) pLogFileHeader);
+        EOFRecord.BeginRecord = (ULONG)((PBYTE)FirstRecord - (PBYTE)pLogFileHeader);
+        EOFRecord.EndRecord = (ULONG)((PBYTE)pEvent - (PBYTE)pLogFileHeader);
         EOFRecord.CurrentRecordNumber =
             pLastGoodRecord->RecordNumber + 1;
         EOFRecord.OldestRecordNumber = FirstRecord->RecordNumber;
 
-        ByteOffset = RtlConvertUlongToLargeInteger (
-            (ULONG) ((PBYTE) pEvent - (PBYTE) pLogFileHeader));
+        ByteOffset = RtlConvertUlongToLargeInteger(
+            (ULONG)((PBYTE)pEvent - (PBYTE)pLogFileHeader));
 
 
         // If the EOF record was wrapped, we can't write out the entire record at
@@ -568,23 +562,23 @@ Note:
         // rest out at the beginning of the log
 
 
-        Size = min((PBYTE) End - (PBYTE) pEvent, ELFEOFRECORDSIZE);
+        Size = min((PBYTE)End - (PBYTE)pEvent, ELFEOFRECORDSIZE);
 
         Status = NtWriteFile(
-                    pLogFile->FileHandle,   // Filehandle
-                    NULL,                   // Event
-                    NULL,                   // APC routine
-                    NULL,                   // APC context
-                    &IoStatusBlock,         // IO_STATUS_BLOCK
-                    &EOFRecord,             // Buffer
-                    (ULONG)Size,            // Length
-                    &ByteOffset,            // Byteoffset
-                    NULL);                  // Key
+            pLogFile->FileHandle,   // Filehandle
+            NULL,                   // Event
+            NULL,                   // APC routine
+            NULL,                   // APC context
+            &IoStatusBlock,         // IO_STATUS_BLOCK
+            &EOFRecord,             // Buffer
+            (ULONG)Size,            // Length
+            &ByteOffset,            // Byteoffset
+            NULL);                  // Key
 
         if (!NT_SUCCESS(Status)) {
 
             ElfDbgPrint(("[ELF]: Log file header write failed 0x%lx\n",
-                Status));
+                         Status));
             return (Status);
         }
 
@@ -604,20 +598,20 @@ Note:
             // offset of the first record from the end of the header
 
 
-            ASSERT(Size <= (ULONG)((PBYTE) FirstRecord
-                            - (PBYTE) pLogFileHeader
-                            - FILEHEADERBUFSIZE));
+            ASSERT(Size <= (ULONG)((PBYTE)FirstRecord
+                                   - (PBYTE)pLogFileHeader
+                                   - FILEHEADERBUFSIZE));
 
             Status = NtWriteFile(
-                        pLogFile->FileHandle,   // Filehandle
-                        NULL,                   // Event
-                        NULL,                   // APC routine
-                        NULL,                   // APC context
-                        &IoStatusBlock,         // IO_STATUS_BLOCK
-                        pBuff,                  // Buffer
-                        (ULONG)Size,            // Length
-                        &ByteOffset,            // Byteoffset
-                        NULL);                  // Key
+                pLogFile->FileHandle,   // Filehandle
+                NULL,                   // Event
+                NULL,                   // APC routine
+                NULL,                   // APC context
+                &IoStatusBlock,         // IO_STATUS_BLOCK
+                pBuff,                  // Buffer
+                (ULONG)Size,            // Length
+                &ByteOffset,            // Byteoffset
+                NULL);                  // Key
 
             if (!NT_SUCCESS(Status)) {
 
@@ -632,8 +626,8 @@ Note:
         // Now the header
 
 
-        pLogFileHeader->StartOffset = (ULONG) ((PBYTE) FirstRecord- (PBYTE) pLogFileHeader);
-        pLogFileHeader->EndOffset = (ULONG) ((PBYTE) pEvent- (PBYTE) pLogFileHeader);
+        pLogFileHeader->StartOffset = (ULONG)((PBYTE)FirstRecord - (PBYTE)pLogFileHeader);
+        pLogFileHeader->EndOffset = (ULONG)((PBYTE)pEvent - (PBYTE)pLogFileHeader);
         pLogFileHeader->CurrentRecordNumber =
             pLastGoodRecord->RecordNumber + 1;
         pLogFileHeader->OldestRecordNumber = FirstRecord->RecordNumber;
@@ -657,14 +651,14 @@ Note:
         Size = FILEHEADERBUFSIZE;
 
         Status = NtFlushVirtualMemory(
-                        NtCurrentProcess(),
-                        &Start,
-                        &Size,
-                        &IoStatusBlock
-                        );
+            NtCurrentProcess(),
+            &Start,
+            &Size,
+            &IoStatusBlock
+        );
 
     }
-    except (EXCEPTION_EXECUTE_HANDLER) {
+    except(EXCEPTION_EXECUTE_HANDLER) {
         return(STATUS_UNSUCCESSFUL);
     }
 
@@ -674,10 +668,10 @@ Note:
 
 
 NTSTATUS
-ElfOpenLogFile (
+ElfOpenLogFile(
     PLOGFILE    pLogFile,
     ELF_LOG_TYPE LogType
-    )
+)
 
 /*++
 
@@ -741,7 +735,7 @@ Note:
                                          0,                 // Flags
                                          0,                 // Retention
                                          FILEHEADERBUFSIZE  // Size
-                                         };
+    };
 
 
     // Set the file open and section create options based on the type of log
@@ -750,36 +744,36 @@ Note:
 
     switch (LogType) {
 
-        case ElfNormalLog:
-            CreateDisposition = FILE_OPEN_IF;
-            FileDesiredAccess = GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE;
-            SectionDesiredAccess = SECTION_MAP_READ | SECTION_MAP_WRITE |
-                    SECTION_QUERY | SECTION_EXTEND_SIZE;
-            SectionPageProtection = PAGE_READWRITE;
-            CreateOptions = FILE_SYNCHRONOUS_IO_NONALERT;
-            break;
+    case ElfNormalLog:
+        CreateDisposition = FILE_OPEN_IF;
+        FileDesiredAccess = GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE;
+        SectionDesiredAccess = SECTION_MAP_READ | SECTION_MAP_WRITE |
+            SECTION_QUERY | SECTION_EXTEND_SIZE;
+        SectionPageProtection = PAGE_READWRITE;
+        CreateOptions = FILE_SYNCHRONOUS_IO_NONALERT;
+        break;
 
-        case ElfSecurityLog:
-            CreateDisposition = FILE_OPEN_IF;
-            FileDesiredAccess = GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE;
-            SectionDesiredAccess = SECTION_MAP_READ | SECTION_MAP_WRITE |
-                    SECTION_QUERY | SECTION_EXTEND_SIZE;
-            SectionPageProtection = PAGE_READWRITE;
-            CreateOptions = FILE_WRITE_THROUGH | FILE_SYNCHRONOUS_IO_NONALERT;
-            break;
+    case ElfSecurityLog:
+        CreateDisposition = FILE_OPEN_IF;
+        FileDesiredAccess = GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE;
+        SectionDesiredAccess = SECTION_MAP_READ | SECTION_MAP_WRITE |
+            SECTION_QUERY | SECTION_EXTEND_SIZE;
+        SectionPageProtection = PAGE_READWRITE;
+        CreateOptions = FILE_WRITE_THROUGH | FILE_SYNCHRONOUS_IO_NONALERT;
+        break;
 
-        case ElfBackupLog:
-            CreateDisposition = FILE_OPEN;
-            FileDesiredAccess = GENERIC_READ | SYNCHRONIZE;
-            SectionDesiredAccess = SECTION_MAP_READ | SECTION_QUERY;
-            SectionPageProtection = PAGE_READONLY;
-            CreateOptions = FILE_SYNCHRONOUS_IO_NONALERT;
-            break;
+    case ElfBackupLog:
+        CreateDisposition = FILE_OPEN;
+        FileDesiredAccess = GENERIC_READ | SYNCHRONIZE;
+        SectionDesiredAccess = SECTION_MAP_READ | SECTION_QUERY;
+        SectionPageProtection = PAGE_READONLY;
+        CreateOptions = FILE_SYNCHRONOUS_IO_NONALERT;
+        break;
 
     }
 
-    ElfDbgPrint (("[ELF] Opening and mapping %ws\n",
-        pLogFile->LogFileName->Buffer));
+    ElfDbgPrint(("[ELF] Opening and mapping %ws\n",
+                 pLogFile->LogFileName->Buffer));
 
     if (pLogFile->FileHandle != NULL) {
 
@@ -807,12 +801,12 @@ Note:
 
 
         InitializeObjectAttributes(
-                        &ObjectAttributes,
-                        pLogFile->LogFileName,
-                        OBJ_CASE_INSENSITIVE,
-                        NULL,
-                        NULL
-                        );
+            &ObjectAttributes,
+            pLogFile->LogFileName,
+            OBJ_CASE_INSENSITIVE,
+            NULL,
+            NULL
+        );
 
 
         // Open the Log File. Create it if it does not exist and it's not
@@ -821,20 +815,20 @@ Note:
 
 
         MaximumSizeOfSection =
-                RtlConvertUlongToLargeInteger (ELF_DEFAULT_LOG_SIZE);
+            RtlConvertUlongToLargeInteger(ELF_DEFAULT_LOG_SIZE);
 
         Status = NtCreateFile(
-                    &pLogFile->FileHandle,
-                    FileDesiredAccess,
-                    &ObjectAttributes,
-                    &IoStatusBlock,
-                    &MaximumSizeOfSection,
-                    FILE_ATTRIBUTE_NORMAL,
-                    FILE_SHARE_READ,
-                    CreateDisposition,
-                    CreateOptions,
-                    NULL,
-                    0);
+            &pLogFile->FileHandle,
+            FileDesiredAccess,
+            &ObjectAttributes,
+            &IoStatusBlock,
+            &MaximumSizeOfSection,
+            FILE_ATTRIBUTE_NORMAL,
+            FILE_SHARE_READ,
+            CreateDisposition,
+            CreateOptions,
+            NULL,
+            0);
 
         if (!NT_SUCCESS(Status)) {
             ElfDbgPrint(("[ELF] Log File Open Failed 0x%lx\n", Status));
@@ -848,16 +842,16 @@ Note:
 
         IoStatusInformation = (ULONG)IoStatusBlock.Information;            // Save it away
 
-        if (!( IoStatusInformation & FILE_CREATED )) {
-            ElfDbgPrint (("[Elf] Log file exists.\n"));
+        if (!(IoStatusInformation & FILE_CREATED)) {
+            ElfDbgPrint(("[Elf] Log file exists.\n"));
 
-            Status = NtQueryInformationFile (
-                        pLogFile->FileHandle,
-                        &IoStatusBlock,
-                        &FileStandardInfo,
-                        sizeof (FileStandardInfo),
-                        FileStandardInformation
-                        );
+            Status = NtQueryInformationFile(
+                pLogFile->FileHandle,
+                &IoStatusBlock,
+                &FileStandardInfo,
+                sizeof(FileStandardInfo),
+                FileStandardInformation
+            );
 
             if (!NT_SUCCESS(Status)) {
                 ElfDbgPrint(("[ELF] QueryInformation failed 0x%lx\n", Status));
@@ -866,20 +860,20 @@ Note:
 
 
                 ElfDbgPrint(("[ELF] Use existing log file size: 0x%lx:%lx\n",
-                     FileStandardInfo.EndOfFile.HighPart,
-                     FileStandardInfo.EndOfFile.LowPart
-                    ));
+                             FileStandardInfo.EndOfFile.HighPart,
+                             FileStandardInfo.EndOfFile.LowPart
+                             ));
 
                 MaximumSizeOfSection.LowPart =
-                            FileStandardInfo.EndOfFile.LowPart;
+                    FileStandardInfo.EndOfFile.LowPart;
                 MaximumSizeOfSection.HighPart =
-                            FileStandardInfo.EndOfFile.HighPart;
+                    FileStandardInfo.EndOfFile.HighPart;
 
 
                 // Make sure that the high DWORD of the file size is ZERO.
 
 
-                ASSERT (MaximumSizeOfSection.HighPart == 0);
+                ASSERT(MaximumSizeOfSection.HighPart == 0);
 
 
                 // If the filesize if 0, set it to the minimum size
@@ -894,7 +888,7 @@ Note:
 
 
                 pLogFile->ActualMaxFileSize =
-                        MaximumSizeOfSection.LowPart;
+                    MaximumSizeOfSection.LowPart;
 
 
                 // If the size of the log file is reduced, a clear must
@@ -913,20 +907,20 @@ Note:
 
 
         Status = NtCreateSection(
-                    &pLogFile->SectionHandle,
-                    SectionDesiredAccess,
-                    NULL,
-                    &MaximumSizeOfSection,
-                    SectionPageProtection,
-                    SEC_COMMIT,
-                    pLogFile->FileHandle
-                    );
+            &pLogFile->SectionHandle,
+            SectionDesiredAccess,
+            NULL,
+            &MaximumSizeOfSection,
+            SectionPageProtection,
+            SEC_COMMIT,
+            pLogFile->FileHandle
+        );
 
 
         if (!NT_SUCCESS(Status)) {
 
             ElfDbgPrintNC(("[ELF] Log Mem Section Create Failed 0x%lx\n",
-                Status));
+                           Status));
             goto cleanup;
         }
 
@@ -947,34 +941,34 @@ Note:
         // If the file was just created, write out the file header.
 
 
-        if ( IoStatusInformation & FILE_CREATED ) {
+        if (IoStatusInformation & FILE_CREATED) {
             ElfDbgPrint(("[ELF] File was created\n"));
-JustCreated:
+        JustCreated:
             FileHeaderBuf.MaxSize = pLogFile->ActualMaxFileSize;
-            FileHeaderBuf.Flags   = 0;
-            FileHeaderBuf.Retention     = pLogFile->Retention;
+            FileHeaderBuf.Flags = 0;
+            FileHeaderBuf.Retention = pLogFile->Retention;
 
 
             // Copy the header into the file
 
 
-            ByteOffset = RtlConvertUlongToLargeInteger ( 0 );
+            ByteOffset = RtlConvertUlongToLargeInteger(0);
             Status = NtWriteFile(
-                        pLogFile->FileHandle,   // Filehandle
-                        NULL,                   // Event
-                        NULL,                   // APC routine
-                        NULL,                   // APC context
-                        &IoStatusBlock,         // IO_STATUS_BLOCK
-                        &FileHeaderBuf,         // Buffer
-                        FILEHEADERBUFSIZE,      // Length
-                        &ByteOffset,            // Byteoffset
-                        NULL);                  // Key
+                pLogFile->FileHandle,   // Filehandle
+                NULL,                   // Event
+                NULL,                   // APC routine
+                NULL,                   // APC context
+                &IoStatusBlock,         // IO_STATUS_BLOCK
+                &FileHeaderBuf,         // Buffer
+                FILEHEADERBUFSIZE,      // Length
+                &ByteOffset,            // Byteoffset
+                NULL);                  // Key
 
 
             if (!NT_SUCCESS(Status)) {
 
                 ElfDbgPrint(("[ELF]: Log file header write failed 0x%lx\n",
-                    Status));
+                             Status));
                 goto cleanup;
             }
 
@@ -982,22 +976,22 @@ JustCreated:
             // Copy the "EOF" record right after the header
 
 
-            ByteOffset = RtlConvertUlongToLargeInteger ( FILEHEADERBUFSIZE );
+            ByteOffset = RtlConvertUlongToLargeInteger(FILEHEADERBUFSIZE);
             Status = NtWriteFile(
-                        pLogFile->FileHandle,   // Filehandle
-                        NULL,                   // Event
-                        NULL,                   // APC routine
-                        NULL,                   // APC context
-                        &IoStatusBlock,         // IO_STATUS_BLOCK
-                        &EOFRecord,             // Buffer
-                        ELFEOFRECORDSIZE,       // Length
-                        &ByteOffset,            // Byteoffset
-                        NULL);                  // Key
+                pLogFile->FileHandle,   // Filehandle
+                NULL,                   // Event
+                NULL,                   // APC routine
+                NULL,                   // APC context
+                &IoStatusBlock,         // IO_STATUS_BLOCK
+                &EOFRecord,             // Buffer
+                ELFEOFRECORDSIZE,       // Length
+                &ByteOffset,            // Byteoffset
+                NULL);                  // Key
 
             if (!NT_SUCCESS(Status)) {
 
                 ElfDbgPrint(("[ELF]: Log file header write failed 0x%lx\n",
-                    Status));
+                             Status));
                 goto cleanup;
             }
         }
@@ -1010,36 +1004,34 @@ JustCreated:
 
         pLogFileHeader = (PELF_LOGFILE_HEADER)(pLogFile->BaseAddress);
 
-        if (  (pLogFileHeader->HeaderSize != FILEHEADERBUFSIZE)
-            ||(pLogFileHeader->EndHeaderSize != FILEHEADERBUFSIZE)
-            ||(pLogFileHeader->Signature  != ELF_LOG_FILE_SIGNATURE)
-            ||(pLogFileHeader->MajorVersion != ELF_VERSION_MAJOR)
-            ||(pLogFileHeader->MinorVersion != ELF_VERSION_MINOR)) {
+        if ((pLogFileHeader->HeaderSize != FILEHEADERBUFSIZE)
+            || (pLogFileHeader->EndHeaderSize != FILEHEADERBUFSIZE)
+            || (pLogFileHeader->Signature != ELF_LOG_FILE_SIGNATURE)
+            || (pLogFileHeader->MajorVersion != ELF_VERSION_MAJOR)
+            || (pLogFileHeader->MinorVersion != ELF_VERSION_MINOR)) {
 
 
-                // This file is corrupt, reset it to an empty log, unless
-                // it's being opened as a backup file, if it is, fail the
-                // open
+            // This file is corrupt, reset it to an empty log, unless
+            // it's being opened as a backup file, if it is, fail the
+            // open
 
 
-                ElfDbgPrint(("[ELF] Invalid file header found\n"));
+            ElfDbgPrint(("[ELF] Invalid file header found\n"));
 
-                if (LogType == ElfBackupLog) {
+            if (LogType == ElfBackupLog) {
 
-                   Status = STATUS_EVENTLOG_FILE_CORRUPT;
-                   goto cleanup;
-                }
-                else {
-                    ElfpCreateQueuedAlert(ALERT_ELF_LogFileCorrupt, 1,
-                        &pLogFile->LogModuleName->Buffer);
+                Status = STATUS_EVENTLOG_FILE_CORRUPT;
+                goto cleanup;
+            } else {
+                ElfpCreateQueuedAlert(ALERT_ELF_LogFileCorrupt, 1,
+                                      &pLogFile->LogModuleName->Buffer);
 
-                    // Treat it like it was just created
+                // Treat it like it was just created
 
 
-                    goto JustCreated;
-                }
-        }
-        else {
+                goto JustCreated;
+            }
+        } else {
 
 
             // If the "dirty" bit is set in the file header, then we need to
@@ -1053,11 +1045,10 @@ JustCreated:
 
                 if (LogType == ElfBackupLog) {
 
-                   Status = STATUS_EVENTLOG_FILE_CORRUPT;
-                   goto cleanup;
-                }
-                else {
-                   Status = RevalidateLogHeader (pLogFileHeader, pLogFile);
+                    Status = STATUS_EVENTLOG_FILE_CORRUPT;
+                    goto cleanup;
+                } else {
+                    Status = RevalidateLogHeader(pLogFileHeader, pLogFile);
                 }
             }
 
@@ -1075,9 +1066,8 @@ JustCreated:
                 }
 
                 ElfDbgPrint(("[ELF] BeginRecord: 0x%lx     EndRecord: 0x%lx \n",
-                  pLogFile->BeginRecord, pLogFile->EndRecord));
-            }
-            else {
+                             pLogFile->BeginRecord, pLogFile->EndRecord));
+            } else {
 
 
                 // Couldn't validate the file, treat it like it was just
@@ -1094,7 +1084,7 @@ JustCreated:
 
 
             if (!VerifyLogIntegrity(pLogFile)) {
-               ElfDbgPrintNC(("[ELF] Integrity check failed in ElfOpenLogFile\n"));
+                ElfDbgPrintNC(("[ELF] Integrity check failed in ElfOpenLogFile\n"));
             }
 #endif // CORRUPTED
 
@@ -1129,7 +1119,7 @@ cleanup:
     }
 
     if (pLogFile->FileHandle) {
-        NtClose (pLogFile->FileHandle);
+        NtClose(pLogFile->FileHandle);
     }
 
     return (Status);

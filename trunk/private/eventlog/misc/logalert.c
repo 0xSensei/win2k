@@ -28,10 +28,10 @@ NTSTATUS ElfLogCairoAlertInSystemLog(
     IN      ULONG               ulEventID,
     IN      USHORT              usNumStrings,
     IN      ULONG               ulDataSize,
-    IN      WCHAR              *pwszComputerName,
-    IN      WCHAR             **ppwszStrings,
+    IN      WCHAR* pwszComputerName,
+    IN      WCHAR** ppwszStrings,
     IN      PBYTE               pbData
-    )
+)
 /*++
 Routine Description:
   This routine logs the given Cairo Alert in the given log, through the ElfrReportEventW function.
@@ -39,19 +39,18 @@ Return Value:
     Returns an NTSTATUS code.
 --*/
 {
-    NTSTATUS            s                       = STATUS_SUCCESS;
+    NTSTATUS            s = STATUS_SUCCESS;
     ULONG               ulEventTime;
-    PRPC_SID            psidUser                = NULL;
+    PRPC_SID            psidUser = NULL;
     USHORT              usFlags;
-    PUNICODE_STRING     pusComputerName         = NULL;
-    PUNICODE_STRING    *ppusStrings             = NULL;
+    PUNICODE_STRING     pusComputerName = NULL;
+    PUNICODE_STRING* ppusStrings = NULL;
     ULONG               i;
     ULONG               ulNumofAllocatedStrings = 0;
-    LPBYTE              pbString                = NULL;
+    LPBYTE              pbString = NULL;
 
     //  parameter validation
-    if ((hLogHandle == NULL) || (pwszComputerName == NULL) || ((usNumStrings > 0) && (ppwszStrings == NULL)) || ((ulDataSize > 0) && (pbData == NULL)))
-    {
+    if ((hLogHandle == NULL) || (pwszComputerName == NULL) || ((usNumStrings > 0) && (ppwszStrings == NULL)) || ((ulDataSize > 0) && (pbData == NULL))) {
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -62,23 +61,20 @@ Return Value:
     RtlTimeToSecondsSince1970(&liEventTime, &ulEventTime);
 
     // Convert the array of Alert description insert strings to an array of UNICODE_STRINGs.
-    if (usNumStrings > 0)
-    {
+    if (usNumStrings > 0) {
         LPBYTE pbPtr;
         //  allocate memory in one shot.
         pbPtr = pbString = MIDL_user_allocate(sizeof(PUNICODE_STRING) * usNumStrings + sizeof(UNICODE_STRING) * usNumStrings);
-        if (pbString == NULL)
-        {
+        if (pbString == NULL) {
             s = STATUS_NO_MEMORY;
             goto LCleanUp;
         }
 
-        ppusStrings = (PUNICODE_STRING *)pbPtr;
+        ppusStrings = (PUNICODE_STRING*)pbPtr;
         pbPtr += sizeof(PUNICODE_STRING) * usNumStrings;
 
         // For each string passed in, allocate a UNICODE_STRING structure and set it to the matching string.
-        for (i = 0; i < usNumStrings; i++)
-        {
+        for (i = 0; i < usNumStrings; i++) {
             ppusStrings[i] = (PUNICODE_STRING)pbPtr;
             pbPtr += sizeof(UNICODE_STRING);
             RtlInitUnicodeString(ppusStrings[i], ppwszStrings[i]);
@@ -87,8 +83,7 @@ Return Value:
 
     //  Map the ComputerName to UNICODE_STRING.
     pusComputerName = MIDL_user_allocate(sizeof(UNICODE_STRING));
-    if (pusComputerName == NULL)
-    {
+    if (pusComputerName == NULL) {
         s = STATUS_NO_MEMORY;
         goto LCleanUp;
     }
@@ -97,9 +92,9 @@ Return Value:
 
     // Do the RPC call with an exception handler since RPC will raise an exception if anything fails.
     // It is up to us to figure out what to do once the exception is raised.
-    RpcTryExcept {
+    RpcTryExcept{
         // Call service
-        s = ElfrReportEventW (
+        s = ElfrReportEventW(
                 (IELF_HANDLE)hLogHandle,
                 ulEventTime,
                 usEventType,
@@ -109,26 +104,24 @@ Return Value:
                 ulDataSize,
                 (PRPC_UNICODE_STRING)pusComputerName,
                 psidUser,
-                (PRPC_UNICODE_STRING *)ppusStrings,
+                (PRPC_UNICODE_STRING*)ppusStrings,
                 pbData,
                 0,              // Flags,
                 NULL,           // RecordNumber,
                 NULL);          // TimeWritten
     }
-    RpcExcept (1) {
+        RpcExcept(1) {
         s = I_RpcMapWin32Status(RpcExceptionCode());
     }
     RpcEndExcept
 
-LCleanUp:
+        LCleanUp :
     // Free the space allocated for the inserts and then free the space for ComputerName.
-    if (pbString)
-    {
+    if (pbString) {
         MIDL_user_free(pbString);
     }
 
-    if (pusComputerName)
-    {
+    if (pusComputerName) {
         MIDL_user_free(pusComputerName);
     }
 

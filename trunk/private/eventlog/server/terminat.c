@@ -1,24 +1,15 @@
 /*++
-
 Copyright (c) 1990  Microsoft Corporation
 
 Module Name:
-
     TERMINAT.C
 
 Abstract:
-
     This file contains all the cleanup routines for the Eventlog service.
     These routines are called when the service is terminating.
 
 Author:
-
     Rajen Shah  (rajens)    09-Aug-1991
-
-
-Revision History:
-
-
 --*/
 
 
@@ -29,128 +20,79 @@ Revision History:
 #include <ntrpcp.h>
 
 
-
-
-VOID
-StopLPCThread ()
-
+VOID StopLPCThread()
 /*++
-
 Routine Description:
-
     This routine stops the LPC thread and cleans up LPC-related resources.
-
-Arguments:
-
-    NONE
-
-Return Value:
-
-    NONE
-
 --*/
-
 {
-    ElfDbgPrint(( "[ELF] Stop the LPC thread\n" ));
-
+    ElfDbgPrint(("[ELF] Stop the LPC thread\n"));
 
     // Close communication port handle
-
-
-    NtClose ( ElfCommunicationPortHandle );
-
+    NtClose(ElfCommunicationPortHandle);
 
     // Close connection port handle
-
-
-    NtClose ( ElfConnectionPortHandle );
-
+    NtClose(ElfConnectionPortHandle);
 
     // Terminate the LPC thread.
-
-
-    if (!TerminateThread(LPCThreadHandle,NO_ERROR)) {
-        ElfDbgPrint(("[ELF] LPC Thread termination failed %d\n",GetLastError()));
+    if (!TerminateThread(LPCThreadHandle, NO_ERROR)) {
+        ElfDbgPrint(("[ELF] LPC Thread termination failed %d\n", GetLastError()));
     }
-    CloseHandle ( LPCThreadHandle );
+    CloseHandle(LPCThreadHandle);
 
     return;
 }
 
 
-
-
-VOID
-FreeModuleAndLogFileStructs ( )
-
+VOID FreeModuleAndLogFileStructs()
 /*++
-
 Routine Description:
-
-    This routine walks the module and log file list and frees all the
-    data structures.
+    This routine walks the module and log file list and frees all the data structures.
 
 Arguments:
-
     NONE
 
 Return Value:
-
     NONE
 
 Note:
-
     The file header and ditry bits must have been dealt with before
     this routine is called. Also, the file must have been unmapped and
     the handle closed.
-
 --*/
 {
-
     NTSTATUS Status;
     PLOGMODULE pModule;
     PLOGFILE pLogFile;
 
-    ElfDbgPrint (("[ELF] Freeing module and log file structs\n"));
+    ElfDbgPrint(("[ELF] Freeing module and log file structs\n"));
 
 
     // First free all the modules
 
 
-    while (!IsListEmpty (&LogModuleHead) ) {
-
-        pModule = (PLOGMODULE)
-            CONTAINING_RECORD(LogModuleHead.Flink, LOGMODULE, ModuleList);
+    while (!IsListEmpty(&LogModuleHead)) {
+        pModule = (PLOGMODULE)CONTAINING_RECORD(LogModuleHead.Flink, LOGMODULE, ModuleList);
 
         UnlinkLogModule(pModule);   // Remove from linked list
-
-        ElfpFreeBuffer (pModule);    // Free module memory
-
+        ElfpFreeBuffer(pModule);    // Free module memory
     }
 
-
     // Now free all the logfiles
+    while (!IsListEmpty(&LogFilesHead)) {
+        pLogFile = (PLOGFILE)CONTAINING_RECORD(LogFilesHead.Flink, LOGFILE, FileList);
 
-
-    while (!IsListEmpty (&LogFilesHead) ) {
-
-        pLogFile = (PLOGFILE)
-            CONTAINING_RECORD(LogFilesHead.Flink, LOGFILE, FileList);
-
-        Status = ElfpCloseLogFile ( pLogFile, ELF_LOG_CLOSE_NORMAL);
+        Status = ElfpCloseLogFile(pLogFile, ELF_LOG_CLOSE_NORMAL);
 
         UnlinkLogFile(pLogFile); // Unlink the structure
-        RtlDeleteResource ( &pLogFile->Resource );
-        ElfpFreeBuffer (pLogFile->LogFileName);
-        ElfpFreeBuffer (pLogFile);
+        RtlDeleteResource(&pLogFile->Resource);
+        ElfpFreeBuffer(pLogFile->LogFileName);
+        ElfpFreeBuffer(pLogFile);
     }
 }
 
 
-VOID
-ElfpCleanUp (
-    ULONG EventFlags
-    )
+VOID ElfpCleanUp(ULONG EventFlags)
 
 /*++
 
@@ -177,7 +119,7 @@ Note:
     DWORD   status = NO_ERROR;
 
 
-    ElfDbgPrint (("[ELF] ElfpCleanUp.\n"));
+    ElfDbgPrint(("[ELF] ElfpCleanUp.\n"));
 
 
     // Notify the Service Controller for the first time that we are
@@ -191,11 +133,11 @@ Note:
     // Stop the RPC Server
 
     if (EventFlags & ELF_STARTED_RPC_SERVER) {
-        ElfDbgPrint (("[ELF] Stopping the RPC Server.\n"));
+        ElfDbgPrint(("[ELF] Stopping the RPC Server.\n"));
 
         status = ElfGlobalData->StopRpcServer(eventlog_ServerIfHandle);
         if (status != NO_ERROR) {
-            ElfDbgPrint (("[ELF] Stopping RpcServer Failed %d\n",status));
+            ElfDbgPrint(("[ELF] Stopping RpcServer Failed %d\n", status));
         }
     }
 
@@ -214,7 +156,7 @@ Note:
 
     // Flush all the log files to disk.
 
-    ElfDbgPrint (("[ELF] Flushing Files.\n"));
+    ElfDbgPrint(("[ELF] Flushing Files.\n"));
     ElfpFlushFiles();
 
 
@@ -239,7 +181,7 @@ Note:
     // If we queued up any events, flush them
 
 
-    ElfDbgPrint (("[ELF] Flushing QueuedEvents.\n"));
+    ElfDbgPrint(("[ELF] Flushing QueuedEvents.\n"));
     FlushQueuedEvents();
 
 
@@ -247,12 +189,10 @@ Note:
 
     ElfStatusUpdate(STOPPING);
 
-    if (EventFlags & ELF_INIT_GLOBAL_RESOURCE)
-    {
-        RtlDeleteResource ( &GlobalElfResource );
+    if (EventFlags & ELF_INIT_GLOBAL_RESOURCE) {
+        RtlDeleteResource(&GlobalElfResource);
     }
-    if (EventFlags & ELF_INIT_CLUS_CRIT_SEC)
-    {
+    if (EventFlags & ELF_INIT_CLUS_CRIT_SEC) {
         RtlDeleteCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
     }
 

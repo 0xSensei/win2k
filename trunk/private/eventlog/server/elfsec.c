@@ -45,12 +45,12 @@ NTSTATUS
 ElfpGetPrivilege(
     IN  DWORD       numPrivileges,
     IN  PULONG      pulPrivileges
-    );
+);
 
 NTSTATUS
 ElfpReleasePrivilege(
     VOID
-    );
+);
 
 
 //                                                                   //
@@ -61,19 +61,19 @@ ElfpReleasePrivilege(
 
 static GENERIC_MAPPING LogFileObjectMapping = {
 
-    STANDARD_RIGHTS_READ           |       // Generic read
+    STANDARD_RIGHTS_READ |       // Generic read
         ELF_LOGFILE_READ,
 
-    STANDARD_RIGHTS_WRITE          |       // Generic write
+    STANDARD_RIGHTS_WRITE |       // Generic write
         ELF_LOGFILE_WRITE,
 
-    STANDARD_RIGHTS_EXECUTE        |       // Generic execute
-        ELF_LOGFILE_START          |
-        ELF_LOGFILE_STOP           |
+    STANDARD_RIGHTS_EXECUTE |       // Generic execute
+        ELF_LOGFILE_START |
+        ELF_LOGFILE_STOP |
         ELF_LOGFILE_CONFIGURE,
 
     ELF_LOGFILE_ALL_ACCESS                 // Generic all
-    };
+};
 
 
 
@@ -87,7 +87,7 @@ ElfpCreateLogFileObject(
     PLOGFILE LogFile,
     DWORD Type,
     ULONG GuestAccessRestriction
-    )
+)
 /*++
 
 Routine Description:
@@ -140,7 +140,7 @@ Return Value:
 
         {ACCESS_ALLOWED_ACE_TYPE, 0, 0,
                ELF_LOGFILE_WRITE,                    &(ElfGlobalData->WorldSid)}
-        };
+    };
 
     PRTL_ACE_DATA pAceData = NULL;
 
@@ -159,44 +159,42 @@ Return Value:
 
     switch (Type) {
 
-        case ELF_LOGFILE_SECURITY:
-            pAceData = AceData + 2;         // Deny ACEs *not* applicable
-            NumberOfAcesToUse = 3;
-            break;
+    case ELF_LOGFILE_SECURITY:
+        pAceData = AceData + 2;         // Deny ACEs *not* applicable
+        NumberOfAcesToUse = 3;
+        break;
 
-        case ELF_LOGFILE_SYSTEM:
-            if (GuestAccessRestriction == ELF_GUEST_ACCESS_RESTRICTED) {
-                pAceData = AceData;         // Deny ACEs *applicable*
-                NumberOfAcesToUse = 8;
-            }
-            else {
-                pAceData = AceData + 2;     // Deny ACEs *not* applicable
-                NumberOfAcesToUse = 6;
-            }
-            break;
+    case ELF_LOGFILE_SYSTEM:
+        if (GuestAccessRestriction == ELF_GUEST_ACCESS_RESTRICTED) {
+            pAceData = AceData;         // Deny ACEs *applicable*
+            NumberOfAcesToUse = 8;
+        } else {
+            pAceData = AceData + 2;     // Deny ACEs *not* applicable
+            NumberOfAcesToUse = 6;
+        }
+        break;
 
-        case ELF_LOGFILE_APPLICATION:
-            if (GuestAccessRestriction == ELF_GUEST_ACCESS_RESTRICTED) {
-                pAceData = AceData;         // Deny ACEs *applicable*
-                NumberOfAcesToUse = 10;
-            }
-            else {
-                pAceData = AceData + 2;     // Deny ACEs *not* applicable
-                NumberOfAcesToUse = 8;
-            }
-            break;
+    case ELF_LOGFILE_APPLICATION:
+        if (GuestAccessRestriction == ELF_GUEST_ACCESS_RESTRICTED) {
+            pAceData = AceData;         // Deny ACEs *applicable*
+            NumberOfAcesToUse = 10;
+        } else {
+            pAceData = AceData + 2;     // Deny ACEs *not* applicable
+            NumberOfAcesToUse = 8;
+        }
+        break;
 
     }
     Status = RtlCreateUserSecurityObject(
-                   pAceData,
-                   NumberOfAcesToUse,
-                   NULL,                        // Owner
-                   NULL,                        // Group
-                   TRUE,                        // IsDirectoryObject
-                   &LogFileObjectMapping,
-                   &LogFile->Sd);
+        pAceData,
+        NumberOfAcesToUse,
+        NULL,                        // Owner
+        NULL,                        // Group
+        TRUE,                        // IsDirectoryObject
+        &LogFileObjectMapping,
+        &LogFile->Sd);
 
-    if (! NT_SUCCESS(Status)) {
+    if (!NT_SUCCESS(Status)) {
         ElfDbgPrintNC((
             "[ELF] ElfpCreateLogFileObject: ElfCreateUserSecurityObject "
             "failed - %X\n", Status));
@@ -209,7 +207,7 @@ Return Value:
 VOID
 ElfpDeleteLogFileObject(
     PLOGFILE LogFile
-    )
+)
 /*++
 
 Routine Description:
@@ -227,7 +225,7 @@ Return Value:
 
 --*/
 {
-    (void) RtlDeleteSecurityObject(&LogFile->Sd);
+    (void)RtlDeleteSecurityObject(&LogFile->Sd);
 }
 
 
@@ -241,7 +239,7 @@ ElfpAccessCheckAndAudit(
     IN     ACCESS_MASK DesiredAccess,
     IN     PGENERIC_MAPPING GenericMapping,
     IN     BOOL ForSecurityLog
-    )
+)
 /*++
 
 Routine Description:
@@ -307,7 +305,7 @@ Return Value:
     if ((RpcStatus = RpcImpersonateClient(NULL)) != RPC_S_OK) {
 
         ElfDbgPrint(("[ELF] ElfpAccessCheckAndAudit: Failed to impersonate "
-            "client %08lx\n", RpcStatus));
+                     "client %08lx\n", RpcStatus));
 
         return RpcStatus;
     }
@@ -315,15 +313,15 @@ Return Value:
 
     // Get a token handle for the client
 
-    Status = NtOpenThreadToken (NtCurrentThread(),
-                                TOKEN_QUERY,        // DesiredAccess
-                                TRUE,               // OpenAsSelf
-                                &ClientToken);
+    Status = NtOpenThreadToken(NtCurrentThread(),
+                               TOKEN_QUERY,        // DesiredAccess
+                               TRUE,               // OpenAsSelf
+                               &ClientToken);
 
     if (!NT_SUCCESS(Status)) {
 
         ElfDbgPrint(("[ELF] ElfpAccessCheckAndAudit: NtOpenThreadToken Failed: "
-                         "0x%lx\n",Status));
+                     "0x%lx\n", Status));
         goto CleanExit;
     }
 
@@ -352,10 +350,10 @@ Return Value:
                            &GrantedAccess,
                            &AccessStatus);
 
-    if (! NT_SUCCESS(Status)) {
+    if (!NT_SUCCESS(Status)) {
 
         ElfDbgPrint(("[ELF] ElfpAccessCheckAndAudit: Error calling "
-                         "NtAccessCheck %08lx\n",
+                     "NtAccessCheck %08lx\n",
                      Status));
 
         goto CleanExit;
@@ -403,11 +401,10 @@ Return Value:
 
                     GrantedAccess |= (ELF_LOGFILE_READ |
                                       ELF_LOGFILE_CLEAR);
-                }
-                else {
+                } else {
 
                     ElfDbgPrint(("[ELF] ElfpAccessCheckAndAudit: "
-                                     "ElfpTestClientPrivilege failed %x\n",
+                                 "ElfpTestClientPrivilege failed %x\n",
                                  Status));
                 }
             }
@@ -425,13 +422,11 @@ Return Value:
                 if (NT_SUCCESS(Status)) {
 
                     GrantedAccess |= ELF_LOGFILE_BACKUP;
-                }
-                else {
+                } else {
                     goto CleanExit;
                 }
             }
-        }
-        else {
+        } else {
             Status = AccessStatus;
         }
     }
@@ -443,7 +438,7 @@ Return Value:
     if ((RpcStatus = RpcRevertToSelf()) != RPC_S_OK) {
 
         ElfDbgPrint(("[ELF] ElfpAccessCheckAndAudit: Fail to revert to "
-            "self %08lx\n", RpcStatus));
+                     "self %08lx\n", RpcStatus));
 
         // We don't return the error status here because we don't want
         // to write over the other status that is being returned.
@@ -458,12 +453,12 @@ Return Value:
 
 
     privileges[0] = SE_AUDIT_PRIVILEGE;
-    AccessStatus  = ElfpGetPrivilege(1, privileges);
+    AccessStatus = ElfpGetPrivilege(1, privileges);
 
     if (!NT_SUCCESS(AccessStatus)) {
 
         ElfDbgPrint(("[ELF] ElfpAccessCheckAndAudit: ElfpGetPrivilege "
-                         "(Enable) failed.  Status is 0x%x\n",
+                     "(Enable) failed.  Status is 0x%x\n",
                      AccessStatus));
     }
 
@@ -471,26 +466,25 @@ Return Value:
     // Call the Audit Alarm function.
 
 
-    AccessStatus = NtOpenObjectAuditAlarm (
-                        &Subsystem,
-                        (PVOID)ContextHandle,
-                        &ObjectType,
-                        &Object,
-                        SecurityDescriptor,
-                        ClientToken,            // Handle ClientToken
-                        DesiredAccess,
-                        GrantedAccess,
-                        &PrivilegeSet,          // PPRIVLEGE_SET
-                        FALSE,                  // BOOLEAN ObjectCreation,
-                        TRUE,                   // BOOLEAN AccessGranted,
-                        &GenerateOnClose);
+    AccessStatus = NtOpenObjectAuditAlarm(
+        &Subsystem,
+        (PVOID)ContextHandle,
+        &ObjectType,
+        &Object,
+        SecurityDescriptor,
+        ClientToken,            // Handle ClientToken
+        DesiredAccess,
+        GrantedAccess,
+        &PrivilegeSet,          // PPRIVLEGE_SET
+        FALSE,                  // BOOLEAN ObjectCreation,
+        TRUE,                   // BOOLEAN AccessGranted,
+        &GenerateOnClose);
 
     if (!NT_SUCCESS(AccessStatus)) {
         ElfDbgPrint(("[ELF] ElfpAccessCheckAndAudit: NtOpenObjectAuditAlarm "
-                         "failed. status is 0x%lx\n",
+                     "failed. status is 0x%lx\n",
                      AccessStatus));
-    }
-    else {
+    } else {
 
         if (GenerateOnClose) {
             ContextHandle->Flags |= ELF_LOG_HANDLE_GENERATE_ON_CLOSE;
@@ -516,7 +510,7 @@ CleanExit:
     if ((RpcStatus = RpcRevertToSelf()) != RPC_S_OK) {
 
         ElfDbgPrint(("[ELF] ElfpAccessCheckAndAudit: Fail to revert to "
-                         "self %08lx\n",
+                     "self %08lx\n",
                      RpcStatus));
 
         // We don't return the error status here because we don't want
@@ -536,7 +530,7 @@ VOID
 ElfpCloseAudit(
     IN  LPWSTR      SubsystemName,
     IN  IELF_HANDLE ContextHandle
-    )
+)
 
 /*++
 
@@ -575,7 +569,7 @@ Return Value:
 
         if (!NT_SUCCESS(AccessStatus)) {
             ElfDbgPrint(("[ELF] ElfpCloseAudit: ElfpGetPrivilege "
-                             "(Enable) failed.  Status is 0x%lx\n",
+                         "(Enable) failed.  Status is 0x%lx\n",
                          AccessStatus));
         }
 
@@ -583,13 +577,13 @@ Return Value:
         // Generate the Audit.
 
         Status = NtCloseObjectAuditAlarm(
-                    &Subsystem,
-                    ContextHandle,
-                    TRUE);
+            &Subsystem,
+            ContextHandle,
+            TRUE);
 
         if (!NT_SUCCESS(Status)) {
             ElfDbgPrint(("[ELF] ElfpCloseAudit: NtCloseObjectAuditAlarm Failed: "
-            "0x%lx\n",Status));
+                         "0x%lx\n", Status));
         }
 
         ContextHandle->Flags &= (~ELF_LOG_HANDLE_GENERATE_ON_CLOSE);
@@ -601,14 +595,14 @@ Return Value:
         // Release Audit Privilege
 
         Status = RtlAdjustPrivilege(
-                    SE_AUDIT_PRIVILEGE,
-                    FALSE,              // Disable
-                    FALSE,              // Use Process's token
-                    &WasEnabled);
+            SE_AUDIT_PRIVILEGE,
+            FALSE,              // Disable
+            FALSE,              // Use Process's token
+            &WasEnabled);
 
         if (!NT_SUCCESS(Status)) {
             ElfDbgPrint(("[ELF] ElfpCloseAudit: RtlAdjustPrivilege "
-                "(Disable) failed.  Status is 0x%lx\n",Status));
+                         "(Disable) failed.  Status is 0x%lx\n", Status));
         }
 #endif
 
@@ -621,7 +615,7 @@ NTSTATUS
 ElfpGetPrivilege(
     IN  DWORD       numPrivileges,
     IN  PULONG      pulPrivileges
-    )
+)
 /*++
 
 Routine Description:
@@ -663,22 +657,22 @@ Return Value:
 
     // Initialize the Privileges Structure
 
-    pTokenPrivilege = (PTOKEN_PRIVILEGES) LocalAlloc(
-                                              LMEM_FIXED,
-                                              sizeof(TOKEN_PRIVILEGES) +
-                                                  (sizeof(LUID_AND_ATTRIBUTES) *
-                                                   numPrivileges)
-                                              );
+    pTokenPrivilege = (PTOKEN_PRIVILEGES)LocalAlloc(
+        LMEM_FIXED,
+        sizeof(TOKEN_PRIVILEGES) +
+        (sizeof(LUID_AND_ATTRIBUTES) *
+         numPrivileges)
+    );
 
     if (pTokenPrivilege == NULL) {
         ElfDbgPrint(("[ELF] ElfpGetPrivilege:LocalAlloc Failed %d\n, GetLastError()"));
         return STATUS_NO_MEMORY;
     }
 
-    pTokenPrivilege->PrivilegeCount  = numPrivileges;
-    for (i=0; i<numPrivileges ;i++ ) {
+    pTokenPrivilege->PrivilegeCount = numPrivileges;
+    for (i = 0; i < numPrivileges; i++) {
         pTokenPrivilege->Privileges[i].Luid = RtlConvertLongToLuid(
-                                                pulPrivileges[i]);
+            pulPrivileges[i]);
         pTokenPrivilege->Privileges[i].Attributes = SE_PRIVILEGE_ENABLED;
 
     }
@@ -686,7 +680,7 @@ Return Value:
 
     // Initialize Object Attribute Structure.
 
-    InitializeObjectAttributes(&Obja,NULL,0L,NULL,NULL);
+    InitializeObjectAttributes(&Obja, NULL, 0L, NULL, NULL);
 
 
     // Initialize Security Quality Of Service Structure
@@ -702,22 +696,22 @@ Return Value:
     ntStatus = NtOpenProcessToken(NtCurrentProcess(), TOKEN_DUPLICATE, &ourToken);
     if (!NT_SUCCESS(ntStatus)) {
         ElfDbgPrint(("[ELF] ElfpGetPrivilege: NtOpenThreadToken Failed "
-            "0x%lx" "\n", ntStatus));
+                     "0x%lx" "\n", ntStatus));
         LocalFree(pTokenPrivilege);
         return ntStatus;
     }
 
     // Duplicate that Token
     ntStatus = NtDuplicateToken(
-                ourToken,
-                TOKEN_IMPERSONATE | TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
-                &Obja,
-                FALSE,                  // Duplicate the entire token
-                TokenImpersonation,     // TokenType
-                &newToken);             // Duplicate token
+        ourToken,
+        TOKEN_IMPERSONATE | TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+        &Obja,
+        FALSE,                  // Duplicate the entire token
+        TokenImpersonation,     // TokenType
+        &newToken);             // Duplicate token
     if (!NT_SUCCESS(ntStatus)) {
         ElfDbgPrint(("[ELF] ElfpGetPrivilege: NtDuplicateToken Failed "
-            "0x%lx" "\n", ntStatus));
+                     "0x%lx" "\n", ntStatus));
         LocalFree(pTokenPrivilege);
         NtClose(ourToken);
         return ntStatus;
@@ -725,15 +719,15 @@ Return Value:
 
     // Add new privileges
     ntStatus = NtAdjustPrivilegesToken(
-                newToken,                   // TokenHandle
-                FALSE,                      // DisableAllPrivileges
-                pTokenPrivilege,            // NewState
-                0,                          // size of previous state buffer
-                NULL,                       // no previous state info
-                &returnLen);                // numBytes required for buffer.
+        newToken,                   // TokenHandle
+        FALSE,                      // DisableAllPrivileges
+        pTokenPrivilege,            // NewState
+        0,                          // size of previous state buffer
+        NULL,                       // no previous state info
+        &returnLen);                // numBytes required for buffer.
     if (!NT_SUCCESS(ntStatus)) {
         ElfDbgPrint(("[ELF] ElfpGetPrivilege: NtAdjustPrivilegesToken Failed "
-            "0x%lx" "\n", ntStatus));
+                     "0x%lx" "\n", ntStatus));
         LocalFree(pTokenPrivilege);
         NtClose(ourToken);
         NtClose(newToken);
@@ -742,13 +736,13 @@ Return Value:
 
     // Begin impersonating with the new token
     ntStatus = NtSetInformationThread(
-                NtCurrentThread(),
-                ThreadImpersonationToken,
-                (PVOID)&newToken,
-                (ULONG)sizeof(HANDLE));
+        NtCurrentThread(),
+        ThreadImpersonationToken,
+        (PVOID)&newToken,
+        (ULONG)sizeof(HANDLE));
     if (!NT_SUCCESS(ntStatus)) {
         ElfDbgPrint(("[ELF] ElfpGetPrivilege: NtAdjustPrivilegesToken Failed "
-            "0x%lx" "\n", ntStatus));
+                     "0x%lx" "\n", ntStatus));
         LocalFree(pTokenPrivilege);
         NtClose(ourToken);
         NtClose(newToken);
@@ -780,7 +774,7 @@ Return Value:
     // Revert To Self.
     NewToken = NULL;
     ntStatus = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, &NewToken, (ULONG)sizeof(HANDLE));
-    if ( !NT_SUCCESS(ntStatus) ) {
+    if (!NT_SUCCESS(ntStatus)) {
         return ntStatus;
     }
 
@@ -810,12 +804,11 @@ Return Value:
 
     if (hThreadToken != NULL) {
         Token = hThreadToken;
-    }
-    else {
+    } else {
         RpcStatus = RpcImpersonateClient(NULL);
         if (RpcStatus != RPC_S_OK) {
             ElfDbgPrint(("[ELF] ElfpTestClientPrivilege: "
-                             "RpcImpersonateClient FAILED 0x%lx\n",
+                         "RpcImpersonateClient FAILED 0x%lx\n",
                          RpcStatus));
             return RpcStatus;
         }
@@ -824,7 +817,7 @@ Return Value:
         if (!NT_SUCCESS(Status)) {
             // Forget it.
             ElfDbgPrint(("[ELF] ElfpTestClientPrivilege: "
-                             "NtOpenThreadToken FAILED 0x%lx\n",
+                         "NtOpenThreadToken FAILED 0x%lx\n",
                          Status));
             RpcRevertToSelf();
             return Status;
@@ -833,16 +826,16 @@ Return Value:
 
 
     // See if the client has the required privilege
-    PrivilegeSet.PrivilegeCount          = 1;
-    PrivilegeSet.Control                 = PRIVILEGE_SET_ALL_NECESSARY;
-    PrivilegeSet.Privilege[0].Luid       = RtlConvertLongToLuid(ulPrivilege);
+    PrivilegeSet.PrivilegeCount = 1;
+    PrivilegeSet.Control = PRIVILEGE_SET_ALL_NECESSARY;
+    PrivilegeSet.Privilege[0].Luid = RtlConvertLongToLuid(ulPrivilege);
     PrivilegeSet.Privilege[0].Attributes = SE_PRIVILEGE_ENABLED;
     Status = NtPrivilegeCheck(Token, &PrivilegeSet, &Privileged);
     if (NT_SUCCESS(Status) || (Status == STATUS_PRIVILEGE_NOT_HELD)) {
         Status = NtPrivilegeObjectAuditAlarm(&SubSystemName, NULL, Token, 0, &PrivilegeSet, Privileged);
     }
 
-    if (hThreadToken == NULL ) {
+    if (hThreadToken == NULL) {
         // We impersonated inside of this function
         NtClose(Token);
         RpcRevertToSelf();

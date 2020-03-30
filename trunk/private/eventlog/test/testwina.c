@@ -34,31 +34,31 @@ BOOL     bHackTestBackup = FALSE;
 PCHAR pServerName = NULL;
 
 
-VOID Initialize (VOID)
+VOID Initialize(VOID)
 {
     DWORD   i;
 
     // Initialize the values in the data buffer.
-    for (i=0; i< SIZE_DATA_ARRAY; i++)
+    for (i = 0; i < SIZE_DATA_ARRAY; i++)
         Data[i] = i;
 }
 
 
-BOOL Usage (VOID)
+BOOL Usage(VOID)
 {
-    printf( "usage: \n" );
-    printf( "-c             Tests ClearEventLog API\n");
-    printf( "-b filename    Tests BackupEventLog API\n");
-    printf( "-rsb           Reads event log sequentially backwards\n");
-    printf( "-rsf           Reads event log sequentially forwards\n");
-    printf( "-rrb <record>  Reads event log from <record> backwards\n");
-    printf( "-rrf <record>  Reads event log from <record> forwards\n");
-    printf( "-w <count>     Tests ReportEvent API <count> times\n");
+    printf("usage: \n");
+    printf("-c             Tests ClearEventLog API\n");
+    printf("-b filename    Tests BackupEventLog API\n");
+    printf("-rsb           Reads event log sequentially backwards\n");
+    printf("-rsf           Reads event log sequentially forwards\n");
+    printf("-rrb <record>  Reads event log from <record> backwards\n");
+    printf("-rrf <record>  Reads event log from <record> forwards\n");
+    printf("-w <count>     Tests ReportEvent API <count> times\n");
     return ERROR_INVALID_PARAMETER;
 } // Usage
 
 
-BOOL WriteLogEntry ( HANDLE LogHandle, DWORD EventID )
+BOOL WriteLogEntry(HANDLE LogHandle, DWORD EventID)
 {
 #define NUM_STRINGS     2
 #define MAX_STRING_SIZE 32767   // Max size is FFFF/2 for ANSI strings
@@ -81,34 +81,34 @@ BOOL WriteLogEntry ( HANDLE LogHandle, DWORD EventID )
         BigString[i] = 'A';
     }
 
-    BigString[MAX_STRING_SIZE-1] = '\0';
+    BigString[MAX_STRING_SIZE - 1] = '\0';
     Strings[1] = BigString;
 
     EventType = EVENTLOG_INFORMATION_TYPE;
-    pUserSid   = NULL;
-    DataSize  = sizeof(DWORD) * SIZE_DATA_ARRAY;
+    pUserSid = NULL;
+    DataSize = sizeof(DWORD) * SIZE_DATA_ARRAY;
 
-    for (i=0; i< SIZE_DATA_ARRAY; i++)
+    for (i = 0; i < SIZE_DATA_ARRAY; i++)
         Data[i] += i;
 
-    Status = ReportEventA (
-                    LogHandle,
-                    EventType,
-                    0,           // event category
-                    EventID,
-                    pUserSid,
-                    (WORD) NUM_STRINGS,
-                    DataSize,
-                    Strings,
-                    (PVOID)Data
-                    );
+    Status = ReportEventA(
+        LogHandle,
+        EventType,
+        0,           // event category
+        EventID,
+        pUserSid,
+        (WORD)NUM_STRINGS,
+        DataSize,
+        Strings,
+        (PVOID)Data
+    );
 
     free(BigString);
     return (Status);
 }
 
 
-BOOL WriteLogEntryMsg ( HANDLE LogHandle, DWORD EventID )
+BOOL WriteLogEntryMsg(HANDLE LogHandle, DWORD EventID)
 /*
     This function requires a registry entry in the Applications section of the Eventlog for TESTWINAAPP, it will use the netevent.dll message file.
 */
@@ -127,27 +127,27 @@ BOOL WriteLogEntryMsg ( HANDLE LogHandle, DWORD EventID )
     Strings[1] = "GHOST SERVICE in the long string format - I wanted a long string to pass into this function";
 
     EventType = EVENTLOG_INFORMATION_TYPE;
-    pUserSid   = NULL;
-    DataSize  = sizeof(DWORD) * SIZE_DATA_ARRAY;
+    pUserSid = NULL;
+    DataSize = sizeof(DWORD) * SIZE_DATA_ARRAY;
 
-    Status = ReportEventA (
-                    LogHandle,
-                    EventType,
-                    0,          // event category
-                    EVENT_SERVICE_START_FAILED_NONE,
-                    pUserSid,
-                    (WORD) NUM_STRINGS,
-                    0,          // DataSize
-                    Strings,
-                    (PVOID)NULL // Data
-                    );
+    Status = ReportEventA(
+        LogHandle,
+        EventType,
+        0,          // event category
+        EVENT_SERVICE_START_FAILED_NONE,
+        pUserSid,
+        (WORD)NUM_STRINGS,
+        0,          // DataSize
+        Strings,
+        (PVOID)NULL // Data
+    );
 
     free(BigString);
     return (Status);
 }
 
 
-VOID DisplayEventRecords( PVOID Buffer,DWORD  BufSize,ULONG *NumRecords)
+VOID DisplayEventRecords(PVOID Buffer, DWORD  BufSize, ULONG* NumRecords)
 {
     PEVENTLOGRECORD     pLogRecord;
     PSTR                pString;
@@ -155,7 +155,7 @@ VOID DisplayEventRecords( PVOID Buffer,DWORD  BufSize,ULONG *NumRecords)
     DWORD               Offset = 0;
     DWORD               i;
 
-    pLogRecord = (PEVENTLOGRECORD) Buffer;
+    pLogRecord = (PEVENTLOGRECORD)Buffer;
 
     while ((DWORD)Offset < BufSize) {
         Count++;
@@ -171,13 +171,13 @@ VOID DisplayEventRecords( PVOID Buffer,DWORD  BufSize,ULONG *NumRecords)
 
         // Display ComputerName
         pString = (PSTR)((DWORD)pString + strlen(pString) + 1);
-        printf("ComputerName: %s\n",pString);
+        printf("ComputerName: %s\n", pString);
 
         // Display strings
         pString = (PSTR)((DWORD)Buffer + pLogRecord->StringOffset);
 
         printf("Strings: ");
-        for (i=0; i<pLogRecord->NumStrings; i++) {
+        for (i = 0; i < pLogRecord->NumStrings; i++) {
             printf("  %s  ", pString);
             pString = (PSTR)((DWORD)pString + strlen(pString) + 1);
         }
@@ -192,17 +192,17 @@ VOID DisplayEventRecords( PVOID Buffer,DWORD  BufSize,ULONG *NumRecords)
 }
 
 
-BOOL ReadFromLog ( HANDLE LogHandle,PVOID  Buffer,ULONG *pBytesRead,DWORD  ReadFlag,DWORD  Record)
+BOOL ReadFromLog(HANDLE LogHandle, PVOID  Buffer, ULONG* pBytesRead, DWORD  ReadFlag, DWORD  Record)
 {
     BOOL        Status;
     DWORD       MinBytesNeeded;
     DWORD       ErrorCode;
 
-    Status = ReadEventLogA (LogHandle,ReadFlag,Record,Buffer,READ_BUFFER_SIZE,pBytesRead,&MinBytesNeeded);
+    Status = ReadEventLogA(LogHandle, ReadFlag, Record, Buffer, READ_BUFFER_SIZE, pBytesRead, &MinBytesNeeded);
     if (!Status) {
-         ErrorCode = GetLastError();
-         printf("Error from ReadEventLog %d \n", ErrorCode);
-         if (ErrorCode == ERROR_NO_MORE_FILES)
+        ErrorCode = GetLastError();
+        printf("Error from ReadEventLog %d \n", ErrorCode);
+        if (ErrorCode == ERROR_NO_MORE_FILES)
             printf("Buffer too small. Need %lu bytes min\n", MinBytesNeeded);
     }
 
@@ -210,7 +210,7 @@ BOOL ReadFromLog ( HANDLE LogHandle,PVOID  Buffer,ULONG *pBytesRead,DWORD  ReadF
 }
 
 
-BOOL TestReadEventLog (DWORD Count, DWORD ReadFlag, DWORD Record)
+BOOL TestReadEventLog(DWORD Count, DWORD ReadFlag, DWORD Record)
 {
     BOOL    Status, IStatus;
     HANDLE      LogHandle;
@@ -221,9 +221,9 @@ BOOL TestReadEventLog (DWORD Count, DWORD ReadFlag, DWORD Record)
     DWORD   NumberOfRecords;
     DWORD   OldestRecord;
 
-    printf("Testing ReadEventLog API to read %lu entries\n",Count);
+    printf("Testing ReadEventLog API to read %lu entries\n", Count);
 
-    Buffer = malloc (READ_BUFFER_SIZE);
+    Buffer = malloc(READ_BUFFER_SIZE);
 
     // Initialize the strings
     NumRecords = Count;
@@ -235,37 +235,36 @@ BOOL TestReadEventLog (DWORD Count, DWORD ReadFlag, DWORD Record)
     if (bHackTestBackup) {
         printf("OpenBackupEventLog = ");
         LogHandle = OpenBackupEventLog(NULL, "\\\\danhi386\\roote\\view.log");
-    }
-    else {
+    } else {
         printf("OpenEventLog - ");
-        LogHandle = OpenEventLog (pServerName, ModuleName);
+        LogHandle = OpenEventLog(pServerName, ModuleName);
     }
 
     if (LogHandle == NULL) {
-         printf("Error - %d\n", GetLastError());
+        printf("Error - %d\n", GetLastError());
     } else {
         printf("SUCCESS\n");
 
         // Get and print record information
-        Status = GetNumberOfEventLogRecords(LogHandle, & NumberOfRecords);
+        Status = GetNumberOfEventLogRecords(LogHandle, &NumberOfRecords);
         if (NT_SUCCESS(Status)) {
-           Status = GetOldestEventLogRecord(LogHandle, & OldestRecord);
+            Status = GetOldestEventLogRecord(LogHandle, &OldestRecord);
         }
 
         if (!NT_SUCCESS(Status)) {
-           printf("Get of record information failed with %X", Status);
-           return(Status);
+            printf("Get of record information failed with %X", Status);
+            return(Status);
         }
 
         printf("\nThere are %d records in the file, %d is the oldest"
-         " record number\n", NumberOfRecords, OldestRecord);
+               " record number\n", NumberOfRecords, OldestRecord);
 
         RecordOffset = Record;
 
         while (Count && (BytesReturned != 0)) {
             printf("Read %u records\n", NumRecords);
             // Read from the log
-            Status = ReadFromLog ( LogHandle,Buffer,&BytesReturned,ReadFlag,RecordOffset);
+            Status = ReadFromLog(LogHandle, Buffer, &BytesReturned, ReadFlag, RecordOffset);
             if (Status) {
                 printf("Bytes read = 0x%lx\n", BytesReturned);
                 DisplayEventRecords(Buffer, BytesReturned, &NumRecords);
@@ -278,13 +277,13 @@ BOOL TestReadEventLog (DWORD Count, DWORD ReadFlag, DWORD Record)
         printf("\n");
 
         if (!Status) {
-            printf ("Error - %d. Remaining count %lu\n", GetLastError(), Count);
+            printf("Error - %d. Remaining count %lu\n", GetLastError(), Count);
         } else {
-            printf ("SUCCESS\n");
+            printf("SUCCESS\n");
         }
 
         printf("Calling CloseEventLog\n");
-        IStatus = CloseEventLog (LogHandle);
+        IStatus = CloseEventLog(LogHandle);
     }
 
     free(Buffer);
@@ -292,10 +291,10 @@ BOOL TestReadEventLog (DWORD Count, DWORD ReadFlag, DWORD Record)
 }
 
 
-BOOL TestWriteEventLog (DWORD Count)
+BOOL TestWriteEventLog(DWORD Count)
 {
     BOOL        Status, IStatus;
-    HANDLE      LogHandle=NULL;
+    HANDLE      LogHandle = NULL;
     LPSTR       ModuleName;
     DWORD       EventID = 99;
     DWORD       WriteCount;
@@ -308,9 +307,9 @@ BOOL TestWriteEventLog (DWORD Count)
     // Open the log handle
     while (Count && NT_SUCCESS(Status)) {
         //printf("Calling RegisterEventSource for WRITE %lu times - ", Count);
-        LogHandle = RegisterEventSourceA (pServerName, ModuleName);
+        LogHandle = RegisterEventSourceA(pServerName, ModuleName);
         if (LogHandle == NULL) {
-             printf("Error - %d\n", GetLastError());
+            printf("Error - %d\n", GetLastError());
         } else {
             printf("Registered - ");
             WriteCount = 5;
@@ -320,17 +319,17 @@ BOOL TestWriteEventLog (DWORD Count)
                 // Write an entry into the log
                 Data[0] = Count;                        // Make data "unique"
                 EventID = (EventID + Count) % 100;      // Vary the eventids
-                Status = WriteLogEntryMsg ( LogHandle, EventID );
+                Status = WriteLogEntryMsg(LogHandle, EventID);
                 Count--;
                 WriteCount--;
 
                 if (!Status) {
-                    printf ("Error - %d. Remaining count %lu\n", GetLastError(), Count);
+                    printf("Error - %d. Remaining count %lu\n", GetLastError(), Count);
                 } else {
-                    printf ("%d,",WriteCount);
+                    printf("%d,", WriteCount);
                 }
             }
-            IStatus = DeregisterEventSource (LogHandle);
+            IStatus = DeregisterEventSource(LogHandle);
             printf(" - Deregistered\n");
         }
     }
@@ -339,7 +338,7 @@ BOOL TestWriteEventLog (DWORD Count)
 }
 
 
-BOOL TestClearLogFile ()
+BOOL TestClearLogFile()
 {
     BOOL        Status, IStatus;
     HANDLE      LogHandle;
@@ -351,9 +350,9 @@ BOOL TestClearLogFile ()
 
     // Open the log handle
     printf("Calling OpenEventLog for CLEAR - ");
-    LogHandle = OpenEventLogA (pServerName, ModuleName);
+    LogHandle = OpenEventLogA(pServerName, ModuleName);
     if (!Status) {
-         printf("Error - %d\n", GetLastError());
+        printf("Error - %d\n", GetLastError());
     } else {
         printf("SUCCESS\n");
 
@@ -361,24 +360,24 @@ BOOL TestClearLogFile ()
         printf("Calling ClearEventLog backing up to view.log  ");
         BackupName = "view.log";
 
-        Status = ClearEventLogA (LogHandle, BackupName);
+        Status = ClearEventLogA(LogHandle, BackupName);
         if (!Status) {
-            printf ("Error - %d\n", GetLastError());
+            printf("Error - %d\n", GetLastError());
         } else {
-            printf ("SUCCESS\n");
+            printf("SUCCESS\n");
         }
 
         // Now just clear the file without backing it up
         printf("Calling ClearEventLog with no backup  ");
-        Status = ClearEventLogA (LogHandle, NULL);
+        Status = ClearEventLogA(LogHandle, NULL);
         if (!Status) {
-            printf ("Error - %d\n", GetLastError());
+            printf("Error - %d\n", GetLastError());
         } else {
-            printf ("SUCCESS\n");
+            printf("SUCCESS\n");
         }
 
         printf("Calling CloseEventLog\n");
-        IStatus = CloseEventLog (LogHandle);
+        IStatus = CloseEventLog(LogHandle);
     }
 
     return(Status);
@@ -394,23 +393,23 @@ BOOL TestBackupLogFile(LPSTR FileName)
     // Open the log handle
 
     printf("Calling ElfOpenEventLog for BACKUP - ");
-    LogHandle = OpenEventLogA (NULL, "Application");
+    LogHandle = OpenEventLogA(NULL, "Application");
     if (!LogHandle) {
-         printf("Error - %d\n", GetLastError());
+        printf("Error - %d\n", GetLastError());
     } else {
         printf("SUCCESS\n");
 
         // Backup the log file
         printf("Calling BackupEventLogFile backing up to %s\n", FileName);
 
-        if (!BackupEventLogA (LogHandle, FileName)) {
-            printf ("Error - %d\n", GetLastError());
+        if (!BackupEventLogA(LogHandle, FileName)) {
+            printf("Error - %d\n", GetLastError());
         } else {
-            printf ("SUCCESS\n");
+            printf("SUCCESS\n");
         }
 
         printf("Calling CloseEventLog - ");
-        if (CloseEventLog (LogHandle)) {
+        if (CloseEventLog(LogHandle)) {
             printf("Success\n");
         } else {
             printf("Failed with code %d\n", GetLastError());
@@ -421,7 +420,7 @@ BOOL TestBackupLogFile(LPSTR FileName)
 }
 
 
-BOOL main (IN SHORT argc, IN PSZ argv[], )
+BOOL main(IN SHORT argc, IN PSZ argv[], )
 {
     DWORD   ReadFlags;
 
@@ -430,65 +429,65 @@ BOOL main (IN SHORT argc, IN PSZ argv[], )
     // Just till I can replace this horrid parm parsing with my own
 
     if (getenv("REMOTE")) {
-       pServerName = "\\\\danhi20";
+        pServerName = "\\\\danhi20";
     }
 
-    if ( argc < 2 ) {
-        printf( "Not enough parameters\n" );
-        return Usage( );
+    if (argc < 2) {
+        printf("Not enough parameters\n");
+        return Usage();
     }
 
-    if ( stricmp( argv[1], "-c" ) == 0 ) {
-        if ( argc < 3 ) {
+    if (stricmp(argv[1], "-c") == 0) {
+        if (argc < 3) {
             return TestClearLogFile();
         }
-    } else if (stricmp ( argv[1], "-b" ) == 0 ) {
-        if ( argc < 3 ) {
+    } else if (stricmp(argv[1], "-b") == 0) {
+        if (argc < 3) {
             return Usage();
         } else {
             return TestBackupLogFile(argv[2]);
         }
-    } else if (stricmp ( argv[1], "-rsf" ) == 0 ) {
+    } else if (stricmp(argv[1], "-rsf") == 0) {
         ReadFlags = EVENTLOG_SEQUENTIAL_READ | EVENTLOG_FORWARDS_READ;
-        if ( argc < 3 ) {
-            return TestReadEventLog(1,ReadFlags,0 );
-        } else  {
+        if (argc < 3) {
+            return TestReadEventLog(1, ReadFlags, 0);
+        } else {
             return Usage();
         }
-    } else if (stricmp ( argv[1], "-xsf" ) == 0 ) {
+    } else if (stricmp(argv[1], "-xsf") == 0) {
         ReadFlags = EVENTLOG_SEQUENTIAL_READ | EVENTLOG_FORWARDS_READ;
         bHackTestBackup = TRUE;
-        if ( argc < 3 ) {
-            return TestReadEventLog(1,ReadFlags,0 );
-        } else  {
+        if (argc < 3) {
+            return TestReadEventLog(1, ReadFlags, 0);
+        } else {
             return Usage();
         }
-    } else if (stricmp ( argv[1], "-rsb" ) == 0 ) {
+    } else if (stricmp(argv[1], "-rsb") == 0) {
         ReadFlags = EVENTLOG_SEQUENTIAL_READ | EVENTLOG_BACKWARDS_READ;
-        if ( argc < 3 ) {
-            return TestReadEventLog(1,ReadFlags,0 );
-        } else  {
+        if (argc < 3) {
+            return TestReadEventLog(1, ReadFlags, 0);
+        } else {
             return Usage();
         }
-    } else if (stricmp ( argv[1], "-rrf" ) == 0 ) {
+    } else if (stricmp(argv[1], "-rrf") == 0) {
         ReadFlags = EVENTLOG_SEEK_READ | EVENTLOG_FORWARDS_READ;
-        if ( argc < 3 ) {
-            return TestReadEventLog(1,ReadFlags ,1);
+        if (argc < 3) {
+            return TestReadEventLog(1, ReadFlags, 1);
         } else if (argc == 3) {
-            return (TestReadEventLog (1, ReadFlags, atoi(argv[2])));
+            return (TestReadEventLog(1, ReadFlags, atoi(argv[2])));
         }
-    } else if (stricmp ( argv[1], "-rrb" ) == 0 ) {
+    } else if (stricmp(argv[1], "-rrb") == 0) {
         ReadFlags = EVENTLOG_SEEK_READ | EVENTLOG_BACKWARDS_READ;
-        if ( argc < 3 ) {
-            return TestReadEventLog(1,ReadFlags, 1);
+        if (argc < 3) {
+            return TestReadEventLog(1, ReadFlags, 1);
         } else if (argc == 3) {
-            return (TestReadEventLog (1, ReadFlags, atoi(argv[2])));
+            return (TestReadEventLog(1, ReadFlags, atoi(argv[2])));
         }
-    } else if (stricmp ( argv[1], "-w" ) == 0 ) {
-        if ( argc < 3 ) {
+    } else if (stricmp(argv[1], "-w") == 0) {
+        if (argc < 3) {
             return TestWriteEventLog(1);
         } else if (argc == 3) {
-            return (TestWriteEventLog (atoi(argv[2])));
+            return (TestWriteEventLog(atoi(argv[2])));
         }
     } else {
         return Usage();

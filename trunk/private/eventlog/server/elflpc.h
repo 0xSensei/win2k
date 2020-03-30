@@ -23,14 +23,14 @@ Author:
 
 // Structure that is passed in from the system thread to the LPC port
 typedef struct _ELFIOPORTMSG {
-   PORT_MESSAGE PortMessage;
-   IO_ERROR_LOG_MESSAGE IoErrorLogMessage;
-} ELFIOPORTMSG, *PELFIOPORTMSG;
+    PORT_MESSAGE PortMessage;
+    IO_ERROR_LOG_MESSAGE IoErrorLogMessage;
+} ELFIOPORTMSG, * PELFIOPORTMSG;
 
 // Structure for the message as a reply from the eventlogging service to the LPC client.
 typedef struct _ELF_REPLY_MESSAGE {
     PORT_MESSAGE PortMessage;
     NTSTATUS Status;
-} ELF_REPLY_MESSAGE, *PELF_REPLY_MESSAGE;
+} ELF_REPLY_MESSAGE, * PELF_REPLY_MESSAGE;
 
 #endif // ifndef _ELFLPC_

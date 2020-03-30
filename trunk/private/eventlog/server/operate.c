@@ -125,8 +125,7 @@ Note:
 
     SpaceNeeded = ((SpaceNeeded - *SpaceAvail) & 0xFFFF0000) + 0x10000;
 
-    if (SpaceNeeded > (pLogFile->ConfigMaxFileSize - pLogFile->ActualMaxFileSize))
-    {
+    if (SpaceNeeded > (pLogFile->ConfigMaxFileSize - pLogFile->ActualMaxFileSize)) {
 
 
         // We can't grow it by the full amount we need.  Grow
@@ -238,10 +237,10 @@ Note:
         // Calculate the number of bytes to move
 
         DWORD dwWrapSize = (DWORD)((LPBYTE)pLogFile->ViewSize -
-            (LPBYTE)pLogFile->BeginRecord);
+                                   (LPBYTE)pLogFile->BeginRecord);
 
         RtlMoveMemory((LPBYTE)BaseAddress + Size - dwWrapSize,
-            (LPBYTE)BaseAddress + pLogFile->BeginRecord,
+                      (LPBYTE)BaseAddress + pLogFile->BeginRecord,
                       dwWrapSize);
 
 
@@ -298,7 +297,7 @@ NTSTATUS
 CopyUnicodeToAnsiRecord(
     OUT PVOID  Dest       OPTIONAL,
     IN  PVOID  Src,
-    OUT PVOID  *NewBufPos OPTIONAL,
+    OUT PVOID* NewBufPos OPTIONAL,
     OUT PULONG RecordSize
 )
 
@@ -338,8 +337,8 @@ Note:
     PVOID           TempPtr;
     ULONG           PadSize, i;
     ULONG           zero = 0;
-    WCHAR           *SrcStrings, *DestStrings;
-    ULONG           RecordLength, *pLength;
+    WCHAR* SrcStrings, * DestStrings;
+    ULONG           RecordLength, * pLength;
     ULONG           ulTempLength;
 
     NTSTATUS        Status = STATUS_SUCCESS;
@@ -347,8 +346,7 @@ Note:
     DestRecord = (PEVENTLOGRECORD)Dest;
     SrcRecord = (PEVENTLOGRECORD)Src;
 
-    if (DestRecord != NULL)
-    {
+    if (DestRecord != NULL) {
         DestRecord->TimeGenerated = SrcRecord->TimeGenerated;
         DestRecord->Reserved = SrcRecord->Reserved;
         DestRecord->RecordNumber = SrcRecord->RecordNumber;
@@ -368,8 +366,7 @@ Note:
 
     RtlInitUnicodeString(&StringU, pStringU);
 
-    if (DestRecord != NULL)
-    {
+    if (DestRecord != NULL) {
         Status = RtlUnicodeStringToAnsiString(
             &StringA,
             &StringU,
@@ -377,9 +374,7 @@ Note:
         );
 
         ulTempLength = StringA.MaximumLength;
-    }
-    else
-    {
+    } else {
         ulTempLength = RtlUnicodeStringToAnsiSize(&StringU);
     }
 
@@ -387,8 +382,7 @@ Note:
 
         TempPtr = (PVOID)((ULONG_PTR)DestRecord + sizeof(EVENTLOGRECORD));
 
-        if (DestRecord != NULL)
-        {
+        if (DestRecord != NULL) {
             RtlMoveMemory(TempPtr, StringA.Buffer, ulTempLength);
             RtlFreeAnsiString(&StringA);
         }
@@ -405,8 +399,7 @@ Note:
 
         RtlInitUnicodeString(&StringU, pStringU);
 
-        if (DestRecord != NULL)
-        {
+        if (DestRecord != NULL) {
             Status = RtlUnicodeStringToAnsiString(
                 &StringA,
                 &StringU,
@@ -414,16 +407,12 @@ Note:
             );
 
             ulTempLength = StringA.MaximumLength;
-        }
-        else
-        {
+        } else {
             ulTempLength = RtlUnicodeStringToAnsiSize(&StringU);
         }
 
-        if (NT_SUCCESS(Status))
-        {
-            if (DestRecord != NULL)
-            {
+        if (NT_SUCCESS(Status)) {
+            if (DestRecord != NULL) {
                 RtlMoveMemory(TempPtr, StringA.Buffer, ulTempLength);
                 RtlFreeAnsiString(&StringA);
             }
@@ -432,16 +421,14 @@ Note:
         }
     }
 
-    if (NT_SUCCESS(Status))
-    {
+    if (NT_SUCCESS(Status)) {
         // TempPtr points to location after computername - i.e. UserSid.
         // Before we write out the UserSid, we ensure that we pad the
         // bytes so that the UserSid starts on a DWORD boundary.
 
         PadSize = sizeof(ULONG) - (ULONG)(((ULONG_PTR)TempPtr - (ULONG_PTR)DestRecord) % sizeof(ULONG));
 
-        if (DestRecord != NULL)
-        {
+        if (DestRecord != NULL) {
             RtlMoveMemory(TempPtr, &zero, PadSize);
 
             TempPtr = (PVOID)((ULONG_PTR)TempPtr + PadSize);
@@ -458,9 +445,7 @@ Note:
 
             DestRecord->UserSidOffset = (ULONG)((ULONG_PTR)TempPtr
                                                 - (ULONG_PTR)DestRecord);
-        }
-        else
-        {
+        } else {
             TempPtr = (PVOID)((ULONG_PTR)TempPtr + PadSize);
         }
 
@@ -468,15 +453,14 @@ Note:
         // Copy over the Strings
 
         TempPtr = (PVOID)((ULONG_PTR)TempPtr + SrcRecord->UserSidLength);
-        SrcStrings = (WCHAR *)((ULONG_PTR)SrcRecord + (ULONG)SrcRecord->StringOffset);
-        DestStrings = (WCHAR *)TempPtr;
+        SrcStrings = (WCHAR*)((ULONG_PTR)SrcRecord + (ULONG)SrcRecord->StringOffset);
+        DestStrings = (WCHAR*)TempPtr;
 
         for (i = 0; i < SrcRecord->NumStrings; i++) {
 
             RtlInitUnicodeString(&StringU, SrcStrings);
 
-            if (DestRecord != NULL)
-            {
+            if (DestRecord != NULL) {
                 Status = RtlUnicodeStringToAnsiString(
                     &StringA,
                     &StringU,
@@ -484,9 +468,7 @@ Note:
                 );
 
                 ulTempLength = StringA.MaximumLength;
-            }
-            else
-            {
+            } else {
                 ulTempLength = RtlUnicodeStringToAnsiSize(&StringU);
             }
 
@@ -498,8 +480,7 @@ Note:
                 return (Status);
             }
 
-            if (DestRecord != NULL)
-            {
+            if (DestRecord != NULL) {
                 RtlMoveMemory(
                     DestStrings,
                     StringA.Buffer,
@@ -519,8 +500,7 @@ Note:
 
         // DestStrings points to the point after the last string copied.
 
-        if (DestRecord != NULL)
-        {
+        if (DestRecord != NULL) {
             DestRecord->StringOffset = (ULONG)((ULONG_PTR)TempPtr - (ULONG_PTR)DestRecord);
 
             TempPtr = (PVOID)DestStrings;
@@ -535,9 +515,7 @@ Note:
                 (PVOID)((ULONG_PTR)SrcRecord + SrcRecord->DataOffset),
                 SrcRecord->DataLength
             );
-        }
-        else
-        {
+        } else {
             TempPtr = (PVOID)DestStrings;
         }
 
@@ -548,8 +526,7 @@ Note:
         PadSize = sizeof(ULONG) - (ULONG)(((ULONG_PTR)TempPtr - (ULONG_PTR)DestRecord) % sizeof(ULONG));
         RecordLength = (ULONG)((ULONG_PTR)TempPtr + PadSize + sizeof(ULONG) - (ULONG_PTR)DestRecord);
 
-        if (DestRecord != NULL)
-        {
+        if (DestRecord != NULL) {
             RtlMoveMemory(TempPtr, &zero, PadSize);
             pLength = (PULONG)((ULONG_PTR)TempPtr + PadSize);
             *pLength = RecordLength;
@@ -641,8 +618,7 @@ Note:
 
             if (pEventRecord->Length & 3) {
                 fValid = FALSE;
-            }
-            else {
+            } else {
 
                 pEndRecordLength =
                     (PULONG)((PBYTE)Position + pEventRecord->Length) - 1;
@@ -655,7 +631,7 @@ Note:
 
                 if ((PVOID)pEndRecordLength >= PhysicalEOF) {
                     pEndRecordLength = (PULONG)((PBYTE)BaseAddress +
-                        ((PBYTE)pEndRecordLength - (PBYTE)PhysicalEOF) +
+                                                ((PBYTE)pEndRecordLength - (PBYTE)PhysicalEOF) +
                                                 FILEHEADERBUFSIZE);
                 }
 
@@ -665,7 +641,7 @@ Note:
                     ULONG Size;
 
                     Size = min(ELFEOFUNIQUEPART,
-                        (ULONG)((PBYTE)PhysicalEOF - (PBYTE)pEventRecord));
+                               (ULONG)((PBYTE)PhysicalEOF - (PBYTE)pEventRecord));
 
                     if (RtlCompareMemory(
                         pEventRecord,
@@ -689,14 +665,12 @@ Note:
                                 Size) == Size);
 
                         }
-                    }
-                    else {
+                    } else {
 
                         fValid = FALSE;
                     }
-                }
-                else if (!(pEventRecord->Length >= sizeof(EVENTLOGRECORD)) ||
-                         !(pEventRecord->Reserved == ELF_LOG_FILE_SIGNATURE)) {
+                } else if (!(pEventRecord->Length >= sizeof(EVENTLOGRECORD)) ||
+                           !(pEventRecord->Reserved == ELF_LOG_FILE_SIGNATURE)) {
 
                     fValid = FALSE;
 
@@ -726,8 +700,7 @@ IsPositionWithinRange(
         if ((Position >= BeginningRecord) && (Position <= EndingRecord))
             return(TRUE);
 
-    }
-    else if (EndingRecord < BeginningRecord) {
+    } else if (EndingRecord < BeginningRecord) {
         if ((Position >= BeginningRecord) || (Position <= EndingRecord))
             return(TRUE);
 
@@ -806,7 +779,7 @@ Note:
 
 
             Size = min(ELFEOFUNIQUEPART,
-                (ULONG)((PBYTE)PhysicalEOF - (PBYTE)ptr));
+                       (ULONG)((PBYTE)PhysicalEOF - (PBYTE)ptr));
 
             pRecord = (PVOID)CONTAINING_RECORD(ptr, ELF_EOF_RECORD,
                                                RecordSizeBeginning);
@@ -822,7 +795,7 @@ Note:
                 (PBYTE)pRecord -= *((PULONG)pRecord - 1);
                 if (pRecord < PhysicalStart) {
                     pRecord = (PVOID)((PBYTE)PhysicalEOF -
-                        ((PBYTE)PhysicalStart - (PBYTE)pRecord));
+                                      ((PBYTE)PhysicalStart - (PBYTE)pRecord));
                 }
 
             }
@@ -874,8 +847,7 @@ Note:
 
 
                 StillLooking = FALSE;
-            }
-            else {
+            } else {
 
 
                 // This was the bottom half, let's look in the top half
@@ -959,7 +931,7 @@ Note:
 
         if (NewPosition >= PhysicalEOF) {
             NewPosition = (PVOID)((PBYTE)PhysStart +
-                ((PBYTE)NewPosition - (PBYTE)PhysicalEOF));
+                                  ((PBYTE)NewPosition - (PBYTE)PhysicalEOF));
         }
 
 
@@ -970,8 +942,7 @@ Note:
             NewPosition = PhysStart;
         }
 
-    }
-    else { // Reading backwards.
+    } else { // Reading backwards.
 
         ASSERT(ReadFlags & EVENTLOG_BACKWARDS_READ);
 
@@ -982,8 +953,7 @@ Note:
 
 
             return(EndRecord);
-        }
-        else if (CurrPosition == PhysStart) {
+        } else if (CurrPosition == PhysStart) {
 
 
             // Flip to the bottom of the file, but skip and ELF_SKIP_DWORDs
@@ -1010,7 +980,7 @@ Note:
 
         if (NewPosition < PhysStart) {
             NewPosition = (PVOID)((PBYTE)PhysicalEOF -
-                ((PBYTE)PhysStart - (PBYTE)NewPosition));
+                                  ((PBYTE)PhysStart - (PBYTE)NewPosition));
         }
     }
     return (NewPosition);
@@ -1021,7 +991,7 @@ Note:
 NTSTATUS
 SeekToStartingRecord(
     PELF_REQUEST_RECORD Request,
-    PVOID   *ReadPosition,
+    PVOID* ReadPosition,
     PVOID   BeginRecord,
     PVOID   EndRecord,
     PVOID   PhysEOF,
@@ -1085,8 +1055,7 @@ Note:
 
                 Position = BeginRecord;
 
-            }
-            else {
+            } else {
 
                 Position = (PVOID)((PBYTE)Request->LogFile->BaseAddress
                                    + Request->Pkt.ReadPkt->LastSeekPos);
@@ -1109,8 +1078,7 @@ Note:
                         PhysEOF,
                         PhysStart
                     );
-                }
-                else {
+                } else {
 
                     // This *really* cheesy check exists to handle the case
                     // where Position could be on an ELF_SKIP_DWORD pad
@@ -1125,8 +1093,7 @@ Note:
                     try {
                         if (IsPositionWithinRange(Position,
                                                   BeginRecord,
-                                                  EndRecord))
-                        {
+                                                  EndRecord)) {
 
                             // If this is a ELF_SKIP_DWORD, skip to the
                             // top of the file.
@@ -1135,8 +1102,7 @@ Note:
                             if (*(PDWORD)Position == ELF_SKIP_DWORD) {
                                 Position = PhysStart;
                             }
-                        }
-                        else {
+                        } else {
 
                             // More likely the caller's handle was invalid
                             // if the position was not within range.
@@ -1156,8 +1122,7 @@ Note:
                 }
             }
 
-        }
-        else {    // READ backwards
+        } else {    // READ backwards
 
          // If this is the first READ operation, LastSeekPosition will
          // be zero. In that case, we set the position to the last
@@ -1181,8 +1146,7 @@ Note:
                     Position = (PVOID)((PBYTE)PhysEOF
                                        - ((PBYTE)PhysStart - (PBYTE)Position));
                 }
-            }
-            else {
+            } else {
 
                 Position = (PVOID)((PBYTE)Request->LogFile->BaseAddress
                                    + Request->Pkt.ReadPkt->LastSeekPos);
@@ -1208,8 +1172,7 @@ Note:
             }
         }
 
-    }
-    else if (Request->Pkt.ReadPkt->ReadFlags & EVENTLOG_SEEK_READ) {
+    } else if (Request->Pkt.ReadPkt->ReadFlags & EVENTLOG_SEEK_READ) {
 
 
         // Make sure the record number passed in is valid
@@ -1292,7 +1255,7 @@ Note:
         if (Position >= PhysEOF) {
 
             Position = (PVOID)((PBYTE)PhysStart +
-                ((PBYTE)Position - (PBYTE)PhysEOF));
+                               ((PBYTE)Position - (PBYTE)PhysEOF));
 
             if (Position >= PhysEOF) {
 
@@ -1317,12 +1280,10 @@ Note:
 
         if (BeginRecord < EndRecord && Position >= EndRecord) {
             Position = BeginRecord;
-        }
-        else if (BeginRecord > EndRecord &&
-                 Position >= EndRecord && Position < BeginRecord) {
+        } else if (BeginRecord > EndRecord &&
+                   Position >= EndRecord && Position < BeginRecord) {
             Position = BeginRecord;
-        }
-        else {
+        } else {
             // Do nothing.
         }
 
@@ -1333,16 +1294,14 @@ Note:
         Position = FindStartOfNextRecord(Position, BeginRecord, EndRecord,
                                          PhysStart, PhysEOF, Request->LogFile->BaseAddress);
 
-        if (Position)
-        {
+        if (Position) {
             if (Request->Pkt.ReadPkt->RecordNumber >
                 ((PEVENTLOGRECORD)Position)->RecordNumber) {
 
                 NumRecordsToSeek = Request->Pkt.ReadPkt->RecordNumber -
                     ((PEVENTLOGRECORD)Position)->RecordNumber;
                 ReadFlags = EVENTLOG_FORWARDS_READ;
-            }
-            else {
+            } else {
 
                 NumRecordsToSeek = ((PEVENTLOGRECORD)Position)->RecordNumber -
                     Request->Pkt.ReadPkt->RecordNumber;
@@ -1373,8 +1332,7 @@ Note:
 
     if (!Position) {                // The record was invalid
         return(STATUS_EVENTLOG_FILE_CORRUPT);
-    }
-    else {
+    } else {
         return (STATUS_SUCCESS);
     }
 
@@ -1384,7 +1342,7 @@ Note:
 VOID
 CopyRecordToBuffer(
     IN     PBYTE       pReadPosition,
-    IN OUT PBYTE       *ppBufferPosition,
+    IN OUT PBYTE* ppBufferPosition,
     ULONG              ulRecordSize,
     PBYTE              pPhysicalEOF,
     PBYTE              pPhysStart
@@ -1403,10 +1361,9 @@ CopyRecordToBuffer(
 
 
     ulBytesToMove = min(ulRecordSize,
-        (ULONG)(pPhysicalEOF - pReadPosition));
+                        (ULONG)(pPhysicalEOF - pReadPosition));
 
-    if (ulBytesToMove < ulRecordSize)
-    {
+    if (ulBytesToMove < ulRecordSize) {
 
         // We need to copy the bytes up to the end of the file,
         // and then wrap around and copy the remaining bytes of
@@ -1531,8 +1488,7 @@ Note:
                           PhysicalEOF,
                           Request->LogFile->BaseAddress,
                           TRUE
-        ))
-        {
+        )) {
 
             Request->Pkt.ReadPkt->BytesRead = 0;
             Request->Pkt.ReadPkt->RecordsRead = 0;
@@ -1545,8 +1501,7 @@ Note:
 
         if ((Request->Pkt.ReadPkt->Flags & ELF_IREAD_ANSI)
             &&
-            (RecordSize != ELFEOFRECORDSIZE))
-        {
+            (RecordSize != ELFEOFRECORDSIZE)) {
 
 
             // If we were called by an ANSI API, then we need to read the
@@ -1561,8 +1516,7 @@ Note:
 
             TempBuf = ElfpAllocateBuffer(RecordSize);
 
-            if (TempBuf == NULL)
-            {
+            if (TempBuf == NULL) {
                 return(STATUS_NO_MEMORY);
             }
 
@@ -1570,7 +1524,7 @@ Note:
             BufferPosition = TempBuf;           // Read into TempBuf
 
             CopyRecordToBuffer((PBYTE)ReadPosition,
-                (PBYTE *)&BufferPosition,
+                               (PBYTE*)&BufferPosition,
                                RecordSize,
                                (PBYTE)PhysicalEOF,
                                (PBYTE)PhysStart);
@@ -1586,8 +1540,7 @@ Note:
                 &RecordBytesTransferred
             );
 
-            if (!NT_SUCCESS(Status))
-            {
+            if (!NT_SUCCESS(Status)) {
                 ElfpFreeBuffer(TempBuf);
                 return(Status);
             }
@@ -1608,8 +1561,7 @@ Note:
             // buffer while converting any UNICODE strings to ANSI.
 
 
-            if (Request->Pkt.ReadPkt->Flags & ELF_IREAD_ANSI)
-            {
+            if (Request->Pkt.ReadPkt->Flags & ELF_IREAD_ANSI) {
                 Status = CopyUnicodeToAnsiRecord(
                     TempBufferPosition,
                     TempBuf,
@@ -1627,18 +1579,15 @@ Note:
                 ElfpFreeBuffer(TempBuf);       // Free the temp buffer
                 TempBuf = NULL;
 
-                if (!NT_SUCCESS(Status))
-                {
+                if (!NT_SUCCESS(Status)) {
                     break;                      // Exit this loop
                 }
-            }
-            else
-            {
+            } else {
 
                 // Unicode call -- simply copy the record into the buffer
 
                 CopyRecordToBuffer((PBYTE)ReadPosition,
-                    (PBYTE *)&BufferPosition,
+                                   (PBYTE*)&BufferPosition,
                                    RecordSize,
                                    (PBYTE)PhysicalEOF,
                                    (PBYTE)PhysStart);
@@ -1682,12 +1631,10 @@ Note:
 
             if ((Request->Pkt.ReadPkt->Flags & ELF_IREAD_ANSI)
                 &&
-                (RecordSize != ELFEOFRECORDSIZE))
-            {
+                (RecordSize != ELFEOFRECORDSIZE)) {
                 TempBuf = ElfpAllocateBuffer(RecordSize);
 
-                if (TempBuf == NULL)
-                {
+                if (TempBuf == NULL) {
                     return(STATUS_NO_MEMORY);
                 }
 
@@ -1695,7 +1642,7 @@ Note:
                 BufferPosition = TempBuf;           // Read into TempBuf
 
                 CopyRecordToBuffer((PBYTE)ReadPosition,
-                    (PBYTE *)&BufferPosition,
+                                   (PBYTE*)&BufferPosition,
                                    RecordSize,
                                    (PBYTE)PhysicalEOF,
                                    (PBYTE)PhysStart);
@@ -1711,8 +1658,7 @@ Note:
                     &RecordBytesTransferred
                 );
 
-                if (!NT_SUCCESS(Status))
-                {
+                if (!NT_SUCCESS(Status)) {
                     ElfpFreeBuffer(TempBuf);
                     return(Status);
                 }
@@ -1970,21 +1916,18 @@ Note:
             !_wcsnicmp(wszDosDevices, pLogFile->LogFileName->Buffer,
                        DOSDEVICES_LEN)) {
             pwszLogFileName = pLogFile->LogFileName->Buffer + DOSDEVICES_LEN;
-        }
-        else
+        } else
             if ((pLogFile->LogFileName->Length / 2) >= ALTDOSDEVICES_LEN &&
                 !_wcsnicmp(wszAltDosDevices, pLogFile->LogFileName->Buffer,
                            ALTDOSDEVICES_LEN)) {
                 pwszLogFileName = pLogFile->LogFileName->Buffer + ALTDOSDEVICES_LEN;
-            }
-            else {
+            } else {
                 pwszLogFileName = pLogFile->LogFileName->Buffer;
             }
 
         if (SetFileAttributes(pwszLogFileName, FILE_ATTRIBUTE_ARCHIVE)) {
             pLogFile->Flags |= ELF_LOGFILE_ARCHIVE_SET;
-        }
-        else {
+        } else {
             ElfDbgPrintNC(("[ELF] SetFileAttributes on file (%ws) failed, "
                            "WIN32 error = 0x%lx\n",
                            pwszLogFileName,
@@ -2093,9 +2036,8 @@ Note:
                                                         pLogFile->BeginRecord + FILEHEADERBUFSIZE);
 
 
-        }
-        else if (pLogFile->EndRecord == pLogFile->BeginRecord
-                 && !(pLogFile->Flags & ELF_LOGFILE_HEADER_WRAP)) {
+        } else if (pLogFile->EndRecord == pLogFile->BeginRecord
+                   && !(pLogFile->Flags & ELF_LOGFILE_HEADER_WRAP)) {
 
 
             // If the write position is equal to the position of the first
@@ -2105,8 +2047,7 @@ Note:
 
             SpaceAvail = pLogFile->ActualMaxFileSize - FILEHEADERBUFSIZE;
 
-        }
-        else {
+        } else {
 
 
             // If our write position is before the position of the first record, then
@@ -2145,8 +2086,7 @@ Note:
 
 
         if (pLogFile->ActualMaxFileSize < pLogFile->ConfigMaxFileSize &&
-            SpaceNeeded > SpaceAvail)
-        {
+            SpaceNeeded > SpaceAvail) {
 
 
             // Extend it.  This call cannot fail.  If it can't extend it, it
@@ -2208,8 +2148,8 @@ Note:
 
             if ((pLogFile->Retention == OVERWRITE_AS_NEEDED) ||
                 ((pLogFile->Retention != NEVER_OVERWRITE) &&
-                ((EventRecord->TimeWritten < EarliestTime) ||
-                 (Request->Flags & ELF_FORCE_OVERWRITE)))) {  // OK to overwrite
+                 ((EventRecord->TimeWritten < EarliestTime) ||
+                  (Request->Flags & ELF_FORCE_OVERWRITE)))) {  // OK to overwrite
 
                 ULONG NextRecord;
                 ULONG SearchStartPos;
@@ -2262,8 +2202,7 @@ Note:
                     if (BeginRecord >= pLogFile->ActualMaxFileSize) {
 
                         fInvalidRecordLength = TRUE;
-                    }
-                    else {
+                    } else {
 
                         pLogFile->BeginRecord = BeginRecord;
                     }
@@ -2353,8 +2292,7 @@ Note:
                             SpaceAvail -= sizeof(ULONG);
                             pLogFile->BeginRecord = NextRecord - sizeof(ULONG);
                             break;
-                        }
-                        else {
+                        } else {
 
 
                             // Continue the search for the next valid record.
@@ -2370,8 +2308,7 @@ Note:
                             NextRecord += sizeof(ULONG);
                             continue;
                         }
-                    }
-                    else {
+                    } else {
 
 
                         //          ** THIS SHOULD NEVER, EVER, OCCUR **
@@ -2464,8 +2401,7 @@ Note:
                 EventRecord = (PEVENTLOGRECORD)((PBYTE)pLogFile->BaseAddress +
                                                 pLogFile->BeginRecord);
 
-            }
-            else {    // All records within retention period
+            } else {    // All records within retention period
 
                 ElfDbgPrint(("[ELF] %s log file is full\n",
                              pLogFile->LogModuleName->Buffer));
@@ -2477,8 +2413,7 @@ Note:
 
                 if (pLogFile->logpLogPopup == LOGPOPUP_CLEARED
                     &&
-                    !ElfGlobalData->fSetupInProgress)
-                {
+                    !ElfGlobalData->fSetupInProgress) {
                     INT     StringLen, id = -1;
                     LPTSTR  lpModuleNameLoc = NULL;
                     HMODULE StringsResource;
@@ -2500,21 +2435,17 @@ Note:
                     ASSERT(StringsResource != NULL);
 
                     if (_wcsicmp(pLogFile->LogModuleName->Buffer,
-                                 ELF_SYSTEM_MODULE_NAME) == 0)
-                    {
+                                 ELF_SYSTEM_MODULE_NAME) == 0) {
                         id = ELF_MODULE_NAME_LOCALIZE_SYSTEM;
-                    }
-                    else if (_wcsicmp(pLogFile->LogModuleName->Buffer,
-                                      ELF_APPLICATION_MODULE_NAME) == 0)
-                    {
+                    } else if (_wcsicmp(pLogFile->LogModuleName->Buffer,
+                                        ELF_APPLICATION_MODULE_NAME) == 0) {
                         id = ELF_MODULE_NAME_LOCALIZE_APPLICATION;
                     }
 
                     if (id != -1) {
 
                         StringLen = FormatMessage(FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_ALLOCATE_BUFFER, StringsResource, id, 0, (LPTSTR)&lpModuleNameLoc, 0, NULL);
-                        if ((StringLen > 1) && (lpModuleNameLoc != NULL))
-                        {
+                        if ((StringLen > 1) && (lpModuleNameLoc != NULL)) {
 
                             //  Get rid of cr/lf control code at the end
 
@@ -2535,7 +2466,7 @@ Note:
                         ELF_FORCE_OVERWRITE);   // Overwrite if necc.
 
                     ElfpCreateQueuedMessage(ALERT_ELF_LogOverflow, 1,
-                        (lpModuleNameLoc != NULL) ?
+                                            (lpModuleNameLoc != NULL) ?
                                             &lpModuleNameLoc
                                             : &Request->Module->LogFile->LogModuleName->Buffer);
 
@@ -2570,7 +2501,7 @@ Note:
 
 
                     WriteToLog(pLogFile,
-                        (PVOID)&EOFRecord,
+                               (PVOID)&EOFRecord,
                                ELFEOFRECORDSIZE,
                                &WritePos,
                                pLogFile->ActualMaxFileSize,
@@ -2600,8 +2531,7 @@ Note:
 
             if (pLogFile->BeginRecord == pLogFile->EndRecord) {
                 pLogFile->OldestRecordNumber = 1;
-            }
-            else {
+            } else {
                 pLogFile->OldestRecordNumber = EventRecord->RecordNumber;
             }
             pLogFile->CurrentRecordNumber++;
@@ -2672,7 +2602,7 @@ Note:
 
 
             WriteToLog(pLogFile,
-                (PVOID)&EOFRecord,
+                       (PVOID)&EOFRecord,
                        ELFEOFRECORDSIZE,
                        &WritePos,
                        pLogFile->ActualMaxFileSize,
@@ -2752,7 +2682,7 @@ Note:
     PFILE_RENAME_INFORMATION NewName = NULL;
     OBJECT_ATTRIBUTES   ObjectAttributes;
     HANDLE  ClearHandle = NULL;
-    FILE_DISPOSITION_INFORMATION DeleteInfo = { TRUE };
+    FILE_DISPOSITION_INFORMATION DeleteInfo = {TRUE};
     ULONG FileRefCount;
     BOOLEAN FileRenamed = FALSE;
 
@@ -2869,20 +2799,17 @@ Note:
                                            Status));
                         }
                     }
-                }
-                else if (NT_SUCCESS(Status)) {
+                } else if (NT_SUCCESS(Status)) {
                     FileRenamed = TRUE;
                 }
 
                 if (!NT_SUCCESS(Status)) {
                     ElfDbgPrintNC(("[ELF] Rename/Copy failed 0x%lx\n", Status));
                 }
-            }
-            else {
+            } else {
                 Status = STATUS_NO_MEMORY;
             }
-        }
-        else { // No backup to done
+        } else { // No backup to done
 
 
          // No backup name was specified. Just delete the log file
@@ -2914,8 +2841,7 @@ Note:
         IStatus = NtClose(ClearHandle);    // Discard status
         ASSERT(NT_SUCCESS(IStatus));
 
-    }
-    else { // The open-for-delete failed.
+    } else { // The open-for-delete failed.
 
         ElfDbgPrintNC(("[ELF] Open-for-delete failed 0x%lx\n", Status));
     }
@@ -3042,9 +2968,7 @@ Note:
                 }
             }
         }
-    }
-    else
-    {
+    } else {
 
         // The delete failed for some reason -- reopen the original log file
 
@@ -3054,8 +2978,7 @@ Note:
 
     Request->LogFile->RefCount = FileRefCount;      // Restore old value.
 
-    if (Request->LogFile->logpLogPopup == LOGPOPUP_ALREADY_SHOWN)
-    {
+    if (Request->LogFile->logpLogPopup == LOGPOPUP_ALREADY_SHOWN) {
 
         // This log has a viewable popup (i.e., it's not LOGPOPUP_NEVER_SHOW),
         // so we should show it again if the log fills up.
@@ -3128,7 +3051,7 @@ Return Value:
     ULONG BytesToCopy;
     ULONG EndRecord = FILEHEADERBUFSIZE;
     BOOL ImpersonatingClient = FALSE;
-    ELF_LOGFILE_HEADER FileHeaderBuf = { FILEHEADERBUFSIZE, // Size
+    ELF_LOGFILE_HEADER FileHeaderBuf = {FILEHEADERBUFSIZE, // Size
                                          ELF_LOG_FILE_SIGNATURE,
                                          ELF_VERSION_MAJOR,
                                          ELF_VERSION_MINOR,
@@ -3256,8 +3179,7 @@ Return Value:
             }
             EndOfCopy += sizeof(DWORD);
 
-        }
-        else {
+        } else {
             EndOfCopy = (PBYTE)Request->LogFile->BaseAddress +
                 Request->LogFile->EndRecord;
         }
@@ -3474,27 +3396,17 @@ Arguments:
             ElfDbgPrint(("[ELF] Sleep waiting for global resource\n"));
             Sleep(ELF_GLOBAL_RESOURCE_WAIT);
         }
-
     }
 
     // If the resource was not available and the status of the service
     // changed to one of the "non-working" states, then we just return
     // unsuccesful.  Rpc should not allow this to happen.
-
-
     if (!Acquired) {
-
         ElfDbgPrint(("[ELF] Global resource not acquired.\n"));
         Request->Status = STATUS_UNSUCCESSFUL;
-
-    }
-    else {
-
+    } else {
         switch (Request->Command) {
-
         case ELF_COMMAND_READ:
-
-
             // The read/write code paths are high risk for exceptions.
             // Ensure exceptions do not go beyond this point. Otherwise,
             // services.exe will be taken out.  Note that the try-except
@@ -3504,19 +3416,14 @@ Arguments:
             // exception would prevent the releasing of the resource
             // (Bug #175768)
 
-
             PerformReadRequest(Request);
             break;
-
         case ELF_COMMAND_WRITE:
-
             PerformWriteRequest(Request);
             break;
-
         case ELF_COMMAND_CLEAR:
             PerformClearRequest(Request);
             break;
-
         case ELF_COMMAND_BACKUP:
             PerformBackupRequest(Request);
             break;
@@ -3524,28 +3431,16 @@ Arguments:
             break;
         }
 
-
         // Now run the queued event list dequeueing elements and
         // writing them
-
-
         if (!IsListEmpty(&QueuedEventListHead)) {
-
-
             // There are things queued up to write, do it
-
-
             WriteQueuedEvents();
         }
 
-
         // Release the global resource.
-
-
         ReleaseGlobalResource();
-
     }
-
 } // ElfPerformRequest
 
 
@@ -3573,7 +3468,7 @@ NTSTATUS
 FindSizeofEventsSinceStart(
     OUT PULONG pulTotalEventSize,
     IN PULONG pulNumLogFiles,
-    OUT PPROPLOGFILEINFO     *ppPropLogFileInfo
+    OUT PPROPLOGFILEINFO* ppPropLogFileInfo
 )
 {
     PLOGFILE            pLogFile;
@@ -3610,8 +3505,7 @@ FindSizeofEventsSinceStart(
     );
 
     //while there are more
-    while (pLogFile->FileList.Flink != LogFilesHead.Flink)
-    {
+    while (pLogFile->FileList.Flink != LogFilesHead.Flink) {
         ulNumLogFiles++;
         //advance to the next log file
         pLogFile = CONTAINING_RECORD(
@@ -3629,8 +3523,7 @@ FindSizeofEventsSinceStart(
     //allocate a structure for log file info
     pPropLogFileInfo = (PPROPLOGFILEINFO)
         ElfpAllocateBuffer((ulNumLogFiles) * sizeof(PROPLOGFILEINFO));
-    if (!pPropLogFileInfo)
-    {
+    if (!pPropLogFileInfo) {
         Status = STATUS_NO_MEMORY;
         goto FnExit;
     }
@@ -3646,8 +3539,7 @@ FindSizeofEventsSinceStart(
     i = 0;
     //while there are more
     while ((pLogFile->FileList.Flink != LogFilesHead.Flink) &&
-        (i < (ulNumLogFiles)))
-    {
+           (i < (ulNumLogFiles))) {
         ElfDbgPrint(("[ELF] FindSizeofEventsSinceStart: processing file %ws\r\n",
                      pLogFile->LogFileName->Buffer));
 
@@ -3696,8 +3588,7 @@ FindSizeofEventsSinceStart(
         //  circumstances (such as the system crashing). You don't want to
         //  read such corrupt records.
 
-        try
-        {
+        try {
             //find the size of events in this log file
             Status = SeekToStartingRecord(&Request, &pStartPropPosition, BeginRecord, EndRecord, PhysicalEOF, PhysStart);
         }
@@ -3707,8 +3598,7 @@ FindSizeofEventsSinceStart(
         }
 
         //skip this log file if error
-        if (!NT_SUCCESS(Status))
-        {
+        if (!NT_SUCCESS(Status)) {
             ElfDbgPrint(("[ELF] FindSizeofEventsSinceStart: SeekToStartingRecord(1) returned %d\r\n",
                          Status));
 
@@ -3738,8 +3628,7 @@ FindSizeofEventsSinceStart(
         //  circumstances (such as the system crashing). You don't want to
         //  read such corrupt records.
 
-        try
-        {
+        try {
             Status = SeekToStartingRecord(&Request, &pEndPropPosition, BeginRecord, EndRecord, PhysicalEOF, PhysStart);
         }
         except(EXCEPTION_EXECUTE_HANDLER)
@@ -3749,8 +3638,7 @@ FindSizeofEventsSinceStart(
 
         //skip this log file
         //skip this log file if error
-        if (!NT_SUCCESS(Status))
-        {
+        if (!NT_SUCCESS(Status)) {
             ElfDbgPrint(("[ELF] FindSizeofEventsSinceStart: SeekToStartingRecord(2) returned 0x%08lx\r\n",
                          Status));
 
@@ -3767,8 +3655,7 @@ FindSizeofEventsSinceStart(
                           PhysicalEOF,
                           pLogFile->BaseAddress,
                           TRUE
-        ))
-        {
+        )) {
             ElfDbgPrint(("[ELF] FindSizeofEventsSinceStart: ValidFilePos(2) returned %d\r\n", Status));
             goto process_nextlogfile;
         }
@@ -3784,8 +3671,7 @@ FindSizeofEventsSinceStart(
 
         if (pEndPropPosition > pStartPropPosition)
             ulSize = (ULONG)((PBYTE)pEndPropPosition - (PBYTE)pStartPropPosition);
-        else
-        {
+        else {
             ulSize = (ULONG)(((PBYTE)PhysicalEOF - (PBYTE)pStartPropPosition)) + (ULONG)(((PBYTE)pEndPropPosition - (PBYTE)PhysStart));
         }
         ElfDbgPrint(("[ELF] FindSizeofEventsSinceStart: ulSize %d\r\n", ulSize));
@@ -3815,8 +3701,7 @@ FindSizeofEventsSinceStart(
     }
 
     //free the memory if unsuccessful or if numlogfiles is 0.
-    if (!(*pulNumLogFiles) && (pPropLogFileInfo))
-    {
+    if (!(*pulNumLogFiles) && (pPropLogFileInfo)) {
         ElfpFreeBuffer(pPropLogFileInfo);
         pPropLogFileInfo = NULL;
     }
@@ -3864,8 +3749,7 @@ NTSTATUS GetEventsToProp(IN PEVENTLOGRECORD pEventLogRecords, IN PPROPLOGFILEINF
 
     //if the start and end positions are the same
     //there are no bytes to copy
-    if (pPropLogFileInfo->pStartPosition == pPropLogFileInfo->pEndPosition)
-    {
+    if (pPropLogFileInfo->pStartPosition == pPropLogFileInfo->pEndPosition) {
         ASSERT(FALSE);
         //shouldnt come here
         return(STATUS_SUCCESS);
@@ -3879,13 +3763,11 @@ NTSTATUS GetEventsToProp(IN PEVENTLOGRECORD pEventLogRecords, IN PPROPLOGFILEINF
     //  as the system crashing). You don't want to read such corrupt
     //  records.
 
-    try
-    {
+    try {
         XferPosition = (PVOID)pPropLogFileInfo->pStartPosition;
         ulBytesToMove = pPropLogFileInfo->ulTotalEventSize;
 
-        if (pPropLogFileInfo->pStartPosition > pPropLogFileInfo->pEndPosition)
-        {
+        if (pPropLogFileInfo->pStartPosition > pPropLogFileInfo->pEndPosition) {
 
             //find the end of this file
             PhysicalEOF = (PVOID)((PBYTE)pPropLogFileInfo->pLogFile->BaseAddress + pPropLogFileInfo->pLogFile->ViewSize);

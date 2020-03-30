@@ -38,7 +38,7 @@ Author:
 PLOGMODULE SystemModule = NULL;
 
 
-NTSTATUS SetUpLPCPort ()
+NTSTATUS SetUpLPCPort()
 /*++
 Routine Description:
     This routine sets up the LPC port for the service.
@@ -49,7 +49,7 @@ Routine Description:
     OBJECT_ATTRIBUTES objectAttributes;
     PORT_MESSAGE connectionRequest;
 
-    ElfDbgPrint (("[ELF] Set up LPC port\n"));
+    ElfDbgPrint(("[ELF] Set up LPC port\n"));
 
     // Initialize the handles to zero so that we can determine what to do
     // if we need to clean up.
@@ -57,24 +57,24 @@ Routine Description:
     ElfCommunicationPortHandle = NULL;
 
     // Create the LPC port.
-    RtlInitUnicodeString( &unicodePortName, ELF_PORT_NAME_U );
+    RtlInitUnicodeString(&unicodePortName, ELF_PORT_NAME_U);
     InitializeObjectAttributes(&objectAttributes, &unicodePortName, OBJ_CASE_INSENSITIVE, NULL, NULL);
     status = NtCreatePort(
-                    &ElfConnectionPortHandle,
-                    &objectAttributes,
-                    0,
-                    ELF_PORT_MAX_MESSAGE_LENGTH,
-                    ELF_PORT_MAX_MESSAGE_LENGTH * 32
-                    );
-    if ( !NT_SUCCESS(status) ) {
-        ElfDbgPrintNC(( "[ELF] Port not created\n" ));
+        &ElfConnectionPortHandle,
+        &objectAttributes,
+        0,
+        ELF_PORT_MAX_MESSAGE_LENGTH,
+        ELF_PORT_MAX_MESSAGE_LENGTH * 32
+    );
+    if (!NT_SUCCESS(status)) {
+        ElfDbgPrintNC(("[ELF] Port not created\n"));
     }
 
     return(status);
 }
 
 
-LPWSTR ElfpCopyString(LPWSTR Destination, LPWSTR Source, ULONG Length )
+LPWSTR ElfpCopyString(LPWSTR Destination, LPWSTR Source, ULONG Length)
 /*++
 Routine Description:
     Copies a string to the destination.  Correctly NUL terminates the string.
@@ -87,11 +87,11 @@ Return Value:
 --*/
 {
     //  Copy the data
-    RtlMoveMemory( Destination, Source, Length );
+    RtlMoveMemory(Destination, Source, Length);
 
     //  Make sure it's NULL terminated
     if (Length != 0) {
-        Destination += Length/2 - 1;
+        Destination += Length / 2 - 1;
         if (*Destination != L'\0') {
             Destination++;
             *Destination = L'\0';
@@ -104,7 +104,7 @@ Return Value:
 }
 
 
-NTSTATUS ElfProcessIoLPCPacket (ULONG PacketLength, PIO_ERROR_LOG_MESSAGE pIoErrorLogMessage)
+NTSTATUS ElfProcessIoLPCPacket(ULONG PacketLength, PIO_ERROR_LOG_MESSAGE pIoErrorLogMessage)
 /*++
 Routine Description:
     This routine takes the packet received from the LPC port and processes it.
@@ -138,47 +138,47 @@ Return Value:
     PWCHAR pwEnd;
     ULONG StringLength;
 
-    PacketLength = min( pIoErrorLogMessage->Size, PacketLength );
+    PacketLength = min(pIoErrorLogMessage->Size, PacketLength);
 
     try {
         // Validate the packet, First make sure there are the correct
         // number of NULL terminated strings, and remember the total number of bytes to copy
 
-        pwStart = pwch = (PWCHAR) ((PBYTE) pIoErrorLogMessage + pIoErrorLogMessage->EntryData.StringOffset);
-        pwEnd = (PWCHAR) ((PBYTE) pIoErrorLogMessage + PacketLength );
-        
+        pwStart = pwch = (PWCHAR)((PBYTE)pIoErrorLogMessage + pIoErrorLogMessage->EntryData.StringOffset);
+        pwEnd = (PWCHAR)((PBYTE)pIoErrorLogMessage + PacketLength);
+
         while (pwch < pwEnd &&
-            i < pIoErrorLogMessage->EntryData.NumberOfStrings) {
-                if (*pwch == L'\0') {
-                    i++;
-                }
-                pwch++;
+               i < pIoErrorLogMessage->EntryData.NumberOfStrings) {
+            if (*pwch == L'\0') {
+                i++;
+            }
+            pwch++;
         }
-        StringLength = (ULONG) (pwch - pwStart) * sizeof(WCHAR);
+        StringLength = (ULONG)(pwch - pwStart) * sizeof(WCHAR);
 
         // Now make sure everything in the packet is true
         if ((i != pIoErrorLogMessage->EntryData.NumberOfStrings) ||
             (pIoErrorLogMessage->DriverNameOffset + pIoErrorLogMessage->DriverNameLength >= PacketLength) ||
             (pIoErrorLogMessage->EntryData.StringOffset >= PacketLength) ||
-            (FIELD_OFFSET(IO_ERROR_LOG_MESSAGE, EntryData) 
+            (FIELD_OFFSET(IO_ERROR_LOG_MESSAGE, EntryData)
              + FIELD_OFFSET(IO_ERROR_LOG_PACKET, DumpData)
              + (ULONG)pIoErrorLogMessage->EntryData.DumpDataSize >= PacketLength)
             ) {
-                    // It's a bad packet, log it and return
-                    ElfDbgPrintNC(("[ELF] Bad packet from LPC port\n"));
-                    ElfpCreateElfEvent(EVENT_BadDriverPacket,
-                                       EVENTLOG_ERROR_TYPE,
-                                       0,                    // EventCategory
-                                       0,                    // NumberOfStrings
-                                       NULL,                 // Strings
-                                       pIoErrorLogMessage,   // Data
-                                       PacketLength,         // Datalength
-                                       0                     // flags
-                                       );
-                    return(STATUS_UNSUCCESSFUL);
+            // It's a bad packet, log it and return
+            ElfDbgPrintNC(("[ELF] Bad packet from LPC port\n"));
+            ElfpCreateElfEvent(EVENT_BadDriverPacket,
+                               EVENTLOG_ERROR_TYPE,
+                               0,                    // EventCategory
+                               0,                    // NumberOfStrings
+                               NULL,                 // Strings
+                               pIoErrorLogMessage,   // Data
+                               PacketLength,         // Datalength
+                               0                     // flags
+            );
+            return(STATUS_UNSUCCESSFUL);
         }
     }
-    except (EXCEPTION_EXECUTE_HANDLER) {
+    except(EXCEPTION_EXECUTE_HANDLER) {
         // It's a bad packet, log it and return
         ElfDbgPrintNC(("[ELF] Bad packet from LPC port\n"));
         ElfpCreateElfEvent(EVENT_BadDriverPacket,
@@ -189,7 +189,7 @@ Return Value:
                            pIoErrorLogMessage,   // Data
                            PacketLength,         // Datalength
                            0                     // flags
-                           );
+        );
         return(STATUS_UNSUCCESSFUL);
     }
 
@@ -197,7 +197,7 @@ Return Value:
     if (!SystemModule) {
         // Get the system module to log driver events
         RtlInitUnicodeString(&SystemString, ELF_SYSTEM_MODULE_NAME);
-        SystemModule = GetModuleStruc (&SystemString);
+        SystemModule = GetModuleStruc(&SystemString);
         ASSERT(SystemModule); // GetModuleStruc never returns NULL
     }
 
@@ -218,20 +218,20 @@ Return Value:
 
     // Determine how big a buffer is needed for the eventlog record.
     RecordLength = sizeof(EVENTLOGRECORD)
-                 + ComputerNameLength             // computername
-                 + 2 * sizeof(WCHAR)                    // term's
-                 + PacketLength
-                 - FIELD_OFFSET(IO_ERROR_LOG_MESSAGE, EntryData)
-                 + sizeof(RecordLength);                // final len
+        + ComputerNameLength             // computername
+        + 2 * sizeof(WCHAR)                    // term's
+        + PacketLength
+        - FIELD_OFFSET(IO_ERROR_LOG_MESSAGE, EntryData)
+        + sizeof(RecordLength);                // final len
 
-    // Determine how many pad bytes are needed to align to a DWORD boundary.
+// Determine how many pad bytes are needed to align to a DWORD boundary.
     PadSize = sizeof(ULONG) - (RecordLength % sizeof(ULONG));
 
     RecordLength += PadSize;    // True size needed
 
     // Allocate the buffer for the Eventlog record
-    EventLogRecord = (PEVENTLOGRECORD) ElfpAllocateBuffer(RecordLength);
-    if (EventLogRecord != (PEVENTLOGRECORD) NULL) {
+    EventLogRecord = (PEVENTLOGRECORD)ElfpAllocateBuffer(RecordLength);
+    if (EventLogRecord != (PEVENTLOGRECORD)NULL) {
         // Fill up the event record
         EventLogRecord->Length = RecordLength;
         RtlTimeToSecondsSince1970(&pIoErrorLogMessage->TimeStamp, &EventLogRecord->TimeGenerated);
@@ -241,15 +241,12 @@ Return Value:
 
         // set EventType based on the high order nibble of pIoErrorLogMessage->EntryData.ErrorCode
         if (NT_INFORMATION(pIoErrorLogMessage->EntryData.ErrorCode)) {
-                EventLogRecord->EventType =  EVENTLOG_INFORMATION_TYPE;
-        }
-        else if (NT_WARNING(pIoErrorLogMessage->EntryData.ErrorCode)) {
-                EventLogRecord->EventType =  EVENTLOG_WARNING_TYPE;
-        }
-        else if (NT_ERROR(pIoErrorLogMessage->EntryData.ErrorCode)) {
-                EventLogRecord->EventType = EVENTLOG_ERROR_TYPE;
-        }
-        else {
+            EventLogRecord->EventType = EVENTLOG_INFORMATION_TYPE;
+        } else if (NT_WARNING(pIoErrorLogMessage->EntryData.ErrorCode)) {
+            EventLogRecord->EventType = EVENTLOG_WARNING_TYPE;
+        } else if (NT_ERROR(pIoErrorLogMessage->EntryData.ErrorCode)) {
+            EventLogRecord->EventType = EVENTLOG_ERROR_TYPE;
+        } else {
             // Unknown, set to error
             EventLogRecord->EventType = EVENTLOG_ERROR_TYPE;
         }
@@ -263,12 +260,12 @@ Return Value:
         // Quota events contain a SID.
         if (pIoErrorLogMessage->EntryData.ErrorCode == IO_FILE_QUOTA_LIMIT ||
             pIoErrorLogMessage->EntryData.ErrorCode == IO_FILE_QUOTA_THRESHOLD) {
-            PFILE_QUOTA_INFORMATION pFileQuotaInformation = (PFILE_QUOTA_INFORMATION) pIoErrorLogMessage->EntryData.DumpData;
+            PFILE_QUOTA_INFORMATION pFileQuotaInformation = (PFILE_QUOTA_INFORMATION)pIoErrorLogMessage->EntryData.DumpData;
 
             EventLogRecord->UserSidLength = pFileQuotaInformation->SidLength;
-            EventLogRecord->UserSidOffset = EventLogRecord->DataOffset + 
-                    FIELD_OFFSET(IO_ERROR_LOG_PACKET, DumpData) +
-                    FIELD_OFFSET(FILE_QUOTA_INFORMATION, Sid);
+            EventLogRecord->UserSidOffset = EventLogRecord->DataOffset +
+                FIELD_OFFSET(IO_ERROR_LOG_PACKET, DumpData) +
+                FIELD_OFFSET(FILE_QUOTA_INFORMATION, Sid);
 
             EventLogRecord->DataLength = EventLogRecord->UserSidOffset - EventLogRecord->DataOffset;
         } else {
@@ -284,24 +281,24 @@ Return Value:
         // described by an offset from the start of the IO_ERROR_LOG_MESSAGE turn it into a pointer
 
         DestinationString = (LPWSTR)((LPBYTE)EventLogRecord + sizeof(EVENTLOGRECORD));
-        SourceString = (LPWSTR)((LPBYTE) pIoErrorLogMessage + pIoErrorLogMessage->DriverNameOffset);
-        DestinationString = ElfpCopyString( DestinationString, SourceString, pIoErrorLogMessage->DriverNameLength );
+        SourceString = (LPWSTR)((LPBYTE)pIoErrorLogMessage + pIoErrorLogMessage->DriverNameOffset);
+        DestinationString = ElfpCopyString(DestinationString, SourceString, pIoErrorLogMessage->DriverNameLength);
 
         // COMPUTERNAME
-        DestinationString = ElfpCopyString( DestinationString, LocalComputerName, ComputerNameLength );
+        DestinationString = ElfpCopyString(DestinationString, LocalComputerName, ComputerNameLength);
 
         // STRING
-        DestinationString = ElfpCopyString( DestinationString, pwStart, StringLength);
+        DestinationString = ElfpCopyString(DestinationString, pwStart, StringLength);
 
         // BINARY DATA
-        BinaryData = (LPBYTE) DestinationString;
-        RtlMoveMemory ( BinaryData,
-                        & pIoErrorLogMessage->EntryData,
-                        FIELD_OFFSET(IO_ERROR_LOG_PACKET, DumpData)
-                        + pIoErrorLogMessage->EntryData.DumpDataSize );
+        BinaryData = (LPBYTE)DestinationString;
+        RtlMoveMemory(BinaryData,
+                      &pIoErrorLogMessage->EntryData,
+                      FIELD_OFFSET(IO_ERROR_LOG_PACKET, DumpData)
+                      + pIoErrorLogMessage->EntryData.DumpDataSize);
 
         // LENGTH at end of record
-        pEndLength = (PULONG)((LPBYTE) EventLogRecord + RecordLength - sizeof(ULONG));
+        pEndLength = (PULONG)((LPBYTE)EventLogRecord + RecordLength - sizeof(ULONG));
         *pEndLength = RecordLength;
 
         // Set up request packet.
@@ -312,8 +309,8 @@ Return Value:
         Request.Pkt.WritePkt->Buffer = (PVOID)EventLogRecord;
         Request.Pkt.WritePkt->Datasize = RecordLength;
 
-        ElfPerformRequest( &Request );// Perform the operation        
-        ElfpFreeBuffer(EventLogRecord );// Free up the buffer
+        ElfPerformRequest(&Request);// Perform the operation        
+        ElfpFreeBuffer(EventLogRecord);// Free up the buffer
         status = Request.Status;                // Set status of WRITE
     } else {
         status = STATUS_NO_MEMORY;
@@ -323,7 +320,7 @@ Return Value:
 }
 
 
-NTSTATUS ElfProcessSmLPCPacket (ULONG PacketLength, PSM_ERROR_LOG_MESSAGE SmErrorLogMessage)
+NTSTATUS ElfProcessSmLPCPacket(ULONG PacketLength, PSM_ERROR_LOG_MESSAGE SmErrorLogMessage)
 /*++
 Routine Description:
     This routine takes the packet received from the LPC port and processes it.
@@ -354,42 +351,42 @@ Return Value:
     try {
         //  Validate the packet.
         if (
-            PacketLength < sizeof( SM_ERROR_LOG_MESSAGE ) ||
+            PacketLength < sizeof(SM_ERROR_LOG_MESSAGE) ||
             //  Offset begins before header
-            SmErrorLogMessage->StringOffset < sizeof( *SmErrorLogMessage ) ||
+            SmErrorLogMessage->StringOffset < sizeof(*SmErrorLogMessage) ||
             //  Offset begins after packet
             SmErrorLogMessage->StringOffset >= PacketLength ||
             //  Length of string longer than packet
             SmErrorLogMessage->StringLength > PacketLength ||
             //  String end after end of packet
             SmErrorLogMessage->StringOffset + SmErrorLogMessage->StringLength > PacketLength) {
-            RtlRaiseStatus( STATUS_UNSUCCESSFUL );
+            RtlRaiseStatus(STATUS_UNSUCCESSFUL);
         }
     }
-    except (EXCEPTION_EXECUTE_HANDLER) {
+    except(EXCEPTION_EXECUTE_HANDLER) {
         // It's a bad packet, log it and return
-        ElfDbgPrintNC(( "[ELF] Bad packet from LPC port\n" ));
-        ElfDbgPrintNC(( "[ELF] SmErrorLogMessage->StringOffset %x\n", SmErrorLogMessage->StringOffset ));
-        ElfDbgPrintNC(( "[ELF] PacketLength %x\n", PacketLength ));
-        ElfDbgPrintNC(( "[ELF] SmErrorLogMessage->StringLength %x\n", SmErrorLogMessage->StringLength ));
-        ElfpCreateElfEvent( EVENT_BadDriverPacket,
-                            EVENTLOG_ERROR_TYPE,
-                            0,                    // EventCategory
-                            0,                    // NumberOfStrings
-                            NULL,                 // Strings
-                            SmErrorLogMessage,    // Data
-                            PacketLength,           // Datalength
-                            0                     // flags
-                           );
+        ElfDbgPrintNC(("[ELF] Bad packet from LPC port\n"));
+        ElfDbgPrintNC(("[ELF] SmErrorLogMessage->StringOffset %x\n", SmErrorLogMessage->StringOffset));
+        ElfDbgPrintNC(("[ELF] PacketLength %x\n", PacketLength));
+        ElfDbgPrintNC(("[ELF] SmErrorLogMessage->StringLength %x\n", SmErrorLogMessage->StringLength));
+        ElfpCreateElfEvent(EVENT_BadDriverPacket,
+                           EVENTLOG_ERROR_TYPE,
+                           0,                    // EventCategory
+                           0,                    // NumberOfStrings
+                           NULL,                 // Strings
+                           SmErrorLogMessage,    // Data
+                           PacketLength,           // Datalength
+                           0                     // flags
+        );
         return(STATUS_UNSUCCESSFUL);
     }
 
     // We're going to need this everytime, so just get it once
     if (!SystemModule) {
         // Get the system module to log driver events
-        RtlInitUnicodeString( &SystemString, ELF_SYSTEM_MODULE_NAME );
-        SystemModule = GetModuleStruc( &SystemString );
-        ASSERT( SystemModule != NULL );
+        RtlInitUnicodeString(&SystemString, ELF_SYSTEM_MODULE_NAME);
+        SystemModule = GetModuleStruc(&SystemString);
+        ASSERT(SystemModule != NULL);
     }
 
     // Set up write packet in request packet
@@ -405,18 +402,18 @@ Return Value:
 
     //  Determine how big a buffer is needed for the eventlog record.
     //  We overestimate string lengths rather than probing for terminating NUL's
-    RecordLength = sizeof( EVENTLOGRECORD )
-                 + sizeof( L"system" )
-                 + ComputerNameLength + sizeof( WCHAR )
-                 + SmErrorLogMessage->StringLength + sizeof( WCHAR )
-                 + sizeof( RecordLength );
+    RecordLength = sizeof(EVENTLOGRECORD)
+        + sizeof(L"system")
+        + ComputerNameLength + sizeof(WCHAR)
+        + SmErrorLogMessage->StringLength + sizeof(WCHAR)
+        + sizeof(RecordLength);
 
     //  Since the RecordLength at the end must be ULONG aligned, we round
     //  up the total size to be ULONG aligned.
-    RecordLength += sizeof( ULONG ) - (RecordLength % sizeof( ULONG ));
+    RecordLength += sizeof(ULONG) - (RecordLength % sizeof(ULONG));
 
     // Allocate the buffer for the Eventlog record
-    EventLogRecord = (PEVENTLOGRECORD) ElfpAllocateBuffer(RecordLength);
+    EventLogRecord = (PEVENTLOGRECORD)ElfpAllocateBuffer(RecordLength);
     if (EventLogRecord == NULL) {
         return STATUS_NO_MEMORY;
     }
@@ -425,17 +422,17 @@ Return Value:
     EventLogRecord->Length = RecordLength;
     EventLogRecord->Reserved = ELF_LOG_FILE_SIGNATURE;
     RtlTimeToSecondsSince1970(&SmErrorLogMessage->TimeStamp, &EventLogRecord->TimeGenerated);
-    NtQuerySystemTime( &Time );
-    RtlTimeToSecondsSince1970( &Time, &EventLogRecord->TimeWritten );
+    NtQuerySystemTime(&Time);
+    RtlTimeToSecondsSince1970(&Time, &EventLogRecord->TimeWritten);
     EventLogRecord->EventID = SmErrorLogMessage->Status;
 
     // set EventType based on the high order nibble of the eventID
-    if (NT_INFORMATION( EventLogRecord->EventID )) {
-            EventLogRecord->EventType =  EVENTLOG_INFORMATION_TYPE;
-    } else if (NT_WARNING( EventLogRecord->EventID )) {
-            EventLogRecord->EventType =  EVENTLOG_WARNING_TYPE;
-    } else if (NT_ERROR( EventLogRecord->EventID )) {
-            EventLogRecord->EventType = EVENTLOG_ERROR_TYPE;
+    if (NT_INFORMATION(EventLogRecord->EventID)) {
+        EventLogRecord->EventType = EVENTLOG_INFORMATION_TYPE;
+    } else if (NT_WARNING(EventLogRecord->EventID)) {
+        EventLogRecord->EventType = EVENTLOG_WARNING_TYPE;
+    } else if (NT_ERROR(EventLogRecord->EventID)) {
+        EventLogRecord->EventType = EVENTLOG_ERROR_TYPE;
     } else {
         // Unknown, set to error
         EventLogRecord->EventType = EVENTLOG_ERROR_TYPE;
@@ -444,11 +441,11 @@ Return Value:
 
     //  There is a single string;  it is the name of the file being replaced
     EventLogRecord->NumStrings = 1;
-    EventLogRecord->EventCategory =  ELF_CATEGORY_SYSTEM_EVENT;
+    EventLogRecord->EventCategory = ELF_CATEGORY_SYSTEM_EVENT;
 
     //  Nothing for ReservedFlags
     //  Nothing for ClosingRecordNumber
-    EventLogRecord->StringOffset = sizeof(EVENTLOGRECORD) + sizeof( L"system" ) + ComputerNameLength;
+    EventLogRecord->StringOffset = sizeof(EVENTLOGRECORD) + sizeof(L"system") + ComputerNameLength;
 
     //  No SID's present
     EventLogRecord->UserSidLength = 0;
@@ -461,20 +458,20 @@ Return Value:
     // MODULENAME
 
     // SMSS
-    DestinationString = (LPWSTR)((LPBYTE)EventLogRecord + sizeof( EVENTLOGRECORD ));
-    DestinationString = ElfpCopyString( DestinationString, L"system", sizeof( L"system" ));
+    DestinationString = (LPWSTR)((LPBYTE)EventLogRecord + sizeof(EVENTLOGRECORD));
+    DestinationString = ElfpCopyString(DestinationString, L"system", sizeof(L"system"));
 
     // COMPUTERNAME
-    DestinationString = ElfpCopyString( DestinationString, LocalComputerName, ComputerNameLength );
+    DestinationString = ElfpCopyString(DestinationString, LocalComputerName, ComputerNameLength);
 
     // STRING.
     SourceString = (LPWSTR)((LPBYTE)SmErrorLogMessage + SmErrorLogMessage->StringOffset);
-    KdPrint(( "[ELF] String is '%*ws'\n", SmErrorLogMessage->StringLength, SourceString ));
+    KdPrint(("[ELF] String is '%*ws'\n", SmErrorLogMessage->StringLength, SourceString));
 
-    DestinationString = ElfpCopyString( DestinationString, SourceString, SmErrorLogMessage->StringLength );
+    DestinationString = ElfpCopyString(DestinationString, SourceString, SmErrorLogMessage->StringLength);
 
     // LENGTH at end of record
-    pEndLength = (PULONG)((LPBYTE) EventLogRecord + RecordLength - sizeof(ULONG));
+    pEndLength = (PULONG)((LPBYTE)EventLogRecord + RecordLength - sizeof(ULONG));
     *pEndLength = RecordLength;
 
     // Set up request packet.
@@ -485,13 +482,13 @@ Return Value:
     Request.Pkt.WritePkt->Buffer = (PVOID)EventLogRecord;
     Request.Pkt.WritePkt->Datasize = RecordLength;
 
-    ElfPerformRequest( &Request );// Perform the operation
-    ElfpFreeBuffer( EventLogRecord );// Free up the buffer
+    ElfPerformRequest(&Request);// Perform the operation
+    ElfpFreeBuffer(EventLogRecord);// Free up the buffer
     return Request.Status;
 }
 
 
-NTSTATUS ElfProcessLPCCalls ()
+NTSTATUS ElfProcessLPCCalls()
 /*++
 Routine Description:
     This routine waits for messages to come through the LPC port to
@@ -512,23 +509,23 @@ Routine Description:
         return(STATUS_NO_MEMORY);
     }
 
-    while ( TRUE ) {
+    while (TRUE) {
         // On the first call to NtReplyWaitReceivePort, don't send a
         // reply since there's nobody to reply to.  However, on subsequent
         // calls the reply to the message from the prior time if that message
         // wasn't a LPC_DATAGRAM
         status = NtReplyWaitReceivePort(
-                     ElfConnectionPortHandle,
-                     (PVOID)&PortConnectionHandle,
-                     (PPORT_MESSAGE)( SendReply ? &replyMessage : NULL),
-                     (PPORT_MESSAGE) receiveMessage
-                     );
-        if ( !NT_SUCCESS(status) ) {
-            ElfDbgPrintNC(( "[ELF] ElfProcessLPCCalls: NtReplyWaitReceivePort failed: %X\n", status ));
+            ElfConnectionPortHandle,
+            (PVOID)&PortConnectionHandle,
+            (PPORT_MESSAGE)(SendReply ? &replyMessage : NULL),
+            (PPORT_MESSAGE)receiveMessage
+        );
+        if (!NT_SUCCESS(status)) {
+            ElfDbgPrintNC(("[ELF] ElfProcessLPCCalls: NtReplyWaitReceivePort failed: %X\n", status));
             return status;
         }
 
-        ElfDbgPrint(( "[ELF] ElfProcessLPCCalls: received message\n" ));
+        ElfDbgPrint(("[ELF] ElfProcessLPCCalls: received message\n"));
 
         // Take the record received and perform the operation.  Strip off
         // the PortMessage and just send the packet
@@ -539,16 +536,16 @@ Routine Description:
         // Only process messages that are LPC_REQUEST or LPC_DATAGRAM
 
         if (receiveMessage->PortMessage.u2.s2.Type == LPC_REQUEST || receiveMessage->PortMessage.u2.s2.Type == LPC_DATAGRAM) {
-            ElfDbgPrint(( "[ELF] Type = %x\n", receiveMessage->PortMessage.u2.s2.Type ));
+            ElfDbgPrint(("[ELF] Type = %x\n", receiveMessage->PortMessage.u2.s2.Type));
 
             if (receiveMessage->MessageType == IO_ERROR_LOG) {
-                ElfDbgPrint(( "[ELF] SM_IO_LOG\n" ));
-                status = ElfProcessIoLPCPacket(receiveMessage->PortMessage.u1.s1.DataLength, &receiveMessage->u.IoErrorLogMessage );
+                ElfDbgPrint(("[ELF] SM_IO_LOG\n"));
+                status = ElfProcessIoLPCPacket(receiveMessage->PortMessage.u1.s1.DataLength, &receiveMessage->u.IoErrorLogMessage);
             } else if (receiveMessage->MessageType == SM_ERROR_LOG) {
-                ElfDbgPrint(( "[ELF] SM_ERROR_LOG\n" ));
-                status = ElfProcessSmLPCPacket(receiveMessage->PortMessage.u1.s1.DataLength, &receiveMessage->u.SmErrorLogMessage );
+                ElfDbgPrint(("[ELF] SM_ERROR_LOG\n"));
+                status = ElfProcessSmLPCPacket(receiveMessage->PortMessage.u1.s1.DataLength, &receiveMessage->u.SmErrorLogMessage);
             } else {
-                ElfDbgPrintNC(( "[ELF] Unknown MessageType %x\n", receiveMessage->MessageType ));
+                ElfDbgPrintNC(("[ELF] Unknown MessageType %x\n", receiveMessage->MessageType));
             }
 
             if (receiveMessage->PortMessage.u2.s2.Type == LPC_REQUEST) {
@@ -565,48 +562,48 @@ Routine Description:
             }
         } else if (receiveMessage->PortMessage.u2.s2.Type == LPC_CONNECTION_REQUEST) {
             HANDLE Handle;
-            PHANDLE SavedHandle = (PHANDLE) ElfpAllocateBuffer( sizeof( HANDLE ));
+            PHANDLE SavedHandle = (PHANDLE)ElfpAllocateBuffer(sizeof(HANDLE));
             BOOLEAN Accept = TRUE;
 
-            ElfDbgPrint(( "[ELF] ElfProcessLPCCalls: Processing connection request\n" ));
+            ElfDbgPrint(("[ELF] ElfProcessLPCCalls: Processing connection request\n"));
 
             if (SavedHandle == NULL) {
-                ElfDbgPrintNC(( "[ELF] ElfProcessLPCCalls: Unable to allocate handle save area\n" ));
+                ElfDbgPrintNC(("[ELF] ElfProcessLPCCalls: Unable to allocate handle save area\n"));
                 Accept = FALSE;
             }
 
-            status = NtAcceptConnectPort( &Handle, SavedHandle, &receiveMessage->PortMessage, Accept, NULL, NULL );
+            status = NtAcceptConnectPort(&Handle, SavedHandle, &receiveMessage->PortMessage, Accept, NULL, NULL);
             if (!Accept) {
                 continue;
             }
 
-            if (NT_SUCCESS( status )) {
+            if (NT_SUCCESS(status)) {
                 *SavedHandle = Handle;
-                status = NtCompleteConnectPort( Handle );
-                if (!NT_SUCCESS( status )) {
-                    ElfDbgPrintNC(( "[ELF] ElfProcessLPCCalls: NtCompleteConnectPort failed %x\n", status ));
-                    NtClose( Handle );
+                status = NtCompleteConnectPort(Handle);
+                if (!NT_SUCCESS(status)) {
+                    ElfDbgPrintNC(("[ELF] ElfProcessLPCCalls: NtCompleteConnectPort failed %x\n", status));
+                    NtClose(Handle);
                 }
             }
 
-            if (!NT_SUCCESS( status )) {
-                ElfDbgPrintNC(( "[ELF] ElfProcessLPCCalls: cleaning up failed connect\n" ));
-                ElfpFreeBuffer( SavedHandle );
+            if (!NT_SUCCESS(status)) {
+                ElfDbgPrintNC(("[ELF] ElfProcessLPCCalls: cleaning up failed connect\n"));
+                ElfpFreeBuffer(SavedHandle);
             }
         } else if (receiveMessage->PortMessage.u2.s2.Type == LPC_PORT_CLOSED) {
-            ElfDbgPrint(( "[ELF] ElfProcessLPCCalls: Processing Port closed\n" ));
-            NtClose( *PortConnectionHandle );
-            ElfpFreeBuffer( PortConnectionHandle );
+            ElfDbgPrint(("[ELF] ElfProcessLPCCalls: Processing Port closed\n"));
+            NtClose(*PortConnectionHandle);
+            ElfpFreeBuffer(PortConnectionHandle);
         } else {
             // We received a message type we didn't expect, probably due to error.  BUGBUG - write an event
-            ElfDbgPrintNC(( "[ELF] Unexpected message type received on LPC port\n"));
-            ElfDbgPrintNC(( "[ELF] Message type = %x\n", receiveMessage->PortMessage.u2.s2.Type));
+            ElfDbgPrintNC(("[ELF] Unexpected message type received on LPC port\n"));
+            ElfDbgPrintNC(("[ELF] Message type = %x\n", receiveMessage->PortMessage.u2.s2.Type));
         }
-   }
+    }
 } // ElfProcessLPCCalls
 
 
-DWORD MainLPCThread (LPVOID      LPCThreadParm)
+DWORD MainLPCThread(LPVOID      LPCThreadParm)
 /*++
 Routine Description:
     This is the main thread that monitors the LPC port from the I/O system.
@@ -620,24 +617,24 @@ Return Value:
 {
     NTSTATUS    Status;
 
-    ElfDbgPrint(( "[ELF] Inside LPC thread\n" ));
+    ElfDbgPrint(("[ELF] Inside LPC thread\n"));
 
     Status = SetUpLPCPort();
     if (NT_SUCCESS(Status)) {
         // Loop forever. This thread will be killed when the service terminates.
         while (TRUE) {
-            Status = ElfProcessLPCCalls ();
+            Status = ElfProcessLPCCalls();
         }
     }
-    ElfDbgPrintNC (("[ELF] Error from SetUpLPCPort. Status = %lx\n", Status));
+    ElfDbgPrintNC(("[ELF] Error from SetUpLPCPort. Status = %lx\n", Status));
 
     return (Status);
 
-    UNREFERENCED_PARAMETER ( LPCThreadParm );
+    UNREFERENCED_PARAMETER(LPCThreadParm);
 }
 
 
-BOOL StartLPCThread ()
+BOOL StartLPCThread()
 /*++
 Routine Description:
     This routine starts up the thread that monitors the LPC port.
@@ -648,20 +645,20 @@ Return Value:
     DWORD       error;
     DWORD       ThreadId;
 
-    ElfDbgPrint(( "[ELF] Start up the LPC thread\n" ));
+    ElfDbgPrint(("[ELF] Start up the LPC thread\n"));
 
     // Start up the actual thread.
     LPCThreadHandle = CreateThread(
-                            NULL,               // lpThreadAttributes
-                            4096,               // dwStackSize
-                            MainLPCThread,      // lpStartAddress
-                            NULL,               // lpParameter
-                            0L,                 // dwCreationFlags
-                            &ThreadId        // lpThreadId
-                            );
-    if ( LPCThreadHandle == NULL ) {
+        NULL,               // lpThreadAttributes
+        4096,               // dwStackSize
+        MainLPCThread,      // lpStartAddress
+        NULL,               // lpParameter
+        0L,                 // dwCreationFlags
+        &ThreadId        // lpThreadId
+    );
+    if (LPCThreadHandle == NULL) {
         error = GetLastError();
-        ElfDbgPrintNC(( "[ELF]: LPCThread - CreateThread failed: %ld\n", error ));
+        ElfDbgPrintNC(("[ELF]: LPCThread - CreateThread failed: %ld\n", error));
         return (FALSE);
     }
     return (TRUE);

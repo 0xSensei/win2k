@@ -22,18 +22,14 @@ Revision History:
 --*/
 
 
-//                                                                           //
 // Include files                                                             //
-//                                                                           //
 
 
 #include "globals.h"
 
 
 
-//                                                                           //
 // Public procedures                                                         //
-//                                                                           //
 
 
 VOID
@@ -44,53 +40,36 @@ ReportSnmpEvent(
     LPTSTR *ppSubStrings,
     DWORD   nErrorCode
     )
-
 /*++
-
 Routine Description:
-
     Reports event with EventLog service.
-
 Arguments:
-
     nMsgId - message identifier.
-
     nSubStrings - number of message strings.
-
     ppSubStrings - pointer to array of message strings.
-
     nErrorCode - error code to be attached to event.
-
 Return Values:
-
     Returns true if successful.
-
 --*/
-
 {
     HANDLE lh;
     WORD   wEventType;
     LPVOID lpData;
     WORD   cbData;
 
-
     // determine type of event from message id.  note that
     // all debug messages regardless of their severity are
     // listed under SNMP_EVENT_DEBUG_TRACE (informational).
     // see snmpevts.h for the entire list of event messages.
 
-
     switch ( nMsgId >> 30 ) {
-
     case STATUS_SEVERITY_INFORMATIONAL:
     case STATUS_SEVERITY_SUCCESS:
         wEventType = EVENTLOG_INFORMATION_TYPE;
         break;
-
     case STATUS_SEVERITY_WARNING:
         wEventType = EVENTLOG_WARNING_TYPE;
         break;
-
     case STATUS_SEVERITY_ERROR:
     default:
         wEventType = EVENTLOG_ERROR_TYPE;
@@ -103,7 +82,6 @@ Return Values:
 
     // attempt to register event sources
     if (lh = RegisterEventSource(NULL, TEXT("SNMP"))) {
-
         // report
         ReportEvent(
            lh,
@@ -116,8 +94,7 @@ Return Values:
            ppSubStrings,
            lpData
            );
-
-        // deregister event source
-        DeregisterEventSource(lh);
+        
+        DeregisterEventSource(lh);// deregister event source
     }
 }

@@ -33,9 +33,7 @@ Revision History:
 
 
 
-handle_t
-EVENTLOG_HANDLE_W_bind (
-    EVENTLOG_HANDLE_W   ServerName)
+handle_t EVENTLOG_HANDLE_W_bind(EVENTLOG_HANDLE_W   ServerName)
 
 /*++
 
@@ -64,7 +62,7 @@ Return Value:
     // If we're connecting to the local services use LRPC to avoid silly bugs
     // with cached tokens in named pipes.  (Talk to AlbertT/MarioGo)
     // SVCS_LRPC_* defines come from private\inc\svcs.h
-    if (ServerName == NULL || wcscmp(ServerName, L"\\\\.") == 0 ) {
+    if (ServerName == NULL || wcscmp(ServerName, L"\\\\.") == 0) {
         PWSTR sb;
         status = RpcStringBindingComposeW(0, SVCS_LRPC_PROTOCOL, 0, SVCS_LRPC_PORT, 0, &sb);
         if (status == RPC_S_OK) {
@@ -77,23 +75,20 @@ Return Value:
         return NULL;
     }
 
-    status = RpcpBindRpc (
-                ServerName,
-                SERVICE_EVENTLOG,
-                NULL,
-                &bindingHandle);
+    status = RpcpBindRpc(
+        ServerName,
+        SERVICE_EVENTLOG,
+        NULL,
+        &bindingHandle);
 
     // DbgPrint("EVENTLOG_bind: handle=%d\n",bindingHandle);
-    return( bindingHandle);
+    return(bindingHandle);
 }
 
 
 
 
-void
-EVENTLOG_HANDLE_W_unbind (
-    EVENTLOG_HANDLE_W   ServerName,
-    handle_t        BindingHandle)
+void EVENTLOG_HANDLE_W_unbind(EVENTLOG_HANDLE_W   ServerName, handle_t        BindingHandle)
 
 /*++
 
@@ -117,7 +112,7 @@ Return Value:
     RPC_STATUS  status;
 
     // DbgPrint("EVENTLOG_HANDLE_unbind: handle=%d\n",BindingHandle);
-    status = RpcpUnbindRpc ( BindingHandle);
+    status = RpcpUnbindRpc(BindingHandle);
     return;
 
     UNREFERENCED_PARAMETER(ServerName);
@@ -125,9 +120,7 @@ Return Value:
 }
 
 
-handle_t
-EVENTLOG_HANDLE_A_bind (
-    EVENTLOG_HANDLE_A   ServerName)
+handle_t EVENTLOG_HANDLE_A_bind(EVENTLOG_HANDLE_A   ServerName)
 
 /*++
 
@@ -155,47 +148,34 @@ Return Value:
     // Convert the ANSI string to a UNICODE string before calling the
     // UNICODE routine.
 
-    RtlInitAnsiString (&ServerNameA, (PSTR)ServerName);
+    RtlInitAnsiString(&ServerNameA, (PSTR)ServerName);
 
-    RtlAnsiStringToUnicodeString (
-            &ServerNameU,
-            &ServerNameA,
-            TRUE
-            );
+    RtlAnsiStringToUnicodeString(
+        &ServerNameU,
+        &ServerNameA,
+        TRUE
+    );
 
     bindingHandle = EVENTLOG_HANDLE_W_bind(
-                (EVENTLOG_HANDLE_W)ServerNameU.Buffer
-                );
+        (EVENTLOG_HANDLE_W)ServerNameU.Buffer
+    );
 
-    RtlFreeUnicodeString (&ServerNameU);
+    RtlFreeUnicodeString(&ServerNameU);
 
-    return( bindingHandle);
+    return(bindingHandle);
 }
 
 
-
-
-void
-EVENTLOG_HANDLE_A_unbind (
-    EVENTLOG_HANDLE_A   ServerName,
-    handle_t        BindingHandle)
+void EVENTLOG_HANDLE_A_unbind(EVENTLOG_HANDLE_A   ServerName, handle_t        BindingHandle)
 
 /*++
-
 Routine Description:
-
     This routine calls EVENTLOG_HANDLE_W_unbind.
-
 Arguments:
-
     ServerName - This is the ANSI name of the server from which to unbind.
-
     BindingHandle - This is the binding handle that is to be closed.
-
 Return Value:
-
     none.
-
 --*/
 {
     UNICODE_STRING  ServerNameU;
@@ -205,18 +185,13 @@ Return Value:
     // Convert the ANSI string to a UNICODE string before calling the
     // UNICODE routine.
 
-    RtlInitAnsiString (&ServerNameA, (PSTR)ServerName);
+    RtlInitAnsiString(&ServerNameA, (PSTR)ServerName);
 
-    RtlAnsiStringToUnicodeString (
-            &ServerNameU,
-            &ServerNameA,
-            TRUE
-            );
+    RtlAnsiStringToUnicodeString(&ServerNameU, &ServerNameA, TRUE);
 
-    EVENTLOG_HANDLE_W_unbind( (EVENTLOG_HANDLE_W)ServerNameU.Buffer,
-                 BindingHandle );
+    EVENTLOG_HANDLE_W_unbind((EVENTLOG_HANDLE_W)ServerNameU.Buffer, BindingHandle);
 
-    RtlFreeUnicodeString (&ServerNameU);
+    RtlFreeUnicodeString(&ServerNameU);
 
     return;
 }

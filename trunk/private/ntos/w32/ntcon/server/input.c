@@ -58,7 +58,7 @@ typedef struct _CONSOLE_KEY_INFO {
     HWND hWnd;
     WORD wVirtualKeyCode;
     WORD wVirtualScanCode;
-} CONSOLE_KEY_INFO, *PCONSOLE_KEY_INFO;
+} CONSOLE_KEY_INFO, * PCONSOLE_KEY_INFO;
 
 CONSOLE_KEY_INFO ConsoleKeyInfo[CONSOLE_MAX_KEY_INFO];
 
@@ -66,7 +66,7 @@ VOID
 UserExitWorkerThread(VOID);
 
 BOOL
-InitWindowClass( VOID );
+InitWindowClass(VOID);
 
 #if !defined(FE_SB)
 NTSTATUS
@@ -91,25 +91,14 @@ CreateInputBuffer(
     IN PCONSOLE_INFORMATION Console
 #endif
     )
-
 /*++
-
 Routine Description:
-
     This routine creates an input buffer.  It allocates the circular
     buffer and initializes the information fields.
-
 Arguments:
-
     NumberOfEvents - Size of input buffer in events.
-
     InputBufferInformation - Pointer to input buffer information structure.
-
-Return Value:
-
-
 --*/
-
 {
     ULONG BufferSize;
     NTSTATUS Status;
@@ -119,9 +108,8 @@ Return Value:
     }
 
     // allocate memory for circular buffer
-
-    BufferSize =  sizeof(INPUT_RECORD) * (NumberOfEvents+1);
-    InputBufferInformation->InputBuffer = (PINPUT_RECORD)ConsoleHeapAlloc(MAKE_TAG( BUFFER_TAG ),BufferSize);
+    BufferSize = sizeof(INPUT_RECORD) * (NumberOfEvents + 1);
+    InputBufferInformation->InputBuffer = (PINPUT_RECORD)ConsoleHeapAlloc(MAKE_TAG(BUFFER_TAG), BufferSize);
     if (InputBufferInformation->InputBuffer == NULL) {
         return STATUS_NO_MEMORY;
     }
@@ -134,7 +122,6 @@ Return Value:
     InitializeListHead(&InputBufferInformation->ReadWaitQueue);
 
     // initialize buffer header
-
     InputBufferInformation->InputBufferSize = NumberOfEvents;
     InputBufferInformation->ShareAccess.OpenCount = 0;
     InputBufferInformation->ShareAccess.Readers = 0;
@@ -144,49 +131,36 @@ Return Value:
     InputBufferInformation->InputMode = ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT | ENABLE_MOUSE_INPUT;
     InputBufferInformation->AllocatedBufferSize = BufferSize;
     InputBufferInformation->RefCount = 0;
-    InputBufferInformation->First = (ULONG_PTR) InputBufferInformation->InputBuffer;
-    InputBufferInformation->In = (ULONG_PTR) InputBufferInformation->InputBuffer;
-    InputBufferInformation->Out = (ULONG_PTR) InputBufferInformation->InputBuffer;
-    InputBufferInformation->Last = (ULONG_PTR) InputBufferInformation->InputBuffer + BufferSize;
+    InputBufferInformation->First = (ULONG_PTR)InputBufferInformation->InputBuffer;
+    InputBufferInformation->In = (ULONG_PTR)InputBufferInformation->InputBuffer;
+    InputBufferInformation->Out = (ULONG_PTR)InputBufferInformation->InputBuffer;
+    InputBufferInformation->Last = (ULONG_PTR)InputBufferInformation->InputBuffer + BufferSize;
 #if defined(FE_SB)
 #if defined(FE_IME)
-    InputBufferInformation->ImeMode.Disable     = FALSE;
+    InputBufferInformation->ImeMode.Disable = FALSE;
     InputBufferInformation->ImeMode.Unavailable = FALSE;
-    InputBufferInformation->ImeMode.Open        = FALSE;
+    InputBufferInformation->ImeMode.Open = FALSE;
     InputBufferInformation->ImeMode.ReadyConversion = FALSE;
 #endif // FE_IME
     InputBufferInformation->Console = Console;
-    RtlZeroMemory(&InputBufferInformation->ReadConInpDbcsLeadByte,sizeof(INPUT_RECORD));
-    RtlZeroMemory(&InputBufferInformation->WriteConInpDbcsLeadByte,sizeof(INPUT_RECORD));
+    RtlZeroMemory(&InputBufferInformation->ReadConInpDbcsLeadByte, sizeof(INPUT_RECORD));
+    RtlZeroMemory(&InputBufferInformation->WriteConInpDbcsLeadByte, sizeof(INPUT_RECORD));
 #endif
 
     return STATUS_SUCCESS;
 }
 
-NTSTATUS
-ReinitializeInputBuffer(
-    OUT PINPUT_INFORMATION InputBufferInformation
-    )
 
+NTSTATUS ReinitializeInputBuffer(OUT PINPUT_INFORMATION InputBufferInformation)
 /*++
-
 Routine Description:
-
-    This routine resets the input buffer information fields to their
-    initial values.
-
+    This routine resets the input buffer information fields to their initial values.
 Arguments:
-
     InputBufferInformation - Pointer to input buffer information structure.
-
 Return Value:
-
 Note:
-
     The console lock must be held when calling this routine.
-
 --*/
-
 {
     NtClearEvent(InputBufferInformation->InputWaitEvent);
     InputBufferInformation->ShareAccess.OpenCount = 0;
@@ -194,9 +168,9 @@ Note:
     InputBufferInformation->ShareAccess.Writers = 0;
     InputBufferInformation->ShareAccess.SharedRead = 0;
     InputBufferInformation->ShareAccess.SharedWrite = 0;
-    InputBufferInformation->InputMode = ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT  | ENABLE_ECHO_INPUT | ENABLE_MOUSE_INPUT;
-    InputBufferInformation->In = (ULONG_PTR) InputBufferInformation->InputBuffer;
-    InputBufferInformation->Out = (ULONG_PTR) InputBufferInformation->InputBuffer;
+    InputBufferInformation->InputMode = ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT | ENABLE_MOUSE_INPUT;
+    InputBufferInformation->In = (ULONG_PTR)InputBufferInformation->InputBuffer;
+    InputBufferInformation->Out = (ULONG_PTR)InputBufferInformation->InputBuffer;
     return STATUS_SUCCESS;
 }
 
@@ -225,59 +199,43 @@ WaitForMoreToRead(
     IN ULONG WaitParameterLength  OPTIONAL,
     IN BOOLEAN WaitBlockExists OPTIONAL
     )
-
 /*++
-
 Routine Description:
-
     This routine waits for a writer to add data to the buffer.
-
 Arguments:
-
     InputInformation - buffer to wait for
-
     Console - Pointer to console buffer information.
-
-    Message - if called from dll (not InputThread), points to api
-    message.  this parameter is used for wait block processing.
-
+    Message - if called from dll (not InputThread), points to api message.  
+              this parameter is used for wait block processing.
     WaitRoutine - Routine to call when wait is woken up.
-
     WaitParameter - Parameter to pass to wait routine.
-
     WaitParameterLength - Length of wait parameter.
-
     WaitBlockExists - TRUE if wait block has already been created.
-
 Return Value:
-
     STATUS_WAIT - call was from client and wait block has been created.
-
     STATUS_SUCCESS - call was from server and wait has been satisfied.
-
 --*/
-
 {
     PVOID WaitParameterBuffer;
 
     if (!WaitBlockExists) {
-        WaitParameterBuffer = (PVOID)ConsoleHeapAlloc(MAKE_TAG( WAIT_TAG ),WaitParameterLength);
+        WaitParameterBuffer = (PVOID)ConsoleHeapAlloc(MAKE_TAG(WAIT_TAG), WaitParameterLength);
         if (WaitParameterBuffer == NULL) {
             return STATUS_NO_MEMORY;
         }
-        RtlCopyMemory(WaitParameterBuffer,WaitParameter,WaitParameterLength);
+        RtlCopyMemory(WaitParameterBuffer, WaitParameter, WaitParameterLength);
 #if defined(FE_SB)
         if (WaitParameterLength == sizeof(COOKED_READ_DATA) && InputInformation->Console->lpCookedReadData == WaitParameter) {
             InputInformation->Console->lpCookedReadData = WaitParameterBuffer;
         }
 #endif
         if (!CsrCreateWait(&InputInformation->ReadWaitQueue,
-                          WaitRoutine,
-                          CSR_SERVER_QUERYCLIENTTHREAD(),
-                          Message,
-                          WaitParameterBuffer,
-                          NULL
-                         )) {
+                           WaitRoutine,
+                           CSR_SERVER_QUERYCLIENTTHREAD(),
+                           Message,
+                           WaitParameterBuffer,
+                           NULL
+                           )) {
             ConsoleHeapFree(WaitParameterBuffer);
 #if defined(FE_SB)
             InputInformation->Console->lpCookedReadData = NULL;
@@ -285,82 +243,48 @@ Return Value:
             return STATUS_NO_MEMORY;
         }
     }
+
     return CONSOLE_STATUS_WAIT;
 }
 
 
-VOID
-WakeUpReadersWaitingForData(
-    IN PCONSOLE_INFORMATION Console,
-    PINPUT_INFORMATION InputInformation
-    )
-
+VOID WakeUpReadersWaitingForData(IN PCONSOLE_INFORMATION Console, PINPUT_INFORMATION InputInformation)
 /*++
-
 Routine Description:
-
     This routine wakes up readers waiting for data to read.
-
 Arguments:
-
     InputInformation - buffer to alert readers for
-
 Return Value:
-
     TRUE - The operation was successful
-
     FALSE/NULL - The operation failed.
-
 --*/
-
 {
     BOOLEAN WaitSatisfied;
-    WaitSatisfied = CsrNotifyWait(&InputInformation->ReadWaitQueue,
-                  FALSE,
-                  NULL,
-                  NULL
-                 );
+    WaitSatisfied = CsrNotifyWait(&InputInformation->ReadWaitQueue, FALSE, NULL, NULL);
     if (WaitSatisfied) {
         // #334370 under stress, WaitQueue may already hold the satisfied waits
-        ASSERT ((Console->WaitQueue == NULL) ||
-                (Console->WaitQueue == &InputInformation->ReadWaitQueue));
+        ASSERT((Console->WaitQueue == NULL) ||(Console->WaitQueue == &InputInformation->ReadWaitQueue));
         Console->WaitQueue = &InputInformation->ReadWaitQueue;
     }
 }
 
 
-NTSTATUS
-GetNumberOfReadyEvents(
-    IN PINPUT_INFORMATION InputInformation,
-    OUT PULONG NumberOfEvents
-    )
-
+NTSTATUS GetNumberOfReadyEvents(IN PINPUT_INFORMATION InputInformation, OUT PULONG NumberOfEvents)
 /*++
-
 Routine Description:
-
     This routine returns the number of events in the input buffer.
-
 Arguments:
-
     InputInformation - Pointer to input buffer information structure.
-
     NumberOfEvents - On output contains the number of events.
-
 Return Value:
-
 Note:
-
     The console lock must be held when calling this routine.
-
 --*/
-
 {
     if (InputInformation->In < InputInformation->Out) {
         *NumberOfEvents = (ULONG)(InputInformation->Last - InputInformation->Out);
         *NumberOfEvents += (ULONG)(InputInformation->In - InputInformation->First);
-    }
-    else {
+    } else {
         *NumberOfEvents = (ULONG)(InputInformation->In - InputInformation->Out);
     }
     *NumberOfEvents /= sizeof(INPUT_RECORD);
@@ -368,53 +292,35 @@ Note:
     return STATUS_SUCCESS;
 }
 
-NTSTATUS
-FlushAllButKeys(
-    PINPUT_INFORMATION InputInformation
-    )
 
+NTSTATUS FlushAllButKeys(PINPUT_INFORMATION InputInformation)
 /*++
-
 Routine Description:
-
     This routine removes all but the key events from the buffer.
-
 Arguments:
-
     InputInformation - Pointer to input buffer information structure.
-
 Return Value:
-
 Note:
-
     The console lock must be held when calling this routine.
-
 --*/
-
 {
-    ULONG NumberOfEventsRead,i;
+    ULONG NumberOfEventsRead, i;
     NTSTATUS Status;
-    PINPUT_RECORD TmpInputBuffer,InPtr,TmpInputBufferPtr;
+    PINPUT_RECORD TmpInputBuffer, InPtr, TmpInputBufferPtr;
     ULONG BufferSize;
     BOOL Dummy;
 
-    if (InputInformation->In != InputInformation->Out)  {
-
-
+    if (InputInformation->In != InputInformation->Out) {
         // allocate memory for temp buffer
-
-
-        BufferSize =  sizeof(INPUT_RECORD) * (InputInformation->InputBufferSize+1);
-        TmpInputBuffer = (PINPUT_RECORD)ConsoleHeapAlloc(MAKE_TAG( TMP_TAG ),BufferSize);
+        BufferSize = sizeof(INPUT_RECORD) * (InputInformation->InputBufferSize + 1);
+        TmpInputBuffer = (PINPUT_RECORD)ConsoleHeapAlloc(MAKE_TAG(TMP_TAG), BufferSize);
         if (TmpInputBuffer == NULL) {
             return STATUS_NO_MEMORY;
         }
         TmpInputBufferPtr = TmpInputBuffer;
 
-
         // copy input buffer.
         // let ReadBuffer do any compaction work.
-
 
         Status = ReadBuffer(InputInformation,
                             TmpInputBuffer,
@@ -427,23 +333,23 @@ Note:
                             ,
                             TRUE
 #endif
-                           );
+                            );
 
         if (!NT_SUCCESS(Status)) {
             ConsoleHeapFree(TmpInputBuffer);
             return Status;
         }
 
-        InputInformation->Out = (ULONG_PTR) InputInformation->InputBuffer;
+        InputInformation->Out = (ULONG_PTR)InputInformation->InputBuffer;
         InPtr = InputInformation->InputBuffer;
-        for (i=0;i<NumberOfEventsRead;i++) {
+        for (i = 0; i < NumberOfEventsRead; i++) {
             if (TmpInputBuffer->EventType == KEY_EVENT) {
                 *InPtr = *TmpInputBuffer;
                 InPtr++;
             }
             TmpInputBuffer++;
         }
-        InputInformation->In = (ULONG_PTR) InPtr;
+        InputInformation->In = (ULONG_PTR)InPtr;
         if (InputInformation->In == InputInformation->Out) {
             NtClearEvent(InputInformation->InputWaitEvent);
         }
@@ -452,63 +358,36 @@ Note:
     return STATUS_SUCCESS;
 }
 
-NTSTATUS
-FlushInputBuffer(
-    PINPUT_INFORMATION InputInformation
-    )
 
+NTSTATUS FlushInputBuffer(PINPUT_INFORMATION InputInformation)
 /*++
-
 Routine Description:
-
     This routine empties the input buffer
-
 Arguments:
-
     InputInformation - Pointer to input buffer information structure.
-
 Return Value:
-
 Note:
-
     The console lock must be held when calling this routine.
-
 --*/
-
 {
-    InputInformation->In = (ULONG_PTR) InputInformation->InputBuffer;
-    InputInformation->Out = (ULONG_PTR) InputInformation->InputBuffer;
+    InputInformation->In = (ULONG_PTR)InputInformation->InputBuffer;
+    InputInformation->Out = (ULONG_PTR)InputInformation->InputBuffer;
     NtClearEvent(InputInformation->InputWaitEvent);
     return STATUS_SUCCESS;
 }
 
 
-NTSTATUS
-SetInputBufferSize(
-    IN PINPUT_INFORMATION InputInformation,
-    IN ULONG Size
-    )
-
+NTSTATUS SetInputBufferSize(IN PINPUT_INFORMATION InputInformation, IN ULONG Size)
 /*++
-
 Routine Description:
-
     This routine resizes the input buffer.
-
 Arguments:
-
     InputInformation - Pointer to input buffer information structure.
-
     Size - New size in number of events.
-
 Return Value:
-
 Note:
-
     The console lock must be held when calling this routine.
-
 --*/
-
 {
     ULONG NumberOfEventsRead;
     NTSTATUS Status;
@@ -521,29 +400,22 @@ Note:
     if (InputInformation->In < InputInformation->Out) {
         NumberOfEvents = InputInformation->Last - InputInformation->Out;
         NumberOfEvents += InputInformation->In - InputInformation->First;
-    }
-    else {
+    } else {
         NumberOfEvents = InputInformation->In - InputInformation->Out;
     }
     NumberOfEvents /= sizeof(INPUT_RECORD);
 #endif
-    ASSERT( Size > InputInformation->InputBufferSize );
-
+    ASSERT(Size > InputInformation->InputBufferSize);
 
     // allocate memory for new input buffer
-
-
-    BufferSize =  sizeof(INPUT_RECORD) * (Size+1);
-    InputBuffer = (PINPUT_RECORD)ConsoleHeapAlloc(MAKE_TAG( BUFFER_TAG ),BufferSize);
+    BufferSize = sizeof(INPUT_RECORD) * (Size + 1);
+    InputBuffer = (PINPUT_RECORD)ConsoleHeapAlloc(MAKE_TAG(BUFFER_TAG), BufferSize);
     if (InputBuffer == NULL) {
         return STATUS_NO_MEMORY;
     }
 
-
     // copy old input buffer.
     // let the ReadBuffer do any compaction work.
-
-
     Status = ReadBuffer(InputInformation,
                         InputBuffer,
                         Size,
@@ -555,8 +427,7 @@ Note:
                         ,
                         TRUE
 #endif
-                       );
-
+                        );
     if (!NT_SUCCESS(Status)) {
         ConsoleHeapFree(InputBuffer);
         return Status;
@@ -564,17 +435,11 @@ Note:
     InputInformation->Out = (ULONG_PTR)InputBuffer;
     InputInformation->In = (ULONG_PTR)InputBuffer + sizeof(INPUT_RECORD) * NumberOfEventsRead;
 
-
     // adjust pointers
-
-
-    InputInformation->First = (ULONG_PTR) InputBuffer;
-    InputInformation->Last = (ULONG_PTR) InputBuffer + BufferSize;
-
+    InputInformation->First = (ULONG_PTR)InputBuffer;
+    InputInformation->Last = (ULONG_PTR)InputBuffer + BufferSize;
 
     // free old input buffer
-
-
     ConsoleHeapFree(InputInformation->InputBuffer);
     InputInformation->InputBufferSize = Size;
     InputInformation->AllocatedBufferSize = BufferSize;
@@ -597,41 +462,23 @@ ReadBuffer(
 #endif
     )
 /*++
-
 Routine Description:
-
-    This routine reads from a buffer.  It does the actual circular buffer
-    manipulation.
-
+    This routine reads from a buffer.  It does the actual circular buffer manipulation.
 Arguments:
-
     InputInformation - buffer to read from
-
     Buffer - buffer to read into
-
     Length - length of buffer in events
-
     EventsRead - where to store number of events read
-
     Peek - if TRUE, don't remove data from buffer, just copy it.
-
-    StreamRead - if TRUE, events with repeat counts > 1 are returned
-    as multiple events.  also, EventsRead == 1.
-
+    StreamRead - if TRUE, events with repeat counts > 1 are returned as multiple events.  also, EventsRead == 1.
     ResetWaitEvent - on exit, TRUE if buffer became empty.
-
 Return Value:
-
     ??
-
 Note:
-
     The console lock must be held when calling this routine.
-
 --*/
-
 {
-    ULONG TransferLength,OldTransferLength;
+    ULONG TransferLength, OldTransferLength;
     ULONG BufferLengthInBytes;
 #ifdef FE_SB
     PCONSOLE_INFORMATION Console;
@@ -645,24 +492,17 @@ Note:
 #ifdef FE_SB
     Console = InputInformation->Console;
 #endif
-    *ResetWaitEvent = FALSE;
-
+    * ResetWaitEvent = FALSE;
 
     // if StreamRead, just return one record.  if repeat count is greater
     // than one, just decrement it.  the repeat count is > 1 if more than
     // one event of the same type was merged.  we need to expand them back
     // to individual events here.
 
-
-    if (StreamRead &&
-        ((PINPUT_RECORD)(InputInformation->Out))->EventType == KEY_EVENT) {
-
+    if (StreamRead && ((PINPUT_RECORD)(InputInformation->Out))->EventType == KEY_EVENT) {
         ASSERT(Length == 1);
         ASSERT(InputInformation->In != InputInformation->Out);
-        RtlMoveMemory((PBYTE)Buffer,
-                      (PBYTE)InputInformation->Out,
-                      sizeof(INPUT_RECORD)
-                     );
+        RtlMoveMemory((PBYTE)Buffer, (PBYTE)InputInformation->Out, sizeof(INPUT_RECORD));
         InputInformation->Out += sizeof(INPUT_RECORD);
         if (InputInformation->Last == InputInformation->Out) {
             InputInformation->Out = InputInformation->First;
@@ -687,12 +527,10 @@ Note:
 
     // we transfer the requested number of events or the amount in the buffer
 
-
     if (InputInformation->In > InputInformation->Out) {
-        if  ((InputInformation->In - InputInformation->Out) > BufferLengthInBytes) {
+        if ((InputInformation->In - InputInformation->Out) > BufferLengthInBytes) {
             TransferLength = BufferLengthInBytes;
-        }
-        else {
+        } else {
             TransferLength = (ULONG)(InputInformation->In - InputInformation->Out);
         }
 #ifdef FE_SB
@@ -702,36 +540,27 @@ Note:
             BufferRecords = (PINPUT_RECORD)Buffer;
             QueueRecords = (PINPUT_RECORD)InputInformation->Out;
 
-            while (BufferLengthInBytes < Length &&
-                   OldTransferLength) {
+            while (BufferLengthInBytes < Length && OldTransferLength) {
                 UniChar = QueueRecords->Event.KeyEvent.uChar.UnicodeChar;
                 EventType = QueueRecords->EventType;
                 *BufferRecords++ = *QueueRecords++;
                 if (EventType == KEY_EVENT) {
-                    if (IsConsoleFullWidth(Console->hDC,
-                                           Console->CP,
-                                           UniChar)) {
+                    if (IsConsoleFullWidth(Console->hDC, Console->CP, UniChar)) {
                         BufferLengthInBytes += 2;
-                    }
-                    else {
+                    } else {
                         BufferLengthInBytes++;
                     }
-                }
-                else {
+                } else {
                     BufferLengthInBytes++;
                 }
                 OldTransferLength--;
             }
             ASSERT(TransferLength >= OldTransferLength * sizeof(INPUT_RECORD));
             TransferLength -= OldTransferLength * sizeof(INPUT_RECORD);
-        }
-        else
+        } else
 #endif
         {
-            RtlMoveMemory((PBYTE)Buffer,
-                          (PBYTE)InputInformation->Out,
-                          TransferLength
-                         );
+            RtlMoveMemory((PBYTE)Buffer, (PBYTE)InputInformation->Out, TransferLength);
         }
         *EventsRead = TransferLength / sizeof(INPUT_RECORD);
 #ifdef FE_SB
@@ -759,16 +588,11 @@ Note:
     //   |______|______|______|
 
     // we read from the out pointer to the end of the buffer then from the
-    // beginning of the buffer, until we hit the in pointer or enough bytes
-    // are read.
-
-
+    // beginning of the buffer, until we hit the in pointer or enough bytes are read.
     else {
-
-        if  ((InputInformation->Last - InputInformation->Out) > BufferLengthInBytes) {
+        if ((InputInformation->Last - InputInformation->Out) > BufferLengthInBytes) {
             TransferLength = BufferLengthInBytes;
-        }
-        else {
+        } else {
             TransferLength = (ULONG)(InputInformation->Last - InputInformation->Out);
         }
 #ifdef FE_SB
@@ -778,36 +602,27 @@ Note:
             BufferRecords = (PINPUT_RECORD)Buffer;
             QueueRecords = (PINPUT_RECORD)InputInformation->Out;
 
-            while (BufferLengthInBytes < Length &&
-                   OldTransferLength) {
+            while (BufferLengthInBytes < Length && OldTransferLength) {
                 UniChar = QueueRecords->Event.KeyEvent.uChar.UnicodeChar;
                 EventType = QueueRecords->EventType;
                 *BufferRecords++ = *QueueRecords++;
                 if (EventType == KEY_EVENT) {
-                    if (IsConsoleFullWidth(Console->hDC,
-                                           Console->CP,
-                                    UniChar)) {
+                    if (IsConsoleFullWidth(Console->hDC, Console->CP, UniChar)) {
                         BufferLengthInBytes += 2;
-                    }
-                    else {
+                    } else {
                         BufferLengthInBytes++;
                     }
-                }
-                else {
+                } else {
                     BufferLengthInBytes++;
                 }
                 OldTransferLength--;
             }
             ASSERT(TransferLength >= OldTransferLength * sizeof(INPUT_RECORD));
             TransferLength -= OldTransferLength * sizeof(INPUT_RECORD);
-        }
-        else
+        } else
 #endif
         {
-            RtlMoveMemory((PBYTE)Buffer,
-                          (PBYTE)InputInformation->Out,
-                          TransferLength
-                         );
+            RtlMoveMemory((PBYTE)Buffer, (PBYTE)InputInformation->Out, TransferLength);
         }
         *EventsRead = TransferLength / sizeof(INPUT_RECORD);
 #ifdef FE_SB
@@ -831,20 +646,16 @@ Note:
                 }
                 return STATUS_SUCCESS;
             }
-        }
-        else
+        } else
 #endif
-        if (*EventsRead == Length) {
-            if (InputInformation->Out == InputInformation->In) {
-                *ResetWaitEvent = TRUE;
+            if (*EventsRead == Length) {
+                if (InputInformation->Out == InputInformation->In) {
+                    *ResetWaitEvent = TRUE;
+                }
+                return STATUS_SUCCESS;
             }
-            return STATUS_SUCCESS;
-        }
 
-
-        // hit end of buffer, read from beginning
-
-
+            // hit end of buffer, read from beginning
         OldTransferLength = TransferLength;
 #ifdef FE_SB
         Length2 = Length;
@@ -855,61 +666,52 @@ Note:
                 if (InputInformation->Out == InputInformation->In) {
                     *ResetWaitEvent = TRUE;
                 }
-            return STATUS_SUCCESS;
+                return STATUS_SUCCESS;
             }
             BufferLengthInBytes = Length * sizeof(INPUT_RECORD);
 
             if ((InputInformation->In - InputInformation->First) > BufferLengthInBytes) {
                 TransferLength = BufferLengthInBytes;
-            }
-            else {
+            } else {
                 TransferLength = (ULONG)(InputInformation->In - InputInformation->First);
             }
-        }
-        else
+        } else
 #endif
-        if  ((InputInformation->In - InputInformation->First) > (BufferLengthInBytes - OldTransferLength)) {
-            TransferLength = BufferLengthInBytes - OldTransferLength;
-        }
-        else {
-            TransferLength = (ULONG)(InputInformation->In - InputInformation->First);
-        }
+            if ((InputInformation->In - InputInformation->First) > (BufferLengthInBytes - OldTransferLength)) {
+                TransferLength = BufferLengthInBytes - OldTransferLength;
+            } else {
+                TransferLength = (ULONG)(InputInformation->In - InputInformation->First);
+            }
 #ifdef FE_SB
         if (!Unicode) {
             BufferLengthInBytes = 0;
             OldTransferLength = TransferLength / sizeof(INPUT_RECORD);
             QueueRecords = (PINPUT_RECORD)InputInformation->First;
 
-            while (BufferLengthInBytes < Length &&
-                   OldTransferLength) {
+            while (BufferLengthInBytes < Length && OldTransferLength) {
                 UniChar = QueueRecords->Event.KeyEvent.uChar.UnicodeChar;
                 EventType = QueueRecords->EventType;
                 *BufferRecords++ = *QueueRecords++;
                 if (EventType == KEY_EVENT) {
-                    if (IsConsoleFullWidth(Console->hDC,
-                                           Console->CP,
-                                    UniChar)) {
+                    if (IsConsoleFullWidth(Console->hDC, Console->CP, UniChar)) {
                         BufferLengthInBytes += 2;
-                    }
-                    else {
+                    } else {
                         BufferLengthInBytes++;
                     }
-                }
-                else {
+                } else {
                     BufferLengthInBytes++;
                 }
                 OldTransferLength--;
             }
             ASSERT(TransferLength >= OldTransferLength * sizeof(INPUT_RECORD));
             TransferLength -= OldTransferLength * sizeof(INPUT_RECORD);
-        }
-        else
+        } else
 #endif
         {
-            RtlMoveMemory((PBYTE)Buffer+OldTransferLength,
+            RtlMoveMemory((PBYTE)Buffer + OldTransferLength,
                           (PBYTE)InputInformation->First,
                           TransferLength
-                         );
+                          );
         }
         *EventsRead += TransferLength / sizeof(INPUT_RECORD);
 #ifdef FE_SB
@@ -946,61 +748,33 @@ ReadInputBuffer(
     IN BOOLEAN Unicode
 #endif
     )
-
 /*++
-
 Routine Description:
-
     This routine reads from the input buffer.
-
 Arguments:
-
     InputInformation - Pointer to input buffer information structure.
-
     lpBuffer - Buffer to read into.
-
-    nLength - On input, number of events to read.  On output, number of
-    events read.
-
-    Peek - If TRUE, copy events to lpBuffer but don't remove them from
-    the input buffer.
-
-    WaitForData - if TRUE, wait until an event is input.  if FALSE, return
-        immediately
-
-    StreamRead - if TRUE, events with repeat counts > 1 are returned
-    as multiple events.  also, EventsRead == 1.
-
+    nLength - On input, number of events to read.  On output, number of events read.
+    Peek - If TRUE, copy events to lpBuffer but don't remove them from the input buffer.
+    WaitForData - if TRUE, wait until an event is input.  if FALSE, return immediately
+    StreamRead - if TRUE, events with repeat counts > 1 are returned as multiple events.  also, EventsRead == 1.
     Console - Pointer to console buffer information.
-
-    HandleData - Pointer to handle data structure.  This parameter is
-    optional if WaitForData is false.
-
-    Message - if called from dll (not InputThread), points to api
-    message.  this parameter is used for wait block processing.
-
+    HandleData - Pointer to handle data structure.  This parameter is optional if WaitForData is false.
+    Message - if called from dll (not InputThread), points to api message.  this parameter is used for wait block processing.
     WaitRoutine - Routine to call when wait is woken up.
-
     WaitParameter - Parameter to pass to wait routine.
-
     WaitParameterLength - Length of wait parameter.
-
     WaitBlockExists - TRUE if wait block has already been created.
-
 Return Value:
-
 Note:
-
     The console lock must be held when calling this routine.
-
 --*/
-
 {
     ULONG EventsRead;
     NTSTATUS Status;
     BOOL ResetWaitEvent;
 
-    if (InputInformation->In == InputInformation->Out)  {
+    if (InputInformation->In == InputInformation->Out) {
         if (!WaitForData) {
             *nLength = 0;
             return STATUS_SUCCESS;
@@ -1014,8 +788,7 @@ Note:
                                    WaitParameter,
                                    WaitParameterLength,
                                    WaitBlockExists
-                                  );
-
+                                   );
         if (!NT_SUCCESS(Status)) {
             if (Status != CONSOLE_STATUS_WAIT) {
                 /*
@@ -1029,18 +802,13 @@ Note:
             return Status;
         }
 
-
         // we will only get to this point if we were called by GetInput.
-
         ASSERT(FALSE); // I say we never get here !  IANJA
 
         LockConsole(Console);
     }
 
-
     // read from buffer
-
-
     Status = ReadBuffer(InputInformation,
                         lpBuffer,
                         *nLength,
@@ -1052,7 +820,7 @@ Note:
                         ,
                         Unicode
 #endif
-                       );
+                        );
     if (ResetWaitEvent) {
         NtClearEvent(InputInformation->InputWaitEvent);
     }
@@ -1070,36 +838,20 @@ WriteBuffer(
     OUT PULONG EventsWritten,
     OUT PBOOL SetWaitEvent
     )
-
 /*++
-
 Routine Description:
-
-    This routine writes to a buffer.  It does the actual circular buffer
-    manipulation.
-
+    This routine writes to a buffer.  It does the actual circular buffer manipulation.
 Arguments:
-
     InputInformation - buffer to write to
-
     Buffer - buffer to write from
-
     Length - length of buffer in events
-
     BytesRead - where to store number of bytes written.
-
     SetWaitEvent - on exit, TRUE if buffer became non-empty.
-
 Return Value:
-
     ERROR_BROKEN_PIPE - no more readers.
-
 Note:
-
     The console lock must be held when calling this routine.
-
 --*/
-
 {
     NTSTATUS Status;
     ULONG TransferLength;
@@ -1108,25 +860,22 @@ Note:
     PCONSOLE_INFORMATION Console = InputInformation->Console;
 #endif
 
-    *SetWaitEvent = FALSE;
-
+    * SetWaitEvent = FALSE;
 
     // windows sends a mouse_move message each time a window is updated.
     // coalesce these.
 
-
     if (Length == 1 && InputInformation->Out != InputInformation->In) {
-        PINPUT_RECORD InputEvent=Buffer;
+        PINPUT_RECORD InputEvent = Buffer;
 
         if (InputEvent->EventType == MOUSE_EVENT &&
             InputEvent->Event.MouseEvent.dwEventFlags == MOUSE_MOVED) {
             PINPUT_RECORD LastInputEvent;
 
             if (InputInformation->In == InputInformation->First) {
-                LastInputEvent = (PINPUT_RECORD) (InputInformation->Last - sizeof(INPUT_RECORD));
-            }
-            else {
-                LastInputEvent = (PINPUT_RECORD) (InputInformation->In - sizeof(INPUT_RECORD));
+                LastInputEvent = (PINPUT_RECORD)(InputInformation->Last - sizeof(INPUT_RECORD));
+            } else {
+                LastInputEvent = (PINPUT_RECORD)(InputInformation->In - sizeof(INPUT_RECORD));
             }
             if (LastInputEvent->EventType == MOUSE_EVENT &&
                 LastInputEvent->Event.MouseEvent.dwEventFlags == MOUSE_MOVED) {
@@ -1137,78 +886,68 @@ Note:
                 *EventsWritten = 1;
                 return STATUS_SUCCESS;
             }
-        }
-        else if (InputEvent->EventType == KEY_EVENT &&
-                 InputEvent->Event.KeyEvent.bKeyDown) {
+        } else if (InputEvent->EventType == KEY_EVENT &&
+                   InputEvent->Event.KeyEvent.bKeyDown) {
             PINPUT_RECORD LastInputEvent;
             if (InputInformation->In == InputInformation->First) {
-                LastInputEvent = (PINPUT_RECORD) (InputInformation->Last - sizeof(INPUT_RECORD));
-            }
-            else {
-                LastInputEvent = (PINPUT_RECORD) (InputInformation->In - sizeof(INPUT_RECORD));
+                LastInputEvent = (PINPUT_RECORD)(InputInformation->Last - sizeof(INPUT_RECORD));
+            } else {
+                LastInputEvent = (PINPUT_RECORD)(InputInformation->In - sizeof(INPUT_RECORD));
             }
 #if defined(FE_SB)
             if (IsConsoleFullWidth(Console->hDC,
-                                   Console->CP,InputEvent->Event.KeyEvent.uChar.UnicodeChar)) {
+                                   Console->CP, InputEvent->Event.KeyEvent.uChar.UnicodeChar)) {
                 ;
-            }
-            else
-            if (InputEvent->Event.KeyEvent.dwControlKeyState & NLS_IME_CONVERSION) {
-                if (LastInputEvent->EventType == KEY_EVENT &&
-                    LastInputEvent->Event.KeyEvent.bKeyDown &&
-                    (LastInputEvent->Event.KeyEvent.uChar.UnicodeChar ==
-                        InputEvent->Event.KeyEvent.uChar.UnicodeChar) &&
-                    (LastInputEvent->Event.KeyEvent.dwControlKeyState ==
-                        InputEvent->Event.KeyEvent.dwControlKeyState) ) {
-                    LastInputEvent->Event.KeyEvent.wRepeatCount +=
-                        InputEvent->Event.KeyEvent.wRepeatCount;
-                    *EventsWritten = 1;
-                    return STATUS_SUCCESS;
-                }
-            }
-            else
+            } else
+                if (InputEvent->Event.KeyEvent.dwControlKeyState & NLS_IME_CONVERSION) {
+                    if (LastInputEvent->EventType == KEY_EVENT &&
+                        LastInputEvent->Event.KeyEvent.bKeyDown &&
+                        (LastInputEvent->Event.KeyEvent.uChar.UnicodeChar ==
+                         InputEvent->Event.KeyEvent.uChar.UnicodeChar) &&
+                        (LastInputEvent->Event.KeyEvent.dwControlKeyState ==
+                         InputEvent->Event.KeyEvent.dwControlKeyState)) {
+                        LastInputEvent->Event.KeyEvent.wRepeatCount +=
+                            InputEvent->Event.KeyEvent.wRepeatCount;
+                        *EventsWritten = 1;
+                        return STATUS_SUCCESS;
+                    }
+                } else
 #endif
-            if (LastInputEvent->EventType == KEY_EVENT &&
-                LastInputEvent->Event.KeyEvent.bKeyDown &&
-                (LastInputEvent->Event.KeyEvent.wVirtualScanCode == // scancode same
-                    InputEvent->Event.KeyEvent.wVirtualScanCode) &&
-                (LastInputEvent->Event.KeyEvent.uChar.UnicodeChar == // character same
-                    InputEvent->Event.KeyEvent.uChar.UnicodeChar) &&
-                (LastInputEvent->Event.KeyEvent.dwControlKeyState == // ctrl/alt/shift state same
-                    InputEvent->Event.KeyEvent.dwControlKeyState) ) {
-                LastInputEvent->Event.KeyEvent.wRepeatCount +=
-                    InputEvent->Event.KeyEvent.wRepeatCount;
-                *EventsWritten = 1;
-                return STATUS_SUCCESS;
-            }
+                    if (LastInputEvent->EventType == KEY_EVENT &&
+                        LastInputEvent->Event.KeyEvent.bKeyDown &&
+                        (LastInputEvent->Event.KeyEvent.wVirtualScanCode == // scancode same
+                         InputEvent->Event.KeyEvent.wVirtualScanCode) &&
+                        (LastInputEvent->Event.KeyEvent.uChar.UnicodeChar == // character same
+                         InputEvent->Event.KeyEvent.uChar.UnicodeChar) &&
+                        (LastInputEvent->Event.KeyEvent.dwControlKeyState == // ctrl/alt/shift state same
+                         InputEvent->Event.KeyEvent.dwControlKeyState)) {
+                        LastInputEvent->Event.KeyEvent.wRepeatCount +=
+                            InputEvent->Event.KeyEvent.wRepeatCount;
+                        *EventsWritten = 1;
+                        return STATUS_SUCCESS;
+                    }
         }
     }
 
-    BufferLengthInBytes = Length*sizeof(INPUT_RECORD);
+    BufferLengthInBytes = Length * sizeof(INPUT_RECORD);
     *EventsWritten = 0;
     while (*EventsWritten < Length) {
-
-
-
         // if out > in, buffer looks like this:
-
         //             in     out
         //        ______ _____________
         //       |      |      |      |
         //       | data | free | data |
         //       |______|______|______|
-
         // we can write from in to out-1
 
-
-        if (InputInformation->Out > InputInformation->In)       {
+        if (InputInformation->Out > InputInformation->In) {
             TransferLength = BufferLengthInBytes;
-            if  ((InputInformation->Out - InputInformation->In - sizeof(INPUT_RECORD))
-                   < BufferLengthInBytes) {
+            if ((InputInformation->Out - InputInformation->In - sizeof(INPUT_RECORD))
+                < BufferLengthInBytes) {
                 Status = SetInputBufferSize(InputInformation,
-                                            InputInformation->InputBufferSize+Length+INPUT_BUFFER_SIZE_INCREMENT);
+                                            InputInformation->InputBufferSize + Length + INPUT_BUFFER_SIZE_INCREMENT);
                 if (!NT_SUCCESS(Status)) {
-                    KdPrint(("CONSRV: Couldn't grow input buffer, Status == %lX\n",Status));
+                    KdPrint(("CONSRV: Couldn't grow input buffer, Status == %lX\n", Status));
                     TransferLength = (ULONG)(InputInformation->Out - InputInformation->In - sizeof(INPUT_RECORD));
                     if (TransferLength == 0) {
                         return Status;
@@ -1217,19 +956,14 @@ Note:
                     goto OutPath;   // after resizing, in > out
                 }
             }
-            RtlMoveMemory((PBYTE)InputInformation->In,
-                          (PBYTE)Buffer,
-                          TransferLength
-                         );
-            Buffer = (PVOID) (((PBYTE) Buffer)+TransferLength);
-            *EventsWritten += TransferLength/sizeof(INPUT_RECORD);
+            RtlMoveMemory((PBYTE)InputInformation->In, (PBYTE)Buffer, TransferLength);
+            Buffer = (PVOID)(((PBYTE)Buffer) + TransferLength);
+            *EventsWritten += TransferLength / sizeof(INPUT_RECORD);
             BufferLengthInBytes -= TransferLength;
             InputInformation->In += TransferLength;
         }
 
-
         // if in >= out, buffer looks like this:
-
         //             out     in
         //        ______ _____________
         //       |      |      |      |
@@ -1239,40 +973,33 @@ Note:
         // we write from the in pointer to the end of the buffer then from the
         // beginning of the buffer, until we hit the out pointer or enough bytes
         // are written.
-
-
         else {
             if (InputInformation->Out == InputInformation->In) {
                 *SetWaitEvent = TRUE;
             }
-OutPath:
-            if  ((InputInformation->Last - InputInformation->In) > BufferLengthInBytes) {
+        OutPath:
+            if ((InputInformation->Last - InputInformation->In) > BufferLengthInBytes) {
                 TransferLength = BufferLengthInBytes;
-            }
-            else {
+            } else {
                 if (InputInformation->First == InputInformation->Out &&
-                    InputInformation->In == (InputInformation->Last-sizeof(INPUT_RECORD))) {
+                    InputInformation->In == (InputInformation->Last - sizeof(INPUT_RECORD))) {
                     TransferLength = BufferLengthInBytes;
                     Status = SetInputBufferSize(InputInformation,
-                                                InputInformation->InputBufferSize+Length+INPUT_BUFFER_SIZE_INCREMENT);
+                                                InputInformation->InputBufferSize + Length + INPUT_BUFFER_SIZE_INCREMENT);
                     if (!NT_SUCCESS(Status)) {
-                        KdPrint(("CONSRV: Couldn't grow input buffer, Status == %lX\n",Status));
+                        KdPrint(("CONSRV: Couldn't grow input buffer, Status == %lX\n", Status));
                         return Status;
                     }
-                }
-                else {
+                } else {
                     TransferLength = (ULONG)(InputInformation->Last - InputInformation->In);
                     if (InputInformation->First == InputInformation->Out) {
                         TransferLength -= sizeof(INPUT_RECORD);
                     }
                 }
             }
-            RtlMoveMemory((PBYTE)InputInformation->In,
-                          (PBYTE)Buffer,
-                          TransferLength
-                         );
-            Buffer = (PVOID) (((PBYTE) Buffer)+TransferLength);
-            *EventsWritten += TransferLength/sizeof(INPUT_RECORD);
+            RtlMoveMemory((PBYTE)InputInformation->In, (PBYTE)Buffer, TransferLength);
+            Buffer = (PVOID)(((PBYTE)Buffer) + TransferLength);
+            *EventsWritten += TransferLength / sizeof(INPUT_RECORD);
             BufferLengthInBytes -= TransferLength;
             InputInformation->In += TransferLength;
             if (InputInformation->In == InputInformation->Last) {
@@ -1280,17 +1007,14 @@ OutPath:
             }
         }
         if (TransferLength == 0) {
-            ASSERT (FALSE);
+            ASSERT(FALSE);
         }
     }
     return STATUS_SUCCESS;
 }
 
 
-__inline BOOL
-IsSystemKey(
-    WORD wVirtualKeyCode
-    )
+__inline BOOL IsSystemKey(WORD wVirtualKeyCode)
 {
     switch (wVirtualKeyCode) {
     case VK_SHIFT:
@@ -1335,7 +1059,8 @@ Note:
             }
 
             // intercept control-s
-            if ((Console->InputBuffer.InputMode & ENABLE_LINE_INPUT) && (InputEvent->Event.KeyEvent.wVirtualKeyCode == VK_PAUSE || IsPauseKey(&InputEvent->Event.KeyEvent))) {
+            if ((Console->InputBuffer.InputMode & ENABLE_LINE_INPUT) && 
+                (InputEvent->Event.KeyEvent.wVirtualKeyCode == VK_PAUSE || IsPauseKey(&InputEvent->Event.KeyEvent))) {
                 Console->Flags |= CONSOLE_OUTPUT_SUSPENDED;
                 RtlMoveMemory(InputEvent, InputEvent + 1, (NumEvents - 1) * sizeof(INPUT_RECORD));
                 nLength--;
@@ -1349,7 +1074,10 @@ Note:
 }
 
 
-DWORD PrependInputBuffer(IN PCONSOLE_INFORMATION Console, IN PINPUT_INFORMATION InputInformation, IN PINPUT_RECORD lpBuffer, IN DWORD nLength)
+DWORD PrependInputBuffer(IN PCONSOLE_INFORMATION Console, 
+                         IN PINPUT_INFORMATION InputInformation, 
+                         IN PINPUT_RECORD lpBuffer, 
+                         IN DWORD nLength)
 /*++
 Routine Description:
     This routine writes to the beginning of the input buffer.
@@ -1362,7 +1090,7 @@ Note:
 --*/
 {
     NTSTATUS Status;
-    ULONG EventsWritten,EventsRead;
+    ULONG EventsWritten, EventsRead;
     BOOL SetWaitEvent;
     ULONG NumExistingEvents;
     PINPUT_RECORD pExistingEvents;
@@ -1375,7 +1103,7 @@ Note:
 
     Status = GetNumberOfReadyEvents(InputInformation, &NumExistingEvents);
     if (NumExistingEvents) {
-        pExistingEvents = ConsoleHeapAlloc(MAKE_TAG( BUFFER_TAG ),NumExistingEvents * sizeof(INPUT_RECORD));
+        pExistingEvents = ConsoleHeapAlloc(MAKE_TAG(BUFFER_TAG), NumExistingEvents * sizeof(INPUT_RECORD));
         if (pExistingEvents == NULL)
             return (DWORD)STATUS_NO_MEMORY;
         Status = ReadBuffer(InputInformation,
@@ -1389,7 +1117,7 @@ Note:
                             ,
                             TRUE
 #endif
-                           );
+                            );
         if (!NT_SUCCESS(Status)) {
             ConsoleHeapFree(pExistingEvents);
             return Status;
@@ -1408,17 +1136,20 @@ Note:
     }
 
     if (SetWaitEvent) {
-        NtSetEvent(InputInformation->InputWaitEvent,NULL);
+        NtSetEvent(InputInformation->InputWaitEvent, NULL);
     }
 
     // alert any writers waiting for space
-    WakeUpReadersWaitingForData(Console,InputInformation);
+    WakeUpReadersWaitingForData(Console, InputInformation);
 
     return nLength;
 }
 
 
-DWORD WriteInputBuffer(IN PCONSOLE_INFORMATION Console, IN PINPUT_INFORMATION InputInformation, IN PINPUT_RECORD lpBuffer, IN DWORD nLength)
+DWORD WriteInputBuffer(IN PCONSOLE_INFORMATION Console,
+                       IN PINPUT_INFORMATION InputInformation,
+                       IN PINPUT_RECORD lpBuffer,
+                       IN DWORD nLength)
 /*++
 Routine Description:
     This routine writes to the input buffer.
@@ -1442,11 +1173,11 @@ Note:
     WriteBuffer(InputInformation, lpBuffer, nLength, &EventsWritten, &SetWaitEvent);
 
     if (SetWaitEvent) {
-        NtSetEvent(InputInformation->InputWaitEvent,NULL);
+        NtSetEvent(InputInformation->InputWaitEvent, NULL);
     }
 
     // alert any writers waiting for space
-    WakeUpReadersWaitingForData(Console,InputInformation);
+    WakeUpReadersWaitingForData(Console, InputInformation);
     return EventsWritten;
 }
 
@@ -1455,13 +1186,13 @@ VOID StoreKeyInfo(IN PMSG msg)
 {
     int i;
 
-    for (i=0;i<CONSOLE_MAX_KEY_INFO;i++) {
+    for (i = 0; i < CONSOLE_MAX_KEY_INFO; i++) {
         if (ConsoleKeyInfo[i].hWnd == CONSOLE_FREE_KEY_INFO || ConsoleKeyInfo[i].hWnd == msg->hwnd) {
             break;
         }
     }
 
-    if (i!=CONSOLE_MAX_KEY_INFO) {
+    if (i != CONSOLE_MAX_KEY_INFO) {
         ConsoleKeyInfo[i].hWnd = msg->hwnd;
         ConsoleKeyInfo[i].wVirtualKeyCode = LOWORD(msg->wParam);
         ConsoleKeyInfo[i].wVirtualScanCode = (BYTE)(HIWORD(msg->lParam));
@@ -1471,17 +1202,20 @@ VOID StoreKeyInfo(IN PMSG msg)
 }
 
 
-VOID RetrieveKeyInfo(IN HWND hWnd, OUT PWORD pwVirtualKeyCode, OUT PWORD pwVirtualScanCode, IN BOOL FreeKeyInfo)
+VOID RetrieveKeyInfo(IN HWND hWnd, 
+                     OUT PWORD pwVirtualKeyCode,
+                     OUT PWORD pwVirtualScanCode, 
+                     IN BOOL FreeKeyInfo)
 {
     int i;
 
-    for (i=0;i<CONSOLE_MAX_KEY_INFO;i++) {
+    for (i = 0; i < CONSOLE_MAX_KEY_INFO; i++) {
         if (ConsoleKeyInfo[i].hWnd == hWnd) {
             break;
         }
     }
 
-    if (i!=CONSOLE_MAX_KEY_INFO) {
+    if (i != CONSOLE_MAX_KEY_INFO) {
         *pwVirtualKeyCode = ConsoleKeyInfo[i].wVirtualKeyCode;
         *pwVirtualScanCode = ConsoleKeyInfo[i].wVirtualScanCode;
         if (FreeKeyInfo)
@@ -1496,7 +1230,7 @@ VOID ClearKeyInfo(IN HWND hWnd)
 {
     int i;
 
-    for (i=0;i<CONSOLE_MAX_KEY_INFO;i++) {
+    for (i = 0; i < CONSOLE_MAX_KEY_INFO; i++) {
         if (ConsoleKeyInfo[i].hWnd == hWnd) {
             ConsoleKeyInfo[i].hWnd = CONSOLE_FREE_KEY_INFO;
         }
@@ -1512,21 +1246,14 @@ VOID ClearKeyInfo(IN HWND hWnd)
 * the DialogHookProc if we have a dialog box up. The USER critical section
 * should not be held when calling this routine.
 */
-VOID
-ProcessCreateConsoleWindow(
-    IN LPMSG lpMsg
-    )
+VOID ProcessCreateConsoleWindow(IN LPMSG lpMsg)
 {
     NTSTATUS Status;
     // make sure this is a valid message
     PCONSOLE_INFORMATION pConsole;
 
     if (NT_SUCCESS(RevalidateConsole((HANDLE)lpMsg->wParam, &pConsole))) {
-
-
         // Make sure the console doesn't already have a window.
-
-
         if (pConsole->hWnd) {
             RIPMSG1(RIP_WARNING, "Console %#p already has a window", pConsole);
             UnlockConsole(pConsole);
@@ -1542,24 +1269,20 @@ ProcessCreateConsoleWindow(
                   pConsole->InputThreadInfo->WindowCount));
         switch (Status) {
         case STATUS_SUCCESS:
-
-
             // If we changed the screen buffer size, let the user know about it
             // with a message box. Make sure we don't recurse too deeply in
             // this code by limiting the number of message boxes on the screen
             // at once. If there are already a bunch up there, the user should
             // have the idea by now anyway.
-
-
             if ((pConsole->Flags & CONSOLE_DEFAULT_BUFFER_SIZE) && (DialogBoxCount < 8)) {
                 WCHAR ItemString[120];
                 WCHAR Title[120];
                 HWND hWnd = pConsole->hWnd;
-                ULONG TitleLength = min(sizeof(Title)-sizeof(WCHAR), pConsole->TitleLength);
+                ULONG TitleLength = min(sizeof(Title) - sizeof(WCHAR), pConsole->TitleLength);
                 RtlCopyMemory(Title, pConsole->Title, TitleLength);
-                Title[TitleLength/sizeof(WCHAR)] = 0;
+                Title[TitleLength / sizeof(WCHAR)] = 0;
                 UnlockConsole(pConsole);
-                LoadString(ghInstance,msgBufferTooBig,ItemString,NELEM(ItemString));
+                LoadString(ghInstance, msgBufferTooBig, ItemString, NELEM(ItemString));
                 DialogBoxCount++;
                 MessageBox(hWnd, ItemString, Title, MB_OK);
                 DialogBoxCount--;
@@ -1581,18 +1304,11 @@ ProcessCreateConsoleWindow(
 }
 
 
-LRESULT
-DialogHookProc(
-    int nCode,
-    WPARAM wParam,
-    LPARAM lParam
-    )
-
+LRESULT DialogHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 // this routine gets called to filter input to console dialogs so
 // that we can do the special processing that StoreKeyInfo does.
-
 {
-    MSG *pmsg = (PMSG)lParam;
+    MSG* pmsg = (PMSG)lParam;
 
     UNREFERENCED_PARAMETER(wParam);
 
@@ -1624,8 +1340,7 @@ DialogHookProc(
                     RIPMSG1(RIP_WARNING, "DialogHookProc: invalid thread message(%04x) !!", msg.message);
                     break;
                 }
-            }
-            else {
+            } else {
                 RIPMSG0(RIP_WARNING, "DialogHookProc: bogus thread message is posted. ignored");
             }
         }
@@ -1633,7 +1348,10 @@ DialogHookProc(
 
     if (nCode == MSGF_DIALOGBOX) {
         if (pmsg->message >= WM_KEYFIRST && pmsg->message <= WM_KEYLAST) {
-            if (pmsg->message != WM_CHAR && pmsg->message != WM_DEADCHAR && pmsg->message != WM_SYSCHAR && pmsg->message != WM_SYSDEADCHAR) {
+            if (pmsg->message != WM_CHAR && 
+                pmsg->message != WM_DEADCHAR && 
+                pmsg->message != WM_SYSCHAR && 
+                pmsg->message != WM_SYSDEADCHAR) {
                 // don't store key info if dialog box input
                 if (GetWindowLongPtr(pmsg->hwnd, GWLP_HWNDPARENT) == 0) {
                     StoreKeyInfo(pmsg);
@@ -1655,7 +1373,7 @@ ULONG InputExceptionFilter(PEXCEPTION_POINTERS pexi)
     SYSTEM_KERNEL_DEBUGGER_INFORMATION KernelDebuggerInfo;
 
     if (pexi->ExceptionRecord->ExceptionCode != STATUS_PORT_DISCONNECTED) {
-        Status = NtQuerySystemInformation( SystemKernelDebuggerInformation, &KernelDebuggerInfo, sizeof(KernelDebuggerInfo), NULL);
+        Status = NtQuerySystemInformation(SystemKernelDebuggerInformation, &KernelDebuggerInfo, sizeof(KernelDebuggerInfo), NULL);
         if (NT_SUCCESS(Status) && KernelDebuggerInfo.KernelDebuggerEnabled) {
             DbgPrint("Unhandled Exception hit in csrss.exe InputExceptionFilter\n");
             DbgPrint("first, enter !exr %p for the exception record\n", pexi->ExceptionRecord);
@@ -1677,17 +1395,15 @@ ULONG InputExceptionFilter(PEXCEPTION_POINTERS pexi)
 LIST_ENTRY gInputThreadMsg;
 CRITICAL_SECTION gInputThreadMsgLock;
 
-VOID
-InitializeThreadMessages()
+VOID InitializeThreadMessages()
 {
     RtlEnterCriticalSection(&gInputThreadMsgLock);
     InitializeListHead(&gInputThreadMsg);
     RtlLeaveCriticalSection(&gInputThreadMsgLock);
 }
 
-VOID
-CleanupInputThreadMessages(
-    DWORD dwThreadId)
+
+VOID CleanupInputThreadMessages(DWORD dwThreadId)
 {
     UINT message;
     WPARAM wParam;
@@ -1708,12 +1424,7 @@ CleanupInputThreadMessages(
 // stored in gInputThreadMsg. Input thread should call UnqueueThreadMessage
 // when it gets CM_CONSOLE_INPUT_THREAD_MSG.
 
-NTSTATUS
-QueueThreadMessage(
-    DWORD dwThreadId,
-    UINT message,
-    WPARAM wParam,
-    LPARAM lParam)
+NTSTATUS QueueThreadMessage(DWORD dwThreadId, UINT message, WPARAM wParam, LPARAM lParam)
 {
     PCONSOLE_THREAD_MSG pConMsg;
 
@@ -1721,7 +1432,7 @@ QueueThreadMessage(
     RIPMSG4(RIP_VERBOSE, "QueueThreadMessage: TID=%08x msg:%04x (%08x, %08x)",
             dwThreadId, message, wParam, lParam);
 
-    pConMsg = ConsoleHeapAlloc(MAKE_TAG(TMP_TAG), sizeof *pConMsg);
+    pConMsg = ConsoleHeapAlloc(MAKE_TAG(TMP_TAG), sizeof * pConMsg);
     if (pConMsg == NULL) {
         RIPMSG0(RIP_WARNING, "QueueThreadMessage: failed to allocate pConMsg");
         return STATUS_NO_MEMORY;
@@ -1767,7 +1478,6 @@ BOOL UnqueueThreadMessage(
     ASSERT(dwThreadId);
 
     RtlEnterCriticalSection(&gInputThreadMsgLock);
-
 
     // Search for dwThreadId message from the tail of the queue.
 
@@ -1831,7 +1541,7 @@ VOID ConsoleInputThread(PINPUT_THREAD_INIT_INFO pInputThreadInitInfo)
         ConsoleDesktopInfo.hdesk = pInputThreadInitInfo->DesktopHandle;
         ConsoleDesktopInfo.dwThreadId = HandleToUlong(Teb->ClientId.UniqueThread);
         Status = NtUserConsoleControl(ConsoleDesktopConsoleThread, &ConsoleDesktopInfo,
-                sizeof(ConsoleDesktopInfo));
+                                      sizeof(ConsoleDesktopInfo));
         if (NT_SUCCESS(Status)) {
             // This call forces the client-side desktop information
             // to be updated.
@@ -1845,13 +1555,10 @@ VOID ConsoleInputThread(PINPUT_THREAD_INIT_INFO pInputThreadInitInfo)
                 if (!fOneTimeInitialized) {
                     InitializeCustomCP();
 
-
                     // Initialize default screen dimensions.  we have to initialize
                     // the font info here (in the input thread) so that GDI doesn't
                     // get completely confused on process termination (since a
-                    // process that looks like it's terminating created all the
-                    // server HFONTS).
-
+                    // process that looks like it's terminating created all the server HFONTS).
 
                     EnumerateFonts(EF_DEFFACE);
 
@@ -1860,7 +1567,7 @@ VOID ConsoleInputThread(PINPUT_THREAD_INIT_INFO pInputThreadInitInfo)
                     if (!InitWindowClass())
                         Status = STATUS_UNSUCCESSFUL;
 
-                    for (i=0;i<CONSOLE_MAX_KEY_INFO;i++) {
+                    for (i = 0; i < CONSOLE_MAX_KEY_INFO; i++) {
                         ConsoleKeyInfo[i].hWnd = CONSOLE_FREE_KEY_INFO;
                     }
 
@@ -1869,10 +1576,8 @@ VOID ConsoleInputThread(PINPUT_THREAD_INIT_INFO pInputThreadInitInfo)
             }
         }
 
-
         // If we successfully initialized, the input thread is ready to run.
         // Otherwise, kill the thread.
-
 
         pInputThreadInitInfo->InitStatus = Status;
         NtSetEvent(pInputThreadInitInfo->InitCompleteEventHandle, NULL);
@@ -1886,41 +1591,27 @@ VOID ConsoleInputThread(PINPUT_THREAD_INIT_INFO pInputThreadInitInfo)
             if (fQuit && ThreadInfo.WindowCount == 0)
                 break;
 
-
             // Make sure we don't hold any locks while we're idle.
-
-
             ASSERT(NtCurrentTeb()->CountOfOwnedCriticalSections == 0);
 
             GetMessage(&msg, NULL, 0, 0);
 
-
             // Trap messages posted to the thread.
-
-
             if (msg.message == CM_CREATE_CONSOLE_WINDOW) {
                 ProcessCreateConsoleWindow(&msg);
                 continue;
             } else if (msg.message == WM_QUIT) {
-
-
                 // The message was posted from ExitWindows.  This
                 // means that it's OK to terminate the thread.
-
-
                 fQuit = TRUE;
 
-
                 // Only exit the loop if there are no windows,
-
-
                 if (ThreadInfo.WindowCount == 0) {
                     break;
                 }
                 KdPrint(("WM_QUIT received by console with windows\n"));
                 continue;
-            }
-            else if (CONSOLE_IS_IME_ENABLED()) {
+            } else if (CONSOLE_IS_IME_ENABLED()) {
                 if (msg.message == CM_CONSOLE_INPUT_THREAD_MSG) {
                     MSG msg;
 
@@ -1942,8 +1633,7 @@ VOID ConsoleInputThread(PINPUT_THREAD_INIT_INFO pInputThreadInitInfo)
                             RIPMSG1(RIP_WARNING, "ConsoleInputThread: invalid thread message(%04x) !!", msg.message);
                             break;
                         }
-                    }
-                    else {
+                    } else {
                         RIPMSG0(RIP_WARNING, "ConsoleInputThread: bogus thread message is post. ignored");
                         continue;
                     }
@@ -1956,7 +1646,7 @@ VOID ConsoleInputThread(PINPUT_THREAD_INIT_INFO pInputThreadInitInfo)
                 // do this so that alt-tab works while journalling
                 if (msg.message == WM_SYSKEYDOWN &&
                     msg.wParam == VK_TAB &&
-                    (msg.lParam & 0x20000000) ) {   // alt is really down
+                    (msg.lParam & 0x20000000)) {   // alt is really down
                     DispatchMessage(&msg);
                 } else {
                     StoreKeyInfo(&msg);
@@ -1964,39 +1654,30 @@ VOID ConsoleInputThread(PINPUT_THREAD_INIT_INFO pInputThreadInitInfo)
             }
         }
 
-
         // Cleanup the input thread messages
-
         CleanupInputThreadMessages(ThreadInfo.ThreadId);
 
         RtlRaiseStatus(STATUS_PORT_DISCONNECTED);
-
-    } except (InputExceptionFilter(GetExceptionInformation())) {
+    } except(InputExceptionFilter(GetExceptionInformation())) {
         BOOL fSuccess;
 
-
         // Free all resources used by this thread
-
-
         if (hhook != NULL)
             UnhookWindowsHookEx(hhook);
         ConsoleDesktopInfo.dwThreadId = 0;
         NtUserConsoleControl(ConsoleDesktopConsoleThread,
-                &ConsoleDesktopInfo, sizeof(ConsoleDesktopInfo));
+                             &ConsoleDesktopInfo, sizeof(ConsoleDesktopInfo));
 
 
-        // Close the desktop handle.  CSR is special cased to close
-        // the handle even if the thread has windows.  The desktop
-        // remains assigned to the thread.
+                     // Close the desktop handle.  CSR is special cased to close
+                     // the handle even if the thread has windows.  The desktop
+                     // remains assigned to the thread.
 
 
         fSuccess = CloseDesktop(ThreadInfo.Desktop);
         ASSERT(fSuccess);
 
-
         // Restore thread handle so that CSR won't get confused.
-
-
         if (hThread != NULL)
             pcsrt->ThreadHandle = hThread;
     }
@@ -2006,12 +1687,10 @@ VOID ConsoleInputThread(PINPUT_THREAD_INIT_INFO pInputThreadInitInfo)
     UserExitWorkerThread();
 }
 
-ULONG
-GetControlKeyState(
-    LPARAM lParam
-    )
+
+ULONG GetControlKeyState(LPARAM lParam)
 {
-    ULONG ControlKeyState=0;
+    ULONG ControlKeyState = 0;
 
     if (GetKeyState(VK_LMENU) & KEY_PRESSED) {
         ControlKeyState |= LEFT_ALT_PRESSED;
@@ -2044,11 +1723,8 @@ GetControlKeyState(
     return ControlKeyState;
 }
 
-ULONG
-ConvertMouseButtonState(
-    IN ULONG Flag,
-    IN ULONG State
-    )
+
+ULONG ConvertMouseButtonState(IN ULONG Flag, IN ULONG State)
 {
     if (State & MK_LBUTTON) {
         Flag |= FROM_LEFT_1ST_BUTTON_PRESSED;
@@ -2062,42 +1738,26 @@ ConvertMouseButtonState(
     return Flag;
 }
 
-VOID
-TerminateRead(
-    IN PCONSOLE_INFORMATION Console,
-    IN PINPUT_INFORMATION InputInfo,
-    IN DWORD Flag
-    )
 
+VOID TerminateRead(IN PCONSOLE_INFORMATION Console, IN PINPUT_INFORMATION InputInfo, IN DWORD Flag)
 /*++
-
 Routine Description:
-
-    This routine wakes up any readers waiting for data when a ctrl-c
-    or ctrl-break is input.
-
+    This routine wakes up any readers waiting for data when a ctrl-c or ctrl-break is input.
 Arguments:
-
     InputInfo - pointer to input buffer
-
     Flag - flag indicating whether ctrl-break or ctrl-c was input
-
 --*/
-
 {
     BOOLEAN WaitSatisfied;
-    WaitSatisfied = CsrNotifyWait(&InputInfo->ReadWaitQueue,
-                  TRUE,
-                  NULL,
-                  (PVOID)Flag
-                 );
+    WaitSatisfied = CsrNotifyWait(&InputInfo->ReadWaitQueue, TRUE, NULL, (PVOID)Flag);
     if (WaitSatisfied) {
         // #334370 under stress, WaitQueue may already hold the satisfied waits
-        ASSERT ((Console->WaitQueue == NULL) ||
-                (Console->WaitQueue == &InputInfo->ReadWaitQueue));
+        ASSERT((Console->WaitQueue == NULL) ||
+        (Console->WaitQueue == &InputInfo->ReadWaitQueue));
         Console->WaitQueue = &InputInfo->ReadWaitQueue;
     }
 }
+
 
 BOOL
 HandleSysKeyEvent(
@@ -2107,13 +1767,9 @@ HandleSysKeyEvent(
     IN WPARAM wParam,
     IN LPARAM lParam
     )
-
 /*
-
     returns TRUE if DefWindowProc should be called.
-
 */
-
 {
     WORD VirtualKeyCode;
     BOOL bCtrlDown;
@@ -2121,7 +1777,7 @@ HandleSysKeyEvent(
 #if defined (FE_IME)
 // Sep.16.1995 Support Console IME by v-HirShi(Hirotoshi Shimizu)
     if (Message == WM_SYSCHAR || Message == WM_SYSDEADCHAR ||
-        Message == WM_SYSCHAR+CONIME_KEYDATA || Message == WM_SYSDEADCHAR+CONIME_KEYDATA)
+        Message == WM_SYSCHAR + CONIME_KEYDATA || Message == WM_SYSDEADCHAR + CONIME_KEYDATA)
 #else
     if (Message == WM_SYSCHAR || Message == WM_SYSDEADCHAR)
 #endif
@@ -2131,77 +1787,53 @@ HandleSysKeyEvent(
         VirtualKeyCode = LOWORD(wParam);
     }
 
-
     // check for ctrl-esc
-
     bCtrlDown = GetKeyState(VK_CONTROL) & KEY_PRESSED;
 
     if (VirtualKeyCode == VK_ESCAPE &&
         bCtrlDown &&
         !(GetKeyState(VK_MENU) & KEY_PRESSED) &&
         !(GetKeyState(VK_SHIFT) & KEY_PRESSED) &&
-        !(Console->ReserveKeys & CONSOLE_CTRLESC) ) {
+        !(Console->ReserveKeys & CONSOLE_CTRLESC)) {
         return TRUE;    // call DefWindowProc
     }
 
     if ((lParam & 0x20000000) == 0) {   // we're iconic
-
-
-
         // Check for ENTER while ICONic (Restore accelerator)
-
-
         if (VirtualKeyCode == VK_RETURN && !(Console->FullScreenFlags & CONSOLE_FULLSCREEN_HARDWARE)) {
-
             return TRUE;    // call DefWindowProc
         } else {
-            HandleKeyEvent(Console,
-                           hWnd,
-                           Message,
-                           wParam,
-                           lParam
-                          );
+            HandleKeyEvent(Console, hWnd, Message, wParam, lParam);
             return FALSE;
         }
     }
 
-    if (VirtualKeyCode == VK_RETURN && !bCtrlDown &&
-            !(Console->ReserveKeys & CONSOLE_ALTENTER)) {
+    if (VirtualKeyCode == VK_RETURN && !bCtrlDown && !(Console->ReserveKeys & CONSOLE_ALTENTER)) {
 #ifdef i386
         if (!(Message & KEY_UP_TRANSITION)) {
             if (FullScreenInitialized) {
                 if (Console->FullScreenFlags == 0) {
                     ConvertToFullScreen(Console);
                     Console->FullScreenFlags = CONSOLE_FULLSCREEN;
-
-                    ChangeDispSettings(Console, Console->hWnd,CDS_FULLSCREEN);
+                    ChangeDispSettings(Console, Console->hWnd, CDS_FULLSCREEN);
                 } else {
                     ConvertToWindowed(Console);
                     Console->FullScreenFlags &= ~CONSOLE_FULLSCREEN;
-
-                    ChangeDispSettings(Console, Console->hWnd,0);
-
+                    ChangeDispSettings(Console, Console->hWnd, 0);
                     ShowWindow(Console->hWnd, SW_RESTORE);
                 }
             } else {
                 WCHAR ItemString[70];
-                LoadString(ghInstance,msgNoFullScreen,ItemString,70);
-                MessageBoxEx(Console->hWnd,
-                            ItemString,
-                            Console->Title,
-                            MB_SYSTEMMODAL | MB_OK,
-                            0L
-                           );
+                LoadString(ghInstance, msgNoFullScreen, ItemString, 70);
+                MessageBoxEx(Console->hWnd, ItemString, Console->Title, MB_SYSTEMMODAL | MB_OK, 0L);
             }
         }
 #endif
         return FALSE;
     }
 
-
     // make sure alt-space gets translated so that the system
     // menu is displayed.
-
 
     if (!(GetKeyState(VK_CONTROL) & KEY_PRESSED)) {
         if (VirtualKeyCode == VK_SPACE && !(Console->ReserveKeys & CONSOLE_ALTSPACE)) {
@@ -2215,14 +1847,10 @@ HandleSysKeyEvent(
             return TRUE;  // call DefWindowProc
         }
     }
-    HandleKeyEvent(Console,
-                   hWnd,
-                   Message,
-                   wParam,
-                   lParam
-                  );
+    HandleKeyEvent(Console, hWnd, Message, wParam, lParam);
     return FALSE;
 }
+
 
 VOID
 HandleKeyEvent(
@@ -2239,19 +1867,18 @@ HandleKeyEvent(
     WORD VirtualKeyCode;
     ULONG ControlKeyState;
     BOOL bKeyDown;
-    BOOL bGenerateBreak=FALSE;
+    BOOL bGenerateBreak = FALSE;
 #ifdef FE_SB
     BOOL KeyMessageFromConsoleIME;
 #endif
 
 #ifdef FE_SB
     // v-HirShi Sep.21.1995 For Console IME
-    if ((WM_KEYFIRST+CONIME_KEYDATA) <= Message && Message <= (WM_KEYLAST+CONIME_KEYDATA)) {
-        Message -= CONIME_KEYDATA ;
-        KeyMessageFromConsoleIME = TRUE ;
-    }
-    else {
-        KeyMessageFromConsoleIME = FALSE ;
+    if ((WM_KEYFIRST + CONIME_KEYDATA) <= Message && Message <= (WM_KEYLAST + CONIME_KEYDATA)) {
+        Message -= CONIME_KEYDATA;
+        KeyMessageFromConsoleIME = TRUE;
+    } else {
+        KeyMessageFromConsoleIME = FALSE;
     }
 #endif
     /*
@@ -2261,10 +1888,8 @@ HandleKeyEvent(
     ControlKeyState = GetControlKeyState(lParam);
     bKeyDown = !(lParam & KEY_TRANSITION_UP);
 
-
     // Make sure we retrieve the key info first, or we could chew up
     // unneeded space in the key info table if we bail out early.
-
 
     InputEvent.Event.KeyEvent.wVirtualKeyCode = VirtualKeyCode;
     InputEvent.Event.KeyEvent.wVirtualScanCode = (BYTE)(HIWORD(lParam));
@@ -2277,12 +1902,9 @@ HandleKeyEvent(
         VirtualKeyCode = InputEvent.Event.KeyEvent.wVirtualKeyCode;
     }
 
-
     // If this is a key up message, should we ignore it? We do this
     // so that if a process reads a line from the input buffer, the
-    // key up event won't get put in the buffer after the read
-    // completes.
-
+    // key up event won't get put in the buffer after the read completes.
 
     if (Console->Flags & CONSOLE_IGNORE_NEXT_KEYUP) {
         Console->Flags &= ~CONSOLE_IGNORE_NEXT_KEYUP;
@@ -2293,30 +1915,23 @@ HandleKeyEvent(
 #ifdef FE_SB
     // v-HirShi Sep.21.1995 For Console IME
     if (KeyMessageFromConsoleIME) {
-        goto FromConsoleIME ;
+        goto FromConsoleIME;
     }
 #endif
 
     if (Console->Flags & CONSOLE_SELECTING) {
-
         if (!bKeyDown) {
             return;
         }
 
-
         // if escape or ctrl-c, cancel selection
-
-
-        if (!(Console->SelectionFlags & CONSOLE_MOUSE_DOWN) ) {
+        if (!(Console->SelectionFlags & CONSOLE_MOUSE_DOWN)) {
             if (VirtualKeyCode == VK_ESCAPE ||
-                (VirtualKeyCode == 'C' &&
-                 (GetKeyState(VK_CONTROL) & KEY_PRESSED) )) {
+                (VirtualKeyCode == 'C' && (GetKeyState(VK_CONTROL) & KEY_PRESSED))) {
                 ClearSelection(Console);
                 return;
             } else if (VirtualKeyCode == VK_RETURN) {
-
                 // if return, copy selection
-
                 DoCopy(Console);
                 return;
             }
@@ -2331,7 +1946,7 @@ HandleKeyEvent(
                  VirtualKeyCode == VK_PRIOR ||
                  VirtualKeyCode == VK_END ||
                  VirtualKeyCode == VK_HOME
-                ) ) {
+                 )) {
                 PSCREEN_INFORMATION ScreenInfo;
 #ifdef FE_SB
                 SHORT RowIndex;
@@ -2343,235 +1958,217 @@ HandleKeyEvent(
 
                 ScreenInfo = Console->CurrentScreenBuffer;
 
-
                 // see if shift is down.  if so, we're extending
                 // the selection.  otherwise, we're resetting the
                 // anchor
 
-
                 ConsoleHideCursor(ScreenInfo);
 #ifdef FE_SB
-                RowIndex = (ScreenInfo->BufferInfo.TextInfo.FirstRow+ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y) % ScreenInfo->ScreenBufferSize.Y;
+                RowIndex = (ScreenInfo->BufferInfo.TextInfo.FirstRow + ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y) %
+                    ScreenInfo->ScreenBufferSize.Y;
                 Row = &ScreenInfo->BufferInfo.TextInfo.Rows[RowIndex];
 
-               if (CONSOLE_IS_DBCS_OUTPUTCP(Console))
-               {
+                if (CONSOLE_IS_DBCS_OUTPUTCP(Console))
+                {
                     KAttrs = Row->CharRow.KAttrs[ScreenInfo->BufferInfo.TextInfo.CursorPosition.X];
                     if (KAttrs & ATTR_LEADING_BYTE)
                         NextRightX = 2;
                     else
                         NextRightX = 1;
-                }
-                else
+                } else
                 {
                     NextRightX = 1;
                 }
                 if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X > 0) {
                     if (CONSOLE_IS_DBCS_OUTPUTCP(Console)) {
-                        KAttrs = Row->CharRow.KAttrs[ScreenInfo->BufferInfo.TextInfo.CursorPosition.X-1];
+                        KAttrs = Row->CharRow.KAttrs[ScreenInfo->BufferInfo.TextInfo.CursorPosition.X - 1];
                         if (KAttrs & ATTR_TRAILING_BYTE)
                             NextLeftX = 2;
                         else if (KAttrs & ATTR_LEADING_BYTE) {
-                            if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X-1 > 0) {
-                                KAttrs = Row->CharRow.KAttrs[ScreenInfo->BufferInfo.TextInfo.CursorPosition.X-2];
+                            if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X - 1 > 0) {
+                                KAttrs = Row->CharRow.KAttrs[ScreenInfo->BufferInfo.TextInfo.CursorPosition.X - 2];
                                 if (KAttrs & ATTR_TRAILING_BYTE)
                                     NextLeftX = 3;
                                 else
                                     NextLeftX = 2;
-                            }
-                            else
+                            } else
                                 NextLeftX = 1;
-                        }
-                        else
+                        } else
                             NextLeftX = 1;
-                    }
-                    else
+                    } else
                         NextLeftX = 1;
                 }
 
                 switch (VirtualKeyCode) {
-                    case VK_RIGHT:
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X+NextRightX < ScreenInfo->ScreenBufferSize.X) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.X+=NextRightX;
-                        }
-                        break;
-                    case VK_LEFT:
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X > 0) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.X-=NextLeftX;
-                        }
-                        break;
-                    case VK_UP:
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y > 0) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y-=1;
-                        }
-                        break;
-                    case VK_DOWN:
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y+1 < ScreenInfo->ScreenBufferSize.Y) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y+=1;
-                        }
-                        break;
-                    case VK_NEXT:
-                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y += CONSOLE_WINDOW_SIZE_Y(ScreenInfo)-1;
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y >= ScreenInfo->ScreenBufferSize.Y) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = ScreenInfo->ScreenBufferSize.Y-1;
-                        }
-                        break;
-                    case VK_PRIOR:
-                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y -= CONSOLE_WINDOW_SIZE_Y(ScreenInfo)-1;
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y < 0) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = 0;
-                        }
-                        break;
-                    case VK_END:
-                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = ScreenInfo->ScreenBufferSize.Y-CONSOLE_WINDOW_SIZE_Y(ScreenInfo);
-                        break;
-                    case VK_HOME:
-                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.X = 0;
+                case VK_RIGHT:
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X + NextRightX < ScreenInfo->ScreenBufferSize.X) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.X += NextRightX;
+                    }
+                    break;
+                case VK_LEFT:
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X > 0) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.X -= NextLeftX;
+                    }
+                    break;
+                case VK_UP:
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y > 0) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y -= 1;
+                    }
+                    break;
+                case VK_DOWN:
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y + 1 < ScreenInfo->ScreenBufferSize.Y) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y += 1;
+                    }
+                    break;
+                case VK_NEXT:
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y += CONSOLE_WINDOW_SIZE_Y(ScreenInfo) - 1;
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y >= ScreenInfo->ScreenBufferSize.Y) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = ScreenInfo->ScreenBufferSize.Y - 1;
+                    }
+                    break;
+                case VK_PRIOR:
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y -= CONSOLE_WINDOW_SIZE_Y(ScreenInfo) - 1;
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y < 0) {
                         ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = 0;
-                        break;
-                    default:
-                        ASSERT(FALSE);
+                    }
+                    break;
+                case VK_END:
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = ScreenInfo->ScreenBufferSize.Y - CONSOLE_WINDOW_SIZE_Y(ScreenInfo);
+                    break;
+                case VK_HOME:
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.X = 0;
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = 0;
+                    break;
+                default:
+                    ASSERT(FALSE);
                 }
 #else   // FE_SB
                 switch (VirtualKeyCode) {
-                    case VK_RIGHT:
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X+1 < ScreenInfo->ScreenBufferSize.X) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.X+=1;
-                        }
-                        break;
-                    case VK_LEFT:
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X > 0) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.X-=1;
-                        }
-                        break;
-                    case VK_UP:
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y > 0) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y-=1;
-                        }
-                        break;
-                    case VK_DOWN:
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y+1 < ScreenInfo->ScreenBufferSize.Y) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y+=1;
-                        }
-                        break;
-                    case VK_NEXT:
-                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y += CONSOLE_WINDOW_SIZE_Y(ScreenInfo)-1;
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y >= ScreenInfo->ScreenBufferSize.Y) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = ScreenInfo->ScreenBufferSize.Y-1;
-                        }
-                        break;
-                    case VK_PRIOR:
-                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y -= CONSOLE_WINDOW_SIZE_Y(ScreenInfo)-1;
-                        if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y < 0) {
-                            ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = 0;
-                        }
-                        break;
-                    case VK_END:
-                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = ScreenInfo->ScreenBufferSize.Y-CONSOLE_WINDOW_SIZE_Y(ScreenInfo);
-                        break;
-                    case VK_HOME:
-                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.X = 0;
+                case VK_RIGHT:
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X + 1 < ScreenInfo->ScreenBufferSize.X) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.X += 1;
+                    }
+                    break;
+                case VK_LEFT:
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.X > 0) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.X -= 1;
+                    }
+                    break;
+                case VK_UP:
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y > 0) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y -= 1;
+                    }
+                    break;
+                case VK_DOWN:
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y + 1 < ScreenInfo->ScreenBufferSize.Y) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y += 1;
+                    }
+                    break;
+                case VK_NEXT:
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y += CONSOLE_WINDOW_SIZE_Y(ScreenInfo) - 1;
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y >= ScreenInfo->ScreenBufferSize.Y) {
+                        ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = ScreenInfo->ScreenBufferSize.Y - 1;
+                    }
+                    break;
+                case VK_PRIOR:
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y -= CONSOLE_WINDOW_SIZE_Y(ScreenInfo) - 1;
+                    if (ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y < 0) {
                         ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = 0;
-                        break;
-                    default:
-                        ASSERT(FALSE);
+                    }
+                    break;
+                case VK_END:
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = ScreenInfo->ScreenBufferSize.Y - CONSOLE_WINDOW_SIZE_Y(ScreenInfo);
+                    break;
+                case VK_HOME:
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.X = 0;
+                    ScreenInfo->BufferInfo.TextInfo.CursorPosition.Y = 0;
+                    break;
+                default:
+                    ASSERT(FALSE);
                 }
 #endif  // FE_SB
                 ConsoleShowCursor(ScreenInfo);
                 if (GetKeyState(VK_SHIFT) & KEY_PRESSED) {
                     {
-                        ExtendSelection(Console,ScreenInfo->BufferInfo.TextInfo.CursorPosition);
+                        ExtendSelection(Console, ScreenInfo->BufferInfo.TextInfo.CursorPosition);
                     }
                 } else {
                     if (Console->SelectionFlags & CONSOLE_SELECTION_NOT_EMPTY) {
-                        MyInvert(Console,&Console->SelectionRect);
+                        MyInvert(Console, &Console->SelectionRect);
                         Console->SelectionFlags &= ~CONSOLE_SELECTION_NOT_EMPTY;
                         ConsoleShowCursor(ScreenInfo);
                     }
                     Console->SelectionAnchor = ScreenInfo->BufferInfo.TextInfo.CursorPosition;
-                    MakeCursorVisible(ScreenInfo,Console->SelectionAnchor);
+                    MakeCursorVisible(ScreenInfo, Console->SelectionAnchor);
                     Console->SelectionRect.Left = Console->SelectionRect.Right = Console->SelectionAnchor.X;
                     Console->SelectionRect.Top = Console->SelectionRect.Bottom = Console->SelectionAnchor.Y;
                 }
                 return;
             }
         } else if (!(Console->SelectionFlags & CONSOLE_MOUSE_DOWN)) {
-
-
             // if in mouse selection mode and user hits a key, cancel selection
-
-
             if (!IsSystemKey(VirtualKeyCode)) {
                 ClearSelection(Console);
             }
         }
     } else if (Console->Flags & CONSOLE_SCROLLING) {
-
         if (!bKeyDown) {
             return;
         }
 
-
         // if escape, enter or ctrl-c, cancel scroll
-
-
-        if (VirtualKeyCode == VK_ESCAPE ||
-            VirtualKeyCode == VK_RETURN ||
-            (VirtualKeyCode == 'C' &&
-             (GetKeyState(VK_CONTROL) & KEY_PRESSED) )) {
+        if (VirtualKeyCode == VK_ESCAPE || VirtualKeyCode == VK_RETURN || 
+            (VirtualKeyCode == 'C' && (GetKeyState(VK_CONTROL) & KEY_PRESSED))) {
             ClearScroll(Console);
         } else {
             WORD ScrollCommand;
-            BOOL Horizontal=FALSE;
+            BOOL Horizontal = FALSE;
             switch (VirtualKeyCode) {
-                case VK_UP:
-                    ScrollCommand = SB_LINEUP;
-                    break;
-                case VK_DOWN:
-                    ScrollCommand = SB_LINEDOWN;
-                    break;
-                case VK_LEFT:
-                    ScrollCommand = SB_LINEUP;
-                    Horizontal=TRUE;
-                    break;
-                case VK_RIGHT:
-                    ScrollCommand = SB_LINEDOWN;
-                    Horizontal=TRUE;
-                    break;
-                case VK_NEXT:
-                    ScrollCommand = SB_PAGEDOWN;
-                    break;
-                case VK_PRIOR:
-                    ScrollCommand = SB_PAGEUP;
-                    break;
-                case VK_END:
-                    ScrollCommand = SB_PAGEDOWN;
-                    Horizontal=TRUE;
-                    break;
-                case VK_HOME:
-                    ScrollCommand = SB_PAGEUP;
-                    Horizontal=TRUE;
-                    break;
-                case VK_SHIFT:
-                case VK_CONTROL:
-                case VK_MENU:
-                    return;
-                default:
-                    Beep(800, 200);
-                    return;
+            case VK_UP:
+                ScrollCommand = SB_LINEUP;
+                break;
+            case VK_DOWN:
+                ScrollCommand = SB_LINEDOWN;
+                break;
+            case VK_LEFT:
+                ScrollCommand = SB_LINEUP;
+                Horizontal = TRUE;
+                break;
+            case VK_RIGHT:
+                ScrollCommand = SB_LINEDOWN;
+                Horizontal = TRUE;
+                break;
+            case VK_NEXT:
+                ScrollCommand = SB_PAGEDOWN;
+                break;
+            case VK_PRIOR:
+                ScrollCommand = SB_PAGEUP;
+                break;
+            case VK_END:
+                ScrollCommand = SB_PAGEDOWN;
+                Horizontal = TRUE;
+                break;
+            case VK_HOME:
+                ScrollCommand = SB_PAGEUP;
+                Horizontal = TRUE;
+                break;
+            case VK_SHIFT:
+            case VK_CONTROL:
+            case VK_MENU:
+                return;
+            default:
+                Beep(800, 200);
+                return;
             }
             if (Horizontal)
                 HorizontalScroll(Console->CurrentScreenBuffer, ScrollCommand, 0);
             else
-                VerticalScroll(Console, Console->CurrentScreenBuffer,ScrollCommand,0);
+                VerticalScroll(Console, Console->CurrentScreenBuffer, ScrollCommand, 0);
         }
         return;
     }
 
-
     // if the user is inputting chars at an inappropriate time, beep.
-
-
     if ((Console->Flags & (CONSOLE_SELECTING | CONSOLE_SCROLLING | CONSOLE_SCROLLBAR_TRACKING)) &&
         bKeyDown &&
         !IsSystemKey(VirtualKeyCode)) {
@@ -2579,9 +2176,7 @@ HandleKeyEvent(
         return;
     }
 
-
     // if in fullscreen mode, process PrintScreen
-
 
 #ifdef LATER
 
@@ -2603,13 +2198,11 @@ HandleKeyEvent(
 // keys against virtual keys and not characters.
 
 // - scottlu
-
-
 #endif
 
     if (Message != WM_CHAR && Message != WM_SYSCHAR &&
         VirtualKeyCode == VK_SNAPSHOT &&
-        !(Console->ReserveKeys & (CONSOLE_ALTPRTSC | CONSOLE_PRTSC )) ) {
+        !(Console->ReserveKeys & (CONSOLE_ALTPRTSC | CONSOLE_PRTSC))) {
         if (Console->FullScreenFlags & CONSOLE_FULLSCREEN_HARDWARE) {
             Console->SelectionFlags |= CONSOLE_SELECTION_NOT_EMPTY;
             Console->SelectionRect = Console->CurrentScreenBuffer->Window;
@@ -2619,15 +2212,14 @@ HandleKeyEvent(
         return;
     }
 
-
     // IME stuff
 
     if (!(Console->Flags & CONSOLE_VDM_REGISTERED)) {
-        LPARAM lParamForHotKey ;
-        DWORD HotkeyID ;
-        lParamForHotKey = lParam ;
+        LPARAM lParamForHotKey;
+        DWORD HotkeyID;
+        lParamForHotKey = lParam;
 
-        HotkeyID = NtUserCheckImeHotKey( (VirtualKeyCode & 0x00ff),lParamForHotKey) ;
+        HotkeyID = NtUserCheckImeHotKey((VirtualKeyCode & 0x00ff), lParamForHotKey);
 
         // If it's direct KL switching hokey, handle it here
         // regardless the system is IME enabled or not.
@@ -2653,28 +2245,27 @@ HandleKeyEvent(
         }
 
         if (!(Console->InputBuffer.ImeMode.Disable) && CONSOLE_IS_IME_ENABLED()) {
-
             if (HotkeyID != IME_INVALID_HOTKEY) {
-                switch(HotkeyID) {
+                switch (HotkeyID) {
                 case IME_JHOTKEY_CLOSE_OPEN:
-                    {
-                        BOOL fOpen = Console->InputBuffer.ImeMode.Open;
-                        if (!bKeyDown)
-                            break ;
+                {
+                    BOOL fOpen = Console->InputBuffer.ImeMode.Open;
+                    if (!bKeyDown)
+                        break;
 
-                        Console->InputBuffer.ImeMode.Open = !fOpen ;
-                        if (!NT_SUCCESS(ConsoleImeMessagePump(Console,
-                                              CONIME_HOTKEY,
-                                              (WPARAM)Console->ConsoleHandle,
-                                              HotkeyID))) {
-                            break;
-                        }
-
-                        // Update in the system conversion mode buffer.
-                        GetImeKeyState(Console, NULL);
-
-                        break ;
+                    Console->InputBuffer.ImeMode.Open = !fOpen;
+                    if (!NT_SUCCESS(ConsoleImeMessagePump(Console,
+                                                          CONIME_HOTKEY,
+                                                          (WPARAM)Console->ConsoleHandle,
+                                                          HotkeyID))) {
+                        break;
                     }
+
+                    // Update in the system conversion mode buffer.
+                    GetImeKeyState(Console, NULL);
+
+                    break;
+                }
                 case IME_CHOTKEY_IME_NONIME_TOGGLE:
                 case IME_THOTKEY_IME_NONIME_TOGGLE:
                 case IME_CHOTKEY_SHAPE_TOGGLE:
@@ -2688,92 +2279,86 @@ HandleKeyEvent(
                 case IME_ITHOTKEY_PREVIOUS_COMPOSITION:
                 case IME_ITHOTKEY_UISTYLE_TOGGLE:
                 default:
-                    {
-                        if (!NT_SUCCESS(ConsoleImeMessagePump(Console,
-                                              CONIME_HOTKEY,
-                                              (WPARAM)Console->ConsoleHandle,
-                                              HotkeyID))) {
-                            break;
-                        }
-
-                        // Update in the system conversion mode buffer.
-                        GetImeKeyState(Console, NULL);
-
-                        break ;
+                {
+                    if (!NT_SUCCESS(ConsoleImeMessagePump(Console,
+                                                          CONIME_HOTKEY,
+                                                          (WPARAM)Console->ConsoleHandle,
+                                                          HotkeyID))) {
+                        break;
                     }
+
+                    // Update in the system conversion mode buffer.
+                    GetImeKeyState(Console, NULL);
+
+                    break;
                 }
-                return ;
+                }
+                return;
             }
 
-            if ( CTRL_BUT_NOT_ALT(ControlKeyState) &&
-                    (bKeyDown) ) {
+            if (CTRL_BUT_NOT_ALT(ControlKeyState) &&
+                (bKeyDown)) {
                 if (VirtualKeyCode == 'C' &&
-                        Console->InputBuffer.InputMode & ENABLE_PROCESSED_INPUT) {
-                    goto FromConsoleIME ;
+                    Console->InputBuffer.InputMode & ENABLE_PROCESSED_INPUT) {
+                    goto FromConsoleIME;
+                } else if (VirtualKeyCode == VK_CANCEL) {
+                    goto FromConsoleIME;
+                } else if (VirtualKeyCode == 'S') {
+                    goto FromConsoleIME;
                 }
-                else if (VirtualKeyCode == VK_CANCEL) {
-                    goto FromConsoleIME ;
-                }
-                else if (VirtualKeyCode == 'S'){
-                    goto FromConsoleIME ;
-                }
-            }
-            else if (VirtualKeyCode == VK_PAUSE ){
-                goto FromConsoleIME ;
-            }
-            else if ( ((VirtualKeyCode == VK_SHIFT)   ||
-                       (VirtualKeyCode == VK_CONTROL) ||
-                       (VirtualKeyCode == VK_CAPITAL) ||
-                       (VirtualKeyCode == VK_KANA)    ||    // VK_KANA == VK_HANGUL
-                       (VirtualKeyCode == VK_JUNJA)   ||
-                       (VirtualKeyCode == VK_HANJA)   ||
-                       (VirtualKeyCode == VK_NUMLOCK) ||
-                       (VirtualKeyCode == VK_SCROLL)     )
-                      &&
-                      !(Console->InputBuffer.ImeMode.Unavailable) &&
-                      !(Console->InputBuffer.ImeMode.Open)
-                    )
+            } else if (VirtualKeyCode == VK_PAUSE) {
+                goto FromConsoleIME;
+            } else if (((VirtualKeyCode == VK_SHIFT) ||
+                         (VirtualKeyCode == VK_CONTROL) ||
+                         (VirtualKeyCode == VK_CAPITAL) ||
+                         (VirtualKeyCode == VK_KANA) ||    // VK_KANA == VK_HANGUL
+                         (VirtualKeyCode == VK_JUNJA) ||
+                         (VirtualKeyCode == VK_HANJA) ||
+                         (VirtualKeyCode == VK_NUMLOCK) ||
+                         (VirtualKeyCode == VK_SCROLL))
+                       &&
+                       !(Console->InputBuffer.ImeMode.Unavailable) &&
+                       !(Console->InputBuffer.ImeMode.Open)
+                       )
             {
                 if (!NT_SUCCESS(ConsoleImeMessagePump(Console,
-                                      Message+CONIME_KEYDATA,
-                                      (WPARAM)LOWORD(wParam)<<16|LOWORD(VirtualKeyCode),
-                                      lParam
-                                     ))) {
+                                                      Message + CONIME_KEYDATA,
+                                                      (WPARAM)LOWORD(wParam) << 16 | LOWORD(VirtualKeyCode),
+                                                      lParam
+                                                      ))) {
                     return;
                 }
-                goto FromConsoleIME ;
+                goto FromConsoleIME;
             }
 
             if (!Console->InputBuffer.ImeMode.Unavailable && Console->InputBuffer.ImeMode.Open) {
-                if (! (HIWORD(lParam) & KF_REPEAT))
+                if (!(HIWORD(lParam) & KF_REPEAT))
                 {
                     if (PRIMARYLANGID(LOWORD(Console->hklActive)) == LANG_JAPANESE &&
-                            (BYTE)wParam == VK_KANA) {
+                        (BYTE)wParam == VK_KANA) {
                         if (!NT_SUCCESS(ConsoleImeMessagePump(Console,
-                                              CONIME_NOTIFY_VK_KANA,
-                                              0,
-                                              0
-                                             ))) {
+                                                              CONIME_NOTIFY_VK_KANA,
+                                                              0,
+                                                              0
+                                                              ))) {
                             return;
                         }
                     }
                 }
 
                 ConsoleImeMessagePump(Console,
-                                      Message+CONIME_KEYDATA,
-                                      LOWORD(wParam)<<16|LOWORD(VirtualKeyCode),
+                                      Message + CONIME_KEYDATA,
+                                      LOWORD(wParam) << 16 | LOWORD(VirtualKeyCode),
                                       lParam
-                                     );
-                return ;
+                                      );
+                return;
             }
         }
     }
 FromConsoleIME:
 
-
     // ignore key strokes that will generate CHAR messages.  this is only
     // necessary while a dialog box is up.
-
 
     if (DialogBoxCount > 0) {
         if (Message != WM_CHAR && Message != WM_SYSCHAR && Message != WM_DEADCHAR && Message != WM_SYSDEADCHAR) {
@@ -2782,7 +2367,7 @@ FromConsoleIME:
             BYTE KeyState[256];
 
             GetKeyboardState(KeyState);
-            cwch = ToUnicodeEx((UINT)wParam,HIWORD(lParam),KeyState,awch,
+            cwch = ToUnicodeEx((UINT)wParam, HIWORD(lParam), KeyState, awch,
                                MAX_CHARS_FROM_1_KEYSTROKE,
                                //TM_POSTCHARBREAKS | (KeyState(VK_MENU) & 1));
                                TM_POSTCHARBREAKS,
@@ -2793,7 +2378,7 @@ FromConsoleIME:
         } else {
             // remember to generate break
             if (Message == WM_CHAR) {
-                bGenerateBreak=TRUE;
+                bGenerateBreak = TRUE;
             }
         }
     }
@@ -2841,71 +2426,52 @@ FromConsoleIME:
     }
 #endif
 
-    ContinueProcessing=TRUE;
+    ContinueProcessing = TRUE;
 
-    if (CTRL_BUT_NOT_ALT(InputEvent.Event.KeyEvent.dwControlKeyState) &&
-        InputEvent.Event.KeyEvent.bKeyDown) {
-
-
+    if (CTRL_BUT_NOT_ALT(InputEvent.Event.KeyEvent.dwControlKeyState) && InputEvent.Event.KeyEvent.bKeyDown) {
         // check for ctrl-c, if in line input mode.
-
-
-        if (InputEvent.Event.KeyEvent.wVirtualKeyCode == 'C' &&
-            Console->InputBuffer.InputMode & ENABLE_PROCESSED_INPUT) {
-            HandleCtrlEvent(Console,CTRL_C_EVENT);
+        if (InputEvent.Event.KeyEvent.wVirtualKeyCode == 'C' && Console->InputBuffer.InputMode & ENABLE_PROCESSED_INPUT) {
+            HandleCtrlEvent(Console, CTRL_C_EVENT);
             if (!Console->PopupCount)
-                TerminateRead(Console,&Console->InputBuffer,CONSOLE_CTRL_C_SEEN);
+                TerminateRead(Console, &Console->InputBuffer, CONSOLE_CTRL_C_SEEN);
             if (!(Console->Flags & CONSOLE_SUSPENDED)) {
-                ContinueProcessing=FALSE;
+                ContinueProcessing = FALSE;
             }
         }
-
 
         // check for ctrl-break.
-
-
         else if (InputEvent.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL) {
             FlushInputBuffer(&Console->InputBuffer);
-            HandleCtrlEvent(Console,CTRL_BREAK_EVENT);
+            HandleCtrlEvent(Console, CTRL_BREAK_EVENT);
             if (!Console->PopupCount)
-                TerminateRead(Console,&Console->InputBuffer,CONSOLE_CTRL_BREAK_SEEN);
+                TerminateRead(Console, &Console->InputBuffer, CONSOLE_CTRL_BREAK_SEEN);
             if (!(Console->Flags & CONSOLE_SUSPENDED)) {
-                ContinueProcessing=FALSE;
+                ContinueProcessing = FALSE;
             }
         }
 
-
         // don't write ctrl-esc to the input buffer
-
-
         else if (InputEvent.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE &&
                  !(Console->ReserveKeys & CONSOLE_CTRLESC)) {
-            ContinueProcessing=FALSE;
+            ContinueProcessing = FALSE;
         }
     } else if (InputEvent.Event.KeyEvent.dwControlKeyState & (RIGHT_ALT_PRESSED | LEFT_ALT_PRESSED) &&
                InputEvent.Event.KeyEvent.bKeyDown &&
                InputEvent.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE &&
                !(Console->ReserveKeys & CONSOLE_ALTESC)) {
-        ContinueProcessing=FALSE;
+        ContinueProcessing = FALSE;
     }
 
     if (ContinueProcessing) {
-        EventsWritten = WriteInputBuffer( Console,
-                                          &Console->InputBuffer,
-                                          &InputEvent,
-                                          1
-                                         );
+        EventsWritten = WriteInputBuffer(Console, &Console->InputBuffer, &InputEvent, 1);
         if (EventsWritten && bGenerateBreak) {
             InputEvent.Event.KeyEvent.bKeyDown = FALSE;
-            WriteInputBuffer( Console,
-                              &Console->InputBuffer,
-                              &InputEvent,
-                              1
-                             );
+            WriteInputBuffer(Console, &Console->InputBuffer, &InputEvent, 1);
         }
     }
     return;
 }
+
 
 BOOL
 HandleMouseEvent(
@@ -2916,13 +2482,10 @@ HandleMouseEvent(
     IN LPARAM lParam
     )
 /*
-
     returns TRUE if DefWindowProc should be called.
-
 */
-
 {
-    ULONG ButtonFlags,EventFlags;
+    ULONG ButtonFlags, EventFlags;
     INPUT_RECORD InputEvent;
     ULONG EventsWritten;
     COORD MousePosition;
@@ -2946,9 +2509,7 @@ HandleMouseEvent(
         return TRUE;
     }
 
-
     // translate mouse position into characters, if necessary.
-
 
     MousePosition.X = LOWORD(lParam);
     MousePosition.Y = HIWORD(lParam);
@@ -2959,30 +2520,24 @@ HandleMouseEvent(
     MousePosition.X += ScreenInfo->Window.Left;
     MousePosition.Y += ScreenInfo->Window.Top;
 
-
     // make sure mouse position is clipped to screen buffer
-
 
     if (MousePosition.X < 0) {
         MousePosition.X = 0;
     } else if (MousePosition.X >= ScreenInfo->ScreenBufferSize.X) {
-        MousePosition.X = ScreenInfo->ScreenBufferSize.X-1;
+        MousePosition.X = ScreenInfo->ScreenBufferSize.X - 1;
     }
     if (MousePosition.Y < 0) {
         MousePosition.Y = 0;
     } else if (MousePosition.Y >= ScreenInfo->ScreenBufferSize.Y) {
-        MousePosition.Y = ScreenInfo->ScreenBufferSize.Y-1;
+        MousePosition.Y = ScreenInfo->ScreenBufferSize.Y - 1;
     }
 
     if (Console->Flags & CONSOLE_SELECTING ||
         ((Console->Flags & CONSOLE_QUICK_EDIT_MODE) &&
-         (Console->FullScreenFlags == 0)) ) {
+         (Console->FullScreenFlags == 0))) {
         if (Message == WM_LBUTTONDOWN) {
-
-
             // make sure message matches button state
-
-
             if (!(GetKeyState(VK_LBUTTON) & KEY_PRESSED)) {
                 return FALSE;
             }
@@ -2992,56 +2547,38 @@ HandleMouseEvent(
                 Console->Flags |= CONSOLE_SELECTING;
                 Console->SelectionFlags = CONSOLE_MOUSE_SELECTION | CONSOLE_MOUSE_DOWN | CONSOLE_SELECTION_NOT_EMPTY;
 
-
                 // invert selection
 
-
                 Console->SelectionAnchor = MousePosition;
-                Console->SelectionRect.Left =Console->SelectionRect.Right = Console->SelectionAnchor.X;
+                Console->SelectionRect.Left = Console->SelectionRect.Right = Console->SelectionAnchor.X;
                 Console->SelectionRect.Top = Console->SelectionRect.Bottom = Console->SelectionAnchor.Y;
-                MyInvert(Console,&Console->SelectionRect);
-                SetWinText(Console,msgSelectMode,TRUE);
+                MyInvert(Console, &Console->SelectionRect);
+                SetWinText(Console, msgSelectMode, TRUE);
                 SetCapture(Console->hWnd);
             } else {
-
-
             // We now capture the mouse to our Window. We do this so that the user can
             //  "scroll" the selection endpoint to an off screen position by moving the
             //  mouse off the client area.
+                if (Console->SelectionFlags & CONSOLE_MOUSE_SELECTION) {
+                    // Check for SHIFT-Mouse Down "continue previous selection" command
+                    if (GetKeyState(VK_SHIFT) & KEY_PRESSED) {
+                        Console->SelectionFlags |= CONSOLE_MOUSE_DOWN; // BUGBUG necessary flag?
+                        SetCapture(Console->hWnd);
+                        ExtendSelection(Console, MousePosition);
+                    } else {
+                        // invert old selection, reset anchor, and invert new selection.
 
-
-            if (Console->SelectionFlags & CONSOLE_MOUSE_SELECTION) {
-
-
-                // Check for SHIFT-Mouse Down "continue previous selection" command
-
-
-                if (GetKeyState(VK_SHIFT) & KEY_PRESSED) {
-                    Console->SelectionFlags |= CONSOLE_MOUSE_DOWN; // BUGBUG necessary flag?
-                    SetCapture(Console->hWnd);
-                    ExtendSelection(Console,
-                                    MousePosition
-                                   );
+                        MyInvert(Console, &Console->SelectionRect);
+                        Console->SelectionFlags |= CONSOLE_MOUSE_DOWN; // BUGBUG necessary flag?
+                        SetCapture(Console->hWnd);
+                        Console->SelectionAnchor = MousePosition;
+                        Console->SelectionRect.Left = Console->SelectionRect.Right = Console->SelectionAnchor.X;
+                        Console->SelectionRect.Top = Console->SelectionRect.Bottom = Console->SelectionAnchor.Y;
+                        MyInvert(Console, &Console->SelectionRect);
+                    }
                 } else {
-
-
-                    // invert old selection, reset anchor, and invert
-                    // new selection.
-
-
-                    MyInvert(Console,&Console->SelectionRect);
-                    Console->SelectionFlags |= CONSOLE_MOUSE_DOWN; // BUGBUG necessary flag?
-                    SetCapture(Console->hWnd);
-                    Console->SelectionAnchor = MousePosition;
-                    Console->SelectionRect.Left =Console->SelectionRect.Right = Console->SelectionAnchor.X;
-                    Console->SelectionRect.Top = Console->SelectionRect.Bottom = Console->SelectionAnchor.Y;
-                    MyInvert(Console,&Console->SelectionRect);
+                    ConvertToMouseSelect(Console, MousePosition);
                 }
-            } else {
-                ConvertToMouseSelect(Console,
-                                     MousePosition
-                                    );
-            }
             }
         } else if (Message == WM_LBUTTONUP) {
             if (Console->SelectionFlags & CONSOLE_MOUSE_SELECTION) {
@@ -3051,7 +2588,7 @@ HandleMouseEvent(
         } else if (Message == WM_LBUTTONDBLCLK) {
             if ((MousePosition.X == Console->SelectionAnchor.X) &&
                 (MousePosition.Y == Console->SelectionAnchor.Y)) {
-                RowIndex = (ScreenInfo->BufferInfo.TextInfo.FirstRow+MousePosition.Y) % ScreenInfo->ScreenBufferSize.Y;
+                RowIndex = (ScreenInfo->BufferInfo.TextInfo.FirstRow + MousePosition.Y) % ScreenInfo->ScreenBufferSize.Y;
                 Row = &ScreenInfo->BufferInfo.TextInfo.Rows[RowIndex];
                 while (Console->SelectionAnchor.X > 0) {
                     if (IS_WORD_DELIM(Row->CharRow.Chars[Console->SelectionAnchor.X - 1]))
@@ -3064,14 +2601,12 @@ HandleMouseEvent(
                     MousePosition.X++;
                 }
                 if (gfTrimLeadingZeros) {
-
                     // Trim the leading zeros: 000fe12 -> fe12
                     // Usefull for debugging
-
                     if (MousePosition.X > Console->SelectionAnchor.X + 2 &&
-                            Row->CharRow.Chars[Console->SelectionAnchor.X + 1] != L'x' &&
-                            Row->CharRow.Chars[Console->SelectionAnchor.X + 1] != L'X') {
-                        // Don't touch the selection begins with 0x
+                        Row->CharRow.Chars[Console->SelectionAnchor.X + 1] != L'x' &&
+                        Row->CharRow.Chars[Console->SelectionAnchor.X + 1] != L'X') {
+                    // Don't touch the selection begins with 0x
                         while (Row->CharRow.Chars[Console->SelectionAnchor.X] == L'0' && Console->SelectionAnchor.X < MousePosition.X - 1) {
                             Console->SelectionAnchor.X++;
                         }
@@ -3090,9 +2625,7 @@ HandleMouseEvent(
             }
         } else if (Message == WM_MOUSEMOVE) {
             if (Console->SelectionFlags & CONSOLE_MOUSE_DOWN) {
-                ExtendSelection(Console,
-                                MousePosition
-                               );
+                ExtendSelection(Console, MousePosition);
             }
         } else if (Message == WM_MOUSEWHEEL) {
             return TRUE;
@@ -3120,69 +2653,65 @@ HandleMouseEvent(
         }
     }
     switch (Message) {
-        case WM_LBUTTONDOWN:
-            SetCapture(Console->hWnd);
-            ButtonFlags = FROM_LEFT_1ST_BUTTON_PRESSED;
-            EventFlags = 0;
-            break;
-        case WM_LBUTTONUP:
-            ReleaseCapture();
-            ButtonFlags = 0;
-            EventFlags = 0;
-            break;
-        case WM_RBUTTONDOWN:
-            SetCapture(Console->hWnd);
-            ButtonFlags = RIGHTMOST_BUTTON_PRESSED;
-            EventFlags = 0;
-            break;
-        case WM_RBUTTONUP:
-            ReleaseCapture();
-            ButtonFlags = 0;
-            EventFlags = 0;
-            break;
-        case WM_MBUTTONDOWN:
-            SetCapture(Console->hWnd);
-            ButtonFlags = FROM_LEFT_2ND_BUTTON_PRESSED;
-            EventFlags = 0;
-            break;
-        case WM_MBUTTONUP:
-            ReleaseCapture();
-            ButtonFlags = 0;
-            EventFlags = 0;
-            break;
-        case WM_MOUSEMOVE:
-            ButtonFlags = 0;
-            EventFlags = MOUSE_MOVED;
-            break;
-        case WM_LBUTTONDBLCLK:
-            ButtonFlags = FROM_LEFT_1ST_BUTTON_PRESSED;
-            EventFlags = DOUBLE_CLICK;
-            break;
-        case WM_RBUTTONDBLCLK:
-            ButtonFlags = RIGHTMOST_BUTTON_PRESSED;
-            EventFlags = DOUBLE_CLICK;
-            break;
-        case WM_MBUTTONDBLCLK:
-            ButtonFlags = FROM_LEFT_2ND_BUTTON_PRESSED;
-            EventFlags = DOUBLE_CLICK;
-            break;
-        case WM_MOUSEWHEEL:
-            ButtonFlags = ((UINT)wParam & 0xFFFF0000);
-            EventFlags = MOUSE_WHEELED;
-            break;
-        default:
-            ASSERT(FALSE);
+    case WM_LBUTTONDOWN:
+        SetCapture(Console->hWnd);
+        ButtonFlags = FROM_LEFT_1ST_BUTTON_PRESSED;
+        EventFlags = 0;
+        break;
+    case WM_LBUTTONUP:
+        ReleaseCapture();
+        ButtonFlags = 0;
+        EventFlags = 0;
+        break;
+    case WM_RBUTTONDOWN:
+        SetCapture(Console->hWnd);
+        ButtonFlags = RIGHTMOST_BUTTON_PRESSED;
+        EventFlags = 0;
+        break;
+    case WM_RBUTTONUP:
+        ReleaseCapture();
+        ButtonFlags = 0;
+        EventFlags = 0;
+        break;
+    case WM_MBUTTONDOWN:
+        SetCapture(Console->hWnd);
+        ButtonFlags = FROM_LEFT_2ND_BUTTON_PRESSED;
+        EventFlags = 0;
+        break;
+    case WM_MBUTTONUP:
+        ReleaseCapture();
+        ButtonFlags = 0;
+        EventFlags = 0;
+        break;
+    case WM_MOUSEMOVE:
+        ButtonFlags = 0;
+        EventFlags = MOUSE_MOVED;
+        break;
+    case WM_LBUTTONDBLCLK:
+        ButtonFlags = FROM_LEFT_1ST_BUTTON_PRESSED;
+        EventFlags = DOUBLE_CLICK;
+        break;
+    case WM_RBUTTONDBLCLK:
+        ButtonFlags = RIGHTMOST_BUTTON_PRESSED;
+        EventFlags = DOUBLE_CLICK;
+        break;
+    case WM_MBUTTONDBLCLK:
+        ButtonFlags = FROM_LEFT_2ND_BUTTON_PRESSED;
+        EventFlags = DOUBLE_CLICK;
+        break;
+    case WM_MOUSEWHEEL:
+        ButtonFlags = ((UINT)wParam & 0xFFFF0000);
+        EventFlags = MOUSE_WHEELED;
+        break;
+    default:
+        ASSERT(FALSE);
     }
     InputEvent.EventType = MOUSE_EVENT;
     InputEvent.Event.MouseEvent.dwMousePosition = MousePosition;
     InputEvent.Event.MouseEvent.dwEventFlags = EventFlags;
     InputEvent.Event.MouseEvent.dwButtonState =
-        ConvertMouseButtonState(ButtonFlags,(UINT)wParam);
-    EventsWritten = WriteInputBuffer( Console,
-                                      &Console->InputBuffer,
-                                      &InputEvent,
-                                      1
-                                     );
+        ConvertMouseButtonState(ButtonFlags, (UINT)wParam);
+    EventsWritten = WriteInputBuffer(Console, &Console->InputBuffer, &InputEvent, 1);
 #if DBG
     if (EventsWritten != 1) {
         OutputDebugStringA("PutInputInBuffer: EventsWritten != 1, 1 expected\n");
@@ -3190,17 +2719,14 @@ HandleMouseEvent(
 #endif
 #ifdef i386
     if (Console->FullScreenFlags & CONSOLE_FULLSCREEN_HARDWARE) {
-        UpdateMousePosition(ScreenInfo,InputEvent.Event.MouseEvent.dwMousePosition);
+        UpdateMousePosition(ScreenInfo, InputEvent.Event.MouseEvent.dwMousePosition);
     }
 #endif
     return FALSE;
 }
 
-VOID
-HandleFocusEvent(
-    IN PCONSOLE_INFORMATION Console,
-    IN BOOL bSetFocus
-    )
+
+VOID HandleFocusEvent(IN PCONSOLE_INFORMATION Console, IN BOOL bSetFocus)
 {
     INPUT_RECORD InputEvent;
     ULONG EventsWritten;
@@ -3221,12 +2747,8 @@ HandleFocusEvent(
 
     Flags.dwMask = (TIF_VDMAPP | TIF_DOSEMULATOR);
     NtUserSetInformationThread(Console->InputThreadInfo->ThreadHandle,
-            UserThreadFlags, &Flags, sizeof(Flags));
-    EventsWritten = WriteInputBuffer( Console,
-                                      &Console->InputBuffer,
-                                      &InputEvent,
-                                      1
-                                     );
+                               UserThreadFlags, &Flags, sizeof(Flags));
+    EventsWritten = WriteInputBuffer(Console, &Console->InputBuffer, &InputEvent, 1);
 #if DBG
     if (EventsWritten != 1) {
         OutputDebugStringA("PutInputInBuffer: EventsWritten != 1, 1 expected\n");
@@ -3234,22 +2756,15 @@ HandleFocusEvent(
 #endif
 }
 
-VOID
-HandleMenuEvent(
-    IN PCONSOLE_INFORMATION Console,
-    IN DWORD wParam
-    )
+
+VOID HandleMenuEvent(IN PCONSOLE_INFORMATION Console, IN DWORD wParam)
 {
     INPUT_RECORD InputEvent;
     ULONG EventsWritten;
 
     InputEvent.EventType = MENU_EVENT;
     InputEvent.Event.MenuEvent.dwCommandId = wParam;
-    EventsWritten = WriteInputBuffer( Console,
-                                      &Console->InputBuffer,
-                                      &InputEvent,
-                                      1
-                                     );
+    EventsWritten = WriteInputBuffer(Console, &Console->InputBuffer, &InputEvent, 1);
 #if DBG
     if (EventsWritten != 1) {
         OutputDebugStringA("PutInputInBuffer: EventsWritten != 1, 1 expected\n");
@@ -3257,41 +2772,32 @@ HandleMenuEvent(
 #endif
 }
 
-VOID
-HandleCtrlEvent(
-    IN PCONSOLE_INFORMATION Console,
-    IN DWORD EventType
-    )
+
+VOID HandleCtrlEvent(IN PCONSOLE_INFORMATION Console, IN DWORD EventType)
 {
     switch (EventType) {
-        case CTRL_C_EVENT:
-            Console->CtrlFlags |= CONSOLE_CTRL_C_FLAG;
-            break;
-        case CTRL_BREAK_EVENT:
-            Console->CtrlFlags |= CONSOLE_CTRL_BREAK_FLAG;
-            break;
-        case CTRL_CLOSE_EVENT:
-            Console->CtrlFlags |= CONSOLE_CTRL_CLOSE_FLAG;
-            break;
-        default:
-            ASSERT (FALSE);
+    case CTRL_C_EVENT:
+        Console->CtrlFlags |= CONSOLE_CTRL_C_FLAG;
+        break;
+    case CTRL_BREAK_EVENT:
+        Console->CtrlFlags |= CONSOLE_CTRL_BREAK_FLAG;
+        break;
+    case CTRL_CLOSE_EVENT:
+        Console->CtrlFlags |= CONSOLE_CTRL_CLOSE_FLAG;
+        break;
+    default:
+        ASSERT(FALSE);
     }
 }
 
-VOID
-KillProcess(
-    PCONSOLE_PROCESS_TERMINATION_RECORD ProcessHandleRecord,
-    ULONG_PTR ProcessId
-    )
+
+VOID KillProcess(PCONSOLE_PROCESS_TERMINATION_RECORD ProcessHandleRecord, ULONG_PTR ProcessId)
 {
     NTSTATUS status;
 
-
     // Just terminate the process outright.
-
-
     status = NtTerminateProcess(ProcessHandleRecord->ProcessHandle,
-                ProcessHandleRecord->bDebugee ? DBG_TERMINATE_PROCESS : CONTROL_C_EXIT);
+                                ProcessHandleRecord->bDebugee ? DBG_TERMINATE_PROCESS : CONTROL_C_EXIT);
 
 #if DBG
     if (status != STATUS_SUCCESS && status != STATUS_PROCESS_IS_TERMINATING && status != STATUS_THREAD_WAS_SUSPENDED && !(status == STATUS_ACCESS_DENIED && ProcessHandleRecord->bDebugee)) {
@@ -3317,7 +2823,11 @@ KillProcess(
 }
 
 
-int CreateCtrlThread(IN PCONSOLE_PROCESS_TERMINATION_RECORD ProcessHandleList, IN ULONG ProcessHandleListLength, IN PWCHAR Title, IN DWORD EventType, IN BOOL fForce)
+int CreateCtrlThread(IN PCONSOLE_PROCESS_TERMINATION_RECORD ProcessHandleList, 
+                     IN ULONG ProcessHandleListLength, 
+                     IN PWCHAR Title, 
+                     IN DWORD EventType, 
+                     IN BOOL fForce)
 // this routine must be called not holding the console lock.
 // returns true if process is exiting
 {
@@ -3325,22 +2835,22 @@ int CreateCtrlThread(IN PCONSOLE_PROCESS_TERMINATION_RECORD ProcessHandleList, I
     DWORD Status;
     NTSTATUS status;
     DWORD ShutdownFlags;
-    int Success=CONSOLE_SHUTDOWN_SUCCEEDED;
+    int Success = CONSOLE_SHUTDOWN_SUCCEEDED;
     ULONG i;
     DWORD EventFlags;
     PROCESS_BASIC_INFORMATION BasicInfo;
     PCSR_PROCESS Process;
     BOOL fForceProcess;
     BOOL fExitProcess;
-    BOOL fFirstPass=TRUE;
-    BOOL fSecondPassNeeded=FALSE;
+    BOOL fFirstPass = TRUE;
+    BOOL fSecondPassNeeded = FALSE;
     BOOL fHasError;
     BOOL fFirstWait;
     BOOL fEventProcessed;
     BOOL fBreakEvent;
 
 BigLoop:
-    for (i=0;i<ProcessHandleListLength;i++) {
+    for (i = 0; i < ProcessHandleListLength; i++) {
         // If the user has already cancelled shutdown, don't try to kill any more processes.
         if (Success == CONSOLE_SHUTDOWN_FAILED) {
             break;
@@ -3365,7 +2875,7 @@ BigLoop:
             continue;
         }
         ShutdownFlags = Process->ShutdownFlags;
-        ProcessHandleList[i].bDebugee = Process->DebugUserInterface.UniqueProcess!=NULL;
+        ProcessHandleList[i].bDebugee = Process->DebugUserInterface.UniqueProcess != NULL;
         CsrUnlockProcess(Process);
 
         if (!ProcessHandleList[i].bDebugee) {
@@ -3374,7 +2884,7 @@ BigLoop:
             // see if we're a OS/2 app that's being debugged
             DebugPort = (HANDLE)NULL;
             status = NtQueryInformationProcess(ProcessHandleList[i].ProcessHandle, ProcessDebugPort, (PVOID)&DebugPort, sizeof(DebugPort), NULL);
-            if ( NT_SUCCESS(status) && DebugPort ) {
+            if (NT_SUCCESS(status) && DebugPort) {
                 ProcessHandleList[i].bDebugee = TRUE;
             }
         }
@@ -3392,7 +2902,7 @@ BigLoop:
             }
         } else {
             fBreakEvent = TRUE;
-            fFirstPass=FALSE;
+            fFirstPass = FALSE;
         }
 
         // fForce is whether ExitWindowsEx was called with EWX_FORCE.
@@ -3426,9 +2936,11 @@ BigLoop:
             DWORD ProcessExitCode;
             DWORD cMsTimeout;
 
-            Thread = InternalCreateCallbackThread(ProcessHandleList[i].ProcessHandle, (ULONG_PTR)ProcessHandleList[i].CtrlRoutine, EventType | EventFlags);
+            Thread = InternalCreateCallbackThread(ProcessHandleList[i].ProcessHandle,
+                                                  (ULONG_PTR)ProcessHandleList[i].CtrlRoutine,
+                                                  EventType | EventFlags);
             if (Thread == NULL) {// If the thread cannot be created, terminate the process.
-                KdPrint(("CONSRV: CreateRemoteThread failed %x\n",GetLastError()));
+                KdPrint(("CONSRV: CreateRemoteThread failed %x\n", GetLastError()));
                 break;
             }
 
@@ -3484,14 +2996,14 @@ BigLoop:
                     }
                 } else if (Status == 0) {
                     ThreadExitCode = 0;
-                    GetExitCodeThread(Thread,&ThreadExitCode);
+                    GetExitCodeThread(Thread, &ThreadExitCode);
                     GetExitCodeProcess(ProcessHandleList[i].ProcessHandle,
-                            &ProcessExitCode);
+                                       &ProcessExitCode);
 
 
-                    // if the app returned TRUE (event handled)
-                    // notify the user and see if the app should
-                    // be terminated anyway.
+                               // if the app returned TRUE (event handled)
+                               // notify the user and see if the app should
+                               // be terminated anyway.
                     if (fHasError || (ThreadExitCode == EventType && ProcessExitCode == STILL_ACTIVE)) {
                         int Action;
 
@@ -3539,25 +3051,21 @@ BigLoop:
                 CsrUnlockProcess(Process);
             }
 
-
             // Force the termination of the process if needed.  Otherwise,
             // acknowledge any remaining hard errors.
 
             if (fExitProcess) {
                 KillProcess(&ProcessHandleList[i],
-                        BasicInfo.UniqueProcessId);
+                            BasicInfo.UniqueProcessId);
             } else {
                 BoostHardError(BasicInfo.UniqueProcessId, BHE_FORCE);
             }
         }
     }
 
-
     // If this was our first time through and we skipped one of the
     // processes because it was being debugged, we'll go back for a
     // second pass.
-
-
     if (fFirstPass && fSecondPassNeeded) {
         fFirstPass = FALSE;
         goto BigLoop;
@@ -3565,23 +3073,20 @@ BigLoop:
 
     // if we're shutting down a system or service security context
     // thread, don't wait for the process to terminate
-
     if (ShutdownFlags & (SHUTDOWN_SYSTEMCONTEXT | SHUTDOWN_OTHERCONTEXT)) {
         return CONSOLE_SHUTDOWN_SYSTEM;
     }
     return Success;
 }
 
-int
-ProcessCtrlEvents(
-    IN PCONSOLE_INFORMATION Console
-    )
+
+int ProcessCtrlEvents(IN PCONSOLE_INFORMATION Console)
 /* returns TRUE if a ctrl thread was created */
 {
     PWCHAR Title;
     CONSOLE_PROCESS_TERMINATION_RECORD ProcessHandles[2];
     PCONSOLE_PROCESS_TERMINATION_RECORD ProcessHandleList;
-    ULONG ProcessHandleListLength,i;
+    ULONG ProcessHandleListLength, i;
     ULONG CtrlFlags;
     PLIST_ENTRY ListHead, ListNext;
     BOOL FreeTitle;
@@ -3591,20 +3096,14 @@ ProcessCtrlEvents(
     DWORD LimitingProcessId;
     NTSTATUS Status;
 
-
     // If the console was marked for destruction, do it now.
-
-
     if (Console->Flags & CONSOLE_IN_DESTRUCTION) {
         DestroyConsole(Console);
         return CONSOLE_SHUTDOWN_FAILED;
     }
 
-
     // make sure we don't try to process control events if this
     // console is already going away
-
-
     if (Console->Flags & CONSOLE_TERMINATING) {
         Console->CtrlFlags = 0;
     }
@@ -3614,10 +3113,7 @@ ProcessCtrlEvents(
         return CONSOLE_SHUTDOWN_FAILED;
     }
 
-
     // make our own copy of the console process handle list
-
-
     LimitingProcessId = Console->LimitingProcessId;
     Console->LimitingProcessId = 0;
 
@@ -3625,10 +3121,10 @@ ProcessCtrlEvents(
     ListNext = ListHead->Flink;
     ProcessHandleListLength = 0;
     while (ListNext != ListHead) {
-        ProcessHandleRecord = CONTAINING_RECORD( ListNext, CONSOLE_PROCESS_HANDLE, ListLink );
+        ProcessHandleRecord = CONTAINING_RECORD(ListNext, CONSOLE_PROCESS_HANDLE, ListLink);
         ListNext = ListNext->Flink;
-        if ( LimitingProcessId ) {
-            if ( ProcessHandleRecord->Process->ProcessGroupId == LimitingProcessId ) {
+        if (LimitingProcessId) {
+            if (ProcessHandleRecord->Process->ProcessGroupId == LimitingProcessId) {
                 ProcessHandleListLength += 1;
             }
         } else {
@@ -3636,15 +3132,13 @@ ProcessCtrlEvents(
         }
     }
 
-
     // Use the stack buffer to hold the process handles if there are only a
     // few, otherwise allocate a buffer from the heap.
-
-
     if (ProcessHandleListLength <= NELEM(ProcessHandles)) {
         ProcessHandleList = ProcessHandles;
     } else {
-        ProcessHandleList = (PCONSOLE_PROCESS_TERMINATION_RECORD)ConsoleHeapAlloc(MAKE_TAG( TMP_TAG ),ProcessHandleListLength * sizeof(CONSOLE_PROCESS_TERMINATION_RECORD));
+        ProcessHandleList = (PCONSOLE_PROCESS_TERMINATION_RECORD)ConsoleHeapAlloc(MAKE_TAG(TMP_TAG),
+                                                                                  ProcessHandleListLength * sizeof(CONSOLE_PROCESS_TERMINATION_RECORD));
         if (ProcessHandleList == NULL) {
             RtlLeaveCriticalSection(&Console->ConsoleLock);
             return CONSOLE_SHUTDOWN_FAILED;
@@ -3652,16 +3146,16 @@ ProcessCtrlEvents(
     }
 
     ListNext = ListHead->Flink;
-    i=0;
+    i = 0;
     while (ListNext != ListHead) {
         BOOLEAN ProcessIsIn;
 
-        ASSERT(i<=ProcessHandleListLength);
-        ProcessHandleRecord = CONTAINING_RECORD( ListNext, CONSOLE_PROCESS_HANDLE, ListLink );
+        ASSERT(i <= ProcessHandleListLength);
+        ProcessHandleRecord = CONTAINING_RECORD(ListNext, CONSOLE_PROCESS_HANDLE, ListLink);
         ListNext = ListNext->Flink;
 
-        if ( LimitingProcessId ) {
-            if ( ProcessHandleRecord->Process->ProcessGroupId == LimitingProcessId ) {
+        if (LimitingProcessId) {
+            if (ProcessHandleRecord->Process->ProcessGroupId == LimitingProcessId) {
                 ProcessIsIn = TRUE;
             } else {
                 ProcessIsIn = FALSE;
@@ -3670,19 +3164,19 @@ ProcessCtrlEvents(
             ProcessIsIn = TRUE;
         }
 
-        if ( ProcessIsIn ) {
+        if (ProcessIsIn) {
             Success = (int)DuplicateHandle(NtCurrentProcess(),
-                           ProcessHandleRecord->ProcessHandle,
-                           NtCurrentProcess(),
-                           &ProcessHandleList[i].ProcessHandle,
-                           0,
-                           FALSE,
-                           DUPLICATE_SAME_ACCESS);
+                                           ProcessHandleRecord->ProcessHandle,
+                                           NtCurrentProcess(),
+                                           &ProcessHandleList[i].ProcessHandle,
+                                           0,
+                                           FALSE,
+                                           DUPLICATE_SAME_ACCESS);
 
 
-            // If the duplicate failed, the best we can do is to skip
-            // including the process in the list and hope it goes
-            // away.
+                            // If the duplicate failed, the best we can do is to skip
+                            // including the process in the list and hope it goes
+                            // away.
 
             if (!Success) {
                 KdPrint(("CONSRV: dup handle failed for %d of %d in %lx\n",
@@ -3703,14 +3197,12 @@ ProcessCtrlEvents(
                 ProcessHandleList[i].CtrlRoutine = CtrlRoutine;
             }
 
-
             // If this is the VDM process and we're closing the
             // console window, move it to the front of the list
 
-
             if (i > 0 && Console->VDMProcessId && Console->VDMProcessId ==
-                    ProcessHandleRecord->Process->ClientId.UniqueProcess &&
-                    ProcessHandleRecord->TerminateCount > 0) {
+                ProcessHandleRecord->Process->ClientId.UniqueProcess &&
+                ProcessHandleRecord->TerminateCount > 0) {
                 CONSOLE_PROCESS_TERMINATION_RECORD ProcessHandle;
                 ProcessHandle = ProcessHandleList[0];
                 ProcessHandleList[0] = ProcessHandleList[i];
@@ -3725,10 +3217,10 @@ ProcessCtrlEvents(
 
     // copy title.  titlelength does not include terminating null.
 
-    Title = (PWCHAR)ConsoleHeapAlloc(MAKE_TAG( TITLE_TAG ),Console->TitleLength+sizeof(WCHAR));
+    Title = (PWCHAR)ConsoleHeapAlloc(MAKE_TAG(TITLE_TAG), Console->TitleLength + sizeof(WCHAR));
     if (Title) {
         FreeTitle = TRUE;
-        RtlCopyMemory(Title,Console->Title,Console->TitleLength+sizeof(WCHAR));
+        RtlCopyMemory(Title, Console->Title, Console->TitleLength + sizeof(WCHAR));
     } else {
         FreeTitle = FALSE;
         Title = L"Command Window";
@@ -3737,17 +3229,15 @@ ProcessCtrlEvents(
     // copy ctrl flags
 
     CtrlFlags = Console->CtrlFlags;
-    ASSERT( !((CtrlFlags & (CONSOLE_CTRL_CLOSE_FLAG | CONSOLE_CTRL_BREAK_FLAG | CONSOLE_CTRL_C_FLAG)) &&
-              (CtrlFlags & (CONSOLE_CTRL_LOGOFF_FLAG | CONSOLE_CTRL_SHUTDOWN_FLAG)) ));
+    ASSERT(!((CtrlFlags & (CONSOLE_CTRL_CLOSE_FLAG | CONSOLE_CTRL_BREAK_FLAG | CONSOLE_CTRL_C_FLAG)) &&
+             (CtrlFlags & (CONSOLE_CTRL_LOGOFF_FLAG | CONSOLE_CTRL_SHUTDOWN_FLAG))));
 
     Console->CtrlFlags = 0;
 
     RtlLeaveCriticalSection(&Console->ConsoleLock);
 
 
-    // the ctrl flags could be a combination of the following
-    // values:
-
+    // the ctrl flags could be a combination of the following values:
     //        CONSOLE_CTRL_C_FLAG
     //        CONSOLE_CTRL_BREAK_FLAG
     //        CONSOLE_CTRL_CLOSE_FLAG
@@ -3784,7 +3274,7 @@ ProcessCtrlEvents(
         ConsoleHeapFree(Title);
     }
 
-    for (i=0;i<ProcessHandleListLength;i++) {
+    for (i = 0; i < ProcessHandleListLength; i++) {
         Status = NtClose(ProcessHandleList[i].ProcessHandle);
         ASSERT(NT_SUCCESS(Status));
     }
@@ -3819,126 +3309,127 @@ VOID UnlockConsole(IN PCONSOLE_INFORMATION Console)
     if (Console->ConsoleLock.RecursionCount == 1) {
 #endif
 #if defined(_MIPS_) || defined(_ALPHA_) || defined(_PPC_) || defined(_IA64_)
-    if (Console->ConsoleLock.RecursionCount == 0) {
+        if (Console->ConsoleLock.RecursionCount == 0) {
 #endif
-        InitializeListHead(&WaitQueue);
-        if (Console->WaitQueue) {
-            CsrMoveSatisfiedWait(&WaitQueue, Console->WaitQueue);
-            Console->WaitQueue = NULL;
-        }
-        ProcessCtrlEvents(Console);
+            InitializeListHead(&WaitQueue);
+            if (Console->WaitQueue) {
+                CsrMoveSatisfiedWait(&WaitQueue, Console->WaitQueue);
+                Console->WaitQueue = NULL;
+            }
+            ProcessCtrlEvents(Console);
 
-        /*
-         * Can't call CsrDereferenceWait with the console locked or we could deadlock.
-         */
-        if (!IsListEmpty(&WaitQueue)) {
-            CsrDereferenceWait(&WaitQueue);
-        }
+            /*
+             * Can't call CsrDereferenceWait with the console locked or we could deadlock.
+             */
+            if (!IsListEmpty(&WaitQueue)) {
+                CsrDereferenceWait(&WaitQueue);
+            }
     } else {
-        RtlLeaveCriticalSection(&Console->ConsoleLock);
-    }
+            RtlLeaveCriticalSection(&Console->ConsoleLock);
+        }
 }
 
 
-ULONG ShutdownConsole(IN HANDLE ConsoleHandle, IN DWORD dwFlags)
-/*
-    returns TRUE if console shutdown.  we recurse here so we don't
-    return from the WM_QUERYENDSESSION until the console is gone.
-*/
-{
-    DWORD EventFlag;
-    int WaitForShutdown;
-    PCONSOLE_INFORMATION Console;
+    ULONG ShutdownConsole(IN HANDLE ConsoleHandle, IN DWORD dwFlags)
+    /*
+        returns TRUE if console shutdown.  we recurse here so we don't
+        return from the WM_QUERYENDSESSION until the console is gone.
+    */
+    {
+        DWORD EventFlag;
+        int WaitForShutdown;
+        PCONSOLE_INFORMATION Console;
 
-    EventFlag = 0;
+        EventFlag = 0;
 
-    // Transmit the force bit (meaning don't bring up the retry dialog if the app times out.
-    if (dwFlags & EWX_FORCE)
-        EventFlag |= CONSOLE_FORCE_SHUTDOWN_FLAG;
+        // Transmit the force bit (meaning don't bring up the retry dialog if the app times out.
+        if (dwFlags & EWX_FORCE)
+            EventFlag |= CONSOLE_FORCE_SHUTDOWN_FLAG;
 
-    // Remember if this is shutdown or logoff - inquiring apps want to know.
-    if (dwFlags & EWX_SHUTDOWN) {
-        EventFlag |= CONSOLE_CTRL_SHUTDOWN_FLAG;
-    } else {
-        EventFlag |= CONSOLE_CTRL_LOGOFF_FLAG;
-    }
-
-    // see if console already going away
-    if (!NT_SUCCESS(RevalidateConsole(ConsoleHandle, &Console))) {
-        KdPrint(("CONSRV: Shutting down terminating console\n"));
-        return SHUTDOWN_KNOWN_PROCESS;
-    }
-
-    Console->Flags |= CONSOLE_SHUTTING_DOWN;
-    Console->CtrlFlags = EventFlag;
-    Console->LimitingProcessId = 0;
-
-    WaitForShutdown = ProcessCtrlEvents(Console);
-    if (WaitForShutdown == CONSOLE_SHUTDOWN_SUCCEEDED) {
-        return (ULONG)STATUS_PROCESS_IS_TERMINATING;
-    } else {
-        if (!NT_SUCCESS(RevalidateConsole(ConsoleHandle, &Console))) {
-            return SHUTDOWN_KNOWN_PROCESS;
-        }
-        Console->Flags &= ~CONSOLE_SHUTTING_DOWN;
-        UnlockConsole(Console);
-        if (WaitForShutdown == CONSOLE_SHUTDOWN_SYSTEM) {
-            return SHUTDOWN_KNOWN_PROCESS;
+        // Remember if this is shutdown or logoff - inquiring apps want to know.
+        if (dwFlags & EWX_SHUTDOWN) {
+            EventFlag |= CONSOLE_CTRL_SHUTDOWN_FLAG;
         } else {
-            return SHUTDOWN_CANCEL;
+            EventFlag |= CONSOLE_CTRL_LOGOFF_FLAG;
+        }
+
+        // see if console already going away
+        if (!NT_SUCCESS(RevalidateConsole(ConsoleHandle, &Console))) {
+            KdPrint(("CONSRV: Shutting down terminating console\n"));
+            return SHUTDOWN_KNOWN_PROCESS;
+        }
+
+        Console->Flags |= CONSOLE_SHUTTING_DOWN;
+        Console->CtrlFlags = EventFlag;
+        Console->LimitingProcessId = 0;
+
+        WaitForShutdown = ProcessCtrlEvents(Console);
+        if (WaitForShutdown == CONSOLE_SHUTDOWN_SUCCEEDED) {
+            return (ULONG)STATUS_PROCESS_IS_TERMINATING;
+        } else {
+            if (!NT_SUCCESS(RevalidateConsole(ConsoleHandle, &Console))) {
+                return SHUTDOWN_KNOWN_PROCESS;
+            }
+            Console->Flags &= ~CONSOLE_SHUTTING_DOWN;
+            UnlockConsole(Console);
+            if (WaitForShutdown == CONSOLE_SHUTDOWN_SYSTEM) {
+                return SHUTDOWN_KNOWN_PROCESS;
+            } else {
+                return SHUTDOWN_CANCEL;
+            }
         }
     }
-}
 
 
-VOID UserExitWorkerThread(VOID)
-/*++
-Routine Description:
-    The current thread can exit using ExitThread.
+    VOID UserExitWorkerThread(VOID)
+    /*++
+    Routine Description:
+        The current thread can exit using ExitThread.
 
-    ExitThread is the prefered method of exiting a thread.
-    When this API is called (either explicitly or by returning from a thread procedure), The current thread's stack is deallocated and the thread terminates.
-    If the thread is the last thread in the process when this API is called, the behavior of this API does not change.
-    DLLs are not notified as a result of a call to ExitThread.
-Arguments:
-    dwExitCode - Supplies the termination status for the thread.
---*/
-{
-    MEMORY_BASIC_INFORMATION MemInfo;
-    NTSTATUS st;
-    VOID SwitchStackThenTerminate(PVOID CurrentStack, PVOID NewStack, DWORD ExitCode);
+        ExitThread is the prefered method of exiting a thread.
+        When this API is called (either explicitly or by returning from a thread procedure), 
+        The current thread's stack is deallocated and the thread terminates.
+        If the thread is the last thread in the process when this API is called, the behavior of this API does not change.
+        DLLs are not notified as a result of a call to ExitThread.
+    Arguments:
+        dwExitCode - Supplies the termination status for the thread.
+    --*/
+    {
+        MEMORY_BASIC_INFORMATION MemInfo;
+        NTSTATUS st;
+        VOID SwitchStackThenTerminate(PVOID CurrentStack, PVOID NewStack, DWORD ExitCode);
 
-    st = NtQueryVirtualMemory(NtCurrentProcess(), NtCurrentTeb()->NtTib.StackLimit, MemoryBasicInformation, (PVOID) &MemInfo, sizeof(MemInfo), NULL);
-    if (!NT_SUCCESS(st)) {
-        RtlRaiseStatus(st);
+        st = NtQueryVirtualMemory(NtCurrentProcess(), NtCurrentTeb()->NtTib.StackLimit, MemoryBasicInformation, (PVOID)&MemInfo, sizeof(MemInfo), NULL);
+        if (!NT_SUCCESS(st)) {
+            RtlRaiseStatus(st);
+        }
+
+        SwitchStackThenTerminate(MemInfo.AllocationBase, &NtCurrentTeb()->UserReserved[0], 0);
     }
 
-    SwitchStackThenTerminate(MemInfo.AllocationBase, &NtCurrentTeb()->UserReserved[0], 0);
-}
 
+    VOID FreeStackAndTerminate(IN PVOID OldStack, IN DWORD ExitCode)
+    /*++
+    Routine Description:
+        This API is called during thread termination to delete a thread's stack and then terminate.
+    Arguments:
+        OldStack - Supplies the address of the stack to free.
+        ExitCode - Supplies the termination status that the thread is to exit with.
+    --*/
+    {
+        NTSTATUS Status;
+        SIZE_T Zero;
+        PVOID BaseAddress;
 
-VOID FreeStackAndTerminate(IN PVOID OldStack, IN DWORD ExitCode)
-/*++
-Routine Description:
-    This API is called during thread termination to delete a thread's stack and then terminate.
-Arguments:
-    OldStack - Supplies the address of the stack to free.
-    ExitCode - Supplies the termination status that the thread is to exit with.
---*/
-{
-    NTSTATUS Status;
-    SIZE_T Zero;
-    PVOID BaseAddress;
+        Zero = 0;
+        BaseAddress = OldStack;
 
-    Zero = 0;
-    BaseAddress = OldStack;
+        Status = NtFreeVirtualMemory(NtCurrentProcess(), &BaseAddress, &Zero, MEM_RELEASE);
+        ASSERT(NT_SUCCESS(Status));
 
-    Status = NtFreeVirtualMemory(NtCurrentProcess(), &BaseAddress, &Zero, MEM_RELEASE);
-    ASSERT(NT_SUCCESS(Status));
+        // Don't worry, no commenting precedent has been set by SteveWo.  this comment was added by an innocent bystander.
 
-    // Don't worry, no commenting precedent has been set by SteveWo.  this comment was added by an innocent bystander.
-
-    // NtTerminateThread will return if this thread is the last one in the process.
-    // So ExitProcess will only be called if that is the case.
-    NtTerminateThread(NULL,(NTSTATUS)ExitCode);
-}
+        // NtTerminateThread will return if this thread is the last one in the process.
+        // So ExitProcess will only be called if that is the case.
+        NtTerminateThread(NULL, (NTSTATUS)ExitCode);
+    }

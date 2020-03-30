@@ -98,7 +98,7 @@ static  HANDLE   hCollectThread = NULL;
 static  HANDLE  hCollectEvents[COLLECT_THREAD_EVENT_COUNT];
 static  BOOL    bThreadHung = FALSE;
 
-static  DWORD CollectThreadFunction (LPVOID dwArg);
+static  DWORD CollectThreadFunction(LPVOID dwArg);
 
 #define COLL_FLAG_USE_SEPARATE_THREAD   1
 static  DWORD   dwCollectionFlags = 0;
@@ -219,7 +219,7 @@ static DWORD       dwTrustedFileNames[] = {
     0x00690044          // "Di"   for PerfDisk.dll
 };
 
-static CONST DWORD dwTrustedFileNameCount = sizeof(dwTrustedFileNames) / sizeof (dwTrustedFileNames[0]);
+static CONST DWORD dwTrustedFileNameCount = sizeof(dwTrustedFileNames) / sizeof(dwTrustedFileNames[0]);
 
 // there must be at least 8 chars in the name to be checked as trusted by default
 // trusted file names are at least 8 chars in length
@@ -237,7 +237,7 @@ const DWORD dwPerflibSectionSize = (sizeof(PerfDataSectionHeader) + (sizeof(Perf
 // forward function references
 
 LONG
-PerfEnumTextValue (
+PerfEnumTextValue(
     IN HKEY hKey,
     IN DWORD dwIndex,
     OUT PUNICODE_STRING lpValueName,
@@ -246,16 +246,16 @@ PerfEnumTextValue (
     OUT LPBYTE lpData,
     IN OUT LPDWORD lpcbData,
     OUT LPDWORD lpcbLen  OPTIONAL
-    );
+);
 
 DWORD
-CloseExtObjectLibrary (
+CloseExtObjectLibrary(
     pExtObject  pObj,
     BOOL        bCloseNow
 );
 
 
-BOOL ServiceIsTrustedByDefault (LPCWSTR     szServiceName)
+BOOL ServiceIsTrustedByDefault(LPCWSTR     szServiceName)
 {
     BOOL        bReturn = FALSE;
     PLONGLONG   pPrefixToTest;
@@ -269,10 +269,10 @@ BOOL ServiceIsTrustedByDefault (LPCWSTR     szServiceName)
 
         if (dwIdx == dwMinTrustedFileNameLen) {
             // test first 4 bytes to see if they match
-            pPrefixToTest = (LONGLONG *)szServiceName;
+            pPrefixToTest = (LONGLONG*)szServiceName;
             if (*pPrefixToTest == llTrustedNamePrefix) {
                 // then see if the rest is in this list
-                pNameToTest = (DWORD *)(++pPrefixToTest);   // go to next 2 characters
+                pNameToTest = (DWORD*)(++pPrefixToTest);   // go to next 2 characters
                 for (dwIdx = 0; dwIdx < dwTrustedFileNameCount; dwIdx++) {
                     if (*pNameToTest == dwTrustedFileNames[dwIdx]) {
                         // match found
@@ -297,44 +297,44 @@ BOOL ServiceIsTrustedByDefault (LPCWSTR     szServiceName)
 
 
 #if 0 // collection thread functions are not supported
-DWORD OpenCollectionThread ()
+DWORD OpenCollectionThread()
 {
     BOOL    bError = FALSE;
     DWORD   dwThreadID;
 
-    assert (hCollectThread == NULL);
+    assert(hCollectThread == NULL);
 
     // if it's already created, then just return
     if (hCollectThread != NULL) return ERROR_SUCCESS;
 
     bThreadHung = FALSE;
-    hCollectEvents[COLLECT_THREAD_PROCESS_EVENT] = CreateEvent (
+    hCollectEvents[COLLECT_THREAD_PROCESS_EVENT] = CreateEvent(
         NULL,  // default security
         FALSE, // auto reset
         FALSE, // non-signaled
         NULL); // no name
     bError = hCollectEvents[COLLECT_THREAD_PROCESS_EVENT] == NULL;
-    assert (hCollectEvents[COLLECT_THREAD_PROCESS_EVENT] != NULL);
+    assert(hCollectEvents[COLLECT_THREAD_PROCESS_EVENT] != NULL);
 
-    hCollectEvents[COLLECT_THREAD_EXIT_EVENT] = CreateEvent (
+    hCollectEvents[COLLECT_THREAD_EXIT_EVENT] = CreateEvent(
         NULL,  // default security
         FALSE, // auto reset
         FALSE, // non-signaled
         NULL); // no name
     bError = (hCollectEvents[COLLECT_THREAD_EXIT_EVENT] == NULL) | bError;
-    assert (hCollectEvents[COLLECT_THREAD_EXIT_EVENT] != NULL);
+    assert(hCollectEvents[COLLECT_THREAD_EXIT_EVENT] != NULL);
 
-    hCollectEvents[COLLECT_THREAD_DONE_EVENT] = CreateEvent (
+    hCollectEvents[COLLECT_THREAD_DONE_EVENT] = CreateEvent(
         NULL,  // default security
         FALSE, // auto reset
         FALSE, // non-signaled
         NULL); // no name
     bError = (hCollectEvents[COLLECT_THREAD_DONE_EVENT] == NULL) | bError;
-    assert (hCollectEvents[COLLECT_THREAD_DONE_EVENT] != NULL);
+    assert(hCollectEvents[COLLECT_THREAD_DONE_EVENT] != NULL);
 
     if (!bError) {
         // create data collection thread
-        hCollectThread = CreateThread (
+        hCollectThread = CreateThread(
             NULL,   // default security
             0,      // default stack size
             (LPTHREAD_START_ROUTINE)CollectThreadFunction,
@@ -346,25 +346,25 @@ DWORD OpenCollectionThread ()
             bError = TRUE;
         }
 
-        assert (hCollectThread != NULL);
+        assert(hCollectThread != NULL);
     }
 
     if (bError) {
         if (hCollectEvents[COLLECT_THREAD_PROCESS_EVENT] != NULL) {
-            CloseHandle (hCollectEvents[COLLECT_THREAD_PROCESS_EVENT]);
+            CloseHandle(hCollectEvents[COLLECT_THREAD_PROCESS_EVENT]);
             hCollectEvents[COLLECT_THREAD_PROCESS_EVENT] = NULL;
         }
         if (hCollectEvents[COLLECT_THREAD_EXIT_EVENT] != NULL) {
-            CloseHandle (hCollectEvents[COLLECT_THREAD_EXIT_EVENT]);
+            CloseHandle(hCollectEvents[COLLECT_THREAD_EXIT_EVENT]);
             hCollectEvents[COLLECT_THREAD_EXIT_EVENT] = NULL;
         }
         if (hCollectEvents[COLLECT_THREAD_DONE_EVENT] != NULL) {
-            CloseHandle (hCollectEvents[COLLECT_THREAD_DONE_EVENT] = NULL);
+            CloseHandle(hCollectEvents[COLLECT_THREAD_DONE_EVENT] = NULL);
             hCollectEvents[COLLECT_THREAD_DONE_EVENT] = NULL;
         }
 
         if (hCollectThread != NULL) {
-            CloseHandle (hCollectThread);
+            CloseHandle(hCollectThread);
             hCollectThread = NULL;
         }
 
@@ -375,7 +375,7 @@ DWORD OpenCollectionThread ()
 }
 
 
-DWORD CloseCollectionThread ()
+DWORD CloseCollectionThread()
 {
     if (hCollectThread != NULL) {
         // close the data collection thread
@@ -383,25 +383,25 @@ DWORD CloseCollectionThread ()
             // then kill it the hard way
             // this might cause problems, but it's better than
             // a thread leak
-            TerminateThread (hCollectThread, ERROR_TIMEOUT);
+            TerminateThread(hCollectThread, ERROR_TIMEOUT);
         } else {
             // then ask it to leave
-            SetEvent (hCollectEvents[COLLECT_THREAD_EXIT_EVENT]);
+            SetEvent(hCollectEvents[COLLECT_THREAD_EXIT_EVENT]);
         }
         // wait for thread to leave
-        WaitForSingleObject (hCollectThread, COLLECTION_WAIT_TIME);
+        WaitForSingleObject(hCollectThread, COLLECTION_WAIT_TIME);
 
         // close the handles and clear the variables
-        CloseHandle (hCollectThread);
+        CloseHandle(hCollectThread);
         hCollectThread = NULL;
 
-        CloseHandle (hCollectEvents[COLLECT_THREAD_PROCESS_EVENT]);
+        CloseHandle(hCollectEvents[COLLECT_THREAD_PROCESS_EVENT]);
         hCollectEvents[COLLECT_THREAD_PROCESS_EVENT] = NULL;
 
-        CloseHandle (hCollectEvents[COLLECT_THREAD_EXIT_EVENT]);
+        CloseHandle(hCollectEvents[COLLECT_THREAD_EXIT_EVENT]);
         hCollectEvents[COLLECT_THREAD_EXIT_EVENT] = NULL;
 
-        CloseHandle (hCollectEvents[COLLECT_THREAD_DONE_EVENT]);
+        CloseHandle(hCollectEvents[COLLECT_THREAD_DONE_EVENT]);
         hCollectEvents[COLLECT_THREAD_DONE_EVENT] = NULL;
     } else {
         // nothing was opened
@@ -411,7 +411,7 @@ DWORD CloseCollectionThread ()
 #endif
 
 
-DWORD PerfOpenKey ()
+DWORD PerfOpenKey()
 {
     BOOL    bBusy = FALSE;
     LARGE_INTEGER       liPerfDataWaitTime;
@@ -420,19 +420,19 @@ DWORD PerfOpenKey ()
     DWORD   dwType, dwSize, dwValue;
 
     if (hGlobalDataMutex == NULL) {
-        hGlobalDataMutex = CreateMutex (
+        hGlobalDataMutex = CreateMutex(
             NULL,
             TRUE,                   // and acquire the mutex
             NULL);                  // no name
         if (hGlobalDataMutex == NULL) {
             dwFnStatus = GetLastError();
-            KdPrint (("\nPERFLIB: Perf Data Mutex Not Initialized"));
+            KdPrint(("\nPERFLIB: Perf Data Mutex Not Initialized"));
             goto OPD_Error_Exit_NoSemaphore;
         }
     } else {
         liPerfDataWaitTime.QuadPart = MakeTimeOutValue(dwThreadAndLibraryTimeout);
 
-        status = NtWaitForSingleObject (
+        status = NtWaitForSingleObject(
             hGlobalDataMutex, // Mutex
             FALSE,          // not alertable
             &liPerfDataWaitTime);   // wait time
@@ -448,13 +448,13 @@ DWORD PerfOpenKey ()
 
     if (!NumberOfOpens++) {
         if (ghKeyPerflib == NULL) {
-            dwFnStatus = (DWORD)RegOpenKeyExW (HKEY_LOCAL_MACHINE, HKLMPerflibKey, 0L, KEY_READ, &ghKeyPerflib);
+            dwFnStatus = (DWORD)RegOpenKeyExW(HKEY_LOCAL_MACHINE, HKLMPerflibKey, 0L, KEY_READ, &ghKeyPerflib);
         }
 
-        assert (ghKeyPerflib != NULL);
+        assert(ghKeyPerflib != NULL);
         dwSize = sizeof(dwValue);
         dwValue = dwType = 0;
-        dwFnStatus = PrivateRegQueryValueExW (ghKeyPerflib, DisablePerformanceCounters, NULL, &dwType, (LPBYTE)&dwValue, &dwSize);
+        dwFnStatus = PrivateRegQueryValueExW(ghKeyPerflib, DisablePerformanceCounters, NULL, &dwType, (LPBYTE)&dwValue, &dwSize);
         if ((dwFnStatus == ERROR_SUCCESS) && (dwType == REG_DWORD) && (dwValue == 1)) {
             // then DON'T Load any libraries and unload any that have been
             // loaded
@@ -465,21 +465,21 @@ DWORD PerfOpenKey ()
             GetComputerNameW(pComputerName, &ComputerNameLength);
             ComputerNameLength++;  // account for the NULL terminator
 
-            if ( !(pComputerName = ALLOCMEM(ComputerNameLength * sizeof(WCHAR))) || !GetComputerNameW(pComputerName, &ComputerNameLength) ) {
+            if (!(pComputerName = ALLOCMEM(ComputerNameLength * sizeof(WCHAR))) || !GetComputerNameW(pComputerName, &ComputerNameLength)) {
                 // Signal failure to data collection routine
                 ComputerNameLength = 0;
             } else {
                 pComputerName[ComputerNameLength] = UNICODE_NULL;
-                ComputerNameLength = (ComputerNameLength+1) * sizeof(WCHAR);
+                ComputerNameLength = (ComputerNameLength + 1) * sizeof(WCHAR);
             }
 
             // create event and indicate the list is busy
-            hExtObjListIsNotInUse = CreateEvent (NULL, TRUE, FALSE, NULL);
+            hExtObjListIsNotInUse = CreateEvent(NULL, TRUE, FALSE, NULL);
 
             // read collection thread flag
             dwType = 0;
             dwSize = sizeof(DWORD);
-            dwFnStatus = PrivateRegQueryValueExW (ghKeyPerflib, cszPerflibFlags, NULL, &dwType, (LPBYTE)&lPerflibConfigFlags, &dwSize);
+            dwFnStatus = PrivateRegQueryValueExW(ghKeyPerflib, cszPerflibFlags, NULL, &dwType, (LPBYTE)&lPerflibConfigFlags, &dwSize);
             if ((dwFnStatus == ERROR_SUCCESS) && (dwType == REG_DWORD)) {
                 // then keep it
             } else {
@@ -494,38 +494,38 @@ DWORD PerfOpenKey ()
                 WCHAR   szPID[32];
 
                 // create section name
-                lstrcpyW (szPerflibSectionName, (LPCWSTR)L"Perflib_Perfdata_");
-                _ultow ((ULONG)GetCurrentProcessId(), szPID, 16);
-                lstrcatW (szPerflibSectionName, szPID);
+                lstrcpyW(szPerflibSectionName, (LPCWSTR)L"Perflib_Perfdata_");
+                _ultow((ULONG)GetCurrentProcessId(), szPID, 16);
+                lstrcatW(szPerflibSectionName, szPID);
 
                 // create filename
-                lstrcpyW (szTmpFileName, (LPCWSTR)L"%windir%\\system32\\");
-                lstrcatW (szTmpFileName, szPerflibSectionName);
-                lstrcatW (szTmpFileName, (LPCWSTR)L".dat");
-                ExpandEnvironmentStrings (szTmpFileName, szPerflibSectionFile, MAX_PATH);
+                lstrcpyW(szTmpFileName, (LPCWSTR)L"%windir%\\system32\\");
+                lstrcatW(szTmpFileName, szPerflibSectionName);
+                lstrcatW(szTmpFileName, (LPCWSTR)L".dat");
+                ExpandEnvironmentStrings(szTmpFileName, szPerflibSectionFile, MAX_PATH);
 
-                hPerflibSectionFile = CreateFile (szPerflibSectionFile,
-                    GENERIC_READ | GENERIC_WRITE,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE,
-                    NULL,
-                    OPEN_ALWAYS,
-                    FILE_FLAG_DELETE_ON_CLOSE | FILE_FLAG_RANDOM_ACCESS | FILE_ATTRIBUTE_TEMPORARY,
-                    NULL);
+                hPerflibSectionFile = CreateFile(szPerflibSectionFile,
+                                                 GENERIC_READ | GENERIC_WRITE,
+                                                 FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                                 NULL,
+                                                 OPEN_ALWAYS,
+                                                 FILE_FLAG_DELETE_ON_CLOSE | FILE_FLAG_RANDOM_ACCESS | FILE_ATTRIBUTE_TEMPORARY,
+                                                 NULL);
 
                 if (hPerflibSectionFile != INVALID_HANDLE_VALUE) {
                     // create file mapping object
-                    hPerflibSectionMap = CreateFileMapping (hPerflibSectionFile, NULL, PAGE_READWRITE, 0, dwPerflibSectionSize, szPerflibSectionName);
+                    hPerflibSectionMap = CreateFileMapping(hPerflibSectionFile, NULL, PAGE_READWRITE, 0, dwPerflibSectionSize, szPerflibSectionName);
 
                     if (hPerflibSectionMap != NULL) {
                         // map view of file
-                        lpPerflibSectionAddr = MapViewOfFile (hPerflibSectionMap, FILE_MAP_WRITE, 0,0, dwPerflibSectionSize);
+                        lpPerflibSectionAddr = MapViewOfFile(hPerflibSectionMap, FILE_MAP_WRITE, 0, 0, dwPerflibSectionSize);
                         if (lpPerflibSectionAddr != NULL) {
                             // init section if not already
                             pHead = (pPerfDataSectionHeader)lpPerflibSectionAddr;
                             if (pHead->dwInitSignature != PDSH_INIT_SIG) {
                                 // then init
                                 // clear file to 0
-                                memset (pHead, 0, dwPerflibSectionSize);
+                                memset(pHead, 0, dwPerflibSectionSize);
                                 pHead->dwEntriesInUse = 0;
                                 pHead->dwMaxEntries = dwPerflibSectionMaxEntries;
                                 pHead->dwMissingEntries = 0;
@@ -535,21 +535,21 @@ DWORD PerfOpenKey ()
                             }
                         } else {
                             // unable to map file so close
-                            DbgPrint ("PERFLIB: Unable to map file for sharing perf data\n");
-                            CloseHandle (hPerflibSectionMap);
+                            DbgPrint("PERFLIB: Unable to map file for sharing perf data\n");
+                            CloseHandle(hPerflibSectionMap);
                             hPerflibSectionMap = NULL;
-                            CloseHandle (hPerflibSectionFile);
+                            CloseHandle(hPerflibSectionFile);
                             hPerflibSectionFile = NULL;
                         }
                     } else {
                         // unable to create file mapping so close file
-                        DbgPrint ("PERFLIB: Unable to create file mapping object for sharing perf data\n");
-                        CloseHandle (hPerflibSectionFile);
+                        DbgPrint("PERFLIB: Unable to create file mapping object for sharing perf data\n");
+                        CloseHandle(hPerflibSectionFile);
                         hPerflibSectionFile = NULL;
                     }
                 } else {
                     // unable to open file so no perf stats available
-                    DbgPrint ("PERFLIB: Unable to create file for sharing perf data\n");
+                    DbgPrint("PERFLIB: Unable to create file for sharing perf data\n");
                     hPerflibSectionFile = NULL;
                 }
             }
@@ -558,29 +558,29 @@ DWORD PerfOpenKey ()
             OpenExtensibleObjects();
 
             dwExtObjListRefCount = 0;
-            SetEvent (hExtObjListIsNotInUse); // indicate the list is not busy
+            SetEvent(hExtObjListIsNotInUse); // indicate the list is not busy
 
             // read collection thread flag
             dwType = 0;
             dwSize = sizeof(DWORD);
-            dwFnStatus = PrivateRegQueryValueExW (ghKeyPerflib, UseCollectionThread, NULL, &dwType, (LPBYTE)&dwCollectionFlags, &dwSize);
+            dwFnStatus = PrivateRegQueryValueExW(ghKeyPerflib, UseCollectionThread, NULL, &dwType, (LPBYTE)&dwCollectionFlags, &dwSize);
             if ((dwFnStatus == ERROR_SUCCESS) && (dwType == REG_DWORD)) {
                 // validate the answer
                 switch (dwCollectionFlags) {
-                    case 0:
-                        // this is a valid value
-                        break;
-                    case COLL_FLAG_USE_SEPARATE_THREAD:
-                        // this feature is not supported so skip through
-                    default:
-                        // this is for invalid values
-                        dwCollectionFlags = 0;
+                case 0:
+                    // this is a valid value
+                    break;
+                case COLL_FLAG_USE_SEPARATE_THREAD:
+                    // this feature is not supported so skip through
+                default:
+                    // this is for invalid values
+                    dwCollectionFlags = 0;
 
-                        //  BUGBUG: Make single threaded collection the
-                        //  default until multi-threaded bugs are worked out
+                    //  BUGBUG: Make single threaded collection the
+                    //  default until multi-threaded bugs are worked out
 
-                        // dwCollectionFlags = COLL_FLAG_USE_SEPARATE_THREAD;
-                        break;
+                    // dwCollectionFlags = COLL_FLAG_USE_SEPARATE_THREAD;
+                    break;
                 }
             }
 
@@ -608,10 +608,10 @@ DWORD PerfOpenKey ()
             dwFnStatus = ERROR_SUCCESS;
         }
     }
-//    KdPrint (("\nPERFLIB: [Open]  Pid: %d, Number Of PerflibHandles: %d",
-//            GetCurrentProcessId(), NumberOfOpens));
+    //    KdPrint (("\nPERFLIB: [Open]  Pid: %d, Number Of PerflibHandles: %d",
+    //            GetCurrentProcessId(), NumberOfOpens));
 
-    if (hGlobalDataMutex != NULL) ReleaseMutex (hGlobalDataMutex);
+    if (hGlobalDataMutex != NULL) ReleaseMutex(hGlobalDataMutex);
 
 OPD_Error_Exit_NoSemaphore:
     return dwFnStatus;
@@ -619,7 +619,7 @@ OPD_Error_Exit_NoSemaphore:
 
 
 LONG
-PerfRegQueryValue (
+PerfRegQueryValue(
     IN HKEY hKey,
     IN PUNICODE_STRING lpValueName,
     OUT LPDWORD lpReserved OPTIONAL,
@@ -627,7 +627,7 @@ PerfRegQueryValue (
     OUT LPBYTE  lpData,
     OUT LPDWORD lpcbData,
     OUT LPDWORD lpcbLen  OPTIONAL
-    )
+)
 /*++
 
     PerfRegQueryValue -   Get data
@@ -670,8 +670,8 @@ PerfRegQueryValue (
     LONG   lFnStatus = ERROR_SUCCESS;   // Win32 status to return to caller
     LPVOID pDataDefinition;     //  Pointer to next object definition
     UNICODE_STRING  usLocalValue = {0,0, NULL};
-    PERF_DATA_BLOCK *pPerfDataBlock = (PERF_DATA_BLOCK *)lpData;
-    LARGE_INTEGER   liQueryWaitTime ;
+    PERF_DATA_BLOCK* pPerfDataBlock = (PERF_DATA_BLOCK*)lpData;
+    LARGE_INTEGER   liQueryWaitTime;
     THREAD_BASIC_INFORMATION    tbiData;
     LONG   lOldPriority, lNewPriority;
     NTSTATUS status = STATUS_SUCCESS;
@@ -683,7 +683,7 @@ PerfRegQueryValue (
     HEAP_PROBE();
 
     if ((ULONG_PTR)lpData & (ULONG)0x00000007) {
-        KdPrint (("\nPERFLIB: Caller passed in a data buffer that is not 8-byte aligned."));
+        KdPrint(("\nPERFLIB: Caller passed in a data buffer that is not 8-byte aligned."));
     }
 
     // make a local copy of the value string if the arg references
@@ -691,8 +691,8 @@ PerfRegQueryValue (
     // some of the RegistryEventSource call made by this routine
 
     if (lpValueName != NULL) {
-        if (lpValueName == &NtCurrentTeb( )->StaticUnicodeString) {
-            if (RtlCreateUnicodeString (
+        if (lpValueName == &NtCurrentTeb()->StaticUnicodeString) {
+            if (RtlCreateUnicodeString(
                 &usLocalValue, lpValueName->Buffer)) {
                 lFnStatus = ERROR_SUCCESS;
             } else {
@@ -701,7 +701,7 @@ PerfRegQueryValue (
             }
         } else {
             // copy the arg to the local structure
-            memcpy (&usLocalValue, lpValueName, sizeof(UNICODE_STRING));
+            memcpy(&usLocalValue, lpValueName, sizeof(UNICODE_STRING));
         }
     } else {
         lFnStatus = ERROR_INVALID_PARAMETER;
@@ -716,11 +716,11 @@ PerfRegQueryValue (
         // if a Mutex was not allocated then the key needs to be opened.
         // without synchronization, it's too easy for threads to get
         // tangled up
-        lFnStatus = PerfOpenKey ();
+        lFnStatus = PerfOpenKey();
     }
 
     if (lFnStatus == ERROR_SUCCESS) {
-        if (!TestClientForAccess ()) {
+        if (!TestClientForAccess()) {
             if (lEventLogLevel >= LOG_USER) {
 
                 LPTSTR  szMessageArray[2];
@@ -728,29 +728,29 @@ PerfRegQueryValue (
                 TCHAR   szModuleName[MAX_PATH];
                 DWORD   dwUserNameLength;
 
-                dwUserNameLength = sizeof(szUserName)/sizeof(TCHAR);
-                GetUserName (szUserName, &dwUserNameLength);
-                GetModuleFileName (NULL, szModuleName, sizeof(szModuleName)/sizeof(TCHAR));
+                dwUserNameLength = sizeof(szUserName) / sizeof(TCHAR);
+                GetUserName(szUserName, &dwUserNameLength);
+                GetModuleFileName(NULL, szModuleName, sizeof(szModuleName) / sizeof(TCHAR));
 
                 szMessageArray[0] = szUserName;
                 szMessageArray[1] = szModuleName;
 
-                ReportEvent (hEventLog,
-                    EVENTLOG_ERROR_TYPE,        // error type
-                    0,                          // category (not used)
-                    (DWORD)PERFLIB_ACCESS_DENIED, // event,
-                    NULL,                       // SID (not used),
-                    2,                          // number of strings
-                    0,                          // sizeof raw data
-                    szMessageArray,             // message text array
-                    NULL);                      // raw data
+                ReportEvent(hEventLog,
+                            EVENTLOG_ERROR_TYPE,        // error type
+                            0,                          // category (not used)
+                            (DWORD)PERFLIB_ACCESS_DENIED, // event,
+                            NULL,                       // SID (not used),
+                            2,                          // number of strings
+                            0,                          // sizeof raw data
+                            szMessageArray,             // message text array
+                            NULL);                      // raw data
             }
             lFnStatus = ERROR_ACCESS_DENIED;
         }
     }
 
     if (lFnStatus == ERROR_SUCCESS) {
-        status = NtQueryInformationThread (NtCurrentThread(), ThreadBasicInformation, &tbiData, sizeof(tbiData), NULL);
+        status = NtQueryInformationThread(NtCurrentThread(), ThreadBasicInformation, &tbiData, sizeof(tbiData), NULL);
     } else {
         // goto the exit point
         goto PRQV_ErrorExit1;
@@ -759,7 +759,7 @@ PerfRegQueryValue (
     if (NT_SUCCESS(status)) {
         lOldPriority = tbiData.Priority;
     } else {
-        KdPrint (("\nPERFLIB: Unable to read current thread priority: 0x%8.8x", status));
+        KdPrint(("\nPERFLIB: Unable to read current thread priority: 0x%8.8x", status));
         lOldPriority = -1;
     }
 
@@ -772,7 +772,7 @@ PerfRegQueryValue (
     if ((lOldPriority > 0) && (lOldPriority < lNewPriority)) {
         status = NtSetInformationThread(NtCurrentThread(), ThreadPriority, &lNewPriority, sizeof(lNewPriority));
         if (!NT_SUCCESS(status)) {
-            KdPrint (("\nPERFLIB: Set Thread Priority failed: 0x%8.8x", status));
+            KdPrint(("\nPERFLIB: Set Thread Priority failed: 0x%8.8x", status));
             lOldPriority = -1;
         }
     } else {
@@ -785,7 +785,7 @@ PerfRegQueryValue (
     // attempt to unmarshall anything.
 
 
-    if( ARGUMENT_PRESENT( lpcbLen )) {
+    if (ARGUMENT_PRESENT(lpcbLen)) {
         *lpcbLen = 0;
     }
 
@@ -811,11 +811,11 @@ PerfRegQueryValue (
                 get help names for the specified language Id
 
     */
-    dwQueryType = GetQueryType (usLocalValue.Buffer);
+    dwQueryType = GetQueryType(usLocalValue.Buffer);
 
-    if (dwQueryType == QUERY_COUNTER || dwQueryType == QUERY_HELP || dwQueryType == QUERY_ADDCOUNTER || dwQueryType == QUERY_ADDHELP ) {
+    if (dwQueryType == QUERY_COUNTER || dwQueryType == QUERY_HELP || dwQueryType == QUERY_ADDCOUNTER || dwQueryType == QUERY_ADDHELP) {
         liQueryWaitTime.QuadPart = MakeTimeOutValue(QUERY_WAIT_TIME);
-        status = NtWaitForSingleObject (
+        status = NtWaitForSingleObject(
             hGlobalDataMutex, // semaphore
             FALSE,          // not alertable
             &liQueryWaitTime);          // wait 'til timeout
@@ -837,9 +837,9 @@ PerfRegQueryValue (
                     WCHAR    nDigit;
 
                     iLanguage = GetUserDefaultLangID();
-                    NativeLanguage = (WCHAR)MAKELANGID (iLanguage & 0x0ff, LANG_NEUTRAL);
+                    NativeLanguage = (WCHAR)MAKELANGID(iLanguage & 0x0ff, LANG_NEUTRAL);
 
-                    nDigit =  (WCHAR)(NativeLanguage / 256);
+                    nDigit = (WCHAR)(NativeLanguage / 256);
                     NativeLangId[0] = (WCHAR)(nDigit <= 9 ? nDigit + L'0' : nDigit + L'7');
 
                     NativeLanguage %= 256;
@@ -852,26 +852,26 @@ PerfRegQueryValue (
                 }
             }
 
-            status = PerfGetNames (dwQueryType, &usLocalValue, lpData, lpcbData, lpcbLen, lpLangId);
+            status = PerfGetNames(dwQueryType, &usLocalValue, lpData, lpcbData, lpcbLen, lpLangId);
             if (!NT_SUCCESS(status)) {
                 // convert error to win32 for return
                 lFnStatus = (LONG)RtlNtStatusToDosError(status);
             }
 
-            if (ARGUMENT_PRESENT (lpType)) {
+            if (ARGUMENT_PRESENT(lpType)) {
                 // test for optional value
                 *lpType = REG_MULTI_SZ;
             }
 
-            ReleaseMutex (hGlobalDataMutex);
+            ReleaseMutex(hGlobalDataMutex);
         }
     } else {
         // define info block for data collection
         COLLECT_THREAD_DATA CollectThreadData = {0, NULL, NULL, NULL, NULL, NULL, 0, 0};
 
         //  Format Return Buffer: start with basic data block
-        TotalLen = sizeof(PERF_DATA_BLOCK) + ((CNLEN+sizeof(UNICODE_NULL))*sizeof(WCHAR));
-        if ( *lpcbData < TotalLen ) {
+        TotalLen = sizeof(PERF_DATA_BLOCK) + ((CNLEN + sizeof(UNICODE_NULL)) * sizeof(WCHAR));
+        if (*lpcbData < TotalLen) {
             Win32Error = ERROR_MORE_DATA;
         } else {
             // foreign data provider will return the perf data header
@@ -880,14 +880,14 @@ PerfRegQueryValue (
 
                 // *lpcbData = 0;  // 0 bytes  (removed to enable foreign computers)
                 pDataDefinition = (LPVOID)lpData;
-                memset (lpData, 0, sizeof (PERF_DATA_BLOCK)); // clear out header
+                memset(lpData, 0, sizeof(PERF_DATA_BLOCK)); // clear out header
             } else {
-                MonBuildPerfDataBlock(pPerfDataBlock, (PVOID *) &pDataDefinition, 0, PROCESSOR_OBJECT_TITLE_INDEX);
+                MonBuildPerfDataBlock(pPerfDataBlock, (PVOID*)&pDataDefinition, 0, PROCESSOR_OBJECT_TITLE_INDEX);
             }
 
             CollectThreadData.dwQueryType = dwQueryType;
             CollectThreadData.lpValueName = usLocalValue.Buffer,
-            CollectThreadData.lpData = lpData;
+                CollectThreadData.lpData = lpData;
             CollectThreadData.lpcbData = lpcbData;
             CollectThreadData.lppDataDefinition = &pDataDefinition;
             CollectThreadData.pCurrentExtObject = NULL;
@@ -896,15 +896,15 @@ PerfRegQueryValue (
 
             if (hCollectThread == NULL) {
                 // then call the function directly and hope for the best
-                Win32Error = QueryExtensibleData (&CollectThreadData);
+                Win32Error = QueryExtensibleData(&CollectThreadData);
             } else {
                 // collect the data in a separate thread
                 // load the args
                 // set event to get things going
-                SetEvent (hCollectEvents[COLLECT_THREAD_PROCESS_EVENT]);
+                SetEvent(hCollectEvents[COLLECT_THREAD_PROCESS_EVENT]);
 
                 // now wait for the thread to return
-                Win32Error = WaitForSingleObject (hCollectEvents[COLLECT_THREAD_DONE_EVENT], COLLECTION_WAIT_TIME);
+                Win32Error = WaitForSingleObject(hCollectEvents[COLLECT_THREAD_DONE_EVENT], COLLECTION_WAIT_TIME);
                 if (Win32Error == WAIT_TIMEOUT) {
                     bThreadHung = TRUE;
                     // log error
@@ -920,22 +920,22 @@ PerfRegQueryValue (
                             szMessageArray[wStringIndex++] = "Unknown";
                         }
 
-                        ReportEventA (hEventLog,
-                            EVENTLOG_ERROR_TYPE,        // error type
-                            0,                          // category (not used)
-                            (DWORD)PERFLIB_COLLECTION_HUNG,              // event,
-                            NULL,                       // SID (not used),
-                            wStringIndex,               // number of strings
-                            0,                          // sizeof raw data
-                            szMessageArray,             // message text array
-                            NULL);                      // raw data
+                        ReportEventA(hEventLog,
+                                     EVENTLOG_ERROR_TYPE,        // error type
+                                     0,                          // category (not used)
+                                     (DWORD)PERFLIB_COLLECTION_HUNG,              // event,
+                                     NULL,                       // SID (not used),
+                                     wStringIndex,               // number of strings
+                                     0,                          // sizeof raw data
+                                     szMessageArray,             // message text array
+                                     NULL);                      // raw data
 
                     }
 
-                    DisablePerfLibrary (CollectThreadData.pCurrentExtObject);
+                    DisablePerfLibrary(CollectThreadData.pCurrentExtObject);
 
-                    KdPrint (("\nPERFLIB: Collection thread is hung in %s",
-                        CollectThreadData.pCurrentExtObject->szCollectProcName != NULL ? CollectThreadData.pCurrentExtObject->szCollectProcName : "Unknown"));
+                    KdPrint(("\nPERFLIB: Collection thread is hung in %s",
+                             CollectThreadData.pCurrentExtObject->szCollectProcName != NULL ? CollectThreadData.pCurrentExtObject->szCollectProcName : "Unknown"));
                     // and then wait forever for the thread to return
                     // this is done to prevent the function from returning
                     // while the collection thread is using the buffer
@@ -943,7 +943,7 @@ PerfRegQueryValue (
                     // all kind of havoc should the buffer be changed and/or
                     // deleted and then have the thread continue for some reason
 
-                    Win32Error = WaitForSingleObject (
+                    Win32Error = WaitForSingleObject(
                         hCollectEvents[COLLECT_THREAD_DONE_EVENT],
                         INFINITE);
 
@@ -959,7 +959,7 @@ PerfRegQueryValue (
                 } else if (CollectThreadData.dwActionFlags == CTD_AF_CLOSE_THREAD) {
                     CloseCollectionThread();
                 } else {
-                    assert (CollectThreadData.dwActionFlags != 0);
+                    assert(CollectThreadData.dwActionFlags != 0);
                 }
             }
 #endif
@@ -971,18 +971,18 @@ PerfRegQueryValue (
             lFnStatus = Win32Error;
         } else {
             //  Final housekeeping for data return: note data size
-            TotalLen = (DWORD) ((PCHAR) pDataDefinition - (PCHAR) lpData);
+            TotalLen = (DWORD)((PCHAR)pDataDefinition - (PCHAR)lpData);
             *lpcbData = TotalLen;
 
             pPerfDataBlock->TotalByteLength = TotalLen;
             lFnStatus = ERROR_SUCCESS;
         }
 
-        if (ARGUMENT_PRESENT (lpcbLen)) { // test for optional parameter
+        if (ARGUMENT_PRESENT(lpcbLen)) { // test for optional parameter
             *lpcbLen = TotalLen;
         }
 
-        if (ARGUMENT_PRESENT (lpType)) { // test for optional value
+        if (ARGUMENT_PRESENT(lpType)) { // test for optional value
             *lpType = REG_BINARY;
         }
     }
@@ -996,9 +996,9 @@ PRQV_ErrorExit1:
     if (usLocalValue.Buffer != NULL) {
         // restore the value string if it was from the local static buffer
         // then free the local buffer
-        if (lpValueName == &NtCurrentTeb( )->StaticUnicodeString) {
-            memcpy (lpValueName->Buffer, usLocalValue.Buffer, usLocalValue.MaximumLength);
-            RtlFreeUnicodeString (&usLocalValue);
+        if (lpValueName == &NtCurrentTeb()->StaticUnicodeString) {
+            memcpy(lpValueName->Buffer, usLocalValue.Buffer, usLocalValue.MaximumLength);
+            RtlFreeUnicodeString(&usLocalValue);
         }
     }
 
@@ -1018,7 +1018,7 @@ Return Value:
 --*/
 {
     NTSTATUS status;
-    LARGE_INTEGER   liQueryWaitTime ;
+    LARGE_INTEGER   liQueryWaitTime;
     HANDLE  hObjMutex;
     LONG    lReturn = ERROR_SUCCESS;
 
@@ -1033,15 +1033,15 @@ Return Value:
     *phKey = NULL;
 
     if (NumberOfOpens == 0) {
-//        KdPrint (("\nPERFLIB: [Close] Pid: %d, Number Of PerflibHandles: %d",
-//            GetCurrentProcessId(), NumberOfOpens));
+        //        KdPrint (("\nPERFLIB: [Close] Pid: %d, Number Of PerflibHandles: %d",
+        //            GetCurrentProcessId(), NumberOfOpens));
         return ERROR_SUCCESS;
     }
 
     // wait for ext obj list to be "un"-busy
 
-    liQueryWaitTime.QuadPart = MakeTimeOutValue (CLOSE_WAIT_TIME);
-    status = NtWaitForSingleObject (hExtObjListIsNotInUse, FALSE, &liQueryWaitTime);
+    liQueryWaitTime.QuadPart = MakeTimeOutValue(CLOSE_WAIT_TIME);
+    status = NtWaitForSingleObject(hExtObjListIsNotInUse, FALSE, &liQueryWaitTime);
     if (status != WAIT_TIMEOUT) {
         // then the list is inactive so continue
         if (hGlobalDataMutex != NULL) {   // if a mutex was allocated, then use it
@@ -1050,7 +1050,7 @@ Return Value:
 
             liQueryWaitTime.QuadPart = MakeTimeOutValue(CLOSE_WAIT_TIME);
 
-            status = NtWaitForSingleObject (
+            status = NtWaitForSingleObject(
                 hGlobalDataMutex, // semaphore
                 FALSE,          // not alertable
                 &liQueryWaitTime);          // wait forever
@@ -1066,24 +1066,24 @@ Return Value:
                         // close and destroy each entry in the list
                         pThisExtObj = pNextExtObj;
                         hObjMutex = pThisExtObj->hMutex;
-                        status = NtWaitForSingleObject (hObjMutex, FALSE, &liQueryWaitTime);
+                        status = NtWaitForSingleObject(hObjMutex, FALSE, &liQueryWaitTime);
                         if (status != WAIT_TIMEOUT) {
-                            InterlockedIncrement((LONG *)&pThisExtObj->dwLockoutCount);
+                            InterlockedIncrement((LONG*)&pThisExtObj->dwLockoutCount);
                             status = CloseExtObjectLibrary(pThisExtObj, TRUE);
 
                             // close the handle to the perf subkey
-                            NtClose (pThisExtObj->hPerfKey);
+                            NtClose(pThisExtObj->hPerfKey);
 
-                            ReleaseMutex (hObjMutex);   // release
-                            CloseHandle (hObjMutex);    // and free
+                            ReleaseMutex(hObjMutex);   // release
+                            CloseHandle(hObjMutex);    // and free
                             pNextExtObj = pThisExtObj->pNext;
 
                             // toss the memory for this object
-                            FREEMEM (pThisExtObj);
+                            FREEMEM(pThisExtObj);
                         } else {
                             // this shouldn't happen since we've locked the
                             // list of objects
-                            KdPrint (("\nPERFLIB: Unable to lock object %ws for closing", pThisExtObj->szServiceName));
+                            KdPrint(("\nPERFLIB: Unable to lock object %ws for closing", pThisExtObj->szServiceName));
                             pNextExtObj = pThisExtObj->pNext;
                         }
                     }
@@ -1097,22 +1097,22 @@ Return Value:
                     NumExtensibleObjects = 0;
 
                     // close the timer thread
-                    DestroyPerflibFunctionTimer ();
+                    DestroyPerflibFunctionTimer();
 
                     if (hEventLog != NULL) {
-                        DeregisterEventSource (hEventLog);
+                        DeregisterEventSource(hEventLog);
                         hEventLog = NULL;
                     } // else the event log has already been closed
 
-                    ReleaseMutex (hGlobalDataMutex);
-                    CloseHandle (hGlobalDataMutex);
+                    ReleaseMutex(hGlobalDataMutex);
+                    CloseHandle(hGlobalDataMutex);
                     hGlobalDataMutex = NULL;
 
                     // release event handle
-                    CloseHandle (hExtObjListIsNotInUse);
+                    CloseHandle(hExtObjListIsNotInUse);
                     hExtObjListIsNotInUse = NULL;
 
-//                    CloseCollectionThread();
+                    //                    CloseCollectionThread();
 
                     if (ghKeyPerflib != NULL) {
                         RegCloseKey(ghKeyPerflib);
@@ -1120,16 +1120,16 @@ Return Value:
                     }
 
                     if (lpPerflibSectionAddr != NULL) {
-                        UnmapViewOfFile (lpPerflibSectionAddr);
+                        UnmapViewOfFile(lpPerflibSectionAddr);
                         lpPerflibSectionAddr = NULL;
-                        CloseHandle (hPerflibSectionMap);
+                        CloseHandle(hPerflibSectionMap);
                         hPerflibSectionMap = NULL;
-                        CloseHandle (hPerflibSectionFile);
+                        CloseHandle(hPerflibSectionFile);
                         hPerflibSectionFile = NULL;
                     }
                 } else {
                     // this isn't the last open call so return success
-                    ReleaseMutex (hGlobalDataMutex);
+                    ReleaseMutex(hGlobalDataMutex);
                 }
             } else {
                 // unable to lock the global data mutex in a timely fashion
@@ -1147,14 +1147,14 @@ Return Value:
         lReturn = WAIT_TIMEOUT;
     }
 
-//    KdPrint (("\nPERFLIB: [Close] Pid: %d, Number Of PerflibHandles: %d",
-//        GetCurrentProcessId(), NumberOfOpens));
+    //    KdPrint (("\nPERFLIB: [Close] Pid: %d, Number Of PerflibHandles: %d",
+    //        GetCurrentProcessId(), NumberOfOpens));
 
     return lReturn;
 }
 
 
-LONG PerfRegSetValue (IN HKEY hKey, IN LPWSTR lpValueName, IN DWORD Reserved, IN DWORD dwType, IN LPBYTE  lpData, IN DWORD cbData)
+LONG PerfRegSetValue(IN HKEY hKey, IN LPWSTR lpValueName, IN DWORD Reserved, IN DWORD dwType, IN LPBYTE  lpData, IN DWORD cbData)
 /*++
 
     PerfRegSetValue -   Set data
@@ -1193,7 +1193,7 @@ LONG PerfRegSetValue (IN HKEY hKey, IN LPWSTR lpValueName, IN DWORD Reserved, IN
     UNREFERENCED_PARAMETER(dwType);
     UNREFERENCED_PARAMETER(Reserved);
 
-    dwQueryType = GetQueryType (lpValueName);
+    dwQueryType = GetQueryType(lpValueName);
 
     // convert the query to set commands
     if ((dwQueryType == QUERY_COUNTER) || (dwQueryType == QUERY_ADDCOUNTER)) {
@@ -1217,9 +1217,9 @@ LONG PerfRegSetValue (IN HKEY hKey, IN LPWSTR lpValueName, IN DWORD Reserved, IN
             WCHAR    nDigit;
 
             iLanguage = GetUserDefaultLangID();
-            NativeLanguage = (WCHAR) MAKELANGID (iLanguage & 0x0ff, LANG_NEUTRAL);
+            NativeLanguage = (WCHAR)MAKELANGID(iLanguage & 0x0ff, LANG_NEUTRAL);
 
-            nDigit =  (WCHAR)(NativeLanguage / 256);
+            nDigit = (WCHAR)(NativeLanguage / 256);
             NativeLangId[0] = (WCHAR)(nDigit <= 9 ? nDigit + L'0' : nDigit + L'7');
 
             NativeLanguage %= 256;
@@ -1237,7 +1237,7 @@ LONG PerfRegSetValue (IN HKEY hKey, IN LPWSTR lpValueName, IN DWORD Reserved, IN
 
     RtlInitUnicodeString(&String, lpValueName);
 
-    status = PerfGetNames (dwQueryType, &String, lpData, &cbData, NULL, lpLangId);
+    status = PerfGetNames(dwQueryType, &String, lpData, &cbData, NULL, lpLangId);
     if (!NT_SUCCESS(status)) {
         status = (error_status_t)RtlNtStatusToDosError(status);
     }
@@ -1248,14 +1248,14 @@ Error_exit:
 
 
 LONG
-PerfRegEnumKey (
+PerfRegEnumKey(
     IN HKEY hKey,
     IN DWORD dwIndex,
     OUT PUNICODE_STRING lpName,
     OUT LPDWORD lpReserved OPTIONAL,
     OUT PUNICODE_STRING lpClass OPTIONAL,
     OUT PFILETIME lpftLastWriteTime OPTIONAL
-    )
+)
 /*++
 Routine Description:
     Enumerates keys under HKEY_PERFORMANCE_DATA.
@@ -1265,7 +1265,7 @@ Return Value:
     Returns ERROR_SUCCESS (0) for success; error-code for failure.
 --*/
 {
-    if ( 0 ) {
+    if (0) {
         DBG_UNREFERENCED_PARAMETER(hKey);
         DBG_UNREFERENCED_PARAMETER(dwIndex);
         DBG_UNREFERENCED_PARAMETER(lpReserved);
@@ -1273,11 +1273,11 @@ Return Value:
 
     lpName->Length = 0;
 
-    if (ARGUMENT_PRESENT (lpClass)) {
+    if (ARGUMENT_PRESENT(lpClass)) {
         lpClass->Length = 0;
     }
 
-    if ( ARGUMENT_PRESENT(lpftLastWriteTime) ) {
+    if (ARGUMENT_PRESENT(lpftLastWriteTime)) {
         lpftLastWriteTime->dwLowDateTime = 0;
         lpftLastWriteTime->dwHighDateTime = 0;
     }
@@ -1287,7 +1287,7 @@ Return Value:
 
 
 LONG
-PerfRegQueryInfoKey (
+PerfRegQueryInfoKey(
     IN HKEY hKey,
     OUT PUNICODE_STRING lpClass,
     OUT LPDWORD lpReserved OPTIONAL,
@@ -1299,7 +1299,7 @@ PerfRegQueryInfoKey (
     OUT LPDWORD lpcbMaxValueLen,
     OUT LPDWORD lpcbSecurityDescriptor,
     OUT PFILETIME lpftLastWriteTime
-    )
+)
 /*++
 Routine Description:
     This returns information concerning the predefined handle HKEY_PERFORMANCE_DATA
@@ -1309,8 +1309,8 @@ Return Value:
     Returns ERROR_SUCCESS (0) for success.
 --*/
 {
-    DWORD TempLength=0;
-    DWORD MaxValueLen=0;
+    DWORD TempLength = 0;
+    DWORD MaxValueLen = 0;
     UNICODE_STRING Null;
     SECURITY_DESCRIPTOR     SecurityDescriptor;
     HKEY                    hPerflibKey;
@@ -1320,7 +1320,7 @@ Return Value:
     UNICODE_STRING          PerflibSubKeyString;
     BOOL                    bGetSACL = TRUE;
 
-    if ( 0 ) {
+    if (0) {
         DBG_UNREFERENCED_PARAMETER(lpReserved);
     }
 
@@ -1335,7 +1335,7 @@ Return Value:
     *lpcbMaxValueNameLen = VALUE_NAME_LENGTH;
     *lpcbMaxValueLen = 0;
 
-    if ( ARGUMENT_PRESENT(lpftLastWriteTime) ) {
+    if (ARGUMENT_PRESENT(lpftLastWriteTime)) {
         lpftLastWriteTime->dwLowDateTime = 0;
         lpftLastWriteTime->dwHighDateTime = 0;
     }
@@ -1370,18 +1370,18 @@ Return Value:
         // continune if all is OK
         // now get the size of SecurityDescriptor for Perflib key
 
-        RtlInitUnicodeString (&PerflibSubKeyString, PerflibKey);
+        RtlInitUnicodeString(&PerflibSubKeyString, PerflibKey);
 
         // Initialize the OBJECT_ATTRIBUTES structure and open the key.
         InitializeObjectAttributes(&Obja, &PerflibSubKeyString, OBJ_CASE_INSENSITIVE, NULL, NULL);
         Status = NtOpenKey(&hPerflibKey, MAXIMUM_ALLOWED | ACCESS_SYSTEM_SECURITY, &Obja);
-        if ( ! NT_SUCCESS( Status )) {
+        if (!NT_SUCCESS(Status)) {
             Status = NtOpenKey(&hPerflibKey, MAXIMUM_ALLOWED, &Obja);
             bGetSACL = FALSE;
         }
 
-        if ( ! NT_SUCCESS( Status )) {
-            KdPrint (("\nPERFLIB: Unable to open Perflib Key. Status: %d", Status));
+        if (!NT_SUCCESS(Status)) {
+            KdPrint(("\nPERFLIB: Unable to open Perflib Key. Status: %d", Status));
         } else {
             *lpcbSecurityDescriptor = 0;
 
@@ -1390,25 +1390,25 @@ Return Value:
                 // and DACL. These three are always accessible (or inaccesible)
                 // as a set.
                 Status = NtQuerySecurityObject(
-                        hPerflibKey,
-                        OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
-                        &SecurityDescriptor,
-                        0,
-                        lpcbSecurityDescriptor
-                        );
+                    hPerflibKey,
+                    OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
+                    &SecurityDescriptor,
+                    0,
+                    lpcbSecurityDescriptor
+                );
             } else {
                 // Get the size of the key's SECURITY_DESCRIPTOR for OWNER, GROUP,
                 // DACL, and SACL.
                 Status = NtQuerySecurityObject(
-                            hPerflibKey,
-                            OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION | SACL_SECURITY_INFORMATION,
-                            &SecurityDescriptor,
-                            0,
-                            lpcbSecurityDescriptor
-                            );
+                    hPerflibKey,
+                    OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION | SACL_SECURITY_INFORMATION,
+                    &SecurityDescriptor,
+                    0,
+                    lpcbSecurityDescriptor
+                );
             }
 
-            if( Status != STATUS_BUFFER_TOO_SMALL ) {
+            if (Status != STATUS_BUFFER_TOO_SMALL) {
                 *lpcbSecurityDescriptor = 0;
             } else {
                 // this is expected so set status to success
@@ -1417,7 +1417,7 @@ Return Value:
 
             NtClose(hPerflibKey);
         }
-        if (NT_SUCCESS( Status )) {
+        if (NT_SUCCESS(Status)) {
             PerfStatus = ERROR_SUCCESS;
         } else {
             // return error
@@ -1430,7 +1430,7 @@ Return Value:
 
 
 LONG
-PerfRegEnumValue (
+PerfRegEnumValue(
     IN HKEY hKey,
     IN DWORD dwIndex,
     OUT PUNICODE_STRING lpValueName,
@@ -1439,7 +1439,7 @@ PerfRegEnumValue (
     OUT LPBYTE lpData,
     IN OUT LPDWORD lpcbData,
     OUT LPDWORD lpcbLen  OPTIONAL
-    )
+)
 /*++
 Routine Description:
     Enumerates Values under HKEY_PERFORMANCE_DATA.
@@ -1454,18 +1454,18 @@ Return Value:
     // table of names used by enum values
     UNICODE_STRING ValueNames[NUM_VALUES];
 
-    ValueNames [0].Length = (WORD)(lstrlenW (GLOBAL_STRING) * sizeof(WCHAR));
-    ValueNames [0].MaximumLength = (WORD)(ValueNames [0].Length + sizeof(UNICODE_NULL));
-    ValueNames [0].Buffer =  (LPWSTR)GLOBAL_STRING;
-    ValueNames [1].Length = (WORD)(lstrlenW(COSTLY_STRING) * sizeof(WCHAR));
-    ValueNames [1].MaximumLength = (WORD)(ValueNames [1].Length + sizeof(UNICODE_NULL));
-    ValueNames [1].Buffer = (LPWSTR)COSTLY_STRING;
+    ValueNames[0].Length = (WORD)(lstrlenW(GLOBAL_STRING) * sizeof(WCHAR));
+    ValueNames[0].MaximumLength = (WORD)(ValueNames[0].Length + sizeof(UNICODE_NULL));
+    ValueNames[0].Buffer = (LPWSTR)GLOBAL_STRING;
+    ValueNames[1].Length = (WORD)(lstrlenW(COSTLY_STRING) * sizeof(WCHAR));
+    ValueNames[1].MaximumLength = (WORD)(ValueNames[1].Length + sizeof(UNICODE_NULL));
+    ValueNames[1].Buffer = (LPWSTR)COSTLY_STRING;
 
     if ((hKey == HKEY_PERFORMANCE_TEXT) || (hKey == HKEY_PERFORMANCE_NLSTEXT)) {
         return(PerfEnumTextValue(hKey, dwIndex, lpValueName, lpReserved, lpType, lpData, lpcbData, lpcbLen));
     }
 
-    if ( dwIndex >= NUM_VALUES ) {
+    if (dwIndex >= NUM_VALUES) {
         // This is a request for data from a non-existent value name
         *lpcbData = 0;
 
@@ -1474,23 +1474,23 @@ Return Value:
 
     cbNameSize = ValueNames[dwIndex].Length;
 
-    if ( lpValueName->MaximumLength < cbNameSize ) {
+    if (lpValueName->MaximumLength < cbNameSize) {
         return ERROR_MORE_DATA;
     } else {
-         lpValueName->Length = cbNameSize;
-         RtlCopyUnicodeString(lpValueName, &ValueNames[dwIndex]);
+        lpValueName->Length = cbNameSize;
+        RtlCopyUnicodeString(lpValueName, &ValueNames[dwIndex]);
 
-         if (ARGUMENT_PRESENT (lpType)) {
+        if (ARGUMENT_PRESENT(lpType)) {
             *lpType = REG_BINARY;
-         }
+        }
 
-         return PerfRegQueryValue(hKey, lpValueName, NULL, lpType, lpData, lpcbData, lpcbLen);
+        return PerfRegQueryValue(hKey, lpValueName, NULL, lpType, lpData, lpcbData, lpcbLen);
     }
 }
 
 
 LONG
-PerfEnumTextValue (
+PerfEnumTextValue(
     IN HKEY hKey,
     IN DWORD dwIndex,
     OUT PUNICODE_STRING lpValueName,
@@ -1499,7 +1499,7 @@ PerfEnumTextValue (
     OUT LPBYTE lpData,
     IN OUT LPDWORD lpcbData,
     OUT LPDWORD lpcbLen  OPTIONAL
-    )
+)
 /*++
 Routine Description:
     Enumerates Values under Perflib\lang
@@ -1513,10 +1513,10 @@ Return Value:
     LONG            lReturn = ERROR_SUCCESS;
 
     // Only two values, "Counter" and "Help"
-    if (dwIndex==0) {
+    if (dwIndex == 0) {
         lpValueName->Length = 0;
         RtlInitUnicodeString(&FullValueName, CounterValue);
-    } else if (dwIndex==1) {
+    } else if (dwIndex == 1) {
         lpValueName->Length = 0;
         RtlInitUnicodeString(&FullValueName, HelpValue);
     } else {
@@ -1525,18 +1525,18 @@ Return Value:
     RtlCopyUnicodeString(lpValueName, &FullValueName);
 
     // We need to NULL terminate the name to make RPC happy.
-    if (lpValueName->Length+sizeof(WCHAR) <= lpValueName->MaximumLength) {
+    if (lpValueName->Length + sizeof(WCHAR) <= lpValueName->MaximumLength) {
         lpValueName->Buffer[lpValueName->Length / sizeof(WCHAR)] = UNICODE_NULL;
         lpValueName->Length += sizeof(UNICODE_NULL);
     }
 
     lReturn = PerfRegQueryValue(hKey, &FullValueName, lpReserved, lpType, lpData, lpcbData, lpcbLen);
     return lReturn;
-}
+    }
 
 
 DWORD
-CloseExtObjectLibrary (
+CloseExtObjectLibrary(
     pExtObject  pObj,
     BOOL        bCloseNow
 )
@@ -1590,11 +1590,11 @@ CloseExtObjectLibrary (
                 try {
                     // call close function for this DLL
                     Status = (*pObj->CloseProc)();
-                } except (EXCEPTION_EXECUTE_HANDLER) {
+                } except(EXCEPTION_EXECUTE_HANDLER) {
                     Status = GetExceptionCode();
                 }
 
-                FreeLibrary (pObj->hLibrary);
+                FreeLibrary(pObj->hLibrary);
                 pObj->hLibrary = NULL;
 
                 // clear all pointers that are now invalid
@@ -1602,7 +1602,7 @@ CloseExtObjectLibrary (
                 pObj->CollectProc = NULL;
                 pObj->QueryProc = NULL;
                 pObj->CloseProc = NULL;
-                InterlockedIncrement((LONG *)&pObj->dwCloseCount);
+                InterlockedIncrement((LONG*)&pObj->dwCloseCount);
 
                 pObj->llLastUsedTime = 0;
             }
@@ -1618,7 +1618,7 @@ CloseExtObjectLibrary (
 }
 
 
-DWORD OpenExtObjectLibrary (pExtObject  pObj)
+DWORD OpenExtObjectLibrary(pExtObject  pObj)
 /*++
  OpenExtObjectLibrary
 
@@ -1667,9 +1667,9 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
         // check to see if this function is enabled
 
         dwType = 0;
-        dwSize = sizeof (dwValue);
+        dwSize = sizeof(dwValue);
         dwValue = 0;
-        Status = PrivateRegQueryValueExW (pObj->hPerfKey, DisablePerformanceCounters, NULL, &dwType, (LPBYTE)&dwValue, &dwSize);
+        Status = PrivateRegQueryValueExW(pObj->hPerfKey, DisablePerformanceCounters, NULL, &dwType, (LPBYTE)&dwValue, &dwSize);
         if ((Status == ERROR_SUCCESS) && (dwType == REG_DWORD) && (dwValue == 1)) {
             // then DON'T Load this library
             pObj->dwFlags |= PERF_EO_DISABLED;
@@ -1679,18 +1679,18 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
             pObj->dwFlags &= ~PERF_EO_DISABLED;
         }
 
-        if ((Status == ERROR_SUCCESS)  && (pObj->LibData.FileSize > 0)) {
+        if ((Status == ERROR_SUCCESS) && (pObj->LibData.FileSize > 0)) {
             if (ServiceIsTrustedByDefault(pObj->szServiceName)) {
                 // then set as trusted and continue
                 pObj->dwFlags |= PERF_EO_TRUSTED;
             } else {
                 // see if this is a trusted file or a file that has been updated
                 // get the file information
-                memset (&CurrentDllData, 0, sizeof(CurrentDllData));
-                Status = GetPerfDllFileInfo (pObj->szLibraryName, &CurrentDllData);
+                memset(&CurrentDllData, 0, sizeof(CurrentDllData));
+                Status = GetPerfDllFileInfo(pObj->szLibraryName, &CurrentDllData);
                 if (Status == ERROR_SUCCESS) {
                     // compare file data to registry data and update flags
-                    if ((*(LONGLONG *)&pObj->LibData.CreationDate) == (*(LONGLONG *)&CurrentDllData.CreationDate) && (pObj->LibData.FileSize == CurrentDllData.FileSize)) {
+                    if ((*(LONGLONG*)&pObj->LibData.CreationDate) == (*(LONGLONG*)&CurrentDllData.CreationDate) && (pObj->LibData.FileSize == CurrentDllData.FileSize)) {
                         pObj->dwFlags |= PERF_EO_TRUSTED;
                     } else {
                         // load data for eventlog message
@@ -1698,15 +1698,15 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
                         szMessageArray[wStringIndex++] = pObj->szLibraryName;
                         szMessageArray[wStringIndex++] = pObj->szServiceName;
 
-                        ReportEvent (hEventLog,
-                            EVENTLOG_WARNING_TYPE,        // error type
-                            0,                          // category (not used)
-                            (DWORD)PERFLIB_NOT_TRUSTED_FILE,  // event,
-                            NULL,                       // SID (not used),
-                            wStringIndex,               // number of strings
-                            0,                          // sizeof raw data
-                            szMessageArray,             // message text array
-                            NULL);                       // raw data
+                        ReportEvent(hEventLog,
+                                    EVENTLOG_WARNING_TYPE,        // error type
+                                    0,                          // category (not used)
+                                    (DWORD)PERFLIB_NOT_TRUSTED_FILE,  // event,
+                                    NULL,                       // SID (not used),
+                                    wStringIndex,               // number of strings
+                                    0,                          // sizeof raw data
+                                    szMessageArray,             // message text array
+                                    NULL);                       // raw data
                     }
                 }
             }
@@ -1714,9 +1714,9 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
 
         if ((Status == ERROR_SUCCESS) && (!(pObj->dwFlags & PERF_EO_DISABLED))) {
             //  go ahead and load it
-            nErrorMode = SetErrorMode (SEM_FAILCRITICALERRORS);
+            nErrorMode = SetErrorMode(SEM_FAILCRITICALERRORS);
             // then load library & look up functions
-            pObj->hLibrary = LoadLibraryExW (pObj->szLibraryName, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+            pObj->hLibrary = LoadLibraryExW(pObj->szLibraryName, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 
             if (pObj->hLibrary != NULL) {
                 // lookup function names
@@ -1734,26 +1734,26 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
                         szMessageArray[wStringIndex++] = pObj->szLibraryName;
                         szMessageArray[wStringIndex++] = pObj->szServiceName;
 
-                        ReportEvent (hEventLog,
-                            EVENTLOG_ERROR_TYPE,        // error type
-                            0,                          // category (not used)
-                            (DWORD)PERFLIB_OPEN_PROC_NOT_FOUND,              // event,
-                            NULL,                       // SID (not used),
-                            wStringIndex,               // number of strings
-                            dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                            szMessageArray,             // message text array
-                            (LPVOID)&dwRawDataDwords[0]);           // raw data
+                        ReportEvent(hEventLog,
+                                    EVENTLOG_ERROR_TYPE,        // error type
+                                    0,                          // category (not used)
+                                    (DWORD)PERFLIB_OPEN_PROC_NOT_FOUND,              // event,
+                                    NULL,                       // SID (not used),
+                                    wStringIndex,               // number of strings
+                                    dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                    szMessageArray,             // message text array
+                                    (LPVOID)&dwRawDataDwords[0]);           // raw data
 
                     }
-                    DisablePerfLibrary (pObj);
+                    DisablePerfLibrary(pObj);
                 }
 
                 if (Status == ERROR_SUCCESS) {
                     if (pObj->dwFlags & PERF_EO_QUERY_FUNC) {
-                        pObj->QueryProc = (QUERYPROC)GetProcAddress (pObj->hLibrary, pObj->szCollectProcName);
+                        pObj->QueryProc = (QUERYPROC)GetProcAddress(pObj->hLibrary, pObj->szCollectProcName);
                         pObj->CollectProc = (COLLECTPROC)pObj->QueryProc;
                     } else {
-                        pObj->CollectProc = (COLLECTPROC)GetProcAddress (pObj->hLibrary, pObj->szCollectProcName);
+                        pObj->CollectProc = (COLLECTPROC)GetProcAddress(pObj->hLibrary, pObj->szCollectProcName);
                         pObj->QueryProc = (QUERYPROC)pObj->CollectProc;
                     }
 
@@ -1770,22 +1770,22 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
                             szMessageArray[wStringIndex++] = pObj->szLibraryName;
                             szMessageArray[wStringIndex++] = pObj->szServiceName;
 
-                            ReportEvent (hEventLog,
-                                EVENTLOG_ERROR_TYPE,        // error type
-                                0,                          // category (not used)
-                                (DWORD)PERFLIB_COLLECT_PROC_NOT_FOUND,              // event,
-                                NULL,                       // SID (not used),
-                                wStringIndex,               // number of strings
-                                dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                szMessageArray,             // message text array
-                                (LPVOID)&dwRawDataDwords[0]);           // raw data
+                            ReportEvent(hEventLog,
+                                        EVENTLOG_ERROR_TYPE,        // error type
+                                        0,                          // category (not used)
+                                        (DWORD)PERFLIB_COLLECT_PROC_NOT_FOUND,              // event,
+                                        NULL,                       // SID (not used),
+                                        wStringIndex,               // number of strings
+                                        dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                        szMessageArray,             // message text array
+                                        (LPVOID)&dwRawDataDwords[0]);           // raw data
                         }
-                        DisablePerfLibrary (pObj);
+                        DisablePerfLibrary(pObj);
                     }
                 }
 
                 if (Status == ERROR_SUCCESS) {
-                    pObj->CloseProc = (CLOSEPROC)GetProcAddress (pObj->hLibrary, pObj->szCloseProcName);
+                    pObj->CloseProc = (CLOSEPROC)GetProcAddress(pObj->hLibrary, pObj->szCloseProcName);
 
                     if (pObj->CloseProc == NULL) {
                         if (lEventLogLevel >= LOG_USER) {
@@ -1800,18 +1800,18 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
                             szMessageArray[wStringIndex++] = pObj->szLibraryName;
                             szMessageArray[wStringIndex++] = pObj->szServiceName;
 
-                            ReportEvent (hEventLog,
-                                EVENTLOG_ERROR_TYPE,        // error type
-                                0,                          // category (not used)
-                                (DWORD)PERFLIB_CLOSE_PROC_NOT_FOUND,              // event,
-                                NULL,                       // SID (not used),
-                                wStringIndex,               // number of strings
-                                dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                szMessageArray,             // message text array
-                                (LPVOID)&dwRawDataDwords[0]);           // raw data
+                            ReportEvent(hEventLog,
+                                        EVENTLOG_ERROR_TYPE,        // error type
+                                        0,                          // category (not used)
+                                        (DWORD)PERFLIB_CLOSE_PROC_NOT_FOUND,              // event,
+                                        NULL,                       // SID (not used),
+                                        wStringIndex,               // number of strings
+                                        dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                        szMessageArray,             // message text array
+                                        (LPVOID)&dwRawDataDwords[0]);           // raw data
                         }
 
-                        DisablePerfLibrary (pObj);
+                        DisablePerfLibrary(pObj);
                     }
                 }
 
@@ -1842,7 +1842,7 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
 
                             if (hPerflibFuncTimer == NULL) {
                                 // unable to get a timer entry
-                                KdPrint (("\nPERFLIB: Unable to acquire timer for Open Proc"));
+                                KdPrint(("\nPERFLIB: Unable to acquire timer for Open Proc"));
                             }
                         } else {
                             hPerflibFuncTimer = NULL;
@@ -1854,17 +1854,17 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
                         if (FnStatus != ERROR_SUCCESS) {
                             dwOpenEvent = PERFLIB_OPEN_PROC_FAILURE;
                         } else {
-                            InterlockedIncrement((LONG *)&pObj->dwOpenCount);
+                            InterlockedIncrement((LONG*)&pObj->dwOpenCount);
                         }
 
-                    } except (EXCEPTION_EXECUTE_HANDLER) {
+                    } except(EXCEPTION_EXECUTE_HANDLER) {
                         FnStatus = GetExceptionCode();
                         dwOpenEvent = PERFLIB_OPEN_PROC_EXCEPTION;
                     }
 
                     if (hPerflibFuncTimer != NULL) {
                         // kill timer
-                        Status = KillPerflibFunctionTimer (hPerflibFuncTimer);
+                        Status = KillPerflibFunctionTimer(hPerflibFuncTimer);
                         hPerflibFuncTimer = NULL;
                     }
 
@@ -1875,18 +1875,18 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
                         szMessageArray[wStringIndex++] = pObj->szServiceName;
                         szMessageArray[wStringIndex++] = pObj->szLibraryName;
 
-                        ReportEventW (hEventLog,
-                            (WORD)EVENTLOG_ERROR_TYPE, // error type
-                            0,                          // category (not used)
-                            dwOpenEvent,                // event,
-                            NULL,                       // SID (not used),
-                            wStringIndex,               // number of strings
-                            dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                            szMessageArray,                // message text array
-                            (LPVOID)&dwRawDataDwords[0]);           // raw data
+                        ReportEventW(hEventLog,
+                                     (WORD)EVENTLOG_ERROR_TYPE, // error type
+                                     0,                          // category (not used)
+                                     dwOpenEvent,                // event,
+                                     NULL,                       // SID (not used),
+                                     wStringIndex,               // number of strings
+                                     dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                     szMessageArray,                // message text array
+                                     (LPVOID)&dwRawDataDwords[0]);           // raw data
 
                         if (dwOpenEvent == PERFLIB_OPEN_PROC_EXCEPTION) {
-                            DisablePerfLibrary (pObj);
+                            DisablePerfLibrary(pObj);
                         }
                     }
                 }
@@ -1898,7 +1898,7 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
                     pObj->QueryProc = NULL;
                     pObj->CloseProc = NULL;
                     if (pObj->hLibrary != NULL) {
-                        FreeLibrary (pObj->hLibrary);
+                        FreeLibrary(pObj->hLibrary);
                         pObj->hLibrary = NULL;
                     }
                     Status = FnStatus;
@@ -1908,7 +1908,7 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
             } else {
                 Status = GetLastError();
             }
-            SetErrorMode (nErrorMode);
+            SetErrorMode(nErrorMode);
         }
     } else {
         // else already open so bump the ref count
@@ -1916,11 +1916,11 @@ DWORD OpenExtObjectLibrary (pExtObject  pObj)
     }
 
     return Status;
-}
+                        }
 
 
 pExtObject
-AllocateAndInitializeExtObject (
+AllocateAndInitializeExtObject(
     HKEY    hServicesKey,
     HKEY    hPerfKey,
     LPWSTR  szServiceName
@@ -1985,10 +1985,10 @@ AllocateAndInitializeExtObject (
 
     dwType = 0;
     dwSize = sizeof(szLibraryString);
-    memset (szLibraryString, 0, sizeof(szLibraryString));
-    memset (szLibraryString, 0, sizeof(szLibraryExpPath));
+    memset(szLibraryString, 0, sizeof(szLibraryString));
+    memset(szLibraryString, 0, sizeof(szLibraryExpPath));
 
-    Status = PrivateRegQueryValueExW (hPerfKey, DLLValue, NULL, &dwType, (LPBYTE)szLibraryString, &dwSize);
+    Status = PrivateRegQueryValueExW(hPerfKey, DLLValue, NULL, &dwType, (LPBYTE)szLibraryString, &dwSize);
     if (Status == ERROR_SUCCESS) {
         if (dwType == REG_EXPAND_SZ) {
             // expand any environment vars
@@ -2002,7 +2002,7 @@ AllocateAndInitializeExtObject (
             }
         } else if (dwType == REG_SZ) {
             // look for dll and save full file Path
-            dwSize = SearchPathW (
+            dwSize = SearchPathW(
                 NULL,   // use standard system search path
                 szLibraryString,
                 NULL,
@@ -2025,8 +2025,8 @@ AllocateAndInitializeExtObject (
             // we have the DLL name so get the procedure names
             dwType = 0;
             dwSize = sizeof(szOpenProcName);
-            memset (szOpenProcName, 0, sizeof(szOpenProcName));
-            Status = PrivateRegQueryValueExA (hPerfKey, OpenValue, NULL, &dwType, (LPBYTE)szOpenProcName, &dwSize);
+            memset(szOpenProcName, 0, sizeof(szOpenProcName));
+            Status = PrivateRegQueryValueExA(hPerfKey, OpenValue, NULL, &dwType, (LPBYTE)szOpenProcName, &dwSize);
         }
 
         if (Status == ERROR_SUCCESS) {
@@ -2037,22 +2037,22 @@ AllocateAndInitializeExtObject (
             // we have the procedure name so get the timeout value
             dwType = 0;
             dwSize = sizeof(dwOpenTimeout);
-            Status = PrivateRegQueryValueExW (hPerfKey, OpenTimeout, NULL, &dwType, (LPBYTE)&dwOpenTimeout, &dwSize);
+            Status = PrivateRegQueryValueExW(hPerfKey, OpenTimeout, NULL, &dwType, (LPBYTE)&dwOpenTimeout, &dwSize);
 
             // if error, then apply default
             if ((Status != ERROR_SUCCESS) || (dwType != REG_DWORD)) {
                 dwOpenTimeout = dwExtCtrOpenProcWaitMs;
                 Status = ERROR_SUCCESS;
             }
-        }
+                }
 
         if (Status == ERROR_SUCCESS) {
             // get next string
 
             dwType = 0;
             dwSize = sizeof(szCloseProcName);
-            memset (szCloseProcName, 0, sizeof(szCloseProcName));
-            Status = PrivateRegQueryValueExA (hPerfKey, CloseValue, NULL, &dwType, (LPBYTE)szCloseProcName, &dwSize);
+            memset(szCloseProcName, 0, sizeof(szCloseProcName));
+            Status = PrivateRegQueryValueExA(hPerfKey, CloseValue, NULL, &dwType, (LPBYTE)szCloseProcName, &dwSize);
         }
 
         if (Status == ERROR_SUCCESS) {
@@ -2066,8 +2066,8 @@ AllocateAndInitializeExtObject (
             // then bail
             dwType = 0;
             dwSize = sizeof(szCollectProcName);
-            memset (szCollectProcName, 0, sizeof(szCollectProcName));
-            Status = PrivateRegQueryValueExA (hPerfKey, QueryValue, NULL, &dwType, (LPBYTE)szCollectProcName, &dwSize);
+            memset(szCollectProcName, 0, sizeof(szCollectProcName));
+            Status = PrivateRegQueryValueExA(hPerfKey, QueryValue, NULL, &dwType, (LPBYTE)szCollectProcName, &dwSize);
             if (Status == ERROR_SUCCESS) {
                 // add in size of the Query Function Name
                 // the size value includes the Term. NULL
@@ -2083,8 +2083,8 @@ AllocateAndInitializeExtObject (
                 // Collect Function name instead
                 dwType = 0;
                 dwSize = sizeof(szCollectProcName);
-                memset (szCollectProcName, 0, sizeof(szCollectProcName));
-                Status = PrivateRegQueryValueExA (hPerfKey, CollectValue, NULL, &dwType, (LPBYTE)szCollectProcName, &dwSize);
+                memset(szCollectProcName, 0, sizeof(szCollectProcName));
+                Status = PrivateRegQueryValueExA(hPerfKey, CollectValue, NULL, &dwType, (LPBYTE)szCollectProcName, &dwSize);
                 if (Status == ERROR_SUCCESS) {
                     // add in size of Collect Function Name
                     // the size value includes the Term. NULL
@@ -2096,7 +2096,7 @@ AllocateAndInitializeExtObject (
                 // we have the procedure name so get the timeout value
                 dwType = 0;
                 dwSize = sizeof(dwCollectTimeout);
-                Status = PrivateRegQueryValueExW (hPerfKey, CollectTimeout, NULL, &dwType, (LPBYTE)&dwCollectTimeout, &dwSize);
+                Status = PrivateRegQueryValueExW(hPerfKey, CollectTimeout, NULL, &dwType, (LPBYTE)&dwCollectTimeout, &dwSize);
 
                 // if error, then apply default
                 if ((Status != ERROR_SUCCESS) || (dwType != REG_DWORD)) {
@@ -2108,8 +2108,8 @@ AllocateAndInitializeExtObject (
 
             dwType = 0;
             dwSize = sizeof(mszObjectList);
-            memset (mszObjectList, 0, sizeof(mszObjectList));
-            Status = PrivateRegQueryValueExW (hPerfKey, ObjListValue, NULL, &dwType, (LPBYTE)mszObjectList, &dwSize);
+            memset(mszObjectList, 0, sizeof(mszObjectList));
+            Status = PrivateRegQueryValueExW(hPerfKey, ObjListValue, NULL, &dwType, (LPBYTE)mszObjectList, &dwSize);
             if (Status == ERROR_SUCCESS) {
                 if (dwType != REG_MULTI_SZ) {
                     // convert space delimited list to msz
@@ -2120,8 +2120,8 @@ AllocateAndInitializeExtObject (
                     *szThisChar = 0; // add MSZ term Null
                 }
                 for (szThisObject = mszObjectList, dwObjIndex = 0;
-                    (*szThisObject != 0) && (dwObjIndex < MAX_PERF_OBJECTS_IN_QUERY_FUNCTION);
-                    szThisObject += lstrlenW(szThisObject) + 1) {
+                     (*szThisObject != 0) && (dwObjIndex < MAX_PERF_OBJECTS_IN_QUERY_FUNCTION);
+                     szThisObject += lstrlenW(szThisObject) + 1) {
                     dwObjectArray[dwObjIndex] = wcstoul(szThisObject, NULL, 10);
                     dwObjIndex++;
                 }
@@ -2139,7 +2139,7 @@ AllocateAndInitializeExtObject (
                 dwType = 0;
                 dwKeep = 0;
                 dwSize = sizeof(dwKeep);
-                Status = PrivateRegQueryValueExW (hPerfKey, KeepResident, NULL, &dwType, (LPBYTE)&dwKeep, &dwSize);
+                Status = PrivateRegQueryValueExW(hPerfKey, KeepResident, NULL, &dwType, (LPBYTE)&dwKeep, &dwSize);
                 if ((Status == ERROR_SUCCESS) && (dwType == REG_DWORD)) {
                     if (dwKeep == 1) {
                         dwFlags |= PERF_EO_KEEP_RESIDENT;
@@ -2158,11 +2158,11 @@ AllocateAndInitializeExtObject (
         // get Library validation time
         dwType = 0;
         dwSize = sizeof(DllVD);
-        memset (&DllVD, 0, sizeof(DllVD));
-        Status = PrivateRegQueryValueExW (hPerfKey, cszLibraryValidationData, NULL, &dwType, (LPBYTE)&DllVD, &dwSize);
-        if ((Status != ERROR_SUCCESS) || (dwType != REG_BINARY) || (dwSize != sizeof (DllVD))){
+        memset(&DllVD, 0, sizeof(DllVD));
+        Status = PrivateRegQueryValueExW(hPerfKey, cszLibraryValidationData, NULL, &dwType, (LPBYTE)&DllVD, &dwSize);
+        if ((Status != ERROR_SUCCESS) || (dwType != REG_BINARY) || (dwSize != sizeof(DllVD))) {
             // then set this entry to be 0
-            memset (&DllVD, 0, sizeof(DllVD));
+            memset(&DllVD, 0, sizeof(DllVD));
             // and clear the error
             Status = ERROR_SUCCESS;
         }
@@ -2172,25 +2172,25 @@ AllocateAndInitializeExtObject (
         // get the file timestamp of the last successfully accessed file
         dwType = 0;
         dwSize = sizeof(LocalftLastGoodDllFileDate);
-        memset (&LocalftLastGoodDllFileDate, 0, sizeof(LocalftLastGoodDllFileDate));
-        Status = PrivateRegQueryValueExW (hPerfKey, cszSuccessfulFileData, NULL, &dwType, (LPBYTE)&LocalftLastGoodDllFileDate, &dwSize);
-        if ((Status != ERROR_SUCCESS) || (dwType != REG_BINARY) || (dwSize != sizeof (LocalftLastGoodDllFileDate))) {
+        memset(&LocalftLastGoodDllFileDate, 0, sizeof(LocalftLastGoodDllFileDate));
+        Status = PrivateRegQueryValueExW(hPerfKey, cszSuccessfulFileData, NULL, &dwType, (LPBYTE)&LocalftLastGoodDllFileDate, &dwSize);
+        if ((Status != ERROR_SUCCESS) || (dwType != REG_BINARY) || (dwSize != sizeof(LocalftLastGoodDllFileDate))) {
             // then set this entry to be Invalid
-            memset (&LocalftLastGoodDllFileDate, 0xFF, sizeof(LocalftLastGoodDllFileDate));
+            memset(&LocalftLastGoodDllFileDate, 0xFF, sizeof(LocalftLastGoodDllFileDate));
             // and clear the error
             Status = ERROR_SUCCESS;
         }
     }
 
     if (Status == ERROR_SUCCESS) {
-        lstrcpyW (szLinkageKeyPath, szServiceName);
-        lstrcatW (szLinkageKeyPath, LinkageKey);
-        Status = RegOpenKeyExW (hServicesKey, szLinkageKeyPath, 0L, KEY_READ, &hKeyLinkage);
+        lstrcpyW(szLinkageKeyPath, szServiceName);
+        lstrcatW(szLinkageKeyPath, LinkageKey);
+        Status = RegOpenKeyExW(hServicesKey, szLinkageKeyPath, 0L, KEY_READ, &hKeyLinkage);
         if (Status == ERROR_SUCCESS) {
             // look up[ export value string
             dwSize = 0;
             dwType = 0;
-            Status = PrivateRegQueryValueExW (hKeyLinkage, ExportValue, NULL, &dwType, NULL, &dwSize);
+            Status = PrivateRegQueryValueExW(hKeyLinkage, ExportValue, NULL, &dwType, NULL, &dwSize);
             // get size of string
             if (((Status != ERROR_SUCCESS) && (Status != ERROR_MORE_DATA)) || ((dwType != REG_SZ) && (dwType != REG_MULTI_SZ))) {
                 dwLinkageStringLen = 0;
@@ -2205,10 +2205,10 @@ AllocateAndInitializeExtObject (
                 if (szLinkageString != NULL) {
                     // read string into buffer
                     dwType = 0;
-                    Status = PrivateRegQueryValueExW (hKeyLinkage, ExportValue, NULL, &dwType, (LPBYTE)szLinkageString, &dwSize);
+                    Status = PrivateRegQueryValueExW(hKeyLinkage, ExportValue, NULL, &dwType, (LPBYTE)szLinkageString, &dwSize);
                     if ((Status != ERROR_SUCCESS) || ((dwType != REG_SZ) && (dwType != REG_MULTI_SZ))) {
                         // clear & release buffer
-                        FREEMEM (szLinkageString);
+                        FREEMEM(szLinkageString);
                         szLinkageString = NULL;
                         dwLinkageStringLen = 0;
                         // not finding a linkage key is not fatal so correct
@@ -2222,13 +2222,13 @@ AllocateAndInitializeExtObject (
                     }
                 } else {
                     // clear & release buffer
-                    FREEMEM (szLinkageString);
+                    FREEMEM(szLinkageString);
                     szLinkageString = NULL;
                     dwLinkageStringLen = 0;
                     Status = ERROR_OUTOFMEMORY;
                 }
             }
-            RegCloseKey (hKeyLinkage);
+            RegCloseKey(hKeyLinkage);
         } else {
             // not finding a linkage key is not fatal so correct
             // status
@@ -2241,75 +2241,75 @@ AllocateAndInitializeExtObject (
 
     if (Status == ERROR_SUCCESS) {
         // add in size of service name
-        dwSize = lstrlenW (szServiceName);
+        dwSize = lstrlenW(szServiceName);
         dwSize += 1;
         dwSize *= sizeof(WCHAR);
         dwMemBlockSize += DWORD_MULTIPLE(dwSize);
 
         // allocate and initialize a new ext. object block
-        pReturnObject = ALLOCMEM (dwMemBlockSize);
+        pReturnObject = ALLOCMEM(dwMemBlockSize);
         if (pReturnObject != NULL) {
             // copy values to new buffer (all others are NULL)
             pNextStringA = (LPSTR)&pReturnObject[1];
 
             // copy Open Procedure Name
             pReturnObject->szOpenProcName = pNextStringA;
-            lstrcpyA (pNextStringA, szOpenProcName);
+            lstrcpyA(pNextStringA, szOpenProcName);
 
-            pNextStringA += lstrlenA (pNextStringA) + 1;
+            pNextStringA += lstrlenA(pNextStringA) + 1;
             pNextStringA = ALIGN_ON_DWORD(pNextStringA);
 
             pReturnObject->dwOpenTimeout = dwOpenTimeout;
 
             // copy collect function or query function, depending
             pReturnObject->szCollectProcName = pNextStringA;
-            lstrcpyA (pNextStringA, szCollectProcName);
+            lstrcpyA(pNextStringA, szCollectProcName);
 
-            pNextStringA += lstrlenA (pNextStringA) + 1;
+            pNextStringA += lstrlenA(pNextStringA) + 1;
             pNextStringA = ALIGN_ON_DWORD(pNextStringA);
 
             pReturnObject->dwCollectTimeout = dwCollectTimeout;
 
             // copy Close Procedure Name
             pReturnObject->szCloseProcName = pNextStringA;
-            lstrcpyA (pNextStringA, szCloseProcName);
+            lstrcpyA(pNextStringA, szCloseProcName);
 
-            pNextStringA += lstrlenA (pNextStringA) + 1;
+            pNextStringA += lstrlenA(pNextStringA) + 1;
             pNextStringA = ALIGN_ON_DWORD(pNextStringA);
 
             // copy Library path
             pNextStringW = (LPWSTR)pNextStringA;
             pReturnObject->szLibraryName = pNextStringW;
-            lstrcpyW (pNextStringW, szLibraryExpPath);
+            lstrcpyW(pNextStringW, szLibraryExpPath);
 
-            pNextStringW += lstrlenW (pNextStringW) + 1;
+            pNextStringW += lstrlenW(pNextStringW) + 1;
             pNextStringW = ALIGN_ON_DWORD(pNextStringW);
 
             // copy Linkage String if there is one
             if (szLinkageString != NULL) {
                 pReturnObject->szLinkageString = pNextStringW;
-                memcpy (pNextStringW, szLinkageString, dwLinkageStringLen);
+                memcpy(pNextStringW, szLinkageString, dwLinkageStringLen);
 
                 // length includes extra NULL char and is in BYTES
-                pNextStringW += (dwLinkageStringLen / sizeof (WCHAR));
+                pNextStringW += (dwLinkageStringLen / sizeof(WCHAR));
                 pNextStringW = ALIGN_ON_DWORD(pNextStringW);
                 // release the buffer now that it's been copied
-                FREEMEM (szLinkageString);
+                FREEMEM(szLinkageString);
                 szLinkageString = NULL;
             }
 
             // copy Service name
             pReturnObject->szServiceName = pNextStringW;
-            lstrcpyW (pNextStringW, szServiceName);
+            lstrcpyW(pNextStringW, szServiceName);
 
-            pNextStringW += lstrlenW (pNextStringW) + 1;
+            pNextStringW += lstrlenW(pNextStringW) + 1;
             pNextStringW = ALIGN_ON_DWORD(pNextStringW);
 
             // load flags
             if (bUseQueryFn) {
                 dwFlags |= PERF_EO_QUERY_FUNC;
             }
-            pReturnObject->dwFlags =  dwFlags;
+            pReturnObject->dwFlags = dwFlags;
             pReturnObject->hPerfKey = hPerfKey;
             pReturnObject->LibData = DllVD; // validation data
             pReturnObject->ftLastGoodDllFileDate = LocalftLastGoodDllFileDate;
@@ -2322,18 +2322,18 @@ AllocateAndInitializeExtObject (
             // load Object array
             if (dwObjIndex > 0) {
                 pReturnObject->dwNumObjects = dwObjIndex;
-                memcpy (pReturnObject->dwObjList, dwObjectArray, (dwObjIndex * sizeof(dwObjectArray[0])));
+                memcpy(pReturnObject->dwObjList, dwObjectArray, (dwObjIndex * sizeof(dwObjectArray[0])));
             }
 
             pReturnObject->llLastUsedTime = 0;
 
             // create Mutex name
-            lstrcpyW (szMutexName, szServiceName);
-            lstrcatW (szMutexName, (LPCWSTR)L"_Perf_Library_Lock_PID_");
-            _ultow ((ULONG)GetCurrentProcessId(), szPID, 16);
-            lstrcatW (szMutexName, szPID);
+            lstrcpyW(szMutexName, szServiceName);
+            lstrcatW(szMutexName, (LPCWSTR)L"_Perf_Library_Lock_PID_");
+            _ultow((ULONG)GetCurrentProcessId(), szPID, 16);
+            lstrcatW(szMutexName, szPID);
 
-            pReturnObject->hMutex = CreateMutexW (NULL, FALSE, szMutexName);
+            pReturnObject->hMutex = CreateMutexW(NULL, FALSE, szMutexName);
         } else {
             Status = ERROR_OUTOFMEMORY;
         }
@@ -2351,7 +2351,7 @@ AllocateAndInitializeExtObject (
         if (pHead->dwEntriesInUse < pHead->dwMaxEntries) {
             dwEntry = ++pHead->dwEntriesInUse;
             pReturnObject->pPerfSectionEntry = &pEntry[dwEntry];
-            lstrcpynW (pReturnObject->pPerfSectionEntry->szServiceName, pReturnObject->szServiceName, PDSR_SERVICE_NAME_LEN);
+            lstrcpynW(pReturnObject->pPerfSectionEntry->szServiceName, pReturnObject->szServiceName, PDSR_SERVICE_NAME_LEN);
         } else {
             // the list is full so bump the missing entry count
             pHead->dwMissingEntries++;
@@ -2360,14 +2360,14 @@ AllocateAndInitializeExtObject (
     }
 
     if (Status != ERROR_SUCCESS) {
-        SetLastError (Status);
+        SetLastError(Status);
     }
 
     return pReturnObject;
 }
 
 
-void OpenExtensibleObjects ()
+void OpenExtensibleObjects()
 /*++
 Routine Description:
     This routine will search the Configuration Registry for modules which will return data at data collection time.
@@ -2419,18 +2419,18 @@ Arguments:
     try {
         // get current event log level
         dwDefaultValue = LOG_USER;
-        Status = GetPerflibKeyValue (EventLogLevel, REG_DWORD, sizeof(DWORD), (LPVOID)&lEventLogLevel, sizeof(DWORD), (LPVOID)&dwDefaultValue);
+        Status = GetPerflibKeyValue(EventLogLevel, REG_DWORD, sizeof(DWORD), (LPVOID)&lEventLogLevel, sizeof(DWORD), (LPVOID)&dwDefaultValue);
         dwDefaultValue = EXT_TEST_ALL;
-        Status = GetPerflibKeyValue (ExtCounterTestLevel, REG_DWORD, sizeof(DWORD), (LPVOID)&lExtCounterTestLevel, sizeof(DWORD), (LPVOID)&dwDefaultValue);
+        Status = GetPerflibKeyValue(ExtCounterTestLevel, REG_DWORD, sizeof(DWORD), (LPVOID)&lExtCounterTestLevel, sizeof(DWORD), (LPVOID)&dwDefaultValue);
         dwDefaultValue = OPEN_PROC_WAIT_TIME;
-        Status = GetPerflibKeyValue (OpenProcedureWaitTime, REG_DWORD, sizeof(DWORD), (LPVOID)&dwExtCtrOpenProcWaitMs, sizeof(DWORD), (LPVOID)&dwDefaultValue);
+        Status = GetPerflibKeyValue(OpenProcedureWaitTime, REG_DWORD, sizeof(DWORD), (LPVOID)&dwExtCtrOpenProcWaitMs, sizeof(DWORD), (LPVOID)&dwDefaultValue);
         dwDefaultValue = PERFLIB_TIMING_THREAD_TIMEOUT;
-        Status = GetPerflibKeyValue (LibraryUnloadTime, REG_DWORD, sizeof(DWORD), (LPVOID)&dwThreadAndLibraryTimeout, sizeof(DWORD), (LPVOID)&dwDefaultValue);
+        Status = GetPerflibKeyValue(LibraryUnloadTime, REG_DWORD, sizeof(DWORD), (LPVOID)&dwThreadAndLibraryTimeout, sizeof(DWORD), (LPVOID)&dwDefaultValue);
 
         // register as an event log source if not already done.
 
         if (hEventLog == NULL) {
-            hEventLog = RegisterEventSource (NULL, (LPCWSTR)TEXT("Perflib"));
+            hEventLog = RegisterEventSource(NULL, (LPCWSTR)TEXT("Perflib"));
         }
 
         if (ExtensibleObjects == NULL) {
@@ -2446,31 +2446,31 @@ Arguments:
             ValueBufferLength = sizeof(KEY_VALUE_FULL_INFORMATION) + MAX_VALUE_NAME_LENGTH + MAX_VALUE_DATA_LENGTH;
             ValueDataName.MaximumLength = MAX_VALUE_DATA_LENGTH;
             ValueDataName.Buffer = ALLOCMEM(ValueDataName.MaximumLength);
-            AnsiValueData.MaximumLength = MAX_VALUE_DATA_LENGTH/sizeof(WCHAR);
+            AnsiValueData.MaximumLength = MAX_VALUE_DATA_LENGTH / sizeof(WCHAR);
             AnsiValueData.Buffer = ALLOCMEM(AnsiValueData.MaximumLength);
 
             //  Check for successful NtOpenKey and allocation of dynamic buffers
-            if ( NT_SUCCESS(Status) && ServiceName.Buffer != NULL && KeyInformation != NULL && ValueDataName.Buffer != NULL && AnsiValueData.Buffer != NULL ) {
+            if (NT_SUCCESS(Status) && ServiceName.Buffer != NULL && KeyInformation != NULL && ValueDataName.Buffer != NULL && AnsiValueData.Buffer != NULL) {
                 dwIndex = 0;
-                hTimeOutEvent = CreateEvent(NULL,TRUE,TRUE,NULL);
+                hTimeOutEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
 
                 // wait longer than the thread to give the timing thread
                 // a chance to finish on it's own. This is really just a failsafe step.
                 while (TRUE) {
                     Status = NtEnumerateKey(hServicesKey, dwIndex, KeyBasicInformation, KeyInformation, KeyBufferLength, &ResultLength);
                     dwIndex++;  //  next time, get the next key
-                    if( !NT_SUCCESS(Status) ) {
+                    if (!NT_SUCCESS(Status)) {
                         // This is the normal exit: Status should be
                         // STATUS_NO_MORE_VALUES
                         break;
                     }
 
                     // Concatenate Service name with "\\Performance" to form Subkey
-                    if ( ServiceName.MaximumLength >= (USHORT)( KeyInformation->NameLength + sizeof(UNICODE_NULL) ) ) {
-                        ServiceName.Length = (USHORT) KeyInformation->NameLength;
+                    if (ServiceName.MaximumLength >= (USHORT)(KeyInformation->NameLength + sizeof(UNICODE_NULL))) {
+                        ServiceName.Length = (USHORT)KeyInformation->NameLength;
                         RtlMoveMemory(ServiceName.Buffer, KeyInformation->Name, ServiceName.Length);
-                        ServiceName.Buffer[(ServiceName.Length/sizeof(WCHAR))] = 0; // null term
-                        lstrcpyW (szServiceName, ServiceName.Buffer);
+                        ServiceName.Buffer[(ServiceName.Length / sizeof(WCHAR))] = 0; // null term
+                        lstrcpyW(szServiceName, ServiceName.Buffer);
 
                         // zero terminate the buffer if space allows
                         RtlAppendUnicodeStringToString(&ServiceName, &PerformanceName);
@@ -2479,15 +2479,15 @@ Arguments:
                         InitializeObjectAttributes(&ObjectAttributes, &ServiceName, OBJ_CASE_INSENSITIVE, hServicesKey, NULL);
                         samDesired = KEY_WRITE | KEY_READ; // to be able to disable perf DLL's
                         Status = NtOpenKey(&hPerfKey, samDesired, &ObjectAttributes);
-                        if(! NT_SUCCESS(Status) ) {
+                        if (!NT_SUCCESS(Status)) {
                             samDesired = KEY_READ; // try read only access
                             Status = NtOpenKey(&hPerfKey, samDesired, &ObjectAttributes);
                         }
 
-                        if( NT_SUCCESS(Status) ) {
+                        if (NT_SUCCESS(Status)) {
                             // this has a performance key so read the info
                             // and add the entry to the list
-                            pThisObject = AllocateAndInitializeExtObject (hServicesKey, hPerfKey, szServiceName);
+                            pThisObject = AllocateAndInitializeExtObject(hServicesKey, hPerfKey, szServiceName);
                             if (pThisObject != NULL) {
                                 if (ExtensibleObjects == NULL) {
                                     // set head pointer
@@ -2501,7 +2501,7 @@ Arguments:
                             } else {
                                 // the object wasn't initialized so toss the perf subkey handle.
                                 // otherwise keep it open for later use and it will be closed when this extensible object is closed
-                                NtClose (hPerfKey);
+                                NtClose(hPerfKey);
                             }
                         } else {
                             // ** NEW FEATURE CODE **
@@ -2518,38 +2518,38 @@ Arguments:
                                     dwRawDataDwords[dwDataIndex++] = (DWORD)Status;
                                 }
                                 szMessageArray[wStringIndex++] = szServiceName;
-                                ReportEvent (hEventLog,
-                                    EVENTLOG_WARNING_TYPE,        // error type
-                                    0,                          // category (not used)
-                                    (DWORD)PERFLIB_NO_PERFORMANCE_SUBKEY, // event,
-                                    NULL,                       // SID (not used),
-                                    wStringIndex,               // number of strings
-                                    dwDataIndex*sizeof(DWORD),  // sizeof raw data
-                                    szMessageArray,                // message text array
-                                    (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                ReportEvent(hEventLog,
+                                            EVENTLOG_WARNING_TYPE,        // error type
+                                            0,                          // category (not used)
+                                            (DWORD)PERFLIB_NO_PERFORMANCE_SUBKEY, // event,
+                                            NULL,                       // SID (not used),
+                                            wStringIndex,               // number of strings
+                                            dwDataIndex * sizeof(DWORD),  // sizeof raw data
+                                            szMessageArray,                // message text array
+                                            (LPVOID)&dwRawDataDwords[0]);           // raw data
                             }
                         }
                     }
                 }
-                if (hTimeOutEvent != NULL) NtClose (hTimeOutEvent);
-                NtClose (hServicesKey);
+                if (hTimeOutEvent != NULL) NtClose(hTimeOutEvent);
+                NtClose(hServicesKey);
             }
         }
     } finally {
-        if ( ServiceName.Buffer )
+        if (ServiceName.Buffer)
             FREEMEM(ServiceName.Buffer);
-        if ( KeyInformation )
+        if (KeyInformation)
             FREEMEM(KeyInformation);
-        if ( ValueDataName.Buffer )
+        if (ValueDataName.Buffer)
             FREEMEM(ValueDataName.Buffer);
-        if ( AnsiValueData.Buffer )
+        if (AnsiValueData.Buffer)
             FREEMEM(AnsiValueData.Buffer);
     }
 }
 
 
 #if 0
-DWORD CollectThreadFunction (LPDWORD dwArg)
+DWORD CollectThreadFunction(LPDWORD dwArg)
 {
     DWORD   dwWaitStatus = 0;
     BOOL    bExit = FALSE;
@@ -2558,12 +2558,12 @@ DWORD CollectThreadFunction (LPDWORD dwArg)
     LONG    lOldPriority, lNewPriority;
     LONG    lStatus;
 
-    UNREFERENCED_PARAMETER (dwArg);
+    UNREFERENCED_PARAMETER(dwArg);
 
-//    KdPrint (("\nPERFLIB: Entering Data Collection Thread: PID: %d, TID: %d",
-//        GetCurrentProcessId(), GetCurrentThreadId()));
-    // raise the priority of this thread
-    status = NtQueryInformationThread (NtCurrentThread(), ThreadBasicInformation, &tbiData, sizeof(tbiData), NULL);
+    //    KdPrint (("\nPERFLIB: Entering Data Collection Thread: PID: %d, TID: %d",
+    //        GetCurrentProcessId(), GetCurrentThreadId()));
+        // raise the priority of this thread
+    status = NtQueryInformationThread(NtCurrentThread(), ThreadBasicInformation, &tbiData, sizeof(tbiData), NULL);
     if (NT_SUCCESS(status)) {
         lOldPriority = tbiData.Priority;
         lNewPriority = DEFAULT_THREAD_PRIORITY; // perfmon's favorite priority
@@ -2572,14 +2572,14 @@ DWORD CollectThreadFunction (LPDWORD dwArg)
         if (lOldPriority < lNewPriority) {
             status = NtSetInformationThread(NtCurrentThread(), ThreadPriority, &lNewPriority, sizeof(lNewPriority));
             if (status != STATUS_SUCCESS) {
-                KdPrint (("\nPERFLIB: Set Thread Priority failed: 0x%8.8x", status));
+                KdPrint(("\nPERFLIB: Set Thread Priority failed: 0x%8.8x", status));
             }
         }
     }
 
     // wait for flags
     while (!bExit) {
-        dwWaitStatus = WaitForMultipleObjects (
+        dwWaitStatus = WaitForMultipleObjects(
             COLLECT_THREAD_LOOP_EVENT_COUNT,
             hCollectEvents,
             FALSE, // wait for ANY event to go
@@ -2588,27 +2588,27 @@ DWORD CollectThreadFunction (LPDWORD dwArg)
         if (dwWaitStatus == (WAIT_OBJECT_0 + COLLECT_THREAD_PROCESS_EVENT)) {
             // the event is cleared automatically
             // collect data
-            lStatus = QueryExtensibleData (&CollectThreadData);
+            lStatus = QueryExtensibleData(&CollectThreadData);
             CollectThreadData.lReturnValue = lStatus;
-            SetEvent (hCollectEvents[COLLECT_THREAD_DONE_EVENT]);
+            SetEvent(hCollectEvents[COLLECT_THREAD_DONE_EVENT]);
         } else if (dwWaitStatus == (WAIT_OBJECT_0 + COLLECT_THREAD_EXIT_EVENT)) {
             bExit = TRUE;
             continue;   // go up and bail out
         } else {
             // who knows, so output message
-            KdPrint (("\nPERFLILB: Collect Thread wait returned unknown value: 0x%8.8x",dwWaitStatus));
+            KdPrint(("\nPERFLILB: Collect Thread wait returned unknown value: 0x%8.8x", dwWaitStatus));
             bExit = TRUE;
             continue;
         }
     }
-//    KdPrint (("\nPERFLIB: Leaving Data Collection Thread: PID: %d, TID: %d",
-//        GetCurrentProcessId(), GetCurrentThreadId()));
+    //    KdPrint (("\nPERFLIB: Leaving Data Collection Thread: PID: %d, TID: %d",
+    //        GetCurrentProcessId(), GetCurrentThreadId()));
     return ERROR_SUCCESS;
 }
 #endif
 
 
-LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
+LONG QueryExtensibleData(COLLECT_THREAD_DATA* pArgs)
 /*++
   QueryExtensibleData -    Get data from extensible objects
 
@@ -2628,8 +2628,8 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
     LPWSTR  lpValueName = pArgs->lpValueName;
     LPBYTE  lpData = pArgs->lpData;
     LPDWORD lpcbData = pArgs->lpcbData;
-    LPVOID  *lppDataDefinition = pArgs->lppDataDefinition;
-    DWORD Win32Error=ERROR_SUCCESS;          //  Failure code
+    LPVOID* lppDataDefinition = pArgs->lppDataDefinition;
+    DWORD Win32Error = ERROR_SUCCESS;          //  Failure code
     DWORD BytesLeft;
     DWORD InitialBytesLeft;
     DWORD NumObjectTypes;
@@ -2657,10 +2657,10 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
     LONG    lDllTestLevel;
     LONG                lInstIndex;
     DWORD               lCtrIndex;
-    PERF_OBJECT_TYPE    *pObject, *pNextObject;
-    PERF_INSTANCE_DEFINITION    *pInstance;
-    PERF_COUNTER_DEFINITION     *pCounterDef;
-    PERF_DATA_BLOCK     *pPerfData;
+    PERF_OBJECT_TYPE* pObject, * pNextObject;
+    PERF_INSTANCE_DEFINITION* pInstance;
+    PERF_COUNTER_DEFINITION* pCounterDef;
+    PERF_DATA_BLOCK* pPerfData;
     BOOL                bForeignDataBuffer;
     DWORD           dwItemsInArray = 0;
     DWORD           dwItemsInList = 0;
@@ -2682,16 +2682,16 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
     HEAP_PROBE();
 
     if ((ULONG_PTR)*lppDataDefinition & (ULONG)0x00000007) {
-        KdPrint (("\nPERFLIB: Processing a data buffer that is not 8-byte aligned."));
+        KdPrint(("\nPERFLIB: Processing a data buffer that is not 8-byte aligned."));
     }
 
     // see if perf data has been disabled
     // this is to prevent crashing WINLOGON if the
     // system has installed a bogus DLL
-    assert (ghKeyPerflib != NULL);
+    assert(ghKeyPerflib != NULL);
     dwSize = sizeof(dwValue);
     dwValue = dwType = 0;
-    status = PrivateRegQueryValueExW (ghKeyPerflib, DisablePerformanceCounters, NULL, &dwType, (LPBYTE)&dwValue, &dwSize);
+    status = PrivateRegQueryValueExW(ghKeyPerflib, DisablePerformanceCounters, NULL, &dwType, (LPBYTE)&dwValue, &dwSize);
     if ((status == ERROR_SUCCESS) && (dwType == REG_DWORD) && (dwValue == 1)) {
         // then DON'T Load any libraries and unload any that have been
         // loaded
@@ -2703,7 +2703,7 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
     if (bDisabled && (hCollectThread != NULL)) {
         pArgs->dwActionFlags = CTD_AF_CLOSE_THREAD;
     } else if (!bDisabled &&
-        ((hCollectThread == NULL) && (dwCollectionFlags && COLL_FLAG_USE_SEPARATE_THREAD))) {
+               ((hCollectThread == NULL) && (dwCollectionFlags && COLL_FLAG_USE_SEPARATE_THREAD))) {
         // then data collection is enabled and they want a separate collection
         // thread, but there's no thread at the moment, so create it here
         pArgs->dwActionFlags = CTD_AF_OPEN_THREAD;
@@ -2719,13 +2719,13 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
 
             // read the value string and build an object ID list
             while (*pwcThisChar != 0) {
-                dwThisNumber = GetNextNumberFromList (pwcThisChar, &pwcThisChar);
+                dwThisNumber = GetNextNumberFromList(pwcThisChar, &pwcThisChar);
                 if (dwThisNumber != 0) {
                     if (dwItemsInList >= dwItemsInArray) {
                         dwItemsInArray += 16;   // starting point for # of objects
                         if (pQueryList == NULL) {
                             // alloc a new buffer
-                            pQueryList = ALLOCMEM ((sizeof(EXT_OBJ_LIST) * dwItemsInArray));
+                            pQueryList = ALLOCMEM((sizeof(EXT_OBJ_LIST) * dwItemsInArray));
                         } else {
                             // realloc a new buffer
                             pQueryList = REALLOCMEM(pQueryList, (sizeof(EXT_OBJ_LIST) * dwItemsInArray));
@@ -2765,7 +2765,7 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                     }
                 }
 
-                assert (dwLibEntry == NumExtensibleObjects);
+                assert(dwLibEntry == NumExtensibleObjects);
 
                 // see if any in the query list do not have entries
                 bFound = TRUE;
@@ -2791,7 +2791,7 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                 }
             } // end if first scan was successful
 
-            if (pQueryList != NULL) FREEMEM (pQueryList);
+            if (pQueryList != NULL) FREEMEM(pQueryList);
         } // end if QUERY_ITEMS
 
         if (lReturnValue == ERROR_SUCCESS) {
@@ -2799,7 +2799,7 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                 // set the current ext object pointer
                 pArgs->pCurrentExtObject = pThisExtObj;
                 // convert timeout value
-                liWaitTime.QuadPart = MakeTimeOutValue (pThisExtObj->dwCollectTimeout);
+                liWaitTime.QuadPart = MakeTimeOutValue(pThisExtObj->dwCollectTimeout);
 
                 // close the unused Perf DLL's IF:
                 //  the perflib key is disabled or this is an item query
@@ -2809,34 +2809,34 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                 if (((dwQueryType == QUERY_ITEMS) || bDisabled) && (bDisabled || (!(pThisExtObj->dwFlags & PERF_EO_OBJ_IN_QUERY)) || (pThisExtObj->dwFlags & PERF_EO_DISABLED)) && (pThisExtObj->hLibrary != NULL)) {
                     // then free this object
                     if (pThisExtObj->hMutex != NULL) {
-                        Win32Error =  NtWaitForSingleObject (pThisExtObj->hMutex, FALSE, &liWaitTime);
+                        Win32Error = NtWaitForSingleObject(pThisExtObj->hMutex, FALSE, &liWaitTime);
                         if (Win32Error != WAIT_TIMEOUT) {
                             // then we got a lock
-                            CloseExtObjectLibrary (pThisExtObj, bDisabled);
-                            ReleaseMutex (pThisExtObj->hMutex);
+                            CloseExtObjectLibrary(pThisExtObj, bDisabled);
+                            ReleaseMutex(pThisExtObj->hMutex);
                         } else {
                             pThisExtObj->dwLockoutCount++;
-                            KdPrint (("\nPERFLIB: Unable to Lock object for %ws to close in Query", pThisExtObj->szServiceName));
+                            KdPrint(("\nPERFLIB: Unable to Lock object for %ws to close in Query", pThisExtObj->szServiceName));
                         }
                     } else {
                         Win32Error = ERROR_LOCK_FAILED;
-                        KdPrint (("\nPERFLIB: No Lock found for %ws", pThisExtObj->szServiceName));
+                        KdPrint(("\nPERFLIB: No Lock found for %ws", pThisExtObj->szServiceName));
                     }
 
                     if (hCollectThread != NULL) {
                         // close the collection thread
                     }
                 } else if (((dwQueryType == QUERY_FOREIGN) || (dwQueryType == QUERY_GLOBAL) || (dwQueryType == QUERY_COSTLY) ||
-                    ((dwQueryType == QUERY_ITEMS) && (pThisExtObj->dwFlags & PERF_EO_OBJ_IN_QUERY))) && (!(pThisExtObj->dwFlags & PERF_EO_DISABLED))) {
+                            ((dwQueryType == QUERY_ITEMS) && (pThisExtObj->dwFlags & PERF_EO_OBJ_IN_QUERY))) && (!(pThisExtObj->dwFlags & PERF_EO_DISABLED))) {
                     // initialize values to pass to the extensible counter function
                     NumObjectTypes = 0;
-                    BytesLeft = (DWORD) (*lpcbData - ((LPBYTE) *lppDataDefinition - lpData));
+                    BytesLeft = (DWORD)(*lpcbData - ((LPBYTE)*lppDataDefinition - lpData));
                     bException = FALSE;
 
                     if ((pThisExtObj->hLibrary == NULL) || (dwQueryType == QUERY_GLOBAL) || (dwQueryType == QUERY_COSTLY)) {
                         // lock library object
                         if (pThisExtObj->hMutex != NULL) {
-                            Win32Error =  NtWaitForSingleObject (pThisExtObj->hMutex, FALSE, &liWaitTime);
+                            Win32Error = NtWaitForSingleObject(pThisExtObj->hMutex, FALSE, &liWaitTime);
                             if (Win32Error != WAIT_TIMEOUT) {
                                 // if this is a global or costly query, then reset the "in query"
                                 // flag for this object. The next ITEMS query will restore it.
@@ -2853,20 +2853,20 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                             // service has been disabled via ExCtrLst.
                                             // so no point in complaining about it.
                                             // assume error has been posted
-                                            KdPrint (("\nPERFLIB: Unable to open perf counter library for %ws, Error: 0x%8.8x", pThisExtObj->szServiceName, Win32Error));
+                                            KdPrint(("\nPERFLIB: Unable to open perf counter library for %ws, Error: 0x%8.8x", pThisExtObj->szServiceName, Win32Error));
                                         }
-                                        ReleaseMutex (pThisExtObj->hMutex);
+                                        ReleaseMutex(pThisExtObj->hMutex);
                                         continue; // to next entry
                                     }
                                 }
-                                ReleaseMutex (pThisExtObj->hMutex);
+                                ReleaseMutex(pThisExtObj->hMutex);
                             } else {
                                 pThisExtObj->dwLockoutCount++;
-                                KdPrint (("\nPERFLIB: Unable to Lock object for %ws to open for Query", pThisExtObj->szServiceName));
+                                KdPrint(("\nPERFLIB: Unable to Lock object for %ws to open for Query", pThisExtObj->szServiceName));
                             }
                         } else {
                             Win32Error = ERROR_LOCK_FAILED;
-                            KdPrint (("\nPERFLIB: No Lock found for %ws", pThisExtObj->szServiceName));
+                            KdPrint(("\nPERFLIB: No Lock found for %ws", pThisExtObj->szServiceName));
                         }
                     } else {
                         // library should be ready to use
@@ -2899,7 +2899,7 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                     // allocate a local block of memory to pass to the
                     // extensible counter function.
                     if (bUseSafeBuffer) {
-                        lpExtDataBuffer = ALLOCMEM (BytesLeft + (2*GUARD_PAGE_SIZE));
+                        lpExtDataBuffer = ALLOCMEM(BytesLeft + (2 * GUARD_PAGE_SIZE));
                     } else {
                         lpExtDataBuffer = lpCallBuffer = *lppDataDefinition;
                     }
@@ -2913,8 +2913,8 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                             lpEndPointer = (LPBYTE)lpHiGuardPage + GUARD_PAGE_SIZE;
 
                             // initialize GuardPage Data
-                            memset (lpLowGuardPage, GUARD_PAGE_CHAR, GUARD_PAGE_SIZE);
-                            memset (lpHiGuardPage, GUARD_PAGE_CHAR, GUARD_PAGE_SIZE);
+                            memset(lpLowGuardPage, GUARD_PAGE_CHAR, GUARD_PAGE_SIZE);
+                            memset(lpHiGuardPage, GUARD_PAGE_CHAR, GUARD_PAGE_SIZE);
                         }
 
                         lpBufferBefore = lpCallBuffer;
@@ -2925,8 +2925,8 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                             //  Collect data from extensible objects
                             bUnlockObjData = FALSE;
                             if (pThisExtObj->hMutex != NULL) {
-                                Win32Error =  NtWaitForSingleObject (pThisExtObj->hMutex, FALSE, &liWaitTime);
-                                if ((Win32Error != WAIT_TIMEOUT)  && (pThisExtObj->CollectProc != NULL)) {
+                                Win32Error = NtWaitForSingleObject(pThisExtObj->hMutex, FALSE, &liWaitTime);
+                                if ((Win32Error != WAIT_TIMEOUT) && (pThisExtObj->CollectProc != NULL)) {
                                     bUnlockObjData = TRUE;
 
                                     opwInfo.pNext = NULL;
@@ -2941,20 +2941,20 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                         // hang, it's better than not loading the DLL since they usually load OK
                                         if (hPerflibFuncTimer == NULL) {
                                             // unable to get a timer entry
-                                            KdPrint (("\nPERFLIB: Unable to acquire timer for Collect Proc"));
+                                            KdPrint(("\nPERFLIB: Unable to acquire timer for Collect Proc"));
                                         }
                                     } else {
                                         hPerflibFuncTimer = NULL;
                                     }
 
                                     InitialBytesLeft = BytesLeft;
-                                    QueryPerformanceCounter (&liStartTime);
-                                        Win32Error =  (*pThisExtObj->CollectProc) (lpValueName, &lpCallBuffer, &BytesLeft, &NumObjectTypes);
-                                    QueryPerformanceCounter (&liEndTime);
+                                    QueryPerformanceCounter(&liStartTime);
+                                    Win32Error = (*pThisExtObj->CollectProc) (lpValueName, &lpCallBuffer, &BytesLeft, &NumObjectTypes);
+                                    QueryPerformanceCounter(&liEndTime);
 
                                     if (hPerflibFuncTimer != NULL) {
                                         // kill timer
-                                        KillPerflibFunctionTimer (hPerflibFuncTimer);
+                                        KillPerflibFunctionTimer(hPerflibFuncTimer);
                                         hPerflibFuncTimer = NULL;
                                     }
 
@@ -2972,25 +2972,25 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
 
                                     lpBufferAfter = lpCallBuffer;
                                     pThisExtObj->llLastUsedTime = GetTimeAsLongLong();
-                                    ReleaseMutex (pThisExtObj->hMutex);
+                                    ReleaseMutex(pThisExtObj->hMutex);
                                     bUnlockObjData = FALSE;
                                 } else {
                                     if ((pThisExtObj->CollectProc != NULL)) {
-                                        KdPrint (("\nPERFLIB: Unable to Lock object for %ws to Collect data", pThisExtObj->szServiceName));
+                                        KdPrint(("\nPERFLIB: Unable to Lock object for %ws to Collect data", pThisExtObj->szServiceName));
                                         dwDataIndex = wStringIndex = 0;
                                         dwRawDataDwords[dwDataIndex++] = BytesLeft;
                                         dwRawDataDwords[dwDataIndex++] = (ULONG_PTR)((LPBYTE)lpBufferAfter - (LPBYTE)lpBufferBefore);
                                         szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
                                         szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
-                                        ReportEvent (hEventLog,
-                                            EVENTLOG_WARNING_TYPE,      // error type
-                                            0,                          // category (not used)
-                                            (DWORD)PERFLIB_COLLECTION_HUNG,   // event,
-                                            NULL,                       // SID (not used),
-                                            wStringIndex,              // number of strings
-                                            dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                            szMessageArray,                // message text array
-                                            (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                        ReportEvent(hEventLog,
+                                                    EVENTLOG_WARNING_TYPE,      // error type
+                                                    0,                          // category (not used)
+                                                    (DWORD)PERFLIB_COLLECTION_HUNG,   // event,
+                                                    NULL,                       // SID (not used),
+                                                    wStringIndex,              // number of strings
+                                                    dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                    szMessageArray,                // message text array
+                                                    (LPVOID)&dwRawDataDwords[0]);           // raw data
 
                                         pThisExtObj->dwLockoutCount++;
                                     } else {
@@ -3001,7 +3001,7 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                 }
                             } else {
                                 Win32Error = ERROR_LOCK_FAILED;
-                                KdPrint (("\nPERFLIB: No Lock found for %ws", pThisExtObj->szServiceName));
+                                KdPrint(("\nPERFLIB: No Lock found for %ws", pThisExtObj->szServiceName));
                             }
 
                             if ((Win32Error == ERROR_SUCCESS) && (BytesLeft > 0)) {
@@ -3013,24 +3013,24 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                     dwRawDataDwords[dwDataIndex++] = (ULONG_PTR)BytesLeft;
                                     szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
                                     szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
-                                    ReportEvent (hEventLog,
-                                        EVENTLOG_ERROR_TYPE,      // error type
-                                        0,                          // category (not used)
-                                        (DWORD)PERFLIB_INVALID_SIZE_RETURNED,   // event,
-                                        NULL,                       // SID (not used),
-                                        wStringIndex,              // number of strings
-                                        dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                        szMessageArray,                // message text array
-                                        (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                    ReportEvent(hEventLog,
+                                                EVENTLOG_ERROR_TYPE,      // error type
+                                                0,                          // category (not used)
+                                                (DWORD)PERFLIB_INVALID_SIZE_RETURNED,   // event,
+                                                NULL,                       // SID (not used),
+                                                wStringIndex,              // number of strings
+                                                dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                szMessageArray,                // message text array
+                                                (LPVOID)&dwRawDataDwords[0]);           // raw data
 
-                                    // disable the dll unless:
-                                    //      testing has been disabled.
-                                    //      or this is a trusted DLL (which are never disabled)
-                                    //  the event log message should be reported in any case since
-                                    //  this is a serious error
+                                            // disable the dll unless:
+                                            //      testing has been disabled.
+                                            //      or this is a trusted DLL (which are never disabled)
+                                            //  the event log message should be reported in any case since
+                                            //  this is a serious error
 
                                     if ((!(lPerflibConfigFlags & PLCF_NO_DLL_TESTING)) && (!(pThisExtObj->dwFlags & PERF_EO_TRUSTED))) {
-                                        DisablePerfLibrary (pThisExtObj);
+                                        DisablePerfLibrary(pThisExtObj);
                                     }
                                     // set error values to correct entries
                                     BytesLeft = 0;
@@ -3038,27 +3038,27 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                 } else {
                                     // the buffer seems ok so far, so validate it
 
-                                    InterlockedIncrement ((LONG *)&pThisExtObj->dwCollectCount);
+                                    InterlockedIncrement((LONG*)&pThisExtObj->dwCollectCount);
                                     pThisExtObj->llElapsedTime += liEndTime.QuadPart - liStartTime.QuadPart;
 
                                     // test all returned buffers for correct alignment
                                     if ((((ULONG_PTR)BytesLeft & (ULONG_PTR)0x07)) && !(lPerflibConfigFlags & PLCF_NO_ALIGN_ERRORS)) {
                                         if ((pThisExtObj->dwFlags & PERF_EO_ALIGN_ERR_POSTED) == 0) {
-                                            KdPrint (("\nPERFLIB: %ws returned a buffer that is not 8-byte aligned.", pThisExtObj->szServiceName));
+                                            KdPrint(("\nPERFLIB: %ws returned a buffer that is not 8-byte aligned.", pThisExtObj->szServiceName));
                                             dwDataIndex = wStringIndex = 0;
                                             dwRawDataDwords[dwDataIndex++] = (ULONG_PTR)lpCallBuffer;
                                             dwRawDataDwords[dwDataIndex++] = (ULONG_PTR)BytesLeft;
                                             szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
                                             szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
-                                            ReportEvent (hEventLog,
-                                                EVENTLOG_WARNING_TYPE,      // error type
-                                                0,                          // category (not used)
-                                                (DWORD)PERFLIB_BUFFER_ALIGNMENT_ERROR,   // event,
-                                                NULL,                       // SID (not used),
-                                                wStringIndex,              // number of strings
-                                                dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                                szMessageArray,                // message text array
-                                                (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                            ReportEvent(hEventLog,
+                                                        EVENTLOG_WARNING_TYPE,      // error type
+                                                        0,                          // category (not used)
+                                                        (DWORD)PERFLIB_BUFFER_ALIGNMENT_ERROR,   // event,
+                                                        NULL,                       // SID (not used),
+                                                        wStringIndex,              // number of strings
+                                                        dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                        szMessageArray,                // message text array
+                                                        (LPVOID)&dwRawDataDwords[0]);           // raw data
                                             pThisExtObj->dwFlags |= PERF_EO_ALIGN_ERR_POSTED;
                                         }
                                     }
@@ -3083,20 +3083,20 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                     dwRawDataDwords[dwDataIndex++] = (ULONG_PTR)((LPBYTE)lpBufferAfter - (LPBYTE)lpBufferBefore);
                                                     szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
                                                     szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
-                                                    ReportEvent (hEventLog,
-                                                        EVENTLOG_WARNING_TYPE,      // error type
-                                                        0,                          // category (not used)
-                                                        (DWORD)PERFLIB_BUFFER_POINTER_MISMATCH,   // event,
-                                                        NULL,                       // SID (not used),
-                                                        wStringIndex,              // number of strings
-                                                        dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                                        szMessageArray,                // message text array
-                                                        (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                                    ReportEvent(hEventLog,
+                                                                EVENTLOG_WARNING_TYPE,      // error type
+                                                                0,                          // category (not used)
+                                                                (DWORD)PERFLIB_BUFFER_POINTER_MISMATCH,   // event,
+                                                                NULL,                       // SID (not used),
+                                                                wStringIndex,              // number of strings
+                                                                dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                                szMessageArray,                // message text array
+                                                                (LPVOID)&dwRawDataDwords[0]);           // raw data
                                                 }
 
                                                 // toss this buffer
                                                 bBufferOK = FALSE;
-                                                DisablePerfLibrary (pThisExtObj);
+                                                DisablePerfLibrary(pThisExtObj);
                                                 // <<old code>>
                                                 // we'll keep the buffer, since the returned bytes left
                                                 // value is ignored anyway, in order to make the
@@ -3118,15 +3118,15 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                         dwRawDataDwords[dwDataIndex++] = (ULONG_PTR)((LPBYTE)lpBufferAfter - (LPBYTE)lpHiGuardPage);
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
-                                                        ReportEvent (hEventLog,
-                                                            EVENTLOG_ERROR_TYPE,        // error type
-                                                            0,                          // category (not used)
-                                                            (DWORD)PERFLIB_HEAP_ERROR,  // event,
-                                                            NULL,                       // SID (not used),
-                                                            wStringIndex,               // number of strings
-                                                            dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                                            szMessageArray,             // message text array
-                                                            (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                                        ReportEvent(hEventLog,
+                                                                    EVENTLOG_ERROR_TYPE,        // error type
+                                                                    0,                          // category (not used)
+                                                                    (DWORD)PERFLIB_HEAP_ERROR,  // event,
+                                                                    NULL,                       // SID (not used),
+                                                                    wStringIndex,               // number of strings
+                                                                    dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                                    szMessageArray,             // message text array
+                                                                    (LPVOID)&dwRawDataDwords[0]);           // raw data
                                                     }
                                                 } else {
                                                     // issue ERROR, buffer overrun
@@ -3136,19 +3136,19 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                         dwRawDataDwords[dwDataIndex++] = (ULONG_PTR)((LPBYTE)lpBufferAfter - (LPBYTE)lpHiGuardPage);
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
-                                                        ReportEvent (hEventLog,
-                                                            EVENTLOG_ERROR_TYPE,        // error type
-                                                            0,                          // category (not used)
-                                                            (DWORD)PERFLIB_BUFFER_OVERFLOW,     // event,
-                                                            NULL,                       // SID (not used),
-                                                            wStringIndex,              // number of strings
-                                                            dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                                            szMessageArray,                // message text array
-                                                            (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                                        ReportEvent(hEventLog,
+                                                                    EVENTLOG_ERROR_TYPE,        // error type
+                                                                    0,                          // category (not used)
+                                                                    (DWORD)PERFLIB_BUFFER_OVERFLOW,     // event,
+                                                                    NULL,                       // SID (not used),
+                                                                    wStringIndex,              // number of strings
+                                                                    dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                                    szMessageArray,                // message text array
+                                                                    (LPVOID)&dwRawDataDwords[0]);           // raw data
                                                     }
                                                 }
                                                 bBufferOK = FALSE;
-                                                DisablePerfLibrary (pThisExtObj);
+                                                DisablePerfLibrary(pThisExtObj);
                                                 // since the DLL overran the buffer, the buffer
                                                 // must be too small (no comments about the DLL
                                                 // will be made here) so the status will be
@@ -3163,7 +3163,7 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                 for (lpCheckPointer = (LPDWORD)lpLowGuardPage; lpCheckPointer < (LPDWORD)lpBufferBefore; lpCheckPointer++) {
                                                     if (*lpCheckPointer != GUARD_PAGE_DWORD) {
                                                         bGuardPageOK = FALSE;
-                                                            break;
+                                                        break;
                                                     }
                                                 }
                                                 if (!bGuardPageOK) {
@@ -3173,30 +3173,30 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                         dwDataIndex = wStringIndex = 0;
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
-                                                        ReportEvent (hEventLog,
-                                                            EVENTLOG_ERROR_TYPE,        // error type
-                                                            0,                          // category (not used)
-                                                            (DWORD)PERFLIB_GUARD_PAGE_VIOLATION, // event
-                                                            NULL,                       // SID (not used),
-                                                            wStringIndex,              // number of strings
-                                                            dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                                            szMessageArray,                // message text array
-                                                            (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                                        ReportEvent(hEventLog,
+                                                                    EVENTLOG_ERROR_TYPE,        // error type
+                                                                    0,                          // category (not used)
+                                                                    (DWORD)PERFLIB_GUARD_PAGE_VIOLATION, // event
+                                                                    NULL,                       // SID (not used),
+                                                                    wStringIndex,              // number of strings
+                                                                    dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                                    szMessageArray,                // message text array
+                                                                    (LPVOID)&dwRawDataDwords[0]);           // raw data
                                                     }
                                                     bBufferOK = FALSE;
-                                                    DisablePerfLibrary (pThisExtObj);
+                                                    DisablePerfLibrary(pThisExtObj);
                                                 }
                                             }
                                             //  check 4: check hi guard page for corruption
                                             if (bBufferOK) {
                                                 bGuardPageOK = TRUE;
                                                 for (lpCheckPointer = (LPDWORD)lpHiGuardPage;
-                                                    lpCheckPointer < (LPDWORD)lpEndPointer;
-                                                    lpCheckPointer++) {
-                                                        if (*lpCheckPointer != GUARD_PAGE_DWORD) {
-                                                            bGuardPageOK = FALSE;
+                                                     lpCheckPointer < (LPDWORD)lpEndPointer;
+                                                     lpCheckPointer++) {
+                                                    if (*lpCheckPointer != GUARD_PAGE_DWORD) {
+                                                        bGuardPageOK = FALSE;
                                                         break;
-                                                    }
+                            }
                                                 }
                                                 if (!bGuardPageOK) {
                                                     // issue ERROR, Hi Guard Page corrupted
@@ -3205,19 +3205,19 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                         dwDataIndex = wStringIndex = 0;
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
-                                                        ReportEvent (hEventLog,
-                                                            EVENTLOG_ERROR_TYPE,        // error type
-                                                            0,                          // category (not used)
-                                                            (DWORD)PERFLIB_GUARD_PAGE_VIOLATION, // event,
-                                                            NULL,                       // SID (not used),
-                                                            wStringIndex,              // number of strings
-                                                            dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                                            szMessageArray,                // message text array
-                                                            (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                                        ReportEvent(hEventLog,
+                                                                    EVENTLOG_ERROR_TYPE,        // error type
+                                                                    0,                          // category (not used)
+                                                                    (DWORD)PERFLIB_GUARD_PAGE_VIOLATION, // event,
+                                                                    NULL,                       // SID (not used),
+                                                                    wStringIndex,              // number of strings
+                                                                    dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                                    szMessageArray,                // message text array
+                                                                    (LPVOID)&dwRawDataDwords[0]);           // raw data
                                                     }
 
                                                     bBufferOK = FALSE;
-                                                    DisablePerfLibrary (pThisExtObj);
+                                                    DisablePerfLibrary(pThisExtObj);
                                                 }
                                             }
 
@@ -3231,22 +3231,22 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                 // first test to see if this is a foreign
                                                 // computer data block or not
 
-                                                pPerfData = (PERF_DATA_BLOCK *)lpBufferBefore;
+                                                pPerfData = (PERF_DATA_BLOCK*)lpBufferBefore;
                                                 if ((pPerfData->Signature[0] == (WCHAR)'P') && (pPerfData->Signature[1] == (WCHAR)'E') && (pPerfData->Signature[2] == (WCHAR)'R') && (pPerfData->Signature[3] == (WCHAR)'F')) {
                                                     // if this is a foreign computer data block, then the
                                                     // first object is after the header
-                                                    pObject = (PERF_OBJECT_TYPE *) ((LPBYTE)pPerfData + pPerfData->HeaderLength);
+                                                    pObject = (PERF_OBJECT_TYPE*)((LPBYTE)pPerfData + pPerfData->HeaderLength);
                                                     bForeignDataBuffer = TRUE;
                                                 } else {
                                                     // otherwise, if this is just a buffer from an extensible counter, the object starts at the beginning of the buffer
-                                                    pObject = (PERF_OBJECT_TYPE *)lpBufferBefore;
+                                                    pObject = (PERF_OBJECT_TYPE*)lpBufferBefore;
                                                     bForeignDataBuffer = FALSE;
                                                 }
                                                 // go to where the pointers say the end of the buffer is and then see if it's where it should be
                                                 dwObjectBufSize = 0;
                                                 for (dwIndex = 0; dwIndex < NumObjectTypes; dwIndex++) {
                                                     dwObjectBufSize += pObject->TotalByteLength;
-                                                    pObject = (PERF_OBJECT_TYPE *)((LPBYTE)pObject + pObject->TotalByteLength);
+                                                    pObject = (PERF_OBJECT_TYPE*)((LPBYTE)pObject + pObject->TotalByteLength);
                                                 }
                                                 if (((LPBYTE)pObject != (LPBYTE)lpCallBuffer) || (dwObjectBufSize > BytesLeft)) {
                                                     // then a length field is incorrect. This is FATAL
@@ -3257,38 +3257,38 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                         dwRawDataDwords[dwDataIndex++] = NumObjectTypes;
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
                                                         szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
-                                                        ReportEvent (hEventLog,
-                                                            EVENTLOG_ERROR_TYPE,        // error type
-                                                            0,                          // category (not used)
-                                                            (DWORD)PERFLIB_INCORRECT_OBJECT_LENGTH, // event,
-                                                            NULL,                       // SID (not used),
-                                                            wStringIndex,               // number of strings
-                                                            dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                                            szMessageArray,             // message text array
-                                                            (LPVOID)&dwRawDataDwords[0]); // raw data
+                                                        ReportEvent(hEventLog,
+                                                                    EVENTLOG_ERROR_TYPE,        // error type
+                                                                    0,                          // category (not used)
+                                                                    (DWORD)PERFLIB_INCORRECT_OBJECT_LENGTH, // event,
+                                                                    NULL,                       // SID (not used),
+                                                                    wStringIndex,               // number of strings
+                                                                    dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                                    szMessageArray,             // message text array
+                                                                    (LPVOID)&dwRawDataDwords[0]); // raw data
                                                     }
                                                     bBufferOK = FALSE;
-                                                    DisablePerfLibrary (pThisExtObj);
+                                                    DisablePerfLibrary(pThisExtObj);
                                                 }
                                                 //  Test 6: Test Object definitions fields
                                                 if (bBufferOK) {
                                                     // set object pointer
                                                     if (bForeignDataBuffer) {
-                                                        pObject = (PERF_OBJECT_TYPE *) ((LPBYTE)pPerfData + pPerfData->HeaderLength);
+                                                        pObject = (PERF_OBJECT_TYPE*)((LPBYTE)pPerfData + pPerfData->HeaderLength);
                                                     } else {
                                                         // otherwise, if this is just a buffer from an extensible counter, the object starts at the beginning of the buffer
-                                                        pObject = (PERF_OBJECT_TYPE *)lpBufferBefore;
+                                                        pObject = (PERF_OBJECT_TYPE*)lpBufferBefore;
                                                     }
 
                                                     for (dwIndex = 0; dwIndex < NumObjectTypes; dwIndex++) {
-                                                        pNextObject = (PERF_OBJECT_TYPE *)((LPBYTE)pObject + pObject->DefinitionLength);
+                                                        pNextObject = (PERF_OBJECT_TYPE*)((LPBYTE)pObject + pObject->DefinitionLength);
                                                         if (pObject->NumCounters != 0) {
-                                                            pCounterDef = (PERF_COUNTER_DEFINITION *) ((LPBYTE)pObject + pObject->HeaderLength);
+                                                            pCounterDef = (PERF_COUNTER_DEFINITION*)((LPBYTE)pObject + pObject->HeaderLength);
                                                             lCtrIndex = 0;
                                                             while (lCtrIndex < pObject->NumCounters) {
                                                                 if ((LPBYTE)pCounterDef < (LPBYTE)pNextObject) {
                                                                     // still ok so go to next counter
-                                                                    pCounterDef = (PERF_COUNTER_DEFINITION *) ((LPBYTE)pCounterDef + pCounterDef->ByteLength);
+                                                                    pCounterDef = (PERF_COUNTER_DEFINITION*)((LPBYTE)pCounterDef + pCounterDef->ByteLength);
                                                                     lCtrIndex++;
                                                                 } else {
                                                                     bBufferOK = FALSE;
@@ -3303,8 +3303,8 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                         if (!bBufferOK) {
                                                             break;
                                                         } else {
-                                                            pObject = (PERF_OBJECT_TYPE *)((LPBYTE)pObject +
-                                                                pObject->TotalByteLength);
+                                                            pObject = (PERF_OBJECT_TYPE*)((LPBYTE)pObject +
+                                                                                          pObject->TotalByteLength);
                                                         }
                                                     }
 
@@ -3315,17 +3315,17 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                             dwRawDataDwords[dwDataIndex++] = pObject->ObjectNameTitleIndex;
                                                             szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
                                                             szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
-                                                            ReportEvent (hEventLog,
-                                                                EVENTLOG_ERROR_TYPE,        // error type
-                                                                0,                          // category (not used)
-                                                                (DWORD)PERFLIB_INVALID_DEFINITION_BLOCK, // event,
-                                                                NULL,                       // SID (not used),
-                                                                wStringIndex,              // number of strings
-                                                                dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                                                szMessageArray,                // message text array
-                                                                (LPVOID)&dwRawDataDwords[0]);           // raw data
-                                                        }
-                                                        DisablePerfLibrary (pThisExtObj);
+                                                            ReportEvent(hEventLog,
+                                                                        EVENTLOG_ERROR_TYPE,        // error type
+                                                                        0,                          // category (not used)
+                                                                        (DWORD)PERFLIB_INVALID_DEFINITION_BLOCK, // event,
+                                                                        NULL,                       // SID (not used),
+                                                                        wStringIndex,              // number of strings
+                                                                        dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                                        szMessageArray,                // message text array
+                                                                        (LPVOID)&dwRawDataDwords[0]);           // raw data
+                    }
+                                                        DisablePerfLibrary(pThisExtObj);
                                                     }
                                                 }
 
@@ -3333,23 +3333,23 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                 if (bBufferOK) {
                                                     // set object pointer
                                                     if (bForeignDataBuffer) {
-                                                        pObject = (PERF_OBJECT_TYPE *) ((LPBYTE)pPerfData + pPerfData->HeaderLength);
+                                                        pObject = (PERF_OBJECT_TYPE*)((LPBYTE)pPerfData + pPerfData->HeaderLength);
                                                     } else {
                                                         // otherwise, if this is just a buffer from
                                                         // an extensible counter, the object starts at the beginning of the buffer
-                                                        pObject = (PERF_OBJECT_TYPE *)lpBufferBefore;
+                                                        pObject = (PERF_OBJECT_TYPE*)lpBufferBefore;
                                                     }
 
                                                     for (dwIndex = 0; dwIndex < NumObjectTypes; dwIndex++) {
-                                                        pNextObject = (PERF_OBJECT_TYPE *)((LPBYTE)pObject + pObject->TotalByteLength);
+                                                        pNextObject = (PERF_OBJECT_TYPE*)((LPBYTE)pObject + pObject->TotalByteLength);
                                                         if (pObject->NumInstances != PERF_NO_INSTANCES) {
-                                                            pInstance = (PERF_INSTANCE_DEFINITION *) ((LPBYTE)pObject + pObject->DefinitionLength);
+                                                            pInstance = (PERF_INSTANCE_DEFINITION*)((LPBYTE)pObject + pObject->DefinitionLength);
                                                             lInstIndex = 0;
                                                             while (lInstIndex < pObject->NumInstances) {
-                                                                PERF_COUNTER_BLOCK *pCounterBlock;
+                                                                PERF_COUNTER_BLOCK* pCounterBlock;
 
-                                                                pCounterBlock = (PERF_COUNTER_BLOCK *) ((PCHAR) pInstance + pInstance->ByteLength);
-                                                                pInstance = (PERF_INSTANCE_DEFINITION *) ((PCHAR) pCounterBlock + pCounterBlock->ByteLength);
+                                                                pCounterBlock = (PERF_COUNTER_BLOCK*)((PCHAR)pInstance + pInstance->ByteLength);
+                                                                pInstance = (PERF_INSTANCE_DEFINITION*)((PCHAR)pCounterBlock + pCounterBlock->ByteLength);
                                                                 lInstIndex++;
                                                             }
                                                             if ((LPBYTE)pInstance > (LPBYTE)pNextObject) {
@@ -3371,17 +3371,17 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                                             dwRawDataDwords[dwDataIndex++] = pObject->ObjectNameTitleIndex;
                                                             szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
                                                             szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
-                                                            ReportEvent (hEventLog,
-                                                                EVENTLOG_ERROR_TYPE,        // error type
-                                                                0,                          // category (not used)
-                                                                (DWORD)PERFLIB_INCORRECT_INSTANCE_LENGTH, // event,
-                                                                NULL,                       // SID (not used),
-                                                                wStringIndex,              // number of strings
-                                                                dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                                                szMessageArray,                // message text array
-                                                                (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                                            ReportEvent(hEventLog,
+                                                                        EVENTLOG_ERROR_TYPE,        // error type
+                                                                        0,                          // category (not used)
+                                                                        (DWORD)PERFLIB_INCORRECT_INSTANCE_LENGTH, // event,
+                                                                        NULL,                       // SID (not used),
+                                                                        wStringIndex,              // number of strings
+                                                                        dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                                                        szMessageArray,                // message text array
+                                                                        (LPVOID)&dwRawDataDwords[0]);           // raw data
                                                         }
-                                                        DisablePerfLibrary (pThisExtObj);
+                                                        DisablePerfLibrary(pThisExtObj);
                                                     }
                                                 }
                                             }
@@ -3390,9 +3390,9 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                         // if all the tests pass,then copy the data to the
                                         // original buffer and update the pointers
                                         if (bBufferOK) {
-                                            RtlMoveMemory (*lppDataDefinition,
-                                                lpBufferBefore,
-                                                BytesLeft); // returned buffer size
+                                            RtlMoveMemory(*lppDataDefinition,
+                                                          lpBufferBefore,
+                                                          BytesLeft); // returned buffer size
                                         } else {
                                             NumObjectTypes = 0; // since this buffer was tossed
                                             BytesLeft = 0; // reset the size value since the buffer wasn't used
@@ -3405,41 +3405,41 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                 }
                             } else {
                                 if (Win32Error != ERROR_SUCCESS) {
-                                    InterlockedIncrement ((LONG *)&pThisExtObj->dwErrorCount);
+                                    InterlockedIncrement((LONG*)&pThisExtObj->dwErrorCount);
                                 }
                                 if (bUnlockObjData) {
-                                    ReleaseMutex (pThisExtObj->hMutex);
+                                    ReleaseMutex(pThisExtObj->hMutex);
                                 }
 
                                 NumObjectTypes = 0; // clear counter
                             }// end if function returned successfully
-                        } except (EXCEPTION_EXECUTE_HANDLER) {
+                        } except(EXCEPTION_EXECUTE_HANDLER) {
                             Win32Error = GetExceptionCode();
-                            InterlockedIncrement ((LONG *)&pThisExtObj->dwErrorCount);
+                            InterlockedIncrement((LONG*)&pThisExtObj->dwErrorCount);
                             bException = TRUE;
 
                             if (bUnlockObjData) {
-                                ReleaseMutex (pThisExtObj->hMutex);
+                                ReleaseMutex(pThisExtObj->hMutex);
                                 bUnlockObjData = FALSE;
                             }
 
                             if (hPerflibFuncTimer != NULL) {
                                 // kill timer
-                                KillPerflibFunctionTimer (hPerflibFuncTimer);
+                                KillPerflibFunctionTimer(hPerflibFuncTimer);
                                 hPerflibFuncTimer = NULL;
                             }
                         }
                         if (bUseSafeBuffer) {
-                            FREEMEM (lpExtDataBuffer);
+                            FREEMEM(lpExtDataBuffer);
                         }
                     } else {
                         // unable to allocate memory so set error value
                         Win32Error = ERROR_OUTOFMEMORY;
                     } // end if temp buffer allocated successfully
                     //  Update the count of the number of object types
-                    ((PPERF_DATA_BLOCK) lpData)->NumObjectTypes += NumObjectTypes;
+                    ((PPERF_DATA_BLOCK)lpData)->NumObjectTypes += NumObjectTypes;
 
-                    if ( Win32Error != ERROR_SUCCESS) {
+                    if (Win32Error != ERROR_SUCCESS) {
                         if (bException || !((Win32Error == ERROR_MORE_DATA) || (Win32Error == WAIT_TIMEOUT))) {
                             // inform on exceptions & illegal error status only
                             if (lEventLogLevel >= LOG_USER) {
@@ -3448,24 +3448,24 @@ LONG QueryExtensibleData (COLLECT_THREAD_DATA * pArgs)
                                 dwRawDataDwords[dwDataIndex++] = Win32Error;
                                 szMessageArray[wStringIndex++] = pThisExtObj->szServiceName;
                                 szMessageArray[wStringIndex++] = pThisExtObj->szLibraryName;
-                                ReportEvent (hEventLog,
-                                    EVENTLOG_ERROR_TYPE,        // error type
-                                    0,                          // category (not used)
-                                    (DWORD)PERFLIB_COLLECT_PROC_EXCEPTION,   // event,
-                                    NULL,                       // SID (not used),
-                                    wStringIndex,              // number of strings
-                                    dwDataIndex*sizeof(ULONG_PTR),  // sizeof raw data
-                                    szMessageArray,                // message text array
-                                    (LPVOID)&dwRawDataDwords[0]);           // raw data
+                                ReportEvent(hEventLog,
+                                            EVENTLOG_ERROR_TYPE,        // error type
+                                            0,                          // category (not used)
+                                            (DWORD)PERFLIB_COLLECT_PROC_EXCEPTION,   // event,
+                                            NULL,                       // SID (not used),
+                                            wStringIndex,              // number of strings
+                                            dwDataIndex * sizeof(ULONG_PTR),  // sizeof raw data
+                                            szMessageArray,                // message text array
+                                            (LPVOID)&dwRawDataDwords[0]);           // raw data
                             } else {
                                 if (bException) {
-                                    KdPrint (("\nPERFLIB: Extensible Counter %d generated an exception code: 0x%8.8x (%dL)", NumObjectTypes, Win32Error, Win32Error));
+                                    KdPrint(("\nPERFLIB: Extensible Counter %d generated an exception code: 0x%8.8x (%dL)", NumObjectTypes, Win32Error, Win32Error));
                                 } else {
-                                    KdPrint (("\nPERFLIB: Extensible Counter %d returned error code: 0x%8.8x (%dL)", NumObjectTypes, Win32Error, Win32Error));
+                                    KdPrint(("\nPERFLIB: Extensible Counter %d returned error code: 0x%8.8x (%dL)", NumObjectTypes, Win32Error, Win32Error));
                                 }
                             }
                             if (bException) {
-                                DisablePerfLibrary (pThisExtObj);
+                                DisablePerfLibrary(pThisExtObj);
                             }
                         }
                         // the ext. dll is only supposed to return:

@@ -31,15 +31,15 @@ Revision History:
 #define NUM_STRINGS     6
 
 // Globals
-    PUNICODE_STRING pGlobalComputerNameU = NULL;
-    PANSI_STRING    pGlobalComputerNameA = NULL;
+PUNICODE_STRING pGlobalComputerNameU = NULL;
+PANSI_STRING    pGlobalComputerNameA = NULL;
 
 // LOCAL FUNCTION PROTOTYPES
-BOOL GetUserInfo(IN HANDLE Token, OUT LPWSTR *UserName, OUT LPWSTR *DomainName, OUT LPWSTR *AuthenticationId, OUT PSID *UserSid);
+BOOL GetUserInfo(IN HANDLE Token, OUT LPWSTR* UserName, OUT LPWSTR* DomainName, OUT LPWSTR* AuthenticationId, OUT PSID* UserSid);
 
-NTSTATUS ElfpGetComputerName (IN  LPSTR   *ComputerNamePtr);
-PUNICODE_STRING TmpGetComputerNameW (VOID);
-VOID w_GetComputerName ( );
+NTSTATUS ElfpGetComputerName(IN  LPSTR* ComputerNamePtr);
+PUNICODE_STRING TmpGetComputerNameW(VOID);
+VOID w_GetComputerName();
 
 
 VOID ElfpGenerateLogClearedEvent(IELF_HANDLE     LogHandle)
@@ -54,14 +54,14 @@ Return Value:
     NONE - Either it works or it doesn't.  If it doesn't, there isn't much we can do about it.
 --*/
 {
-    LPWSTR  UserName=NULL;
-    LPWSTR  DomainName=NULL;
-    LPWSTR  AuthenticationId=NULL;
-    LPWSTR  ClientUserName=NULL;
-    LPWSTR  ClientDomainName=NULL;
-    LPWSTR  ClientAuthenticationId=NULL;
-    PSID    UserSid=NULL;
-    PSID    ClientSid=NULL;
+    LPWSTR  UserName = NULL;
+    LPWSTR  DomainName = NULL;
+    LPWSTR  AuthenticationId = NULL;
+    LPWSTR  ClientUserName = NULL;
+    LPWSTR  ClientDomainName = NULL;
+    LPWSTR  ClientAuthenticationId = NULL;
+    PSID    UserSid = NULL;
+    PSID    ClientSid = NULL;
     DWORD   i;
     BOOL    Result;
     HANDLE  Token;
@@ -85,7 +85,7 @@ Return Value:
     Result = GetUserInfo(Token, &UserName, &DomainName, &AuthenticationId, &UserSid);
     CloseHandle(Token);
     if (!Result) {
-        ElfDbgPrint(("1st GetUserInfo ret'd %d\n",GetLastError()));
+        ElfDbgPrint(("1st GetUserInfo ret'd %d\n", GetLastError()));
         return;
     }
 
@@ -121,14 +121,14 @@ Return Value:
 
     ElfDbgPrint(("\nGetUserInfo ret'd \nUserName = %ws, "
                  "\nDomainName = %ws, \nAuthenticationId = %ws\n",
-                 ClientUserName, ClientDomainName, ClientAuthenticationId ));
+                 ClientUserName, ClientDomainName, ClientAuthenticationId));
 
-    RtlInitUnicodeString( &StringArray[0], UserName );
-    RtlInitUnicodeString( &StringArray[1], DomainName );
-    RtlInitUnicodeString( &StringArray[2], AuthenticationId );
-    RtlInitUnicodeString( &StringArray[3], ClientUserName );
-    RtlInitUnicodeString( &StringArray[4], ClientDomainName );
-    RtlInitUnicodeString( &StringArray[5], ClientAuthenticationId );
+    RtlInitUnicodeString(&StringArray[0], UserName);
+    RtlInitUnicodeString(&StringArray[1], DomainName);
+    RtlInitUnicodeString(&StringArray[2], AuthenticationId);
+    RtlInitUnicodeString(&StringArray[3], ClientUserName);
+    RtlInitUnicodeString(&StringArray[4], ClientDomainName);
+    RtlInitUnicodeString(&StringArray[5], ClientAuthenticationId);
 
     // Create an array of pointers to UNICODE_STRINGs.
     for (i = 0; i < NUM_STRINGS; i++) {
@@ -149,25 +149,25 @@ Return Value:
     // Since all processes other than LSA are given read-only access
     // to the security log, we have to explicitly give the current
     // process the right to write the "Log cleared" event
-    LogHandleGrantedAccess    = LogHandle->GrantedAccess;
+    LogHandleGrantedAccess = LogHandle->GrantedAccess;
     LogHandle->GrantedAccess |= ELF_LOGFILE_WRITE;
 
-    Status = ElfrReportEventW (
-                 LogHandle,                         // Log Handle
-                 EventTime,                         // Time
-                 EVENTLOG_AUDIT_SUCCESS,            // Event Type
-                 (USHORT)SE_CATEGID_SYSTEM,         // Event Category
-                 SE_AUDITID_AUDIT_LOG_CLEARED,      // EventID
-                 NUM_STRINGS,                       // NumStrings
-                 0,                                 // DataSize
-                 pComputerNameU,                    // pComputerNameU
-                 UserSid,                           // UserSid
-                 StringPtrArray,                    // *Strings
-                 NULL,                              // Data
-                 0,                                 // Flags
-                 NULL,                              // RecordNumber
-                 NULL                               // TimeWritten
-                 );
+    Status = ElfrReportEventW(
+        LogHandle,                         // Log Handle
+        EventTime,                         // Time
+        EVENTLOG_AUDIT_SUCCESS,            // Event Type
+        (USHORT)SE_CATEGID_SYSTEM,         // Event Category
+        SE_AUDITID_AUDIT_LOG_CLEARED,      // EventID
+        NUM_STRINGS,                       // NumStrings
+        0,                                 // DataSize
+        pComputerNameU,                    // pComputerNameU
+        UserSid,                           // UserSid
+        StringPtrArray,                    // *Strings
+        NULL,                              // Data
+        0,                                 // Flags
+        NULL,                              // RecordNumber
+        NULL                               // TimeWritten
+    );
 
     LogHandle->GrantedAccess = LogHandleGrantedAccess;
 
@@ -204,7 +204,7 @@ CleanExit:
 }
 
 
-BOOL GetUserInfo(IN HANDLE Token, OUT LPWSTR *UserName, OUT LPWSTR *DomainName, OUT LPWSTR *AuthenticationId, OUT PSID *UserSid)
+BOOL GetUserInfo(IN HANDLE Token, OUT LPWSTR* UserName, OUT LPWSTR* DomainName, OUT LPWSTR* AuthenticationId, OUT PSID* UserSid)
 /*++
 Routine Description:
     This function gathers information about the user identified with the token.
@@ -224,8 +224,8 @@ Return Value:
     FALSE - If unsuccessful.  No memory is allocated in this case.
 --*/
 {
-    PTOKEN_USER     Buffer=NULL;
-//    WCHAR         User[256];
+    PTOKEN_USER     Buffer = NULL;
+    //    WCHAR         User[256];
     LPWSTR          Domain = NULL;
     LPWSTR          AccountName = NULL;
     SID_NAME_USE    Use;
@@ -235,23 +235,23 @@ Return Value:
     DWORD           DomainNameSize;
     TOKEN_STATISTICS Statistics;
     WCHAR           LogonIdString[256];
-    DWORD           Status=ERROR_SUCCESS;
+    DWORD           Status = ERROR_SUCCESS;
 
     *UserSid = NULL;
 
-    Result = GetTokenInformation ( Token, TokenUser, NULL, 0, &RequiredLength );
+    Result = GetTokenInformation(Token, TokenUser, NULL, 0, &RequiredLength);
     if (!Result) {
         if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-            Buffer = ElfpAllocateBuffer((RequiredLength+1)*sizeof(WCHAR) );
-            Result = GetTokenInformation ( Token, TokenUser, Buffer, RequiredLength, &RequiredLength);
+            Buffer = ElfpAllocateBuffer((RequiredLength + 1) * sizeof(WCHAR));
+            Result = GetTokenInformation(Token, TokenUser, Buffer, RequiredLength, &RequiredLength);
             if (!Result) {
                 ElfDbgPrint(("2nd GetTokenInformation failed, "
-                    "error = %d\n",GetLastError()));
-                return( FALSE );
+                             "error = %d\n", GetLastError()));
+                return(FALSE);
             }
         } else {
-            DbgPrint("1st GetTokenInformation failed, error = %d\n",GetLastError());
-            return( FALSE );
+            DbgPrint("1st GetTokenInformation failed, error = %d\n", GetLastError());
+            return(FALSE);
         }
     }
 
@@ -261,32 +261,32 @@ Return Value:
 
     AccountNameSize = 0;
     DomainNameSize = 0;
-    Result = LookupAccountSidW( L"", Buffer->User.Sid, NULL, &AccountNameSize, NULL, &DomainNameSize, &Use);
+    Result = LookupAccountSidW(L"", Buffer->User.Sid, NULL, &AccountNameSize, NULL, &DomainNameSize, &Use);
     if (!Result) {
-        if ( GetLastError() == ERROR_INSUFFICIENT_BUFFER ) {
-            AccountName = ElfpAllocateBuffer((AccountNameSize+1)*sizeof(WCHAR) );
-            Domain = ElfpAllocateBuffer((DomainNameSize+1)*sizeof(WCHAR) );
-            if ( AccountName == NULL ) {
+        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+            AccountName = ElfpAllocateBuffer((AccountNameSize + 1) * sizeof(WCHAR));
+            Domain = ElfpAllocateBuffer((DomainNameSize + 1) * sizeof(WCHAR));
+            if (AccountName == NULL) {
                 ElfDbgPrint(("LocalAlloc failed allocating %d bytes, "
-                    "error = %d\n",AccountNameSize,GetLastError()));
+                             "error = %d\n", AccountNameSize, GetLastError()));
                 goto ErrorCleanup;
             }
 
-            if ( Domain == NULL ) {
+            if (Domain == NULL) {
                 ElfDbgPrint(("LocalAlloc failed allocating %d bytes, "
-                    "error = %d\n",DomainNameSize,GetLastError()));
+                             "error = %d\n", DomainNameSize, GetLastError()));
                 goto ErrorCleanup;
             }
 
-            Result = LookupAccountSidW( L"", Buffer->User.Sid, AccountName, &AccountNameSize, Domain, &DomainNameSize, &Use);
+            Result = LookupAccountSidW(L"", Buffer->User.Sid, AccountName, &AccountNameSize, Domain, &DomainNameSize, &Use);
             if (!Result) {
                 ElfDbgPrint(("2nd LookupAccountSid failed, "
-                    "error = %d\n",GetLastError()));
+                             "error = %d\n", GetLastError()));
                 goto ErrorCleanup;
             }
         } else {
             ElfDbgPrint(("1st LookupAccountSid failed, "
-                "error = %d\n",GetLastError()));
+                         "error = %d\n", GetLastError()));
             goto ErrorCleanup;
         }
     } else {
@@ -294,63 +294,63 @@ Return Value:
         goto ErrorCleanup;
     }
 
-    ElfDbgPrint(("Name = %ws\\%ws\n",Domain,AccountName));
+    ElfDbgPrint(("Name = %ws\\%ws\n", Domain, AccountName));
 
-    Result = GetTokenInformation ( Token, TokenStatistics, &Statistics, sizeof( Statistics ), &RequiredLength );
+    Result = GetTokenInformation(Token, TokenStatistics, &Statistics, sizeof(Statistics), &RequiredLength);
     if (!Result) {
-        ElfDbgPrint(("GetTokenInformation failed, error = %d\n",GetLastError()));
+        ElfDbgPrint(("GetTokenInformation failed, error = %d\n", GetLastError()));
         goto ErrorCleanup;
     }
 
-    swprintf(LogonIdString, L"(0x%X,0x%X)",Statistics.AuthenticationId.HighPart, Statistics.AuthenticationId.LowPart );
-    ElfDbgPrint(("LogonIdString = %ws\n",LogonIdString));
+    swprintf(LogonIdString, L"(0x%X,0x%X)", Statistics.AuthenticationId.HighPart, Statistics.AuthenticationId.LowPart);
+    ElfDbgPrint(("LogonIdString = %ws\n", LogonIdString));
 
     *AuthenticationId = ElfpAllocateBuffer(WCSSIZE(LogonIdString));
     if (*AuthenticationId == NULL) {
         ElfDbgPrint(("[ELF]GetUserInfo: Failed to allocate buffer "
-            "for AuthenticationId %d\n",GetLastError()));
+                     "for AuthenticationId %d\n", GetLastError()));
         goto ErrorCleanup;
     }
     wcscpy(*AuthenticationId, LogonIdString);
 
     // Return accumulated information
-    *UserSid = ElfpAllocateBuffer(GetLengthSid( Buffer->User.Sid ) );
+    *UserSid = ElfpAllocateBuffer(GetLengthSid(Buffer->User.Sid));
 
-    Result = CopySid( GetLengthSid( Buffer->User.Sid ), *UserSid, Buffer->User.Sid );
+    Result = CopySid(GetLengthSid(Buffer->User.Sid), *UserSid, Buffer->User.Sid);
     ElfpFreeBuffer(Buffer);
 
     *DomainName = Domain;
     *UserName = AccountName;
 
-    return( TRUE );
+    return(TRUE);
 
 ErrorCleanup:
 
     if (Buffer != NULL) {
-        ElfpFreeBuffer( Buffer );
+        ElfpFreeBuffer(Buffer);
     }
 
     if (Domain != NULL) {
-        ElfpFreeBuffer( Domain );
+        ElfpFreeBuffer(Domain);
     }
 
     if (AccountName != NULL) {
-        ElfpFreeBuffer( AccountName );
+        ElfpFreeBuffer(AccountName);
     }
 
     if (*UserSid != NULL) {
-        ElfpFreeBuffer( *UserSid );
+        ElfpFreeBuffer(*UserSid);
     }
 
     if (*AuthenticationId != NULL) {
-        ElfpFreeBuffer( *AuthenticationId );
+        ElfpFreeBuffer(*AuthenticationId);
     }
 
-    return( FALSE );
+    return(FALSE);
 }
 
 
-NTSTATUS ElfpGetComputerName (IN  LPSTR   *ComputerNamePtr)
+NTSTATUS ElfpGetComputerName(IN  LPSTR* ComputerNamePtr)
 /*++
 Routine Description:
     This routine obtains the computer name from a persistent database,
@@ -388,7 +388,7 @@ Return Value:
 }
 
 
-VOID w_GetComputerName ( )
+VOID w_GetComputerName()
 /*++
 Routine Description:
     This routine gets the name of the computer. It checks the global variable to see if the computer name has already been determined.
@@ -396,32 +396,32 @@ Routine Description:
     It does this for the UNICODE and the ANSI versions.
 --*/
 {
-    PUNICODE_STRING     pNameU=NULL;
-    PANSI_STRING        pNameA=NULL;
+    PUNICODE_STRING     pNameU = NULL;
+    PANSI_STRING        pNameA = NULL;
     LPSTR               pName;
     NTSTATUS            Error;
     NTSTATUS            Status;
 
-    if  (pGlobalComputerNameU != NULL) {
+    if (pGlobalComputerNameU != NULL) {
         return;
     }
-    pNameU = ElfpAllocateBuffer (sizeof (UNICODE_STRING));
-    pNameA = ElfpAllocateBuffer (sizeof (ANSI_STRING));
+    pNameU = ElfpAllocateBuffer(sizeof(UNICODE_STRING));
+    pNameA = ElfpAllocateBuffer(sizeof(ANSI_STRING));
 
     if ((pNameU != NULL) && (pNameA != NULL)) {
-        if ((Error = ElfpGetComputerName (&pName)) == ERROR_SUCCESS) {
+        if ((Error = ElfpGetComputerName(&pName)) == ERROR_SUCCESS) {
             // ElfpComputerName has allocated a buffer to contain the
             // ASCII name of the computer. We use that for the ANSI
             // string structure.
-            RtlInitAnsiString ( pNameA, pName );
+            RtlInitAnsiString(pNameA, pName);
         } else {
             // We could not get the computer name for some reason. Set up
             // the golbal pointer to point to the NULL string.
-            RtlInitAnsiString ( pNameA, "\0");
+            RtlInitAnsiString(pNameA, "\0");
         }
 
         // Set up the UNICODE_STRING structure.
-        Status = RtlAnsiStringToUnicodeString (pNameU, pNameA, TRUE);
+        Status = RtlAnsiStringToUnicodeString(pNameU, pNameA, TRUE);
 
         // If there was no error, set the global variables.
         // Otherwise, free the buffer allocated by ElfpGetComputerName and leave the global variables unchanged.
@@ -431,14 +431,14 @@ Routine Description:
         } else {
             ElfDbgPrint(("[ELFCLNT] GetComputerName - Error 0x%lx\n", Status));
             ElfpFreeBuffer(pName);
-            ElfpFreeBuffer (pNameU);        // Free the buffers
-            ElfpFreeBuffer (pNameA);
+            ElfpFreeBuffer(pNameU);        // Free the buffers
+            ElfpFreeBuffer(pNameA);
         }
     }
 }
 
 
-PUNICODE_STRING TmpGetComputerNameW ( )
+PUNICODE_STRING TmpGetComputerNameW()
 /*++
 Routine Description:
     This routine gets the UNICODE name of the computer. It checks the global variable to see if the computer name has already been determined.

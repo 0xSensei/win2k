@@ -56,40 +56,40 @@ typedef struct _REG_MONITOR_INFO {
     HANDLE      NotifyEventHandle;
     DWORD       Timeout;
     HANDLE      WorkItemHandle;
-} REG_MONITOR_INFO, *LPREG_MONITOR_INFO;
+} REG_MONITOR_INFO, * LPREG_MONITOR_INFO;
 
 
 // GLOBALS
 
-    REG_MONITOR_INFO    GlRegMonitorInfo;
+REG_MONITOR_INFO    GlRegMonitorInfo;
 
 
 // LOCAL FUNCTIONS
 
 VOID
-ElfRegistryMonitor (
+ElfRegistryMonitor(
     PVOID   pParms,
     BOOLEAN fWaitStatus
-    );
+);
 
 BOOL
 ElfSetupMonitor(
     LPREG_MONITOR_INFO  pMonitorInfo
-    );
+);
 
 
 
 
 VOID
-ProcessChange (
-        HANDLE          hLogFile,
-        PUNICODE_STRING ModuleName,
-        PUNICODE_STRING LogFileName,
-        ULONG           MaxSize,
-        ULONG           Retention,
-        ULONG           GuestAccessRestriction,
-        LOGPOPUP        logpLogPopup
-        )
+ProcessChange(
+    HANDLE          hLogFile,
+    PUNICODE_STRING ModuleName,
+    PUNICODE_STRING LogFileName,
+    ULONG           MaxSize,
+    ULONG           Retention,
+    ULONG           GuestAccessRestriction,
+    LOGPOPUP        logpLogPopup
+)
 
 /*++
 
@@ -121,7 +121,7 @@ Note:
     PVOID           FreeAddress;
 
 
-    pModule = GetModuleStruc (ModuleName);
+    pModule = GetModuleStruc(ModuleName);
 
 
     // If this module didn't exist, this was a brand new log file and
@@ -131,14 +131,14 @@ Note:
     if (pModule == ElfDefaultLogModule &&
         wcscmp(ModuleName->Buffer, ELF_DEFAULT_MODULE_NAME)) {
 
-            Status = SetUpDataStruct(LogFileName,
-                                     MaxSize,
-                                     Retention,
-                                     GuestAccessRestriction,
-                                     ModuleName,
-                                     hLogFile,
-                                     ElfNormalLog,
-                                     logpLogPopup);
+        Status = SetUpDataStruct(LogFileName,
+                                 MaxSize,
+                                 Retention,
+                                 GuestAccessRestriction,
+                                 ModuleName,
+                                 hLogFile,
+                                 ElfNormalLog,
+                                 logpLogPopup);
         return;
     }
 
@@ -161,11 +161,11 @@ Note:
         (pLogFile->BeginRecord == pLogFile->EndRecord)) {
 
         pFileNameString = ElfpAllocateBuffer(
-                        sizeof(UNICODE_STRING) +
-                        LogFileName->MaximumLength);
+            sizeof(UNICODE_STRING) +
+            LogFileName->MaximumLength);
 
         if (pFileNameString != NULL) {
-            FileName = (LPWSTR)(pFileNameString+1);
+            FileName = (LPWSTR)(pFileNameString + 1);
             wcscpy(FileName, LogFileName->Buffer);
             RtlInitUnicodeString(pFileNameString, FileName);
 
@@ -204,11 +204,10 @@ Note:
             original design.
         */
 
-        pLogFile->ConfigMaxFileSize    = ELFFILESIZE(MaxSize);
+        pLogFile->ConfigMaxFileSize = ELFFILESIZE(MaxSize);
         pLogFile->NextClearMaxFileSize = ELFFILESIZE(MaxSize);
 
-    }
-    else if (pLogFile->ConfigMaxFileSize > ELFFILESIZE(MaxSize)) {
+    } else if (pLogFile->ConfigMaxFileSize > ELFFILESIZE(MaxSize)) {
 
 
         // They're shrinking the size of the log file.
@@ -232,9 +231,9 @@ Note:
 
 
 VOID
-ProcessRegistryChanges (
-        VOID
-        )
+ProcessRegistryChanges(
+    VOID
+)
 
 /*++
 
@@ -259,7 +258,7 @@ Return Value:
     UNICODE_STRING        SubKeyName;
     ULONG                 Index = 0;
     BYTE                  Buffer[ELF_MAX_REG_KEY_INFO_SIZE];
-    PKEY_NODE_INFORMATION KeyBuffer = (PKEY_NODE_INFORMATION) Buffer;
+    PKEY_NODE_INFORMATION KeyBuffer = (PKEY_NODE_INFORMATION)Buffer;
     ULONG                 ActualSize;
     LOG_FILE_INFO         LogFileInfo;
     PWCHAR                SubKeyString;
@@ -274,12 +273,12 @@ Return Value:
     // using the existing configured information.
 
 
-    GetGlobalResource (ELF_GLOBAL_SHARED);
+    GetGlobalResource(ELF_GLOBAL_SHARED);
 
 #if DBG
     // See if the Debug flag changed
     RtlInitUnicodeString(&SubKeyName, VALUE_DEBUG);
-    NtQueryValueKey(hEventLogNode, &SubKeyName, KeyValueFullInformation, KeyBuffer, ELF_MAX_REG_KEY_INFO_SIZE, & ElfDebug);
+    NtQueryValueKey(hEventLogNode, &SubKeyName, KeyValueFullInformation, KeyBuffer, ELF_MAX_REG_KEY_INFO_SIZE, &ElfDebug);
 #endif  // DBG
 
 
@@ -289,7 +288,7 @@ Return Value:
     while (NT_SUCCESS(Status)) {
 
         Status = NtEnumerateKey(hEventLogNode, Index++, KeyNodeInformation,
-            KeyBuffer, ELF_MAX_REG_KEY_INFO_SIZE, & ActualSize);
+                                KeyBuffer, ELF_MAX_REG_KEY_INFO_SIZE, &ActualSize);
 
         if (NT_SUCCESS(Status)) {
 
@@ -299,7 +298,7 @@ Return Value:
 
 
             SubKeyString = ElfpAllocateBuffer(KeyBuffer->NameLength +
-                sizeof (WCHAR));
+                                              sizeof(WCHAR));
             if (!SubKeyString) {
 
 
@@ -311,7 +310,7 @@ Return Value:
             }
 
             memcpy(SubKeyString, KeyBuffer->Name, KeyBuffer->NameLength);
-            SubKeyString[KeyBuffer->NameLength / sizeof(WCHAR)] = L'\0' ;
+            SubKeyString[KeyBuffer->NameLength / sizeof(WCHAR)] = L'\0';
 
 
             // Open the node for this logfile and extract the information
@@ -355,7 +354,7 @@ Return Value:
                 // in ProcessChange
 
 
-                ProcessChange (
+                ProcessChange(
                     hLogFile,
                     &SubKeyName,
                     LogFileInfo.LogFileName,
@@ -363,7 +362,7 @@ Return Value:
                     LogFileInfo.Retention,
                     LogFileInfo.GuestAccessRestriction,
                     LogFileInfo.logpLogPopup
-                    );
+                );
 
 
                 // Free the buffer that was allocated in ReadRegistryInfo.
@@ -389,10 +388,10 @@ Return Value:
 
 
 VOID
-ElfRegistryMonitor (
+ElfRegistryMonitor(
     PVOID     pParms,
     BOOLEAN   fWaitStatus
-    )
+)
 
 /*++
 
@@ -417,7 +416,7 @@ Note:
 --*/
 {
     NTSTATUS            ntStatus;
-    LPREG_MONITOR_INFO  pMonitorInfo=(LPREG_MONITOR_INFO)pParms;
+    LPREG_MONITOR_INFO  pMonitorInfo = (LPREG_MONITOR_INFO)pParms;
 
     ElfDbgPrint(("[ELF] Inside registry monitor thread\n"));
 
@@ -447,7 +446,7 @@ Note:
 
         // Close the registry handle and registry event handle.
 
-        NtClose( hEventLogNode);
+        NtClose(hEventLogNode);
         CloseHandle(pMonitorInfo->NotifyEventHandle);
 
 
@@ -459,31 +458,30 @@ Note:
 
     if (fWaitStatus == TRUE) {
 
-       ElfDbgPrint(("[ELF] Timer popped, running queued list\n"));
+        ElfDbgPrint(("[ELF] Timer popped, running queued list\n"));
 
 
-       // Timer popped, try running the list
+        // Timer popped, try running the list
 
 
-       if (!IsListEmpty(&QueuedEventListHead)) {
+        if (!IsListEmpty(&QueuedEventListHead)) {
 
 
-           // There are things queued up to write, do it
+            // There are things queued up to write, do it
 
 
-           WriteQueuedEvents();
+            WriteQueuedEvents();
 
-       }
-
-
-       // Don't wait again
+        }
 
 
-       pMonitorInfo->Timeout = INFINITE;
-    }
-    else {
+        // Don't wait again
+
+
+        pMonitorInfo->Timeout = INFINITE;
+    } else {
         ElfDbgPrint(("[ELF] ElfRegistryMonitor - Notification\n"));
-        ProcessRegistryChanges ();
+        ProcessRegistryChanges();
     }
 
     if (!ElfSetupMonitor(pMonitorInfo)) {
@@ -501,7 +499,7 @@ Note:
 VOID
 InitNotify(
     PVOID   pData
-    )
+)
 
 /*++
 
@@ -517,9 +515,9 @@ Return Value:
 --*/
 {
     NTSTATUS            NtStatus = STATUS_SUCCESS;
-    DWORD               status   = NO_ERROR;
+    DWORD               status = NO_ERROR;
     DWORD               Buffer;
-    PVOID               pBuffer  = &Buffer;
+    PVOID               pBuffer = &Buffer;
     LPREG_MONITOR_INFO  pMonitorInfo;
 
     static IO_STATUS_BLOCK IoStatusBlock;
@@ -528,25 +526,25 @@ Return Value:
 
     pMonitorInfo = (LPREG_MONITOR_INFO)pData;
 
-    NtStatus = NtNotifyChangeKey (
-                    hEventLogNode,
-                    pMonitorInfo->NotifyEventHandle,
-                    NULL,
-                    NULL,
-                    &IoStatusBlock,
-                    REG_NOTIFY_CHANGE_LAST_SET |
-                    REG_NOTIFY_CHANGE_NAME,
-                    TRUE,
-                    pBuffer,
-                    1,
-                    TRUE      // return and wait on event
-                    );
+    NtStatus = NtNotifyChangeKey(
+        hEventLogNode,
+        pMonitorInfo->NotifyEventHandle,
+        NULL,
+        NULL,
+        &IoStatusBlock,
+        REG_NOTIFY_CHANGE_LAST_SET |
+        REG_NOTIFY_CHANGE_NAME,
+        TRUE,
+        pBuffer,
+        1,
+        TRUE      // return and wait on event
+    );
 
     if (!NT_SUCCESS(NtStatus)) {
         status = RtlNtStatusToDosError(NtStatus);
     }
 
-    ElfDbgPrint(("[ELF]NtNotifyChangeKey Status =  0x%lx\n",NtStatus));
+    ElfDbgPrint(("[ELF]NtNotifyChangeKey Status =  0x%lx\n", NtStatus));
     return;
 
 } // InitNotify
@@ -555,7 +553,7 @@ Return Value:
 BOOL
 ElfSetupMonitor(
     LPREG_MONITOR_INFO  pMonitorInfo
-    )
+)
 
 /*++
 
@@ -591,7 +589,7 @@ Return Value:
     Status = RtlQueueWorkItem(InitNotify,              // Callback
                               pMonitorInfo,            // pContext
                               WT_EXECUTEONLYONCE |
-                                WT_EXECUTEINPERSISTENTIOTHREAD);
+                              WT_EXECUTEINPERSISTENTIOTHREAD);
 
     if (!NT_SUCCESS(Status)) {
         ElfDbgPrint(("[ELF] Couldn't Initialize Registry Notify 0x%x\n", Status));
@@ -609,7 +607,7 @@ Return Value:
                              pMonitorInfo,                     // pContext
                              pMonitorInfo->Timeout,            // Timeout
                              WT_EXECUTEONLYONCE |
-                               WT_EXECUTEINPERSISTENTIOTHREAD);
+                             WT_EXECUTEINPERSISTENTIOTHREAD);
 
     if (!NT_SUCCESS(Status)) {
         ElfDbgPrint(("[ELF] Couldn't add Reg Monitor work item 0x%x\n", Status));
@@ -650,7 +648,7 @@ Note:
 --*/
 {
     NTSTATUS        Status;
-    HANDLE          hNotifyEvent=NULL;
+    HANDLE          hNotifyEvent = NULL;
 
     ElfDbgPrint(("[ELF] Starting registry monitor\n"));
 
@@ -663,8 +661,8 @@ Note:
     // Create an event to wait on
 
 
-    Status = NtCreateEvent (&hNotifyEvent, EVENT_ALL_ACCESS,
-        NULL, NotificationEvent, FALSE);
+    Status = NtCreateEvent(&hNotifyEvent, EVENT_ALL_ACCESS,
+                           NULL, NotificationEvent, FALSE);
 
     if (!NT_SUCCESS(Status)) {
         ElfDbgPrint(("[ELF]Couldn't create event for registry monitor"));
@@ -694,7 +692,7 @@ Note:
 
 
 VOID
-StopRegistryMonitor ()
+StopRegistryMonitor()
 
 /*++
 
@@ -717,12 +715,12 @@ Return Value:
 --*/
 
 {
-    ElfDbgPrint (("[ELF] Stopping registry monitor\n"));
+    ElfDbgPrint(("[ELF] Stopping registry monitor\n"));
 
 
     // Wake up the RegistryMonitorThread.
 
-    if (GlRegMonitorInfo.NotifyEventHandle != NULL ) {
+    if (GlRegMonitorInfo.NotifyEventHandle != NULL) {
         SetEvent(GlRegMonitorInfo.NotifyEventHandle);
     }
 
@@ -732,11 +730,11 @@ Return Value:
 
 
 NTSTATUS
-ReadRegistryInfo (
+ReadRegistryInfo(
     HANDLE          hLogFile,
     PUNICODE_STRING SubKeyName,
     PLOG_FILE_INFO  LogFileInfo
-    )
+)
 
 /*++
 
@@ -776,49 +774,45 @@ Return Value:
     BYTE            ExpandNameBuffer[EXPAND_BUFFER_SIZE];
     PUNICODE_STRING FileNameString;
     LPWSTR          FileName;
-    BOOL            ExpandedBufferWasAllocated=FALSE;
+    BOOL            ExpandedBufferWasAllocated = FALSE;
     PKEY_VALUE_FULL_INFORMATION ValueBuffer =
-        (PKEY_VALUE_FULL_INFORMATION) Buffer;
+        (PKEY_VALUE_FULL_INFORMATION)Buffer;
 
     ASSERT(hLogFile);
 
     // MaxSize
     RtlInitUnicodeString(&ValueName, VALUE_MAXSIZE);
-    Status = NtQueryValueKey(hLogFile, &ValueName, KeyValueFullInformation, ValueBuffer, ELF_MAX_REG_KEY_INFO_SIZE, & ActualSize);
+    Status = NtQueryValueKey(hLogFile, &ValueName, KeyValueFullInformation, ValueBuffer, ELF_MAX_REG_KEY_INFO_SIZE, &ActualSize);
     if (!NT_SUCCESS(Status)) {
         ElfDbgPrint(("[ELF] - Logfile %ws Maxsize doesn't exist\n", SubKeyName->Buffer));
         LogFileInfo->MaxFileSize = ELF_DEFAULT_MAX_FILE_SIZE;
         RegistryCorrupt = TRUE;
-    }
-    else {
+    } else {
         LogFileInfo->MaxFileSize = *((PULONG)(Buffer + ValueBuffer->DataOffset));
     }
 
 
     // Retention period
     RtlInitUnicodeString(&ValueName, VALUE_RETENTION);
-    Status = NtQueryValueKey(hLogFile, &ValueName, KeyValueFullInformation, ValueBuffer, ELF_MAX_REG_KEY_INFO_SIZE, & ActualSize);
+    Status = NtQueryValueKey(hLogFile, &ValueName, KeyValueFullInformation, ValueBuffer, ELF_MAX_REG_KEY_INFO_SIZE, &ActualSize);
     if (!NT_SUCCESS(Status)) {
         ElfDbgPrint(("[ELF] - Logfile %ws Retention doesn't exist\n", SubKeyName->Buffer));
         LogFileInfo->Retention = ELF_DEFAULT_RETENTION_PERIOD;
         RegistryCorrupt = TRUE;
-    }
-    else {
+    } else {
         LogFileInfo->Retention = *((PULONG)(Buffer + ValueBuffer->DataOffset));
     }
 
 
     // RestrictGuestAccess
     RtlInitUnicodeString(&ValueName, VALUE_RESTRICT_GUEST_ACCESS);
-    Status = NtQueryValueKey(hLogFile, &ValueName, KeyValueFullInformation, ValueBuffer, ELF_MAX_REG_KEY_INFO_SIZE, & ActualSize);
+    Status = NtQueryValueKey(hLogFile, &ValueName, KeyValueFullInformation, ValueBuffer, ELF_MAX_REG_KEY_INFO_SIZE, &ActualSize);
     if (!NT_SUCCESS(Status)) {
         LogFileInfo->GuestAccessRestriction = ELF_GUEST_ACCESS_UNRESTRICTED;
-    }
-    else {
+    } else {
         if (*((PULONG)(Buffer + ValueBuffer->DataOffset)) == 1) {
             LogFileInfo->GuestAccessRestriction = ELF_GUEST_ACCESS_RESTRICTED;
-        }
-        else {
+        } else {
             LogFileInfo->GuestAccessRestriction = ELF_GUEST_ACCESS_UNRESTRICTED;
         }
     }
@@ -826,12 +820,12 @@ Return Value:
 
     // Filename
     RtlInitUnicodeString(&ValueName, VALUE_FILENAME);
-    Status = NtQueryValueKey(hLogFile, &ValueName, KeyValueFullInformation, ValueBuffer, ELF_MAX_REG_KEY_INFO_SIZE, & ActualSize);
+    Status = NtQueryValueKey(hLogFile, &ValueName, KeyValueFullInformation, ValueBuffer, ELF_MAX_REG_KEY_INFO_SIZE, &ActualSize);
     if (!NT_SUCCESS(Status)) {
         // Allocate the buffer for the UNICODE_STRING for the filename and
         // initialize it. (41 = \Systemroot\system32\config\xxxxxxxx.evt)
         FileNameString = ElfpAllocateBuffer(41 * sizeof(WCHAR) +
-            sizeof(UNICODE_STRING));
+                                            sizeof(UNICODE_STRING));
         if (!FileNameString) {
             return(STATUS_NO_MEMORY);
         }
@@ -845,8 +839,7 @@ Return Value:
 
         RegistryCorrupt = TRUE;
 
-    }
-    else {
+    } else {
 
 
         // If it's a REG_EXPAND_SZ expand it
@@ -860,9 +853,9 @@ Return Value:
 
 
             UnexpandedName.MaximumLength = UnexpandedName.Length =
-                (USHORT) ValueBuffer->DataLength;
-            UnexpandedName.Buffer = (PWSTR) ((PBYTE) ValueBuffer +
-                ValueBuffer->DataOffset);
+                (USHORT)ValueBuffer->DataLength;
+            UnexpandedName.Buffer = (PWSTR)((PBYTE)ValueBuffer +
+                                            ValueBuffer->DataOffset);
 
 
             // Call the magic expand-o api
@@ -870,9 +863,9 @@ Return Value:
 
             ExpandedName.Length = ExpandedName.MaximumLength =
                 EXPAND_BUFFER_SIZE;
-            ExpandedName.Buffer = (LPWSTR) ExpandNameBuffer;
+            ExpandedName.Buffer = (LPWSTR)ExpandNameBuffer;
             Status = RtlExpandEnvironmentStrings_U(NULL, &UnexpandedName,
-                &ExpandedName, &NumberOfBytes);
+                                                   &ExpandedName, &NumberOfBytes);
 
             if (NumberOfBytes > EXPAND_BUFFER_SIZE) {
 
@@ -882,7 +875,7 @@ Return Value:
 
 
                 ExpandedName.Length = ExpandedName.MaximumLength =
-                    (USHORT) NumberOfBytes;
+                    (USHORT)NumberOfBytes;
                 ExpandedName.Buffer = ElfpAllocateBuffer(ExpandedName.Length);
                 if (!ExpandedName.Buffer) {
                     return(STATUS_NO_MEMORY);
@@ -890,7 +883,7 @@ Return Value:
                 ExpandedBufferWasAllocated = TRUE;
 
                 Status = RtlExpandEnvironmentStrings_U(NULL, &UnexpandedName,
-                    &ExpandedName, &NumberOfBytes);
+                                                       &ExpandedName, &NumberOfBytes);
             }
 
             if (!NT_SUCCESS(Status)) {
@@ -899,8 +892,7 @@ Return Value:
                 }
                 return(Status);
             }
-        }
-        else {
+        } else {
 
 
             // It doesn't need to be expanded, just set up the UNICODE_STRING
@@ -908,9 +900,9 @@ Return Value:
 
 
             ExpandedName.MaximumLength = ExpandedName.Length =
-                (USHORT) ValueBuffer->DataLength;
-            ExpandedName.Buffer = (PWSTR) ((PBYTE) ValueBuffer +
-                ValueBuffer->DataOffset);
+                (USHORT)ValueBuffer->DataLength;
+            ExpandedName.Buffer = (PWSTR)((PBYTE)ValueBuffer +
+                                          ValueBuffer->DataOffset);
         }
 
 
@@ -935,14 +927,14 @@ Return Value:
         // so that it can be free'd with a single call.
 
         FileNameString = ElfpAllocateBuffer(
-                            sizeof(UNICODE_STRING) +
-                            ((ValueName.Length + 1) * sizeof(WCHAR)));
+            sizeof(UNICODE_STRING) +
+            ((ValueName.Length + 1) * sizeof(WCHAR)));
 
         if (!FileNameString) {
             if (ExpandedBufferWasAllocated) {
                 ElfpFreeBuffer(ExpandedName.Buffer);
             }
-            RtlFreeHeap(RtlProcessHeap(),0,ValueName.Buffer);
+            RtlFreeHeap(RtlProcessHeap(), 0, ValueName.Buffer);
             return(STATUS_NO_MEMORY);
         }
 
@@ -952,13 +944,13 @@ Return Value:
 
         FileName = (LPWSTR)(FileNameString + 1);
         wcsncpy(FileName, ValueName.Buffer, ValueName.Length);
-        *(FileName+ValueName.Length) = L'\0';
+        *(FileName + ValueName.Length) = L'\0';
         RtlInitUnicodeString(FileNameString, FileName);
 
 
         // Free memory allocated by RtlDosPathNAmeToNtPathName.
 
-        RtlFreeHeap(RtlProcessHeap(),0,ValueName.Buffer);
+        RtlFreeHeap(RtlProcessHeap(), 0, ValueName.Buffer);
 
 
         // Clean up if I had to allocate a bigger buffer than the default
@@ -977,17 +969,14 @@ Return Value:
 
     // "Log full" popup policy -- never change the security log
 
-    if (_wcsicmp(SubKeyName->Buffer, ELF_SECURITY_MODULE_NAME) != 0)
-    {
+    if (_wcsicmp(SubKeyName->Buffer, ELF_SECURITY_MODULE_NAME) != 0) {
         RtlInitUnicodeString(&ValueName, VALUE_LOGPOPUP);
         Status = NtQueryValueKey(hLogFile, &ValueName, KeyValueFullInformation, ValueBuffer, ELF_MAX_REG_KEY_INFO_SIZE, &ActualSize);
-        if (NT_SUCCESS(Status))
-        {
+        if (NT_SUCCESS(Status)) {
             LOGPOPUP  logpRegValue = *(PULONG)(Buffer + ValueBuffer->DataOffset);
 
             // Only update the value if this constitutes a change in the current policy
-            if (LogFileInfo->logpLogPopup == LOGPOPUP_NEVER_SHOW || logpRegValue == LOGPOPUP_NEVER_SHOW)
-            {
+            if (LogFileInfo->logpLogPopup == LOGPOPUP_NEVER_SHOW || logpRegValue == LOGPOPUP_NEVER_SHOW) {
                 LogFileInfo->logpLogPopup = (logpRegValue == LOGPOPUP_NEVER_SHOW ? LOGPOPUP_NEVER_SHOW : LOGPOPUP_CLEARED);
             }
         }
@@ -999,7 +988,7 @@ Return Value:
 
     if (RegistryCorrupt) {
         ElfDbgPrintNC(("[ELF] Registry information for %ws invalid\n",
-            SubKeyName->Buffer));
+                       SubKeyName->Buffer));
     }
 
     return(STATUS_SUCCESS);

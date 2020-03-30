@@ -32,9 +32,9 @@ Revision History:
 
 
 PLOGMODULE
-FindModuleStrucFromAtom (
+FindModuleStrucFromAtom(
     ATOM Atom
-    )
+)
 
 /*++
 
@@ -60,28 +60,28 @@ Note:
 
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
 
-    ModuleStruc = CONTAINING_RECORD (
-                        LogModuleHead.Flink,
-                        LOGMODULE,
-                        ModuleList
-                        );
+    ModuleStruc = CONTAINING_RECORD(
+        LogModuleHead.Flink,
+        LOGMODULE,
+        ModuleList
+    );
 
     while ((ModuleStruc->ModuleList.Flink != &LogModuleHead)
-            &&
-            (ModuleStruc->ModuleAtom != Atom)) {
+           &&
+           (ModuleStruc->ModuleAtom != Atom)) {
 
-        ModuleStruc = CONTAINING_RECORD (
-                                ModuleStruc->ModuleList.Flink,
-                                LOGMODULE,
-                                ModuleList
-                                );
+        ModuleStruc = CONTAINING_RECORD(
+            ModuleStruc->ModuleList.Flink,
+            LOGMODULE,
+            ModuleList
+        );
     }
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
 
     return (ModuleStruc->ModuleAtom == Atom ? ModuleStruc : NULL);
 }
@@ -89,9 +89,9 @@ Note:
 
 
 PLOGMODULE
-GetModuleStruc (
+GetModuleStruc(
     PUNICODE_STRING ModuleName
-    )
+)
 
 /*++
 
@@ -121,11 +121,11 @@ Note:
 
     ElfDbgPrint(("[ELF] GetModuleStruc:  "));
 
-    Status = RtlUnicodeStringToAnsiString (
-                &ModuleNameA,
-                ModuleName,
-                TRUE
-                );
+    Status = RtlUnicodeStringToAnsiString(
+        &ModuleNameA,
+        ModuleName,
+        TRUE
+    );
 
     if (!NT_SUCCESS(Status)) {
 
@@ -144,9 +144,9 @@ Note:
 
     ElfDbgPrint((" Module: %Z  ", &ModuleNameA));
 
-    ModuleAtom = FindAtomA( ModuleNameA.Buffer );
+    ModuleAtom = FindAtomA(ModuleNameA.Buffer);
 
-    RtlFreeAnsiString (&ModuleNameA);
+    RtlFreeAnsiString(&ModuleNameA);
 
     if (ModuleAtom == (ATOM)0) {
 
@@ -157,7 +157,7 @@ Note:
 
     ElfDbgPrint((" Atom = %d \n", ModuleAtom));
 
-    pModule = FindModuleStrucFromAtom( ModuleAtom );
+    pModule = FindModuleStrucFromAtom(ModuleAtom);
 
     return (pModule != NULL ? pModule : ElfDefaultLogModule);
 }
@@ -165,9 +165,9 @@ Note:
 
 
 VOID
-UnlinkContextHandle (
+UnlinkContextHandle(
     IELF_HANDLE     LogHandle
-    )
+)
 
 /*++
 
@@ -193,24 +193,24 @@ Note:
 {
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
 
 
     // Remove this entry
 
-    RemoveEntryList (&LogHandle->Next);
+    RemoveEntryList(&LogHandle->Next);
 
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
 }
 
 
 VOID
-LinkContextHandle (
+LinkContextHandle(
     IELF_HANDLE    LogHandle
-    )
+)
 
 /*++
 
@@ -238,24 +238,24 @@ Note:
 
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
 
 
     // Place structure at the beginning of the list.
 
-    InsertHeadList (&LogHandleListHead, &LogHandle->Next);
+    InsertHeadList(&LogHandleListHead, &LogHandle->Next);
 
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
 }
 
 
 VOID
-UnlinkQueuedEvent (
+UnlinkQueuedEvent(
     PELF_QUEUED_EVENT QueuedEvent
-    )
+)
 
 /*++
 
@@ -281,25 +281,25 @@ Note:
 {
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
 
 
     // Remove this entry
 
-    RemoveEntryList (&QueuedEvent->Next);
+    RemoveEntryList(&QueuedEvent->Next);
 
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
 }
 
 
 
 VOID
-LinkQueuedEvent (
+LinkQueuedEvent(
     PELF_QUEUED_EVENT QueuedEvent
-    )
+)
 
 /*++
 
@@ -325,25 +325,25 @@ Note:
 {
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
 
 
     // Place structure at the beginning of the list.
 
-    InsertHeadList (&QueuedEventListHead, &QueuedEvent->Next);
+    InsertHeadList(&QueuedEventListHead, &QueuedEvent->Next);
 
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
 }
 
 
 DWORD
 WINAPI
-ElfpSendMessage (
+ElfpSendMessage(
     LPVOID UnUsed
-    )
+)
 
 /*++
 
@@ -368,30 +368,30 @@ Note:
 {
     PVOID MessageBuffer;
     HANDLE hLibrary;
-    LPWSTR * StringPointers;
+    LPWSTR* StringPointers;
     DWORD i;
     PELF_QUEUED_EVENT QueuedEvent;
     PELF_QUEUED_EVENT FlushEvent;
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
 
 
     // First get a handle to the message file used for the message text
 
 
-    hLibrary = LoadLibraryEx( L"NETMSG.DLL",
-                              NULL,
-                              LOAD_LIBRARY_AS_DATAFILE );
+    hLibrary = LoadLibraryEx(L"NETMSG.DLL",
+                             NULL,
+                             LOAD_LIBRARY_AS_DATAFILE);
 
 
     // Walk the linked list and process each element
 
 
-    QueuedEvent = CONTAINING_RECORD (
-                        QueuedMessageListHead.Flink,
-                        struct _ELF_QUEUED_EVENT,
-                        Next
-                        );
+    QueuedEvent = CONTAINING_RECORD(
+        QueuedMessageListHead.Flink,
+        struct _ELF_QUEUED_EVENT,
+        Next
+    );
 
     while (QueuedEvent->Next.Flink != QueuedMessageListHead.Flink) {
 
@@ -399,13 +399,13 @@ Note:
 
         // Unlock the linked list
 
-        RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
+        RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
 
 
         // Build the array of pointers to the insertion strings
 
 
-        StringPointers = (LPWSTR *) ElfpAllocateBuffer(
+        StringPointers = (LPWSTR*)ElfpAllocateBuffer(
             QueuedEvent->Event.Message.NumberOfStrings * sizeof(LPWSTR));
 
         if (StringPointers && hLibrary) {
@@ -416,13 +416,13 @@ Note:
 
             if (QueuedEvent->Event.Message.NumberOfStrings) {
                 StringPointers[0] = (LPWSTR)
-                    ((PBYTE) &QueuedEvent->Event.Message +
-                    sizeof(ELF_MESSAGE_RECORD));
+                    ((PBYTE)&QueuedEvent->Event.Message +
+                     sizeof(ELF_MESSAGE_RECORD));
 
                 for (i = 1; i < QueuedEvent->Event.Message.NumberOfStrings;
-                  i++) {
-                    StringPointers[i] = StringPointers[i-1] +
-                        wcslen(StringPointers[i-1]) + 1;
+                     i++) {
+                    StringPointers[i] = StringPointers[i - 1] +
+                        wcslen(StringPointers[i - 1]) + 1;
                 }
             }
 
@@ -436,22 +436,22 @@ Note:
                                hLibrary,
                                QueuedEvent->Event.Message.MessageId,
                                0, // Language ID defaulted
-                               (LPWSTR) &MessageBuffer,
+                               (LPWSTR)&MessageBuffer,
                                0, // Is this ignored if allocate_buffer?
-                               (va_list *) StringPointers)) {
+                               (va_list*)StringPointers)) {
 
 
                 // Now actually display it
 
 
-                MessageBoxW(NULL, (LPWSTR) MessageBuffer, GlobalMessageBoxTitle,
-                    MB_OK | MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_SERVICE_NOTIFICATION);
+                MessageBoxW(NULL, (LPWSTR)MessageBuffer, GlobalMessageBoxTitle,
+                            MB_OK | MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_SERVICE_NOTIFICATION);
             }
 
             ElfpFreeBuffer(StringPointers);
         }
 
-        RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
+        RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
 
 
         // Move to the next one, saving this one to delete it
@@ -459,18 +459,18 @@ Note:
 
         FlushEvent = QueuedEvent;
 
-        QueuedEvent = CONTAINING_RECORD (
-                                QueuedEvent->Next.Flink,
-                                struct _ELF_QUEUED_EVENT,
-                                Next
-                                );
+        QueuedEvent = CONTAINING_RECORD(
+            QueuedEvent->Next.Flink,
+            struct _ELF_QUEUED_EVENT,
+            Next
+        );
 
 
         // Now remove this from the queue and free it if we successfully
         // processed it
 
 
-        RemoveEntryList (&FlushEvent->Next);
+        RemoveEntryList(&FlushEvent->Next);
 
     }
 
@@ -480,16 +480,16 @@ Note:
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
 
     return(0);
 }
 
 
 VOID
-LinkQueuedMessage (
+LinkQueuedMessage(
     PELF_QUEUED_EVENT QueuedEvent
-    )
+)
 
 /*++
 
@@ -518,12 +518,12 @@ Note:
 
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
 
 
     // Place structure at the end of the list.
 
-    InsertTailList (&QueuedMessageListHead, &QueuedEvent->Next);
+    InsertTailList(&QueuedMessageListHead, &QueuedEvent->Next);
 
     if (!MBThreadHandle) {
 
@@ -541,14 +541,14 @@ Note:
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&QueuedMessageCritSec);
 }
 
 
 VOID
-NotifyChange (
+NotifyChange(
     PLOGFILE pLogFile
-    )
+)
 
 /*++
 
@@ -591,12 +591,12 @@ Note:
     // else is accessing the file.
 
 
-    RtlAcquireResourceExclusive (
-                    &pLogFile->Resource,
-                    TRUE);                  // Wait until available
+    RtlAcquireResourceExclusive(
+        &pLogFile->Resource,
+        TRUE);                  // Wait until available
 
 
-    // See if we've done this in the last MINIMUM_PULSE_TIME seconds
+// See if we've done this in the last MINIMUM_PULSE_TIME seconds
 
 
     Status = NtQuerySystemTime(&Time);
@@ -618,11 +618,11 @@ Note:
             // Walk the linked list and and pulse any events
 
 
-            Notifiee = CONTAINING_RECORD (
-                                pLogFile->Notifiees.Flink,
-                                struct _NOTIFIEE,
-                                Next
-                                );
+            Notifiee = CONTAINING_RECORD(
+                pLogFile->Notifiees.Flink,
+                struct _NOTIFIEE,
+                Next
+            );
 
 
             while (Notifiee->Next.Flink != pLogFile->Notifiees.Flink) {
@@ -631,12 +631,12 @@ Note:
                 // Pulse each event as we get to it.
 
 
-                NtPulseEvent(Notifiee->Event,NULL);
+                NtPulseEvent(Notifiee->Event, NULL);
 
-                Notifiee = CONTAINING_RECORD (
-                                        Notifiee->Next.Flink,
-                                        struct _NOTIFIEE,
-                                        Next);
+                Notifiee = CONTAINING_RECORD(
+                    Notifiee->Next.Flink,
+                    struct _NOTIFIEE,
+                    Next);
             }
         }
     }
@@ -645,13 +645,13 @@ Note:
     // Free the resource
 
 
-    RtlReleaseResource ( &pLogFile->Resource );
+    RtlReleaseResource(&pLogFile->Resource);
 }
 
 
 VOID
-WriteQueuedEvents (
-    )
+WriteQueuedEvents(
+)
 
 /*++
 
@@ -685,20 +685,20 @@ Note:
     // Lock the linked list, you must get the System Log File Resource
     // first, it is the higher level lock
 
-    RtlAcquireResourceExclusive (
-                    &ElfModule->LogFile->Resource,
-                    TRUE);                  // Wait until available
+    RtlAcquireResourceExclusive(
+        &ElfModule->LogFile->Resource,
+        TRUE);                  // Wait until available
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
 
 
     // Walk the linked list and process each element
 
 
-    QueuedEvent = CONTAINING_RECORD (
-                        QueuedEventListHead.Flink,
-                        struct _ELF_QUEUED_EVENT,
-                        Next);
+    QueuedEvent = CONTAINING_RECORD(
+        QueuedEventListHead.Flink,
+        struct _ELF_QUEUED_EVENT,
+        Next);
 
     while (QueuedEvent->Next.Flink != QueuedEventListHead.Flink) {
 
@@ -713,9 +713,8 @@ Note:
 
 
         if (QueuedEvent->Type == Event) {
-            PerformWriteRequest (&QueuedEvent->Event.Request);
-        }
-        else if (QueuedEvent->Type == Alert) {
+            PerformWriteRequest(&QueuedEvent->Event.Request);
+        } else if (QueuedEvent->Type == Alert) {
 
 
             // Don't even try to send failed alerts quicker than once a minute
@@ -730,9 +729,9 @@ Note:
 
                     !SendAdminAlert(QueuedEvent->Event.Alert.MessageId,
                                     QueuedEvent->Event.Alert.NumberOfStrings,
-                                    (PUNICODE_STRING)((PBYTE) QueuedEvent +
-                                        FIELD_OFFSET(ELF_QUEUED_EVENT, Event) +
-                                        sizeof(ELF_ALERT_RECORD)));
+                                    (PUNICODE_STRING)((PBYTE)QueuedEvent +
+                                                      FIELD_OFFSET(ELF_QUEUED_EVENT, Event) +
+                                                      sizeof(ELF_ALERT_RECORD)));
 
                 LastAlertTried = CurrentTime;
             }
@@ -756,10 +755,10 @@ Note:
 
         FlushEvent = QueuedEvent;
 
-        QueuedEvent = CONTAINING_RECORD (
-                                QueuedEvent->Next.Flink,
-                                struct _ELF_QUEUED_EVENT,
-                                Next);
+        QueuedEvent = CONTAINING_RECORD(
+            QueuedEvent->Next.Flink,
+            struct _ELF_QUEUED_EVENT,
+            Next);
 
 
         // Now remove this from the queue and free it if we successfully
@@ -774,15 +773,15 @@ Note:
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
-    RtlReleaseResource (&ElfModule->LogFile->Resource);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
+    RtlReleaseResource(&ElfModule->LogFile->Resource);
 }
 
 
 VOID
-FlushQueuedEvents (
+FlushQueuedEvents(
     VOID
-    )
+)
 
 /*++
 
@@ -811,16 +810,16 @@ Note:
 
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
 
 
     // Walk the linked list and and free the memory for any events
 
 
-    QueuedEvent = CONTAINING_RECORD (
-                        QueuedEventListHead.Flink,
-                        struct _ELF_QUEUED_EVENT,
-                        Next);
+    QueuedEvent = CONTAINING_RECORD(
+        QueuedEventListHead.Flink,
+        struct _ELF_QUEUED_EVENT,
+        Next);
 
 
     while (QueuedEvent->Next.Flink != QueuedEventListHead.Flink) {
@@ -831,25 +830,25 @@ Note:
 
         FlushEvent = QueuedEvent;
 
-        QueuedEvent = CONTAINING_RECORD (
-                                QueuedEvent->Next.Flink,
-                                struct _ELF_QUEUED_EVENT,
-                                Next
-                                );
+        QueuedEvent = CONTAINING_RECORD(
+            QueuedEvent->Next.Flink,
+            struct _ELF_QUEUED_EVENT,
+            Next
+        );
 
         ElfpFreeBuffer(FlushEvent);
     }
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&QueuedEventCritSec);
 }
 
 
 VOID
-UnlinkLogModule (
+UnlinkLogModule(
     PLOGMODULE LogModule
-    )
+)
 
 /*++
 
@@ -874,26 +873,26 @@ Note:
 {
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
 
 
     // Remove this entry
 
-    RemoveEntryList (&LogModule->ModuleList);
+    RemoveEntryList(&LogModule->ModuleList);
 
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
 }
 
 
 
 VOID
-LinkLogModule (
+LinkLogModule(
     PLOGMODULE    LogModule,
-    ANSI_STRING * pModuleNameA
-    )
+    ANSI_STRING* pModuleNameA
+)
 
 /*++
 
@@ -919,7 +918,7 @@ Note:
 {
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
 
 
     // Add the atom for this module.
@@ -928,19 +927,19 @@ Note:
 
     // Place structure at the beginning of the list.
 
-    InsertHeadList (&LogModuleHead, &LogModule->ModuleList);
+    InsertHeadList(&LogModuleHead, &LogModule->ModuleList);
 
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogModuleCritSec);
 }
 
 
 VOID
-UnlinkLogFile (
+UnlinkLogFile(
     PLOGFILE pLogFile
-    )
+)
 
 /*++
 
@@ -966,25 +965,25 @@ Note:
 {
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogFileCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogFileCritSec);
 
 
     // Remove this entry
 
-    RemoveEntryList (&pLogFile->FileList);
+    RemoveEntryList(&pLogFile->FileList);
 
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogFileCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogFileCritSec);
 }
 
 
 
 VOID
-LinkLogFile (
+LinkLogFile(
     PLOGFILE   pLogFile
-    )
+)
 
 /*++
 
@@ -1010,25 +1009,25 @@ Note:
 {
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogFileCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogFileCritSec);
 
 
     // Place structure at the beginning of the list.
 
-    InsertHeadList (&LogFilesHead, &pLogFile->FileList);
+    InsertHeadList(&LogFilesHead, &pLogFile->FileList);
 
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogFileCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogFileCritSec);
 }
 
 
 
 VOID
-GetGlobalResource (
+GetGlobalResource(
     DWORD Type
-    )
+)
 
 /*++
 
@@ -1056,24 +1055,24 @@ Note:
     if (Type & ELF_GLOBAL_SHARED) {
 
         Acquired = RtlAcquireResourceShared(
-                        &GlobalElfResource,
-                        TRUE);                  // Wait forever
+            &GlobalElfResource,
+            TRUE);                  // Wait forever
 
     } else {    // Assume EXCLUSIVE
 
         Acquired = RtlAcquireResourceExclusive(
-                        &GlobalElfResource,
-                        TRUE);                  // Wait forever
+            &GlobalElfResource,
+            TRUE);                  // Wait forever
     }
 
-    ASSERT (Acquired);      // This must always be TRUE.
+    ASSERT(Acquired);      // This must always be TRUE.
 }
 
 
 VOID
 ReleaseGlobalResource(
     VOID
-    )
+)
 
 /*++
 
@@ -1094,14 +1093,14 @@ Note:
 
 --*/
 {
-    RtlReleaseResource ( &GlobalElfResource );
+    RtlReleaseResource(&GlobalElfResource);
 }
 
 
 VOID
-InvalidateContextHandlesForLogFile (
+InvalidateContextHandlesForLogFile(
     PLOGFILE    pLogFile
-    )
+)
 
 /*++
 
@@ -1129,22 +1128,22 @@ Note:
 
     // Lock the context handle list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
 
 
     // Walk the linked list and mark any matching context handles as
     // invalid.
 
 
-    LogHandle = CONTAINING_RECORD (
-                        LogHandleListHead.Flink,
-                        struct _IELF_HANDLE,
-                        Next);
+    LogHandle = CONTAINING_RECORD(
+        LogHandleListHead.Flink,
+        struct _IELF_HANDLE,
+        Next);
 
 
     while (LogHandle->Next.Flink != LogHandleListHead.Flink) {
 
-        pLogModule = FindModuleStrucFromAtom (LogHandle->Atom);
+        pLogModule = FindModuleStrucFromAtom(LogHandle->Atom);
 
         ASSERT(pLogModule);
 
@@ -1152,24 +1151,24 @@ Note:
             LogHandle->Flags |= ELF_LOG_HANDLE_INVALID_FOR_READ;
         }
 
-        LogHandle = CONTAINING_RECORD (
-                                LogHandle->Next.Flink,
-                                struct _IELF_HANDLE,
-                                Next);
+        LogHandle = CONTAINING_RECORD(
+            LogHandle->Next.Flink,
+            struct _IELF_HANDLE,
+            Next);
     }
 
 
     // Unlock the context handle list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
 }
 
 
 VOID
-FixContextHandlesForRecord (
+FixContextHandlesForRecord(
     DWORD RecordOffset,
     DWORD NewRecordOffset
-    )
+)
 
 /*++
 
@@ -1201,42 +1200,42 @@ Note:
     // Lock the context handle list
 
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
 
 
     // Walk the linked list and fix any matching context handles
 
 
-    LogHandle = CONTAINING_RECORD (
-                        LogHandleListHead.Flink,
-                        struct _IELF_HANDLE,
-                        Next);
+    LogHandle = CONTAINING_RECORD(
+        LogHandleListHead.Flink,
+        struct _IELF_HANDLE,
+        Next);
 
 
     while (LogHandle->Next.Flink != LogHandleListHead.Flink) {
 
         if (LogHandle->SeekBytePos == RecordOffset) {
-           LogHandle->SeekBytePos = NewRecordOffset;
+            LogHandle->SeekBytePos = NewRecordOffset;
         }
 
-        LogHandle = CONTAINING_RECORD (
-                                LogHandle->Next.Flink,
-                                struct _IELF_HANDLE,
-                                Next);
+        LogHandle = CONTAINING_RECORD(
+            LogHandle->Next.Flink,
+            struct _IELF_HANDLE,
+            Next);
     }
 
 
     // Unlock the context handle list
 
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogHandleCritSec);
 }
 
 
 PLOGFILE
-FindLogFileFromName (
+FindLogFileFromName(
     PUNICODE_STRING pFileName
-    )
+)
 
 /*++
 
@@ -1262,27 +1261,27 @@ Note:
 
     // Lock the linked list
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogFileCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogFileCritSec);
 
     pLogFile = CONTAINING_RECORD(
-                        LogFilesHead.Flink,
-                        LOGFILE,
-                        FileList);
+        LogFilesHead.Flink,
+        LOGFILE,
+        FileList);
 
     while (pLogFile->FileList.Flink != LogFilesHead.Flink) {
 
-        if (wcscmp (pLogFile->LogFileName->Buffer, pFileName->Buffer) == 0)
+        if (wcscmp(pLogFile->LogFileName->Buffer, pFileName->Buffer) == 0)
             break;
 
         pLogFile = CONTAINING_RECORD(
-                        pLogFile->FileList.Flink,
-                        LOGFILE,
-                        FileList);
+            pLogFile->FileList.Flink,
+            LOGFILE,
+            FileList);
     }
 
     // Unlock the linked list
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogFileCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogFileCritSec);
 
     return (pLogFile->FileList.Flink == LogFilesHead.Flink ? NULL : pLogFile);
 }
@@ -1294,11 +1293,11 @@ ElfpCreateElfEvent(
     IN USHORT EventType,
     IN USHORT EventCategory,
     IN USHORT NumStrings,
-    IN LPWSTR * Strings,
+    IN LPWSTR* Strings,
     IN LPVOID Data,
     IN ULONG  DataSize,
     IN USHORT Flags
-    )
+)
 
 /*++
 
@@ -1348,18 +1347,18 @@ Note:
 
     NtQuerySystemTime(&Time);
     RtlTimeToSecondsSince1970(
-                        &Time,
-                        &LogTimeWritten);
+        &Time,
+        &LogTimeWritten);
 
 
     // Figure out how big a buffer to allocate
 
 
-    ModuleNameLen = (wcslen(ELF_MODULE_NAME) + 1) * sizeof (WCHAR);
+    ModuleNameLen = (wcslen(ELF_MODULE_NAME) + 1) * sizeof(WCHAR);
 
     StringOffset = sizeof(EVENTLOGRECORD)
-                     + ModuleNameLen
-                     + ComputerNameLength;
+        + ModuleNameLen
+        + ComputerNameLength;
 
 
     // Calculate the length of strings so that we can see how
@@ -1381,14 +1380,14 @@ Note:
 
 
     RecordLength = sizeof(ELF_QUEUED_EVENT)
-                     + sizeof(WRITE_PKT)
-                     + DataOffset
-                     + DataSize
-                     + sizeof(RecordLength); // Size excluding pad bytes
+        + sizeof(WRITE_PKT)
+        + DataOffset
+        + DataSize
+        + sizeof(RecordLength); // Size excluding pad bytes
 
 
-    // Determine how many pad bytes are needed to align to a DWORD
-    // boundary.
+// Determine how many pad bytes are needed to align to a DWORD
+// boundary.
 
 
     PadSize = sizeof(ULONG) - (RecordLength % sizeof(ULONG));
@@ -1399,9 +1398,9 @@ Note:
     // Allocate the buffer for the Eventlog record
 
 
-    QueuedEvent = (PELF_QUEUED_EVENT) ElfpAllocateBuffer(RecordLength);
+    QueuedEvent = (PELF_QUEUED_EVENT)ElfpAllocateBuffer(RecordLength);
 
-    WritePkt = (PWRITE_PKT) (QueuedEvent + 1);
+    WritePkt = (PWRITE_PKT)(QueuedEvent + 1);
 
     if (QueuedEvent != NULL) {
 
@@ -1410,24 +1409,24 @@ Note:
 
 
 
-        RecordLength  -= (sizeof(ELF_QUEUED_EVENT) + sizeof(WRITE_PKT));
-        EventLogRecord = (PEVENTLOGRECORD) (WritePkt + 1);
+        RecordLength -= (sizeof(ELF_QUEUED_EVENT) + sizeof(WRITE_PKT));
+        EventLogRecord = (PEVENTLOGRECORD)(WritePkt + 1);
 
-        EventLogRecord->Length              = RecordLength;
-        EventLogRecord->TimeGenerated       = LogTimeWritten;
-        EventLogRecord->Reserved            = ELF_LOG_FILE_SIGNATURE;
-        EventLogRecord->TimeWritten         = LogTimeWritten;
-        EventLogRecord->EventID             = EventId;
-        EventLogRecord->EventType           = EventType;
-        EventLogRecord->EventCategory       = EventCategory;
-        EventLogRecord->ReservedFlags       = 0;
+        EventLogRecord->Length = RecordLength;
+        EventLogRecord->TimeGenerated = LogTimeWritten;
+        EventLogRecord->Reserved = ELF_LOG_FILE_SIGNATURE;
+        EventLogRecord->TimeWritten = LogTimeWritten;
+        EventLogRecord->EventID = EventId;
+        EventLogRecord->EventType = EventType;
+        EventLogRecord->EventCategory = EventCategory;
+        EventLogRecord->ReservedFlags = 0;
         EventLogRecord->ClosingRecordNumber = 0;
-        EventLogRecord->NumStrings          = NumStrings;
-        EventLogRecord->StringOffset        = StringOffset;
-        EventLogRecord->DataLength          = DataSize;
-        EventLogRecord->DataOffset          = DataOffset;
-        EventLogRecord->UserSidLength       = 0;
-        EventLogRecord->UserSidOffset       = StringOffset;
+        EventLogRecord->NumStrings = NumStrings;
+        EventLogRecord->StringOffset = StringOffset;
+        EventLogRecord->DataLength = DataSize;
+        EventLogRecord->DataOffset = DataOffset;
+        EventLogRecord->UserSidLength = 0;
+        EventLogRecord->UserSidOffset = StringOffset;
 
 
         // Fill in the variable-length fields
@@ -1437,11 +1436,11 @@ Note:
         // STRINGS
 
 
-        ReplaceStrings = (PWSTR) ((PBYTE) EventLogRecord
-                                  + StringOffset);
+        ReplaceStrings = (PWSTR)((PBYTE)EventLogRecord
+                                 + StringOffset);
 
         for (i = 0; i < NumStrings; i++) {
-            wcscpy (ReplaceStrings, Strings[i]);
+            wcscpy(ReplaceStrings, Strings[i]);
             ReplaceStrings += wcslen(Strings[i]) + 1;
         }
 
@@ -1449,10 +1448,10 @@ Note:
         // MODULENAME
 
 
-        BinaryData = (PBYTE) EventLogRecord + sizeof(EVENTLOGRECORD);
-        RtlMoveMemory (BinaryData,
-                       ELF_MODULE_NAME,
-                       ModuleNameLen);
+        BinaryData = (PBYTE)EventLogRecord + sizeof(EVENTLOGRECORD);
+        RtlMoveMemory(BinaryData,
+                      ELF_MODULE_NAME,
+                      ModuleNameLen);
 
 
         // COMPUTERNAME
@@ -1460,23 +1459,23 @@ Note:
 
         BinaryData += ModuleNameLen; // Now point to computername
 
-        RtlMoveMemory (BinaryData,
-                       LocalComputerName,
-                       ComputerNameLength);
+        RtlMoveMemory(BinaryData,
+                      LocalComputerName,
+                      ComputerNameLength);
 
 
         // BINARY DATA
 
 
-        BinaryData = (PBYTE) ((PBYTE) EventLogRecord + DataOffset);
-        RtlMoveMemory (BinaryData, Data, DataSize);
+        BinaryData = (PBYTE)((PBYTE)EventLogRecord + DataOffset);
+        RtlMoveMemory(BinaryData, Data, DataSize);
 
 
         // PAD  - Fill with zeros
 
 
         BinaryData += DataSize;
-        RtlMoveMemory (BinaryData, &zero, PadSize);
+        RtlMoveMemory(BinaryData, &zero, PadSize);
 
 
         // LENGTH at end of record
@@ -1491,12 +1490,12 @@ Note:
 
         QueuedEvent->Type = Event;
 
-        QueuedEvent->Event.Request.Pkt.WritePkt           = WritePkt;
-        QueuedEvent->Event.Request.Module                 = ElfModule;
-        QueuedEvent->Event.Request.Flags                  = Flags;
-        QueuedEvent->Event.Request.LogFile                = ElfModule->LogFile;
-        QueuedEvent->Event.Request.Command                = ELF_COMMAND_WRITE;
-        QueuedEvent->Event.Request.Pkt.WritePkt->Buffer   = EventLogRecord;
+        QueuedEvent->Event.Request.Pkt.WritePkt = WritePkt;
+        QueuedEvent->Event.Request.Module = ElfModule;
+        QueuedEvent->Event.Request.Flags = Flags;
+        QueuedEvent->Event.Request.LogFile = ElfModule->LogFile;
+        QueuedEvent->Event.Request.Command = ELF_COMMAND_WRITE;
+        QueuedEvent->Event.Request.Pkt.WritePkt->Buffer = EventLogRecord;
         QueuedEvent->Event.Request.Pkt.WritePkt->Datasize = RecordLength;
 
 
@@ -1513,7 +1512,7 @@ ElfpCreateQueuedAlert(
     DWORD MessageId,
     DWORD NumberOfStrings,
     LPWSTR Strings[]
-    )
+)
 {
     DWORD i;
     DWORD RecordLength;
@@ -1529,7 +1528,7 @@ ElfpCreateQueuedAlert(
     // big to make the buffer to allocate
 
 
-    RecordLength   = sizeof(UNICODE_STRING) * NumberOfStrings;
+    RecordLength = sizeof(UNICODE_STRING) * NumberOfStrings;
     UnicodeStrings = ElfpAllocateBuffer(RecordLength);
 
     if (!UnicodeStrings) {
@@ -1537,7 +1536,7 @@ ElfpCreateQueuedAlert(
     }
 
     RecordLength += FIELD_OFFSET(ELF_QUEUED_EVENT, Event) +
-                      sizeof(ELF_ALERT_RECORD);
+        sizeof(ELF_ALERT_RECORD);
 
     for (i = 0; i < NumberOfStrings; i++) {
 
@@ -1559,7 +1558,7 @@ ElfpCreateQueuedAlert(
 
     QueuedEvent->Type = Alert;
 
-    QueuedEvent->Event.Alert.MessageId       = MessageId;
+    QueuedEvent->Event.Alert.MessageId = MessageId;
     QueuedEvent->Event.Alert.NumberOfStrings = NumberOfStrings;
 
 
@@ -1575,25 +1574,25 @@ ElfpCreateQueuedAlert(
     // point UnicodeStrings at it.  Then fix up the Buffer pointers.
 
 
-    ptr = (PBYTE) QueuedEvent + FIELD_OFFSET(ELF_QUEUED_EVENT, Event) +
-              sizeof(ELF_ALERT_RECORD);
+    ptr = (PBYTE)QueuedEvent + FIELD_OFFSET(ELF_QUEUED_EVENT, Event) +
+        sizeof(ELF_ALERT_RECORD);
 
     RtlCopyMemory(ptr,
                   UnicodeStrings,
                   sizeof(UNICODE_STRING) * NumberOfStrings);
 
     ElfpFreeBuffer(UnicodeStrings);
-    UnicodeStrings = (PUNICODE_STRING) ptr;
+    UnicodeStrings = (PUNICODE_STRING)ptr;
 
-    pString = (LPWSTR) (ptr + sizeof(UNICODE_STRING) * NumberOfStrings);
+    pString = (LPWSTR)(ptr + sizeof(UNICODE_STRING) * NumberOfStrings);
 
     for (i = 0; i < NumberOfStrings; i++) {
 
         RtlMoveMemory(pString, UnicodeStrings[i].Buffer,
-            UnicodeStrings[i].MaximumLength);
+                      UnicodeStrings[i].MaximumLength);
         UnicodeStrings[i].Buffer = pString;
         pString =
-            (LPWSTR) ((PBYTE) pString + UnicodeStrings[i].MaximumLength);
+            (LPWSTR)((PBYTE)pString + UnicodeStrings[i].MaximumLength);
     }
 
     LinkQueuedEvent(QueuedEvent);
@@ -1605,7 +1604,7 @@ ElfpCreateQueuedMessage(
     DWORD MessageId,
     DWORD NumberOfStrings,
     LPWSTR Strings[]
-    )
+)
 {
     DWORD i;
     DWORD RecordLength = 0;
@@ -1635,20 +1634,20 @@ ElfpCreateQueuedMessage(
 
     QueuedEvent->Type = Message;
 
-    QueuedEvent->Event.Message.MessageId       = MessageId;
+    QueuedEvent->Event.Message.MessageId = MessageId;
     QueuedEvent->Event.Message.NumberOfStrings = NumberOfStrings;
 
 
     // Move the array of UNICODE strings into the queued event
 
 
-    pString = (LPWSTR) ((PBYTE) QueuedEvent +
-                  FIELD_OFFSET(ELF_QUEUED_EVENT, Event) +
-                  sizeof(ELF_MESSAGE_RECORD));
+    pString = (LPWSTR)((PBYTE)QueuedEvent +
+                       FIELD_OFFSET(ELF_QUEUED_EVENT, Event) +
+                       sizeof(ELF_MESSAGE_RECORD));
 
     for (i = 0; i < NumberOfStrings; i++) {
-       wcscpy(pString, Strings[i]);
-       pString += wcslen(Strings[i]) + 1;
+        wcscpy(pString, Strings[i]);
+        pString += wcslen(Strings[i]) + 1;
     }
 
     LinkQueuedMessage(QueuedEvent);

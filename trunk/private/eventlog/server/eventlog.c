@@ -59,12 +59,12 @@ ULONG   g_PreviousInterval = DEFAULT_INTERVAL;
 VOID
 ElfInitMessageBoxTitle(
     VOID
-    );
+);
 
 
 
 NTSTATUS
-SetUpDataStruct (
+SetUpDataStruct(
     PUNICODE_STRING     LogFileName,
     ULONG               MaxFileSize,
     ULONG               Retention,
@@ -117,24 +117,23 @@ Note:
 --*/
 {
     NTSTATUS        Status = STATUS_SUCCESS;
-    PLOGFILE        pLogFile=NULL;
-    PLOGMODULE      pModule=NULL;
+    PLOGFILE        pLogFile = NULL;
+    PLOGMODULE      pModule = NULL;
     ANSI_STRING     ModuleNameA;
     DWORD           Type;
-    BOOL            bLogFileAllocatedHere=FALSE;
-    PUNICODE_STRING SavedBackupFileName=NULL;
+    BOOL            bLogFileAllocatedHere = FALSE;
+    PUNICODE_STRING SavedBackupFileName = NULL;
     DWORD           StringLength;
-    PLOGMODULE      OldDefaultLogModule=NULL;
+    PLOGMODULE      OldDefaultLogModule = NULL;
     DWORD           Progress = 0L;
 
 
     // Argument check.
 
 
-    if ((LogFileName == NULL)         ||
+    if ((LogFileName == NULL) ||
         (LogFileName->Buffer == NULL) ||
-        (ModuleName == NULL))
-    {
+        (ModuleName == NULL)) {
         return(STATUS_INVALID_PARAMETER);
     }
 
@@ -146,9 +145,9 @@ Note:
     // This is to allow for page granularity.
 
 
-    pLogFile = FindLogFileFromName (LogFileName);
+    pLogFile = FindLogFileFromName(LogFileName);
 
-    pModule  = ElfpAllocateBuffer (sizeof (LOGMODULE) );
+    pModule = ElfpAllocateBuffer(sizeof(LOGMODULE));
     if (pModule == NULL) {
         return(STATUS_NO_MEMORY);
     }
@@ -164,10 +163,10 @@ Note:
 
         bLogFileAllocatedHere = TRUE;
 
-        pLogFile = ElfpAllocateBuffer (sizeof (LOGFILE) );
+        pLogFile = ElfpAllocateBuffer(sizeof(LOGFILE));
 
         if (pLogFile == NULL) {
-            ElfpFreeBuffer (pModule);
+            ElfpFreeBuffer(pModule);
             return(STATUS_NO_MEMORY);
         }
 
@@ -178,7 +177,7 @@ Note:
         // new pLogFile structure.
 
         StringLength = LogFileName->Length + sizeof(WCHAR);
-        SavedBackupFileName = (PUNICODE_STRING) ElfpAllocateBuffer(
+        SavedBackupFileName = (PUNICODE_STRING)ElfpAllocateBuffer(
             sizeof(UNICODE_STRING) + StringLength);
 
         if (SavedBackupFileName == NULL) {
@@ -186,26 +185,26 @@ Note:
             goto ErrorExit;
         }
 
-        SavedBackupFileName->Buffer = (LPWSTR)((LPBYTE) SavedBackupFileName +
-            sizeof(UNICODE_STRING));
+        SavedBackupFileName->Buffer = (LPWSTR)((LPBYTE)SavedBackupFileName +
+                                               sizeof(UNICODE_STRING));
 
         SavedBackupFileName->Length = LogFileName->Length;
-        SavedBackupFileName->MaximumLength = (USHORT) StringLength;
+        SavedBackupFileName->MaximumLength = (USHORT)StringLength;
         RtlMoveMemory(SavedBackupFileName->Buffer, LogFileName->Buffer,
-            LogFileName->Length);
+                      LogFileName->Length);
         SavedBackupFileName->Buffer[SavedBackupFileName->Length / sizeof(WCHAR)] =
             L'\0';
 
 
         // This is the first user - RefCount gets incrememted below
 
-        pLogFile->RefCount          = 0;
-        pLogFile->FileHandle        = NULL;
-        pLogFile->LogFileName       = SavedBackupFileName;
+        pLogFile->RefCount = 0;
+        pLogFile->FileHandle = NULL;
+        pLogFile->LogFileName = SavedBackupFileName;
         pLogFile->ConfigMaxFileSize = ELFFILESIZE(MaxFileSize);
-        pLogFile->Retention         = Retention;
-        pLogFile->ulLastPulseTime   = 0;
-        pLogFile->logpLogPopup      = logpLogPopup;
+        pLogFile->Retention = Retention;
+        pLogFile->ulLastPulseTime = 0;
+        pLogFile->logpLogPopup = logpLogPopup;
 
 
         // Save away the default module name for this file
@@ -223,13 +222,13 @@ Note:
             (LPWSTR)(pLogFile->LogModuleName + 1);
         RtlCopyUnicodeString(pLogFile->LogModuleName, ModuleName);
 
-        InitializeListHead (&pLogFile->Notifiees);
+        InitializeListHead(&pLogFile->Notifiees);
 
 
         pLogFile->NextClearMaxFileSize = pLogFile->ConfigMaxFileSize;
 
-        RtlInitializeResource ( &pLogFile->Resource );
-        LinkLogFile ( pLogFile );   // Link it in
+        RtlInitializeResource(&pLogFile->Resource);
+        LinkLogFile(pLogFile);   // Link it in
 
         Progress |= LOGFILE_LINKED;
 
@@ -244,13 +243,13 @@ Note:
 
     pLogFile->RefCount++;
     pModule->LogFile = pLogFile;
-    pModule->ModuleName = (LPWSTR) ModuleName->Buffer;
+    pModule->ModuleName = (LPWSTR)ModuleName->Buffer;
 
-    Status = RtlUnicodeStringToAnsiString (
-                    &ModuleNameA,
-                    ModuleName,
-                    TRUE
-                    );
+    Status = RtlUnicodeStringToAnsiString(
+        &ModuleNameA,
+        ModuleName,
+        TRUE
+    );
 
     if (!NT_SUCCESS(Status)) {
         pLogFile->RefCount--;
@@ -263,7 +262,7 @@ Note:
 
     LinkLogModule(pModule, &ModuleNameA);
 
-    RtlFreeAnsiString (&ModuleNameA);
+    RtlFreeAnsiString(&ModuleNameA);
 
     Progress |= MODULE_LINKED;
 
@@ -272,34 +271,28 @@ Note:
     // caller so we can use UNC names
 
 
-    if (LogType == ElfBackupLog)
-    {
+    if (LogType == ElfBackupLog) {
         Status = RpcImpersonateClient(NULL);
 
-        if (Status == RPC_S_OK)
-        {
-            Status = ElfOpenLogFile (pLogFile, LogType);
+        if (Status == RPC_S_OK) {
+            Status = ElfOpenLogFile(pLogFile, LogType);
             RpcRevertToSelf();
-        }
-        else
-        {
+        } else {
             ElfDbgPrint(("[ELF] SetupDataStruct: Failed to impersonate "
-                             "client %08lx\n", Status));
+                         "client %08lx\n", Status));
         }
-    }
-    else
-    {
-        Status = ElfOpenLogFile (pLogFile, LogType);
+    } else {
+        Status = ElfOpenLogFile(pLogFile, LogType);
     }
 
     if (!NT_SUCCESS(Status)) {
 
         ElfDbgPrintNC(("[ELF] Couldn't open %ws for module %ws\n",
-            LogFileName->Buffer, ModuleName->Buffer));
+                       LogFileName->Buffer, ModuleName->Buffer));
 
         if (LogType != ElfBackupLog) {
             ElfpCreateQueuedAlert(ALERT_ELF_LogFileNotOpened, 1,
-                &(ModuleName->Buffer));
+                                  &(ModuleName->Buffer));
         }
         pLogFile->RefCount--;
         goto ErrorExit;
@@ -327,12 +320,10 @@ Note:
 
     if (!_wcsicmp(ModuleName->Buffer, ELF_SYSTEM_MODULE_NAME)) {
         Type = ELF_LOGFILE_SYSTEM;
-    }
-    else if (!_wcsicmp(ModuleName->Buffer, ELF_SECURITY_MODULE_NAME)) {
-        Type                   = ELF_LOGFILE_SECURITY;
+    } else if (!_wcsicmp(ModuleName->Buffer, ELF_SECURITY_MODULE_NAME)) {
+        Type = ELF_LOGFILE_SECURITY;
         pLogFile->logpLogPopup = LOGPOPUP_NEVER_SHOW;
-    }
-    else {
+    } else {
         Type = ELF_LOGFILE_APPLICATION;
     }
 
@@ -344,7 +335,7 @@ Note:
     Status = ElfpCreateLogFileObject(pLogFile, Type, GuestAccessRestriction);
     if (!NT_SUCCESS(Status)) {
         ElfDbgPrintNC(("[ELF] Could not create the security "
-            "descriptor for logfile %ws\n", ModuleName->Buffer));
+                       "descriptor for logfile %ws\n", ModuleName->Buffer));
 
         pLogFile->RefCount--;
         goto ErrorExit;
@@ -375,7 +366,7 @@ ErrorExit:
 
         if (Progress & LOGFILE_LINKED) {
             UnlinkLogFile(pLogFile);
-            RtlDeleteResource (&pLogFile->Resource);
+            RtlDeleteResource(&pLogFile->Resource);
         }
 
         ElfpFreeBuffer(pLogFile->LogModuleName);
@@ -393,7 +384,7 @@ ErrorExit:
 
 
 NTSTATUS
-SetUpModules (
+SetUpModules(
     HANDLE              hLogFile,
     PLOGFILE            pLogFile,
     BOOLEAN             bAllowDupes
@@ -443,7 +434,7 @@ Note:
 {
     NTSTATUS    Status = STATUS_SUCCESS;
     BYTE        Buffer[ELF_MAX_REG_KEY_INFO_SIZE];
-    PKEY_NODE_INFORMATION KeyBuffer = (PKEY_NODE_INFORMATION) Buffer;
+    PKEY_NODE_INFORMATION KeyBuffer = (PKEY_NODE_INFORMATION)Buffer;
     ULONG       ActualSize;
     PWCHAR      SubKeyString;
     UNICODE_STRING NewModule;
@@ -469,7 +460,7 @@ Note:
     while (NT_SUCCESS(Status) && hLogFile) {
 
         Status = NtEnumerateKey(hLogFile, Index++, KeyNodeInformation,
-            KeyBuffer, ELF_MAX_REG_KEY_INFO_SIZE, & ActualSize);
+                                KeyBuffer, ELF_MAX_REG_KEY_INFO_SIZE, &ActualSize);
 
         if (NT_SUCCESS(Status)) {
 
@@ -479,13 +470,13 @@ Note:
 
 
             SubKeyString = ElfpAllocateBuffer(KeyBuffer->NameLength +
-                sizeof(WCHAR));
+                                              sizeof(WCHAR));
             if (!SubKeyString) {
                 return(STATUS_NO_MEMORY);
             }
 
             memcpy(SubKeyString, KeyBuffer->Name, KeyBuffer->NameLength);
-            SubKeyString[KeyBuffer->NameLength / sizeof(WCHAR)] = L'\0' ;
+            SubKeyString[KeyBuffer->NameLength / sizeof(WCHAR)] = L'\0';
 
 
             // Add the atom for this module name
@@ -493,11 +484,11 @@ Note:
 
             RtlInitUnicodeString(&NewModule, SubKeyString);
 
-            Status = RtlUnicodeStringToAnsiString (
-                            &ModuleNameA,
-                            &NewModule,
-                            TRUE
-                            );
+            Status = RtlUnicodeStringToAnsiString(
+                &ModuleNameA,
+                &NewModule,
+                TRUE
+            );
 
             if (!NT_SUCCESS(Status)) {
 
@@ -509,7 +500,7 @@ Note:
                 break;
             }
 
-            Atom = FindAtomA (ModuleNameA.Buffer);
+            Atom = FindAtomA(ModuleNameA.Buffer);
 
 
             // Make sure we've not already added one by this name
@@ -525,21 +516,21 @@ Note:
 
 
                 ElfDbgPrint(("[ELF] Same module exists in two log files - "
-                                 "%ws.  This is%sOK\n",
+                             "%ws.  This is%sOK\n",
                              SubKeyString,
                              bAllowDupes ? " " : " NOT "));
 
-                RtlFreeAnsiString (&ModuleNameA);
+                RtlFreeAnsiString(&ModuleNameA);
                 ElfpFreeBuffer(SubKeyString);
                 continue;
             }
 
             ListChanged = TRUE;
 
-            pModule  = ElfpAllocateBuffer (sizeof (LOGMODULE) );
+            pModule = ElfpAllocateBuffer(sizeof(LOGMODULE));
 
             if (!pModule) {
-                RtlFreeAnsiString (&ModuleNameA);
+                RtlFreeAnsiString(&ModuleNameA);
                 ElfpFreeBuffer(SubKeyString);
                 return(STATUS_NO_MEMORY);
             }
@@ -557,7 +548,7 @@ Note:
 
             LinkLogModule(pModule, &ModuleNameA);
 
-            RtlFreeAnsiString (&ModuleNameA);
+            RtlFreeAnsiString(&ModuleNameA);
         }
     }
 
@@ -588,7 +579,7 @@ Note:
         pListEntry = LogModuleHead.Flink;
         while (pListEntry != &LogModuleHead) {
 
-            pModule = CONTAINING_RECORD (pListEntry, LOGMODULE, ModuleList);
+            pModule = CONTAINING_RECORD(pListEntry, LOGMODULE, ModuleList);
 
             if (pModule->LogFile == pLogFile) {
 
@@ -621,11 +612,11 @@ Note:
 
             while (pListEntry != &LogModuleHead) {
 
-                pModule = CONTAINING_RECORD (
-                                        pListEntry,
-                                        LOGMODULE,
-                                        ModuleList
-                                        );
+                pModule = CONTAINING_RECORD(
+                    pListEntry,
+                    LOGMODULE,
+                    ModuleList
+                );
 
                 if (pModule->LogFile == pLogFile) {
 
@@ -653,7 +644,7 @@ Note:
                                    REG_MULTI_SZ,
                                    SubKeyString,
                                    ListLength + sizeof(WCHAR)
-                                   );
+            );
 
             ElfpFreeBuffer(SubKeyString);
         }
@@ -665,9 +656,9 @@ Note:
 
 
 NTSTATUS
-ElfSetUpConfigDataStructs (
-        VOID
-    )
+ElfSetUpConfigDataStructs(
+    VOID
+)
 
 /*
 
@@ -699,7 +690,7 @@ Note:
     UNICODE_STRING EventlogModuleName;
     ULONG Index = 0;
     BYTE Buffer[ELF_MAX_REG_KEY_INFO_SIZE];
-    PKEY_NODE_INFORMATION KeyBuffer = (PKEY_NODE_INFORMATION) Buffer;
+    PKEY_NODE_INFORMATION KeyBuffer = (PKEY_NODE_INFORMATION)Buffer;
     ULONG ActualSize;
     LOG_FILE_INFO LogFileInfo;
     PWCHAR SubKeyString;
@@ -712,7 +703,7 @@ Note:
     // module structures possible, i.e. ELF_MAX_LOG_MODULES.
 
 
-    if (! (InitAtomTable ( ELF_MAX_LOG_MODULES ))) {
+    if (!(InitAtomTable(ELF_MAX_LOG_MODULES))) {
         return (STATUS_UNSUCCESSFUL);
     }
 
@@ -730,7 +721,7 @@ Note:
         while (NT_SUCCESS(Status)) {
 
             Status = NtEnumerateKey(hEventLogNode, Index++, KeyNodeInformation,
-                KeyBuffer, ELF_MAX_REG_KEY_INFO_SIZE, & ActualSize);
+                                    KeyBuffer, ELF_MAX_REG_KEY_INFO_SIZE, &ActualSize);
 
             if (NT_SUCCESS(Status)) {
 
@@ -740,13 +731,13 @@ Note:
 
 
                 SubKeyString = ElfpAllocateBuffer(KeyBuffer->NameLength +
-                    sizeof(WCHAR));
+                                                  sizeof(WCHAR));
                 if (!SubKeyString) {
                     return(STATUS_NO_MEMORY);
                 }
 
                 memcpy(SubKeyString, KeyBuffer->Name, KeyBuffer->NameLength);
-                SubKeyString[KeyBuffer->NameLength / sizeof(WCHAR)] = L'\0' ;
+                SubKeyString[KeyBuffer->NameLength / sizeof(WCHAR)] = L'\0';
 
 
                 // Open the node for this logfile and extract the information
@@ -776,7 +767,7 @@ Note:
 
 
                 LogFileInfo.logpLogPopup = IS_WORKSTATION() ? LOGPOPUP_NEVER_SHOW :
-                                                              LOGPOPUP_CLEARED;
+                    LOGPOPUP_CLEARED;
 
                 Status = ReadRegistryInfo(hLogFile,
                                           &SubKeyName,
@@ -817,7 +808,7 @@ Note:
 
 
         pLogFileName = ElfpAllocateBuffer(sizeof(UNICODE_STRING));
-        pModuleName =  ElfpAllocateBuffer(sizeof(UNICODE_STRING));
+        pModuleName = ElfpAllocateBuffer(sizeof(UNICODE_STRING));
 
         if (!pLogFileName || !pModuleName) {
             return(STATUS_NO_MEMORY);
@@ -827,7 +818,7 @@ Note:
         // Application log
 
         RtlInitUnicodeString(pLogFileName, ELF_APPLICATION_DEFAULT_LOG_FILE);
-        RtlInitUnicodeString(pModuleName,  ELF_DEFAULT_MODULE_NAME);
+        RtlInitUnicodeString(pModuleName, ELF_DEFAULT_MODULE_NAME);
 
         SetUpDataStruct(pLogFileName,
                         ELF_DEFAULT_MAX_FILE_SIZE,
@@ -840,7 +831,7 @@ Note:
 
 
         pLogFileName = ElfpAllocateBuffer(sizeof(UNICODE_STRING));
-        pModuleName =  ElfpAllocateBuffer(sizeof(UNICODE_STRING));
+        pModuleName = ElfpAllocateBuffer(sizeof(UNICODE_STRING));
 
         if (!pLogFileName || !pModuleName) {
             return(STATUS_NO_MEMORY);
@@ -850,7 +841,7 @@ Note:
         // System log
 
         RtlInitUnicodeString(pLogFileName, ELF_SYSTEM_DEFAULT_LOG_FILE);
-        RtlInitUnicodeString(pModuleName,  ELF_SYSTEM_MODULE_NAME);
+        RtlInitUnicodeString(pModuleName, ELF_SYSTEM_MODULE_NAME);
 
         SetUpDataStruct(pLogFileName,
                         ELF_DEFAULT_MAX_FILE_SIZE,
@@ -862,7 +853,7 @@ Note:
                         logpLogPopup);
 
         pLogFileName = ElfpAllocateBuffer(sizeof(UNICODE_STRING));
-        pModuleName  = ElfpAllocateBuffer(sizeof(UNICODE_STRING));
+        pModuleName = ElfpAllocateBuffer(sizeof(UNICODE_STRING));
 
         if (!pLogFileName || !pModuleName) {
             return(STATUS_NO_MEMORY);
@@ -872,7 +863,7 @@ Note:
         // Security log
 
         RtlInitUnicodeString(pLogFileName, ELF_SECURITY_DEFAULT_LOG_FILE);
-        RtlInitUnicodeString(pModuleName,  ELF_SECURITY_MODULE_NAME);
+        RtlInitUnicodeString(pModuleName, ELF_SECURITY_MODULE_NAME);
 
         SetUpDataStruct(pLogFileName,
                         ELF_DEFAULT_MAX_FILE_SIZE,
@@ -904,7 +895,7 @@ Note:
         if (!ElfDefaultLogModule) {
 
             ElfDbgPrintNC(("[ELF] No Logfile entry for Application module, "
-                "default will be created\n"));
+                           "default will be created\n"));
 
             if (IsListEmpty(&LogModuleHead)) {
 
@@ -921,7 +912,7 @@ Note:
             ModuleName = ELF_DEFAULT_MODULE_NAME;
 
             ElfpCreateQueuedAlert(ALERT_ELF_DefaultLogCorrupt, 1,
-                &(ElfDefaultLogModule->LogFile->LogModuleName->Buffer));
+                                  &(ElfDefaultLogModule->LogFile->LogModuleName->Buffer));
         }
 
 
@@ -937,12 +928,11 @@ Note:
 
         if (pLogFileName && pModuleName) {
             ElfDbgPrintNC(("[ELF] Failure Setting up data structs for file %ws, "
-                "Module %ws - %X\n", pLogFileName->Buffer, pModuleName->Buffer,
-                Status));
-        }
-        else {
+                           "Module %ws - %X\n", pLogFileName->Buffer, pModuleName->Buffer,
+                           Status));
+        } else {
             ElfDbgPrintNC(("[ELF] Failure setting up data structs.  No logs"
-                " defined in registry\n"));
+                           " defined in registry\n"));
         }
     }
 
@@ -954,7 +944,7 @@ VOID
 ElfWriteTimeStamp(
     TIMESTAMPEVENT  EventType,
     BOOLEAN         CheckPreviousStamp
-    )
+)
 /*
 
 Routine Description:
@@ -999,9 +989,9 @@ Note:
         // Delete the time stamp registry value, this is how we indicate a clean shutdown
 
 
-        RegDeleteValue (hKey, REGSTR_VAL_LASTALIVESTAMP);
-        RegFlushKey (hKey);
-        RegCloseKey (hKey);
+        RegDeleteValue(hKey, REGSTR_VAL_LASTALIVESTAMP);
+        RegFlushKey(hKey);
+        RegCloseKey(hKey);
         return;
     }
 
@@ -1011,15 +1001,15 @@ Note:
 
     GetSystemTime(&stCurrentUTCTime);
 
-    if (CheckPreviousStamp)   {
+    if (CheckPreviousStamp) {
 
-        ValueSize = sizeof (SYSTEMTIME);
+        ValueSize = sizeof(SYSTEMTIME);
 
         rc = RegQueryValueEx(hKey,
                              REGSTR_VAL_LASTALIVESTAMP,
                              0,
                              NULL,
-                             (PUCHAR) &stPreviousUTCTime,
+                             (PUCHAR)&stPreviousUTCTime,
                              &ValueSize);
 
 
@@ -1034,14 +1024,12 @@ Note:
 
 
 
-        if ( (rc == ERROR_SUCCESS) && (ValueSize == sizeof(SYSTEMTIME)) )
-        {
+        if ((rc == ERROR_SUCCESS) && (ValueSize == sizeof(SYSTEMTIME))) {
             SYSTEMTIME  lpData[2];          // Data for the event
 
             if (!SystemTimeToTzSpecificLocalTime(NULL,
                                                  &stPreviousUTCTime,
-                                                 &stPreviousLocalTime))
-            {
+                                                 &stPreviousLocalTime)) {
 
                 // Couldn't convert to the active time zone -- use UTC
 
@@ -1064,10 +1052,9 @@ Note:
                                    NULL,
                                    0);
 
-            DateTimeBuffer[0] = LocalAlloc (LPTR, wchars * sizeof(WCHAR));
+            DateTimeBuffer[0] = LocalAlloc(LPTR, wchars * sizeof(WCHAR));
 
-            if (DateTimeBuffer[0])
-            {
+            if (DateTimeBuffer[0]) {
                 GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
                               0,
                               &stPreviousLocalTime,
@@ -1082,10 +1069,9 @@ Note:
                                        NULL,
                                        0);
 
-                DateTimeBuffer[1] = LocalAlloc (LPTR, wchars * sizeof(WCHAR));
+                DateTimeBuffer[1] = LocalAlloc(LPTR, wchars * sizeof(WCHAR));
 
-                if (DateTimeBuffer[1])
-                {
+                if (DateTimeBuffer[1]) {
                     GetDateFormat(LOCALE_SYSTEM_DEFAULT,
                                   0,
                                   &stPreviousLocalTime,
@@ -1103,23 +1089,23 @@ Note:
                         2 * sizeof(SYSTEMTIME),   // Datalength
                         0);                       // flags
 
-                    LocalFree (DateTimeBuffer[1]);
+                    LocalFree(DateTimeBuffer[1]);
                 }
 
-                LocalFree (DateTimeBuffer[0]);
+                LocalFree(DateTimeBuffer[0]);
             }
         }
     }
 
 
     // Set the current time stamp
-    RegSetValueEx(hKey, REGSTR_VAL_LASTALIVESTAMP, 0, REG_BINARY, (PUCHAR) &stCurrentUTCTime, sizeof(SYSTEMTIME));
-    RegFlushKey (hKey);
-    RegCloseKey (hKey);
+    RegSetValueEx(hKey, REGSTR_VAL_LASTALIVESTAMP, 0, REG_BINARY, (PUCHAR)&stCurrentUTCTime, sizeof(SYSTEMTIME));
+    RegFlushKey(hKey);
+    RegCloseKey(hKey);
 }
 
 
-VOID ElfWriteProductInfoEvent (VOID)
+VOID ElfWriteProductInfoEvent(VOID)
 /*
 Routine Description:
     This function writes an event #6009 which includes the OS version, build #, service pack level, MP/UP, and Free/Checked.
@@ -1132,22 +1118,21 @@ Note:
 {
 #define NUM_INFO_VALUES     4
     HKEY    hKey;
-    LPWSTR  StringBuffers[NUM_INFO_VALUES] = { NULL, NULL, NULL, NULL };
-    LPWSTR  lpValues[NUM_INFO_VALUES]      = {
+    LPWSTR  StringBuffers[NUM_INFO_VALUES] = {NULL, NULL, NULL, NULL};
+    LPWSTR  lpValues[NUM_INFO_VALUES] = {
                                                REGSTR_VAL_CURRENT_VERSION,
                                                REGSTR_VAL_CURRENT_BUILD,
                                                REGSTR_VAL_CURRENT_CSDVERSION,
                                                REGSTR_VAL_CURRENT_TYPE
-                                             };
+    };
 
-    ULONG   ValueSize  = 0;
+    ULONG   ValueSize = 0;
     LPWSTR  NullString = L"";
 
     UINT    i;
 
     // Open HKLM\Software\Microsoft\Windows NT\CurrentVersion
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_NT_CURRENTVERSION, 0, KEY_ALL_ACCESS, &hKey) != ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_NT_CURRENTVERSION, 0, KEY_ALL_ACCESS, &hKey) != ERROR_SUCCESS) {
         return;
     }
 
@@ -1157,16 +1142,14 @@ Note:
 
 
     for (i = 0; i < NUM_INFO_VALUES; i++) {
-        if ((RegQueryValueEx (hKey, lpValues[i], 0, NULL, NULL, &ValueSize) == ERROR_SUCCESS) && ValueSize != 0)
-        {
-            StringBuffers[i] = LocalAlloc (LPTR, ValueSize);
+        if ((RegQueryValueEx(hKey, lpValues[i], 0, NULL, NULL, &ValueSize) == ERROR_SUCCESS) && ValueSize != 0) {
+            StringBuffers[i] = LocalAlloc(LPTR, ValueSize);
 
             if (StringBuffers[i] != NULL) {
-                RegQueryValueEx(hKey, lpValues[i], 0, NULL, (PUCHAR) StringBuffers[i], &ValueSize);
+                RegQueryValueEx(hKey, lpValues[i], 0, NULL, (PUCHAR)StringBuffers[i], &ValueSize);
                 ValueSize = 0;
             }
-        }
-        else {
+        } else {
             StringBuffers[i] = NullString;
         }
     }
@@ -1184,11 +1167,11 @@ Note:
     for (i = 0; i < NUM_INFO_VALUES; i++) {
 
         if (StringBuffers[i] != NullString) {
-            LocalFree (StringBuffers[i]);
+            LocalFree(StringBuffers[i]);
         }
     }
 
-    RegCloseKey (hKey);
+    RegCloseKey(hKey);
 
 #undef NUM_INFO_VALUES
 
@@ -1199,7 +1182,7 @@ VOID
 TimeStampProc(
     PVOID   Interval,
     BOOLEAN fWaitStatus
-    )
+)
 {
     NTSTATUS ntStatus;
     HANDLE   hWaitHandle;
@@ -1238,24 +1221,24 @@ TimeStampProc(
     //  The event timed out -- write a timestamp
 
 
-    ElfWriteTimeStamp (EVENT_AbNormalShutdown, FALSE);
+    ElfWriteTimeStamp(EVENT_AbNormalShutdown, FALSE);
 
 
     // recheck the time stamp interval value
 
 
     rc = RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_RELIABILITY, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
-    if ( rc == ERROR_SUCCESS ) {
-        ValueSize = sizeof (ULONG);
-        rc = RegQueryValueEx(hKey, REGSTR_VAL_LASTALIVEINTERVAL, 0, NULL, (PUCHAR) &NewInterval, &ValueSize);
-        if ( rc != ERROR_SUCCESS ) {
+    if (rc == ERROR_SUCCESS) {
+        ValueSize = sizeof(ULONG);
+        rc = RegQueryValueEx(hKey, REGSTR_VAL_LASTALIVEINTERVAL, 0, NULL, (PUCHAR)&NewInterval, &ValueSize);
+        if (rc != ERROR_SUCCESS) {
 
             // Couldn't get the value -- stop timestamping
 
             return;
         }
 
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
     }
 
     if (NewInterval != 0) {
@@ -1267,7 +1250,7 @@ TimeStampProc(
         ntStatus = RtlRegisterWait(&g_hTimestampWorkitem,
                                    g_hTimestampEvent,
                                    TimeStampProc,           // Callback
-                                   (PVOID) NewInterval,     // Context
+                                   (PVOID)NewInterval,     // Context
                                    NewInterval * 60 * 1000, // Timeout, in ms
                                    WT_EXECUTEONLYONCE);
     }
@@ -1282,11 +1265,11 @@ TimeStampProc(
 
 VOID
 SvcEntry_Eventlog(       // (ELF_main)
-    DWORD               argc,
-    LPWSTR              argv[],
-    PSVCS_GLOBAL_DATA   SvcsGlobalData,
-    HANDLE              SvcRefHandle
-    )
+                  DWORD               argc,
+                  LPWSTR              argv[],
+                  PSVCS_GLOBAL_DATA   SvcsGlobalData,
+                  HANDLE              SvcRefHandle
+)
 
 /*
 
@@ -1322,7 +1305,7 @@ Note:
 #endif  // DBG
 
     PKEY_VALUE_FULL_INFORMATION ValueBuffer =
-        (PKEY_VALUE_FULL_INFORMATION) Buffer;
+        (PKEY_VALUE_FULL_INFORMATION)Buffer;
 
     SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 
@@ -1333,16 +1316,16 @@ Note:
     UNREFERENCED_PARAMETER(argv);
 
     ElfGlobalSvcRefHandle = SvcRefHandle;
-    ElfGlobalData         = SvcsGlobalData;
+    ElfGlobalData = SvcsGlobalData;
 
 
     // Initialize the list heads for the modules and log files.
 
 
-    InitializeListHead ( &LogFilesHead );
-    InitializeListHead ( &LogModuleHead );
-    InitializeListHead ( &QueuedEventListHead );
-    InitializeListHead ( &QueuedMessageListHead );
+    InitializeListHead(&LogFilesHead);
+    InitializeListHead(&LogModuleHead);
+    InitializeListHead(&QueuedEventListHead);
+    InitializeListHead(&QueuedMessageListHead);
 
 
     // Initialize to 0 so that we can clean up before exiting
@@ -1358,11 +1341,11 @@ Note:
     ComputerNameLength = 0;
     GetComputerNameW(LocalComputerName, &ComputerNameLength);
     ComputerNameLength += sizeof(WCHAR); // account for the NULL
-    LocalComputerName = ElfpAllocateBuffer(ComputerNameLength * sizeof (WCHAR));
+    LocalComputerName = ElfpAllocateBuffer(ComputerNameLength * sizeof(WCHAR));
 
     if (!LocalComputerName ||
         !GetComputerNameW(LocalComputerName, &ComputerNameLength)) {
-       ComputerNameLength = 0;
+        ComputerNameLength = 0;
     }
 
     ComputerNameLength = (ComputerNameLength + 1) * sizeof(WCHAR);
@@ -1381,7 +1364,7 @@ Note:
         Win32Error = GetLastError();
 
         // If we got an error, we need to set status to uninstalled, and end the thread.
-        ElfDbgPrintNC(("[ELF] RegisterServiceCtrlHandler = %d\n",Win32Error));
+        ElfDbgPrintNC(("[ELF] RegisterServiceCtrlHandler = %d\n", Win32Error));
         goto cleanupandexit;
     }
 
@@ -1415,15 +1398,15 @@ Note:
     // Initialize a critical section for use when adding or removing
     // LogFiles or LogModules. This must be done before we process any file information.
     Status = RtlInitializeCriticalSection(&LogFileCritSec);
-    if ( !NT_SUCCESS(Status) ) {
-        ElfDbgPrintNC(( "ELF log file crit sec init failed: %X\n", Status ));
+    if (!NT_SUCCESS(Status)) {
+        ElfDbgPrintNC(("ELF log file crit sec init failed: %X\n", Status));
         goto cleanupandexit;
 
     }
 
     Status = RtlInitializeCriticalSection(&LogModuleCritSec);
-    if ( !NT_SUCCESS(Status) ) {
-        ElfDbgPrintNC(( "ELF log file crit sec init failed: %X\n", Status ));
+    if (!NT_SUCCESS(Status)) {
+        ElfDbgPrintNC(("ELF log file crit sec init failed: %X\n", Status));
         goto cleanupandexit;
     }
 
@@ -1431,8 +1414,8 @@ Note:
 
     Status = RtlInitializeCriticalSection(&QueuedEventCritSec);
 
-    if ( !NT_SUCCESS(Status) ) {
-        ElfDbgPrintNC(( "ELF queued event crit sec init failed: %X\n", Status ));
+    if (!NT_SUCCESS(Status)) {
+        ElfDbgPrintNC(("ELF queued event crit sec init failed: %X\n", Status));
         goto cleanupandexit;
     }
 
@@ -1440,8 +1423,8 @@ Note:
 
     Status = RtlInitializeCriticalSection(&QueuedMessageCritSec);
 
-    if ( !NT_SUCCESS(Status) ) {
-        ElfDbgPrintNC(( "ELF queued message crit sec init failed: %X\n", Status ));
+    if (!NT_SUCCESS(Status)) {
+        ElfDbgPrintNC(("ELF queued message crit sec init failed: %X\n", Status));
         goto cleanupandexit;
 
     }
@@ -1453,14 +1436,14 @@ Note:
 
 
     Status = RtlAllocateAndInitializeSid(
-                &NtAuthority,
-                1,
-                SECURITY_ANONYMOUS_LOGON_RID,
-                0, 0, 0, 0, 0, 0, 0,
-                &AnonymousLogonSid);
+        &NtAuthority,
+        1,
+        SECURITY_ANONYMOUS_LOGON_RID,
+        0, 0, 0, 0, 0, 0, 0,
+        &AnonymousLogonSid);
 
-    if ( !NT_SUCCESS(Status) ) {
-        ElfDbgPrintNC(("ELF anonymous log sid creation failed: %X\n", Status ));
+    if (!NT_SUCCESS(Status)) {
+        ElfDbgPrintNC(("ELF anonymous log sid creation failed: %X\n", Status));
         goto cleanupandexit;
     }
 
@@ -1468,9 +1451,9 @@ Note:
     // Set up the data structures for the Logfiles and Modules.
 
 
-    Status = ElfSetUpConfigDataStructs ();
+    Status = ElfSetUpConfigDataStructs();
 
-    if ( !NT_SUCCESS(Status) ) {
+    if (!NT_SUCCESS(Status)) {
         goto cleanupandexit;
     }
 
@@ -1487,8 +1470,8 @@ Note:
 
     Status = RtlInitializeCriticalSection(&LogHandleCritSec);
 
-    if ( !NT_SUCCESS(Status) ) {
-        ElfDbgPrintNC(( "ELF log handle crit sec init failed: %X\n", Status ));
+    if (!NT_SUCCESS(Status)) {
+        ElfDbgPrintNC(("ELF log handle crit sec init failed: %X\n", Status));
         goto cleanupandexit;
     }
 
@@ -1498,20 +1481,20 @@ Note:
     // Initialize the context handle (log handle) list.
 
 
-    InitializeListHead( &LogHandleListHead );
+    InitializeListHead(&LogHandleListHead);
 
 
     // Initialize the Global Resource.
 
 
-    RtlInitializeResource ( &GlobalElfResource );
+    RtlInitializeResource(&GlobalElfResource);
     EventFlags |= ELF_INIT_GLOBAL_RESOURCE;
 
     //Initialize a CritSec for clustering support
     Status = RtlInitializeCriticalSection(&gClPropCritSec);
 
-    if ( !NT_SUCCESS(Status) ) {
-        ElfDbgPrintNC(( "ELF cluster event crit sec init failed: %X\n", Status ));
+    if (!NT_SUCCESS(Status)) {
+        ElfDbgPrintNC(("ELF cluster event crit sec init failed: %X\n", Status));
         goto cleanupandexit;
     }
 
@@ -1526,7 +1509,7 @@ Note:
     // Create a thread for watching the LPC port.
 
 
-    if (!StartLPCThread ()) {
+    if (!StartLPCThread()) {
         Status = STATUS_UNSUCCESSFUL;
         goto cleanupandexit;
     }
@@ -1543,7 +1526,7 @@ Note:
     // Create a thread for watching for changes in the registry.
 
 
-    if (!ElfStartRegistryMonitor ()) {
+    if (!ElfStartRegistryMonitor()) {
         Status = STATUS_UNSUCCESSFUL;
         goto cleanupandexit;
     }
@@ -1575,16 +1558,16 @@ Note:
 
     Status = RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_RELIABILITY, 0, KEY_ALL_ACCESS, &hKey);
     if (Status == ERROR_SUCCESS) {
-        RegQueryValueEx(hKey, REGSTR_VAL_LASTALIVEINTERVAL, 0, NULL, (PUCHAR) &g_PreviousInterval, &ValueSize);
-        RegCloseKey (hKey);
+        RegQueryValueEx(hKey, REGSTR_VAL_LASTALIVEINTERVAL, 0, NULL, (PUCHAR)&g_PreviousInterval, &ValueSize);
+        RegCloseKey(hKey);
     }
 
-    if (g_PreviousInterval != 0)  {
+    if (g_PreviousInterval != 0) {
 
         // Write out the first timer based abnormal shutdown time stamp
 
 
-        ElfWriteTimeStamp (EVENT_AbNormalShutdown, TRUE);
+        ElfWriteTimeStamp(EVENT_AbNormalShutdown, TRUE);
     }
 
 
@@ -1611,11 +1594,11 @@ Note:
     // the Named Pipe File System code.
 
     Status = ElfGlobalData->StartRpcServer(
-                ElfGlobalData->SvcsRpcPipeName,
-                eventlog_ServerIfHandle);
+        ElfGlobalData->SvcsRpcPipeName,
+        eventlog_ServerIfHandle);
 
     if (!NT_SUCCESS(Status)) {
-        ElfDbgPrint(("[ELF]StartRpcServer Failed %d\n",Status));
+        ElfDbgPrint(("[ELF]StartRpcServer Failed %d\n", Status));
         goto cleanupandexit;
     }
 
@@ -1631,21 +1614,21 @@ Note:
 
         ElfDbgPrint(("[ELF] Service Running - main thread is returning\n"));
 
-        if ( g_PreviousInterval != 0 ) {
+        if (g_PreviousInterval != 0) {
 
 
             // Create a thread to periodically write
             // a time stamp to the registry.
 
 
-            g_hTimestampEvent = CreateEvent (NULL, TRUE, FALSE, NULL);
+            g_hTimestampEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
             if (g_hTimestampEvent != NULL) {
 
                 Status = RtlRegisterWait(&g_hTimestampWorkitem,
                                          g_hTimestampEvent,
                                          TimeStampProc,              // Callback
-                                         (PVOID) g_PreviousInterval, // Context
+                                         (PVOID)g_PreviousInterval, // Context
                                          0,                          // Timeout
                                          WT_EXECUTEONLYONCE);
 
@@ -1654,8 +1637,7 @@ Note:
                     ElfDbgPrint(("[ELF] SvcEntry_Eventlog: RtlRegisterWait FAILED 0x%x\n",
                                  Status));
                 }
-            }
-            else {
+            } else {
 
                 ElfDbgPrint(("[ELF] Couldn't create timestamp event %d\n",
                              GetLastError()));
@@ -1666,7 +1648,7 @@ Note:
     }
 
 
-// Come here if there is cleanup necessary.
+    // Come here if there is cleanup necessary.
 
 
 cleanupandexit:
@@ -1687,8 +1669,7 @@ cleanupandexit:
 
     if (EventFlags & ELF_STARTED_REGISTRY_MONITOR) {
         StopRegistryMonitor();
-    }
-    else {
+    } else {
         ElfpCleanUp(EventFlags);
     }
 
@@ -1699,7 +1680,7 @@ cleanupandexit:
 VOID
 ElfInitMessageBoxTitle(
     VOID
-    )
+)
 
 /*
 
@@ -1728,30 +1709,29 @@ Return Value:
 
     GlobalAllocatedMsgTitle = NULL;
 
-    hModule = LoadLibraryEx( L"netevent.dll",
-                             NULL,
-                             LOAD_LIBRARY_AS_DATAFILE );
+    hModule = LoadLibraryEx(L"netevent.dll",
+                            NULL,
+                            LOAD_LIBRARY_AS_DATAFILE);
 
-    if ( hModule == NULL) {
+    if (hModule == NULL) {
         ElfDbgPrint(("LoadLibraryEx() fails with winError = %d\n", GetLastError()));
         return;
     }
 
     msgSize = FormatMessageW(
-                FORMAT_MESSAGE_FROM_HMODULE |       //  dwFlags
-                FORMAT_MESSAGE_ARGUMENT_ARRAY |
-                FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                hModule,
-                TITLE_EventlogMessageBox,           //  MessageId
-                0,                                  //  dwLanguageId
-                (LPWSTR)&GlobalAllocatedMsgTitle,   //  lpBuffer
-                0,                                  //  nSize
-                NULL);
+        FORMAT_MESSAGE_FROM_HMODULE |       //  dwFlags
+        FORMAT_MESSAGE_ARGUMENT_ARRAY |
+        FORMAT_MESSAGE_ALLOCATE_BUFFER,
+        hModule,
+        TITLE_EventlogMessageBox,           //  MessageId
+        0,                                  //  dwLanguageId
+        (LPWSTR)&GlobalAllocatedMsgTitle,   //  lpBuffer
+        0,                                  //  nSize
+        NULL);
     if (msgSize == 0) {
         ElfDbgPrint((ERROR, "Could not find MessageBox title in a message file %d\n",
                      GetLastError()));
-    }
-    else {
+    } else {
         GlobalMessageBoxTitle = GlobalAllocatedMsgTitle;
     }
 
@@ -1777,22 +1757,22 @@ DllInit(
     IN  HINSTANCE   hDll,
     IN  DWORD       dwReason,
     IN  PCONTEXT    pContext OPTIONAL
-    )
+)
 {
     switch (dwReason) {
 
-        case DLL_PROCESS_ATTACH:
+    case DLL_PROCESS_ATTACH:
 
 
-            // No notification of THREAD_ATTACH and THREAD_DETACH
+        // No notification of THREAD_ATTACH and THREAD_DETACH
 
-            DisableThreadLibraryCalls(hDll);
-            break;
-        case DLL_PROCESS_DETACH:
-            // This should NEVER happen -- it means services.exe
-            // is exiting via an ExitProcess call
-            DebugBreak();
-            break;
+        DisableThreadLibraryCalls(hDll);
+        break;
+    case DLL_PROCESS_DETACH:
+        // This should NEVER happen -- it means services.exe
+        // is exiting via an ExitProcess call
+        DebugBreak();
+        break;
     }
 
     return TRUE;

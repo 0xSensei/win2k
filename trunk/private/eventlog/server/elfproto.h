@@ -25,84 +25,84 @@ Revision History:
 // Other prototypes
 
 PVOID
-ElfpAllocateBuffer (
+ElfpAllocateBuffer(
     ULONG size
-    );
+);
 
 VOID
-ElfpFreeBuffer (
+ElfpFreeBuffer(
     PVOID BufPtr
-    );
+);
 
 VOID
 ElfPerformRequest(
     PELF_REQUEST_RECORD Request
-    );
+);
 
 
 PLOGMODULE
-GetModuleStruc (
+GetModuleStruc(
     PUNICODE_STRING ModuleName
-    );
+);
 
 PLOGMODULE
-FindModuleStrucFromAtom (
+FindModuleStrucFromAtom(
     ATOM Atom
-    );
+);
 
 VOID
 ElfControlResponse(
     DWORD
-    );
+);
 
 VOID
 IELF_HANDLE_rundown(
     IELF_HANDLE    ElfHandle
-    );
+);
 
 VOID
 LinkContextHandle(
     IELF_HANDLE     LogHandle
-    );
+);
 
 VOID
-UnlinkContextHandle (
+UnlinkContextHandle(
     IELF_HANDLE     LogHandle
-    );
+);
 
 VOID
-LinkLogModule (
+LinkLogModule(
     PLOGMODULE   pLogModule,
-    ANSI_STRING * pModuleNameA
-    );
+    ANSI_STRING* pModuleNameA
+);
 
 VOID
-UnlinkLogModule (
+UnlinkLogModule(
     PLOGMODULE pLogModule
-    );
+);
 
 VOID
-LinkLogFile (
+LinkLogFile(
     PLOGFILE   pLogFile
-    );
+);
 
 VOID
-UnlinkLogFile (
+UnlinkLogFile(
     PLOGFILE pLogFile
-    );
+);
 
 VOID
-GetGlobalResource (
+GetGlobalResource(
     DWORD Type
-    );
+);
 
 VOID
 ReleaseGlobalResource(
     VOID
-    );
+);
 
 NTSTATUS
-SetUpDataStruct (
+SetUpDataStruct(
     PUNICODE_STRING     LogFileName,
     ULONG               MaxFileSize,
     ULONG               Retention,
@@ -111,107 +111,107 @@ SetUpDataStruct (
     HANDLE              hLogFile,
     ELF_LOG_TYPE        LogType,
     LOGPOPUP            logpLogPopup
-    );
+);
 
 NTSTATUS
-SetUpModules (
+SetUpModules(
     HANDLE              hLogFile,
     PLOGFILE            pLogFile,
     BOOLEAN             bAllowDupes
-    );
+);
 
 BOOL
-StartLPCThread (
+StartLPCThread(
     VOID
-    );
+);
 
 VOID
-StopLPCThread (
+StopLPCThread(
     VOID
-    );
+);
 
 BOOL
-ElfStartRegistryMonitor (
+ElfStartRegistryMonitor(
     VOID
-    );
+);
 
 VOID
-StopRegistryMonitor (
+StopRegistryMonitor(
     VOID
-    );
+);
 
 NTSTATUS
-ReadRegistryInfo (
+ReadRegistryInfo(
     HANDLE          hLogFiles,
     PUNICODE_STRING SubKeyName,
     PLOG_FILE_INFO  LogFileInfo
-    );
+);
 
 NTSTATUS
-ElfOpenLogFile (
+ElfOpenLogFile(
     PLOGFILE pLogFile,
     ELF_LOG_TYPE LogType
-    );
+);
 
 NTSTATUS
-ElfpCloseLogFile (
+ElfpCloseLogFile(
     PLOGFILE    pLogFile,
     DWORD       Flags
-    );
+);
 
 BOOL
-ValidFilePos (
+ValidFilePos(
     PVOID Position,
     PVOID BeginningRecord,
     PVOID EndingRecord,
     PVOID PhysicalEOF,
     PVOID BaseAddress,
     BOOL  fCheckBeginEndRange
-    );
+);
 
 VOID
-ElfpCleanUp (
+ElfpCleanUp(
     ULONG EventFlags
-    );
+);
 
 NTSTATUS
-ElfpCopyFile (
+ElfpCopyFile(
     IN HANDLE SourceHandle,
     IN PUNICODE_STRING TargetFileName
-    );
+);
 
 VOID
-FreeModuleAndLogFileStructs (VOID);
+FreeModuleAndLogFileStructs(VOID);
 
 NTSTATUS
-ElfpFlushFiles (VOID);
+ElfpFlushFiles(VOID);
 
 
 VOID
-InvalidateContextHandlesForLogFile (
+InvalidateContextHandlesForLogFile(
     PLOGFILE    pLogFile
-    );
+);
 
 VOID
-FixContextHandlesForRecord (
+FixContextHandlesForRecord(
     DWORD RecordOffset,
     DWORD NewRecordOffset
-    );
+);
 
 PLOGFILE
-FindLogFileFromName (
+FindLogFileFromName(
     PUNICODE_STRING LogFileName
-    );
+);
 
 BOOL
-SendAdminAlert (
+SendAdminAlert(
     ULONG   MessageID,
     ULONG   NumStrings,
-    UNICODE_STRING  *pStrings
-    );
+    UNICODE_STRING* pStrings
+);
 
 PVOID
-NextRecordPosition (
+NextRecordPosition(
     ULONG   ReadFlags,
     PVOID   CurrPosition,
     ULONG   CurrRecordLength,
@@ -219,45 +219,45 @@ NextRecordPosition (
     PVOID   EndRecord,
     PVOID   PhysicalEOF,
     PVOID   PhysStart
-    );
+);
 
 VOID
-NotifyChange (
+NotifyChange(
     PLOGFILE pLogFile
-    );
+);
 
 VOID
-WriteQueuedEvents (
+WriteQueuedEvents(
     VOID
-    );
+);
 
 VOID
-FlushQueuedEvents (
+FlushQueuedEvents(
     VOID
-    );
+);
 
 VOID
-PerformWriteRequest (
+PerformWriteRequest(
     PELF_REQUEST_RECORD Request
-    );
+);
 
 NTSTATUS
 ElfpCreateLogFileObject(
     PLOGFILE LogFile,
     DWORD Type,
     ULONG GuestAccessRestriction
-    );
+);
 
 VOID
 ElfpDeleteLogFileObject(
     PLOGFILE LogFile
-    );
+);
 
 VOID
 ElfpCloseAudit(
     IN  LPWSTR      SubsystemName,
     IN  IELF_HANDLE ContextHandle
-    );
+);
 
 NTSTATUS
 ElfpAccessCheckAndAudit(
@@ -269,17 +269,17 @@ ElfpAccessCheckAndAudit(
     IN     ACCESS_MASK DesiredAccess,
     IN     PGENERIC_MAPPING GenericMapping,
     IN     BOOL ForSecurityLog
-    );
+);
 
 NTSTATUS
 ElfCreateWellKnownSids(
     VOID
-    );
+);
 
 VOID
 ElfFreeWellKnownSids(
     VOID
-    );
+);
 
 NTSTATUS
 ElfCreateAndSetSD(
@@ -287,8 +287,8 @@ ElfCreateAndSetSD(
     IN  ULONG AceCount,
     IN  PSID OwnerSid OPTIONAL,
     IN  PSID GroupSid OPTIONAL,
-    OUT PSECURITY_DESCRIPTOR *NewDescriptor
-    );
+    OUT PSECURITY_DESCRIPTOR* NewDescriptor
+);
 
 NTSTATUS
 ElfCreateUserSecurityObject(
@@ -298,8 +298,8 @@ ElfCreateUserSecurityObject(
     IN  PSID GroupSid,
     IN  BOOLEAN IsDirectoryObject,
     IN  PGENERIC_MAPPING GenericMapping,
-    OUT PSECURITY_DESCRIPTOR *NewDescriptor
-    );
+    OUT PSECURITY_DESCRIPTOR* NewDescriptor
+);
 
 VOID
 ElfpCreateElfEvent(
@@ -307,11 +307,11 @@ ElfpCreateElfEvent(
     IN USHORT EventType,
     IN USHORT EventCategory,
     IN USHORT NumStrings,
-    IN LPWSTR * Strings,
+    IN LPWSTR* Strings,
     IN LPVOID Data,
     IN ULONG DataSize,
     IN USHORT Flags
-    );
+);
 
 
 VOID
@@ -319,66 +319,66 @@ ElfpCreateQueuedAlert(
     DWORD MessageId,
     DWORD NumberOfStrings,
     LPWSTR Strings[]
-    );
+);
 
 VOID
 ElfpCreateQueuedMessage(
     DWORD MessageId,
     DWORD NumberOfStrings,
     LPWSTR Strings[]
-    );
+);
 
 DWORD
 ElfStatusUpdate(
     IN DWORD    NewState
-    );
+);
 
 DWORD
-GetElState (
+GetElState(
     VOID
-    );
+);
 
 VOID
 ElfpGenerateLogClearedEvent(
     IELF_HANDLE     LogHandle
-    );
+);
 
 VOID
 ElInitStatus(
     VOID
-    );
+);
 
 VOID
 ElCleanupStatus(
     VOID
-    );
+);
 
 DWORD
 ElfBeginForcedShutdown(
     IN BOOL     PendingCode,
     IN DWORD    ExitCode,
     IN DWORD    ServiceSpecificCode
-    );
+);
 
 NTSTATUS
 ElfpTestClientPrivilege(
     IN ULONG  ulPrivilege,
     IN HANDLE hThreadToken     OPTIONAL
-    );
+);
 
 //SS: added to extend clustering support
 NTSTATUS
-FindSizeofEventsSinceStart (
+FindSizeofEventsSinceStart(
     OUT PULONG               pulTotalEventSize,
     IN PULONG                pulNumLogFiles,
-    OUT PPROPLOGFILEINFO     *ppPropLogFileInfo
-    );
+    OUT PPROPLOGFILEINFO* ppPropLogFileInfo
+);
 
 NTSTATUS
 GetEventsToProp(
     IN PEVENTLOGRECORD       pEventLogRecords,
     IN PPROPLOGFILEINFO      pPropLogFileInfo
-    );
+);
 
 //SS: end of changes for clustering
 
@@ -386,7 +386,7 @@ VOID
 ElfWriteTimeStamp(
     TIMESTAMPEVENT  EventType,
     BOOLEAN         Append
-    );
+);
 
 VOID CALLBACK
 ElfWriteLastAliveTimeStamp(
@@ -395,6 +395,6 @@ ElfWriteLastAliveTimeStamp(
     DWORD   dwUser,
     DWORD   dw1,
     DWORD   dw2
-    );
+);
 
 #endif // ifndef _ELFPROTO_

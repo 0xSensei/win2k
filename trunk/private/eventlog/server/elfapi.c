@@ -51,7 +51,7 @@ Revision History:
 //  PROTOTYPES
 
 NTSTATUS
-ElfpOpenELW (
+ElfpOpenELW(
     IN  EVENTLOG_HANDLE_W   UNCServerName,
     IN  PRPC_UNICODE_STRING ModuleName,
     IN  PRPC_UNICODE_STRING RegModuleName,
@@ -59,10 +59,10 @@ ElfpOpenELW (
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle,
     IN  ULONG               DesiredAccess
-    );
+);
 
 NTSTATUS
-ElfpOpenELA (
+ElfpOpenELA(
     IN  EVENTLOG_HANDLE_A   UNCServerName,
     IN  PRPC_STRING         ModuleName,
     IN  PRPC_STRING         RegModuleName,
@@ -70,28 +70,28 @@ ElfpOpenELA (
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle,
     IN  ULONG               DesiredAccess
-    );
+);
 
 VOID
-FreePUStringArray (
-    IN  PUNICODE_STRING  * pUStringArray,
+FreePUStringArray(
+    IN  PUNICODE_STRING* pUStringArray,
     IN  USHORT             NumStrings
-    );
+);
 
 NTSTATUS
 VerifyElfHandle(
     IN IELF_HANDLE LogHandle
-    );
+);
 
 NTSTATUS
 VerifyUnicodeString(
     IN PUNICODE_STRING pUString
-    );
+);
 
 NTSTATUS
 VerifyAnsiString(
     IN PANSI_STRING pAString
-    );
+);
 
 
 
@@ -102,7 +102,7 @@ NTSTATUS
 ElfrNumberOfRecords(
     IN  IELF_HANDLE     LogHandle,
     OUT PULONG          NumberOfRecords
-    )
+)
 /*++
 
 Routine Description:
@@ -169,14 +169,13 @@ Return Value:
     // and next record numbers
 
 
-    Module = FindModuleStrucFromAtom (LogHandle->Atom);
+    Module = FindModuleStrucFromAtom(LogHandle->Atom);
 
     if (Module != NULL) {
         *NumberOfRecords = Module->LogFile->OldestRecordNumber == 0 ? 0 :
-        Module->LogFile->CurrentRecordNumber -
+            Module->LogFile->CurrentRecordNumber -
             Module->LogFile->OldestRecordNumber;
-    }
-    else {
+    } else {
         Status = STATUS_INVALID_HANDLE;
     }
 
@@ -189,7 +188,7 @@ NTSTATUS
 ElfrOldestRecord(
     IN  IELF_HANDLE         LogHandle,
     OUT PULONG          OldestRecordNumber
-    )
+)
 {
     PLOGMODULE Module;
     NTSTATUS   Status;
@@ -226,17 +225,15 @@ ElfrOldestRecord(
     // only backup operation on the security log.
 
 
-    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP)
-    {
+    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return(STATUS_ACCESS_DENIED);
     }
 
-    Module = FindModuleStrucFromAtom (LogHandle->Atom);
+    Module = FindModuleStrucFromAtom(LogHandle->Atom);
 
     if (Module != NULL) {
         *OldestRecordNumber = Module->LogFile->OldestRecordNumber;
-    }
-    else {
+    } else {
         Status = STATUS_INVALID_HANDLE;
     }
 
@@ -249,7 +246,7 @@ ElfrChangeNotify(
     IN  IELF_HANDLE         LogHandle,
     IN  RPC_CLIENT_ID       ClientId,
     IN  ULONG               Event
-    )
+)
 {
     NTSTATUS Status;
     NTSTATUS RpcStatus;
@@ -275,7 +272,7 @@ ElfrChangeNotify(
     // First make sure that this is a local call and that it is not a
     // handle that was created for a backup log file
     if (LogHandle->Flags & ELF_LOG_HANDLE_REMOTE_HANDLE || LogHandle->Flags & ELF_LOG_HANDLE_BACKUP_LOG) {
-            return STATUS_INVALID_HANDLE;
+        return STATUS_INVALID_HANDLE;
     }
 
     // This condition is TRUE iff a backup operator has opened the security
@@ -302,7 +299,7 @@ ElfrChangeNotify(
                                0,                      // Attributes
                                NULL,                   // Root directory
                                NULL);                  // Security descriptor
-    Status = NtOpenProcess(&ProcessHandle, PROCESS_DUP_HANDLE, &ObjectAttributes, (PCLIENT_ID) &ClientId);
+    Status = NtOpenProcess(&ProcessHandle, PROCESS_DUP_HANDLE, &ObjectAttributes, (PCLIENT_ID)&ClientId);
     RpcStatus = RpcRevertToSelf();
     if (RpcStatus != RPC_S_OK) {
         DbgPrint("RPC REVERT TO SELF FAILED %d\n", RpcStatus);
@@ -311,58 +308,54 @@ ElfrChangeNotify(
     if (NT_SUCCESS(Status)) {
         // Now dupe the handle they passed in for the event
         Status = NtDuplicateObject(ProcessHandle,
-                                   (HANDLE) Event,
+                                   (HANDLE)Event,
                                    NtCurrentProcess(),
                                    &EventHandle,
                                    0,
                                    0,
                                    DUPLICATE_SAME_ACCESS);
-         if (NT_SUCCESS(Status)) {
-             // Create a new NOTIFIEE control block to link in
-             Notifiee = ElfpAllocateBuffer(sizeof(NOTIFIEE));
-             if (Notifiee) {
-                 // Fill in the fields
-                 Notifiee->Handle = LogHandle;
-                 Notifiee->Event = EventHandle;
+        if (NT_SUCCESS(Status)) {
+            // Create a new NOTIFIEE control block to link in
+            Notifiee = ElfpAllocateBuffer(sizeof(NOTIFIEE));
+            if (Notifiee) {
+                // Fill in the fields
+                Notifiee->Handle = LogHandle;
+                Notifiee->Event = EventHandle;
 
-                 // Find the LOGFILE associated with this handle
-                 Module = FindModuleStrucFromAtom (LogHandle->Atom);
-                 if (Module != NULL) {
-                     // Get exclusive access to the log file. This will ensure
-                     // no one else is accessing the file.
-                     RtlAcquireResourceExclusive (&Module->LogFile->Resource, TRUE);   // Wait until available
+                // Find the LOGFILE associated with this handle
+                Module = FindModuleStrucFromAtom(LogHandle->Atom);
+                if (Module != NULL) {
+                    // Get exclusive access to the log file. This will ensure
+                    // no one else is accessing the file.
+                    RtlAcquireResourceExclusive(&Module->LogFile->Resource, TRUE);   // Wait until available
 
-                     // Enforce the limit of ChangeNotify requests per context handle
-                     if (LogHandle->dwNotifyRequests == MAX_NOTIFY_REQUESTS) {
-                         CloseHandle(EventHandle);
-                         ElfpFreeBuffer(Notifiee);
-                         Status = STATUS_INSUFFICIENT_RESOURCES;
-                     }
-                     else {
-                         // Insert the new notifiee into the list and increment this
-                         // context handle's ChangeNotify request count
-                         InsertHeadList(&Module->LogFile->Notifiees, &Notifiee->Next);
-                         LogHandle->dwNotifyRequests++;
-                     }
+                    // Enforce the limit of ChangeNotify requests per context handle
+                    if (LogHandle->dwNotifyRequests == MAX_NOTIFY_REQUESTS) {
+                        CloseHandle(EventHandle);
+                        ElfpFreeBuffer(Notifiee);
+                        Status = STATUS_INSUFFICIENT_RESOURCES;
+                    } else {
+                        // Insert the new notifiee into the list and increment this
+                        // context handle's ChangeNotify request count
+                        InsertHeadList(&Module->LogFile->Notifiees, &Notifiee->Next);
+                        LogHandle->dwNotifyRequests++;
+                    }
 
-                     // Free the resource
-                     RtlReleaseResource ( &Module->LogFile->Resource );
-                 }
-                 else {
-                     CloseHandle(EventHandle);
-                     ElfpFreeBuffer(Notifiee);
-                     Status = STATUS_INVALID_HANDLE;
-                 }
-             }
-             else {
-                 Status = STATUS_NO_MEMORY;
+                    // Free the resource
+                    RtlReleaseResource(&Module->LogFile->Resource);
+                } else {
+                    CloseHandle(EventHandle);
+                    ElfpFreeBuffer(Notifiee);
+                    Status = STATUS_INVALID_HANDLE;
+                }
+            } else {
+                Status = STATUS_NO_MEMORY;
 
-                 // Free the duplicated handle
-                 CloseHandle(EventHandle);
-             }
-         }
-    }
-    else {
+                // Free the duplicated handle
+                CloseHandle(EventHandle);
+            }
+        }
+    } else {
         if (Status == STATUS_INVALID_CID) {
             Status = STATUS_INVALID_HANDLE;
         }
@@ -383,7 +376,7 @@ ElfrGetLogInformation(
     OUT    PBYTE          lpBuffer,
     IN     ULONG          cbBufSize,
     OUT    PULONG         pcbBytesNeeded
-    )
+)
 /*++
 
 Routine Description:
@@ -424,8 +417,7 @@ Return Value:
     // only backup operation on the security log.
 
 
-    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP)
-    {
+    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return(STATUS_ACCESS_DENIED);
     }
 
@@ -434,42 +426,41 @@ Return Value:
 
     switch (InfoLevel) {
 
-        case EVENTLOG_FULL_INFO:
+    case EVENTLOG_FULL_INFO:
 
-            *pcbBytesNeeded = sizeof(EVENTLOG_FULL_INFORMATION);
+        *pcbBytesNeeded = sizeof(EVENTLOG_FULL_INFORMATION);
 
-            if (cbBufSize < *pcbBytesNeeded) {
-                ntStatus = STATUS_BUFFER_TOO_SMALL;
-                break;
-            }
-
-
-            // Get the module associated with this log handle
-
-            pLogModule = FindModuleStrucFromAtom(LogHandle->Atom);
-
-            if (pLogModule != NULL) {
-
-
-                // The caller has the permission for this operation.  Note
-                // that an access check is done when opening the log, so
-                // there's no need to repeat it here.
-
-                ((LPEVENTLOG_FULL_INFORMATION)lpBuffer)->dwFull =
-
-                    ( pLogModule->LogFile->Flags & ELF_LOGFILE_LOGFULL_WRITTEN ?
-                          TRUE :
-                          FALSE);
-            }
-            else {
-                ntStatus = STATUS_INVALID_HANDLE;
-            }
-
+        if (cbBufSize < *pcbBytesNeeded) {
+            ntStatus = STATUS_BUFFER_TOO_SMALL;
             break;
+        }
 
-        default:
-            ntStatus = STATUS_INVALID_LEVEL;
-            break;
+
+        // Get the module associated with this log handle
+
+        pLogModule = FindModuleStrucFromAtom(LogHandle->Atom);
+
+        if (pLogModule != NULL) {
+
+
+            // The caller has the permission for this operation.  Note
+            // that an access check is done when opening the log, so
+            // there's no need to repeat it here.
+
+            ((LPEVENTLOG_FULL_INFORMATION)lpBuffer)->dwFull =
+
+                (pLogModule->LogFile->Flags & ELF_LOGFILE_LOGFULL_WRITTEN ?
+                 TRUE :
+                 FALSE);
+        } else {
+            ntStatus = STATUS_INVALID_HANDLE;
+        }
+
+        break;
+
+    default:
+        ntStatus = STATUS_INVALID_LEVEL;
+        break;
     }
 
     return ntStatus;
@@ -483,10 +474,10 @@ Return Value:
 
 
 NTSTATUS
-ElfrClearELFW (
+ElfrClearELFW(
     IN  IELF_HANDLE         LogHandle,
     IN  PRPC_UNICODE_STRING BackupFileName
-    )
+)
 
 /*++
 
@@ -562,8 +553,7 @@ Return Value:
     // only backup operation on the security log.
 
 
-    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP)
-    {
+    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return(STATUS_ACCESS_DENIED);
     }
 
@@ -571,7 +561,7 @@ Return Value:
     // Find the matching module structure
 
 
-    Module = FindModuleStrucFromAtom (LogHandle->Atom);
+    Module = FindModuleStrucFromAtom(LogHandle->Atom);
 
     Request.Pkt.ClearPkt = &ClearPkt;
     Request.Flags = 0;
@@ -582,9 +572,9 @@ Return Value:
         // Verify that the caller has clear access to this logfile
 
 
-        if (! RtlAreAllAccessesGranted (
-                LogHandle->GrantedAccess,
-                ELF_LOGFILE_CLEAR)) {
+        if (!RtlAreAllAccessesGranted(
+            LogHandle->GrantedAccess,
+            ELF_LOGFILE_CLEAR)) {
 
             Status = STATUS_ACCESS_DENIED;
         }
@@ -600,13 +590,13 @@ Return Value:
             Request.Command = ELF_COMMAND_CLEAR;
             Request.Status = STATUS_SUCCESS;
             Request.Pkt.ClearPkt->BackupFileName =
-                                (PUNICODE_STRING)BackupFileName;
+                (PUNICODE_STRING)BackupFileName;
 
 
             // Call the worker routine to do the operation.
 
 
-            ElfPerformRequest (&Request);
+            ElfPerformRequest(&Request);
 
 
             // Extract status of operation from the request packet
@@ -629,8 +619,7 @@ Return Value:
                 ElfpGenerateLogClearedEvent(LogHandle);
             }
         }
-    }
-    else {
+    } else {
         Status = STATUS_INVALID_HANDLE;
     }
 
@@ -639,10 +628,10 @@ Return Value:
 
 
 NTSTATUS
-ElfrBackupELFW (
+ElfrBackupELFW(
     IN  IELF_HANDLE         LogHandle,
     IN  PRPC_UNICODE_STRING BackupFileName
-    )
+)
 
 /*++
 
@@ -724,25 +713,25 @@ Return Value:
     // Find the matching module structure
 
 
-    Module = FindModuleStrucFromAtom (LogHandle->Atom);
+    Module = FindModuleStrucFromAtom(LogHandle->Atom);
 
     if (Module != NULL) {
 
 
         // Fill in the request packet
 
-        Request.Module  = Module;
+        Request.Module = Module;
         Request.LogFile = Module->LogFile;
         Request.Command = ELF_COMMAND_BACKUP;
-        Request.Status  = STATUS_SUCCESS;
+        Request.Status = STATUS_SUCCESS;
         Request.Pkt.BackupPkt->BackupFileName =
-                            (PUNICODE_STRING)BackupFileName;
+            (PUNICODE_STRING)BackupFileName;
 
 
         // Call the worker routine to do the operation.
 
 
-        ElfPerformRequest (&Request);
+        ElfPerformRequest(&Request);
 
 
         // Extract status of operation from the request packet
@@ -760,9 +749,9 @@ Return Value:
 
 
 NTSTATUS
-ElfrCloseEL (
+ElfrCloseEL(
     IN OUT  PIELF_HANDLE    LogHandle
-    )
+)
 
 /*++
 
@@ -809,9 +798,9 @@ Return Value:
 
 
 NTSTATUS
-ElfrDeregisterEventSource (
+ElfrDeregisterEventSource(
     IN OUT  PIELF_HANDLE    LogHandle
-    )
+)
 
 /*++
 
@@ -851,8 +840,7 @@ Return Value:
     // only backup operation on the security log.
 
 
-    if ((*LogHandle)->GrantedAccess & ELF_LOGFILE_BACKUP)
-    {
+    if ((*LogHandle)->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return(STATUS_ACCESS_DENIED);
     }
 
@@ -871,13 +859,13 @@ Return Value:
 
 
 NTSTATUS
-ElfrOpenBELW (
+ElfrOpenBELW(
     IN  EVENTLOG_HANDLE_W   UNCServerName,
     IN  PRPC_UNICODE_STRING BackupFileName,
     IN  ULONG               MajorVersion,
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle
-    )
+)
 
 /*++
 
@@ -915,7 +903,7 @@ Return Value:
     DWORD           dwModuleNumber;
 
 
-// Size of buffer (in bytes) required for a UNICODE string of $BACKUPnnn
+    // Size of buffer (in bytes) required for a UNICODE string of $BACKUPnnn
 
 
 #define SIZEOF_BACKUP_MODULE_NAME 64
@@ -960,11 +948,11 @@ Return Value:
     // operation.
 
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&LogFileCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&LogFileCritSec);
 
     dwModuleNumber = BackupModuleNumber++;
 
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&LogFileCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&LogFileCritSec);
 
     swprintf(BackupModuleName, L"$BACKUP%06d", dwModuleNumber);
     RtlInitUnicodeString(&BackupStringW, BackupModuleName);
@@ -980,16 +968,16 @@ Return Value:
 
 
     Status = SetUpDataStruct(
-                    BackupFileName,  // Filename
-                    0,               // Max size, it will use actual
-                    0,               // retention period, not used for bkup
-                    ELF_GUEST_ACCESS_UNRESTRICTED,  // restrict guest
-                                     // access flag, inapplicable for bkup
-                    &BackupStringW,  // Module name
-                    NULL,            // Handle to registry, not used
-                    ElfBackupLog,    // Log type
-                    LOGPOPUP_NEVER_SHOW
-                    );
+        BackupFileName,  // Filename
+        0,               // Max size, it will use actual
+        0,               // retention period, not used for bkup
+        ELF_GUEST_ACCESS_UNRESTRICTED,  // restrict guest
+                         // access flag, inapplicable for bkup
+        &BackupStringW,  // Module name
+        NULL,            // Handle to registry, not used
+        ElfBackupLog,    // Log type
+        LOGPOPUP_NEVER_SHOW
+    );
 
     if (!NT_SUCCESS(Status)) {
         ElfpFreeBuffer(BackupModuleName);
@@ -1002,7 +990,7 @@ Return Value:
     if (NT_SUCCESS(Status)) {
 
         Status = ElfpOpenELW(NULL,
-                             (PRPC_UNICODE_STRING) & BackupStringW,
+                             (PRPC_UNICODE_STRING)&BackupStringW,
                              NULL,
                              MajorVersion,
                              MinorVersion,
@@ -1020,15 +1008,14 @@ Return Value:
 
         (*LogHandle)->Flags |= ELF_LOG_HANDLE_BACKUP_LOG;
 
-    }
-    else {
+    } else {
 
         // If we couldn't open the log file, then we need to tear down
         // the DataStruct we set up with SetUpDataStruct.
 
-        pModule = GetModuleStruc ((PUNICODE_STRING)BackupFileName);
+        pModule = GetModuleStruc((PUNICODE_STRING)BackupFileName);
 
-        Status = ElfpCloseLogFile (pModule->LogFile, ELF_LOG_CLOSE_BACKUP);
+        Status = ElfpCloseLogFile(pModule->LogFile, ELF_LOG_CLOSE_BACKUP);
 
         UnlinkLogModule(pModule);
         DeleteAtom(pModule->ModuleAtom);
@@ -1037,11 +1024,11 @@ Return Value:
         //      been done in ElfpCloseLogFile.
         if (pModule->LogFile->RefCount == 0) {
             UnlinkLogFile(pModule->LogFile); // Unlink the structure
-            RtlDeleteResource ( &pModule->LogFile->Resource );
+            RtlDeleteResource(&pModule->LogFile->Resource);
             RtlDeleteSecurityObject(&pModule->LogFile->Sd);
-            ElfpFreeBuffer (pModule->LogFile->LogFileName);
-            ElfpFreeBuffer (pModule->LogFile->LogModuleName);
-            ElfpFreeBuffer (pModule->LogFile);
+            ElfpFreeBuffer(pModule->LogFile->LogFileName);
+            ElfpFreeBuffer(pModule->LogFile->LogModuleName);
+            ElfpFreeBuffer(pModule->LogFile);
         }
         ElfpFreeBuffer(pModule->ModuleName);
         ElfpFreeBuffer(pModule);
@@ -1053,14 +1040,14 @@ Return Value:
 
 
 NTSTATUS
-ElfrRegisterEventSourceW (
+ElfrRegisterEventSourceW(
     IN  EVENTLOG_HANDLE_W   UNCServerName,
     IN  PRPC_UNICODE_STRING ModuleName,
     IN  PRPC_UNICODE_STRING RegModuleName,
     IN  ULONG               MajorVersion,
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle
-    )
+)
 
 /*++
 
@@ -1102,18 +1089,18 @@ Note:
 
 
     return(ElfpOpenELW(UNCServerName, ModuleName, RegModuleName,
-        MajorVersion, MinorVersion, LogHandle, ELF_LOGFILE_WRITE));
+                       MajorVersion, MinorVersion, LogHandle, ELF_LOGFILE_WRITE));
 }
 
 NTSTATUS
-ElfrOpenELW (
+ElfrOpenELW(
     IN  EVENTLOG_HANDLE_W   UNCServerName,
     IN  PRPC_UNICODE_STRING ModuleName,
     IN  PRPC_UNICODE_STRING RegModuleName,
     IN  ULONG               MajorVersion,
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle
-    )
+)
 
 /*++
 
@@ -1150,18 +1137,18 @@ Return Value:
     // All arguments checked in ElfpOpenELW.
 
 
-    return( ElfpOpenELW (
-            UNCServerName,
-            ModuleName,
-            RegModuleName,
-            MajorVersion,
-            MinorVersion,
-            LogHandle,
-            ELF_LOGFILE_READ));
+    return(ElfpOpenELW(
+        UNCServerName,
+        ModuleName,
+        RegModuleName,
+        MajorVersion,
+        MinorVersion,
+        LogHandle,
+        ELF_LOGFILE_READ));
 }
 
 NTSTATUS
-ElfpOpenELW (
+ElfpOpenELW(
     IN  EVENTLOG_HANDLE_W   UNCServerName,
     IN  PRPC_UNICODE_STRING ModuleName,
     IN  PRPC_UNICODE_STRING RegModuleName,
@@ -1169,7 +1156,7 @@ ElfpOpenELW (
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle,
     IN  ULONG               DesiredAccess
-    )
+)
 
 /*++
 
@@ -1223,11 +1210,11 @@ Return Value:
     // Allocate a new structure for the context handle
 
 
-    LogIHandle = (IELF_HANDLE) ElfpAllocateBuffer (
-                                    sizeof (*LogIHandle)
-                                  + ModuleName->Length
-                                  + sizeof (WCHAR)
-                                  );
+    LogIHandle = (IELF_HANDLE)ElfpAllocateBuffer(
+        sizeof(*LogIHandle)
+        + ModuleName->Length
+        + sizeof(WCHAR)
+    );
 
     if (LogIHandle) {
 
@@ -1238,7 +1225,7 @@ Return Value:
         // not found).
 
 
-        Module = GetModuleStruc ((PUNICODE_STRING)ModuleName);
+        Module = GetModuleStruc((PUNICODE_STRING)ModuleName);
 
 
         // Validate the caller has appropriate access to this logfile.
@@ -1256,17 +1243,17 @@ Return Value:
             DesiredAccess,          // Requested Access
             NULL,                   // GENERIC_MAPPING
             ForSecurityLog          // Indicates the check is for security log
-            );
+        );
 
         if (NT_SUCCESS(Status)) {
 
             LogIHandle->Atom = Module->ModuleAtom;
 
             LogIHandle->NameLength = ModuleName->Length + sizeof(WCHAR);
-            RtlMoveMemory( LogIHandle->Name,
-                            ModuleName->Buffer,
-                            ModuleName->Length
-                         );
+            RtlMoveMemory(LogIHandle->Name,
+                          ModuleName->Buffer,
+                          ModuleName->Length
+            );
 
             LogIHandle->Name[ModuleName->Length / sizeof(WCHAR)] = L'\0';
 
@@ -1277,9 +1264,9 @@ Return Value:
             // Initialize seek positions and flags to zero.
 
 
-            LogIHandle->SeekRecordPos    = 0;
-            LogIHandle->SeekBytePos      = 0;
-            LogIHandle->Flags            = 0;
+            LogIHandle->SeekRecordPos = 0;
+            LogIHandle->SeekBytePos = 0;
+            LogIHandle->Flags = 0;
             LogIHandle->dwNotifyRequests = 0;
 
 
@@ -1287,12 +1274,11 @@ Return Value:
 
 
             LogIHandle->Signature = ELF_CONTEXTHANDLE_SIGN; // DEBUG
-            LinkContextHandle (LogIHandle);
+            LinkContextHandle(LogIHandle);
 
             *LogHandle = LogIHandle;                // Set return handle
             Status = STATUS_SUCCESS;                // Set return status
-        }
-        else {
+        } else {
             ElfpFreeBuffer(LogIHandle);
         }
 
@@ -1310,7 +1296,7 @@ Return Value:
 
 
 NTSTATUS
-w_ElfrReadEL (
+w_ElfrReadEL(
     IN      ULONG       Flags,                  // ANSI or UNICODE
     IN      IELF_HANDLE LogHandle,
     IN      ULONG       ReadFlags,
@@ -1319,7 +1305,7 @@ w_ElfrReadEL (
     IN      PBYTE       Buffer,
     OUT     PULONG      NumberOfBytesRead,
     OUT     PULONG      MinNumberOfBytesNeeded
-    )
+)
 
 /*++
 
@@ -1381,7 +1367,7 @@ NOTES:
 
 
     if (LogHandle->Flags & ELF_LOG_HANDLE_INVALID_FOR_READ) {
-       return(STATUS_EVENTLOG_FILE_CHANGED);
+        return(STATUS_EVENTLOG_FILE_CHANGED);
     }
 
 
@@ -1390,8 +1376,7 @@ NOTES:
     // only backup operation on the security log.
 
 
-    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP)
-    {
+    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return(STATUS_ACCESS_DENIED);
     }
 
@@ -1400,7 +1385,7 @@ NOTES:
 
     // Find the matching module structure
 
-    Module = FindModuleStrucFromAtom (LogHandle->Atom);
+    Module = FindModuleStrucFromAtom(LogHandle->Atom);
 
 
     // Only continue if the module was found
@@ -1437,8 +1422,7 @@ NOTES:
 
         if (ReadFlags & EVENTLOG_FORWARDS_READ) {
             LogHandle->Flags |= ELF_LOG_HANDLE_LAST_READ_FORWARD;
-        }
-        else {
+        } else {
             LogHandle->Flags &= ~(ELF_LOG_HANDLE_LAST_READ_FORWARD);
         }
 
@@ -1446,7 +1430,7 @@ NOTES:
 
         // Perform the operation
 
-        ElfPerformRequest( &Request );
+        ElfPerformRequest(&Request);
 
 
         // Update current seek positions
@@ -1477,7 +1461,7 @@ NOTES:
 
 
 NTSTATUS
-ElfrReadELW (
+ElfrReadELW(
     IN      IELF_HANDLE LogHandle,
     IN      ULONG       ReadFlags,
     IN      ULONG       RecordNumber,
@@ -1485,7 +1469,7 @@ ElfrReadELW (
     IN      PBYTE       Buffer,
     OUT     PULONG      NumberOfBytesRead,
     OUT     PULONG      MinNumberOfBytesNeeded
-    )
+)
 
 /*++
 
@@ -1515,23 +1499,23 @@ Return Value:
     // Call the worker with the UNICODE flag
 
 
-    return(w_ElfrReadEL (
-                        ELF_IREAD_UNICODE,
-                        LogHandle,
-                        ReadFlags,
-                        RecordNumber,
-                        NumberOfBytesToRead,
-                        Buffer,
-                        NumberOfBytesRead,
-                        MinNumberOfBytesNeeded
-                        ));
+    return(w_ElfrReadEL(
+        ELF_IREAD_UNICODE,
+        LogHandle,
+        ReadFlags,
+        RecordNumber,
+        NumberOfBytesToRead,
+        Buffer,
+        NumberOfBytesRead,
+        MinNumberOfBytesNeeded
+    ));
 
 }
 
 
 
 NTSTATUS
-ElfrReportEventW (
+ElfrReportEventW(
     IN      IELF_HANDLE LogHandle,
     IN      ULONG               EventTime,
     IN      USHORT              EventType,
@@ -1546,7 +1530,7 @@ ElfrReportEventW (
     IN      USHORT              Flags,
     IN OUT  PULONG              RecordNumber OPTIONAL,
     IN OUT  PULONG              TimeWritten  OPTIONAL
-    )
+)
 
 /*++
 
@@ -1633,8 +1617,7 @@ Return Value:
     // only backup operation on the security log.
 
 
-    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP)
-    {
+    if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return(STATUS_ACCESS_DENIED);
     }
 
@@ -1651,7 +1634,7 @@ Return Value:
 
     // Verify the string arguments
 
-    for (i = 0; i < NumStrings; i++ ) {
+    for (i = 0; i < NumStrings; i++) {
 
         Status = VerifyUnicodeString(Strings[i]);
 
@@ -1689,7 +1672,7 @@ Return Value:
     // Find the matching module structure
 
 
-    Module = FindModuleStrucFromAtom (LogHandle->Atom);
+    Module = FindModuleStrucFromAtom(LogHandle->Atom);
 
     if (Module != NULL) {
 
@@ -1719,9 +1702,9 @@ Return Value:
 
         NtQuerySystemTime(&Time);
         RtlTimeToSecondsSince1970(
-                            &Time,
-                            &LogTimeWritten
-                            );
+            &Time,
+            &LogTimeWritten
+        );
 
 
 
@@ -1729,7 +1712,7 @@ Return Value:
 
 
         if (UserSid) {
-            UserSidLength = RtlLengthSid ((PSID)UserSid);
+            UserSidLength = RtlLengthSid((PSID)UserSid);
         }
 
 
@@ -1740,12 +1723,12 @@ Return Value:
 
 
         ModuleNameLen = (wcslen(UModuleName) + 1)
-                        * sizeof (WCHAR);
+            * sizeof(WCHAR);
         ComputerNameLen = UComputerName->Length + sizeof(WCHAR);
 
         UserSidOffset = sizeof(EVENTLOGRECORD)
-                      + ModuleNameLen
-                      + ComputerNameLen;
+            + ModuleNameLen
+            + ComputerNameLen;
 
 
         // STRING OFFSET:
@@ -1762,7 +1745,7 @@ Return Value:
         StringsSize = 0;
 
         for (i = 0; i < NumStrings; i++) {
-                StringsSize += Strings[i]->Length + sizeof(WCHAR);
+            StringsSize += Strings[i]->Length + sizeof(WCHAR);
         }
 
 
@@ -1776,12 +1759,12 @@ Return Value:
 
 
         RecordLength = DataOffset
-                     + DataSize
-                     + sizeof(RecordLength); // Size excluding pad bytes
+            + DataSize
+            + sizeof(RecordLength); // Size excluding pad bytes
 
 
-        // Determine how many pad bytes are needed to align to a DWORD
-        // boundary.
+// Determine how many pad bytes are needed to align to a DWORD
+// boundary.
 
 
         PadSize = sizeof(ULONG) - (RecordLength % sizeof(ULONG));
@@ -1804,7 +1787,7 @@ Return Value:
 
             EventLogRecord->Length = RecordLength;
             EventLogRecord->TimeGenerated = EventTime;
-            EventLogRecord->Reserved  = ELF_LOG_FILE_SIGNATURE;
+            EventLogRecord->Reserved = ELF_LOG_FILE_SIGNATURE;
             EventLogRecord->TimeWritten = LogTimeWritten;
             EventLogRecord->EventID = EventID;
             EventLogRecord->EventType = EventType;
@@ -1826,8 +1809,8 @@ Return Value:
             // STRINGS
 
 
-            ReplaceStrings = (PWSTR) (  (ULONG_PTR)EventLogRecord
-                                      + (ULONG)StringOffset
+            ReplaceStrings = (PWSTR)((ULONG_PTR)EventLogRecord
+                                     + (ULONG)StringOffset
                                      );
 
             for (i = 0; i < NumStrings; i++) {
@@ -1836,28 +1819,28 @@ Return Value:
                 RtlMoveMemory(ReplaceStrings, SrcString, Strings[i]->Length);
 
                 ReplaceStrings[Strings[i]->Length / sizeof(WCHAR)] = L'\0';
-                ReplaceStrings = (PWSTR)((PBYTE) ReplaceStrings
-                        + Strings[i]->Length + sizeof(WCHAR));
+                ReplaceStrings = (PWSTR)((PBYTE)ReplaceStrings
+                                         + Strings[i]->Length + sizeof(WCHAR));
             }
 
 
             // MODULENAME
 
 
-            BinaryData = (PBYTE) EventLogRecord + sizeof(EVENTLOGRECORD);
-            RtlMoveMemory (BinaryData,
-                           UModuleName,
-                           ModuleNameLen);
+            BinaryData = (PBYTE)EventLogRecord + sizeof(EVENTLOGRECORD);
+            RtlMoveMemory(BinaryData,
+                          UModuleName,
+                          ModuleNameLen);
 
 
             // COMPUTERNAME
 
 
-            ReplaceStrings = (LPWSTR) (BinaryData + ModuleNameLen);
+            ReplaceStrings = (LPWSTR)(BinaryData + ModuleNameLen);
 
-            RtlMoveMemory (ReplaceStrings,
-                           UComputerName->Buffer,
-                           UComputerName->Length);
+            RtlMoveMemory(ReplaceStrings,
+                          UComputerName->Buffer,
+                          UComputerName->Length);
 
             ReplaceStrings[UComputerName->Length / sizeof(WCHAR)] = L'\0';
 
@@ -1865,30 +1848,30 @@ Return Value:
             // USERSID
 
 
-            BinaryData = (PBYTE) ReplaceStrings + ComputerNameLen;
+            BinaryData = (PBYTE)ReplaceStrings + ComputerNameLen;
 
-            ASSERT (BinaryData
-                    == ((PBYTE) EventLogRecord) + UserSidOffset);
+            ASSERT(BinaryData
+                   == ((PBYTE)EventLogRecord) + UserSidOffset);
 
-            RtlMoveMemory (BinaryData,
-                           UserSid,
-                           UserSidLength);
+            RtlMoveMemory(BinaryData,
+                          UserSid,
+                          UserSidLength);
 
 
             // BINARY DATA
 
 
-            BinaryData = (PBYTE) ((ULONG_PTR)EventLogRecord + DataOffset);
+            BinaryData = (PBYTE)((ULONG_PTR)EventLogRecord + DataOffset);
             if (Data) {
-                RtlMoveMemory (BinaryData, Data, DataSize);
+                RtlMoveMemory(BinaryData, Data, DataSize);
             }
 
 
             // PAD  - Fill with zeros
 
 
-            BinaryData = (PBYTE) ((ULONG_PTR)BinaryData + DataSize);
-            RtlMoveMemory (BinaryData, &zero, PadSize);
+            BinaryData = (PBYTE)((ULONG_PTR)BinaryData + DataSize);
+            RtlMoveMemory(BinaryData, &zero, PadSize);
 
 
             // LENGTH at end of record
@@ -1901,8 +1884,8 @@ Return Value:
             // Make sure we are in the right place
 
 
-            ASSERT ((ULONG_PTR)BinaryData
-                == (RecordLength + (ULONG_PTR)EventLogRecord) - sizeof(ULONG));
+            ASSERT((ULONG_PTR)BinaryData
+                   == (RecordLength + (ULONG_PTR)EventLogRecord) - sizeof(ULONG));
 
 
             // Set up request packet.
@@ -1919,13 +1902,12 @@ Return Value:
             // Perform the operation
 
 
-            ElfPerformRequest( &Request );
+            ElfPerformRequest(&Request);
 
             //acquire the critical section for this global propagation area
-            RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+            RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
 
-            if (gbClustering && (RecordLength < MAXSIZE_OF_EVENTSTOPROP))
-            {
+            if (gbClustering && (RecordLength < MAXSIZE_OF_EVENTSTOPROP)) {
 
 
                 PEVENTSFORLOGFILE   pEventsForLogFile;
@@ -1933,23 +1915,23 @@ Return Value:
 
 
                 gpClPackedEventInfo->ulSize = (sizeof(PACKEDEVENTINFO)
-                    + sizeof(ULONG) //size of offsets, currently 1
-                    + sizeof(EVENTSFORLOGFILE) //sizeof eventsforlogfile structure
-                    + RecordLength);
+                                               + sizeof(ULONG) //size of offsets, currently 1
+                                               + sizeof(EVENTSFORLOGFILE) //sizeof eventsforlogfile structure
+                                               + RecordLength);
 
                 pEventsForLogFile = (PEVENTSFORLOGFILE)((PBYTE)gpClPackedEventInfo +
-                    gpClPackedEventInfo->ulOffsets[0]);
+                                                        gpClPackedEventInfo->ulOffsets[0]);
                 //set the events for log file structure
                 pEventsForLogFile->ulNumRecords = 1;
                 lstrcpyW(pEventsForLogFile->szLogicalLogFile,
-                    Module->LogFile->LogModuleName->Buffer);
+                         Module->LogFile->LogModuleName->Buffer);
                 pEventsForLogFile->ulSize = sizeof(EVENTSFORLOGFILE) +
-                        RecordLength;
+                    RecordLength;
                 RtlCopyMemory(pEventsForLogFile->pEventLogRecords, (PVOID)EventBuffer,
-                    RecordLength);
+                              RecordLength);
 
                 dwError = (*gpfnPropagateEvents)(ghCluster,
-                    gpClPackedEventInfo->ulSize, (UCHAR *)gpClPackedEventInfo);
+                                                 gpClPackedEventInfo->ulSize, (UCHAR*)gpClPackedEventInfo);
 
                 //advance the session start record number
                 //so that the same record doesnt get propagated twice, if the service restarts
@@ -1963,7 +1945,7 @@ Return Value:
 
 
             }
-            RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+            RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
 
 
             // Free up the buffer
@@ -1989,10 +1971,10 @@ Return Value:
 
 
 NTSTATUS
-ElfrClearELFA (
+ElfrClearELFA(
     IN  IELF_HANDLE     LogHandle,
     IN  PRPC_STRING     BackupFileName
-    )
+)
 
 /*++
 
@@ -2052,20 +2034,20 @@ Return Value:
     // Convert the BackupFileName to a UNICODE STRING and call the
     // UNICODE API to do the work.
 
-    Status = RtlAnsiStringToUnicodeString (
-                    (PUNICODE_STRING)&BackupFileNameU,
-                    (PANSI_STRING)BackupFileName,
-                    TRUE
-                    );
+    Status = RtlAnsiStringToUnicodeString(
+        (PUNICODE_STRING)&BackupFileNameU,
+        (PANSI_STRING)BackupFileName,
+        TRUE
+    );
 
     if (NT_SUCCESS(Status)) {
 
-        Status = ElfrClearELFW (
-                LogHandle,
-                (PRPC_UNICODE_STRING)&BackupFileNameU
-                );
+        Status = ElfrClearELFW(
+            LogHandle,
+            (PRPC_UNICODE_STRING)&BackupFileNameU
+        );
 
-        RtlFreeUnicodeString (&BackupFileNameU);
+        RtlFreeUnicodeString(&BackupFileNameU);
     }
 
     return (Status);
@@ -2075,10 +2057,10 @@ Return Value:
 
 
 NTSTATUS
-ElfrBackupELFA (
+ElfrBackupELFA(
     IN  IELF_HANDLE     LogHandle,
     IN  PRPC_STRING     BackupFileName
-    )
+)
 
 /*++
 
@@ -2135,20 +2117,20 @@ Return Value:
     // Convert the BackupFileName to a UNICODE STRING and call the
     // UNICODE API to do the work.
 
-    Status = RtlAnsiStringToUnicodeString (
-                    (PUNICODE_STRING)&BackupFileNameU,
-                    (PANSI_STRING)BackupFileName,
-                    TRUE
-                    );
+    Status = RtlAnsiStringToUnicodeString(
+        (PUNICODE_STRING)&BackupFileNameU,
+        (PANSI_STRING)BackupFileName,
+        TRUE
+    );
 
     if (NT_SUCCESS(Status)) {
 
-        Status = ElfrBackupELFW (
-                LogHandle,
-                (PRPC_UNICODE_STRING)&BackupFileNameU
-                );
+        Status = ElfrBackupELFW(
+            LogHandle,
+            (PRPC_UNICODE_STRING)&BackupFileNameU
+        );
 
-        RtlFreeUnicodeString (&BackupFileNameU);
+        RtlFreeUnicodeString(&BackupFileNameU);
     }
 
     return (Status);
@@ -2157,14 +2139,14 @@ Return Value:
 
 
 NTSTATUS
-ElfrRegisterEventSourceA (
+ElfrRegisterEventSourceA(
     IN  EVENTLOG_HANDLE_A   UNCServerName,
     IN  PRPC_STRING         ModuleName,
     IN  PRPC_STRING         RegModuleName,
     IN  ULONG               MajorVersion,
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle
-    )
+)
 
 /*++
 
@@ -2218,34 +2200,34 @@ Note:
         return(Status);
     }
 
-    Status = RtlAnsiStringToUnicodeString (
-                    (PUNICODE_STRING) &ModuleNameU,
-                    (PANSI_STRING) ModuleName,
-                    TRUE
-                    );
+    Status = RtlAnsiStringToUnicodeString(
+        (PUNICODE_STRING)&ModuleNameU,
+        (PANSI_STRING)ModuleName,
+        TRUE
+    );
 
     if (!NT_SUCCESS(Status)) {
         return(Status);
     }
 
-    Module = GetModuleStruc ((PUNICODE_STRING) & ModuleNameU);
+    Module = GetModuleStruc((PUNICODE_STRING)&ModuleNameU);
 
-    RtlFreeUnicodeString (& ModuleNameU);
+    RtlFreeUnicodeString(&ModuleNameU);
 
     return(ElfpOpenELA(UNCServerName, ModuleName, RegModuleName,
-        MajorVersion, MinorVersion, LogHandle, ELF_LOGFILE_WRITE));
+                       MajorVersion, MinorVersion, LogHandle, ELF_LOGFILE_WRITE));
 
 }
 
 NTSTATUS
-ElfrOpenELA (
+ElfrOpenELA(
     IN  EVENTLOG_HANDLE_A   UNCServerName,
     IN  PRPC_STRING         ModuleName,
     IN  PRPC_STRING         RegModuleName,
     IN  ULONG               MajorVersion,
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle
-    )
+)
 
 /*++
 
@@ -2282,18 +2264,18 @@ Return Value:
     // All arguments checked in ElfpOpenELA.
 
 
-    return (ElfpOpenELA (
-                UNCServerName,
-                ModuleName,
-                RegModuleName,
-                MajorVersion,
-                MinorVersion,
-                LogHandle,
-                ELF_LOGFILE_READ));
+    return (ElfpOpenELA(
+        UNCServerName,
+        ModuleName,
+        RegModuleName,
+        MajorVersion,
+        MinorVersion,
+        LogHandle,
+        ELF_LOGFILE_READ));
 }
 
 NTSTATUS
-ElfpOpenELA (
+ElfpOpenELA(
     IN  EVENTLOG_HANDLE_A   UNCServerName,
     IN  PRPC_STRING         ModuleName,
     IN  PRPC_STRING         RegModuleName,
@@ -2301,7 +2283,7 @@ ElfpOpenELA (
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle,
     IN  ULONG               DesiredAccess
-    )
+)
 
 /*++
 
@@ -2352,11 +2334,11 @@ Return Value:
     // the UNICODE API to do the work.
 
 
-    Status = RtlAnsiStringToUnicodeString (
-                    (PUNICODE_STRING)&ModuleNameU,
-                    (PANSI_STRING)ModuleName,
-                    TRUE
-                    );
+    Status = RtlAnsiStringToUnicodeString(
+        (PUNICODE_STRING)&ModuleNameU,
+        (PANSI_STRING)ModuleName,
+        TRUE
+    );
 
     if (NT_SUCCESS(Status)) {
 
@@ -2365,15 +2347,15 @@ Return Value:
         // by ElfpOpenELW so we save ourselves some work
         // and just pass in a NULL.
 
-        Status = ElfpOpenELW (
-                     (EVENTLOG_HANDLE_W) NULL,
-                     (PRPC_UNICODE_STRING)&ModuleNameU,
-                     NULL,
-                     MajorVersion,
-                     MinorVersion,
-                     LogHandle,
-                     DesiredAccess
-                     );
+        Status = ElfpOpenELW(
+            (EVENTLOG_HANDLE_W)NULL,
+            (PRPC_UNICODE_STRING)&ModuleNameU,
+            NULL,
+            MajorVersion,
+            MinorVersion,
+            LogHandle,
+            DesiredAccess
+        );
 
         RtlFreeUnicodeString(&ModuleNameU);
     }
@@ -2387,13 +2369,13 @@ Return Value:
 
 
 NTSTATUS
-ElfrOpenBELA (
+ElfrOpenBELA(
     IN  EVENTLOG_HANDLE_A   UNCServerName,
     IN  PRPC_STRING         FileName,
     IN  ULONG               MajorVersion,
     IN  ULONG               MinorVersion,
     OUT PIELF_HANDLE        LogHandle
-    )
+)
 
 /*++
 
@@ -2453,11 +2435,11 @@ Return Value:
     // the UNICODE API to do the work.
 
 
-    Status = RtlAnsiStringToUnicodeString (
-                    (PUNICODE_STRING) &FileNameU,
-                    (PANSI_STRING) FileName,
-                    TRUE
-                    );
+    Status = RtlAnsiStringToUnicodeString(
+        (PUNICODE_STRING)&FileNameU,
+        (PANSI_STRING)FileName,
+        TRUE
+    );
 
     if (NT_SUCCESS(Status)) {
 
@@ -2467,13 +2449,13 @@ Return Value:
         // and just pass in a NULL.
 
 
-        Status = ElfrOpenBELW (
-                    (EVENTLOG_HANDLE_W) NULL,
-                    (PRPC_UNICODE_STRING)&FileNameU,
-                    MajorVersion,
-                    MinorVersion,
-                    LogHandle
-                    );
+        Status = ElfrOpenBELW(
+            (EVENTLOG_HANDLE_W)NULL,
+            (PRPC_UNICODE_STRING)&FileNameU,
+            MajorVersion,
+            MinorVersion,
+            LogHandle
+        );
 
         RtlFreeUnicodeString(&FileNameU);
     }
@@ -2486,7 +2468,7 @@ Return Value:
 
 
 NTSTATUS
-ElfrReadELA (
+ElfrReadELA(
     IN      IELF_HANDLE LogHandle,
     IN      ULONG       ReadFlags,
     IN      ULONG       RecordNumber,
@@ -2494,7 +2476,7 @@ ElfrReadELA (
     IN      PBYTE       Buffer,
     OUT     PULONG      NumberOfBytesRead,
     OUT     PULONG      MinNumberOfBytesNeeded
-    )
+)
 
 /*++
 
@@ -2522,27 +2504,27 @@ Return Value:
     // Call the worker with the UNICODE flag
 
 
-    return(w_ElfrReadEL (
-                        ELF_IREAD_ANSI,
-                        LogHandle,
-                        ReadFlags,
-                        RecordNumber,
-                        NumberOfBytesToRead,
-                        Buffer,
-                        NumberOfBytesRead,
-                        MinNumberOfBytesNeeded
-                        ));
+    return(w_ElfrReadEL(
+        ELF_IREAD_ANSI,
+        LogHandle,
+        ReadFlags,
+        RecordNumber,
+        NumberOfBytesToRead,
+        Buffer,
+        NumberOfBytesRead,
+        MinNumberOfBytesNeeded
+    ));
 }
 
 
 
 
 NTSTATUS
-ConvertStringArrayToUnicode (
-    PUNICODE_STRING *pUStringArray,
-    PANSI_STRING    *Strings,
+ConvertStringArrayToUnicode(
+    PUNICODE_STRING* pUStringArray,
+    PANSI_STRING* Strings,
     USHORT          NumStrings
-    )
+)
 /*++
 
 Routine Description:
@@ -2571,7 +2553,7 @@ Return Value:
     // For each string passed in, allocate a UNICODE_STRING buffer
     // and set it to the UNICODE equivalent of the string passed in.
 
-    for (i=0; i<NumStrings; i++) {
+    for (i = 0; i < NumStrings; i++) {
 
         if (Strings[i]) {
 
@@ -2581,15 +2563,15 @@ Return Value:
                 break;
             }
 
-            pUStringArray[i] = ElfpAllocateBuffer (sizeof (UNICODE_STRING));
+            pUStringArray[i] = ElfpAllocateBuffer(sizeof(UNICODE_STRING));
 
             if (pUStringArray[i]) {
 
-                Status = RtlAnsiStringToUnicodeString (
-                                        pUStringArray[i],
-                                        (PANSI_STRING)Strings[i],
-                                        TRUE
-                                        );
+                Status = RtlAnsiStringToUnicodeString(
+                    pUStringArray[i],
+                    (PANSI_STRING)Strings[i],
+                    TRUE
+                );
             } else {
                 Status = STATUS_NO_MEMORY;
             }
@@ -2614,10 +2596,10 @@ Return Value:
 
 
 VOID
-FreePUStringArray (
-    PUNICODE_STRING  *pUStringArray,
+FreePUStringArray(
+    PUNICODE_STRING* pUStringArray,
     USHORT          NumStrings
-    )
+)
 /*++
 
 Routine Description:
@@ -2641,14 +2623,14 @@ Return Value:
 {
     USHORT      i;
 
-    for (i=0; i<NumStrings; i++) {
+    for (i = 0; i < NumStrings; i++) {
 
         if (pUStringArray[i]) {
 
             if (pUStringArray[i]->Buffer) {
-                RtlFreeUnicodeString (pUStringArray[i]); // Free the string buffer
+                RtlFreeUnicodeString(pUStringArray[i]); // Free the string buffer
 
-                ElfpFreeBuffer (pUStringArray[i]);  // Free the structure itself
+                ElfpFreeBuffer(pUStringArray[i]);  // Free the structure itself
             }
         }
     }
@@ -2657,7 +2639,7 @@ Return Value:
 
 
 NTSTATUS
-ElfrReportEventA (
+ElfrReportEventA(
     IN      IELF_HANDLE         LogHandle,
     IN      ULONG               Time,
     IN      USHORT              EventType,
@@ -2672,7 +2654,7 @@ ElfrReportEventA (
     IN      USHORT              Flags,
     IN OUT  PULONG              RecordNumber OPTIONAL,
     IN OUT  PULONG              TimeWritten OPTIONAL
-    )
+)
 
 /*++
 
@@ -2692,7 +2674,7 @@ Return Value:
 {
     NTSTATUS            Status;
     UNICODE_STRING      ComputerNameU;
-    PUNICODE_STRING     *pUStringArray = NULL;
+    PUNICODE_STRING* pUStringArray = NULL;
 
 
     // Check the handle before proceeding.
@@ -2731,19 +2713,19 @@ Return Value:
     // UNICODE API.
 
 
-    Status = RtlAnsiStringToUnicodeString (
-                    (PUNICODE_STRING)&ComputerNameU,
-                    (PANSI_STRING)ComputerName,
-                    TRUE
-                    );
+    Status = RtlAnsiStringToUnicodeString(
+        (PUNICODE_STRING)&ComputerNameU,
+        (PANSI_STRING)ComputerName,
+        TRUE
+    );
 
     if (NT_SUCCESS(Status)) {
 
         if (NumStrings) {
 
-            pUStringArray = ElfpAllocateBuffer (
-                                NumStrings * sizeof (PUNICODE_STRING)
-                                );
+            pUStringArray = ElfpAllocateBuffer(
+                NumStrings * sizeof(PUNICODE_STRING)
+            );
 
             if (pUStringArray) {
 
@@ -2753,45 +2735,44 @@ Return Value:
                 // We can just use the array of Strings passed in since we
                 // don't need to use it anywhere else.
 
-                Status = ConvertStringArrayToUnicode (
-                                    pUStringArray,
-                                    (PANSI_STRING *)Strings,
-                                    NumStrings
-                                    );
-            }
-            else {
+                Status = ConvertStringArrayToUnicode(
+                    pUStringArray,
+                    (PANSI_STRING*)Strings,
+                    NumStrings
+                );
+            } else {
                 Status = STATUS_NO_MEMORY;
             }
         }
 
         if (NT_SUCCESS(Status)) {
 
-            Status = ElfrReportEventW (
-                        LogHandle,
-                        Time,
-                        EventType,
-                        EventCategory,
-                        EventID,
-                        NumStrings,
-                        DataSize,
-                        (PRPC_UNICODE_STRING)&ComputerNameU,
-                        UserSid,
-                        (PRPC_UNICODE_STRING*)pUStringArray,
-                        Data,
-                        Flags,       // Flags       -  paired event
-                        RecordNumber,// RecordNumber | support. not in
-                        TimeWritten  // TimeWritten _  product 1
-                        );
+            Status = ElfrReportEventW(
+                LogHandle,
+                Time,
+                EventType,
+                EventCategory,
+                EventID,
+                NumStrings,
+                DataSize,
+                (PRPC_UNICODE_STRING)&ComputerNameU,
+                UserSid,
+                (PRPC_UNICODE_STRING*)pUStringArray,
+                Data,
+                Flags,       // Flags       -  paired event
+                RecordNumber,// RecordNumber | support. not in
+                TimeWritten  // TimeWritten _  product 1
+            );
 
-            FreePUStringArray (pUStringArray, NumStrings);
+            FreePUStringArray(pUStringArray, NumStrings);
 
         }
 
-        RtlFreeUnicodeString (&ComputerNameU);
+        RtlFreeUnicodeString(&ComputerNameU);
     }
 
     if (pUStringArray)
-        ElfpFreeBuffer (pUStringArray);
+        ElfpFreeBuffer(pUStringArray);
 
     return (Status);
 }
@@ -2800,7 +2781,7 @@ Return Value:
 NTSTATUS
 VerifyElfHandle(
     IN IELF_HANDLE LogHandle
-    )
+)
 
 /*++
 
@@ -2841,9 +2822,9 @@ Return Value:
 
 ULONG
 Safewcslen(
-    UNALIGNED WCHAR *p,
+    UNALIGNED WCHAR* p,
     LONG            MaxLength
-    )
+)
 /*++
 
     Safewcslen - Strlen that won't exceed MaxLength
@@ -2868,7 +2849,7 @@ Return Value:
     if (p) {
         while (MaxLength > 0 && *p++ != UNICODE_NULL) {
             MaxLength -= sizeof(WCHAR);
-            Count     += sizeof(WCHAR);
+            Count += sizeof(WCHAR);
         }
     }
 
@@ -2878,9 +2859,9 @@ Return Value:
 
 ULONG
 Safestrlen(
-    UNALIGNED char *p,
+    UNALIGNED char* p,
     LONG           MaxLength
-    )
+)
 /*++
 
     Safestrlen - Strlen that won't exceed MaxLength
@@ -2917,7 +2898,7 @@ Return Value:
 NTSTATUS
 VerifyUnicodeString(
     IN PUNICODE_STRING pUString
-    )
+)
 
 /*++
 
@@ -2961,7 +2942,7 @@ Return Value:
 NTSTATUS
 VerifyAnsiString(
     IN PANSI_STRING pAString
-    )
+)
 
 /*++
 
@@ -3028,17 +3009,17 @@ NTSTATUS
 ElfrRegisterClusterSvc(
     IN EVENTLOG_HANDLE_W UNCServerName,
     OUT PULONG pulSize,
-    OUT PBYTE * ppPackedEventInfo)
+    OUT PBYTE* ppPackedEventInfo)
 {
     ULONG               ulTotalSize = 0;
-    ULONG               ulTotalEventsSize=0;
-    ULONG               ulNumLogFiles=0;
-    PPROPLOGFILEINFO    pPropLogFileInfo=NULL;
-    NTSTATUS            Status=STATUS_SUCCESS;
-    PPACKEDEVENTINFO    pPackedEventInfo=NULL;
+    ULONG               ulTotalEventsSize = 0;
+    ULONG               ulNumLogFiles = 0;
+    PPROPLOGFILEINFO    pPropLogFileInfo = NULL;
+    NTSTATUS            Status = STATUS_SUCCESS;
+    PPACKEDEVENTINFO    pPackedEventInfo = NULL;
     UINT                i;
     PEVENTSFORLOGFILE   pEventsForLogFile;
-    WCHAR               *pBinding = NULL;
+    WCHAR* pBinding = NULL;
     HANDLE              hClusSvcNode = NULL;
     UNICODE_STRING      RootRegistryNode;
     OBJECT_ATTRIBUTES   ObjectAttributes;
@@ -3055,8 +3036,7 @@ ElfrRegisterClusterSvc(
     RtlInitUnicodeString(&RootRegistryNode, REG_CLUSSVC_NODE_PATH);
     InitializeObjectAttributes(&ObjectAttributes, &RootRegistryNode, OBJ_CASE_INSENSITIVE, NULL, NULL);
     NtOpenKey(&hClusSvcNode, KEY_READ | KEY_NOTIFY, &ObjectAttributes);
-    if (!hClusSvcNode)
-    {
+    if (!hClusSvcNode) {
         Status = STATUS_ACCESS_DENIED;
         goto FnExit;
     }
@@ -3064,50 +3044,45 @@ ElfrRegisterClusterSvc(
     //if the cluster service dies and restarts again in the same session
     //then it will try to register again
     //we dont reinitialize these globals again to prevent leaks
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
-    if (!gbClustering)
-    {
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+    if (!gbClustering) {
         ElfDbgPrint(("[ELF] ElfrDeregisterClusterSvc: gbClustering is FALSE.\r\n"));
 
         //load the cluster support dll
         ghClusDll = LoadLibraryW(L"CLUSSPRT.DLL");
-        if (!ghClusDll)
-        {
-            RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+        if (!ghClusDll) {
+            RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
             Status = GetLastError();
             goto FnExit;
         }
     }
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
 
-    gpfnPropagateEvents = (PROPAGATEEVENTSPROC)GetProcAddress((HMODULE)ghClusDll,"PropagateEvents");
-    gpfnBindToCluster = (BINDTOCLUSTERPROC)GetProcAddress((HMODULE)ghClusDll,"BindToClusterSvc");
-    gpfnUnbindFromCluster = (UNBINDFROMCLUSTERPROC)GetProcAddress((HMODULE)ghClusDll,"UnbindFromClusterSvc");
+    gpfnPropagateEvents = (PROPAGATEEVENTSPROC)GetProcAddress((HMODULE)ghClusDll, "PropagateEvents");
+    gpfnBindToCluster = (BINDTOCLUSTERPROC)GetProcAddress((HMODULE)ghClusDll, "BindToClusterSvc");
+    gpfnUnbindFromCluster = (UNBINDFROMCLUSTERPROC)GetProcAddress((HMODULE)ghClusDll, "UnbindFromClusterSvc");
 
     //get the function entry points
-    if (!gpfnPropagateEvents || !gpfnBindToCluster || !gpfnUnbindFromCluster )
-    {
+    if (!gpfnPropagateEvents || !gpfnBindToCluster || !gpfnUnbindFromCluster) {
         Status = STATUS_PROCEDURE_NOT_FOUND;
         goto FnExit;
     }
     //bind to th cluster service
     ghCluster = (*gpfnBindToCluster)(NULL);
-    if (!ghCluster)
-    {
+    if (!ghCluster) {
         Status = GetLastError();
         goto FnExit;
     }
 
     //since we are going to read the logs, make sure the service is running
-    while (  (GetElState() == RUNNING) && (!bAcquired))
-    {
+    while ((GetElState() == RUNNING) && (!bAcquired)) {
         bAcquired = RtlAcquireResourceShared(
-                            &GlobalElfResource,
-                            FALSE                       // Don't wait
-                            );
+            &GlobalElfResource,
+            FALSE                       // Don't wait
+        );
         if (!bAcquired) {
-            ElfDbgPrint(("[ElfrRegisterClusterSvc] Sleep waiting for global resource\n" ));
-            Sleep (ELF_GLOBAL_RESOURCE_WAIT);
+            ElfDbgPrint(("[ElfrRegisterClusterSvc] Sleep waiting for global resource\n"));
+            Sleep(ELF_GLOBAL_RESOURCE_WAIT);
         }
     }
 
@@ -3117,7 +3092,7 @@ ElfrRegisterClusterSvc(
 
 
     if (!bAcquired) {
-        ElfDbgPrint(("[ELF] Global resource not acquired.\n" ));
+        ElfDbgPrint(("[ELF] Global resource not acquired.\n"));
         Status = STATUS_UNSUCCESSFUL;
         goto FnExit;
     }
@@ -3125,52 +3100,49 @@ ElfrRegisterClusterSvc(
     //determine the size and acquire read locks on all files
     //FindSizeofEventsSinceStart acquires the per log locks if
     //there are events in at that log to propagate.
-    Status = FindSizeofEventsSinceStart (&ulTotalEventsSize, &ulNumLogFiles,
-                &pPropLogFileInfo);
+    Status = FindSizeofEventsSinceStart(&ulTotalEventsSize, &ulNumLogFiles,
+                                        &pPropLogFileInfo);
 
-    if (!NT_SUCCESS (Status))
+    if (!NT_SUCCESS(Status))
         goto FnExit;
 
     //if there are any events to propagate
-    if (ulNumLogFiles && ulTotalEventsSize && pPropLogFileInfo)
-    {
+    if (ulNumLogFiles && ulTotalEventsSize && pPropLogFileInfo) {
 
         ulTotalSize = sizeof(PACKEDEVENTINFO)         //for header
-                    + (sizeof(ULONG) * ulNumLogFiles) //for the offsets
-                    + (sizeof(EVENTSFORLOGFILE) * ulNumLogFiles) //info for every log files
-                    + ulTotalEventsSize;
+            + (sizeof(ULONG) * ulNumLogFiles) //for the offsets
+            + (sizeof(EVENTSFORLOGFILE) * ulNumLogFiles) //info for every log files
+            + ulTotalEventsSize;
 
 
 
         //allocate memory
-        *ppPackedEventInfo = (PBYTE)ElfpAllocateBuffer (ulTotalSize);
-        if (!(*ppPackedEventInfo))
-        {
+        *ppPackedEventInfo = (PBYTE)ElfpAllocateBuffer(ulTotalSize);
+        if (!(*ppPackedEventInfo)) {
             //free the read locks acquired in FindSizeofEventsSinceStart
-            for (i=0;i<ulNumLogFiles;i++)
-                RtlReleaseResource (&(pPropLogFileInfo[i].pLogFile->Resource));
+            for (i = 0; i < ulNumLogFiles; i++)
+                RtlReleaseResource(&(pPropLogFileInfo[i].pLogFile->Resource));
             Status = STATUS_NO_MEMORY;
             goto FnExit;
         }
         pPackedEventInfo = (PPACKEDEVENTINFO)(*ppPackedEventInfo);
         ElfDbgPrint(("[ELF] ElfrRegisterClusterSvc: Allocated %d bytes, pPackedEventInfo=0x%08lx\r\n",
-            ulTotalSize,pPackedEventInfo));
+                     ulTotalSize, pPackedEventInfo));
 
         pPackedEventInfo->ulNumEventsForLogFile = ulNumLogFiles;
 
 
-        for (i=0;i<ulNumLogFiles;i++)
-        {
+        for (i = 0; i < ulNumLogFiles; i++) {
 
             //set the offsets to the eventlogforfile structures
-            pPackedEventInfo->ulOffsets[i] = ((i== 0) ?
-                (sizeof(PACKEDEVENTINFO) +
-                ulNumLogFiles * sizeof(ULONG)) :
-                (pPackedEventInfo->ulOffsets[i-1] +
-                (pPropLogFileInfo[i-1].ulTotalEventSize + sizeof(EVENTSFORLOGFILE))));
+            pPackedEventInfo->ulOffsets[i] = ((i == 0) ?
+                                              (sizeof(PACKEDEVENTINFO) +
+                                               ulNumLogFiles * sizeof(ULONG)) :
+                                              (pPackedEventInfo->ulOffsets[i - 1] +
+                                               (pPropLogFileInfo[i - 1].ulTotalEventSize + sizeof(EVENTSFORLOGFILE))));
 
             ElfDbgPrint(("[ELF] ElfrRegisterClusterSvc: pPackedEventInfo->uloffsets[i]=%d\r\n",
-                pPackedEventInfo->ulOffsets[i]));
+                         pPackedEventInfo->ulOffsets[i]));
 
             pEventsForLogFile = (PEVENTSFORLOGFILE)(
                 (PBYTE)pPackedEventInfo + pPackedEventInfo->ulOffsets[i]);
@@ -3179,23 +3151,22 @@ ElfrRegisterClusterSvc(
             pEventsForLogFile->ulSize = sizeof(EVENTSFORLOGFILE) + pPropLogFileInfo[i].ulTotalEventSize;
             //copy the file name or should we get the module name
             lstrcpyW(pEventsForLogFile->szLogicalLogFile,
-                pPropLogFileInfo[i].pLogFile->LogModuleName->Buffer);
+                     pPropLogFileInfo[i].pLogFile->LogModuleName->Buffer);
             //set the number of events
             pEventsForLogFile->ulNumRecords = pPropLogFileInfo[i].ulNumRecords;
 
             ElfDbgPrint(("[ELF] ElfrRegisterClusterSvc: pEventsForLogFile struct.ulSize=%d,LogicalFile=%ws,ulNumRecords=%d\r\n",
-                pEventsForLogFile->ulSize, pEventsForLogFile->szLogicalLogFile,
-                pEventsForLogFile->ulNumRecords));
+                         pEventsForLogFile->ulSize, pEventsForLogFile->szLogicalLogFile,
+                         pEventsForLogFile->ulNumRecords));
 
             //get the events
             Status = GetEventsToProp((PEVENTLOGRECORD)((PBYTE)pEventsForLogFile + sizeof(EVENTSFORLOGFILE)),
-                pPropLogFileInfo+i);
+                                     pPropLogFileInfo + i);
 
             //ss::if that fails??
             //set the ulNumRecords to 0, so that on a write this data is discarded.
-            if (!NT_SUCCESS (Status))
-            {
-                pEventsForLogFile->ulNumRecords=0;
+            if (!NT_SUCCESS(Status)) {
+                pEventsForLogFile->ulNumRecords = 0;
                 //reset the error, we will go to the next file
                 Status = STATUS_SUCCESS;
             }
@@ -3205,55 +3176,51 @@ ElfrRegisterClusterSvc(
             pPropLogFileInfo[i].pLogFile->SessionStartRecordNumber =
                 pPropLogFileInfo[i].pLogFile->CurrentRecordNumber;
 
-            RtlReleaseResource (&(pPropLogFileInfo[i].pLogFile->Resource));
+            RtlReleaseResource(&(pPropLogFileInfo[i].pLogFile->Resource));
 
         }
         //set the total size
         pPackedEventInfo->ulSize = pPackedEventInfo->ulOffsets[ulNumLogFiles - 1] +
-                pPropLogFileInfo[ulNumLogFiles - 1].ulTotalEventSize +
-                sizeof(EVENTSFORLOGFILE);
+            pPropLogFileInfo[ulNumLogFiles - 1].ulTotalEventSize +
+            sizeof(EVENTSFORLOGFILE);
         *pulSize = pPackedEventInfo->ulSize;
 
     }
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
     //if the cluster service hadnt registered before or glClPackedEventInfo is NULL
-    if (!gbClustering || !gpClPackedEventInfo)
-    {
+    if (!gbClustering || !gpClPackedEventInfo) {
         //allocate memory for processing events for propagation
         ulTotalSize = sizeof(PACKEDEVENTINFO)         //for header
-                    + (sizeof(ULONG) * 1) //for the offsets
-                    + (sizeof(EVENTSFORLOGFILE) * 1) //info for every log files
-                    + MAXSIZE_OF_EVENTSTOPROP;
+            + (sizeof(ULONG) * 1) //for the offsets
+            + (sizeof(EVENTSFORLOGFILE) * 1) //info for every log files
+            + MAXSIZE_OF_EVENTSTOPROP;
 
         //allocate memory
-        gpClPackedEventInfo = (PPACKEDEVENTINFO)ElfpAllocateBuffer (ulTotalSize);
-        if (!(gpClPackedEventInfo))
-        {
+        gpClPackedEventInfo = (PPACKEDEVENTINFO)ElfpAllocateBuffer(ulTotalSize);
+        if (!(gpClPackedEventInfo)) {
             Status = STATUS_NO_MEMORY;
-            RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+            RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
             goto FnExit;
         }
 
         //setup the propagatepacketeventinfo
         gpClPackedEventInfo->ulNumEventsForLogFile = 1;
-        gpClPackedEventInfo->ulOffsets[0]= sizeof(PACKEDEVENTINFO) +
-                sizeof(ULONG);
+        gpClPackedEventInfo->ulOffsets[0] = sizeof(PACKEDEVENTINFO) +
+            sizeof(ULONG);
 
 
 
     }
     //set the flag to true so that propagation is now on.
     gbClustering = TRUE;
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
 
 FnExit:
 
     //if everything went ok,
-    if (!NT_SUCCESS (Status))
-    {
-        if (gpClPackedEventInfo)
-        {
+    if (!NT_SUCCESS(Status)) {
+        if (gpClPackedEventInfo) {
             ElfpFreeBuffer(gpClPackedEventInfo);
             gpClPackedEventInfo = NULL;
         }
@@ -3267,12 +3234,12 @@ FnExit:
     //free the pPropLogFileInfo stucture
     if (pPropLogFileInfo) ElfpFreeBuffer(pPropLogFileInfo);
 
-    if (bAcquired) ReleaseGlobalResource ();
+    if (bAcquired) ReleaseGlobalResource();
 
     ElfDbgPrint(("[ELF] ElfrRegisterClusterSvc: returning Status=%d\r\n",
-        Status));
+                 Status));
     ElfDbgPrint(("[ELF] ElfrRegisterClusterSvc: *pulSize=%d pPackedEventInfo=0x%08lx\r\n",
-        *pulSize, pPackedEventInfo));
+                 *pulSize, pPackedEventInfo));
     return(Status);
 }
 
@@ -3298,27 +3265,24 @@ ElfrDeregisterClusterSvc(
 {
     ElfDbgPrint(("[ELF] ElfrDeregisterClusterSvc: Entry.\r\n"));
 
-    RtlEnterCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
-    if (gbClustering)
-    {
+    RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+    if (gbClustering) {
         gbClustering = FALSE;
 
         if (gpClPackedEventInfo) ElfpFreeBuffer(gpClPackedEventInfo);
         gpClPackedEventInfo = NULL;
 
         //unload the cluster support dll
-        if (ghCluster && gpfnUnbindFromCluster)
-        {
+        if (ghCluster && gpfnUnbindFromCluster) {
             (*gpfnUnbindFromCluster)(ghCluster);
             ghCluster = NULL;
         }
-        if (ghClusDll)
-        {
+        if (ghClusDll) {
             FreeLibrary(ghClusDll);
             ghClusDll = NULL;
         }
     }
-    RtlLeaveCriticalSection ((PRTL_CRITICAL_SECTION)&gClPropCritSec);
+    RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)&gClPropCritSec);
 
     ElfDbgPrint(("[ELF] ElfrDeregisterClusterSvc: Exit.\r\n"));
 
@@ -3350,11 +3314,11 @@ NTSTATUS
 ElfrWriteClusterEvents(
     IN EVENTLOG_HANDLE_W UNCServerName,
     IN ULONG ulSize,
-    IN BYTE    *pBuffer
+    IN BYTE* pBuffer
 
 )
 {
-    UINT                i,j;
+    UINT                i, j;
     PEVENTSFORLOGFILE   pEventsForLogFile;
     UNICODE_STRING      ModuleName;
     PLOGMODULE          pLogModule;
@@ -3373,7 +3337,7 @@ ElfrWriteClusterEvents(
 
     if (Status != RPC_S_OK) {
         ElfDbgPrint(("ElfrWriteClusterEvents: RPC IMPERSONATION FAILED %d\n",
-            Status));
+                     Status));
         goto FnExit;
     }
 
@@ -3386,17 +3350,15 @@ ElfrWriteClusterEvents(
 
     if (!CheckTokenMembership(hClientToken,
                               ElfGlobalData->AliasAdminsSid,
-                              &bCheckMember))
-    {
+                              &bCheckMember)) {
         Status = GetLastError();
         ElfDbgPrint(("ElfrWriteClusterEvents : AllocInitializeSid failed, status %d\r\n",
-            Status));
+                     Status));
         RpcRevertToSelf();
         goto FnExit;
     }
 
-    if (!bCheckMember)
-    {
+    if (!bCheckMember) {
         Status = STATUS_ACCESS_DENIED;
         RpcRevertToSelf();
         goto FnExit;
@@ -3406,7 +3368,7 @@ ElfrWriteClusterEvents(
     Status = RpcRevertToSelf();
     if (Status != RPC_S_OK) {
         ElfDbgPrint(("ElfrWriteClusterEvents : RPC REVERT TO SELF FAILED %d\n",
-            Status));
+                     Status));
         goto FnExit;
     }
 
@@ -3422,14 +3384,14 @@ ElfrWriteClusterEvents(
         //validate input parameters and check that clustering is on
         if (!pPackedEventInfo || !ulSize ||
             (((PBYTE)pPackedEventInfo + sizeof(PACKEDEVENTINFO)) >
-            (PBYTE)(pBuffer + ulSize)) ||
+             (PBYTE)(pBuffer + ulSize)) ||
             (pPackedEventInfo->ulSize != ulSize) || (!gbClustering))
 
             return(STATUS_INVALID_PARAMETER);
 
 
         ElfDbgPrint(("[ELF] ElfrWriteClusterEvents: ulSize=%d ulNumEventsForLogFile=%d\r\n",
-            ulSize, pPackedEventInfo->ulNumEventsForLogFile));
+                     ulSize, pPackedEventInfo->ulNumEventsForLogFile));
 
 
         //setup the request packet
@@ -3437,53 +3399,48 @@ ElfrWriteClusterEvents(
         Request.Flags = 0;
 
         //for each log
-        for (i=0; i< pPackedEventInfo->ulNumEventsForLogFile; i++)
-        {
+        for (i = 0; i < pPackedEventInfo->ulNumEventsForLogFile; i++) {
             pEventsForLogFile = (PEVENTSFORLOGFILE)((PBYTE)pPackedEventInfo +
-                    pPackedEventInfo->ulOffsets[i]);
+                                                    pPackedEventInfo->ulOffsets[i]);
 
             //check the packet integrity -
             //check whether an overflow occured or our pointer points beyond
 
             if (((PBYTE)pEventsForLogFile < pBuffer) ||
                 (((PBYTE)pEventsForLogFile + sizeof(EVENTSFORLOGFILE)) >
-                    (PBYTE)(pBuffer + ulSize))
-                )
-            {
+                 (PBYTE)(pBuffer + ulSize))
+                ) {
                 Status = STATUS_INVALID_PARAMETER;
                 goto FnExit;
             }
 
 
             ElfDbgPrint(("[ELF] ElfrWriteClusterEvents: szLogicalLogFile=%ws ulNumRecords=%d\r\n",
-                pEventsForLogFile->szLogicalLogFile,pEventsForLogFile->ulNumRecords));
+                         pEventsForLogFile->szLogicalLogFile, pEventsForLogFile->ulNumRecords));
 
             //find the module
             //since we dont trust this string, force null termination
-            pEventsForLogFile->szLogicalLogFile[MAXLOGICALLOGNAMESIZE-1] = L'\0';
+            pEventsForLogFile->szLogicalLogFile[MAXLOGICALLOGNAMESIZE - 1] = L'\0';
             RtlInitUnicodeString(&ModuleName, pEventsForLogFile->szLogicalLogFile);
 
-            pLogModule = GetModuleStruc ((PUNICODE_STRING) & ModuleName);
+            pLogModule = GetModuleStruc((PUNICODE_STRING)&ModuleName);
             //for all the find the log file related to the module.
-            if (pLogModule)
-            {
+            if (pLogModule) {
                 ElfDbgPrint(("[ELF] ElfrWriteClusterEvents: processing records for pLogModule=0x%08lx\r\n",
-                    pLogModule));
+                             pLogModule));
 
                 Request.Module = pLogModule;
                 Request.LogFile = Request.Module->LogFile;
                 Request.Command = ELF_COMMAND_WRITE;
                 pEventLogRecord = (PEVENTLOGRECORD)(pEventsForLogFile->pEventLogRecords);
-                for (j=0;(j< pEventsForLogFile->ulNumRecords &&
-                    pEventLogRecord->Reserved == ELF_LOG_FILE_SIGNATURE);
-                    j++)
-                {
+                for (j = 0; (j < pEventsForLogFile->ulNumRecords &&
+                             pEventLogRecord->Reserved == ELF_LOG_FILE_SIGNATURE);
+                     j++) {
                     // check for packet interity
                     // that a bigger enough buffer was provided for the records
                     // also check that no overflow occurs
                     if (((PBYTE)pEventLogRecord + pEventLogRecord->Length) >
-                        (PBYTE)(pBuffer + ulSize))
-                    {
+                        (PBYTE)(pBuffer + ulSize)) {
                         Status = STATUS_INVALID_PARAMETER;
                         goto FnExit;
                     }
@@ -3504,17 +3461,17 @@ ElfrWriteClusterEvents(
                     Status = Request.Status;
                     if (!(NT_SUCCESS(Request.Status)))
                         ElfDbgPrint(("[ELF] ElfrWriteClusterEvents: failed to write record#=%d\r\n",
-                            j));
+                                     j));
 
                     pEventLogRecord = (PEVENTLOGRECORD)((PBYTE)pEventLogRecord +
-                            pEventLogRecord->Length);
+                                                        pEventLogRecord->Length);
 
 
                 }
             }
         }
     }
-    except (EXCEPTION_EXECUTE_HANDLER) {
+    except(EXCEPTION_EXECUTE_HANDLER) {
         Status = STATUS_INVALID_PARAMETER;
     }
 
