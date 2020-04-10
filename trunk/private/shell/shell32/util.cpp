@@ -70,7 +70,7 @@ typedef struct REGSHELLSTATE
 void snafu() { COMPILETIME_ASSERT(REGSHELLSTATE_SIZE_WIN2K == sizeof(REGSHELLSTATE)); }
 #endif DEBUG
 
-REGSHELLSTATE * g_pShellState = 0;
+REGSHELLSTATE* g_pShellState = 0;
 
 
 // We need to put this one in per-instance data section because during log-off
@@ -93,8 +93,8 @@ STDAPI_(HMODULE) LoadMM()
     return g_hmodWinMM;
 }
 
-typedef BOOL(WINAPI *PLAYSOUNDFN)(LPCTSTR lpsz, HANDLE hMod, DWORD dwFlags);
-typedef UINT(WINAPI *UINTVOIDFN)();
+typedef BOOL(WINAPI* PLAYSOUNDFN)(LPCTSTR lpsz, HANDLE hMod, DWORD dwFlags);
+typedef UINT(WINAPI* UINTVOIDFN)();
 
 STDAPI_(void) SHPlaySound(LPCTSTR pszSound)
 {
@@ -142,7 +142,7 @@ STDAPI_(void) SetICIKeyModifiers(DWORD* pfMask)
 
 
 // sane way to get the msg pos into a point, mostly needed for win32
-void GetMsgPos(POINT *ppt)
+void GetMsgPos(POINT* ppt)
 {
     DWORD dw = GetMessagePos();
 
@@ -163,10 +163,10 @@ int GetPict(WCHAR ch, LPWSTR wszStr)
     return count;
 }
 
-DWORD CALLBACK _PropSheetThreadProc(void *pvPropStuff)
+DWORD CALLBACK _PropSheetThreadProc(void* pvPropStuff)
 {
     DWORD dwRet;
-    PROPSTUFF * pps = (PROPSTUFF *)pvPropStuff;
+    PROPSTUFF* pps = (PROPSTUFF*)pvPropStuff;
 
     OleInitialize(0);
 
@@ -193,10 +193,10 @@ DWORD CALLBACK _PropSheetThreadProc(void *pvPropStuff)
 
 // helper function for pulling ITypeInfo out of our typelib
 
-STDAPI Shell32GetTypeInfo(LCID lcid, UUID uuid, ITypeInfo **ppITypeInfo)
+STDAPI Shell32GetTypeInfo(LCID lcid, UUID uuid, ITypeInfo** ppITypeInfo)
 {
     HRESULT    hr;
-    ITypeLib  *pITypeLib;
+    ITypeLib* pITypeLib;
 
     // Just in case we can't find the type library anywhere
     *ppITypeInfo = NULL;
@@ -252,11 +252,11 @@ STDAPI Shell32GetTypeInfo(LCID lcid, UUID uuid, ITypeInfo **ppITypeInfo)
 // the fucking alpha cpp compiler seems to fuck up the goddam type "LPITEMIDLIST", so to work
 // around the fucking peice of shit compiler we pass the last param as an void *instead of a LPITEMIDLIST
 
-STDAPI_(void) SHLaunchPropSheet(LPTHREAD_START_ROUTINE lpStartAddress, IDataObject * pdtobj, LPCTSTR pStartPage, IShellFolder * psf, void *pidl)
+STDAPI_(void) SHLaunchPropSheet(LPTHREAD_START_ROUTINE lpStartAddress, IDataObject* pdtobj, LPCTSTR pStartPage, IShellFolder* psf, void* pidl)
 {
     LPITEMIDLIST pidlParent = (LPITEMIDLIST)pidl;
     UINT cbStartPage = !IS_INTRESOURCE(pStartPage) ? ((lstrlen(pStartPage) + 1) * SIZEOF(TCHAR)) : 0;
-    PROPSTUFF * pps = (PROPSTUFF *)LocalAlloc(LPTR, SIZEOF(PROPSTUFF) + cbStartPage);
+    PROPSTUFF* pps = (PROPSTUFF*)LocalAlloc(LPTR, SIZEOF(PROPSTUFF) + cbStartPage);
     if (pps) {
         pps->lpStartAddress = lpStartAddress;
 
@@ -288,7 +288,7 @@ STDAPI_(void) SHLaunchPropSheet(LPTHREAD_START_ROUTINE lpStartAddress, IDataObje
  *  wValArray should contain Month-Day-Year (in that order).
 */
 
-int CreateDate(WORD *wValArray, LPWSTR wszOutStr)
+int CreateDate(WORD* wValArray, LPWSTR wszOutStr)
 {
     int     i;
     int     cchPictPart;
@@ -384,7 +384,7 @@ int CreateDate(WORD *wValArray, LPWSTR wszOutStr)
     CDFillIn:
         /* Add the separator. */
         while ((*pwszPict) &&
-            (*pwszPict != TEXT('\'')) &&
+               (*pwszPict != TEXT('\'')) &&
                (*pwszPict != TEXT('M')) && (*pwszPict != TEXT('m')) &&
                (*pwszPict != TEXT('D')) && (*pwszPict != TEXT('d')) &&
                (*pwszPict != TEXT('Y')) && (*pwszPict != TEXT('y'))) {
@@ -525,7 +525,7 @@ WORD WINAPI ParseDateString(LPCWSTR pszStr)
 }
 
 
-STDAPI_(BOOL) IsNullTime(const FILETIME *pft)
+STDAPI_(BOOL) IsNullTime(const FILETIME* pft)
 {
     FILETIME ftNull = {0, 0};
     return CompareFileTime(&ftNull, pft) == 0;
@@ -712,7 +712,7 @@ STDAPI_(LPTSTR) ShortSizeFormat(DWORD n, LPTSTR szBuf)
 
 
 INT WINAPI Int64ToString(LONGLONG n, LPTSTR szOutStr, UINT nSize, BOOL bFormat,
-                         NUMBERFMT *pFmt, DWORD dwNumFmtFlags)
+                         NUMBERFMT* pFmt, DWORD dwNumFmtFlags)
 {
     INT nResultSize;
     TCHAR szBuffer[_MAX_PATH + 1];
@@ -825,8 +825,8 @@ INT WINAPI Int64ToString(LONGLONG n, LPTSTR szOutStr, UINT nSize, BOOL bFormat,
 //    See description of Int64ToString for remaining arguments.
 
 
-INT WINAPI LargeIntegerToString(LARGE_INTEGER *pN, LPTSTR szOutStr, UINT nSize,
-                                BOOL bFormat, NUMBERFMT *pFmt,
+INT WINAPI LargeIntegerToString(LARGE_INTEGER* pN, LPTSTR szOutStr, UINT nSize,
+                                BOOL bFormat, NUMBERFMT* pFmt,
                                 DWORD dwNumFmtFlags)
 {
     ASSERT(NULL != pN);
@@ -1067,7 +1067,7 @@ void DBCheckMenu(HMENU hmChk)
 {
     long bfAlpha = 0;
     long bfDigit = 0;
-    long *pbfMne;
+    long* pbfMne;
     int nItem;
     int iMne;
     TCHAR chMne;
@@ -1219,7 +1219,7 @@ UINT WINAPI Shell_MergeMenus(HMENU hmDst, HMENU hmSrc, UINT uInsert, UINT uIDAdj
             }
 
             uTemp = Shell_MergeMenus(miiSrc.hSubMenu, hmSubMenu, 0, uIDAdjust,
-                                     uIDAdjustMax, uFlags&MM_SUBMENUSHAVEIDS);
+                                     uIDAdjustMax, uFlags & MM_SUBMENUSHAVEIDS);
             if (uIDMax <= uTemp) {
                 uIDMax = uTemp;
             }
@@ -1315,7 +1315,7 @@ BOOL    WasPrevOsWin98()
 }
 
 
-void _SetIE4DefaultShellState(SHELLSTATE *pss)
+void _SetIE4DefaultShellState(SHELLSTATE* pss)
 {
     pss->fDoubleClickInWebView = TRUE;
     pss->fShowInfoTip = TRUE;
@@ -1751,7 +1751,7 @@ BOOL _RefreshSettings(void)
 // portion of the registry.  If no SHELLSTATE is passed in, it uses
 // the current state stored in the registry.
 
-void Install_AdvancedShellSettings(SHELLSTATE * pss)
+void Install_AdvancedShellSettings(SHELLSTATE* pss)
 {
     HKEY hkeyAdv;
     DWORD dw;
@@ -2072,7 +2072,7 @@ STDAPI_(void) SHGetSettings(LPSHELLFLAGSTATE lpsfs, DWORD dwMask)
     SHGetSetSettings(&ss, dwMask, FALSE);
 
     // copy the dword of flags out
-    *((DWORD *)lpsfs) = *((DWORD *)(&ss));
+    *((DWORD*)lpsfs) = *((DWORD*)(&ss));
 }
 
 
@@ -2110,7 +2110,7 @@ STDAPI_(BOOL) PathIsEqualOrSubFolder(LPCTSTR pszFolder, LPCTSTR pszSubFolder)
     if (!IS_INTRESOURCE(pszFolder))
         lstrcpyn(szParent, pszFolder, ARRAYSIZE(szParent));
     else
-        SHGetFolderPath(NULL, PtrToUlong((void *)pszFolder) | CSIDL_FLAG_DONT_VERIFY, NULL, SHGFP_TYPE_CURRENT, szParent);
+        SHGetFolderPath(NULL, PtrToUlong((void*)pszFolder) | CSIDL_FLAG_DONT_VERIFY, NULL, SHGFP_TYPE_CURRENT, szParent);
 
     //  PathCommonPrefix() always removes the slash on common
     return szParent[0] && PathRemoveBackslash(szParent)
@@ -2308,7 +2308,7 @@ STDAPI_(void) CheckWinIniForAssocs(void)
     szExtension[1] = TEXT('\0');
 
     // BUGBUG - BobDay - This code doesn't handle larger section
-    pszBuf = (LPTSTR)LocalAlloc(LPTR, CWIFA_SIZE*SIZEOF(TCHAR));
+    pszBuf = (LPTSTR)LocalAlloc(LPTR, CWIFA_SIZE * SIZEOF(TCHAR));
     if (!pszBuf)
         return; // Could not allocate the memory
     cbRet = (int)GetProfileSection(TEXT("Extensions"), pszBuf, CWIFA_SIZE);
@@ -2628,17 +2628,17 @@ STDAPI_(void) SHSettingsChanged(WPARAM wParam, LPARAM lParam)
     }
 }
 
-LONG SHRegQueryValueExA(HKEY hKey, LPCSTR lpValueName, DWORD *pRes, DWORD *lpType, LPBYTE lpData, DWORD *lpcbData)
+LONG SHRegQueryValueExA(HKEY hKey, LPCSTR lpValueName, DWORD* pRes, DWORD* lpType, LPBYTE lpData, DWORD* lpcbData)
 {
     return SHQueryValueExA(hKey, lpValueName, pRes, lpType, lpData, lpcbData);
 }
 
-LONG SHRegQueryValueExW(HKEY hKey, LPCWSTR lpValueName, DWORD *pRes, DWORD *lpType, LPBYTE lpData, DWORD *lpcbData)
+LONG SHRegQueryValueExW(HKEY hKey, LPCWSTR lpValueName, DWORD* pRes, DWORD* lpType, LPBYTE lpData, DWORD* lpcbData)
 {
     return SHQueryValueExW(hKey, lpValueName, pRes, lpType, lpData, lpcbData);
 }
 
-STDAPI_(LONG) SHRegQueryValueA(HKEY hKey, LPCSTR lpSubKey, LPSTR lpValue, LONG *lpcbValue)
+STDAPI_(LONG) SHRegQueryValueA(HKEY hKey, LPCSTR lpSubKey, LPSTR lpValue, LONG* lpcbValue)
 {
     LONG l;
     HKEY ChildKey;
@@ -2651,7 +2651,7 @@ STDAPI_(LONG) SHRegQueryValueA(HKEY hKey, LPCSTR lpSubKey, LPSTR lpValue, LONG *
             return l;
     }
 
-    l = SHQueryValueExA(ChildKey, NULL, NULL, NULL, (LPBYTE)lpValue, (DWORD *)lpcbValue);
+    l = SHQueryValueExA(ChildKey, NULL, NULL, NULL, (LPBYTE)lpValue, (DWORD*)lpcbValue);
 
     if (ChildKey != hKey)
         RegCloseKey(ChildKey);
@@ -2666,7 +2666,7 @@ STDAPI_(LONG) SHRegQueryValueA(HKEY hKey, LPCSTR lpSubKey, LPSTR lpValue, LONG *
     return l;
 }
 
-STDAPI_(LONG) SHRegQueryValueW(HKEY hKey, LPCWSTR lpSubKey, LPWSTR lpValue, LONG *lpcbValue)
+STDAPI_(LONG) SHRegQueryValueW(HKEY hKey, LPCWSTR lpSubKey, LPWSTR lpValue, LONG* lpcbValue)
 {
     LONG l;
     HKEY ChildKey;
@@ -2679,7 +2679,7 @@ STDAPI_(LONG) SHRegQueryValueW(HKEY hKey, LPCWSTR lpSubKey, LPWSTR lpValue, LONG
             return l;
     }
 
-    l = SHQueryValueExW(ChildKey, NULL, NULL, NULL, (LPBYTE)lpValue, (DWORD *)lpcbValue);
+    l = SHQueryValueExW(ChildKey, NULL, NULL, NULL, (LPBYTE)lpValue, (DWORD*)lpcbValue);
 
     if (ChildKey != hKey)
         RegCloseKey(ChildKey);
@@ -2790,7 +2790,7 @@ STDAPI_(void) MoveCLSIDs()
 }
 
 
-STDAPI StringToStrRet(LPCTSTR pszName, STRRET *pStrRet)
+STDAPI StringToStrRet(LPCTSTR pszName, STRRET* pStrRet)
 {
 #ifdef UNICODE
     pStrRet->uType = STRRET_WSTR;
@@ -2802,14 +2802,14 @@ STDAPI StringToStrRet(LPCTSTR pszName, STRRET *pStrRet)
 #endif
 }
 
-STDAPI StringToStrRetW(LPCWSTR pszName, STRRET *pStrRet)
+STDAPI StringToStrRetW(LPCWSTR pszName, STRRET* pStrRet)
 {
     pStrRet->uType = STRRET_WSTR;
     return SHStrDupW(pszName, &pStrRet->pOleStr);
 }
 
 
-STDAPI ResToStrRet(UINT id, STRRET *pStrRet)
+STDAPI ResToStrRet(UINT id, STRRET* pStrRet)
 {
 #ifdef UNICODE
     HRESULT hres;
@@ -2906,7 +2906,7 @@ LPCTSTR SkipLeadingSlashes(LPCTSTR pszURL)
 
 #undef PropVariantClear
 
-STDAPI PropVariantClearLazy(PROPVARIANT *pvar)
+STDAPI PropVariantClearLazy(PROPVARIANT* pvar)
 {
     switch (pvar->vt) {
     case VT_I4:
@@ -2943,7 +2943,7 @@ STDAPI PropVariantClearLazy(PROPVARIANT *pvar)
     Return S_OK if all of the items are HTML or CDF references.
     Otherwise, return S_FALSE.
     \**/
-HRESULT IsDeskCompHDrop(IDataObject * pido)
+HRESULT IsDeskCompHDrop(IDataObject* pido)
 {
     HRESULT hr = S_FALSE;
     FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
@@ -2988,8 +2988,8 @@ HRESULT IsDeskCompHDrop(IDataObject * pido)
 
 HRESULT _LocalAddDTI(LPCSTR pszUrl, HWND hwnd, int x, int y, int nType)
 {
-    IActiveDesktop * pad;
-    HRESULT hr = CoCreateInstance(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC_SERVER, IID_IActiveDesktop, (void **)&pad);
+    IActiveDesktop* pad;
+    HRESULT hr = CoCreateInstance(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC_SERVER, IID_IActiveDesktop, (void**)&pad);
     if (SUCCEEDED(hr)) {
         COMPONENT comp = {
             sizeof(COMPONENT),              //Size of this structure
@@ -3032,8 +3032,8 @@ HRESULT _LocalAddDTI(LPCSTR pszUrl, HWND hwnd, int x, int y, int nType)
     \**/
 HRESULT ExecuteDeskCompHDrop(LPTSTR pszMultipleUrls, HWND hwnd, int x, int y)
 {
-    IActiveDesktop * pad;
-    HRESULT hr = CoCreateInstance(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC_SERVER, IID_IActiveDesktop, (void **)&pad);
+    IActiveDesktop* pad;
+    HRESULT hr = CoCreateInstance(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC_SERVER, IID_IActiveDesktop, (void**)&pad);
     if (SUCCEEDED(hr)) {
         COMPONENT comp = {
             sizeof(COMPONENT),              //Size of this structure
@@ -3093,9 +3093,9 @@ typedef struct
     a thread to do this because it may take a while and we don't want
     to block the UI thread because dialogs may be displayed.
     \**/
-DWORD CALLBACK _CreateDeskComp_ThreadProc(void *pvCreateDeskComp)
+DWORD CALLBACK _CreateDeskComp_ThreadProc(void* pvCreateDeskComp)
 {
-    CREATEDESKCOMP * pcdc = (CREATEDESKCOMP *)pvCreateDeskComp;
+    CREATEDESKCOMP* pcdc = (CREATEDESKCOMP*)pvCreateDeskComp;
 
     HRESULT hres = OleInitialize(0);
     if (EVAL(SUCCEEDED(hres))) {
@@ -3122,10 +3122,10 @@ DWORD CALLBACK _CreateDeskComp_ThreadProc(void *pvCreateDeskComp)
     a thread to do this because it may take a while and we don't want
     to block the UI thread because dialogs may be displayed.
     \**/
-HRESULT CreateDesktopComponents(LPCSTR pszUrl, IDataObject * pido, HWND hwnd, DWORD dwFlags, int x, int y)
+HRESULT CreateDesktopComponents(LPCSTR pszUrl, IDataObject* pido, HWND hwnd, DWORD dwFlags, int x, int y)
 {
     HRESULT hr = E_OUTOFMEMORY;
-    CREATEDESKCOMP * pcdc = (CREATEDESKCOMP *)LocalAlloc(LPTR, SIZEOF(CREATEDESKCOMP));
+    CREATEDESKCOMP* pcdc = (CREATEDESKCOMP*)LocalAlloc(LPTR, SIZEOF(CREATEDESKCOMP));
 
     // Create Thread....
     if (pcdc) {
@@ -3251,7 +3251,7 @@ BOOL CenterWindow(HWND hwndChild, HWND hwndParent)
 // internally, and it does not appear that anyone external is using it (verified that taskman
 // on NT and W95 uses the win32 api's CascadeWindows and TileWindows.  This could probably be
 // removed altogether.                                                    (t-saml, 12/97)
-STDAPI_(WORD) ArrangeWindows(HWND hwndParent, WORD flags, LPCRECT lpRect, WORD chwnd, const HWND *ahwnd)
+STDAPI_(WORD) ArrangeWindows(HWND hwndParent, WORD flags, LPCRECT lpRect, WORD chwnd, const HWND* ahwnd)
 {
     ASSERT(0);
     return 0;
@@ -3295,7 +3295,7 @@ void    DrawMenuItem(DRAWITEMSTRUCT* lpdi, LPCTSTR lpszMenuText, UINT iIcon)
     }
 }
 
-LRESULT MeasureMenuItem(MEASUREITEMSTRUCT *lpmi, LPCTSTR lpszMenuText)
+LRESULT MeasureMenuItem(MEASUREITEMSTRUCT* lpmi, LPCTSTR lpszMenuText)
 {
     LRESULT lres = FALSE;
 
@@ -3389,7 +3389,7 @@ STDAPI_(BOOL) IsPathInOpenWithKillList(LPCTSTR pszPath)
     Return:
     TRUE on success, and FALSE otherwise
     */
-BOOL WINAPI GetFileDescription(LPCTSTR pszPath, LPTSTR pszDesc, UINT *pcchDesc)
+BOOL WINAPI GetFileDescription(LPCTSTR pszPath, LPTSTR pszDesc, UINT* pcchDesc)
 {
     TCHAR szVersionKey[60];         /* big enough for anything we need */
     LPTSTR pszVersionKey = NULL;
@@ -3404,7 +3404,7 @@ BOOL WINAPI GetFileDescription(LPCTSTR pszPath, LPTSTR pszDesc, UINT *pcchDesc)
     return SHGetFileDescription(pszPath, pszVersionKey, NULL, pszDesc, pcchDesc);
 }
 
-HRESULT PathFromDataObject(IDataObject *pdtobj, LPTSTR pszPath, UINT cchPath)
+HRESULT PathFromDataObject(IDataObject* pdtobj, LPTSTR pszPath, UINT cchPath)
 {
     FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
     STGMEDIUM medium;
@@ -3423,7 +3423,7 @@ HRESULT PathFromDataObject(IDataObject *pdtobj, LPTSTR pszPath, UINT cchPath)
     return hres;
 }
 
-HRESULT PidlFromDataObject(IDataObject *pdtobj, LPITEMIDLIST * ppidlTarget)
+HRESULT PidlFromDataObject(IDataObject* pdtobj, LPITEMIDLIST* ppidlTarget)
 {
     HRESULT hres;
 
@@ -3511,7 +3511,7 @@ BOOL SafePathListAppend(LPTSTR pszDestPath, DWORD cchDestSize, LPCTSTR pszPathTo
     return fResult;
 }
 
-bool IsDiscardablePropertySet(const FMTID & fmtid)
+bool IsDiscardablePropertySet(const FMTID& fmtid)
 {
     if (IsEqualGUID(fmtid, FMTID_DiscardableInformation))
         return true;
@@ -3556,7 +3556,7 @@ bool IsDiscardableStream(LPCTSTR pszStreamName)
 
 #define NT_FAILED(x) NT_ERROR(x)   // More consistent name for this macro
 
-LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BOOL bIsADir, BOOL * pbDirIsSafe)
+LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BOOL bIsADir, BOOL* pbDirIsSafe)
 {
     BOOL                            bMultiStream = FALSE;
     NTSTATUS                        NtStatus;
@@ -3567,8 +3567,8 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
     HANDLE DestPathHandle = INVALID_HANDLE_VALUE;
     UNICODE_STRING                  UnicodeSrcObject;
     UNICODE_STRING                  UnicodeDestPath;
-    IPropertySetStorage           * pPropSetStorage = NULL;
-    IEnumSTATPROPSETSTG           * pEnumSetStorage = NULL;
+    IPropertySetStorage* pPropSetStorage = NULL;
+    IEnumSTATPROPSETSTG* pEnumSetStorage = NULL;
 
     *pbDirIsSafe = FALSE;
 
@@ -3642,7 +3642,7 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
     // Incrementally try allocation sizes for the ObjectStreamInformation,
     // then retrieve the actual stream info
 
-    BYTE * pBuffer = NULL;
+    BYTE* pBuffer = NULL;
 
     __try   // Current and future allocations and handles free'd by __finally block
     {
@@ -3654,7 +3654,7 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
         NtStatus = NtQueryVolumeInformationFile(
             SrcObjectHandle,
             &IoStatusBlock,
-            (BYTE *)pAttributeInfo,
+            (BYTE*)pAttributeInfo,
             cbAttributeInfo,
             FileFsAttributeInformation
         );
@@ -3675,7 +3675,7 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
         NtStatus = NtQueryVolumeInformationFile(
             DestPathHandle,
             &IoStatusBlock,
-            (BYTE *)pAttributeInfo,
+            (BYTE*)pAttributeInfo,
             cbAttributeInfo,
             FileFsAttributeInformation
         );
@@ -3699,11 +3699,11 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
         // a single stream.
 
         cbBuffer = sizeof(FILE_STREAM_INFORMATION) + MAX_PATH * sizeof(WCHAR);
-        if (NULL == (pBuffer = (BYTE *)LocalAlloc(LPTR, cbBuffer)))
+        if (NULL == (pBuffer = (BYTE*)LocalAlloc(LPTR, cbBuffer)))
             return NULL;
         do {
-            BYTE * pOldBuffer = pBuffer;
-            if (NULL == (pBuffer = (BYTE *)LocalReAlloc(pBuffer, cbBuffer, LMEM_MOVEABLE))) {
+            BYTE* pOldBuffer = pBuffer;
+            if (NULL == (pBuffer = (BYTE*)LocalReAlloc(pBuffer, cbBuffer, LMEM_MOVEABLE))) {
                 LocalFree(pOldBuffer);
                 return NULL;
             }
@@ -3714,7 +3714,7 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
         } while (STATUS_BUFFER_OVERFLOW == NtStatus);
 
         if (NT_SUCCESS(NtStatus)) {
-            FILE_STREAM_INFORMATION * pStreamInfo = (FILE_STREAM_INFORMATION *)pBuffer;
+            FILE_STREAM_INFORMATION* pStreamInfo = (FILE_STREAM_INFORMATION*)pBuffer;
             BOOL bLastPass = (0 == pStreamInfo->NextEntryOffset);
 
             if (bIsADir) {
@@ -3727,7 +3727,7 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
             {
                 // Single stream only if first stream has no next offset
 
-                if ((0 == pStreamInfo->NextEntryOffset) && (pBuffer == (BYTE *)pStreamInfo))
+                if ((0 == pStreamInfo->NextEntryOffset) && (pBuffer == (BYTE*)pStreamInfo))
                     return NULL;
             }
 
@@ -3797,13 +3797,13 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
                     if (cch) {
                         LPTSTR pszOldMessage = pszUserMessage;
                         if (pszOldMessage) {
-                            pszUserMessage = (TCHAR *)LocalReAlloc(pszOldMessage,
-                                (lstrlen(pszUserMessage) + cch + 3) * sizeof(TCHAR),
-                                                                   LMEM_MOVEABLE);
+                            pszUserMessage = (TCHAR*)LocalReAlloc(pszOldMessage,
+                                                                  (lstrlen(pszUserMessage) + cch + 3) * sizeof(TCHAR),
+                                                                  LMEM_MOVEABLE);
                             if (pszUserMessage)
                                 lstrcat(pszUserMessage, TEXT("\r\n"));
                         } else
-                            pszUserMessage = (TCHAR *)LocalAlloc(LPTR, (cch + 1) * sizeof(TCHAR));
+                            pszUserMessage = (TCHAR*)LocalAlloc(LPTR, (cch + 1) * sizeof(TCHAR));
 
 
                         if (NULL == pszUserMessage)
@@ -3816,7 +3816,7 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
                 if (bLastPass)
                     break;
 
-                pStreamInfo = (FILE_STREAM_INFORMATION *)(((BYTE *)pStreamInfo) + pStreamInfo->NextEntryOffset);
+                pStreamInfo = (FILE_STREAM_INFORMATION*)(((BYTE*)pStreamInfo) + pStreamInfo->NextEntryOffset);
                 bLastPass = (0 == pStreamInfo->NextEntryOffset);
             }
 
@@ -3828,7 +3828,7 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
                                        STGFMT_FILE,
                                        0, 0, 0,
                                        IID_IPropertySetStorage,
-                                       (void **)&pPropSetStorage))) {
+                                       (void**)&pPropSetStorage))) {
             // Enum the property set storages available for this file
 
             if (SUCCEEDED(pPropSetStorage->Enum(&pEnumSetStorage))) {
@@ -3849,7 +3849,7 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
 
                             static const struct _AKNOWNPSETS
                             {
-                                const FMTID * m_pFMTID;
+                                const FMTID* m_pFMTID;
                                 UINT          m_idTextID;
                             }
                             _aKnownPsets[] =
@@ -3882,13 +3882,13 @@ LPWSTR GetDownlevelCopyDataLossText(LPCWSTR pszSrcObject, LPCWSTR pszDestDir, BO
                             if (cch) {
                                 LPTSTR pszOldMessage = pszUserMessage;
                                 if (pszOldMessage) {
-                                    pszUserMessage = (TCHAR *)LocalReAlloc(pszOldMessage,
-                                        (lstrlen(pszUserMessage) + cch + 3) * sizeof(TCHAR),
-                                                                           LMEM_MOVEABLE);
+                                    pszUserMessage = (TCHAR*)LocalReAlloc(pszOldMessage,
+                                                                          (lstrlen(pszUserMessage) + cch + 3) * sizeof(TCHAR),
+                                                                          LMEM_MOVEABLE);
                                     if (pszUserMessage)
                                         lstrcat(pszUserMessage, TEXT("\r\n"));
                                 } else
-                                    pszUserMessage = (TCHAR *)LocalAlloc(LPTR, (cch + 1) * sizeof(TCHAR));
+                                    pszUserMessage = (TCHAR*)LocalAlloc(LPTR, (cch + 1) * sizeof(TCHAR));
 
                                 if (NULL == pszUserMessage)
                                     pszUserMessage = pszOldMessage; // Can't grow it, but at least keep what we know so far
@@ -3958,7 +3958,7 @@ void HWNDWSPrintf(HWND hwnd, LPCTSTR psz, BOOL fCompact)
 
 
 
-BOOL WINAPI Priv_Str_SetPtrW(WCHAR * UNALIGNED * ppwzCurrent, LPCWSTR pwzNew)
+BOOL WINAPI Priv_Str_SetPtrW(WCHAR* UNALIGNED* ppwzCurrent, LPCWSTR pwzNew)
 {
     LPWSTR pwzOld;
     LPWSTR pwzNewCopy = NULL;
@@ -3975,7 +3975,7 @@ BOOL WINAPI Priv_Str_SetPtrW(WCHAR * UNALIGNED * ppwzCurrent, LPCWSTR pwzNew)
         StrCpyNW(pwzNewCopy, pwzNew, cchLength + 1);
     }
 
-    pwzOld = (LPWSTR)InterlockedExchangePointer((void * *)ppwzCurrent, pwzNewCopy);
+    pwzOld = (LPWSTR)InterlockedExchangePointer((void**)ppwzCurrent, pwzNewCopy);
 
     if (pwzOld)
         LocalFree(pwzOld);
@@ -4002,7 +4002,7 @@ STDAPI_(LPITEMIDLIST) ILCombineParentAndFirst(LPCITEMIDLIST pidlParent, LPCITEMI
     if (pidlNew) {
         cbParent -= SIZEOF(pidlParent->mkid.cb);
         memcpy(pidlNew, pidlParent, cbParent);
-        memcpy((BYTE *)pidlNew + cbParent, pidl, cbRest);
+        memcpy((BYTE*)pidlNew + cbParent, pidl, cbRest);
         ASSERT(_ILSkip(pidlNew, cbParent + cbRest)->mkid.cb == 0);
     }
     return pidlNew;
@@ -4090,11 +4090,11 @@ STDAPI_(LPTSTR) DumpPidl(LPCITEMIDLIST pidl)
 }
 
 
-STDAPI GetDomainWorkgroupIDList(LPITEMIDLIST *ppidl)
+STDAPI GetDomainWorkgroupIDList(LPITEMIDLIST* ppidl)
 {
     *ppidl = NULL;
 
-    IShellFolder *psfDesktop;
+    IShellFolder* psfDesktop;
     HRESULT hres = SHGetDesktopFolder(&psfDesktop);
     if (SUCCEEDED(hres)) {
         TCHAR szName[MAX_PATH];
@@ -4119,15 +4119,15 @@ STDAPI GetDomainWorkgroupIDList(LPITEMIDLIST *ppidl)
     return hres;
 }
 
-HRESULT SaveShortcutInFolder(int csidl, LPTSTR pszName, IShellLink *psl)
+HRESULT SaveShortcutInFolder(int csidl, LPTSTR pszName, IShellLink* psl)
 {
     TCHAR szPath[MAX_PATH];
 
     HRESULT hres = SHGetFolderPath(NULL, csidl | CSIDL_FLAG_CREATE, NULL, 0, szPath);
     if (SUCCEEDED(hres)) {
-        IPersistFile *ppf;
+        IPersistFile* ppf;
 
-        hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
+        hres = psl->QueryInterface(IID_IPersistFile, (void**)&ppf);
         if (SUCCEEDED(hres)) {
             PathAppend(szPath, pszName);
 
@@ -4141,7 +4141,7 @@ HRESULT SaveShortcutInFolder(int csidl, LPTSTR pszName, IShellLink *psl)
     return hres;
 }
 
-BOOL ShouldCreateNetHoodShortcuts(BOOL *pbWorkgroup)
+BOOL ShouldCreateNetHoodShortcuts(BOOL* pbWorkgroup)
 {
 #if WINNT
     BOOL bShould = FALSE;
@@ -4169,7 +4169,7 @@ BOOL ShouldCreateNetHoodShortcuts(BOOL *pbWorkgroup)
                 (lstrcmp(szValue, szJoined) != 0);
 
             if (bShould)
-                RegSetValueEx(hkey, TEXT("Last Domain"), 0, REG_SZ, (BYTE *)szJoined, (lstrlen(szJoined) + 1) * sizeof(TCHAR));
+                RegSetValueEx(hkey, TEXT("Last Domain"), 0, REG_SZ, (BYTE*)szJoined, (lstrlen(szJoined) + 1) * sizeof(TCHAR));
 
             RegCloseKey(hkey);
         }
@@ -4177,7 +4177,7 @@ BOOL ShouldCreateNetHoodShortcuts(BOOL *pbWorkgroup)
     }
     return bShould;
 #else
-    *pbWorkgroup = TRUE;    // BUGBUG, this is wrong
+    * pbWorkgroup = TRUE;    // BUGBUG, this is wrong
     return TRUE;            // BUGBUG, compute this as above (WINNT case)
 #endif
 }
@@ -4193,8 +4193,8 @@ STDAPI_(BOOL) CreateNetHoodShortcuts()
             LPITEMIDLIST pidl;
             HRESULT hres = GetDomainWorkgroupIDList(&pidl);
             if (SUCCEEDED(hres)) {
-                IShellLink *psl;
-                hres = CoCreateInstance(CLSID_FolderShortcut, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+                IShellLink* psl;
+                hres = CoCreateInstance(CLSID_FolderShortcut, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void**)&psl);
                 if (SUCCEEDED(hres)) {
 
                     psl->SetIDList(pidl);
@@ -4385,7 +4385,7 @@ BOOL PathIsShortcut(LPCTSTR pszFile)
 }
 
 
-HRESULT SHGetAssociations(LPCITEMIDLIST pidl, void **ppvQueryAssociations)
+HRESULT SHGetAssociations(LPCITEMIDLIST pidl, void** ppvQueryAssociations)
 {
     HRESULT hr = SHGetUIObjectFromFullPIDL(pidl, NULL, IID_IQueryAssociations, ppvQueryAssociations);
 
@@ -4415,12 +4415,12 @@ HRESULT SHGetAssociations(LPCITEMIDLIST pidl, void **ppvQueryAssociations)
             }
 
             if (FAILED(hr) && (rgfAttrs & (SFGAO_FOLDER | SFGAO_BROWSABLE))) {
-                IQueryAssociations *pqa;
+                IQueryAssociations* pqa;
                 if (SUCCEEDED(AssocCreate(CLSID_QueryAssociations, IID_PPV_ARG(IQueryAssociations, &pqa)))) {
                     hr = pqa->Init(0, L"Folder", NULL, NULL);
 
                     if (SUCCEEDED(hr))
-                        *ppvQueryAssociations = (void *)pqa;
+                        *ppvQueryAssociations = (void*)pqa;
                     else
                         pqa->Release();
                 }
@@ -4438,7 +4438,7 @@ HRESULT SHGetAssociations(LPCITEMIDLIST pidl, void **ppvQueryAssociations)
 //  call with cKeys == 1.  the return value is the number of keys
 //  inserted into the array.
 
-DWORD SHGetAssocKeys(IQueryAssociations *pqa, HKEY *rgKeys, DWORD cKeys)
+DWORD SHGetAssocKeys(IQueryAssociations* pqa, HKEY* rgKeys, DWORD cKeys)
 {
     ASSERT(cKeys);
 
@@ -4488,9 +4488,9 @@ STDAPI_(BOOL) SHGetPathFromIDListEx(LPCITEMIDLIST pidl, LPTSTR pszPath, UINT uOp
     } else {
         // HRESULT hrInit = SHCoInitialize();   // only do this is some ISV app reqires this
 
-        IShellFolder *psf;
+        IShellFolder* psf;
         LPCITEMIDLIST pidlLast;
-        hr = SHBindToIDListParent(pidl, IID_IShellFolder, (void **)&psf, &pidlLast);
+        hr = SHBindToIDListParent(pidl, IID_IShellFolder, (void**)&psf, &pidlLast);
         if (SUCCEEDED(hr)) {
             STRRET str;
             hr = psf->GetDisplayNameOf(pidlLast, SHGDN_FORPARSING, &str);
@@ -4499,7 +4499,7 @@ STDAPI_(BOOL) SHGetPathFromIDListEx(LPCITEMIDLIST pidl, LPTSTR pszPath, UINT uOp
 
             if (SUCCEEDED(hr)) {
                 DWORD dwAttributes = SFGAO_FILESYSTEM;
-                hr = psf->GetAttributesOf(1, (LPCITEMIDLIST *)&pidlLast, &dwAttributes);
+                hr = psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlLast, &dwAttributes);
                 if (SUCCEEDED(hr) && !(dwAttributes & SFGAO_FILESYSTEM)) {
 #if 0
                     // here is where we simulate the old behavior for
@@ -4614,7 +4614,7 @@ STDAPI_(BOOL) SHGetPathFromIDListW(LPCITEMIDLIST pidl, LPWSTR pszPath)
 
 //  Race-condition-free version.
 
-STDAPI_(HANDLE) SHGetCachedGlobalCounter(HANDLE *phCache, const GUID *pguid)
+STDAPI_(HANDLE) SHGetCachedGlobalCounter(HANDLE* phCache, const GUID* pguid)
 {
     if (!*phCache) {
         HANDLE h = SHGlobalCounterCreate(*pguid);
@@ -4629,7 +4629,7 @@ STDAPI_(HANDLE) SHGetCachedGlobalCounter(HANDLE *phCache, const GUID *pguid)
 
 //  Race-condition-free version.
 
-STDAPI_(void) SHDestroyCachedGlobalCounter(HANDLE *phCache)
+STDAPI_(void) SHDestroyCachedGlobalCounter(HANDLE* phCache)
 {
     HANDLE h = InterlockedExchangePointer(phCache, NULL);
     if (h) {
@@ -4642,10 +4642,10 @@ STDAPI_(void) SHDestroyCachedGlobalCounter(HANDLE *phCache)
 //  It's safe in the multithreaded case where two people lazy-create the
 //  object and both try to put it into the cache.
 
-STDAPI_(void) SetUnknownOnSuccess(HRESULT hres, IUnknown *punk, IUnknown **ppunkToSet)
+STDAPI_(void) SetUnknownOnSuccess(HRESULT hres, IUnknown* punk, IUnknown** ppunkToSet)
 {
     if (SUCCEEDED(hres)) {
-        if (SHInterlockedCompareExchange((void **)ppunkToSet, punk, 0))
+        if (SHInterlockedCompareExchange((void**)ppunkToSet, punk, 0))
             punk->Release();  // race, someone did this already
     }
 }
@@ -4659,13 +4659,13 @@ STDAPI_(void) SetUnknownOnSuccess(HRESULT hres, IUnknown *punk, IUnknown **ppunk
 
 //  If there is already a folder in the cache, succeeds vacuously.
 
-STDAPI SHCacheTrackingFolder(LPCITEMIDLIST pidlRoot, int csidlTarget, IShellFolder2 **ppsfCache)
+STDAPI SHCacheTrackingFolder(LPCITEMIDLIST pidlRoot, int csidlTarget, IShellFolder2** ppsfCache)
 {
     HRESULT hres = S_OK;
 
     if (!*ppsfCache) {
         PERSIST_FOLDER_TARGET_INFO pfti = {0};
-        IShellFolder2 *psf;
+        IShellFolder2* psf;
         LPITEMIDLIST pidl;
 
         pfti.dwAttributes = FILE_ATTRIBUTE_DIRECTORY; // maybe add system?
@@ -4678,9 +4678,9 @@ STDAPI SHCacheTrackingFolder(LPCITEMIDLIST pidlRoot, int csidlTarget, IShellFold
         }
 
         if (SUCCEEDED(hres))
-            hres = CFSFolder_CreateFolder(NULL, pidl, &pfti, IID_IShellFolder2, (LPVOID *)&psf);
+            hres = CFSFolder_CreateFolder(NULL, pidl, &pfti, IID_IShellFolder2, (LPVOID*)&psf);
 
-        SetUnknownOnSuccess(hres, psf, (IUnknown **)ppsfCache);
+        SetUnknownOnSuccess(hres, psf, (IUnknown**)ppsfCache);
 
         if (pidl != pidlRoot)
             ILFree(pidl);
@@ -4691,7 +4691,7 @@ STDAPI SHCacheTrackingFolder(LPCITEMIDLIST pidlRoot, int csidlTarget, IShellFold
 
 // Review chrisny:  this can be moved into an object easily to handle generic droptarget, dropcursor
 // , autoscrool, etc. . .
-void _DragEnter(HWND hwndTarget, const POINTL ptStart, IDataObject *pdtObject)
+void _DragEnter(HWND hwndTarget, const POINTL ptStart, IDataObject* pdtObject)
 {
     RECT    rc;
     POINT   pt;
@@ -4735,7 +4735,7 @@ void _DragMove(HWND hwndTarget, const POINTL ptStart)
     return;
 }
 
-STDAPI FindFileOrFolders_GetDefaultSearchGUID(IShellFolder2 *psf, LPGUID pGuid)
+STDAPI FindFileOrFolders_GetDefaultSearchGUID(IShellFolder2* psf, LPGUID pGuid)
 {
     if (SHRestricted(REST_NOFIND)) {
         *pGuid = GUID_NULL;
@@ -4767,7 +4767,7 @@ HRESULT SavePersistHistory(IUnknown* punk, IStream* pstm)
     return hres;
 }
 
-STDAPI Stream_WriteStringA(IStream *pstm, LPCSTR psz)
+STDAPI Stream_WriteStringA(IStream* pstm, LPCSTR psz)
 {
     SHORT cch = (SHORT)lstrlenA(psz);
     HRESULT hres = pstm->Write(&cch, SIZEOF(cch), NULL);
@@ -4777,7 +4777,7 @@ STDAPI Stream_WriteStringA(IStream *pstm, LPCSTR psz)
     return hres;
 }
 
-STDAPI Stream_WriteStringW(IStream *pstm, LPCWSTR psz)
+STDAPI Stream_WriteStringW(IStream* pstm, LPCWSTR psz)
 {
     SHORT cch = (SHORT)lstrlenW(psz);
     HRESULT hres = pstm->Write(&cch, SIZEOF(cch), NULL);
@@ -4787,7 +4787,7 @@ STDAPI Stream_WriteStringW(IStream *pstm, LPCWSTR psz)
     return hres;
 }
 
-STDAPI Stream_WriteString(IStream *pstm, LPCTSTR psz, BOOL bWideInStream)
+STDAPI Stream_WriteString(IStream* pstm, LPCTSTR psz, BOOL bWideInStream)
 {
     HRESULT hres;
     if (bWideInStream) {
@@ -4802,7 +4802,7 @@ STDAPI Stream_WriteString(IStream *pstm, LPCTSTR psz, BOOL bWideInStream)
     return hres;
 }
 
-STDAPI Stream_ReadStringA(IStream *pstm, LPSTR pszBuf, UINT cchBuf)
+STDAPI Stream_ReadStringA(IStream* pstm, LPSTR pszBuf, UINT cchBuf)
 {
     *pszBuf = 0;
 
@@ -4821,7 +4821,7 @@ STDAPI Stream_ReadStringA(IStream *pstm, LPSTR pszBuf, UINT cchBuf)
     return hres;
 }
 
-STDAPI Stream_ReadStringW(IStream *pstm, LPWSTR pwszBuf, UINT cchBuf)
+STDAPI Stream_ReadStringW(IStream* pstm, LPWSTR pwszBuf, UINT cchBuf)
 {
     *pwszBuf = 0;
 
@@ -4840,7 +4840,7 @@ STDAPI Stream_ReadStringW(IStream *pstm, LPWSTR pwszBuf, UINT cchBuf)
     return hres;
 }
 
-STDAPI Stream_ReadString(IStream *pstm, LPTSTR psz, UINT cchBuf, BOOL bWideInStream)
+STDAPI Stream_ReadString(IStream* pstm, LPTSTR psz, UINT cchBuf, BOOL bWideInStream)
 {
     HRESULT hres;
     if (bWideInStream) {
@@ -4865,7 +4865,7 @@ STDAPI Stream_ReadString(IStream *pstm, LPTSTR psz, UINT cchBuf, BOOL bWideInStr
     return hres;
 }
 
-STDAPI Str_SetFromStream(IStream *pstm, LPTSTR *ppsz, BOOL bWideInStream)
+STDAPI Str_SetFromStream(IStream* pstm, LPTSTR* ppsz, BOOL bWideInStream)
 {
     TCHAR szBuf[MAX_PATH];
     HRESULT hres = Stream_ReadString(pstm, szBuf, ARRAYSIZE(szBuf), bWideInStream);
@@ -4873,7 +4873,7 @@ STDAPI Str_SetFromStream(IStream *pstm, LPTSTR *ppsz, BOOL bWideInStream)
         if (!Str_SetPtr(ppsz, szBuf)) hres = E_OUTOFMEMORY;
     return hres;
 }
-LPSTR ThunkStrToAnsi(LPCWSTR pszW, CHAR *pszA, UINT cchA)
+LPSTR ThunkStrToAnsi(LPCWSTR pszW, CHAR* pszA, UINT cchA)
 {
     if (pszW) {
         SHUnicodeToAnsi(pszW, pszA, cchA);
@@ -4894,7 +4894,7 @@ LPWSTR ThunkStrToWide(LPCSTR pszA, LPWSTR pszW, DWORD cchW)
 #define ThunkSizeAnsi(pwsz)       WideCharToMultiByte(CP_ACP,0,(pwsz),-1,NULL,0,NULL,NULL)
 #define ThunkSizeWide(psz)       MultiByteToWideChar(CP_ACP,0,(psz),-1,NULL,0)
 
-STDAPI SEI2ICIX(LPSHELLEXECUTEINFO pei, LPCMINVOKECOMMANDINFOEX pici, void **ppvFree)
+STDAPI SEI2ICIX(LPSHELLEXECUTEINFO pei, LPCMINVOKECOMMANDINFOEX pici, void** ppvFree)
 {
     HRESULT hr = S_OK;
 
@@ -5023,7 +5023,7 @@ STDAPI ICIX2SEI(LPCMINVOKECOMMANDINFOEX pici, LPSHELLEXECUTEINFO pei)
     return S_OK;
 }
 
-STDAPI ICI2ICIX(LPCMINVOKECOMMANDINFO piciIn, LPCMINVOKECOMMANDINFOEX piciOut, void **ppvFree)
+STDAPI ICI2ICIX(LPCMINVOKECOMMANDINFO piciIn, LPCMINVOKECOMMANDINFOEX piciOut, void** ppvFree)
 {
     HRESULT hr = S_OK;
     ASSERT(piciIn->cbSize >= SIZEOF(CMINVOKECOMMANDINFO));
@@ -5086,11 +5086,11 @@ STDAPI_(BSTR) SysAllocStringA(LPCSTR psz)
 }
 
 
-IProgressDialog * CProgressDialog_CreateInstance(UINT idTitle, UINT idAnimation, HINSTANCE hAnimationInst)
+IProgressDialog* CProgressDialog_CreateInstance(UINT idTitle, UINT idAnimation, HINSTANCE hAnimationInst)
 {
-    IProgressDialog * ppd;
+    IProgressDialog* ppd;
 
-    if (SUCCEEDED(CoCreateInstance(CLSID_ProgressDialog, NULL, CLSCTX_INPROC_SERVER, IID_IProgressDialog, (void **)&ppd))) {
+    if (SUCCEEDED(CoCreateInstance(CLSID_ProgressDialog, NULL, CLSCTX_INPROC_SERVER, IID_IProgressDialog, (void**)&ppd))) {
         WCHAR wzTitle[MAX_PATH];
 
         EVAL(SUCCEEDED(ppd->SetAnimation(hAnimationInst, idAnimation)));
@@ -5101,7 +5101,7 @@ IProgressDialog * CProgressDialog_CreateInstance(UINT idTitle, UINT idAnimation,
     return ppd;
 }
 
-STDAPI GetCurFolderImpl(LPCITEMIDLIST pidl, LPITEMIDLIST *ppidl)
+STDAPI GetCurFolderImpl(LPCITEMIDLIST pidl, LPITEMIDLIST* ppidl)
 {
     if (pidl)
         return SHILClone(pidl, ppidl);
@@ -5115,7 +5115,7 @@ STDAPI GetCurFolderImpl(LPCITEMIDLIST pidl, LPITEMIDLIST *ppidl)
 // converts a simple PIDL to a real PIDL by converting to display name and then
 // reparsing the name
 
-STDAPI SHGetRealIDL(IShellFolder *psf, LPCITEMIDLIST pidlSimple, LPITEMIDLIST *ppidlReal)
+STDAPI SHGetRealIDL(IShellFolder* psf, LPCITEMIDLIST pidlSimple, LPITEMIDLIST* ppidlReal)
 {
     *ppidlReal = NULL;      // clear output
 
@@ -5148,7 +5148,7 @@ STDAPI SHGetRealIDL(IShellFolder *psf, LPCITEMIDLIST pidlSimple, LPITEMIDLIST *p
 //  thus we will use that as our default buffer
 #define CBOPTIMAL    (16 * 1024)
 
-STDAPI CopyStreamUI(IStream *pstmSrc, IStream *pstmDest, IProgressDialog *pdlg)
+STDAPI CopyStreamUI(IStream* pstmSrc, IStream* pstmDest, IProgressDialog* pdlg)
 {
     HRESULT hr = E_FAIL;
     ULONGLONG ullMax;
@@ -5172,7 +5172,7 @@ STDAPI CopyStreamUI(IStream *pstmSrc, IStream *pstmDest, IProgressDialog *pdlg)
 
     if (FAILED(hr)) {
         // try doing it by hand
-        void *pv = LocalAlloc(LPTR, CBOPTIMAL);
+        void* pv = LocalAlloc(LPTR, CBOPTIMAL);
         BYTE buf[1024];
         ULONG cbBuf, cbRead, cbBufReal;
         ULONGLONG ullCurr = 0;
@@ -5228,7 +5228,7 @@ STDAPI CopyStreamUI(IStream *pstmSrc, IStream *pstmDest, IProgressDialog *pdlg)
 
 }
 
-STDAPI CopyStream(IStream *pstmSrc, IStream *pstmDest)
+STDAPI CopyStream(IStream* pstmSrc, IStream* pstmDest)
 {
     return CopyStreamUI(pstmSrc, pstmDest, NULL);
 }
@@ -5241,7 +5241,7 @@ STDAPI_(BOOL) IsWindowInProcess(HWND hwnd)
     return idProcess == GetCurrentProcessId();
 }
 
-STDAPI_(DWORD) BindCtx_GetMode(IBindCtx *pbc, DWORD grfModeDefault)
+STDAPI_(DWORD) BindCtx_GetMode(IBindCtx* pbc, DWORD grfModeDefault)
 {
     if (pbc) {
         BIND_OPTS bo = {sizeof(bo)};  // Requires size filled in.
@@ -5258,13 +5258,13 @@ public:
     CFileSysBindData();
 
     // ** IUnknown methods **
-    STDMETHODIMP QueryInterface(REFIID riid, void **ppvObj);
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppvObj);
     STDMETHODIMP_(ULONG) AddRef(void);
     STDMETHODIMP_(ULONG) Release(void);
 
     // IFileSystemBindData
-    STDMETHODIMP SetFindData(const WIN32_FIND_DATAW *pfd);
-    STDMETHODIMP GetFindData(WIN32_FIND_DATAW *pfd);
+    STDMETHODIMP SetFindData(const WIN32_FIND_DATAW* pfd);
+    STDMETHODIMP GetFindData(WIN32_FIND_DATAW* pfd);
 
 private:
     ~CFileSysBindData();
@@ -5283,7 +5283,7 @@ CFileSysBindData::~CFileSysBindData()
 {
 }
 
-HRESULT CFileSysBindData::QueryInterface(REFIID riid, void **ppv)
+HRESULT CFileSysBindData::QueryInterface(REFIID riid, void** ppv)
 {
     static const QITAB qit[] = {
         QITABENT(CFileSysBindData, IFileSystemBindData), // IID_IFileSystemBindData
@@ -5306,22 +5306,22 @@ STDMETHODIMP_(ULONG) CFileSysBindData::Release()
     return 0;
 }
 
-HRESULT CFileSysBindData::SetFindData(const WIN32_FIND_DATAW *pfd)
+HRESULT CFileSysBindData::SetFindData(const WIN32_FIND_DATAW* pfd)
 {
     _fd = *pfd;
     return S_OK;
 }
 
-HRESULT CFileSysBindData::GetFindData(WIN32_FIND_DATAW *pfd)
+HRESULT CFileSysBindData::GetFindData(WIN32_FIND_DATAW* pfd)
 {
     *pfd = _fd;
     return S_OK;
 }
 
-STDAPI SHCreateFileSysBindCtx(const WIN32_FIND_DATA *pfd, IBindCtx **ppbc)
+STDAPI SHCreateFileSysBindCtx(const WIN32_FIND_DATA* pfd, IBindCtx** ppbc)
 {
     HRESULT hr;
-    IFileSystemBindData *pfsbd = new CFileSysBindData();
+    IFileSystemBindData* pfsbd = new CFileSysBindData();
     if (pfsbd) {
         if (pfd) {
 #ifdef UNICODE
@@ -5354,13 +5354,13 @@ STDAPI SHCreateFileSysBindCtx(const WIN32_FIND_DATA *pfd, IBindCtx **ppbc)
 // out:
 //      optional (may be NULL) pfd
 
-STDAPI SHIsFileSysBindCtx(IBindCtx *pbc, WIN32_FIND_DATA *pfd)
+STDAPI SHIsFileSysBindCtx(IBindCtx* pbc, WIN32_FIND_DATA* pfd)
 {
     HRESULT hr = S_FALSE; // default to no
-    IUnknown *punk;
+    IUnknown* punk;
     if (pbc && SUCCEEDED(pbc->GetObjectParam(STR_FILE_SYS_BIND_DATA, &punk))) {
-        IFileSystemBindData *pfsbd;
-        if (SUCCEEDED(punk->QueryInterface(IID_IFileSystemBindData, (void **)&pfsbd))) {
+        IFileSystemBindData* pfsbd;
+        if (SUCCEEDED(punk->QueryInterface(IID_IFileSystemBindData, (void**)&pfsbd))) {
             hr = S_OK;    // yes
             if (pfd) {
 #ifdef UNICODE
@@ -5381,7 +5381,7 @@ STDAPI SHIsFileSysBindCtx(IBindCtx *pbc, WIN32_FIND_DATA *pfd)
 }
 
 
-STDAPI SHCreateSkipBindCtx(IUnknown *punkToSkip, IBindCtx **ppbc)
+STDAPI SHCreateSkipBindCtx(IUnknown* punkToSkip, IBindCtx** ppbc)
 {
     HRESULT hr = CreateBindCtx(0, ppbc);
     if (SUCCEEDED(hr)) {
@@ -5405,20 +5405,20 @@ STDAPI SHCreateSkipBindCtx(IUnknown *punkToSkip, IBindCtx **ppbc)
 //  pclsidSkip  optional CLSID to test. if null we test for skiping all
 //              junction binding, not just on this specific CLSID
 
-STDAPI_(BOOL) SHSkipJunctionBinding(IBindCtx *pbc, const CLSID *pclsidSkip)
+STDAPI_(BOOL) SHSkipJunctionBinding(IBindCtx* pbc, const CLSID* pclsidSkip)
 {
     if (pbc) {
         BIND_OPTS bo = {sizeof(BIND_OPTS), 0};  // Requires size filled in.
         return (SUCCEEDED(pbc->GetBindOptions(&bo)) &&
                 bo.grfFlags == BIND_JUSTTESTEXISTENCE) ||
-                (pclsidSkip && SHSkipJunction(pbc, pclsidSkip));     // should we skip this specific CLSID?
+            (pclsidSkip && SHSkipJunction(pbc, pclsidSkip));     // should we skip this specific CLSID?
     }
     return FALSE;   // do junction binding, no context provided
 }
 
 // return a relative IDList to pszFolder given the find data for that item
 
-STDAPI SHCreateFSIDList(LPCTSTR pszFolder, const WIN32_FIND_DATA *pfd, LPITEMIDLIST *ppidl)
+STDAPI SHCreateFSIDList(LPCTSTR pszFolder, const WIN32_FIND_DATA* pfd, LPITEMIDLIST* ppidl)
 {
     TCHAR szPath[MAX_PATH];
     LPITEMIDLIST pidl;
@@ -5436,10 +5436,10 @@ STDAPI SHCreateFSIDList(LPCTSTR pszFolder, const WIN32_FIND_DATA *pfd, LPITEMIDL
 }
 
 
-STDAPI InvokeVerbOnItems(HWND hwnd, LPCTSTR pszVerb, UINT uFlags, IShellFolder *psf, UINT cidl, LPCITEMIDLIST *apidl)
+STDAPI InvokeVerbOnItems(HWND hwnd, LPCTSTR pszVerb, UINT uFlags, IShellFolder* psf, UINT cidl, LPCITEMIDLIST* apidl)
 {
-    IContextMenu *pcm;
-    HRESULT hr = psf->GetUIObjectOf(hwnd, cidl, apidl, IID_IContextMenu, NULL, (void **)&pcm);
+    IContextMenu* pcm;
+    HRESULT hr = psf->GetUIObjectOf(hwnd, cidl, apidl, IID_IContextMenu, NULL, (void**)&pcm);
     if (SUCCEEDED(hr)) {
         CMINVOKECOMMANDINFOEX ici =
         {
@@ -5502,7 +5502,7 @@ STDAPI_(void) TransferDelete(HWND hwnd, HDROP hDrop, UINT fOptions)
 }
 
 
-STDAPI DeleteFilesInDataObjectEx(HWND hwnd, UINT uFlags, IDataObject *pdtobj, UINT fOptions)
+STDAPI DeleteFilesInDataObjectEx(HWND hwnd, UINT uFlags, IDataObject* pdtobj, UINT fOptions)
 {
     STGMEDIUM medium;
     FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
@@ -5522,13 +5522,13 @@ STDAPI DeleteFilesInDataObjectEx(HWND hwnd, UINT uFlags, IDataObject *pdtobj, UI
     return hr;
 }
 
-STDAPI DeleteFilesInDataObject(HWND hwnd, UINT uFlags, IDataObject *pdtobj)
+STDAPI DeleteFilesInDataObject(HWND hwnd, UINT uFlags, IDataObject* pdtobj)
 {
     return DeleteFilesInDataObjectEx(hwnd, uFlags, pdtobj, 0);
 }
 
 
-STDAPI InvokeVerbOnDataObj(HWND hwnd, LPCTSTR pszVerb, UINT uFlags, IDataObject *pdtobj)
+STDAPI InvokeVerbOnDataObj(HWND hwnd, LPCTSTR pszVerb, UINT uFlags, IDataObject* pdtobj)
 {
     HRESULT hr;
 
@@ -5541,11 +5541,11 @@ STDAPI InvokeVerbOnDataObj(HWND hwnd, LPCTSTR pszVerb, UINT uFlags, IDataObject 
         STGMEDIUM medium;
         LPIDA pida = DataObj_GetHIDA(pdtobj, &medium);
         if (pida) {
-            IShellFolder *psf;
+            IShellFolder* psf;
             LPCITEMIDLIST pidlParent = IDA_GetIDListPtr(pida, (UINT)-1);
             if (pidlParent &&
-                SUCCEEDED(SHBindToObject(NULL, IID_IShellFolder, pidlParent, (void **)&psf))) {
-                LPCITEMIDLIST *ppidl = (LPCITEMIDLIST *)LocalAlloc(LPTR, pida->cidl * sizeof(LPCITEMIDLIST));
+                SUCCEEDED(SHBindToObject(NULL, IID_IShellFolder, pidlParent, (void**)&psf))) {
+                LPCITEMIDLIST* ppidl = (LPCITEMIDLIST*)LocalAlloc(LPTR, pida->cidl * sizeof(LPCITEMIDLIST));
                 if (ppidl) {
                     for (UINT i = 0; i < pida->cidl; i++) {
                         ppidl[i] = IDA_GetIDListPtr(pida, i);
@@ -5561,13 +5561,13 @@ STDAPI InvokeVerbOnDataObj(HWND hwnd, LPCTSTR pszVerb, UINT uFlags, IDataObject 
     return hr;
 }
 
-STDAPI GetItemCLSID(IShellFolder2 *psf, LPCITEMIDLIST pidlLast, CLSID *pclsid)
+STDAPI GetItemCLSID(IShellFolder2* psf, LPCITEMIDLIST pidlLast, CLSID* pclsid)
 {
     VARIANT var;
     HRESULT hr = psf->GetDetailsEx(pidlLast, &SCID_DESCRIPTIONID, &var);
     if (SUCCEEDED(hr)) {
         SHDESCRIPTIONID did;
-        hr = VariantToBuffer(&var, (void *)&did, sizeof(did));
+        hr = VariantToBuffer(&var, (void*)&did, sizeof(did));
         if (SUCCEEDED(hr))
             *pclsid = did.clsid;
 
@@ -5582,11 +5582,11 @@ STDAPI GetItemCLSID(IShellFolder2 *psf, LPCITEMIDLIST pidlLast, CLSID *pclsid)
 // out:
 //      pclsid  return the CLSID of the item
 
-STDAPI GetCLSIDFromIDList(LPCITEMIDLIST pidl, CLSID *pclsid)
+STDAPI GetCLSIDFromIDList(LPCITEMIDLIST pidl, CLSID* pclsid)
 {
-    IShellFolder2 *psf;
+    IShellFolder2* psf;
     LPCITEMIDLIST pidlLast;
-    HRESULT hr = SHBindToIDListParent(pidl, IID_IShellFolder2, (void **)&psf, &pidlLast);
+    HRESULT hr = SHBindToIDListParent(pidl, IID_IShellFolder2, (void**)&psf, &pidlLast);
     if (SUCCEEDED(hr)) {
         hr = GetItemCLSID(psf, pidlLast, pclsid);
         psf->Release();
@@ -5597,7 +5597,7 @@ STDAPI GetCLSIDFromIDList(LPCITEMIDLIST pidl, CLSID *pclsid)
 // test to see if this IDList is in the net hood name space scoped by clsid
 // for example pass CLSID_NetworkPlaces or CLSID_MyComputer
 
-STDAPI_(BOOL) IsIDListInNameSpace(LPCITEMIDLIST pidl, const CLSID *pclsid)
+STDAPI_(BOOL) IsIDListInNameSpace(LPCITEMIDLIST pidl, const CLSID* pclsid)
 {
     BOOL bInNet = FALSE;
     LPITEMIDLIST pidlFirst = ILCloneFirst(pidl);
@@ -5672,7 +5672,7 @@ struct
     { TEXT("X:\\cmsstorage.lst"), FALSE, FILE_ATTRIBUTE_SH },  // Microsoft Media Manager
 };
 
-void PathSetSystemDrive(TCHAR *pszPath)
+void PathSetSystemDrive(TCHAR* pszPath)
 {
     TCHAR szWin[MAX_PATH];
 
@@ -5722,7 +5722,7 @@ STDAPI_(void) CleanupFileSystem()
 }
 
 
-STDAPI SHILPrepend(LPITEMIDLIST pidlToPrepend, LPITEMIDLIST *ppidl)
+STDAPI SHILPrepend(LPITEMIDLIST pidlToPrepend, LPITEMIDLIST* ppidl)
 {
     HRESULT hr;
 
@@ -5744,7 +5744,7 @@ STDAPI SHILPrepend(LPITEMIDLIST pidlToPrepend, LPITEMIDLIST *ppidl)
 // in/out:
 //      *ppidl  idlist to append to, if empty gets pidlToAppend
 
-STDAPI SHILAppend(LPITEMIDLIST pidlToAppend, LPITEMIDLIST *ppidl)
+STDAPI SHILAppend(LPITEMIDLIST pidlToAppend, LPITEMIDLIST* ppidl)
 {
     HRESULT hr;
 
@@ -5761,12 +5761,12 @@ STDAPI SHILAppend(LPITEMIDLIST pidlToAppend, LPITEMIDLIST *ppidl)
 }
 
 
-STDAPI SHSimpleIDListFromFindData(LPCTSTR pszPath, const WIN32_FIND_DATA *pfd, LPITEMIDLIST *ppidl)
+STDAPI SHSimpleIDListFromFindData(LPCTSTR pszPath, const WIN32_FIND_DATA* pfd, LPITEMIDLIST* ppidl)
 {
-    IShellFolder *psfDesktop;
+    IShellFolder* psfDesktop;
     HRESULT hr = SHGetDesktopFolder(&psfDesktop);
     if (SUCCEEDED(hr)) {
-        IBindCtx *pbc;
+        IBindCtx* pbc;
         hr = SHCreateFileSysBindCtx(pfd, &pbc);
         if (SUCCEEDED(hr)) {
             WCHAR wszPath[MAX_PATH];
@@ -5785,13 +5785,13 @@ STDAPI SHSimpleIDListFromFindData(LPCTSTR pszPath, const WIN32_FIND_DATA *pfd, L
     return hr;
 }
 
-STDAPI SHSimpleIDListFromFindData2(IShellFolder *psf, const WIN32_FIND_DATA *pfd, LPITEMIDLIST *ppidl)
+STDAPI SHSimpleIDListFromFindData2(IShellFolder* psf, const WIN32_FIND_DATA* pfd, LPITEMIDLIST* ppidl)
 {
     HRESULT hr;
 
     ASSERT(psf);
 
-    IBindCtx *pbc;
+    IBindCtx* pbc;
     hr = SHCreateFileSysBindCtx(pfd, &pbc);
     if (SUCCEEDED(hr)) {
         WCHAR wszPath[MAX_PATH];
@@ -5851,7 +5851,7 @@ STDAPI_(UINT) SILGetIconIndex(LPCITEMIDLIST pidl, const ICONMAP aicmp[], UINT cm
     return II_DOCUMENT;   // default
 }
 
-STDAPI_(LPITEMIDLIST) VariantToIDList(const VARIANT *pv)
+STDAPI_(LPITEMIDLIST) VariantToIDList(const VARIANT* pv)
 {
     LPITEMIDLIST pidl = NULL;
     VARIANT v;
@@ -5894,7 +5894,7 @@ STDAPI_(LPITEMIDLIST) VariantToIDList(const VARIANT *pv)
     return pidl;
 }
 
-STDAPI VariantToBuffer(const VARIANT* pvar, void *pv, UINT cb)
+STDAPI VariantToBuffer(const VARIANT* pvar, void* pv, UINT cb)
 {
     if (pvar && pvar->vt == (VT_ARRAY | VT_UI1)) {
         memcpy(pv, pvar->parray->pvData, cb);
@@ -5903,7 +5903,7 @@ STDAPI VariantToBuffer(const VARIANT* pvar, void *pv, UINT cb)
     return FALSE;
 }
 
-STDAPI VariantToGUID(const VARIANT *pvar, GUID *pguid)
+STDAPI VariantToGUID(const VARIANT* pvar, GUID* pguid)
 {
     return VariantToBuffer(pvar, pguid, sizeof(*pguid));
 }
@@ -5912,7 +5912,7 @@ STDAPI VariantToGUID(const VARIANT *pvar, GUID *pguid)
 // helper function for optional Variants that should be TStrs...
 // will allocate it for you if you pass NULL pszBuf
 
-STDAPI_(LPTSTR) VariantToStr(const VARIANT *pvar, LPTSTR pszBuf, int cchBuf)
+STDAPI_(LPTSTR) VariantToStr(const VARIANT* pvar, LPTSTR pszBuf, int cchBuf)
 {
     VARIANT v;
 
@@ -5942,7 +5942,7 @@ STDAPI_(LPTSTR) VariantToStr(const VARIANT *pvar, LPTSTR pszBuf, int cchBuf)
     return NULL;
 }
 
-STDAPI_(LPCWSTR) VariantToStrW(const VARIANT *pvar)
+STDAPI_(LPCWSTR) VariantToStrW(const VARIANT* pvar)
 {
     LPCWSTR psz = NULL;
     VARIANT v;
@@ -5958,10 +5958,10 @@ STDAPI_(LPCWSTR) VariantToStrW(const VARIANT *pvar)
 }
 
 
-STDAPI InitVariantFromBuffer(VARIANT *pvar, const void *pv, UINT cb)
+STDAPI InitVariantFromBuffer(VARIANT* pvar, const void* pv, UINT cb)
 {
     HRESULT hr;
-    SAFEARRAY *psa = SafeArrayCreateVector(VT_UI1, 0, cb);   // create a one-dimensional safe array
+    SAFEARRAY* psa = SafeArrayCreateVector(VT_UI1, 0, cb);   // create a one-dimensional safe array
     if (psa) {
         memcpy(psa->pvData, pv, cb);
 
@@ -5980,7 +5980,7 @@ STDAPI InitVariantFromIDList(VARIANT* pvar, LPCITEMIDLIST pidl)
     return InitVariantFromBuffer(pvar, pidl, ILGetSize(pidl));
 }
 
-STDAPI InitVariantFromGUID(VARIANT *pvar, GUID *pguid)
+STDAPI InitVariantFromGUID(VARIANT* pvar, GUID* pguid)
 {
     return InitVariantFromBuffer(pvar, pguid, SIZEOF(*pguid));
 }
@@ -5989,7 +5989,7 @@ STDAPI InitVariantFromGUID(VARIANT *pvar, GUID *pguid)
 //      S_OK    success
 //      S_FALSE string was empty
 //      E_OUTOFMEMORY
-STDAPI InitVariantFromStr(VARIANT *pvar, LPCTSTR psz)
+STDAPI InitVariantFromStr(VARIANT* pvar, LPCTSTR psz)
 {
     HRESULT hr;
     VariantInit(pvar);
@@ -6006,7 +6006,7 @@ STDAPI InitVariantFromStr(VARIANT *pvar, LPCTSTR psz)
 }
 
 // VARIANT -> STRRET
-STDAPI VariantToStrRet(const VARIANT *pv, STRRET *pstrret)
+STDAPI VariantToStrRet(const VARIANT* pv, STRRET* pstrret)
 {
     if (pv->vt == VT_BSTR && pv->bstrVal)
         return StringToStrRetW(pv->bstrVal, pstrret);
@@ -6016,7 +6016,7 @@ STDAPI VariantToStrRet(const VARIANT *pv, STRRET *pstrret)
 // convert STRRET -> VARIANT
 // note, this frees the STRRET contents
 
-STDAPI InitVariantFromStrRet(STRRET *pstrret, LPCITEMIDLIST pidl, VARIANT *pv)
+STDAPI InitVariantFromStrRet(STRRET* pstrret, LPCITEMIDLIST pidl, VARIANT* pv)
 {
     WCHAR szTemp[INFOTIPSIZE];
     HRESULT hres = StrRetToBufW(pstrret, pidl, szTemp, ARRAYSIZE(szTemp));
@@ -6029,7 +6029,7 @@ STDAPI InitVariantFromStrRet(STRRET *pstrret, LPCITEMIDLIST pidl, VARIANT *pv)
 }
 
 
-BOOL IsSelf(UINT cidl, LPCITEMIDLIST *apidl)
+BOOL IsSelf(UINT cidl, LPCITEMIDLIST* apidl)
 {
     return cidl == 0 || (cidl == 1 && (apidl == NULL || apidl[0] == NULL || ILIsEmpty(apidl[0])));
 }
@@ -6127,7 +6127,7 @@ STDAPI GetIconLocationFromExt(IN LPTSTR pszExt, OUT LPTSTR pszIconPath, UINT cch
 
 #if 0 // DEAD CODE
 
-STDAPI SHGetUIObjectOf(LPTSTR pszPath, REFIID riid, void **ppvOut)
+STDAPI SHGetUIObjectOf(LPTSTR pszPath, REFIID riid, void** ppvOut)
 {
     *ppvOut = NULL;
 
@@ -6136,7 +6136,7 @@ STDAPI SHGetUIObjectOf(LPTSTR pszPath, REFIID riid, void **ppvOut)
     LPITEMIDLIST pidl = ILCreateFromPath(pszPath);
     if (pidl) {
         if (SUCCEEDED(hr)) {
-            IShellFolder *psf;
+            IShellFolder* psf;
             //bind to the parent to be able to GetUIObjectOf from it
             hr = SHBindToIDListParent(pidl, IID_PPV_ARG(IShellFolder, &psf), NULL);
 
@@ -6204,7 +6204,7 @@ BOOL AllowedToEncrypt()
     return TRUE;
 }
 
-STDAPI SHFindFirstFile(LPCTSTR pszPath, WIN32_FIND_DATA *pfd, HANDLE *phfind)
+STDAPI SHFindFirstFile(LPCTSTR pszPath, WIN32_FIND_DATA* pfd, HANDLE* phfind)
 {
     HRESULT hr;
 #ifdef WINNT
@@ -6217,7 +6217,7 @@ STDAPI SHFindFirstFile(LPCTSTR pszPath, WIN32_FIND_DATA *pfd, HANDLE *phfind)
     }
     *phfind = FindFirstFileEx(pszPath, FindExInfoStandard, pfd, eOps, NULL, 0);
 #else
-    *phfind = FindFirstFile(pszPath, pfd);
+    * phfind = FindFirstFile(pszPath, pfd);
 #endif
     if (*phfind == INVALID_HANDLE_VALUE) {
         DWORD err = GetLastError();
@@ -6233,7 +6233,7 @@ STDAPI SHFindFirstFile(LPCTSTR pszPath, WIN32_FIND_DATA *pfd, HANDLE *phfind)
 }
 
 
-void _GoModal(HWND hwnd, IUnknown *punkEnableModless, BOOL fModal)
+void _GoModal(HWND hwnd, IUnknown* punkEnableModless, BOOL fModal)
 {
     if (hwnd)
         IUnknown_EnableModless(punkEnableModless, !fModal);
@@ -6242,7 +6242,7 @@ void _GoModal(HWND hwnd, IUnknown *punkEnableModless, BOOL fModal)
 // in:
 //      hwnd    NULL means no UI
 
-HRESULT _RetryNetwork(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pszPath, WIN32_FIND_DATA *pfd, HANDLE *phfind)
+HRESULT _RetryNetwork(HWND hwnd, IUnknown* punkEnableModless, LPCTSTR pszPath, WIN32_FIND_DATA* pfd, HANDLE* phfind)
 {
     HRESULT hres;
     TCHAR szT[MAX_PATH];
@@ -6292,8 +6292,8 @@ typedef struct
 {
     HWND hDlg;
     LPCTSTR pszPath;
-    WIN32_FIND_DATA *pfd;
-    HANDLE *phfind;
+    WIN32_FIND_DATA* pfd;
+    HANDLE* phfind;
     HRESULT hres;
     UINT _msgQueryCancelAutoPlay;
 } RETRY_DATA;
@@ -6318,11 +6318,11 @@ BOOL _IsEmptyDeviceResult(HRESULT hres)
 
 BOOL_PTR CALLBACK RetryDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    RETRY_DATA *prd = (RETRY_DATA *)GetWindowLongPtr(hDlg, DWLP_USER);
+    RETRY_DATA* prd = (RETRY_DATA*)GetWindowLongPtr(hDlg, DWLP_USER);
     switch (uMsg) {
     case WM_INITDIALOG:
         SetWindowLongPtr(hDlg, DWLP_USER, lParam);
-        prd = (RETRY_DATA *)lParam;
+        prd = (RETRY_DATA*)lParam;
         prd->hDlg = hDlg;
         {
             TCHAR szFormat[128], szText[MAX_PATH];
@@ -6379,7 +6379,7 @@ BOOL_PTR CALLBACK RetryDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     return TRUE;
 }
 
-HRESULT _RetryLocalVolume(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pszPath, WIN32_FIND_DATA *pfd, HANDLE *phfind)
+HRESULT _RetryLocalVolume(HWND hwnd, IUnknown* punkEnableModless, LPCTSTR pszPath, WIN32_FIND_DATA* pfd, HANDLE* phfind)
 {
     RETRY_DATA rd = {0};
     TCHAR szPath[MAX_PATH];
@@ -6414,7 +6414,7 @@ HRESULT _RetryLocalVolume(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pszPat
     error UI was displayed or the user didn't want to create
     the directory.
     \**/
-HRESULT _OfferToCreateDir(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pszDir, DWORD dwFlags)
+HRESULT _OfferToCreateDir(HWND hwnd, IUnknown* punkEnableModless, LPCTSTR pszDir, DWORD dwFlags)
 {
     HRESULT hr = S_OK;
     TCHAR szPath[MAX_PATH];
@@ -6496,7 +6496,7 @@ BOOL PathExistsRoot(LPCTSTR pszPath)
 //              (this is the empty enum case)
 //      FAILED() win32 error codes in the hresult
 
-STDAPI SHFindFirstFileRetry(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pszPath, WIN32_FIND_DATA *pfd, HANDLE *phfind, DWORD dwFlags)
+STDAPI SHFindFirstFileRetry(HWND hwnd, IUnknown* punkEnableModless, LPCTSTR pszPath, WIN32_FIND_DATA* pfd, HANDLE* phfind, DWORD dwFlags)
 {
     HRESULT hr = SHFindFirstFile(pszPath, pfd, phfind);
 
@@ -6529,7 +6529,7 @@ STDAPI SHFindFirstFileRetry(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pszP
                 if (fMountedOnFolder) {
                     _GoModal(hwnd, punkEnableModless, TRUE);
                     ShellMessageBox(HINST_THISDLL, hwnd, MAKEINTRESOURCE(IDS_MVUNFORMATTED), MAKEINTRESOURCE(IDS_FORMAT_TITLE),
-                        (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_OK),
+                                    (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_OK),
                                     szMountPath);
                     _GoModal(hwnd, punkEnableModless, FALSE);
                 } else {
@@ -6537,7 +6537,7 @@ STDAPI SHFindFirstFileRetry(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pszP
                     int iDrive = PathGetDriveNumber(pszPath);
                     _GoModal(hwnd, punkEnableModless, TRUE);
                     int nResult = ShellMessageBox(HINST_THISDLL, hwnd, MAKEINTRESOURCE(IDS_UNFORMATTED), MAKEINTRESOURCE(IDS_FORMAT_TITLE),
-                        (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_YESNO),
+                                                  (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_YESNO),
                                                   (DWORD)(iDrive + TEXT('A')));
                     _GoModal(hwnd, punkEnableModless, FALSE);
 
@@ -6551,7 +6551,7 @@ STDAPI SHFindFirstFileRetry(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pszP
                         case SHFMT_NOFORMAT:
                             _GoModal(hwnd, punkEnableModless, TRUE);
                             ShellMessageBox(HINST_THISDLL, hwnd, MAKEINTRESOURCE(IDS_NOFMT), MAKEINTRESOURCE(IDS_FORMAT_TITLE),
-                                (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_OK), (DWORD)(iDrive + TEXT('A')));
+                                            (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_OK), (DWORD)(iDrive + TEXT('A')));
                             _GoModal(hwnd, punkEnableModless, FALSE);
                             break;
 
@@ -6604,7 +6604,7 @@ STDAPI SHFindFirstFileRetry(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pszP
 //       for CD/DVD inserts instead of constantly pegging the CPU and drive.  Too bad
 //       it doesn't work for floppies.  SfcGetPathType(), RegisterForDevChange(),
 //       SfcQueueCallback(), SfcIsTargetAvailable()
-STDAPI SHPathPrepareForWrite(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pwzPath, DWORD dwFlags)
+STDAPI SHPathPrepareForWrite(HWND hwnd, IUnknown* punkEnableModless, LPCTSTR pwzPath, DWORD dwFlags)
 {
     HRESULT hr = S_OK;
     TCHAR szPath[MAX_PATH];
@@ -6635,7 +6635,7 @@ STDAPI SHPathPrepareForWrite(HWND hwnd, IUnknown *punkEnableModless, LPCTSTR pwz
 
 
 #ifdef UNICODE
-STDAPI SHPathPrepareForWriteA(HWND hwnd, IUnknown *punkEnableModless, LPCSTR pszPath, DWORD dwFlags)
+STDAPI SHPathPrepareForWriteA(HWND hwnd, IUnknown* punkEnableModless, LPCSTR pszPath, DWORD dwFlags)
 {
     TCHAR szPath[MAX_PATH];
 
@@ -6643,7 +6643,7 @@ STDAPI SHPathPrepareForWriteA(HWND hwnd, IUnknown *punkEnableModless, LPCSTR psz
     return SHPathPrepareForWrite(hwnd, punkEnableModless, szPath, dwFlags);
 }
 #else // UNICODE
-STDAPI SHPathPrepareForWriteW(HWND hwnd, IUnknown *punkEnableModless, LPCWSTR pszPath, DWORD dwFlags)
+STDAPI SHPathPrepareForWriteW(HWND hwnd, IUnknown* punkEnableModless, LPCWSTR pszPath, DWORD dwFlags)
 {
     TCHAR szPath[MAX_PATH];
 
@@ -6658,7 +6658,7 @@ STDAPI SHPathPrepareForWriteW(HWND hwnd, IUnknown *punkEnableModless, LPCWSTR ps
 //  public export of SHBindToIDlist() has a slightly different
 //  name so that we dont get compile link problems on legacy versions
 //  of the shell.  shdocvw and browseui need to call SHBindToParentIDList()
-STDAPI SHBindToParent(LPCITEMIDLIST pidl, REFIID riid, void **ppv, LPCITEMIDLIST *ppidlLast)
+STDAPI SHBindToParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast)
 {
     return SHBindToIDListParent(pidl, riid, ppv, ppidlLast);
 }
@@ -6707,7 +6707,7 @@ STDAPI SHGetTargetFolderPath(LPCITEMIDLIST pidlFolder, LPTSTR pszPath, UINT cchB
     *pszPath = 0;
 
     // likely should ASSERT() that pidlFolder has SFGAO_FOLDER
-    IShellLink *psl;
+    IShellLink* psl;
     if (SUCCEEDED(SHGetUIObjectFromFullPIDL(pidlFolder, NULL, IID_PPV_ARG(IShellLink, &psl)))) {
         LPITEMIDLIST pidlTarget;
         if (S_OK == psl->GetIDList(&pidlTarget)) {
@@ -6739,12 +6739,12 @@ STDAPI_(BOOL) PathIsRegisteredProgram(LPCTSTR pszPath)
     return PathIsBinaryExe(pszPath) && PathToAppPath(pszPath, szTemp);
 }
 
-STDAPI LoadFromFile(const CLSID *pclsid, LPCTSTR pszFile, REFIID riid, void **ppv)
+STDAPI LoadFromFile(const CLSID* pclsid, LPCTSTR pszFile, REFIID riid, void** ppv)
 {
     *ppv = NULL;
 
-    IPersistFile *ppf;
-    HRESULT hr = SHCoCreateInstance(NULL, pclsid, NULL, IID_IPersistFile, (void **)&ppf);
+    IPersistFile* ppf;
+    HRESULT hr = SHCoCreateInstance(NULL, pclsid, NULL, IID_IPersistFile, (void**)&ppf);
     if (SUCCEEDED(hr)) {
         WCHAR wszPath[MAX_PATH];
         SHTCharToUnicode(pszFile, wszPath, ARRAYSIZE(wszPath));

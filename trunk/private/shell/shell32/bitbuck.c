@@ -265,7 +265,7 @@ BOOL GetNetHomeDir(LPTSTR pszNetHomeDir)
                     ENTERCRITICAL;
                     g_pBitBucket[SERVERDRIVE]->fInited = FALSE;
                     LEAVECRITICAL;
-                }
+        }
             } else {
                 // the mydocs previously to pointed to \\foo\bar, and the user has set it back to that path again.
                 // so flag the drive as inited so we can start using it again.
@@ -274,7 +274,7 @@ BOOL GetNetHomeDir(LPTSTR pszNetHomeDir)
                     g_pBitBucket[SERVERDRIVE]->fInited = TRUE;
                     LEAVECRITICAL;
                 }
-            }
+}
         }
     } else {
         pszNetHomeDir[0] = TEXT('\0');
@@ -302,7 +302,7 @@ STDAPI_(BOOL) IsBitBucketableDrive(int idDrive)
     }
 
     bRet = (RealDriveType(idDrive, FALSE) == DRIVE_FIXED ||
-        ((idDrive == SERVERDRIVE) && GetNetHomeDir(szBBRoot)));
+            ((idDrive == SERVERDRIVE) && GetNetHomeDir(szBBRoot)));
 
     if (bRet && (idDrive != SERVERDRIVE)) {
         // also check to make sure that the drive isint RAW (unformatted)
@@ -314,7 +314,7 @@ STDAPI_(BOOL) IsBitBucketableDrive(int idDrive)
         } else {
             // the drive better be NTFS, FAT or FAT32, else we need to know about it and handle it properly
             ASSERT((lstrcmpi(szFileSystem, TEXT("NTFS")) == 0) ||
-                (lstrcmpi(szFileSystem, TEXT("FAT")) == 0) ||
+                   (lstrcmpi(szFileSystem, TEXT("FAT")) == 0) ||
                    (lstrcmpi(szFileSystem, TEXT("FAT32")) == 0));
         }
     }
@@ -347,7 +347,7 @@ __inline BOOL IsBitBucketInited(int idDrive)
     // in this window we use the crit sec.
     ENTERCRITICAL;
     bRet = (g_pBitBucket[idDrive] &&
-        (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1) &&
+            (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1) &&
             g_pBitBucket[idDrive]->fInited);
     LEAVECRITICAL;
 
@@ -418,7 +418,7 @@ BOOL UpdateBBInfoFileHeader(int idDrive)
         }
 
         ASSERT((g_pBitBucket[idDrive]->fIsUnicode && SIZEOF(BBDATAENTRYW) == bbdh.cbDataEntrySize) ||
-            (!g_pBitBucket[idDrive]->fIsUnicode && SIZEOF(BBDATAENTRYA) == bbdh.cbDataEntrySize));
+               (!g_pBitBucket[idDrive]->fIsUnicode && SIZEOF(BBDATAENTRYA) == bbdh.cbDataEntrySize));
 
         // Since we dont flag entries that were deleted in the info file as deleted
         // immeadeately, we need to go through and mark them as such now
@@ -509,30 +509,21 @@ PACL GetNT4BBAcl()
     UINT         nCnt = 2;  // inheritable; so two ACE's for each user
     BOOL         bSuccess = FALSE;
 
-
-
     // Get the USER token so we can grab its SID for the DACL.
-
     pUser = GetUserToken(NULL);
     if (!pUser) {
         TraceMsg(TF_BITBUCKET, "GetNT4BBAcl: Failed to get user.  Error = %d", GetLastError());
         goto Exit;
     }
 
-
     // Get the system sid
-
     if (!AllocateAndInitializeSid(&authNT, 1, SECURITY_LOCAL_SYSTEM_RID,
                                   0, 0, 0, 0, 0, 0, 0, &psidSystem)) {
         TraceMsg(TF_BITBUCKET, "GetNT4BBAcl: Failed to initialize system sid.  Error = %d", GetLastError());
         goto Exit;
     }
 
-
-
     // Get the Admin sid
-
-
     if (!AllocateAndInitializeSid(&authNT, 2, SECURITY_BUILTIN_DOMAIN_RID,
                                   DOMAIN_ALIAS_RID_ADMINS, 0, 0,
                                   0, 0, 0, 0, &psidAdmin)) {
@@ -540,10 +531,7 @@ PACL GetNT4BBAcl()
         goto Exit;
     }
 
-
-
     // Allocate space for the DACL
-
     cbAcl = SIZEOF(ACL) +
         (nCnt * GetLengthSid(pUser->User.Sid)) +
         (nCnt * GetLengthSid(psidSystem)) +
@@ -643,7 +631,7 @@ Exit:
     }
 
     return pAcl;
-}
+    }
 
 
 
@@ -727,7 +715,7 @@ BOOL CheckRecycleBinAcls(idDrive)
                         } else {
                             TraceMsg(TF_BITBUCKET, "CheckRecycleBinAcls: GetNT4BBSecurityAttributes failed, assuming %s is unsecure", szBBPath);
                             bIsSecure = FALSE;
-                        }
+                }
                     }
 
                     LocalFree(psdRecycle);
@@ -782,8 +770,8 @@ BOOL CheckRecycleBinAcls(idDrive)
                     // we re-created the recycle bin dir, so we need to reset the info file..
                     VerifyBBInfoFileHeader(idDrive);
                 }
-            }
-        }
+    }
+}
     }
 
     return bIsSecure;
@@ -910,7 +898,7 @@ BOOL VerifyBBInfoFileHeader(int idDrive)
 
                     CloseBBInfoFile(hFile, idDrive);
                     fSuccess = TRUE;
-                } else {
+    } else {
                     // we are so screwed!
                     fSuccess = FALSE;
                 }
@@ -926,7 +914,7 @@ BOOL VerifyBBInfoFileHeader(int idDrive)
                 // the header info is current
                 fSuccess = TRUE;
             }
-        } else {
+                } else {
 #ifdef BB_USE_MRSW
             MRSW_LeaveRead(g_pBitBucket[idDrive]->pmrsw);
 #endif // BB_USE_MRSW
@@ -1094,7 +1082,7 @@ BOOL AllocBBDriveInfo(int idDrive)
                 } while (bKeepWaiting);
 
                 return ((g_pBitBucket[idDrive] != NULL) &&
-                    (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1));
+                        (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1));
             }
 
             ASSERT(g_pBitBucket[idDrive] && (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1));
@@ -1190,14 +1178,14 @@ BOOL InitBBGlobals()
                 ASSERTMSG(FALSE, "Bitbucket: failed to create g_hgcGlobalDirtyCount!");
                 return FALSE;
             }
-        }
+            }
 
         // we inited everything!!
         g_fBBInited = TRUE;
     }
 
     return g_fBBInited;
-}
+    }
 
 
 void FreeBBInfo(PBBSYNCOBJECT pbbso)
@@ -1419,11 +1407,11 @@ DWORD CALLBACK CompactBBInfoFileThread(void* pData)
 
                 // reset our lparray pointer
                 pbbdew = bbdewArray;
-            } else {
+    } else {
                 // dont have 10 entries yet, so keep going
                 pbbdew = (LPBBDATAENTRYW)((LPBYTE)pbbdew + dwDataEntrySize);
             }
-        }
+}
 
         TraceMsg(TF_BITBUCKET, "Bitbucket: Compacting drive %d: dwRead = %d, dwWrite = %d, writing last %d entries", idDrive, dwReadPos, dwWritePos, iNumEntries);
 
@@ -1478,11 +1466,11 @@ void GetDeletedFileName(LPTSTR pszFileName, int idDrive, int iIndex, LPNTSTR psz
         TCHAR szTmp[MAX_PATH];
         ualstrcpyn(szTmp, pszOriginal, ARRAYSIZE(szTmp));
         wsprintf(pszFileName, TEXT("D%c%d%s"), c, iIndex, PathFindExtension(szTmp));
-    }
+}
 #else
     wsprintf(pszFileName, TEXT("D%c%d%s"), c, iIndex, PathFindExtension(pszOriginal));
 #endif
-    }
+}
 
 void UpdateIcon(BOOL fFull)
 {
@@ -1651,7 +1639,7 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG* pcbDiskSpace)
                              NULL,
                              NULL,
                              0) &&
-                             (dwSerialNumber == dwSerialNumberFromRegistry)) {
+        (dwSerialNumber == dwSerialNumberFromRegistry)) {
         // we were able to read the drive serial number and it matched the regsitry, so
         // assume that the cached reg info is valid
         bHaveCachedRegInfo = TRUE;
@@ -1665,7 +1653,7 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG* pcbDiskSpace)
             // couldn't read the path or it didnt match, so no we can't use the cacehed info
             bHaveCachedRegInfo = FALSE;
         }
-    }
+        }
 
 
     if (!bHaveCachedRegInfo) {
@@ -1755,7 +1743,7 @@ retry:
         if (pcbDiskSpace) {
             // set the total disk size as well
             *pcbDiskSpace = ulTotal.QuadPart;
-        }
+    }
     } else {
         // REVIEW: (chrispi 11/20/98) where did this code come from?  should it be removed?
         if (idDrive == SERVERDRIVE) {
@@ -2013,11 +2001,11 @@ int BBTotalCount(LPINT pidDrive, LPDWORD pdwSize, int iMaxFiles)
         if (nFilesOld == 0 && nFiles == 1) {
             // if just one file, set the drive id
             idDrive = i;
-        }
+    }
 
         if (iMaxFiles && (nFiles > iMaxFiles))
             break;
-    }
+}
 
     if (pidDrive)
         *pidDrive = (nFiles == 1) ? idDrive : 0;
@@ -2338,7 +2326,7 @@ void BBPurgeAll(CBitBucket* this, HWND hwndOwner, DWORD dwFlags)
 
     if (g_dwStopWatchMode) {
         MarkBBPurgeAllTime(FALSE);
-    }
+                }
 }
 
 
@@ -2438,7 +2426,7 @@ DWORD PurgeBBFiles(int idDrive)
 
         if (hFile != INVALID_HANDLE_VALUE) {
             // while we're too big, find something to delete
-            while (dwCurrentSize > g_pBitBucket[idDrive]->cbMaxSize&& ReadNextDataEntry(hFile, &bbdew, TRUE, dwDataEntrySize, idDrive)) {
+            while (dwCurrentSize > g_pBitBucket[idDrive]->cbMaxSize && ReadNextDataEntry(hFile, &bbdew, TRUE, dwDataEntrySize, idDrive)) {
                 TCHAR szOriginalFileName[MAX_PATH];
                 TCHAR szPath[MAX_PATH];
                 TCHAR szDeletedFile[MAX_PATH];
@@ -2452,7 +2440,7 @@ DWORD PurgeBBFiles(int idDrive)
                     LPBBDATAENTRYA pbbdea = (LPBBDATAENTRYA)&bbdew;
 
                     SHAnsiToTChar(pbbdea->szOriginal, szOriginalFileName, ARRAYSIZE(szOriginalFileName));
-                }
+    }
 
                 GetDeletedFileName(szDeletedFile, idDrive, bbdew.iIndex, szOriginalFileName);
                 PathCombine(szPath, szBBPath, szDeletedFile);
@@ -2581,7 +2569,7 @@ TryAgain:
         return TRUE;
     } else {
         return FALSE;
-    }
+        }
 }
 
 
@@ -2900,8 +2888,8 @@ BOOL CreateRecyclerDirectory(int idDrive)
 #endif // WINNT
         {
             bExists = (SHCreateDirectoryEx(NULL, szPath, NULL) == ERROR_SUCCESS);
+        }
     }
-}
 
     if (bExists) {
         PathAppend(szPath, c_szDesktopIni);
@@ -3188,7 +3176,7 @@ TryMoveAgain:
                     goto TryMoveAgain;
                 }
             }
-        } else {
+            } else {
             // success!
             BBAddDeletedFileInfo(pszFile, szShortFileName, iIndex, idDrive, ulSize.LowPart);
 
@@ -3211,7 +3199,7 @@ TryMoveAgain:
     *piRet = BBDELETE_UNKNOWN_ERROR;
 
     return FALSE;
-}
+        }
 
 
 // Basically it understands how we the trash is layed out which is fine
@@ -3396,12 +3384,8 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                OBJ_CASE_INSENSITIVE,
                                RelativeName.ContainingDirectory,
                                NULL);
-
     if (IsOS(OS_NT5)) {
-
         // on NT5 we need to do some extra repars point munging
-
-
 
         // Open the directory for delete access.
         // Inhibit the reparse behavior using FILE_OPEN_REPARSE_POINT.
@@ -3414,14 +3398,12 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                             FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT);
 
         if (!NT_SUCCESS(Status)) {
-
             // Back level file systems may not support reparse points and thus not
             // support symbolic links.
             // We infer this is the case when the Status is STATUS_INVALID_PARAMETER.
 
 
             if (Status == STATUS_INVALID_PARAMETER) {
-
                 // Re-open not inhibiting the reparse behavior and not needing to read the attributes.
 
                 Status = NtOpenFile(&Handle,
@@ -3454,7 +3436,6 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                 return FALSE;
             }
         } else {
-
             // If we found a reparse point that is not a name grafting operation,
             // either a symbolic link or a mount point, we re-open without
             // inhibiting the reparse behavior.
@@ -3464,9 +3445,7 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                             (PVOID)&FileTagInformation,
                                             sizeof(FileTagInformation),
                                             FileAttributeTagInformation);
-
             if (!NT_SUCCESS(Status)) {
-
                 // Not all File Systems implement all information classes.
                 // The value STATUS_INVALID_PARAMETER is returned when a non-supported
                 // information class is requested to a back-level File System. As all the
@@ -3493,7 +3472,6 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
 
             if (NT_SUCCESS(Status) && (FileTagInformation.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
                 if (FileTagInformation.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
-
                     // We want to make sure that we return FALSE for mounted volumes. This will cause BBDeleteFile
                     // to return BBDELETE_CANNOT_DELETE so that we will actuall delete the mountpoint and not try to
                     // move the mount point to the recycle bin or walk into it.
@@ -3513,7 +3491,6 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
             }
 
             if (NT_SUCCESS(Status) && (FileTagInformation.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
-
                 // Re-open without inhibiting the reparse behavior and not needing to
                 // read the attributes.
 
@@ -3524,13 +3501,10 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                     &IoStatusBlock,
                                     FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                                     FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT);
-
                 if (!NT_SUCCESS(Status)) {
-
                     // When the FS Filter is absent, delete it any way.
 
                     if (Status == STATUS_IO_REPARSE_TAG_NOT_HANDLED) {
-
                         // We re-open (possible 3rd open) for delete access inhibiting the reparse behavior.
 
                         Status = NtOpenFile(&Handle,
@@ -3556,10 +3530,8 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
             }
         }
     } else {
-
         // This is the code to open the file handle as it shipped in NT4, we dont need to do any of
         // the reparse point stuff since they are not supported on NT4
-
 
         // Open the directory for delete access
         Status = NtOpenFile(&Handle,
@@ -3583,9 +3555,7 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                   &Disposition,
                                   sizeof(Disposition),
                                   FileDispositionInformation);
-
     if (NT_SUCCESS(Status)) {
-
         // yep, we were able to set the bit, now unset it so its not delted!
 
         Disposition.DeleteFile = FALSE;
@@ -3619,7 +3589,7 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
     }
 #endif // WINNT
     return TRUE;
-}
+                    }
 
 
 // This function checks to see if a local NT file is delete-able
@@ -3686,49 +3656,38 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
         FileName = *(PUNICODE_STRING)&RelativeName.RelativeName;
     } else {
         RelativeName.ContainingDirectory = NULL;
-    }
+                }
 
     InitializeObjectAttributes(&Obja,
                                &FileName,
                                OBJ_CASE_INSENSITIVE,
                                RelativeName.ContainingDirectory,
                                NULL);
-
     if (IsOS(OS_NT5)) {
-
         // on NT5 we need to do some extra repars point munging
 
-
-
         // Open the file for delete access
-
         Status = NtOpenFile(&Handle,
-            (ACCESS_MASK)DELETE | FILE_READ_ATTRIBUTES | READ_CONTROL,
+                            (ACCESS_MASK)DELETE | FILE_READ_ATTRIBUTES | READ_CONTROL,
                             &Obja,
                             &IoStatusBlock,
                             FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                             FILE_NON_DIRECTORY_FILE | FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT);
-
         if (!NT_SUCCESS(Status)) {
-
             // Back level file systems may not support reparse points and thus not
             // support symbolic links.
             // We infer this is the case when the Status is STATUS_INVALID_PARAMETER.
 
-
             if (Status == STATUS_INVALID_PARAMETER) {
-
                 // Open without inhibiting the reparse behavior and not needing to
                 // read the attributes.
 
-
                 Status = NtOpenFile(&Handle,
-                    (ACCESS_MASK)DELETE | READ_CONTROL,
+                                    (ACCESS_MASK)DELETE | READ_CONTROL,
                                     &Obja,
                                     &IoStatusBlock,
                                     FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                                     FILE_NON_DIRECTORY_FILE | FILE_OPEN_FOR_BACKUP_INTENT);
-
                 if (!NT_SUCCESS(Status)) {
                     RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
 
@@ -3752,7 +3711,6 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                 return FALSE;
             }
         } else {
-
             // If we found a reparse point that is not a symbolic link, we re-open
             // without inhibiting the reparse behavior.
 
@@ -3762,7 +3720,6 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                                             sizeof(FileTagInformation),
                                             FileAttributeTagInformation);
             if (!NT_SUCCESS(Status)) {
-
                 // Not all File Systems implement all information classes.
                 // The value STATUS_INVALID_PARAMETER is returned when a non-supported
                 // information class is requested to a back-level File System. As all the
@@ -3800,27 +3757,19 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                 // Re-open without inhibiting the reparse behavior and not needing to
                 // read the attributes.
 
-
                 NtClose(Handle);
                 Status = NtOpenFile(&Handle,
-                    (ACCESS_MASK)DELETE | READ_CONTROL,
+                                    (ACCESS_MASK)DELETE | READ_CONTROL,
                                     &Obja,
                                     &IoStatusBlock,
                                     FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                                     FILE_NON_DIRECTORY_FILE | FILE_OPEN_FOR_BACKUP_INTENT);
-
                 if (!NT_SUCCESS(Status)) {
-
                     // When the FS Filter is absent, delete it any way.
-
-
                     if (Status == STATUS_IO_REPARSE_TAG_NOT_HANDLED) {
-
                         // We re-open (possible 3rd open) for delete access inhibiting the reparse behavior.
-
-
                         Status = NtOpenFile(&Handle,
-                            (ACCESS_MASK)DELETE | READ_CONTROL,
+                                            (ACCESS_MASK)DELETE | READ_CONTROL,
                                             &Obja,
                                             &IoStatusBlock,
                                             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -3842,16 +3791,12 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
             }
         }
     } else {
-
         // This is the code to open the file handle as it shipped in NT4, we dont need to do any of
         // the reparse point stuff since they are not supported on NT4
 
-
-
         // Open the file for delete access
-
         Status = NtOpenFile(&Handle,
-            (ACCESS_MASK)DELETE | READ_CONTROL,
+                            (ACCESS_MASK)DELETE | READ_CONTROL,
                             &Obja,
                             &IoStatusBlock,
                             FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -3870,9 +3815,7 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
         }
     }
 
-
     RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
-
 
     // Attempt to set the delete bit
 
@@ -3884,11 +3827,8 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                                   &Disposition,
                                   sizeof(Disposition),
                                   FileDispositionInformation);
-
     if (NT_SUCCESS(Status)) {
-
         // yep, we were able to set the bit, now unset it so its not delted!
-
         Disposition.DeleteFile = FALSE;
         Status = NtSetInformationFile(Handle,
                                       &IoStatusBlock,
@@ -3903,7 +3843,6 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
         }
         return TRUE;
     } else {
-
         // nope couldnt set the del bit. can't be deleted
 
         TraceMsg(TF_BITBUCKET, "IsFileDeletable: NtSetInformationFile failed, status=0x%08x", Status);
@@ -3920,11 +3859,9 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
     }
 #endif // WINNT
 
-
     // on win9x, we just return true
-
     return TRUE;
-}
+                    }
 
 
 // This function adds up the sizes of the files in pszDir, and
@@ -4026,7 +3963,7 @@ LONG CheckFolderSizeAndDeleteability(LPCTSTR pszDir, FOLDERDELETEINFO* pfdi)
                 // pass back the name of the non-deleteable file in pfdi->szNonDeletableFile
                 lstrcpyn(pfdi->szNonDeletableFile, pszDir, ARRAYSIZE(pfdi->szNonDeletableFile));
             }
-        } else {
+} else {
             // if FindFirstFile fails, check to see if the directory itself is deleteable
             if (!IsDirectoryDeletable(pszDir)) {
                 lRet = GetLastError();

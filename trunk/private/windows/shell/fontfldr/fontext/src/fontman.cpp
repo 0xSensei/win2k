@@ -48,14 +48,14 @@
 #endif
 
 #ifdef WINNT
-static TCHAR s_szKey1[] = TEXT( "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts" );
+static TCHAR s_szKey1[] = TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts");
 static TCHAR s_szKeyFontDrivers[] = TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Font Drivers");
 #else
-static TCHAR s_szKey1[] = TEXT( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Fonts" );
+static TCHAR s_szKey1[] = TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Fonts");
 #endif  // WINNT
 
-static TCHAR s_szKey2[] = TEXT( "Display\\Fonts" );
-static TCHAR s_szINISFonts[] = TEXT( "fonts" );
+static TCHAR s_szKey2[] = TEXT("Display\\Fonts");
+static TCHAR s_szINISFonts[] = TEXT("fonts");
 
 
 #if 1
@@ -68,49 +68,46 @@ static TCHAR s_szINISFonts[] = TEXT( "fonts" );
 
  **/
 
-BOOL bKeyHasKey( HKEY          hk,
-                 const TCHAR * pszKey,
-                 TCHAR       * pszValue,
-                 int           iValLen )
+BOOL bKeyHasKey(HKEY          hk,
+                const TCHAR* pszKey,
+                TCHAR* pszValue,
+                int           iValLen)
 {
     DWORD  i;
-    TCHAR  szKey[ 80 ];
+    TCHAR  szKey[80];
     DWORD  dwKey,
-           dwValue,
-           dwKeyLen;
+        dwValue,
+        dwKeyLen;
     DWORD  dwErr;
     int    iFound = 0;
 
-    dwKeyLen = lstrlen( pszKey );
+    dwKeyLen = lstrlen(pszKey);
 
     i = 0;
 
-    while( TRUE )
-    {
-        dwKey   = ARRAYSIZE( szKey );
+    while (TRUE) {
+        dwKey = ARRAYSIZE(szKey);
 
-        dwValue = iValLen * sizeof( TCHAR );
+        dwValue = iValLen * sizeof(TCHAR);
 
-        dwErr = RegEnumValue( hk, i, szKey, &dwKey, NULL,
-                              NULL, (LPBYTE)pszValue, &dwValue );
+        dwErr = RegEnumValue(hk, i, szKey, &dwKey, NULL,
+                             NULL, (LPBYTE)pszValue, &dwValue);
 
-        if( dwErr == ERROR_NO_MORE_ITEMS )
+        if (dwErr == ERROR_NO_MORE_ITEMS)
             break;
-        else if( dwErr == ERROR_SUCCESS )
-        {
+        else if (dwErr == ERROR_SUCCESS) {
 
             //  Null terminate it.
 
 
-            szKey[ dwKey ] = 0;
+            szKey[dwKey] = 0;
 
 
             //  Check to see if this is the one we want.
 
 
-            if( dwKey == dwKeyLen )
-            {
-                if( ( iFound = !lstrcmpi( szKey, pszKey ) ) )
+            if (dwKey == dwKeyLen) {
+                if ((iFound = !lstrcmpi(szKey, pszKey)))
                     break;
             }
         }
@@ -126,19 +123,18 @@ BOOL bKeyHasKey( HKEY          hk,
 }
 
 
-BOOL bRegHasKey( const TCHAR * pszKey, TCHAR * pszValue = NULL, int iValLen = 0 );
+BOOL bRegHasKey(const TCHAR* pszKey, TCHAR* pszValue = NULL, int iValLen = 0);
 
 
-BOOL bRegHasKey( const TCHAR * pszKey, TCHAR * pszValue, int iValLen )
+BOOL bRegHasKey(const TCHAR* pszKey, TCHAR* pszValue, int iValLen)
 {
     HKEY  hk;
     BOOL  bHasKey = FALSE;
     FullPathName_t szPath;
 
-    if( !pszValue )
-    {
+    if (!pszValue) {
         pszValue = szPath;
-        iValLen  = ARRAYSIZE( szPath );
+        iValLen = ARRAYSIZE(szPath);
     }
 
 
@@ -146,11 +142,10 @@ BOOL bRegHasKey( const TCHAR * pszKey, TCHAR * pszValue, int iValLen )
     //  already installed.
 
 
-    if( ERROR_SUCCESS == RegOpenKeyEx( HKEY_LOCAL_MACHINE, s_szKey1, 0,
-                                       KEY_READ, &hk ) )
-    {
-        bHasKey = bKeyHasKey( hk, pszKey, pszValue, iValLen );
-        RegCloseKey( hk );
+    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, s_szKey1, 0,
+                                      KEY_READ, &hk)) {
+        bHasKey = bKeyHasKey(hk, pszKey, pszValue, iValLen);
+        RegCloseKey(hk);
     }
 
 #ifndef WINNT
@@ -161,13 +156,11 @@ BOOL bRegHasKey( const TCHAR * pszKey, TCHAR * pszValue, int iValLen )
     //                    part of the registry.
 
 
-    if( !bHasKey )
-    {
-        if( ERROR_SUCCESS == RegOpenKeyEx( HKEY_CURRENT_CONFIG, s_szKey2,
-                                           0, KEY_READ, &hk ) )
-        {
-            bHasKey = bKeyHasKey( hk, pszKey, pszValue, iValLen );
-            RegCloseKey( hk );
+    if (!bHasKey) {
+        if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_CONFIG, s_szKey2,
+                                          0, KEY_READ, &hk)) {
+            bHasKey = bKeyHasKey(hk, pszKey, pszValue, iValLen);
+            RegCloseKey(hk);
         }
     }
 
@@ -177,11 +170,10 @@ BOOL bRegHasKey( const TCHAR * pszKey, TCHAR * pszValue, int iValLen )
     //  If we still don't have it, try from the WIN.INI file.
 
 
-    if( !bHasKey )
-    {
-        bHasKey = (BOOL) GetProfileString( s_szINISFonts, pszKey, TEXT( "" ),
-                                           pszValue,
-                                           iValLen );
+    if (!bHasKey) {
+        bHasKey = (BOOL)GetProfileString(s_szINISFonts, pszKey, TEXT(""),
+                                         pszValue,
+                                         iValLen);
     }
 
 #ifdef LATER  // WINNT
@@ -190,14 +182,12 @@ BOOL bRegHasKey( const TCHAR * pszKey, TCHAR * pszValue, int iValLen )
     //  Check 'Type 1' registry location to see if it is already installed.
 
 
-    if( !bHasKey )
-    {
-        if( ERROR_SUCCESS == RegOpenKeyEx( HKEY_LOCAL_MACHINE, g_szType1Key,
-                                           0, KEY_READ, &hk ) )
-        {
-            bHasKey = bKeyHasKey( hk, pszKey, pszValue, iValLen );
+    if (!bHasKey) {
+        if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, g_szType1Key,
+                                          0, KEY_READ, &hk)) {
+            bHasKey = bKeyHasKey(hk, pszKey, pszValue, iValLen);
 
-            RegCloseKey( hk );
+            RegCloseKey(hk);
         }
     }
 
@@ -217,55 +207,51 @@ BOOL bRegHasKey( const TCHAR * pszKey, TCHAR * pszValue, int iValLen )
 
  **/
 
-BOOL  WriteToRegistry( LPTSTR lpValue, LPTSTR lpData )
+BOOL  WriteToRegistry(LPTSTR lpValue, LPTSTR lpData)
 {
     HKEY  hk;
     LONG  lRet;
 
 
-    if( ERROR_SUCCESS == RegOpenKeyEx( HKEY_LOCAL_MACHINE, s_szKey1, 0,
-                                       KEY_SET_VALUE, &hk ) )
-    {
-        if( lpData )
-            lRet = RegSetValueEx( hk, lpValue, 0, REG_SZ,
-                                  (const LPBYTE)lpData,
-                                  (lstrlen( lpData ) + 1) * sizeof( TCHAR ) );
-        else
-        {
-            lRet = RegDeleteValue( hk, lpValue );
+    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, s_szKey1, 0,
+                                      KEY_SET_VALUE, &hk)) {
+        if (lpData)
+            lRet = RegSetValueEx(hk, lpValue, 0, REG_SZ,
+                                 (const LPBYTE)lpData,
+                                 (lstrlen(lpData) + 1) * sizeof(TCHAR));
+        else {
+            lRet = RegDeleteValue(hk, lpValue);
         }
 
-        RegCloseKey( hk );
+        RegCloseKey(hk);
 
 
 
 #ifndef WINNT
 
 
-    // [stevecat] 7/10/95 NT does not yet support HKEY_CURRENT_CONFIG
-    //                    and won't until Plug N Play fills in that
-    //                    part of the registry.
+        // [stevecat] 7/10/95 NT does not yet support HKEY_CURRENT_CONFIG
+        //                    and won't until Plug N Play fills in that
+        //                    part of the registry.
 
 
 
-        //  If we're deleting (lpData == 0 ), make sure the string is gone
-        //  from the Win.ini and the other reg location.
+            //  If we're deleting (lpData == 0 ), make sure the string is gone
+            //  from the Win.ini and the other reg location.
 
 
-        if( !lpData && ( lRet != ERROR_SUCCESS ) )
-        {
-            if( ERROR_SUCCESS == RegOpenKeyEx( HKEY_CURRENT_CONFIG, s_szKey2,
-                                               0, KEY_SET_VALUE, &hk ) )
-            {
-                lRet = RegDeleteValue( hk, lpValue );
-                RegCloseKey( hk );
+        if (!lpData && (lRet != ERROR_SUCCESS)) {
+            if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_CONFIG, s_szKey2,
+                                              0, KEY_SET_VALUE, &hk)) {
+                lRet = RegDeleteValue(hk, lpValue);
+                RegCloseKey(hk);
             }
 
         }
 
 #endif  //  WINNT
 
-        return( lRet == ERROR_SUCCESS );
+        return(lRet == ERROR_SUCCESS);
     }
 
     return FALSE;
@@ -281,28 +267,28 @@ BOOL  WriteToRegistry( LPTSTR lpValue, LPTSTR lpData )
 
  **/
 
-CFontManager::CFontManager( )
-   :  m_poFontList( 0 ),
-      m_poTempList( 0 ),
-      m_poPanMap( 0 ),
-      m_bTriedOnce( FALSE ),
-      m_bFamiliesNeverReset( TRUE ),
-      m_poRemoveList( 0 ),
-      m_hNotifyThread( 0 ),
-      m_hReconcileThread( 0 ),
-      m_hResetFamThread( 0 ),
-      m_hMutexResetFamily( 0 ),
-      m_hMutexInstallation( 0 ),
-      m_hEventTerminateThreads(NULL)
+CFontManager::CFontManager()
+    : m_poFontList(0),
+    m_poTempList(0),
+    m_poPanMap(0),
+    m_bTriedOnce(FALSE),
+    m_bFamiliesNeverReset(TRUE),
+    m_poRemoveList(0),
+    m_hNotifyThread(0),
+    m_hReconcileThread(0),
+    m_hResetFamThread(0),
+    m_hMutexResetFamily(0),
+    m_hMutexInstallation(0),
+    m_hEventTerminateThreads(NULL)
 {
-    m_Notify.m_hWatch    = INVALID_HANDLE_VALUE;
+    m_Notify.m_hWatch = INVALID_HANDLE_VALUE;
 
-    m_hMutexResetFamily = CreateMutex( NULL, FALSE, NULL );
-    m_hEventResetFamily = CreateEvent( NULL, TRUE, FALSE, NULL );
-    m_hMutexInstallation = CreateMutex( NULL, FALSE, NULL );
-    m_hEventTerminateThreads  = CreateEvent(NULL, TRUE, FALSE, NULL);
+    m_hMutexResetFamily = CreateMutex(NULL, FALSE, NULL);
+    m_hEventResetFamily = CreateEvent(NULL, TRUE, FALSE, NULL);
+    m_hMutexInstallation = CreateMutex(NULL, FALSE, NULL);
+    m_hEventTerminateThreads = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-    InitializeCriticalSection( &m_cs );
+    InitializeCriticalSection(&m_cs);
 }
 
 
@@ -315,7 +301,7 @@ CFontManager::CFontManager( )
 
  **/
 
-CFontManager::~CFontManager( )
+CFontManager::~CFontManager()
 {
 
     // Set the "terminate-all-threads" event.
@@ -325,12 +311,10 @@ CFontManager::~CFontManager( )
     // The order of these "SetEvent" calls is CRITICAL.  Must
     // set the "terminate threads" event first.
 
-    if (NULL != m_hEventTerminateThreads)
-    {
+    if (NULL != m_hEventTerminateThreads) {
         SetEvent(m_hEventTerminateThreads);
     }
-    if (NULL != m_hEventResetFamily)
-    {
+    if (NULL != m_hEventResetFamily) {
         SetEvent(m_hEventResetFamily);
     }
 
@@ -347,62 +331,55 @@ CFontManager::~CFontManager( )
 
     DWORD dwWait = WaitForMultipleObjects(cThreads, rghThreads, TRUE, INFINITE);
 
-    if( m_hNotifyThread )
-    {
-        CloseHandle( m_hNotifyThread );
+    if (m_hNotifyThread) {
+        CloseHandle(m_hNotifyThread);
     }
-    if( m_hReconcileThread )
-    {
-        CloseHandle( m_hReconcileThread );
+    if (m_hReconcileThread) {
+        CloseHandle(m_hReconcileThread);
     }
-    if( m_hResetFamThread )
-    {
-        CloseHandle( m_hResetFamThread );
+    if (m_hResetFamThread) {
+        CloseHandle(m_hResetFamThread);
     }
 
     ECS;
-    if( m_Notify.m_hWatch != INVALID_HANDLE_VALUE )
-    {
-        if( !FindCloseChangeNotification( m_Notify.m_hWatch ) )
-        {
-            DEBUGMSG( (DM_ERROR, TEXT( "CFontManager:~CFontManager FindCloseChangeNotification FAILED - error = %d Handle = 0x%x" ), GetLastError( ), m_Notify.m_hWatch ) );
+    if (m_Notify.m_hWatch != INVALID_HANDLE_VALUE) {
+        if (!FindCloseChangeNotification(m_Notify.m_hWatch)) {
+            DEBUGMSG((DM_ERROR, TEXT("CFontManager:~CFontManager FindCloseChangeNotification FAILED - error = %d Handle = 0x%x"), GetLastError(), m_Notify.m_hWatch));
         }
 
-        DEBUGMSG( (DM_TRACE2, TEXT( "CFontManager:~CFontManager FindCloseChangeNotification called" ) ) );
+        DEBUGMSG((DM_TRACE2, TEXT("CFontManager:~CFontManager FindCloseChangeNotification called")));
     }
 
-    if( m_poFontList )
-    {
+    if (m_poFontList) {
         delete m_poFontList;
         m_poFontList = 0;
     }
 
-    if( m_poPanMap )
-    {
-        m_poPanMap->Release( );
+    if (m_poPanMap) {
+        m_poPanMap->Release();
     }
 
-    if( m_poTempList )
+    if (m_poTempList)
         delete m_poTempList;
 
-    if( m_poRemoveList )
+    if (m_poRemoveList)
         delete m_poRemoveList;
 
     LCS;
 
     if (NULL != m_hMutexResetFamily)
-        CloseHandle( m_hMutexResetFamily );
+        CloseHandle(m_hMutexResetFamily);
 
     if (NULL != m_hEventResetFamily)
-        CloseHandle( m_hEventResetFamily );
+        CloseHandle(m_hEventResetFamily);
 
     if (NULL != m_hMutexInstallation)
-        CloseHandle( m_hMutexInstallation );
+        CloseHandle(m_hMutexInstallation);
 
     if (NULL != m_hEventTerminateThreads)
         CloseHandle(m_hEventTerminateThreads);
 
-    DeleteCriticalSection( &m_cs );
+    DeleteCriticalSection(&m_cs);
 }
 
 
@@ -436,45 +413,35 @@ CFontManager::~CFontManager( )
 
 extern CRITICAL_SECTION g_csFontManager; // defined in fontext.cpp
 
-HRESULT GetOrReleaseFontManager(CFontManager **ppoFontManager, bool bGet)
+HRESULT GetOrReleaseFontManager(CFontManager** ppoFontManager, bool bGet)
 {
-    static CFontManager *pSingleton;
+    static CFontManager* pSingleton;
     static LONG cRef = 0;
 
     HRESULT hr = NOERROR;
     EnterCriticalSection(&g_csFontManager);
-    if (bGet)
-    {
-        if (NULL == pSingleton)
-        {
+    if (bGet) {
+        if (NULL == pSingleton) {
 
             // No manager exists.  Create it.
 
             pSingleton = new CFontManager();
-            if (NULL != pSingleton)
-            {
-                if (!pSingleton->bInit())
-                {
+            if (NULL != pSingleton) {
+                if (!pSingleton->bInit()) {
                     delete pSingleton;
                     pSingleton = NULL;
                 }
             }
         }
-        if (NULL != pSingleton)
-        {
+        if (NULL != pSingleton) {
             *ppoFontManager = pSingleton;
             cRef++;
-        }
-        else
-        {
+        } else {
             hr = E_OUTOFMEMORY;
         }
-    }
-    else
-    {
+    } else {
         *ppoFontManager = NULL;
-        if (0 == (--cRef))
-        {
+        if (0 == (--cRef)) {
 
             // Last reference to manager.
             // Delete it.
@@ -487,12 +454,12 @@ HRESULT GetOrReleaseFontManager(CFontManager **ppoFontManager, bool bGet)
     return hr;
 }
 
-HRESULT GetFontManager(CFontManager **ppoFontManager)
+HRESULT GetFontManager(CFontManager** ppoFontManager)
 {
     return GetOrReleaseFontManager(ppoFontManager, true);
 }
 
-void ReleaseFontManager(CFontManager **ppoFontManager)
+void ReleaseFontManager(CFontManager** ppoFontManager)
 {
     GetOrReleaseFontManager(ppoFontManager, false);
 }
@@ -506,61 +473,58 @@ void ReleaseFontManager(CFontManager **ppoFontManager)
  * RETURNS:
 
  **/
-BOOL CFontManager::bInit( )
+BOOL CFontManager::bInit()
 {
 
     // Load up the font list and request to receive file system change
     // notifications so we can react to new files added to the fonts directory.
 
     DWORD idThread;
-    if ( bLoadFontList() )
-    {
-         FullPathName_t szPath;
+    if (bLoadFontList()) {
+        FullPathName_t szPath;
 
-         GetFontsDirectory( szPath, ARRAYSIZE( szPath ) );
+        GetFontsDirectory(szPath, ARRAYSIZE(szPath));
 
 #ifdef WINNT
 
-         // Is a loadable Type1 font driver installed?
-         // Result can be retrieved through CFontManager::Type1FontDriverInstalled().
+        // Is a loadable Type1 font driver installed?
+        // Result can be retrieved through CFontManager::Type1FontDriverInstalled().
 
-         CheckForType1FontDriver();
+        CheckForType1FontDriver();
 #endif
 
-         m_Notify.m_hWatch    = FindFirstChangeNotification( szPath, 0, FILE_NOTIFY_CHANGE_FILE_NAME );
+        m_Notify.m_hWatch = FindFirstChangeNotification(szPath, 0, FILE_NOTIFY_CHANGE_FILE_NAME);
 
-         DEBUGMSG( (DM_TRACE2, TEXT( "CFontManager:bInit FindFirstChangeNotification called" ) ) );
+        DEBUGMSG((DM_TRACE2, TEXT("CFontManager:bInit FindFirstChangeNotification called")));
 
-         if( m_Notify.m_hWatch != INVALID_HANDLE_VALUE )
-         {
+        if (m_Notify.m_hWatch != INVALID_HANDLE_VALUE) {
 
-              //  Launch a Background thread to keep an eye on it.
+            //  Launch a Background thread to keep an eye on it.
 
 
-              FindNextChangeNotification( m_Notify.m_hWatch );
+            FindNextChangeNotification(m_Notify.m_hWatch);
 
-              DEBUGMSG( (DM_TRACE2, TEXT( "CFontManager:bInit FindNextChangeNotification called - creating Notify thread" ) ) );
-              DEBUGMSG( (DM_TRACE2, TEXT( "CFontManager:bInit ChangeNotification Handle = 0x%x" ), m_Notify.m_hWatch ) );
+            DEBUGMSG((DM_TRACE2, TEXT("CFontManager:bInit FindNextChangeNotification called - creating Notify thread")));
+            DEBUGMSG((DM_TRACE2, TEXT("CFontManager:bInit ChangeNotification Handle = 0x%x"), m_Notify.m_hWatch));
 
-              InterlockedIncrement(&g_cRefThisDll);
-              m_hNotifyThread = CreateThread( NULL,
-                                       0,
-                                      (LPTHREAD_START_ROUTINE)dwNotifyWatchProc,
-                                      (LPVOID)this,
-                                       0,                  // CREATE_NO_WINDOW,
-                                       &idThread);
-              if (NULL == m_hNotifyThread)
-              {
-                  InterlockedDecrement(&g_cRefThisDll);
-              }
-         }
+            InterlockedIncrement(&g_cRefThisDll);
+            m_hNotifyThread = CreateThread(NULL,
+                                           0,
+                                           (LPTHREAD_START_ROUTINE)dwNotifyWatchProc,
+                                           (LPVOID)this,
+                                           0,                  // CREATE_NO_WINDOW,
+                                           &idThread);
+            if (NULL == m_hNotifyThread) {
+                InterlockedDecrement(&g_cRefThisDll);
+            }
+        }
 
-         //  Launch a background process to reconcile any new font files
-         //  that have been dropped in the FONTS folder.
-         //  Only do this if font list is valid.  Reconciliation requires
-         //  that the font list exists.
+        //  Launch a background process to reconcile any new font files
+        //  that have been dropped in the FONTS folder.
+        //  Only do this if font list is valid.  Reconciliation requires
+        //  that the font list exists.
 
-         vReconcileFolder( THREAD_PRIORITY_LOWEST );
+        vReconcileFolder(THREAD_PRIORITY_LOWEST);
     }
 
 
@@ -570,19 +534,16 @@ BOOL CFontManager::bInit( )
 
     InterlockedIncrement(&g_cRefThisDll);
     m_hResetFamThread = CreateThread(
-                                  NULL,
-                                  0,
-                                  (LPTHREAD_START_ROUTINE)dwResetFamilyFlags,
-                                  (LPVOID)this,
-                                  0, // CREATE_NO_WINDOW,
-                                  &idThread);
+        NULL,
+        0,
+        (LPTHREAD_START_ROUTINE)dwResetFamilyFlags,
+        (LPVOID)this,
+        0, // CREATE_NO_WINDOW,
+        &idThread);
 
-    if( m_hResetFamThread )
-    {
-        SetThreadPriority( m_hResetFamThread, THREAD_PRIORITY_LOWEST );
-    }
-    else
-    {
+    if (m_hResetFamThread) {
+        SetThreadPriority(m_hResetFamThread, THREAD_PRIORITY_LOWEST);
+    } else {
         InterlockedDecrement(&g_cRefThisDll);
     }
 
@@ -596,9 +557,8 @@ BOOL CFontManager::bInit( )
 
 static DWORD dwReconcileThread(LPVOID pvParams)
 {
-    CFontManager* pFontManager = (CFontManager *)pvParams;
-    if (NULL != pFontManager)
-    {
+    CFontManager* pFontManager = (CFontManager*)pvParams;
+    if (NULL != pFontManager) {
         pFontManager->vDoReconcileFolder();
     }
     InterlockedDecrement(&g_cRefThisDll);
@@ -606,7 +566,7 @@ static DWORD dwReconcileThread(LPVOID pvParams)
 }
 
 
-VOID CFontManager::vReconcileFolder( int iPriority )
+VOID CFontManager::vReconcileFolder(int iPriority)
 {
     DWORD idThread;
 
@@ -616,9 +576,8 @@ VOID CFontManager::vReconcileFolder( int iPriority )
     //  If one is running reset its priority and return.
 
 
-    if( m_hReconcileThread )
-    {
-        SetThreadPriority( m_hReconcileThread, iPriority );
+    if (m_hReconcileThread) {
+        SetThreadPriority(m_hReconcileThread, iPriority);
         LCS;
         return;
     }
@@ -628,12 +587,12 @@ VOID CFontManager::vReconcileFolder( int iPriority )
 
     InterlockedIncrement(&g_cRefThisDll);
     m_hReconcileThread = CreateThread(
-                                    NULL,
-                                    0,
-                                    (LPTHREAD_START_ROUTINE) dwReconcileThread,
-                                    (LPVOID) this,
-                                    0,              // CREATE_NO_WINDOW,
-                                    &idThread);
+        NULL,
+        0,
+        (LPTHREAD_START_ROUTINE)dwReconcileThread,
+        (LPVOID)this,
+        0,              // CREATE_NO_WINDOW,
+        &idThread);
     LCS;
 
 
@@ -641,35 +600,31 @@ VOID CFontManager::vReconcileFolder( int iPriority )
     //  runs at normal priority.
 
 
-    if( m_hReconcileThread )
-    {
-        SetThreadPriority( m_hReconcileThread, iPriority );
-    }
-    else
-    {
+    if (m_hReconcileThread) {
+        SetThreadPriority(m_hReconcileThread, iPriority);
+    } else {
         InterlockedDecrement(&g_cRefThisDll);
-        vDoReconcileFolder( );
+        vDoReconcileFolder();
     }
 }
 
 
-BOOL bValidFOTFile( LPTSTR szFull, LPTSTR szLHS, BOOL *pbTrueType, LPDWORD lpdwStatus = NULL)
+BOOL bValidFOTFile(LPTSTR szFull, LPTSTR szLHS, BOOL* pbTrueType, LPDWORD lpdwStatus = NULL)
 {
-    LPCTSTR pszExt = PathFindExtension( szFull );
+    LPCTSTR pszExt = PathFindExtension(szFull);
 
 
     // Initialize status return.
 
     if (NULL != lpdwStatus)
-       *lpdwStatus = FVS_MAKE_CODE(FVS_INVALID_STATUS, FVS_FILE_UNK);
+        *lpdwStatus = FVS_MAKE_CODE(FVS_INVALID_STATUS, FVS_FILE_UNK);
 
 
-    if( !pszExt || lstrcmpi( pszExt, TEXT( ".fot" ) ) != 0 )
-    {
+    if (!pszExt || lstrcmpi(pszExt, TEXT(".fot")) != 0) {
         if (NULL != lpdwStatus)
             *lpdwStatus = FVS_MAKE_CODE(FVS_INVALID_FONTFILE, FVS_FILE_UNK);
 
-        return( FALSE );
+        return(FALSE);
     }
 
     FontDesc_t szDesc;
@@ -677,20 +632,19 @@ BOOL bValidFOTFile( LPTSTR szFull, LPTSTR szLHS, BOOL *pbTrueType, LPDWORD lpdwS
     WORD wType;
 
 
-    if( !::bCPValidFontFile( szFull, szDesc, &wType, TRUE, lpdwStatus ) )
-    {
-        return( FALSE );
+    if (!::bCPValidFontFile(szFull, szDesc, &wType, TRUE, lpdwStatus)) {
+        return(FALSE);
     }
 
     *pbTrueType = TRUE;
 
-    wsprintf( szLHS, c_szDescFormat, (LPTSTR) szDesc, c_szTrueType );
+    wsprintf(szLHS, c_szDescFormat, (LPTSTR)szDesc, c_szTrueType);
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
-VOID CFontManager::vDoReconcileFolder( )
+VOID CFontManager::vDoReconcileFolder()
 {
     HANDLE            hSearch;
     WIN32_FIND_DATA   fData;
@@ -709,9 +663,9 @@ VOID CFontManager::vDoReconcileFolder( )
 
     m_HiddenFontFilesList.Initialize();
 
-    GetFontsDirectory( szPath, ARRAYSIZE( szPath ) );
+    GetFontsDirectory(szPath, ARRAYSIZE(szPath));
 
-    lstrcat( szPath, TEXT( "\\*.*" ) );
+    lstrcat(szPath, TEXT("\\*.*"));
 
 
     //  Process each file in the directory.
@@ -773,11 +727,10 @@ VOID CFontManager::vDoReconcileFolder( )
     do {
         bAdded = FALSE;
 
-        hSearch = FindFirstFile( szPath, &fData );
+        hSearch = FindFirstFile(szPath, &fData);
 
-        if( hSearch != INVALID_HANDLE_VALUE )
-        {
-            GetFontsDirectory( szWD, ARRAYSIZE( szWD ) );
+        if (hSearch != INVALID_HANDLE_VALUE) {
+            GetFontsDirectory(szWD, ARRAYSIZE(szWD));
 
 
             //  We can't use Get/SetCurrent directory because we might
@@ -787,8 +740,7 @@ VOID CFontManager::vDoReconcileFolder( )
             //  GetCurrentDirectory( ARRAYSIZE( szCD ), szCD );
             //  SetCurrentDirectory( szWD );
 
-            do
-            {
+            do {
 
                 // poSearchFontListFile needs a valid m_poFontList.
 
@@ -801,16 +753,14 @@ VOID CFontManager::vDoReconcileFolder( )
                 // Since we're on a background thread, we don't mind waiting
                 // a while for the mutex (5 seconds).
 
-                if ( MUTEXWAIT_SUCCESS == dwWaitForInstallationMutex(5000) )
-                {
+                if (MUTEXWAIT_SUCCESS == dwWaitForInstallationMutex(5000)) {
 
                     // See if the Font Manager knows about this font. If not,
                     // then install it.
 
-                    if( fData.cFileName[ 0 ] != TEXT( '.' ) &&
-                         !poSearchFontListFile( fData.cFileName ) &&
-                         ShouldAutoInstallFile( fData.cFileName, fData.dwFileAttributes ) )
-                    {
+                    if (fData.cFileName[0] != TEXT('.') &&
+                        !poSearchFontListFile(fData.cFileName) &&
+                        ShouldAutoInstallFile(fData.cFileName, fData.dwFileAttributes)) {
 
                         FullPathName_t szFull;
                         FontDesc_t     szLHS;
@@ -819,11 +769,11 @@ VOID CFontManager::vDoReconcileFolder( )
 
                         // GetFullPathName( fData.cFileName, ARRAYSIZE( szFull ), szFull, &lpTemp );
 
-                        lstrcpy( szFull, szWD );
+                        lstrcpy(szFull, szWD);
 
-                        lpCPBackSlashTerm( szFull );
+                        lpCPBackSlashTerm(szFull);
 
-                        lstrcat( szFull, fData.cFileName );
+                        lstrcat(szFull, fData.cFileName);
 
 
                         //  Check to see if this is a valid font file.
@@ -833,56 +783,46 @@ VOID CFontManager::vDoReconcileFolder( )
                         //  bCPDropInstall( m_poFontMan, szFull );
 
 
-                        if( ::bCPValidFontFile( szFull, szLHS, &wType )
-                               || bValidFOTFile( szFull, szLHS, &bTrueType ) )
-                        {
+                        if (::bCPValidFontFile(szFull, szLHS, &wType)
+                            || bValidFOTFile(szFull, szLHS, &bTrueType)) {
 
                             //  Make sure it's not already in the registry, possibly
                             //  from another file
 
 
-                            if(wType == TYPE1_FONT)
-                            {
+                            if (wType == TYPE1_FONT) {
 
                                 //  Check registry font entries under the
                                 //  Type 1 Installer
 
 
-                                if( !CheckT1Install( szLHS, NULL ) )
-                                {
+                                if (!CheckT1Install(szLHS, NULL)) {
                                     FullPathName_t szPfbFile;
 
-                                    if( IsPSFont( szFull, (LPTSTR) NULL, (LPTSTR) NULL,
-                                                  szPfbFile, (BOOL *) NULL) )
-                                    {
+                                    if (IsPSFont(szFull, (LPTSTR)NULL, (LPTSTR)NULL,
+                                                 szPfbFile, (BOOL*)NULL)) {
 #ifdef WINNT
-                                        if (Type1FontDriverInstalled())
-                                        {
+                                        if (Type1FontDriverInstalled()) {
                                             TCHAR szType1FontResourceName[MAX_TYPE1_FONT_RESOURCE];
 
                                             if (BuildType1FontResourceName(
-                                                    szFull,
-                                                    szPfbFile,
-                                                    szType1FontResourceName,
-                                                    ARRAYSIZE(szType1FontResourceName)))
-                                            {
+                                                szFull,
+                                                szPfbFile,
+                                                szType1FontResourceName,
+                                                ARRAYSIZE(szType1FontResourceName))) {
                                                 AddFontResource(szType1FontResourceName);
                                             }
                                         }
 #endif // WINNT
-                                        if( WriteType1RegistryEntry( NULL, szLHS, szFull,
-                                                                     szPfbFile, TRUE ) )
-                                        {
+                                        if (WriteType1RegistryEntry(NULL, szLHS, szFull,
+                                                                    szPfbFile, TRUE)) {
                                             bAdded = TRUE;
                                         }
                                     }
                                 }
-                            }
-                            else if( !bRegHasKey( szLHS ) )
-                            {
-                                if( AddFontResource( fData.cFileName ) )
-                                {
-                                    if (WriteToRegistry( szLHS, fData.cFileName ))
+                            } else if (!bRegHasKey(szLHS)) {
+                                if (AddFontResource(fData.cFileName)) {
+                                    if (WriteToRegistry(szLHS, fData.cFileName))
                                         bAdded = TRUE;
                                     else
                                         RemoveFontResource(fData.cFileName);
@@ -906,9 +846,7 @@ VOID CFontManager::vDoReconcileFolder( )
                     //           (break, goto, return)
 
                     bReleaseInstallationMutex();
-               }
-               else
-               {
+                } else {
 
                     // I have yet to see this thread not get the mutex.
                     // But, just in case it doesn't, give up on installing
@@ -916,13 +854,13 @@ VOID CFontManager::vDoReconcileFolder( )
                     // Note that we don't inform the user since this is a background
                     // thread that the user isn't aware of.
 
-               }
+                }
 
-           } while( FindNextFile( hSearch, &fData ) );
+            } while (FindNextFile(hSearch, &fData));
 
-           // SetCurrentDirectory( szCD );
+            // SetCurrentDirectory( szCD );
 
-           FindClose( hSearch );
+            FindClose(hSearch);
         }
 
         // We need to post a font change notification if any fonts
@@ -939,9 +877,8 @@ VOID CFontManager::vDoReconcileFolder( )
 
     ECS;
 
-    if( m_hReconcileThread )
-    {
-        CloseHandle( m_hReconcileThread );
+    if (m_hReconcileThread) {
+        CloseHandle(m_hReconcileThread);
         m_hReconcileThread = 0;
     }
 
@@ -956,8 +893,8 @@ VOID CFontManager::vDoReconcileFolder( )
 
     m_HiddenFontFilesList.Destroy();
 
-    if( bChangeNotifyRequired )
-        vCPWinIniFontChange( );
+    if (bChangeNotifyRequired)
+        vCPWinIniFontChange();
 }
 
 
@@ -969,7 +906,7 @@ VOID CFontManager::vDoReconcileFolder( )
  * RETURNS:
 
  **/
-VOID CFontManager::ProcessRegKey( HKEY hk, BOOL bCheckDup )
+VOID CFontManager::ProcessRegKey(HKEY hk, BOOL bCheckDup)
 {
 
     DWORD          i;
@@ -980,25 +917,21 @@ VOID CFontManager::ProcessRegKey( HKEY hk, BOOL bCheckDup )
     DWORD          dwData;
 
 
-    for( i = 0; ; ++i )
-    {
-        dwValue = sizeof( szValue );
-        dwData  = sizeof( szData );
+    for (i = 0; ; ++i) {
+        dwValue = sizeof(szValue);
+        dwData = sizeof(szData);
 
-        LONG lRet = RegEnumValue( hk, i, szValue, &dwValue,
-                                  NULL, NULL, (LPBYTE) szData, &dwData );
+        LONG lRet = RegEnumValue(hk, i, szValue, &dwValue,
+                                 NULL, NULL, (LPBYTE)szData, &dwData);
 
-        if( lRet == ERROR_MORE_DATA )
-        {
+        if (lRet == ERROR_MORE_DATA) {
 
             //  I guess I'm just going to skip this guy.
             //  It's mostly invalid anyway
 
 
             continue;
-        }
-        else if (lRet != ERROR_SUCCESS)
-        {
+        } else if (lRet != ERROR_SUCCESS) {
 
             //  I assume this is ERROR_NO_MORE_ITEMS
 
@@ -1006,16 +939,12 @@ VOID CFontManager::ProcessRegKey( HKEY hk, BOOL bCheckDup )
             break;
         }
 
-        if( szValue[ 0 ] )
-        {
+        if (szValue[0]) {
 
-            if( bCheckDup )
-            {
-                if( ( idx = iSearchFontListLHS( szValue ) ) >= 0 )
-                {
-                    if( m_poTempList )
-                    {
-                        CFontClass *poFont = m_poFontList->poDetach(idx);
+            if (bCheckDup) {
+                if ((idx = iSearchFontListLHS(szValue)) >= 0) {
+                    if (m_poTempList) {
+                        CFontClass* poFont = m_poFontList->poDetach(idx);
                         m_poTempList->bAdd(poFont);
                         poFont->Release();  // Release from m_poFontList.
                     }
@@ -1025,7 +954,7 @@ VOID CFontManager::ProcessRegKey( HKEY hk, BOOL bCheckDup )
                 }
             }
 
-            poAddToList( szValue, szData );
+            poAddToList(szValue, szData);
         }
     }
 }
@@ -1042,30 +971,25 @@ VOID CFontManager::ProcessRegKey( HKEY hk, BOOL bCheckDup )
 
  **/
 
-VOID CFontManager::ProcessT1RegKey( HKEY hk, BOOL bCheckDup )
+VOID CFontManager::ProcessT1RegKey(HKEY hk, BOOL bCheckDup)
 {
     DWORD          i = 0;
     int            idx;
-    TCHAR          szValue[ PATHMAX ];
-    DWORD          dwValue = ARRAYSIZE( szValue );
-    TCHAR          szData[ 2 * PATHMAX + 10 ];
-    DWORD          dwData = sizeof( szData );
+    TCHAR          szValue[PATHMAX];
+    DWORD          dwValue = ARRAYSIZE(szValue);
+    TCHAR          szData[2 * PATHMAX + 10];
+    DWORD          dwData = sizeof(szData);
     FullPathName_t szPfmFile;
     FullPathName_t szPfbFile;
 
 
-    while( ERROR_SUCCESS == RegEnumValue( hk, i, szValue, &dwValue, NULL,
-                                          NULL, (LPBYTE)szData, &dwData ) )
-    {
-        if( szValue[ 0 ] )
-        {
-            if( bCheckDup )
-            {
-                if( ( idx = iSearchFontListLHS( szValue ) ) >= 0 )
-                {
-                    if( m_poTempList )
-                    {
-                        CFontClass *poFont = m_poFontList->poDetach(idx);
+    while (ERROR_SUCCESS == RegEnumValue(hk, i, szValue, &dwValue, NULL,
+                                         NULL, (LPBYTE)szData, &dwData)) {
+        if (szValue[0]) {
+            if (bCheckDup) {
+                if ((idx = iSearchFontListLHS(szValue)) >= 0) {
+                    if (m_poTempList) {
+                        CFontClass* poFont = m_poFontList->poDetach(idx);
                         m_poTempList->bAdd(poFont);
                         poFont->Release();  // Release from m_poFontList.
                     }
@@ -1079,16 +1003,16 @@ VOID CFontManager::ProcessT1RegKey( HKEY hk, BOOL bCheckDup )
             //  names for storage in the class object.
 
 
-            if( ::ExtractT1Files( szData, szPfmFile, szPfbFile ) )
-                poAddToList( szValue, szPfmFile, szPfbFile );
+            if (::ExtractT1Files(szData, szPfmFile, szPfbFile))
+                poAddToList(szValue, szPfmFile, szPfbFile);
         }
-MoveOn:
+    MoveOn:
 
         //  Move on to the next one.
 
 
-        dwValue = ARRAYSIZE( szValue );
-        dwData  = sizeof( szData );
+        dwValue = ARRAYSIZE(szValue);
+        dwData = sizeof(szData);
         i++;
     }
 }
@@ -1107,14 +1031,14 @@ MoveOn:
  * RETURNS:
 
  **/
-BOOL CFontManager::bRefresh( BOOL bCheckDup )
+BOOL CFontManager::bRefresh(BOOL bCheckDup)
 {
 
     //  Load the Font List.
 
 
     static BOOL  s_bInRefresh = FALSE;
-    TCHAR        szFonts[] = TEXT( "FONTS" );
+    TCHAR        szFonts[] = TEXT("FONTS");
     PTSTR        pszItem;                          // pointer into buffer
     PATHNAME     szPath;
     HANDLE       hLocalBuf;
@@ -1128,7 +1052,7 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
     //  available in a consistent state.
 
 
-    if( s_bInRefresh )
+    if (s_bInRefresh)
         return TRUE;
 
     s_bInRefresh = TRUE;
@@ -1138,11 +1062,10 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
     //  in. If we can't allocate one, just don't use it.
 
 
-    if( bCheckDup && !m_poTempList )
-    {
-        m_poTempList = new CFontList( m_poFontList->iCount( ) );
+    if (bCheckDup && !m_poTempList) {
+        m_poTempList = new CFontList(m_poFontList->iCount());
 
-        if( !(m_poTempList && m_poTempList->bInit( ) ) )
+        if (!(m_poTempList && m_poTempList->bInit()))
             m_poTempList = 0;
     }
 
@@ -1150,10 +1073,9 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
     //  Process the WIN.INI file first.
 
 
-    nCount = GetSection( NULL, szFonts, &hLocalBuf );
+    nCount = GetSection(NULL, szFonts, &hLocalBuf);
 
-    if( !hLocalBuf )
-    {
+    if (!hLocalBuf) {
         iUIErrMemDlg(NULL);
         s_bInRefresh = FALSE;
 
@@ -1162,7 +1084,7 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
 
     ECS;
 
-    pLocalBuf = (PTSTR) LocalLock( hLocalBuf );
+    pLocalBuf = (PTSTR)LocalLock(hLocalBuf);
 
     pEnd = pLocalBuf + nCount;
 
@@ -1170,18 +1092,14 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
     //  Add all the fonts in the list, if they haven't been added already
 
 
-    for( pszItem = pLocalBuf; pszItem < pEnd; pszItem += lstrlen( pszItem )+1 )
-    {
-        if( !*pszItem )
+    for (pszItem = pLocalBuf; pszItem < pEnd; pszItem += lstrlen(pszItem) + 1) {
+        if (!*pszItem)
             continue;
 
-        if( bCheckDup )
-        {
-            if( ( idx = iSearchFontListLHS( pszItem ) ) >= 0 )
-            {
-                if( m_poTempList )
-                {
-                    CFontClass *poFont = m_poFontList->poDetach(idx);
+        if (bCheckDup) {
+            if ((idx = iSearchFontListLHS(pszItem)) >= 0) {
+                if (m_poTempList) {
+                    CFontClass* poFont = m_poFontList->poDetach(idx);
                     m_poTempList->bAdd(poFont);
                     poFont->Release(); // Release from m_poFontList.
                 }
@@ -1189,22 +1107,21 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
             }
         }
 
-        GetProfileString( szFonts, pszItem, TEXT( "" ), szPath,
-                          ARRAYSIZE( szPath ) );
+        GetProfileString(szFonts, pszItem, TEXT(""), szPath,
+                         ARRAYSIZE(szPath));
 
 
         //  there's a RHS here
 
 
-        if( *szPath )
-        {
-            poAddToList( pszItem, szPath, NULL );
+        if (*szPath) {
+            poAddToList(pszItem, szPath, NULL);
         }
     }
 
-    LocalUnlock( hLocalBuf );
+    LocalUnlock(hLocalBuf);
 
-    LocalFree  (hLocalBuf );
+    LocalFree(hLocalBuf);
 
 
     //  Now, process the entries in the Registry. There are two locations:
@@ -1222,19 +1139,17 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
     //                    part of the registry.
 
 
-    if( ERROR_SUCCESS == RegOpenKeyEx( HKEY_CURRENT_CONFIG, s_szKey2,
-                                       0, KEY_READ, &hk ) )
-    {
-        ProcessRegKey( hk, bCheckDup );
-        RegCloseKey( hk );
+    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_CONFIG, s_szKey2,
+                                      0, KEY_READ, &hk)) {
+        ProcessRegKey(hk, bCheckDup);
+        RegCloseKey(hk);
     }
 
 
-    if( ERROR_SUCCESS == RegOpenKeyEx( HKEY_LOCAL_MACHINE, s_szKey1, 0,
-                                       KEY_READ, &hk ) )
-    {
+    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, s_szKey1, 0,
+                                      KEY_READ, &hk)) {
 
-// [stevecat] Test code to remove font duplications in FontView list
+        // [stevecat] Test code to remove font duplications in FontView list
 
 
 #ifdef WINNT
@@ -1250,15 +1165,15 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
 //  verses the Registry.
 
 
-        ProcessRegKey( hk, TRUE );
+        ProcessRegKey(hk, TRUE);
 
 #else  //  WINNT
 
-        ProcessRegKey( hk, bCheckDup );
+        ProcessRegKey(hk, bCheckDup);
 
 #endif  //  WINNT
 
-        RegCloseKey( hk );
+        RegCloseKey(hk);
     }
 
 #endif  // ifndef WINNT
@@ -1269,11 +1184,10 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
     //  Process Type 1 fonts registry location
 
 
-    if( ERROR_SUCCESS == RegOpenKeyEx( HKEY_LOCAL_MACHINE, g_szType1Key, 0,
-                                       KEY_READ, &hk ) )
-    {
-        ProcessT1RegKey( hk, bCheckDup );
-        RegCloseKey( hk );
+    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, g_szType1Key, 0,
+                                      KEY_READ, &hk)) {
+        ProcessT1RegKey(hk, bCheckDup);
+        RegCloseKey(hk);
     }
 #endif  //  WINNT
 
@@ -1281,14 +1195,12 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
     //  If we put some things in m_poTempList, put them back in the main list.
 
 
-    if( m_poTempList )
-    {
-        int iCount = m_poTempList->iCount( );
+    if (m_poTempList) {
+        int iCount = m_poTempList->iCount();
         int i;
 
-        for( i = iCount - 1; i >= 0; i-- )
-        {
-            CFontClass *poFont = m_poTempList->poDetach(i);
+        for (i = iCount - 1; i >= 0; i--) {
+            CFontClass* poFont = m_poTempList->poDetach(i);
             m_poFontList->bAdd(poFont);
             poFont->Release(); // Release from m_poTempList.
         }
@@ -1300,7 +1212,7 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
     //  Reset the family connections.
 
 
-    vResetFamilyFlags( );
+    vResetFamilyFlags();
 
     s_bInRefresh = FALSE;
 
@@ -1318,18 +1230,18 @@ BOOL CFontManager::bRefresh( BOOL bCheckDup )
  * RETURNS: Nothing.
  */
 
-void CFontManager::vToBeRemoved( CFontList * poList )
+void CFontManager::vToBeRemoved(CFontList* poList)
 {
     int   iCount;
     int   i;
 
-    CFontClass * poFont;
+    CFontClass* poFont;
 
 
     //  Quick check for valid pointer.
 
-    if( !poList )
-       return;
+    if (!poList)
+        return;
 
     ECS;
 
@@ -1338,23 +1250,22 @@ void CFontManager::vToBeRemoved( CFontList * poList )
     //  list, if there is one, simultaneously.
 
 
-    iCount = poList->iCount( );
+    iCount = poList->iCount();
 
-    if( !iCount )
-       goto done;
+    if (!iCount)
+        goto done;
 
-    for( i = 0; i < iCount; i++ )
-    {
-        poFont = poList->poObjectAt( i );
+    for (i = 0; i < iCount; i++) {
+        poFont = poList->poObjectAt(i);
 
-        if (NULL != m_poFontList->poDetach( poFont ))
+        if (NULL != m_poFontList->poDetach(poFont))
             poFont->Release();
 
-        if( m_poRemoveList )
-            m_poRemoveList->bAdd( poFont );
+        if (m_poRemoveList)
+            m_poRemoveList->bAdd(poFont);
     }
 
-    if( !m_poRemoveList )
+    if (!m_poRemoveList)
         m_poRemoveList = poList;
     else
         delete poList;
@@ -1372,19 +1283,19 @@ done:
 
  * RETURNS: TRUE if something was removed.
  */
-BOOL  CFontManager::bCheckTBR( )
+BOOL  CFontManager::bCheckTBR()
 {
     int            iCount,
-                   i;
+        i;
     FullPathName_t szPath;
     BOOL           bRet = FALSE;
-    CFontClass * poFont;
+    CFontClass* poFont;
 
 
     //  Quick return.
 
 
-    if( !m_poRemoveList )
+    if (!m_poRemoveList)
         return bRet;
 
     ECS;
@@ -1393,36 +1304,33 @@ BOOL  CFontManager::bCheckTBR( )
     //  Walk the list and check for files that no longer exist and remove them.
 
 
-    iCount = m_poRemoveList->iCount( );
+    iCount = m_poRemoveList->iCount();
 
-    for( i = iCount - 1; i >= 0; i-- )
-    {
-        poFont = m_poRemoveList->poObjectAt( i );
+    for (i = iCount - 1; i >= 0; i--) {
+        poFont = m_poRemoveList->poObjectAt(i);
 
-        poFont->bGetFQName( szPath, ARRAYSIZE( szPath ) );
+        poFont->bGetFQName(szPath, ARRAYSIZE(szPath));
 
-        if( GetFileAttributes( szPath ) == 0xffffffff )
-        {
-            m_poRemoveList->poDetach( i );
+        if (GetFileAttributes(szPath) == 0xffffffff) {
+            m_poRemoveList->poDetach(i);
 
 
             //  Make sure it is no longer in the registry.
 
 
-            poFont->bRFR( );
+            poFont->bRFR();
 
-            vDeleteFont( poFont, FALSE );
+            vDeleteFont(poFont, FALSE);
 
             bRet = TRUE;
-       }
+        }
     }
 
 
     //  If there's nothing left in here, delete the list.
 
 
-    if(  !m_poRemoveList->iCount( ) )
-    {
+    if (!m_poRemoveList->iCount()) {
         delete m_poRemoveList;
         m_poRemoveList = 0;
     }
@@ -1433,8 +1341,8 @@ BOOL  CFontManager::bCheckTBR( )
     //  Notify everyone that the font world has changed.
 
 
-    if( !m_poRemoveList )
-        vCPWinIniFontChange( );
+    if (!m_poRemoveList)
+        vCPWinIniFontChange();
 
     return bRet;
 }
@@ -1449,20 +1357,20 @@ BOOL  CFontManager::bCheckTBR( )
  * RETURNS: Nothing.
  */
 
-void CFontManager::vUndoTBR( )
+void CFontManager::vUndoTBR()
 {
     int   iCount;
     int   i;
-    CFontClass *   poFont;
+    CFontClass* poFont;
 
 
     //  Try once more and quick return.
 
 
-    bCheckTBR( );
+    bCheckTBR();
 
-    if( !m_poRemoveList )
-       return;
+    if (!m_poRemoveList)
+        return;
 
     ECS;
 
@@ -1470,22 +1378,19 @@ void CFontManager::vUndoTBR( )
     //  Put anything in the list back into the main list.
 
 
-    if( m_poRemoveList )
-    {
-        iCount = m_poRemoveList->iCount( );
+    if (m_poRemoveList) {
+        iCount = m_poRemoveList->iCount();
 
-        for( i = (iCount-1); i >= 0; i-- )
-        {
-            poFont = m_poRemoveList->poObjectAt( i );
+        for (i = (iCount - 1); i >= 0; i--) {
+            poFont = m_poRemoveList->poObjectAt(i);
 
 
             //  If we can add the item back into GDI, do so
 
 
-            if( poFont->bAFR( ) )
-            {
-                m_poRemoveList->poDetach( i );
-                m_poFontList->bAdd( poFont );
+            if (poFont->bAFR()) {
+                m_poRemoveList->poDetach(i);
+                m_poFontList->bAdd(poFont);
             }
         }
 
@@ -1493,8 +1398,7 @@ void CFontManager::vUndoTBR( )
         //  Delete the list.
 
 
-        if( !m_poRemoveList->iCount( ) )
-        {
+        if (!m_poRemoveList->iCount()) {
             delete m_poRemoveList;
             m_poRemoveList = 0;
         }
@@ -1506,8 +1410,8 @@ void CFontManager::vUndoTBR( )
     //  Notify everyone that the font world has changed.
 
 
-    if( !m_poRemoveList )
-        vCPWinIniFontChange( );
+    if (!m_poRemoveList)
+        vCPWinIniFontChange();
 
 }
 
@@ -1520,19 +1424,19 @@ void CFontManager::vUndoTBR( )
  * RETURNS: Nothing.
  */
 
-void CFontManager::vVerifyList( )
+void CFontManager::vVerifyList()
 {
     int            iCount,
-                   i;
-    CFontList    * poList = 0;
+        i;
+    CFontList* poList = 0;
     FullPathName_t szPath;
-    CFontClass   * poFont;
+    CFontClass* poFont;
 
 
     //  Quick return;
 
 
-    if( !m_poFontList )
+    if (!m_poFontList)
         return;
 
     ECS;
@@ -1541,34 +1445,28 @@ void CFontManager::vVerifyList( )
     //  Walk the list and any files that don't reference valid files.
 
 
-    iCount = m_poFontList->iCount( );
+    iCount = m_poFontList->iCount();
 
-    for( i = iCount - 1; i >= 0; i--)
-    {
-        poFont = m_poFontList->poObjectAt( i );
+    for (i = iCount - 1; i >= 0; i--) {
+        poFont = m_poFontList->poObjectAt(i);
 
 
         //  Only look at something that is in the FONTS folder or on the
         //  same drive( TODO ) as the Windows directory.
 
 
-        if( poFont->bOnSysDir( ) )
-        {
-            poFont->bGetFQName( szPath, ARRAYSIZE( szPath ) );
+        if (poFont->bOnSysDir()) {
+            poFont->bGetFQName(szPath, ARRAYSIZE(szPath));
 
-            if( GetFileAttributes( szPath ) == 0xffffffff )
-            {
+            if (GetFileAttributes(szPath) == 0xffffffff) {
 
                 //  Allocate the list if necessary.
 
 
-                if( !poList )
-                {
-                    poList = new CFontList( 50 );
-                    if (poList)
-                    {
-                        if (!poList->bInit())
-                        {
+                if (!poList) {
+                    poList = new CFontList(50);
+                    if (poList) {
+                        if (!poList->bInit()) {
                             delete poList;
                             poList = NULL;
                         }
@@ -1577,8 +1475,8 @@ void CFontManager::vVerifyList( )
                 if (!poList)
                     break;
 
-                poList->bAdd( poFont );
-                poFont = m_poFontList->poDetach( i );
+                poList->bAdd(poFont);
+                poFont = m_poFontList->poDetach(i);
                 if (NULL != poFont)
                     poFont->Release();
             }
@@ -1590,8 +1488,8 @@ void CFontManager::vVerifyList( )
     //  thread.
 
 
-    if( poList )
-       vToBeRemoved( poList );
+    if (poList)
+        vToBeRemoved(poList);
 
     LCS;
 }
@@ -1606,17 +1504,16 @@ void CFontManager::vVerifyList( )
 
  **/
 
-void CFontManager::vGetFamily( CFontClass * lpFontRec, CFontList * poList )
+void CFontManager::vGetFamily(CFontClass* lpFontRec, CFontList* poList)
 {
-    int   iCount = m_poFontList->iCount( );
-    WORD  wFam   = lpFontRec->wGetFamIndex( );
+    int   iCount = m_poFontList->iCount();
+    WORD  wFam = lpFontRec->wGetFamIndex();
 
-    while( iCount--)
-    {
-       lpFontRec = m_poFontList->poObjectAt( iCount );
+    while (iCount--) {
+        lpFontRec = m_poFontList->poObjectAt(iCount);
 
-       if( lpFontRec && ( wFam == lpFontRec->wGetFamIndex( ) ) )
-          poList->bAdd( lpFontRec );
+        if (lpFontRec && (wFam == lpFontRec->wGetFamIndex()))
+            poList->bAdd(lpFontRec);
     }
 }
 
@@ -1630,14 +1527,13 @@ void CFontManager::vGetFamily( CFontClass * lpFontRec, CFontList * poList )
 
  **/
 
-BOOL CFontManager::bLoadFontList( )
+BOOL CFontManager::bLoadFontList()
 {
     BOOL  bRet = FALSE;
 
     ECS;
 
-    if( m_poFontList )
-    {
+    if (m_poFontList) {
         bRet = TRUE;
         goto done;
     }
@@ -1647,10 +1543,9 @@ BOOL CFontManager::bLoadFontList( )
     //  64 directory entries.
 
 
-    m_poFontList = new CFontList( 220 );
+    m_poFontList = new CFontList(220);
 
-    if( !m_poFontList )
-    {
+    if (!m_poFontList) {
         goto done;
     }
 
@@ -1658,19 +1553,18 @@ BOOL CFontManager::bLoadFontList( )
     //  Initialize them. The bInit() function will delete them if it fails.
 
 
-    if( !m_poFontList->bInit( ) )
-    {
+    if (!m_poFontList->bInit()) {
         m_poFontList = 0;
         goto done;
     }
 
-    bRet = bRefresh( FALSE );
+    bRet = bRefresh(FALSE);
 
 
     //  Verify the list.
 
 
-    vVerifyList( );
+    vVerifyList();
 
 done:
     LCS;
@@ -1688,31 +1582,29 @@ done:
 
  */
 
-CFontClass * CFontManager::poAddToList( LPTSTR lpDesc,      //  Font desc
-                                        LPTSTR lpPath,      //  Primary font file
-                                        LPTSTR lpCompFile ) //  Companion font file
+CFontClass* CFontManager::poAddToList(LPTSTR lpDesc,      //  Font desc
+                                      LPTSTR lpPath,      //  Primary font file
+                                      LPTSTR lpCompFile) //  Companion font file
 {
     BOOL         bSuccess = FALSE;
-    CFontClass * poFont   = new CFontClass;
+    CFontClass* poFont = new CFontClass;
 
 
-    if( !poFont )
-       return 0;
+    if (!poFont)
+        return 0;
 
-    if( bSuccess = poFont->bInit( lpDesc, lpPath, lpCompFile ) )
-    {
+    if (bSuccess = poFont->bInit(lpDesc, lpPath, lpCompFile)) {
         ECS;
 
-        bSuccess = m_poFontList->bAdd( poFont );
+        bSuccess = m_poFontList->bAdd(poFont);
 
         LCS;
 
-        if( !bSuccess )
+        if (!bSuccess)
             delete poFont;
     }
 
-    if(  !bSuccess )
-    {
+    if (!bSuccess) {
         poFont = NULL;
     }
 
@@ -1729,25 +1621,24 @@ CFontClass * CFontManager::poAddToList( LPTSTR lpDesc,      //  Font desc
 
  */
 
-CFontList * CFontManager::poLockFontList( )
+CFontList* CFontManager::poLockFontList()
 {
-    if( bLoadFontList( ) )
-    {
-       DEBUGMSG( (DM_MESSAGE_TRACE2, TEXT( "CFontManager: EnterCriticalSection in poLockFontList()  " ) ) );
+    if (bLoadFontList()) {
+        DEBUGMSG((DM_MESSAGE_TRACE2, TEXT("CFontManager: EnterCriticalSection in poLockFontList()  ")));
 
-       ECS;
+        ECS;
 
-       return m_poFontList;
+        return m_poFontList;
     }
 
     return 0;
 }
 
 
-void CFontManager::vReleaseFontList( )
+void CFontManager::vReleaseFontList()
 {
     LCS;
-    DEBUGMSG( (DM_MESSAGE_TRACE2, TEXT( "CFontManager: LeaveCriticalSection in vReleaseFontList()  " ) ) );
+    DEBUGMSG((DM_MESSAGE_TRACE2, TEXT("CFontManager: LeaveCriticalSection in vReleaseFontList()  ")));
 }
 
 
@@ -1760,48 +1651,46 @@ void CFontManager::vReleaseFontList( )
 
  */
 
-int CFontManager::GetSection( LPTSTR lpFile, LPTSTR lpSection, LPHANDLE hSection )
+int CFontManager::GetSection(LPTSTR lpFile, LPTSTR lpSection, LPHANDLE hSection)
 {
     ULONG  nCount;
     ULONG  nSize;
     HANDLE hLocal, hTemp;
-    TCHAR *pszSect;
+    TCHAR* pszSect;
 
 
-    if( !(hLocal = LocalAlloc( LMEM_MOVEABLE, nSize = 8192 ) ) )
-        return( 0 );
+    if (!(hLocal = LocalAlloc(LMEM_MOVEABLE, nSize = 8192)))
+        return(0);
 
 
     //  Now that a buffer exists, Enumerate all LHS of the section.  If the
     //  buffer overflows, reallocate it and try again.
 
 
-    do
-    {
-        pszSect = (PTSTR) LocalLock( hLocal );
+    do {
+        pszSect = (PTSTR)LocalLock(hLocal);
 
-        if( lpFile )
-            nCount = GetPrivateProfileString( lpSection, NULL, TEXT( "" ), pszSect, nSize / sizeof( TCHAR ), lpFile );
+        if (lpFile)
+            nCount = GetPrivateProfileString(lpSection, NULL, TEXT(""), pszSect, nSize / sizeof(TCHAR), lpFile);
         else
-            nCount = GetProfileString( lpSection, NULL, TEXT( "" ), pszSect, nSize / sizeof( TCHAR ) );
+            nCount = GetProfileString(lpSection, NULL, TEXT(""), pszSect, nSize / sizeof(TCHAR));
 
-        LocalUnlock( hLocal );
+        LocalUnlock(hLocal);
 
-        if( nCount != ( nSize / sizeof( TCHAR ) ) - 2 )
+        if (nCount != (nSize / sizeof(TCHAR)) - 2)
             break;
 
         nSize += 4096;
 
-        if( !(hLocal = LocalReAlloc( hTemp = hLocal, nSize, LMEM_MOVEABLE ) ) )
-        {
-            LocalFree( hTemp );
-            return( 0 );
+        if (!(hLocal = LocalReAlloc(hTemp = hLocal, nSize, LMEM_MOVEABLE))) {
+            LocalFree(hTemp);
+            return(0);
         }
-    } while( 1 ) ;
+    } while (1);
 
     *hSection = hLocal;
 
-    return( nCount );
+    return(nCount);
 }
 
 
@@ -1814,9 +1703,9 @@ int CFontManager::GetSection( LPTSTR lpFile, LPTSTR lpSection, LPHANDLE hSection
 
  */
 
-int CFontManager::GetFontsDirectory( LPTSTR lpDir, int iLen )
+int CFontManager::GetFontsDirectory(LPTSTR lpDir, int iLen)
 {
-    return ::GetFontsDirectory( lpDir, iLen );
+    return ::GetFontsDirectory(lpDir, iLen);
 }
 
 
@@ -1841,10 +1730,9 @@ int CFontManager::GetFontsDirectory( LPTSTR lpDir, int iLen )
 DWORD CFontManager::dwWaitForInstallationMutex(DWORD dwTimeout)
 {
     DWORD dwWaitResult = 0;                 // Wait result.
-    DWORD dwResult     = MUTEXWAIT_SUCCESS; // Return code.
+    DWORD dwResult = MUTEXWAIT_SUCCESS; // Return code.
 
-    if (NULL != m_hMutexInstallation)
-    {
+    if (NULL != m_hMutexInstallation) {
 
         // Repeat this loop until one of the following occurs:
         //    1. We aquire the installation mutex.
@@ -1853,8 +1741,7 @@ DWORD CFontManager::dwWaitForInstallationMutex(DWORD dwTimeout)
         //    4. Mutex wait results in error.
         //    5. Receive a WM_QUIT message while waiting.
 
-        do
-        {
+        do {
 
             // Note:  Don't handle posted messages.  The folder posts an IDM_IDLE message
             //        to the font install dialog every 2 seconds for filling in the font
@@ -1866,47 +1753,42 @@ DWORD CFontManager::dwWaitForInstallationMutex(DWORD dwTimeout)
                                                      FALSE,
                                                      dwTimeout,
                                                      QS_ALLINPUT & (~QS_POSTMESSAGE));
-            switch(dwWaitResult)
+            switch (dwWaitResult) {
+            case WAIT_OBJECT_0 + 1:
             {
-                case WAIT_OBJECT_0 + 1:
-                {
-                    MSG msg ;
+                MSG msg;
 
-                    // Allow blocked thread to respond to sent messages.
+                // Allow blocked thread to respond to sent messages.
 
-                    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-                    {
-                        if ( WM_QUIT != msg.message )
-                        {
-                            TranslateMessage(&msg);
-                            DispatchMessage(&msg);
-                        }
-                        else
-                        {
-                            dwResult     = MUTEXWAIT_WMQUIT;
-                            dwWaitResult = WAIT_FAILED;
-                        }
+                while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+                    if (WM_QUIT != msg.message) {
+                        TranslateMessage(&msg);
+                        DispatchMessage(&msg);
+                    } else {
+                        dwResult = MUTEXWAIT_WMQUIT;
+                        dwWaitResult = WAIT_FAILED;
                     }
-                    break;
                 }
-
-                case WAIT_OBJECT_0:
-                case WAIT_ABANDONED_0:
-                    DEBUGMSG((DM_TRACE1, TEXT("Thread 0x%08x: HAS install mutex."), GetCurrentThread()));
-                    dwResult = MUTEXWAIT_SUCCESS;
-                    break;
-
-                case WAIT_TIMEOUT:
-                    DEBUGMSG((DM_TRACE1, TEXT("Thread 0x%08X: TIMEOUT waiting for install mutex."), GetCurrentThread()));
-                    dwResult = MUTEXWAIT_TIMEOUT;
-                    break;
-
-                case WAIT_FAILED:
-                default:
-                    dwResult = MUTEXWAIT_FAILED;
-                    break;
+                break;
             }
-        } while( (WAIT_OBJECT_0 + 1) == dwWaitResult );
+
+            case WAIT_OBJECT_0:
+            case WAIT_ABANDONED_0:
+                DEBUGMSG((DM_TRACE1, TEXT("Thread 0x%08x: HAS install mutex."), GetCurrentThread()));
+                dwResult = MUTEXWAIT_SUCCESS;
+                break;
+
+            case WAIT_TIMEOUT:
+                DEBUGMSG((DM_TRACE1, TEXT("Thread 0x%08X: TIMEOUT waiting for install mutex."), GetCurrentThread()));
+                dwResult = MUTEXWAIT_TIMEOUT;
+                break;
+
+            case WAIT_FAILED:
+            default:
+                dwResult = MUTEXWAIT_FAILED;
+                break;
+            }
+        } while ((WAIT_OBJECT_0 + 1) == dwWaitResult);
     }
     return dwResult;
 }
@@ -1923,8 +1805,7 @@ BOOL CFontManager::bReleaseInstallationMutex(void)
 {
     BOOL bStatus = FALSE;
 
-    if (NULL != m_hMutexInstallation)
-    {
+    if (NULL != m_hMutexInstallation) {
         DEBUGMSG((DM_TRACE1, TEXT("Thread 0x%08x: RELEASED install mutex."), GetCurrentThread()));
         bStatus = ReleaseMutex(m_hMutexInstallation);
     }
@@ -1953,14 +1834,13 @@ BOOL CFontManager::bReleaseInstallationMutex(void)
 
 #if 0
 
-int CFontManager::iSuspendNotify( )
+int CFontManager::iSuspendNotify()
 {
-    DEBUGMSG( (DM_MESSAGE_TRACE2, TEXT( "CFontManager: iSuspendNotify called" ) ) );
+    DEBUGMSG((DM_MESSAGE_TRACE2, TEXT("CFontManager: iSuspendNotify called")));
 
-    if( !m_iSuspendNotify )
-    {
-        DEBUGMSG( (DM_MESSAGE_TRACE2, TEXT( "CFontManager: iSuspendNotify thread being suspended" ) ) );
-        SuspendThread( m_hNotifyThread );
+    if (!m_iSuspendNotify) {
+        DEBUGMSG((DM_MESSAGE_TRACE2, TEXT("CFontManager: iSuspendNotify thread being suspended")));
+        SuspendThread(m_hNotifyThread);
     }
 
     m_iSuspendNotify++;
@@ -1969,17 +1849,16 @@ int CFontManager::iSuspendNotify( )
 }
 
 
-int CFontManager::iResumeNotify( )
+int CFontManager::iResumeNotify()
 {
-    DEBUGMSG( (DM_MESSAGE_TRACE2, TEXT( "CFontManager: iResumeNotify called" ) ) );
+    DEBUGMSG((DM_MESSAGE_TRACE2, TEXT("CFontManager: iResumeNotify called")));
 
-    if( m_iSuspendNotify )
+    if (m_iSuspendNotify)
         m_iSuspendNotify--;
 
-    if( !m_iSuspendNotify )
-    {
-        DEBUGMSG( (DM_MESSAGE_TRACE2, TEXT( "CFontManager: iResumeNotify thread being resumed" ) ) );
-        ResumeThread( m_hNotifyThread );
+    if (!m_iSuspendNotify) {
+        DEBUGMSG((DM_MESSAGE_TRACE2, TEXT("CFontManager: iResumeNotify thread being resumed")));
+        ResumeThread(m_hNotifyThread);
     }
 
     return m_iSuspendNotify;
@@ -1996,7 +1875,7 @@ int CFontManager::iResumeNotify( )
 //    FALSE = Terminate-threads was signaled.  We don't necessarily
 //            own the mutex.  Don't proceed.  Return asap.
 
-BOOL CFontManager::bWaitOnFamilyReset( )
+BOOL CFontManager::bWaitOnFamilyReset()
 {
 
     //  Set the thread to Highest priority until we get the mutex,
@@ -2005,70 +1884,59 @@ BOOL CFontManager::bWaitOnFamilyReset( )
     DWORD dwWait;
     BOOL bResult = FALSE;
     BOOL bDone = FALSE;
-    HANDLE rgHandles[] = { m_hEventTerminateThreads,
-                           m_hMutexResetFamily };
+    HANDLE rgHandles[] = {m_hEventTerminateThreads,
+                           m_hMutexResetFamily};
 
-    if( m_hResetFamThread )
-        SetThreadPriority( m_hResetFamThread, THREAD_PRIORITY_HIGHEST );
+    if (m_hResetFamThread)
+        SetThreadPriority(m_hResetFamThread, THREAD_PRIORITY_HIGHEST);
 
 
     // This is called on the UI thread.  Must be able to handle
     // sent thread messages.
 
-    do
-    {
+    do {
         dwWait = MsgWaitForMultipleObjects(ARRAYSIZE(rgHandles),
                                            rgHandles,
                                            FALSE,
                                            INFINITE,
                                            QS_ALLINPUT & (~QS_POSTMESSAGE));
 
-        if (WAIT_OBJECT_0 + ARRAYSIZE(rgHandles) == dwWait)
-        {
-            MSG msg ;
+        if (WAIT_OBJECT_0 + ARRAYSIZE(rgHandles) == dwWait) {
+            MSG msg;
 
             // Allow blocked thread to respond to sent messages.
 
-            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-            {
-                if ( WM_QUIT != msg.message )
-                {
+            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+                if (WM_QUIT != msg.message) {
                     TranslateMessage(&msg);
                     DispatchMessage(&msg);
-                }
-                else
-                {
+                } else {
                     dwWait = 0; // Rcvd WM_QUIT. Exit loop.
                 }
             }
-        }
-        else if (0 == (dwWait - WAIT_OBJECT_0))
-        {
+        } else if (0 == (dwWait - WAIT_OBJECT_0)) {
 
             // Terminate-threads event was set.
 
             bDone = TRUE;
-        }
-        else if (1 == (dwWait - WAIT_OBJECT_0))
-        {
+        } else if (1 == (dwWait - WAIT_OBJECT_0)) {
 
             // Got the mutex.
 
-            if( m_hResetFamThread )
-                SetThreadPriority( m_hResetFamThread, THREAD_PRIORITY_LOWEST );
+            if (m_hResetFamThread)
+                SetThreadPriority(m_hResetFamThread, THREAD_PRIORITY_LOWEST);
 
             bResult = TRUE;
-            bDone   = TRUE;
+            bDone = TRUE;
         }
-    }
-    while(!bDone);
+    } while (!bDone);
 
     // Always release the mutex before returning.
     // Even if the wait was satisfied by the "terminate" event this
     // will ensure we don't hold the mutex.  If we don't own it this call
     // will harmlessly fail.
 
-    ReleaseMutex( m_hMutexResetFamily );
+    ReleaseMutex(m_hMutexResetFamily);
 
     return bResult;
 }
@@ -2085,16 +1953,14 @@ BOOL CFontManager::bWaitOnFamilyReset( )
 
 DWORD dwResetFamilyFlags(LPVOID pvParams)
 {
-    CFontManager *pFontManager = (CFontManager *)pvParams;
+    CFontManager* pFontManager = (CFontManager*)pvParams;
 
-    if (NULL != pFontManager)
-    {
+    if (NULL != pFontManager) {
         BOOL bDone = FALSE;
-        HANDLE rghObj[] = { pFontManager->m_hMutexResetFamily,
-                            pFontManager->m_hEventResetFamily };
+        HANDLE rghObj[] = {pFontManager->m_hMutexResetFamily,
+                            pFontManager->m_hEventResetFamily};
 
-        while(!bDone)
-        {
+        while (!bDone) {
 
             //  Wait for the FONTS folder to change. If we time out, then attempt
             //  to undo any deletions that might be occuring.
@@ -2113,19 +1979,16 @@ DWORD dwResetFamilyFlags(LPVOID pvParams)
             // the "terminate-threads" event.  If it's set then it's time to
             // go home.
 
-            if (WAIT_OBJECT_0 == WaitForSingleObject(pFontManager->m_hEventTerminateThreads, 0))
-            {
+            if (WAIT_OBJECT_0 == WaitForSingleObject(pFontManager->m_hEventTerminateThreads, 0)) {
                 bDone = true;
-            }
-            else
-            {
-                pFontManager->vDoResetFamilyFlags( );
+            } else {
+                pFontManager->vDoResetFamilyFlags();
             }
 
             //  Release the mutex. The event was already reset by the
             //  PulseEvent
 
-            ReleaseMutex(pFontManager->m_hMutexResetFamily );
+            ReleaseMutex(pFontManager->m_hMutexResetFamily);
         }
     }
 
@@ -2143,9 +2006,9 @@ DWORD dwResetFamilyFlags(LPVOID pvParams)
 
  **/
 
-void CFontManager::vResetFamilyFlags( )
+void CFontManager::vResetFamilyFlags()
 {
-    SetEvent( m_hEventResetFamily );
+    SetEvent(m_hEventResetFamily);
 }
 
 
@@ -2158,21 +2021,21 @@ void CFontManager::vResetFamilyFlags( )
 
  **/
 
-void CFontManager::vDoResetFamilyFlags( )
+void CFontManager::vDoResetFamilyFlags()
 {
     /* static */ WORD   s_wIdx = 0;
 
-    CFontClass * poFont;
-    CFontClass * poFont2;
+    CFontClass* poFont;
+    CFontClass* poFont2;
 
-    if( !m_poFontList )
+    if (!m_poFontList)
         return;
 
 
     ECS;
 
 restart:
-    int iCount = m_poFontList->iCount( );
+    int iCount = m_poFontList->iCount();
 
 
     //  It would be nice to walk the list and only set the values that aren't
@@ -2180,9 +2043,8 @@ restart:
     //  a family is deleted.
 
 
-    for( int i = 0; i < iCount; i++ )
-    {
-        m_poFontList->poObjectAt( i )->vSetFamIndex( IDX_NULL );
+    for (int i = 0; i < iCount; i++) {
+        m_poFontList->poObjectAt(i)->vSetFamIndex(IDX_NULL);
     }
 
 
@@ -2191,37 +2053,33 @@ restart:
 
     LCS;
 
-    Sleep( 0 );
+    Sleep(0);
 
     ECS;
 
-    iCount = m_poFontList->iCount( );
+    iCount = m_poFontList->iCount();
 
-    for( i = 0; i < iCount; i++)
-    {
-        poFont = m_poFontList->poObjectAt( i );
+    for (i = 0; i < iCount; i++) {
+        poFont = m_poFontList->poObjectAt(i);
 
-        if( poFont->wGetFamIndex( ) == IDX_NULL )
-        {
+        if (poFont->wGetFamIndex() == IDX_NULL) {
 
             //  Set the index and get the name.
 
 
-            poFont->vSetFamIndex( s_wIdx );
-            poFont->vSetFamilyFont( );
+            poFont->vSetFamIndex(s_wIdx);
+            poFont->vSetFamilyFont();
 
 
             //  Everything up to here already has an index.
 
 
-            for( int j = i + 1; j < iCount; j++ )
-            {
-                poFont2 = m_poFontList->poObjectAt( j );
+            for (int j = i + 1; j < iCount; j++) {
+                poFont2 = m_poFontList->poObjectAt(j);
 
-                if( poFont2->bSameFamily( poFont ) )
-                {
-                    poFont2->vSetFamIndex( s_wIdx );
-                    poFont2->vSetNoFamilyFont( );
+                if (poFont2->bSameFamily(poFont)) {
+                    poFont2->vSetFamIndex(s_wIdx);
+                    poFont2->vSetNoFamilyFont();
 
 #ifdef WINNT
 
@@ -2232,13 +2090,11 @@ restart:
                     //  This could be one boolean expression but I think the
                     //  nested "ifs" are more readable.
 
-                    if ( !poFont2->bType1() )
-                    {
-                        if ( poFont->bType1() ||
-                            (poFont2->dwStyle() < poFont->dwStyle()) )
-                        {
-                            poFont2->vSetFamilyFont( );
-                            poFont->vSetNoFamilyFont( );
+                    if (!poFont2->bType1()) {
+                        if (poFont->bType1() ||
+                            (poFont2->dwStyle() < poFont->dwStyle())) {
+                            poFont2->vSetFamilyFont();
+                            poFont->vSetNoFamilyFont();
 
 
                             //  Use the new one as the main family font.
@@ -2250,10 +2106,9 @@ restart:
 
                     // A smaller style value indicates a more Regular style.
 
-                    if ( poFont2->dwStyle( ) < poFont->dwStyle( ) )
-                    {
-                        poFont2->vSetFamilyFont( );
-                        poFont->vSetNoFamilyFont( );
+                    if (poFont2->dwStyle() < poFont->dwStyle()) {
+                        poFont2->vSetFamilyFont();
+                        poFont->vSetNoFamilyFont();
 
 
                         //  Use the new one as the main family font.
@@ -2276,7 +2131,7 @@ restart:
 
         LCS;
 
-        Sleep( 0 );
+        Sleep(0);
 
         ECS;
 
@@ -2286,8 +2141,7 @@ restart:
         //  could mess us up.
 
 
-        if( iCount != m_poFontList->iCount( ) )
-        {
+        if (iCount != m_poFontList->iCount()) {
             goto restart;
         }
     }
@@ -2307,7 +2161,7 @@ restart:
 
  **/
 
-int   CFontManager::iSearchFontListFile( PTSTR pszFile )
+int   CFontManager::iSearchFontListFile(PTSTR pszFile)
 {
 
     //  This function assumes the file is in the Fonts directory.
@@ -2319,20 +2173,18 @@ int   CFontManager::iSearchFontListFile( PTSTR pszFile )
     int i;
     int iRet = (-1);
 
-    if( pszFile == NULL ) return NULL;
+    if (pszFile == NULL) return NULL;
 
-    for( i = 0; i < iCount; i++ )
-    {
-        poFont = m_poFontList->poObjectAt( i );
+    for (i = 0; i < iCount; i++) {
+        poFont = m_poFontList->poObjectAt(i);
 
-        if( poFont->bSameFileName( pszFile ) )
-        {
+        if (poFont->bSameFileName(pszFile)) {
             iRet = i;
             break;
         }
     }
 
-    vReleaseFontList( );
+    vReleaseFontList();
 
     return iRet;
 }
@@ -2347,9 +2199,9 @@ int   CFontManager::iSearchFontListFile( PTSTR pszFile )
 
  **/
 
-CFontClass * CFontManager::poSearchFontListFile( PTSTR pszFile )
+CFontClass* CFontManager::poSearchFontListFile(PTSTR pszFile)
 {
-    return m_poFontList->poObjectAt( iSearchFontListFile( pszFile ) );
+    return m_poFontList->poObjectAt(iSearchFontListFile(pszFile));
 }
 
 
@@ -2362,12 +2214,12 @@ CFontClass * CFontManager::poSearchFontListFile( PTSTR pszFile )
  **/
 
 
-// Extensions of font files that should be excluded from auto-installation.
-// This list includes AFM and INF because the reconciliation thread doesn't
-// know how to build a PFM from an AFM/INF pair.  That function also displays
-// a UI which we also don't want on the reconciliation thread.  To install
-// a Type1 font on the reconciliation thread, the PFM and PFB files have to
-// be copied to the fonts folder.
+ // Extensions of font files that should be excluded from auto-installation.
+ // This list includes AFM and INF because the reconciliation thread doesn't
+ // know how to build a PFM from an AFM/INF pair.  That function also displays
+ // a UI which we also don't want on the reconciliation thread.  To install
+ // a Type1 font on the reconciliation thread, the PFM and PFB files have to
+ // be copied to the fonts folder.
 
 LPCTSTR c_pszExcludeThese[] = {TEXT("TTE"),
                                TEXT("AFM"),
@@ -2375,26 +2227,23 @@ LPCTSTR c_pszExcludeThese[] = {TEXT("TTE"),
                                NULL};
 
 
-BOOL CFontManager::ShouldAutoInstallFile( PTSTR pszFile, DWORD dwAttribs )
+BOOL CFontManager::ShouldAutoInstallFile(PTSTR pszFile, DWORD dwAttribs)
 {
     LPTSTR pszExt = NULL;
 
 
     // If the file is hidden, don't auto install it.
 
-    if( dwAttribs & FILE_ATTRIBUTE_HIDDEN || m_HiddenFontFilesList.Exists(pszFile))
+    if (dwAttribs & FILE_ATTRIBUTE_HIDDEN || m_HiddenFontFilesList.Exists(pszFile))
         return FALSE;
 
-    pszExt = PathFindExtension( pszFile );
+    pszExt = PathFindExtension(pszFile);
 
-    if( pszExt && *pszExt )
-    {
+    if (pszExt && *pszExt) {
         pszExt++;
 
-        for (UINT i = 0; NULL != c_pszExcludeThese[i]; i++)
-        {
-            if (0 == lstrcmpi(c_pszExcludeThese[i], pszExt))
-            {
+        for (UINT i = 0; NULL != c_pszExcludeThese[i]; i++) {
+            if (0 == lstrcmpi(c_pszExcludeThese[i], pszExt)) {
 
                 // If the file's extension is in the list of excluded
                 // extensions, don't install it.
@@ -2417,7 +2266,7 @@ BOOL CFontManager::ShouldAutoInstallFile( PTSTR pszFile, DWORD dwAttribs )
 
  **/
 
-int  CFontManager::iSearchFontListLHS( PTSTR pszLHS )
+int  CFontManager::iSearchFontListLHS(PTSTR pszLHS)
 {
     CFontClass* poFont = 0;
     int iCount = poLockFontList()->iCount();
@@ -2425,20 +2274,18 @@ int  CFontManager::iSearchFontListLHS( PTSTR pszLHS )
     int iRet = (-1);
 
 
-    if( pszLHS == NULL ) return NULL;
+    if (pszLHS == NULL) return NULL;
 
-    for( i = 0; i < iCount; i++ )
-    {
-        poFont = m_poFontList->poObjectAt( i );
+    for (i = 0; i < iCount; i++) {
+        poFont = m_poFontList->poObjectAt(i);
 
-        if( poFont->bSameDesc( pszLHS ) )
-        {
+        if (poFont->bSameDesc(pszLHS)) {
             iRet = i;
             break;
         }
     }
 
-    vReleaseFontList( );
+    vReleaseFontList();
 
     return iRet;
 }
@@ -2453,9 +2300,9 @@ int  CFontManager::iSearchFontListLHS( PTSTR pszLHS )
 
  **/
 
-CFontClass * CFontManager::poSearchFontListLHS( PTSTR pszLHS )
+CFontClass* CFontManager::poSearchFontListLHS(PTSTR pszLHS)
 {
-    return m_poFontList->poObjectAt( iSearchFontListLHS( pszLHS ) );
+    return m_poFontList->poObjectAt(iSearchFontListLHS(pszLHS));
 }
 
 
@@ -2467,24 +2314,24 @@ CFontClass * CFontManager::poSearchFontListLHS( PTSTR pszLHS )
  * RETURNS:  index of item, or (-1)
  **/
 
-int CFontManager::iSearchFontList( PTSTR pszTarget, BOOL bExact, int iType )
+int CFontManager::iSearchFontList(PTSTR pszTarget, BOOL bExact, int iType)
 {
     CFontClass* poFont = 0;
     int iCount;
     int i;
 
-    if( pszTarget == NULL ) return( -1 );
+    if (pszTarget == NULL) return(-1);
 
     ECS;
 
     iCount = m_poFontList->iCount();
 
-    for( i = 0; i < iCount; i++ ) {
-       poFont = m_poFontList->poObjectAt( i );
-       if( poFont->bSameName( pszTarget ) ) {
-          LCS;
-          return i;
-       }
+    for (i = 0; i < iCount; i++) {
+        poFont = m_poFontList->poObjectAt(i);
+        if (poFont->bSameName(pszTarget)) {
+            LCS;
+            return i;
+        }
     }
 
 
@@ -2492,18 +2339,15 @@ int CFontManager::iSearchFontList( PTSTR pszTarget, BOOL bExact, int iType )
     //  with an overlap.
 
 
-    if( !bExact )
-    {
-        for( i = 0; i < iCount; i++ )
-        {
-            poFont = m_poFontList->poObjectAt( i );
+    if (!bExact) {
+        for (i = 0; i < iCount; i++) {
+            poFont = m_poFontList->poObjectAt(i);
 
-            if( poFont->bNameOverlap( pszTarget ) )
-            {
-                if( ( iType == kSearchTT ) && !(poFont->bTrueType( ) || poFont->bOpenType( )))
+            if (poFont->bNameOverlap(pszTarget)) {
+                if ((iType == kSearchTT) && !(poFont->bTrueType() || poFont->bOpenType()))
                     continue;
 
-                if( ( iType == kSearchNotTT ) && (poFont->bTrueType( ) || poFont->bOpenType( )))
+                if ((iType == kSearchNotTT) && (poFont->bTrueType() || poFont->bOpenType()))
                     continue;
 
                 LCS;
@@ -2519,7 +2363,7 @@ int CFontManager::iSearchFontList( PTSTR pszTarget, BOOL bExact, int iType )
     //  No Match.
 
 
-    return( -1 );
+    return(-1);
 }
 
 
@@ -2531,9 +2375,9 @@ int CFontManager::iSearchFontList( PTSTR pszTarget, BOOL bExact, int iType )
  * RETURNS:  FontClass* if found, NULL if not.
  **/
 
-CFontClass* CFontManager::poSearchFontList( PTSTR pszTarget, BOOL bExact, int iType )
+CFontClass* CFontManager::poSearchFontList(PTSTR pszTarget, BOOL bExact, int iType)
 {
-    return m_poFontList->poObjectAt( iSearchFontList( pszTarget, bExact, iType ) );
+    return m_poFontList->poObjectAt(iSearchFontList(pszTarget, bExact, iType));
 }
 
 
@@ -2548,53 +2392,48 @@ CFontClass* CFontManager::poSearchFontList( PTSTR pszTarget, BOOL bExact, int iT
  **/
 typedef struct {
     HDC   hDC;
-    CFontManager * poFontMan;
+    CFontManager* poFontMan;
     WORD  wFamIdx;
-    CFontList * poSrcList;
-    CFontList * poDstList;
+    CFontList* poSrcList;
+    CFontList* poDstList;
 } LENUMFAM;
 
 
-static int CALLBACK eFont( LPLOGFONT    lpLogFont,
-                           LPTEXTMETRIC lpTextMetric,
-                           int          iFontType,
-                           LPARAM       lFontEnum )
+static int CALLBACK eFont(LPLOGFONT    lpLogFont,
+                          LPTEXTMETRIC lpTextMetric,
+                          int          iFontType,
+                          LPARAM       lFontEnum)
 {
-    LENUMFAM * lef = (LENUMFAM *) lFontEnum;
-    ENUMLOGFONT FAR * lpEnum = (ENUMLOGFONT FAR *) lpLogFont;
-    CFontManager * poFontMan = lef->poFontMan;
-    CFontClass * poFont ;
+    LENUMFAM* lef = (LENUMFAM*)lFontEnum;
+    ENUMLOGFONT FAR* lpEnum = (ENUMLOGFONT FAR*) lpLogFont;
+    CFontManager* poFontMan = lef->poFontMan;
+    CFontClass* poFont;
 
-    if( iFontType == TRUETYPE_FONTTYPE )
-    {
-        poFont = poFontMan->poSearchFontList( (PTSTR)lpEnum->elfFullName );
+    if (iFontType == TRUETYPE_FONTTYPE) {
+        poFont = poFontMan->poSearchFontList((PTSTR)lpEnum->elfFullName);
 
-//      DEBUGMSG( (DM_TRACE1, TEXT( "eFont: Couldn't find find %s" ), lpEnum->elfFullName ) );
+        //      DEBUGMSG( (DM_TRACE1, TEXT( "eFont: Couldn't find find %s" ), lpEnum->elfFullName ) );
 
-        if( !poFont )
-        {
+        if (!poFont) {
 
             //  We didn't get the font based on full name. Try combinining the
             //  full name and the style.
 
 
-            TCHAR szCombine[ LF_FULLFACESIZE + LF_FACESIZE + 1 ];
+            TCHAR szCombine[LF_FULLFACESIZE + LF_FACESIZE + 1];
 
-            strcpy( szCombine, (LPTSTR) lpEnum->elfFullName );
-            strcat( szCombine, TEXT( " " ) );
-            strcat( szCombine, (LPTSTR) lpEnum->elfStyle );
+            strcpy(szCombine, (LPTSTR)lpEnum->elfFullName);
+            strcat(szCombine, TEXT(" "));
+            strcat(szCombine, (LPTSTR)lpEnum->elfStyle);
 
-            poFont = poFontMan->poSearchFontList( szCombine );
+            poFont = poFontMan->poSearchFontList(szCombine);
 
-            if( !poFont )
-            {
-                DEBUGMSG( (DM_TRACE1, TEXT( "eFont: Couldn't find find %s" ),
-                          szCombine ) );
+            if (!poFont) {
+                DEBUGMSG((DM_TRACE1, TEXT("eFont: Couldn't find find %s"),
+                          szCombine));
             }
         }
-    }
-    else
-    {
+    } else {
 
         //  In order to handle WIN.INI entries of the form:
         //    "name 8,10,12 = fontfile"
@@ -2602,19 +2441,18 @@ static int CALLBACK eFont( LPLOGFONT    lpLogFont,
         //  the WIN.INI has been hand-edited, you're out of luck.
 
 
-        poFont = poFontMan->poSearchFontList( (PTSTR) lpLogFont->lfFaceName,
-                                              FALSE, kSearchNotTT );
+        poFont = poFontMan->poSearchFontList((PTSTR)lpLogFont->lfFaceName,
+                                             FALSE, kSearchNotTT);
 
     }
 
-    if( poFont )
-    {
-        poFont->vSetFamName( lpLogFont->lfFaceName );
-        poFont->vSetFamIndex( lef->wFamIdx );
+    if (poFont) {
+        poFont->vSetFamName(lpLogFont->lfFaceName);
+        poFont->vSetFamIndex(lef->wFamIdx);
 
-        poFont->m_wWeight    = (WORD) lpLogFont->lfWeight;
-        poFont->m_fSymbol    = (lpLogFont->lfCharSet == SYMBOL_CHARSET );
-        poFont->m_fItalic    = (lpLogFont->lfItalic != 0);
+        poFont->m_wWeight = (WORD)lpLogFont->lfWeight;
+        poFont->m_fSymbol = (lpLogFont->lfCharSet == SYMBOL_CHARSET);
+        poFont->m_fItalic = (lpLogFont->lfItalic != 0);
         poFont->m_fUnderline = (lpLogFont->lfUnderline != 0);
         poFont->m_fStrikeout = (lpLogFont->lfStrikeOut != 0);
 
@@ -2623,8 +2461,8 @@ static int CALLBACK eFont( LPLOGFONT    lpLogFont,
         //  done enumerating.
 
 
-        if( lef->poDstList && lef->poDstList->bAdd( poFont ) )
-            lef->poSrcList->poDetach( poFont );
+        if (lef->poDstList && lef->poDstList->bAdd(poFont))
+            lef->poSrcList->poDetach(poFont);
     }
 
     return 1;
@@ -2640,34 +2478,34 @@ static int CALLBACK eFont( LPLOGFONT    lpLogFont,
 
  **/
 
-static int CALLBACK eAllFamilies( LPLOGFONT     lpLogFont,
-                                  LPTEXTMETRIC  lpTextMetric,
-                                  int           iFontType,
-                                  LPARAM        lEnumFam )
+static int CALLBACK eAllFamilies(LPLOGFONT     lpLogFont,
+                                 LPTEXTMETRIC  lpTextMetric,
+                                 int           iFontType,
+                                 LPARAM        lEnumFam)
 {
-    LENUMFAM * lef = (LENUMFAM *)lEnumFam;
-    int iSearchType = ( (iFontType == TRUETYPE_FONTTYPE) ? kSearchTT : kSearchNotTT );
+    LENUMFAM* lef = (LENUMFAM*)lEnumFam;
+    int iSearchType = ((iFontType == TRUETYPE_FONTTYPE) ? kSearchTT : kSearchNotTT);
 
 
 
     //  Try to set a font as the primary font for this family..
 
 
-    CFontClass * poFont = lef->poFontMan->poSearchFontList(
-                                                        lpLogFont->lfFaceName,
-                                                        FALSE, iSearchType );
+    CFontClass* poFont = lef->poFontMan->poSearchFontList(
+        lpLogFont->lfFaceName,
+        FALSE, iSearchType);
 
-    if( poFont )
-        poFont->vSetFamilyFont( );
+    if (poFont)
+        poFont->vSetFamilyFont();
 
 
     //  Enumerate all the fonts within this family.
 
 
-    EnumFontFamilies( lef->hDC,
-                      lpLogFont->lfFaceName,
-                      (FONTENUMPROC) eFont,
-                      (LPARAM) lEnumFam );
+    EnumFontFamilies(lef->hDC,
+                     lpLogFont->lfFaceName,
+                     (FONTENUMPROC)eFont,
+                     (LPARAM)lEnumFam);
 
 
     //  Increment the family index counter.
@@ -2687,42 +2525,39 @@ static int CALLBACK eAllFamilies( LPLOGFONT     lpLogFont,
  * RETURNS:
 
  **/
-BOOL CFontManager::bLoadFamList( )
+BOOL CFontManager::bLoadFamList()
 {
-    HWND  hWnd = GetDesktopWindow( );
+    HWND  hWnd = GetDesktopWindow();
 
-    if( hWnd )
-    {
-        HDC   hDC = GetWindowDC( hWnd );
+    if (hWnd) {
+        HDC   hDC = GetWindowDC(hWnd);
 
-        if( hDC )
-        {
+        if (hDC) {
             LENUMFAM lef;
 
             ECS;
 
-            lef.hDC       = hDC;
+            lef.hDC = hDC;
             lef.poFontMan = this;
-            lef.wFamIdx   = 1;
+            lef.wFamIdx = 1;
             lef.poSrcList = m_poFontList;
             lef.poDstList = m_poTempList;
 
-            EnumFontFamilies( hDC, NULL, (FONTENUMPROC) eAllFamilies,
-                              (LPARAM) &lef );
+            EnumFontFamilies(hDC, NULL, (FONTENUMPROC)eAllFamilies,
+                             (LPARAM)&lef);
 
-            ReleaseDC( hWnd, hDC );
+            ReleaseDC(hWnd, hDC);
 
 
             //  If anything was moved into the temp list, move it back.
 
 
-            if( m_poTempList )
-            {
+            if (m_poTempList) {
                 int iCount = m_poTempList->iCount();
                 int i;
 
-                for( i = iCount - 1; i >= 0; i-- )
-                    m_poFontList->bAdd( m_poTempList->poDetach( i ) );
+                for (i = iCount - 1; i >= 0; i--)
+                    m_poFontList->bAdd(m_poTempList->poDetach(i));
             }
 
             LCS;
@@ -2745,7 +2580,7 @@ BOOL CFontManager::bLoadFamList( )
 
  **/
 
-void CFontManager::vDeleteFontList( CFontList * poList, BOOL bDelete )
+void CFontManager::vDeleteFontList(CFontList* poList, BOOL bDelete)
 {
 
     //  Build up NULL delimited, NULL-terminated buffer to hand to
@@ -2757,11 +2592,11 @@ void CFontManager::vDeleteFontList( CFontList * poList, BOOL bDelete )
     int            iCount = poList->iCount();
     FullPathName_t szPath;
     int            iBufSize = 1; // 1 for double-nul terminator.
-    CFontClass *   poFont;
+    CFontClass* poFont;
     int            i;
 
 
-    if( !bDelete )
+    if (!bDelete)
         goto uninstall;
 
 
@@ -2769,13 +2604,11 @@ void CFontManager::vDeleteFontList( CFontList * poList, BOOL bDelete )
     //  the font from GDI
 
 
-    for( i = 0; i < iCount; i++ )
-    {
-        poFont = poList->poObjectAt( i );
+    for (i = 0; i < iCount; i++) {
+        poFont = poList->poObjectAt(i);
 
-        if( poFont->bGetFileToDel( szPath ) )
-        {
-            iBufSize += lstrlen( szPath ) + 1;
+        if (poFont->bGetFileToDel(szPath)) {
+            iBufSize += lstrlen(szPath) + 1;
 
 
             // Add length of PFB file path if this font has an associated PFB
@@ -2784,8 +2617,7 @@ void CFontManager::vDeleteFontList( CFontList * poList, BOOL bDelete )
             // Note that bGetPFB() returns FALSE if the font isn't Type1.
 
             if (poFont->bGetPFB(szPath, ARRAYSIZE(szPath)) &&
-                bFileIsInFontsDirectory(szPath))
-            {
+                bFileIsInFontsDirectory(szPath)) {
                 iBufSize += lstrlen(szPath) + 1;
             }
 
@@ -2794,7 +2626,7 @@ void CFontManager::vDeleteFontList( CFontList * poList, BOOL bDelete )
             //  delete failed.
 
 
-            poFont->bRFR( );
+            poFont->bRFR();
         }
     }
 
@@ -2802,11 +2634,10 @@ void CFontManager::vDeleteFontList( CFontList * poList, BOOL bDelete )
     //  If all the entries were links, then there is no buffer.
 
 
-    if( 1 < iBufSize )
-    {
-        LPTSTR  lpBuf = new TCHAR[ iBufSize ];
+    if (1 < iBufSize) {
+        LPTSTR  lpBuf = new TCHAR[iBufSize];
 
-        if( !lpBuf )
+        if (!lpBuf)
             return;
 
 
@@ -2815,13 +2646,11 @@ void CFontManager::vDeleteFontList( CFontList * poList, BOOL bDelete )
 
         LPTSTR lpCur = lpBuf;
 
-        for( i = 0; i < iCount; i++ )
-        {
-            poFont = poList->poObjectAt( i );
+        for (i = 0; i < iCount; i++) {
+            poFont = poList->poObjectAt(i);
 
-            if( poFont->bGetFileToDel( lpCur ) )
-            {
-                lpCur += ( lstrlen( lpCur ) + 1 );
+            if (poFont->bGetFileToDel(lpCur)) {
+                lpCur += (lstrlen(lpCur) + 1);
 
 
                 // Add path to the PFB file if there is one and if
@@ -2830,8 +2659,7 @@ void CFontManager::vDeleteFontList( CFontList * poList, BOOL bDelete )
                 // Note that bGetPFB() returns FALSE if the font isn't Type1.
 
                 if (poFont->bGetPFB(szPath, ARRAYSIZE(szPath)) &&
-                    bFileIsInFontsDirectory(szPath))
-                {
+                    bFileIsInFontsDirectory(szPath)) {
                     lstrcpyn(lpCur, szPath, iBufSize - (size_t)(lpCur - lpBuf));
                     lpCur += (lstrlen(lpCur) + 1);
                 }
@@ -2853,38 +2681,34 @@ void CFontManager::vDeleteFontList( CFontList * poList, BOOL bDelete )
             FOF_ALLOWUNDO | FOF_NOCONFIRMATION,
             0,
             0
-        } ;
+        };
 
-        int iRet = SHFileOperation( &sFileOp );
+        int iRet = SHFileOperation(&sFileOp);
 
 
         //  If the operation was cancelled, determined what was done and what
         //  wasn't.
 
 
-        if( iRet || sFileOp.fAnyOperationsAborted )
-        {
+        if (iRet || sFileOp.fAnyOperationsAborted) {
 
             // Walk the list and determine if the file is there or not.
 
 
-            for( i = iCount - 1; i >= 0; i-- )
-            {
-               poFont = poList->poObjectAt( i );
+            for (i = iCount - 1; i >= 0; i--) {
+                poFont = poList->poObjectAt(i);
 
-               if( poFont->bOnSysDir( ) )
-               {
-                    poFont->vGetDirFN( szPath );
+                if (poFont->bOnSysDir()) {
+                    poFont->vGetDirFN(szPath);
 
 
                     //  If the file exists then the operation didn't succeed.
                     //  Remove it from the list and AddFontResource.
 
 
-                    if( GetFileAttributes( szPath ) != 0xffffffff )
-                    {
-                        poList->poDetach( i );
-                        poFont->bAFR( );
+                    if (GetFileAttributes(szPath) != 0xffffffff) {
+                        poList->poDetach(i);
+                        poFont->bAFR();
                         poFont->Release();
                     }
                 }
@@ -2898,20 +2722,19 @@ uninstall:
     //  Remove the fonts from the main list.
 
 
-    iCount = poList->iCount( );
+    iCount = poList->iCount();
 
-    for( i = 0; i < iCount; i++)
-    {
-        poFont = poList->poObjectAt( i );
-        vDeleteFont( poFont, FALSE );
+    for (i = 0; i < iCount; i++) {
+        poFont = poList->poObjectAt(i);
+        vDeleteFont(poFont, FALSE);
     }
 
 
     //  If there was something deleted, then notify apps.
 
 
-    if( iCount )
-        vCPWinIniFontChange( );
+    if (iCount)
+        vCPWinIniFontChange();
 }
 
 
@@ -2924,7 +2747,7 @@ uninstall:
 
  **/
 
-void CFontManager::vDeleteFont( CFontClass * lpFontRec, BOOL bRemoveFile )
+void CFontManager::vDeleteFont(CFontClass* lpFontRec, BOOL bRemoveFile)
 {
     FontDesc_t     szLHS;
 
@@ -2936,20 +2759,18 @@ void CFontManager::vDeleteFont( CFontClass * lpFontRec, BOOL bRemoveFile )
     //  TODO. We need to return an error code. The font may be in use.
 
 
-    lpFontRec->bGetFQName( szFile, ARRAYSIZE( szFile ) );
+    lpFontRec->bGetFQName(szFile, ARRAYSIZE(szFile));
 
     DWORD dwError;
 
-    if( !RemoveFontResource( szFile ) )
-    {
-        TCHAR szFN[ MAX_PATH_LEN ];
+    if (!RemoveFontResource(szFile)) {
+        TCHAR szFN[MAX_PATH_LEN];
 
-        dwError = GetLastError( );
+        dwError = GetLastError();
 
-        lpFontRec->vGetFileName( szFN );
+        lpFontRec->vGetFileName(szFN);
 
-        if( !RemoveFontResource( szFN ) )
-        {
+        if (!RemoveFontResource(szFN)) {
             return;
         }
     }
@@ -2957,17 +2778,16 @@ void CFontManager::vDeleteFont( CFontClass * lpFontRec, BOOL bRemoveFile )
 
 #ifdef WINNT
 
-    if( lpFontRec->bType1( ) )
-    {
+    if (lpFontRec->bType1()) {
 
         //  Remove registry entries (files should have been deleted
         //  before reaching this point - in vDeleteFontList above).
 
 
 
-        lpFontRec->vGetDesc( szLHS );
+        lpFontRec->vGetDesc(szLHS);
 
-        DeleteT1Install( NULL, szLHS, bRemoveFile );
+        DeleteT1Install(NULL, szLHS, bRemoveFile);
 
         goto RemoveRecord;
     }
@@ -2975,7 +2795,7 @@ void CFontManager::vDeleteFont( CFontClass * lpFontRec, BOOL bRemoveFile )
 #endif  //  WINNT
 
 
-    if( !lpFontRec->bRFR( ) )
+    if (!lpFontRec->bRFR())
         return;
 
 #endif
@@ -2983,11 +2803,11 @@ void CFontManager::vDeleteFont( CFontClass * lpFontRec, BOOL bRemoveFile )
     //  Remove the entry from WIN.INI or the registry -- whereever it
     //  resides.
 
-    lpFontRec->vGetDesc( szLHS );
+    lpFontRec->vGetDesc(szLHS);
 
-    WriteProfileString( s_szINISFonts, szLHS, 0L );
+    WriteProfileString(s_szINISFonts, szLHS, 0L);
 
-    WriteToRegistry( szLHS, NULL );
+    WriteToRegistry(szLHS, NULL);
 
 
     //  Now, if we're talking about a FOT file for truetype guys, we always
@@ -2998,11 +2818,10 @@ void CFontManager::vDeleteFont( CFontClass * lpFontRec, BOOL bRemoveFile )
 
 #if 0
 
-    if( lpFontRec->bFOTFile( ) )
-    {
-        OpenFile( szFile, &ofstruct, OF_DELETE );
+    if (lpFontRec->bFOTFile()) {
+        OpenFile(szFile, &ofstruct, OF_DELETE);
 
-        lpFontRec->vGetTTFDirFN( szFile );
+        lpFontRec->vGetTTFDirFN(szFile);
     }
 
 #endif
@@ -3015,7 +2834,7 @@ RemoveRecord:
     //  Remove the record from the list.
 
 
-    if( !m_poFontList->bDelete( lpFontRec ) )
+    if (!m_poFontList->bDelete(lpFontRec))
         lpFontRec->Release();
 
     LCS;
@@ -3031,17 +2850,16 @@ RemoveRecord:
 
  **/
 
-void CFontManager::vDeleteFontFamily( CFontClass * lpFontRec, BOOL bRemoveFile )
+void CFontManager::vDeleteFontFamily(CFontClass* lpFontRec, BOOL bRemoveFile)
 {
-    int   iCount = m_poFontList->iCount( );
-    WORD  wFam = lpFontRec->wGetFamIndex( );
+    int   iCount = m_poFontList->iCount();
+    WORD  wFam = lpFontRec->wGetFamIndex();
 
-    while( iCount--)
-    {
-       lpFontRec = m_poFontList->poObjectAt( iCount );
+    while (iCount--) {
+        lpFontRec = m_poFontList->poObjectAt(iCount);
 
-       if( lpFontRec && ( wFam == lpFontRec->wGetFamIndex( ) ) )
-          vDeleteFont( lpFontRec, bRemoveFile );
+        if (lpFontRec && (wFam == lpFontRec->wGetFamIndex()))
+            vDeleteFont(lpFontRec, bRemoveFile);
     }
 }
 
@@ -3055,19 +2873,19 @@ void CFontManager::vDeleteFontFamily( CFontClass * lpFontRec, BOOL bRemoveFile )
 
  **/
 
-int CFontManager::iCompare( CFontClass * pFont1,
-                            CFontClass * pFont2,
-                            CFontClass * pOrigin )
+int CFontManager::iCompare(CFontClass* pFont1,
+                           CFontClass* pFont2,
+                           CFontClass* pOrigin)
 {
-   USHORT   nDiff1,
-            nDiff2;
+    USHORT   nDiff1,
+        nDiff2;
 
-   // DEBUGMSG( (DM_TRACE1,TEXT( "FontMan: iCompare" ) ) );
+    // DEBUGMSG( (DM_TRACE1,TEXT( "FontMan: iCompare" ) ) );
 
-   nDiff1 = nDiff( pOrigin, pFont1 );
-   nDiff2 = nDiff( pOrigin, pFont2 );
+    nDiff1 = nDiff(pOrigin, pFont1);
+    nDiff2 = nDiff(pOrigin, pFont2);
 
-   return(  ( (int)(ULONG) nDiff1 ) - ((int)(ULONG) nDiff2 ) );
+    return(((int)(ULONG)nDiff1) - ((int)(ULONG)nDiff2));
 }
 
 
@@ -3080,27 +2898,27 @@ int CFontManager::iCompare( CFontClass * pFont1,
 
  **/
 
-USHORT CFontManager::nDiff( CFontClass * pFont1, CFontClass * pFont2 )
+USHORT CFontManager::nDiff(CFontClass* pFont1, CFontClass* pFont2)
 {
-   IPANOSEMapper * m_poMap;
-   USHORT   nRet = (USHORT)(-1);
+    IPANOSEMapper* m_poMap;
+    USHORT   nRet = (USHORT)(-1);
 
-   // DEBUGMSG( (DM_TRACE1,TEXT( "nDiff        " ) ) );
+    // DEBUGMSG( (DM_TRACE1,TEXT( "nDiff        " ) ) );
 
-   if( SUCCEEDED( GetPanMapper( &m_poMap ) ) ) {
-      BYTE * lpPan1 = pFont1->lpBasePANOSE( );
-      BYTE * lpPan2 = pFont2->lpBasePANOSE( );
+    if (SUCCEEDED(GetPanMapper(&m_poMap))) {
+        BYTE* lpPan1 = pFont1->lpBasePANOSE();
+        BYTE* lpPan2 = pFont2->lpBasePANOSE();
 
-      nRet = m_poMap->unPANMatchFonts( lpPan1,
-                        PANOSE_LEN,
-                        lpPan2,
-                        PANOSE_LEN,
-                        *lpPan1 );
+        nRet = m_poMap->unPANMatchFonts(lpPan1,
+                                        PANOSE_LEN,
+                                        lpPan2,
+                                        PANOSE_LEN,
+                                        *lpPan1);
 
-      m_poMap->Release( );
-   }
+        m_poMap->Release();
+    }
 
-   return nRet;
+    return nRet;
 }
 
 //
@@ -3112,51 +2930,48 @@ USHORT CFontManager::nDiff( CFontClass * pFont1, CFontClass * pFont2 )
 
 
 
-CLSID GetPanoseClass( )
+CLSID GetPanoseClass()
 {
-   return CLSID_PANOSEMapper;
+    return CLSID_PANOSEMapper;
 }
 
 
-HRESULT CFontManager::GetPanMapper( IPANOSEMapper ** ppMapper )
+HRESULT CFontManager::GetPanMapper(IPANOSEMapper** ppMapper)
 {
-    HRESULT   hr = ResultFromScode( E_NOINTERFACE );
+    HRESULT   hr = ResultFromScode(E_NOINTERFACE);
 
     *ppMapper = NULL;
 
     ECS;
 
-    if( !m_poPanMap && !m_bTriedOnce )
-    {
+    if (!m_poPanMap && !m_bTriedOnce) {
         m_bTriedOnce = TRUE;
 
-        DEBUGMSG( (DM_TRACE1,TEXT( "GetPanMapper calling GetPanoseClass()" ) ) );
-        CLSID clsid = GetPanoseClass( );
-        DEBUGMSG( (DM_TRACE1,TEXT( "GetPanMapper calling CoCreateInstance" ) ) );
-        DEBUGMSG( (DM_TRACE1, TEXT( "Initializing OLE" ) ) );
+        DEBUGMSG((DM_TRACE1, TEXT("GetPanMapper calling GetPanoseClass()")));
+        CLSID clsid = GetPanoseClass();
+        DEBUGMSG((DM_TRACE1, TEXT("GetPanMapper calling CoCreateInstance")));
+        DEBUGMSG((DM_TRACE1, TEXT("Initializing OLE")));
 
 #if 0
-        hr = CoInitialize( NULL );
+        hr = CoInitialize(NULL);
 
-        if( FAILED( hr ) )
-        {
+        if (FAILED(hr)) {
             LCS;
-            return( hr );
+            return(hr);
         }
 #endif
 
-        DEBUGMSG( (DM_TRACE1, TEXT( "Calling CoCreateInstance" ) ) );
+        DEBUGMSG((DM_TRACE1, TEXT("Calling CoCreateInstance")));
 #if 0
-        hr = CoCreateInstance( clsid, NULL, (DWORD) CLSCTX_INPROC_SERVER, IID_IPANOSEMapper, (LPVOID *) &m_poPanMap );
+        hr = CoCreateInstance(clsid, NULL, (DWORD)CLSCTX_INPROC_SERVER, IID_IPANOSEMapper, (LPVOID*)&m_poPanMap);
 #endif
-        hr = SHCoCreateInstance( NULL, &clsid, NULL, IID_IPANOSEMapper, (LPVOID *) &m_poPanMap );
+        hr = SHCoCreateInstance(NULL, &clsid, NULL, IID_IPANOSEMapper, (LPVOID*)&m_poPanMap);
 
-        if( FAILED( hr ) )
-        {
+        if (FAILED(hr)) {
 #if 0
-            CoUninitialize( );
+            CoUninitialize();
 #endif
-            DEBUGMSG( (DM_ERROR, TEXT( "FONTEXT: CFontMan::GetPan() Failed  %d" ), hr) );
+            DEBUGMSG((DM_ERROR, TEXT("FONTEXT: CFontMan::GetPan() Failed  %d"), hr));
             // DEBUGBREAK;
         }
 
@@ -3164,16 +2979,15 @@ HRESULT CFontManager::GetPanMapper( IPANOSEMapper ** ppMapper )
         //  We have the mapper. Relax the threshold so we
         //  can get values for sorting.
         else
-            m_poPanMap->vPANRelaxThreshold( );
+            m_poPanMap->vPANRelaxThreshold();
     }
 
 
     //  AddRef for the caller. (This will make the count > 1 )
     //  We Release( ) on delete.
-    if( m_poPanMap )
-    {
+    if (m_poPanMap) {
         // DEBUGMSG( (DM_TRACE1, TEXT( "GetPanMapper calling m_poPanMap->AddRef()" ) ) );
-        m_poPanMap->AddRef( );
+        m_poPanMap->AddRef();
         *ppMapper = m_poPanMap;
         hr = NOERROR;
     }
@@ -3211,23 +3025,19 @@ DWORD CFontManager::HiddenFilesList::Initialize(void)
 
         hInf = SetupOpenInfFile(TEXT("FONT.INF"), NULL, INF_STYLE_WIN4, NULL);
 
-        if (INVALID_HANDLE_VALUE != hInf)
-        {
+        if (INVALID_HANDLE_VALUE != hInf) {
             INFCONTEXT Context;
 
-            if(SetupFindFirstLine(hInf, TEXT("HiddenFontFiles"), NULL, &Context))
-            {
+            if (SetupFindFirstLine(hInf, TEXT("HiddenFontFiles"), NULL, &Context)) {
                 TCHAR szFileName[MAX_PATH];
                 DWORD dwReqdSize = 0;
 
-                do
-                {
-                    if(SetupGetStringField(&Context, 0, szFileName, ARRAYSIZE(szFileName), &dwReqdSize))
-                    {
+                do {
+                    if (SetupGetStringField(&Context, 0, szFileName, ARRAYSIZE(szFileName), &dwReqdSize)) {
                         if (Add(szFileName))
                             dwNamesLoaded++;
                     }
-                } while(SetupFindNextLine(&Context, &Context));
+                } while (SetupFindNextLine(&Context, &Context));
             }
             SetupCloseInfFile(hInf);
         }
@@ -3268,25 +3078,23 @@ BOOL CFontManager::CheckForType1FontDriver(void)
                          0L,                        // Reserved
                          KEY_READ,                  // SAM
                          &hkey);                    // return handle
-    if (lRet == ERROR_SUCCESS)
-    {
+    if (lRet == ERROR_SUCCESS) {
         // get the number of entries in the [Fonts] section
         lRet = RegQueryInfoKeyW(
-                   hkey,
-                   awcClass,              // "" on return
-                   &cwcClassName,         // 0 on return
-                   NULL,
-                   &cSubKeys,             // 0 on return
-                   &cjMaxSubKey,          // 0 on return
-                   &cwcMaxClass,          // 0 on return
-                   &cValues,              // == cExternalDrivers
-                   &cwcMaxValueName,      // longest value name
-                   &cjMaxValueData,       // longest value data
-                   &cjSecurityDescriptor, // security descriptor,
-                   &ftLastWriteTime
-                   );
-        if ((lRet == ERROR_SUCCESS) && cValues)
-        {
+            hkey,
+            awcClass,              // "" on return
+            &cwcClassName,         // 0 on return
+            NULL,
+            &cSubKeys,             // 0 on return
+            &cjMaxSubKey,          // 0 on return
+            &cwcMaxClass,          // 0 on return
+            &cValues,              // == cExternalDrivers
+            &cwcMaxValueName,      // longest value name
+            &cjMaxValueData,       // longest value data
+            &cjSecurityDescriptor, // security descriptor,
+            &ftLastWriteTime
+        );
+        if ((lRet == ERROR_SUCCESS) && cValues) {
             bRet = TRUE;
         }
 

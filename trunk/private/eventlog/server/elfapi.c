@@ -78,20 +78,9 @@ FreePUStringArray(
     IN  USHORT             NumStrings
 );
 
-NTSTATUS
-VerifyElfHandle(
-    IN IELF_HANDLE LogHandle
-);
-
-NTSTATUS
-VerifyUnicodeString(
-    IN PUNICODE_STRING pUString
-);
-
-NTSTATUS
-VerifyAnsiString(
-    IN PANSI_STRING pAString
-);
+NTSTATUS VerifyElfHandle(IN IELF_HANDLE LogHandle);
+NTSTATUS VerifyUnicodeString(IN PUNICODE_STRING pUString);
+NTSTATUS VerifyAnsiString(IN PANSI_STRING pAString);
 
 
 
@@ -104,73 +93,45 @@ ElfrNumberOfRecords(
     OUT PULONG          NumberOfRecords
 )
 /*++
-
 Routine Description:
-
   This is the RPC server entry point for the ElfrCurrentRecord API.
-
 Arguments:
-
     LogHandle       - The context-handle for this module's call.
-
-    NumberOfRecords - Where to return the total number of records in the
-                      log file.
-
+    NumberOfRecords - Where to return the total number of records in the log file.
 Return Value:
-
     Returns an NTSTATUS code.
-
-
 --*/
 {
-
     PLOGMODULE Module;
     NTSTATUS   Status;
 
-
     // Check the handle before proceeding.
-
-
     Status = VerifyElfHandle(LogHandle);
-
     if (!NT_SUCCESS(Status)) {
         return(Status);
     }
 
-
     // Insure the caller has read access.
-
-
     if (!(LogHandle->GrantedAccess & ELF_LOGFILE_READ)) {
         return(STATUS_ACCESS_DENIED);
     }
 
-
     // Verify additional arguments.
-
-
     if (NumberOfRecords == NULL) {
         return(STATUS_INVALID_PARAMETER);
     }
 
-
     // This condition is TRUE iff a backup operator has opened the security
     // log. In this case deny access, since backup operators are allowed
     // only backup operation on the security log.
-
-
     if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return(STATUS_ACCESS_DENIED);
     }
 
-
     // If the OldestRecordNumber is 0, that means we have an empty
     // file, else we calculate the difference between the oldest
     // and next record numbers
-
-
     Module = FindModuleStrucFromAtom(LogHandle->Atom);
-
     if (Module != NULL) {
         *NumberOfRecords = Module->LogFile->OldestRecordNumber == 0 ? 0 :
             Module->LogFile->CurrentRecordNumber -
@@ -180,7 +141,6 @@ Return Value:
     }
 
     return (Status);
-
 }
 
 
@@ -193,44 +153,30 @@ ElfrOldestRecord(
     PLOGMODULE Module;
     NTSTATUS   Status;
 
-
     // Check the handle before proceeding.
-
-
     Status = VerifyElfHandle(LogHandle);
-
     if (!NT_SUCCESS(Status)) {
         return(Status);
     }
 
-
     // Insure the caller has read access.
-
-
     if (!(LogHandle->GrantedAccess & ELF_LOGFILE_READ)) {
         return(STATUS_ACCESS_DENIED);
     }
 
-
     // Verify additional arguments.
-
-
     if (OldestRecordNumber == NULL) {
         return(STATUS_INVALID_PARAMETER);
     }
 
-
     // This condition is TRUE iff a backup operator has opened the security
     // log. In this case deny access, since backup operators are allowed
     // only backup operation on the security log.
-
-
     if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return(STATUS_ACCESS_DENIED);
     }
 
     Module = FindModuleStrucFromAtom(LogHandle->Atom);
-
     if (Module != NULL) {
         *OldestRecordNumber = Module->LogFile->OldestRecordNumber;
     } else {
@@ -256,7 +202,6 @@ ElfrChangeNotify(
     PLOGMODULE Module;
     PNOTIFIEE Notifiee;
 
-
     // Check the handle before proceeding.
     Status = VerifyElfHandle(LogHandle);
     if (!NT_SUCCESS(Status)) {
@@ -281,7 +226,6 @@ ElfrChangeNotify(
     if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return STATUS_ACCESS_DENIED;
     }
-
 
     // Make sure the client has the right to open this process
     RpcStatus = RpcImpersonateClient(NULL);
@@ -378,13 +322,10 @@ ElfrGetLogInformation(
     OUT    PULONG         pcbBytesNeeded
 )
 /*++
-
 Routine Description:
-
   This is the RPC server entry point for the ElfrGetLogInformation API.
 
 Arguments:
-
     LogHandle      - The context-handle for this module's call.
     InfoLevel      - Infolevel that specifies which information the user is requesting
     lpBuffer       - Buffer into which to place the information
@@ -392,61 +333,40 @@ Arguments:
     pcbBytesNeeded - Required size of the buffer
 
 Return Value:
-
     Returns an NTSTATUS code.
-
-
 --*/
 {
     NTSTATUS   ntStatus;
     PLOGMODULE pLogModule;
 
-
     // Check the handle before proceeding.
-
-
     ntStatus = VerifyElfHandle(LogHandle);
-
     if (!NT_SUCCESS(ntStatus)) {
         return ntStatus;
     }
 
-
     // This condition is TRUE iff a backup operator has opened the security
     // log. In this case deny access, since backup operators are allowed
     // only backup operation on the security log.
-
-
     if (LogHandle->GrantedAccess & ELF_LOGFILE_BACKUP) {
         return(STATUS_ACCESS_DENIED);
     }
 
-
     // Take the appropriate actions based on the Infolevel
-
     switch (InfoLevel) {
-
     case EVENTLOG_FULL_INFO:
-
         *pcbBytesNeeded = sizeof(EVENTLOG_FULL_INFORMATION);
-
         if (cbBufSize < *pcbBytesNeeded) {
             ntStatus = STATUS_BUFFER_TOO_SMALL;
             break;
         }
 
-
         // Get the module associated with this log handle
-
         pLogModule = FindModuleStrucFromAtom(LogHandle->Atom);
-
         if (pLogModule != NULL) {
-
-
             // The caller has the permission for this operation.  Note
             // that an access check is done when opening the log, so
             // there's no need to repeat it here.
-
             ((LPEVENTLOG_FULL_INFORMATION)lpBuffer)->dwFull =
 
                 (pLogModule->LogFile->Flags & ELF_LOGFILE_LOGFULL_WRITTEN ?
@@ -457,7 +377,6 @@ Return Value:
         }
 
         break;
-
     default:
         ntStatus = STATUS_INVALID_LEVEL;
         break;

@@ -32,12 +32,10 @@ HRESULT LoadShellEntrypoint(void)
     HRESULT hres;
     ENTERCRITICAL
     {
-        if (g_hmodShell == NULL)
-        {
+        if (g_hmodShell == NULL) {
             g_hmodShell = ::LoadLibrary("SHELL32.DLL");
         }
-        if (g_hmodShell != NULL)
-        {
+        if (g_hmodShell != NULL) {
             g_pfnSHFileOperationA = (PFNSHFILEOPERATIONA)::GetProcAddress(g_hmodShell, "SHFileOperationA");
         }
 
@@ -56,8 +54,7 @@ void UnloadShellEntrypoint(void)
 {
     ENTERCRITICAL
     {
-        if (g_hmodShell != NULL)
-        {
+        if (g_hmodShell != NULL) {
             ::FreeLibrary(g_hmodShell);
             g_hmodShell = NULL;
             g_pfnSHFileOperationA = NULL;
@@ -85,8 +82,7 @@ extern "C" {
 LONG MyRegLoadKey(HKEY hKey, LPCSTR lpszSubKey, LPCSTR lpszFile)
 {
 #ifdef DEBUG
-    if (fNoisyReg)
-    {
+    if (fNoisyReg) {
         char buf[300];
         ::wsprintf(buf, "MyRegLoadKey(\"%s\", \"%s\")\r\n", lpszSubKey, lpszFile);
         ::OutputDebugString(buf);
@@ -108,8 +104,7 @@ LONG MyRegLoadKey(HKEY hKey, LPCSTR lpszSubKey, LPCSTR lpszFile)
 #ifdef DEBUG
 LONG MyRegUnLoadKey(HKEY hKey, LPCSTR lpszSubKey)
 {
-    if (fNoisyReg)
-    {
+    if (fNoisyReg) {
         char buf[300];
         ::wsprintf(buf, "MyRegUnLoadKey(\"%s\")\r\n", lpszSubKey);
         ::OutputDebugString(buf);
@@ -122,8 +117,7 @@ LONG MyRegUnLoadKey(HKEY hKey, LPCSTR lpszSubKey)
 LONG MyRegSaveKey(HKEY hKey, LPCSTR lpszFile, LPSECURITY_ATTRIBUTES lpsa)
 {
 #ifdef DEBUG
-    if (fNoisyReg)
-    {
+    if (fNoisyReg) {
         char buf[300];
         ::wsprintf(buf, "MyRegSaveKey(\"%s\")\r\n", lpszFile);
         ::OutputDebugString(buf);
@@ -156,7 +150,7 @@ LONG MyRegSaveKey(HKEY hKey, LPCSTR lpszFile, LPSECURITY_ATTRIBUTES lpsa)
 #endif
 
 
-LONG OpenLogonKey(HKEY *phKey)
+LONG OpenLogonKey(HKEY* phKey)
 {
     return ::RegOpenKey(HKEY_LOCAL_MACHINE, szLogonKey, phKey);
 }
@@ -234,8 +228,7 @@ BOOL CreateDirectoryPath(LPCSTR pszPath)
      * and first backslash -- we don't need to attempt to create the
      * root directory.
      */
-    if (::strchrf(pszTemp, ':') != NULL)
-    {
+    if (::strchrf(pszTemp, ':') != NULL) {
         pszNext = ::strchrf(pszTemp, '\\');
         if (pszNext != NULL)
             pszNext++;
@@ -243,15 +236,11 @@ BOOL CreateDirectoryPath(LPCSTR pszPath)
 
     /* Now walk through the path creating one directory at a time. */
 
-    for (;;)
-    {
+    for (;;) {
         pszNext = ::strchrf(pszNext, '\\');
-        if (pszNext != NULL)
-        {
+        if (pszNext != NULL) {
             *pszNext = '\0';
-        }
-        else
-        {
+        } else {
             break;/* no more intermediate directories to create */
         }
 
@@ -285,13 +274,12 @@ UINT SafeCopy(LPCSTR pszSrc, LPCSTR pszDest, DWORD dwAttrs)
     GetDirFromPath(nlsTempDir, pszDest);
 
     if (!::GetTempFileName(nlsTempDir.QueryPch(), ::szProfilePrefix, 0,
-        nlsTempFile.Party()))
+                           nlsTempFile.Party()))
         return ::GetLastError();
 
     nlsTempFile.DonePartying();
 
-    if (!::CopyFile(pszSrc, nlsTempFile.QueryPch(), FALSE))
-    {
+    if (!::CopyFile(pszSrc, nlsTempFile.QueryPch(), FALSE)) {
         UINT err = ::GetLastError();
         ::DeleteFile(nlsTempFile.QueryPch());
         return err;
@@ -320,26 +308,22 @@ UINT SafeCopy(LPCSTR pszSrc, LPCSTR pszDest, DWORD dwAttrs)
 void SetProfileTime(LPCSTR pszLocalPath, LPCSTR pszCentralPath)
 {
     HANDLE hFile = ::CreateFile(pszCentralPath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
+    if (hFile != INVALID_HANDLE_VALUE) {
         FILETIME ft;
 
         ::GetFileTime(hFile, NULL, NULL, &ft);
         ::CloseHandle(hFile);
 
         DWORD dwAttrs = ::GetFileAttributes(pszLocalPath);
-        if (dwAttrs & FILE_ATTRIBUTE_READONLY)
-        {
+        if (dwAttrs & FILE_ATTRIBUTE_READONLY) {
             ::SetFileAttributes(pszLocalPath, dwAttrs & ~FILE_ATTRIBUTE_READONLY);
         }
         hFile = ::CreateFile(pszLocalPath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
+        if (hFile != INVALID_HANDLE_VALUE) {
             ::SetFileTime(hFile, NULL, NULL, &ft);
             ::CloseHandle(hFile);
         }
-        if (dwAttrs & FILE_ATTRIBUTE_READONLY)
-        {
+        if (dwAttrs & FILE_ATTRIBUTE_READONLY) {
             ::SetFileAttributes(pszLocalPath, dwAttrs & ~FILE_ATTRIBUTE_READONLY);
         }
     }
@@ -350,33 +334,26 @@ UINT DefaultReconcile(LPCSTR pszCentralPath, LPCSTR pszLocalPath, DWORD dwFlags)
 {
     UINT err;
 
-    if (dwFlags & RP_LOGON)
-    {
+    if (dwFlags & RP_LOGON) {
         if (dwFlags & RP_INIFILE)
             return SafeCopy(pszCentralPath, pszLocalPath, FILE_ATTRIBUTE_NORMAL);
 
         HANDLE hFile = ::CreateFile(pszCentralPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         FILETIME ftCentral;
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
+        if (hFile != INVALID_HANDLE_VALUE) {
             ::GetFileTime(hFile, NULL, NULL, &ftCentral);
             ::CloseHandle(hFile);
-        }
-        else
-        {
+        } else {
             ftCentral.dwLowDateTime = 0;    /* can't open, pretend it's really old */
             ftCentral.dwHighDateTime = 0;
         }
 
         hFile = ::CreateFile(pszLocalPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         FILETIME ftLocal;
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
+        if (hFile != INVALID_HANDLE_VALUE) {
             ::GetFileTime(hFile, NULL, NULL, &ftLocal);
             ::CloseHandle(hFile);
-        }
-        else
-        {
+        } else {
             ftLocal.dwLowDateTime = 0;  /* can't open, pretend it's really old */
             ftLocal.dwHighDateTime = 0;
         }
@@ -389,35 +366,26 @@ UINT DefaultReconcile(LPCSTR pszCentralPath, LPCSTR pszLocalPath, DWORD dwFlags)
          */
 
         LONG lCompare = ::CompareFileTime(&ftCentral, &ftLocal);
-        if (!lCompare)
-        {
+        if (!lCompare) {
             ::dwProfileFlags |= PROF_CENTRALWINS;
             return WN_SUCCESS; /* timestamps match, no copy to do */
-        }
-        else if (lCompare > 0)
-        {
+        } else if (lCompare > 0) {
             pszSrc = pszCentralPath;
             pszDest = pszLocalPath;
             ::dwProfileFlags |= PROF_CENTRALWINS;
-        }
-        else
-        {
+        } else {
             pszSrc = pszLocalPath;
             pszDest = pszCentralPath;
             ::dwProfileFlags &= ~PROF_CENTRALWINS;
         }
 
         err = SafeCopy(pszSrc, pszDest, pszDest == pszCentralPath ? FILE_ATTRIBUTE_NORMAL : attrLocalProfile);
-    }
-    else
-    {
+    } else {
         err = SafeCopy(pszLocalPath, pszCentralPath, FILE_ATTRIBUTE_NORMAL);
-        if (err == WN_SUCCESS)
-        {   /* copied back successfully */
+        if (err == WN_SUCCESS) {   /* copied back successfully */
 
 #ifdef EXTENDED_PROFILES    /* chicago doesn't special-case resident profiles */
-            if (dwFlags & PROF_RESIDENT)
-            {
+            if (dwFlags & PROF_RESIDENT) {
                 DeleteProfile(pszLocalPath);    /* delete temp file */
             }
 #endif
@@ -450,8 +418,7 @@ HRESULT GiveUserDefaultProfile(LPCSTR lpszPath)
 {
     HKEY hkeyDefaultUser;
     LONG err = ::RegOpenKey(HKEY_USERS, ::szDefaultUserName, &hkeyDefaultUser);
-    if (err == ERROR_SUCCESS)
-    {
+    if (err == ERROR_SUCCESS) {
         err = ::MyRegSaveKey(hkeyDefaultUser, lpszPath, NULL);
         ::RegCloseKey(hkeyDefaultUser);
     }
@@ -459,7 +426,7 @@ HRESULT GiveUserDefaultProfile(LPCSTR lpszPath)
 }
 
 
-void ComputeLocalProfileName(LPCSTR pszUsername, NLS_STR *pnlsLocalProfile)
+void ComputeLocalProfileName(LPCSTR pszUsername, NLS_STR* pnlsLocalProfile)
 {
     GetLocalProfileDirectory(*pnlsLocalProfile);
 
@@ -473,20 +440,16 @@ void ComputeLocalProfileName(LPCSTR pszUsername, NLS_STR *pnlsLocalProfile)
     LPSTR lpFNStart = lpFilename;
 
     UINT iFile = 0;
-    while (!::CreateDirectory(lpPath, NULL))
-    {
+    while (!::CreateDirectory(lpPath, NULL)) {
         if (!DirExists(lpPath))
             break;
 
         /* Couldn't use whole username, start with 5 bytes of username + numbers. */
-        if (iFile == 0)
-        {
+        if (iFile == 0) {
             ::strncpyf(lpFilename, pszUsername, 5); /* copy at most 5 bytes of username */
             *(lpFilename + 5) = '\0'; /* force null term, just in case */
             lpFilename += ::strlenf(lpFilename);
-        }
-        else if (iFile >= 4095)
-        {   /* max number expressible in 3 hex digits */
+        } else if (iFile >= 4095) {   /* max number expressible in 3 hex digits */
             lpFilename = lpFNStart; /* start using big numbers with no uname prefix */
             if (iFile < 0)          /* if we run out of numbers, abort */
                 break;
@@ -514,8 +477,7 @@ BOOL UseUserProfiles(void)
     HKEY hkeyLogon;
 
     LONG err = OpenLogonKey(&hkeyLogon);
-    if (err == ERROR_SUCCESS)
-    {
+    if (err == ERROR_SUCCESS) {
         DWORD fUseProfiles = 0;
         DWORD cbData = sizeof(fUseProfiles);
         err = ::RegQueryValueEx(hkeyLogon, (LPSTR)::szUseProfiles, NULL, NULL, (LPBYTE)&fUseProfiles, &cbData);
@@ -532,8 +494,7 @@ void EnableProfiles(void)
     HKEY hkeyLogon;
 
     LONG err = OpenLogonKey(&hkeyLogon);
-    if (err == ERROR_SUCCESS)
-    {
+    if (err == ERROR_SUCCESS) {
         DWORD fUseProfiles = 1;
         ::RegSetValueEx(hkeyLogon, (LPSTR)::szUseProfiles, 0, REG_DWORD, (LPBYTE)&fUseProfiles, sizeof(fUseProfiles));
         ::RegCloseKey(hkeyLogon);
@@ -544,8 +505,8 @@ void EnableProfiles(void)
 struct SYNCSTATE
 {
     HKEY hkeyProfile;
-    NLS_STR *pnlsProfilePath;
-    NLS_STR *pnlsOtherProfilePath;
+    NLS_STR* pnlsProfilePath;
+    NLS_STR* pnlsOtherProfilePath;
     HKEY hkeyPrimary;
 };
 
@@ -556,8 +517,7 @@ BOOL PrefixMatch(LPCSTR pszPath, LPCSTR pszBasePath)
  */
 {
     UINT cchBasePath = ::strlenf(pszBasePath);
-    if (!::strnicmpf(pszPath, pszBasePath, cchBasePath))
-    {
+    if (!::strnicmpf(pszPath, pszBasePath, cchBasePath)) {
         /* make sure that the base path matches the whole last component */
         if ((pszPath[cchBasePath] == '\\' || pszPath[cchBasePath] == '\0'))
             return TRUE;
@@ -567,14 +527,13 @@ BOOL PrefixMatch(LPCSTR pszPath, LPCSTR pszBasePath)
             return TRUE;
         else
             return FALSE;
-    }
-    else
+    } else
         return FALSE;
 }
 
 
 #if 0
-void ReportReconcileError(SYNCSTATE *pSyncState, TWINRESULT tr, PRECITEM pri, PRECNODE prnSrc, PRECNODE prnDest, BOOL fSrcCentral)
+void ReportReconcileError(SYNCSTATE* pSyncState, TWINRESULT tr, PRECITEM pri, PRECNODE prnSrc, PRECNODE prnDest, BOOL fSrcCentral)
 {
     /* If we're copying the file the "wrong" way, swap our idea of the
      * source and destination.  For the purposes of other profile code,
@@ -582,8 +541,7 @@ void ReportReconcileError(SYNCSTATE *pSyncState, TWINRESULT tr, PRECITEM pri, PR
      * For this particular error message, they refer to the direction
      * that this particular file was being copied.
      */
-    if (prnSrc->rnaction == RNA_COPY_TO_ME)
-    {
+    if (prnSrc->rnaction == RNA_COPY_TO_ME) {
         PRECNODE prnTemp = prnSrc;
         prnSrc = prnDest;
         prnDest = prnTemp;
@@ -610,26 +568,24 @@ void ReportReconcileError(SYNCSTATE *pSyncState, TWINRESULT tr, PRECITEM pri, PR
     PCSTR pszFile;
     UINT uiMainMsg;
 
-    switch (tr)
-    {
-        case TR_DEST_OPEN_FAILED:
-        case TR_DEST_WRITE_FAILED:
-            uiMainMsg = IERR_ProfRecWriteDest;
-            pszFile = prnDest->pcszFolder;
-            break;
-        case TR_SRC_OPEN_FAILED:
-        case TR_SRC_READ_FAILED:
-            uiMainMsg = IERR_ProfRecOpenSrc;
-            pszFile = prnSrc->pcszFolder;
-            break;
-        default:
-            uiMainMsg = IERR_ProfRecCopy;
-            pszFile = pri->pcszName;
-            break;
+    switch (tr) {
+    case TR_DEST_OPEN_FAILED:
+    case TR_DEST_WRITE_FAILED:
+        uiMainMsg = IERR_ProfRecWriteDest;
+        pszFile = prnDest->pcszFolder;
+        break;
+    case TR_SRC_OPEN_FAILED:
+    case TR_SRC_READ_FAILED:
+        uiMainMsg = IERR_ProfRecOpenSrc;
+        pszFile = prnSrc->pcszFolder;
+        break;
+    default:
+        uiMainMsg = IERR_ProfRecCopy;
+        pszFile = pri->pcszName;
+        break;
     }
 
-    if (DisplayGenericError(NULL, uiMainMsg, tr, pszFile, ::szNULL, MB_YESNO | MB_ICONEXCLAMATION, IDS_TRMsgBase) == IDNO)
-    {
+    if (DisplayGenericError(NULL, uiMainMsg, tr, pszFile, ::szNULL, MB_YESNO | MB_ICONEXCLAMATION, IDS_TRMsgBase) == IDNO) {
         re.SetValue(::szDisplayProfileErrors, (ULONG)FALSE);
     }
 }
@@ -640,7 +596,7 @@ char szOutbuf[200];
 #endif
 
 
-void MyReconcile(PRECITEM pri, SYNCSTATE *pSyncState)
+void MyReconcile(PRECITEM pri, SYNCSTATE* pSyncState)
 /*
  * MyReconcile is a wrapper around ReconcileItem.  It needs to detect merge
  * type operations and transform them into copies in the appropriate direction,
@@ -668,24 +624,18 @@ void MyReconcile(PRECITEM pri, SYNCSTATE *pSyncState)
     PRECNODE prnDest;
     LPCSTR pszSrcBasePath;
     BOOL fSrcCentral;
-    if (pSyncState->IsMandatory() || (pSyncState->dwFlags & PROF_CENTRALWINS))
-    {
+    if (pSyncState->IsMandatory() || (pSyncState->dwFlags & PROF_CENTRALWINS)) {
         pszSrcBasePath = pSyncState->nlsDir2.QueryPch();
         fSrcCentral = TRUE;
-    }
-    else
-    {
+    } else {
         pszSrcBasePath = pSyncState->nlsDir1.QueryPch();
         fSrcCentral = FALSE;
     }
 
-    if (PrefixMatch(pri->prnFirst->pcszFolder, pszSrcBasePath))
-    {
+    if (PrefixMatch(pri->prnFirst->pcszFolder, pszSrcBasePath)) {
         prnSrc = pri->prnFirst;
         prnDest = prnSrc->prnNext;
-    }
-    else
-    {
+    } else {
         prnDest = pri->prnFirst;
         prnSrc = prnDest->prnNext;
     }
@@ -703,30 +653,25 @@ void MyReconcile(PRECITEM pri, SYNCSTATE *pSyncState)
 
      * The definitive copy is the source for mandatory or logoff cases, otherwise it's the newer file.
      */
-    if (pri->riaction == RIA_MERGE || pri->riaction == RIA_BROKEN_MERGE)
-    {
+    if (pri->riaction == RIA_MERGE || pri->riaction == RIA_BROKEN_MERGE) {
         BOOL fCopyFromSrc;
         COMPARISONRESULT cr;
 
         if (pSyncState->IsMandatory())
             fCopyFromSrc = TRUE;
-        else
-        {
+        else {
             fCopyFromSrc = !pSyncState->IsLogon();
 
-            if (pSyncState->CompareFileStamps(&prnSrc->fsCurrent, &prnDest->fsCurrent, &cr) == TR_SUCCESS)
-            {
-                if (cr == CR_EQUAL)
-                {
+            if (pSyncState->CompareFileStamps(&prnSrc->fsCurrent, &prnDest->fsCurrent, &cr) == TR_SUCCESS) {
+                if (cr == CR_EQUAL) {
 #ifdef MAXDEBUG
                     ::OutputDebugString("Matching file stamps, no action taken\r\n");
 #endif
                     return;
-                }
-                else if (cr == CR_FIRST_LARGER)
+                } else if (cr == CR_FIRST_LARGER)
                     fCopyFromSrc = TRUE;
             }
-        }
+}
 
 #ifdef MAXDEBUG
         if (fCopyFromSrc)
@@ -752,19 +697,14 @@ void MyReconcile(PRECITEM pri, SYNCSTATE *pSyncState)
      * about to delete the file we couldn't copy before).  Instead we'll
      * try the operation that the sync engine wants, since that'll be the copy that failed before.
      */
-    if (prnSrc->rnstate == RNS_DOES_NOT_EXIST && prnSrc->rnaction == RNA_COPY_TO_ME && !((pSyncState->uiRecError & RECERROR_CENTRAL) && fSrcCentral) && !((pSyncState->uiRecError & RECERROR_LOCAL) && !fSrcCentral))
-    {
-        if (IS_EMPTY_STRING(pri->pcszName))
-        {
+    if (prnSrc->rnstate == RNS_DOES_NOT_EXIST && prnSrc->rnaction == RNA_COPY_TO_ME && !((pSyncState->uiRecError & RECERROR_CENTRAL) && fSrcCentral) && !((pSyncState->uiRecError & RECERROR_LOCAL) && !fSrcCentral)) {
+        if (IS_EMPTY_STRING(pri->pcszName)) {
             ::RemoveDirectory(prnDest->pcszFolder);
-        }
-        else
-        {
+        } else {
             NLS_STR nlsTemp(prnDest->pcszFolder);
             AddBackslash(nlsTemp);
             nlsTemp.strcat(pri->pcszName);
-            if (!nlsTemp.QueryError())
-            {
+            if (!nlsTemp.QueryError()) {
 #ifdef MAXDEBUG
                 if (pSyncState->IsMandatory())
                     ::OutputDebugString("Mandatory copy wrong way\r\n");
@@ -783,15 +723,13 @@ void MyReconcile(PRECITEM pri, SYNCSTATE *pSyncState)
 #endif
 
     TWINRESULT tr;
-    if ((tr = pSyncState->ReconcileItem(pri, NULL, 0, 0, NULL, NULL)) != TR_SUCCESS)
-    {
+    if ((tr = pSyncState->ReconcileItem(pri, NULL, 0, 0, NULL, NULL)) != TR_SUCCESS) {
         ReportReconcileError(pSyncState, tr, pri, prnSrc, prnDest, fSrcCentral);
 #ifdef MAXDEBUG
         ::wsprintf(::szOutbuf, "Error %d from ReconcileItem.\r\n", tr);
         ::OutputDebugString(::szOutbuf);
 #endif
-    }
-    else if (!IS_EMPTY_STRING(pri->pcszName))
+    } else if (!IS_EMPTY_STRING(pri->pcszName))
         pSyncState->dwFlags |= SYNCSTATE_SOMESUCCESS;
 }
 
@@ -807,8 +745,7 @@ BOOL MakePathAbsolute(NLS_STR& nlsDir, LPCSTR lpszBasePath, NLS_STR& nlsOldProfi
 {
     /* If the path starts with a special keyword, replace it. */
 
-    if (*nlsDir.QueryPch() == '*')
-    {
+    if (*nlsDir.QueryPch() == '*') {
         return ReplaceCommonPath(nlsDir);
     }
 
@@ -816,18 +753,15 @@ BOOL MakePathAbsolute(NLS_STR& nlsDir, LPCSTR lpszBasePath, NLS_STR& nlsOldProfi
      * directory was, transform it to a relative path.  We will then make
      * it absolute again, using the new base path.
      */
-    if (PrefixMatch(nlsDir, nlsOldProfileDir))
-    {
+    if (PrefixMatch(nlsDir, nlsOldProfileDir)) {
         UINT cchDir = nlsDir.strlen();
         LPSTR lpStart = nlsDir.Party();
         ::memmovef(lpStart, lpStart + nlsOldProfileDir.strlen(), cchDir - nlsOldProfileDir.strlen() + 1);
         nlsDir.DonePartying();
-    }
-    else if (::strchrf(nlsDir.QueryPch(), ':') != NULL || *nlsDir.QueryPch() == '\\')
+    } else if (::strchrf(nlsDir.QueryPch(), ':') != NULL || *nlsDir.QueryPch() == '\\')
         return !fMustBeRelative;
 
-    if (*lpszBasePath == '\0')
-    {
+    if (*lpszBasePath == '\0') {
         nlsDir = lpszBasePath;
         return TRUE;
     }
@@ -852,7 +786,7 @@ BOOL ReplaceCommonPath(NLS_STR& nlsDir)
  * *windir - replaced with the Windows (user) directory
  */
 {
-    NLS_STR *pnlsTemp;
+    NLS_STR* pnlsTemp;
     ISTR istrStart(nlsDir);
     ISTR istrEnd(nlsDir);
 
@@ -862,8 +796,7 @@ BOOL ReplaceCommonPath(NLS_STR& nlsDir)
         return FALSE; /* out of memory, can't do anything */
 
     BOOL fSuccess = TRUE;
-    if (!::stricmpf(pnlsTemp->QueryPch(), ::szWindirAlias))
-    {
+    if (!::stricmpf(pnlsTemp->QueryPch(), ::szWindirAlias)) {
         UINT cbBuffer = pnlsTemp->QueryAllocSize();
         LPSTR lpBuffer = pnlsTemp->Party();
         UINT cchWindir = ::GetWindowsDirectory(lpBuffer, cbBuffer);
@@ -871,19 +804,15 @@ BOOL ReplaceCommonPath(NLS_STR& nlsDir)
             *lpBuffer = '\0';
 
         pnlsTemp->DonePartying();
-        if (cchWindir >= cbBuffer)
-        {
+        if (cchWindir >= cbBuffer) {
             pnlsTemp->realloc(cchWindir + 1);
-            if (!pnlsTemp->QueryError())
-            {
+            if (!pnlsTemp->QueryError()) {
                 ::GetWindowsDirectory(pnlsTemp->Party(), cchWindir + 1);
                 pnlsTemp->DonePartying();
-            }
-            else
+            } else
                 fSuccess = FALSE;
         }
-        if (fSuccess)
-        {
+        if (fSuccess) {
             nlsDir.ReplSubStr(*pnlsTemp, istrStart, istrEnd);
             fSuccess = !nlsDir.QueryError();
         }
@@ -894,7 +823,7 @@ BOOL ReplaceCommonPath(NLS_STR& nlsDir)
 }
 
 
-void GetSetRegistryPath(HKEY hkeyProfile, RegEntry& re, NLS_STR *pnlsPath, BOOL fSet)
+void GetSetRegistryPath(HKEY hkeyProfile, RegEntry& re, NLS_STR* pnlsPath, BOOL fSet)
 /*
  * GetSetRegistryPath goes to the registry key and value specified by
  * the current reconciliations's RegKey and RegValue settings, and retrieves or sets a path there.
@@ -903,22 +832,18 @@ void GetSetRegistryPath(HKEY hkeyProfile, RegEntry& re, NLS_STR *pnlsPath, BOOL 
     NLS_STR nlsKey;
 
     re.GetValue(::szReconcileRegKey, &nlsKey);
-    if (nlsKey.strlen() > 0)
-    {
+    if (nlsKey.strlen() > 0) {
         NLS_STR nlsValue;
         re.GetValue(::szReconcileRegValue, &nlsValue);
         RegEntry re2(nlsKey, hkeyProfile);
-        if (fSet)
-        {
+        if (fSet) {
             re2.SetValue(nlsValue, pnlsPath->QueryPch());
-            if (!nlsKey.stricmp("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders"))
-            {
+            if (!nlsKey.stricmp("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders")) {
                 nlsKey = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders";
                 RegEntry reShell(nlsKey, hkeyProfile);
                 reShell.SetValue(nlsValue, pnlsPath->QueryPch());
             }
-        }
-        else
+        } else
             re2.GetValue(nlsValue, pnlsPath);
     }
 }
@@ -949,7 +874,7 @@ void CopyFolder(LPBYTE pbSource, LPCSTR pszDest)
 }
 
 
-BOOL ReconcileKey(HKEY hkeySection, LPCSTR lpszSubKey, SYNCSTATE *pSyncState)
+BOOL ReconcileKey(HKEY hkeySection, LPCSTR lpszSubKey, SYNCSTATE* pSyncState)
 /*
  ReconcileKey performs reconciliation for a particular key in the ProfileReconciliation branch of the registry.
  It reads the config parameters for the reconciliation, sets up an appropriate twin in the temporary briefcase, and performs the reconciliation.
@@ -962,14 +887,12 @@ BOOL ReconcileKey(HKEY hkeySection, LPCSTR lpszSubKey, SYNCSTATE *pSyncState)
     BOOL fShouldDelete = FALSE;
 
     RegEntry re(lpszSubKey, hkeySection);
-    if (re.GetError() == ERROR_SUCCESS)
-    {
+    if (re.GetError() == ERROR_SUCCESS) {
         BUFFER bufSrcStrings(MAX_PATH);
         NLS_STR nlsSrcPath(MAX_PATH);
         NLS_STR nlsDestPath(MAX_PATH);
         NLS_STR nlsName(MAX_PATH);
-        if (bufSrcStrings.QueryPtr() != NULL && nlsSrcPath.QueryError() == ERROR_SUCCESS && nlsDestPath.QueryError() == ERROR_SUCCESS && nlsName.QueryError() == ERROR_SUCCESS)
-        {
+        if (bufSrcStrings.QueryPtr() != NULL && nlsSrcPath.QueryError() == ERROR_SUCCESS && nlsDestPath.QueryError() == ERROR_SUCCESS && nlsName.QueryError() == ERROR_SUCCESS) {
             /* Get the source path to copy.  Usually it's in the profile,
              * left over from the profile we cloned.  If not, we take the
              * default local name from the ProfileReconciliation key.  If
@@ -977,19 +900,15 @@ BOOL ReconcileKey(HKEY hkeySection, LPCSTR lpszSubKey, SYNCSTATE *pSyncState)
              * profile directory, then it's probably set by system policies
              * or something, and we shouldn't touch it.
              */
-            if (pSyncState->pnlsOtherProfilePath != NULL)
-            {
+            if (pSyncState->pnlsOtherProfilePath != NULL) {
                 GetSetRegistryPath(pSyncState->hkeyProfile, re, &nlsSrcPath, FALSE);
-                if (nlsSrcPath.strlen() && !PrefixMatch(nlsSrcPath.QueryPch(), pSyncState->pnlsOtherProfilePath->QueryPch()))
-                {
+                if (nlsSrcPath.strlen() && !PrefixMatch(nlsSrcPath.QueryPch(), pSyncState->pnlsOtherProfilePath->QueryPch())) {
                     return FALSE;   /* not profile-relative, nothing to do */
                 }
             }
-            if (!nlsSrcPath.strlen())
-            {
+            if (!nlsSrcPath.strlen()) {
                 re.GetValue(::szDefaultDir, &nlsSrcPath);
-                if (*nlsSrcPath.QueryPch() == '*')
-                {
+                if (*nlsSrcPath.QueryPch() == '*') {
                     ReplaceCommonPath(nlsSrcPath);
                 }
             }
@@ -1002,10 +921,8 @@ BOOL ReconcileKey(HKEY hkeySection, LPCSTR lpszSubKey, SYNCSTATE *pSyncState)
              * path, we change any pattern containing wildcards to *.*.
              */
             re.GetValue(::szReconcileName, &nlsName);
-            if (nlsName.strlen())
-            {
-                if (::strchrf(nlsName.QueryPch(), '*') != NULL || ::strchrf(nlsName.QueryPch(), '?') != NULL)
-                {
+            if (nlsName.strlen()) {
+                if (::strchrf(nlsName.QueryPch(), '*') != NULL || ::strchrf(nlsName.QueryPch(), '?') != NULL) {
                     nlsName = "*.*";
                 }
             }
@@ -1029,8 +946,7 @@ BOOL ReconcileKey(HKEY hkeySection, LPCSTR lpszSubKey, SYNCSTATE *pSyncState)
              * error messages from the shell copy engine.
              */
             DWORD dwAttr = GetFileAttributes(nlsSrcPath.QueryPch());
-            if (dwAttr != 0xffffffff && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) && nlsName.strlen())
-            {
+            if (dwAttr != 0xffffffff && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) && nlsName.strlen()) {
                 AddBackslash(nlsSrcPath);
 
                 /* Build up the double-null-terminated list of file specs to copy. */
@@ -1038,17 +954,14 @@ BOOL ReconcileKey(HKEY hkeySection, LPCSTR lpszSubKey, SYNCSTATE *pSyncState)
                 UINT cbUsed = 0;
 
                 LPSTR lpName = nlsName.Party();
-                do
-                {
+                do {
                     LPSTR lpNext = ::strchrf(lpName, ',');
-                    if (lpNext != NULL)
-                    {
+                    if (lpNext != NULL) {
                         *(lpNext++) = '\0';
                     }
 
                     UINT cbNeeded = nlsSrcPath.strlen() + ::strlenf(lpName) + 1;
-                    if (bufSrcStrings.QuerySize() - cbUsed < cbNeeded)
-                    {
+                    if (bufSrcStrings.QuerySize() - cbUsed < cbNeeded) {
                         if (!bufSrcStrings.Resize(bufSrcStrings.QuerySize() + MAX_PATH))
                             return FALSE;
                     }
@@ -1104,19 +1017,17 @@ DWORD GetMaxSubkeyLength(HKEY hKey)
 }
 
 
-void ReconcileSection(HKEY hkeyRoot, SYNCSTATE *pSyncState)
+void ReconcileSection(HKEY hkeyRoot, SYNCSTATE* pSyncState)
 /*
  * ReconcileSection walks through the ProfileReconciliation key and performs
  * reconciliation for each subkey.  One-time keys are deleted after they are processed.
  */
 {
     NLS_STR nlsKeyName(GetMaxSubkeyLength(hkeyRoot));
-    if (!nlsKeyName.QueryError())
-    {
+    if (!nlsKeyName.QueryError()) {
         DWORD iKey = 0;
 
-        for (;;)
-        {
+        for (;;) {
             DWORD cchKey = nlsKeyName.QueryAllocSize();
 
             UINT err = ::RegEnumKey(hkeyRoot, iKey, nlsKeyName.Party(), cchKey);
@@ -1124,11 +1035,9 @@ void ReconcileSection(HKEY hkeyRoot, SYNCSTATE *pSyncState)
                 break;
 
             nlsKeyName.DonePartying();
-            if (ReconcileKey(hkeyRoot, nlsKeyName, pSyncState))
-            {
+            if (ReconcileKey(hkeyRoot, nlsKeyName, pSyncState)) {
                 ::RegDeleteKey(hkeyRoot, nlsKeyName.QueryPch());
-            }
-            else
+            } else
                 iKey++;
         }
     }
@@ -1148,19 +1057,16 @@ HRESULT ReconcileFiles(HKEY hkeyProfile, NLS_STR& nlsProfilePath, NLS_STR& nlsOt
     if (FAILED(hres))
         return hres;
 
-    if (nlsOtherProfilePath.strlen())
-    {
+    if (nlsOtherProfilePath.strlen()) {
         ISTR istrBackslash(nlsOtherProfilePath);
-        if (nlsOtherProfilePath.strrchr(&istrBackslash, '\\'))
-        {
+        if (nlsOtherProfilePath.strrchr(&istrBackslash, '\\')) {
             ++istrBackslash;
             nlsOtherProfilePath.DelSubStr(istrBackslash);
         }
     }
 
     RegEntry re(::szReconcileRoot, hkeyProfile);
-    if (re.GetError() == ERROR_SUCCESS)
-    {
+    if (re.GetError() == ERROR_SUCCESS) {
         SYNCSTATE s;
         s.hkeyProfile = hkeyProfile;
         s.pnlsProfilePath = &nlsProfilePath;
@@ -1169,12 +1075,10 @@ HRESULT ReconcileFiles(HKEY hkeyProfile, NLS_STR& nlsProfilePath, NLS_STR& nlsOt
 
         RegEntry rePrimary(::szReconcilePrimary, re.GetKey());
         RegEntry reSecondary(::szReconcileSecondary, re.GetKey());
-        if (rePrimary.GetError() == ERROR_SUCCESS)
-        {
+        if (rePrimary.GetError() == ERROR_SUCCESS) {
             ReconcileSection(rePrimary.GetKey(), &s);
 
-            if (reSecondary.GetError() == ERROR_SUCCESS)
-            {
+            if (reSecondary.GetError() == ERROR_SUCCESS) {
                 s.hkeyPrimary = rePrimary.GetKey();
                 ReconcileSection(reSecondary.GetKey(), &s);
             }
@@ -1182,7 +1086,7 @@ HRESULT ReconcileFiles(HKEY hkeyProfile, NLS_STR& nlsProfilePath, NLS_STR& nlsOt
     }
 
     return ERROR_SUCCESS;
-}
+                }
 
 
 HRESULT DefaultReconcileKey(HKEY hkeyProfile, NLS_STR& nlsProfilePath, LPCSTR pszKeyName, BOOL fSecondary)
@@ -1192,8 +1096,7 @@ HRESULT DefaultReconcileKey(HKEY hkeyProfile, NLS_STR& nlsProfilePath, LPCSTR ps
         return hres;
 
     RegEntry re(::szReconcileRoot, hkeyProfile);
-    if (re.GetError() == ERROR_SUCCESS)
-    {
+    if (re.GetError() == ERROR_SUCCESS) {
         SYNCSTATE s;
         s.hkeyProfile = hkeyProfile;
         s.pnlsProfilePath = &nlsProfilePath;
@@ -1201,15 +1104,12 @@ HRESULT DefaultReconcileKey(HKEY hkeyProfile, NLS_STR& nlsProfilePath, LPCSTR ps
         s.hkeyPrimary = NULL;
 
         RegEntry rePrimary(::szReconcilePrimary, re.GetKey());
-        if (rePrimary.GetError() == ERROR_SUCCESS)
-        {
-            if (fSecondary)
-            {
+        if (rePrimary.GetError() == ERROR_SUCCESS) {
+            if (fSecondary) {
                 RegEntry reSecondary(::szReconcileSecondary, re.GetKey());
                 s.hkeyPrimary = rePrimary.GetKey();
                 ReconcileKey(reSecondary.GetKey(), pszKeyName, &s);
-            }
-            else
+            } else
                 ReconcileKey(rePrimary.GetKey(), pszKeyName, &s);
         }
     }
@@ -1263,42 +1163,32 @@ HRESULT DeleteProfile(LPCSTR pszName)
 
     HRESULT hres;
 
-    if (re.GetError() == ERROR_SUCCESS)
-    {
+    if (re.GetError() == ERROR_SUCCESS) {
         {   /* extra scope for next RegEntry */
             RegEntry reUser(pszName, re.GetKey());
-            if (reUser.GetError() == ERROR_SUCCESS)
-            {
+            if (reUser.GetError() == ERROR_SUCCESS) {
                 NLS_STR nlsPath(MAX_PATH);
-                if (nlsPath.QueryError() == ERROR_SUCCESS)
-                {
+                if (nlsPath.QueryError() == ERROR_SUCCESS) {
                     reUser.GetValue(::szProfileImagePath, &nlsPath);
-                    if (reUser.GetError() == ERROR_SUCCESS)
-                    {
+                    if (reUser.GetError() == ERROR_SUCCESS) {
                         hres = DeleteProfileFiles(nlsPath.QueryPch());
-                    }
-                    else
+                    } else
                         hres = HRESULT_FROM_WIN32(ERROR_NO_SUCH_USER);
-                }
-                else
+                } else
                     hres = HRESULT_FROM_WIN32(nlsPath.QueryError());
-            }
-            else
+            } else
                 hres = HRESULT_FROM_WIN32(ERROR_NO_SUCH_USER);
         }
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             ::RegDeleteKey(re.GetKey(), pszName);
             NLS_STR nlsOEMName(pszName);
-            if (nlsOEMName.QueryError() == ERROR_SUCCESS)
-            {
+            if (nlsOEMName.QueryError() == ERROR_SUCCESS) {
                 nlsOEMName.strupr();
                 nlsOEMName.ToOEM();
                 ::DeletePasswordCache(nlsOEMName.QueryPch());
             }
         }
-    }
-    else
+    } else
         hres = E_UNEXPECTED;
 
     return hres;

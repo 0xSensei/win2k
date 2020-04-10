@@ -15,7 +15,7 @@
 typedef struct _FILEITEMDATA {
     DWORD   dwFlags;
     TCHAR   szPath[1];
-} FILEITEMDATA, FAR * LPFILEITEMDATA;
+} FILEITEMDATA, FAR* LPFILEITEMDATA;
 
 #define FIDFLAG_CANADDNEW      0x00000001
 #define FIDFLAG_CANDEL         0x00000002
@@ -29,45 +29,37 @@ typedef struct _FILEITEMDATA {
 
 int CALLBACK CompareFolderCB(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
-    #define lpfid1  ((LPFILEITEMDATA)lParam1)
-    #define lpfid2  ((LPFILEITEMDATA)lParam2)
-    #define b1IsDir (lpfid1->dwFlags & FIDFLAG_ISFOLDER)
-    #define b2IsDir (lpfid2->dwFlags & FIDFLAG_ISFOLDER)
+#define lpfid1  ((LPFILEITEMDATA)lParam1)
+#define lpfid2  ((LPFILEITEMDATA)lParam2)
+#define b1IsDir (lpfid1->dwFlags & FIDFLAG_ISFOLDER)
+#define b2IsDir (lpfid2->dwFlags & FIDFLAG_ISFOLDER)
 
 
     // Programs folder always goes to top
 
 
-    if (lpfid1->dwFlags & FIDFLAG_ISPROGS)
-    {
+    if (lpfid1->dwFlags & FIDFLAG_ISPROGS) {
         return(-1);
     }
 
-    if (lpfid2->dwFlags & FIDFLAG_ISPROGS)
-    {
+    if (lpfid2->dwFlags & FIDFLAG_ISPROGS) {
         return(1);
     }
 
-    if (b1IsDir == b2IsDir)
-    {
+    if (b1IsDir == b2IsDir) {
         return(lstrcmpi(lpfid1->szPath, lpfid2->szPath));
-    }
-    else
-    {
-        if (b1IsDir)
-        {
+    } else {
+        if (b1IsDir) {
             return(-1);
-        }
-        else
-        {
+        } else {
             return(1);
         }
     }
 
-    #undef  b1IsDir
-    #undef  b2IsDir
-    #undef  lpfid1
-    #undef  lpfid2
+#undef  b1IsDir
+#undef  b2IsDir
+#undef  lpfid1
+#undef  lpfid2
 }
 
 
@@ -97,18 +89,17 @@ void SortFolder(HWND hwndTree, HTREEITEM hParent)
 
 
 HTREEITEM AddItem(HWND hwndTree, LPCTSTR lpszPath,
-                    HTREEITEM hParent, LPITEMIDLIST pidl,
-                    DWORD dwFlags)
+                  HTREEITEM hParent, LPITEMIDLIST pidl,
+                  DWORD dwFlags)
 {
     LPFILEITEMDATA  lpfid = (LPFILEITEMDATA)LocalAlloc(LMEM_FIXED,
-                             sizeof(FILEITEMDATA)+(lstrlen(lpszPath)+1)*sizeof(TCHAR));
+                                                       sizeof(FILEITEMDATA) + (lstrlen(lpszPath) + 1) * sizeof(TCHAR));
     TV_ITEM         tvi;
     TV_INSERTSTRUCT tvis;
     SHFILEINFO      fi;
     HTREEITEM       newhti = NULL;
 
-    if (!lpfid)
-    {
+    if (!lpfid) {
         return(NULL);
     }
 
@@ -124,32 +115,25 @@ HTREEITEM AddItem(HWND hwndTree, LPCTSTR lpszPath,
     //         call-backs to fill in the data
 
 
-    if (pidl)
-    {
+    if (pidl) {
         if (!SHGetFileInfo((LPTSTR)pidl, 0, &fi, sizeof(fi),
-                      SHGFI_ICON | SHGFI_DISPLAYNAME | SHGFI_SMALLICON | SHGFI_PIDL))
-        {
+                           SHGFI_ICON | SHGFI_DISPLAYNAME | SHGFI_SMALLICON | SHGFI_PIDL)) {
             goto CleanUp;
         }
 
         tvi.iImage = tvi.iSelectedImage =
-                  ImageList_AddIcon(TreeView_GetImageList(hwndTree, TVSIL_NORMAL),
-                                    fi.hIcon);
+            ImageList_AddIcon(TreeView_GetImageList(hwndTree, TVSIL_NORMAL),
+                              fi.hIcon);
 
         tvi.pszText = fi.szDisplayName;
 
         DestroyIcon(fi.hIcon);
 
-    }
-    else
-    {
-        if (dwFlags & FIDFLAG_ISFOLDER)
-        {
+    } else {
+        if (dwFlags & FIDFLAG_ISFOLDER) {
             tvi.iImage = tvi.iSelectedImage = 0;
             tvi.pszText = PathFindFileName(lpszPath);
-        }
-        else
-        {
+        } else {
             tvi.iImage = tvi.iSelectedImage = I_IMAGECALLBACK;
             tvi.pszText = LPSTR_TEXTCALLBACK;
         }
@@ -165,8 +149,7 @@ HTREEITEM AddItem(HWND hwndTree, LPCTSTR lpszPath,
     newhti = TreeView_InsertItem(hwndTree, &tvis);
 
 CleanUp:
-    if (!newhti)
-    {
+    if (!newhti) {
         LocalFree((LPVOID)lpfid);
     }
     return(newhti);
@@ -184,30 +167,27 @@ CleanUp:
 
 
 void FillFolder(HWND hwndTree, LPTSTR lpszCurDir, LPTSTR lpszExclude,
-                    HTREEITEM hParent, DWORD dwFlags)
+                HTREEITEM hParent, DWORD dwFlags)
 {
     int     iStrTerm = lstrlen(lpszCurDir);
     WIN32_FIND_DATA fd;
     HANDLE  hfind;
     HTREEITEM hNewItem = NULL;
-    #define bAddFiles (dwFlags & FFF_AddFiles)
-    #define bAddDirs  (dwFlags & FFF_AddDirs)
+#define bAddFiles (dwFlags & FFF_AddFiles)
+#define bAddDirs  (dwFlags & FFF_AddDirs)
 
     lstrcat(lpszCurDir, TEXT("\\*.*"));
 
     hfind = FindFirstFile(lpszCurDir, &fd);
 
-    if (hfind != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
+    if (hfind != INVALID_HANDLE_VALUE) {
+        do {
             BOOL bIsDir = (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
             if (((bAddFiles && !bIsDir) ||
-                // skip "." and ".." and hidden files
-                (bAddDirs && bIsDir && (fd.cFileName[0] != TEXT('.')))) &&
-                !(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
-            {
+                 // skip "." and ".." and hidden files
+                 (bAddDirs && bIsDir && (fd.cFileName[0] != TEXT('.')))) &&
+                !(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)) {
                 lpszCurDir[iStrTerm] = TEXT('\\');
                 lstrcpy(lpszCurDir + iStrTerm + 1, fd.cFileName);
 
@@ -216,13 +196,11 @@ void FillFolder(HWND hwndTree, LPTSTR lpszCurDir, LPTSTR lpszExclude,
 
 
                 if (!lpszExclude || !bIsDir ||
-                    lstrcmpi(lpszExclude, lpszCurDir) != 0)
-                {
+                    lstrcmpi(lpszExclude, lpszCurDir) != 0) {
                     hNewItem = AddItem(hwndTree, lpszCurDir, hParent, NULL,
-                                        FIDFLAG_CANADDNEW | FIDFLAG_CANDEL |
-                                        (bIsDir ? FIDFLAG_ISFOLDER : 0));
-                    if (bIsDir)
-                    {
+                                       FIDFLAG_CANADDNEW | FIDFLAG_CANDEL |
+                                       (bIsDir ? FIDFLAG_ISFOLDER : 0));
+                    if (bIsDir) {
                         FillFolder(hwndTree, lpszCurDir, NULL,
                                    hNewItem, dwFlags);
                     }
@@ -239,16 +217,14 @@ void FillFolder(HWND hwndTree, LPTSTR lpszCurDir, LPTSTR lpszExclude,
     //  Non-null if any items added to folder.
 
 
-    if (hNewItem)
-    {
+    if (hNewItem) {
         SortFolder(hwndTree, hParent);
-        if (!bAddFiles)
-        {
+        if (!bAddFiles) {
             TreeView_Expand(hwndTree, hParent, TVE_EXPAND);
         }
     }
-    #undef  bAddFiles
-    #undef  bRecurse
+#undef  bAddFiles
+#undef  bRecurse
 }
 
 
@@ -257,19 +233,17 @@ void FillFolder(HWND hwndTree, LPTSTR lpszCurDir, LPTSTR lpszExclude,
 //  item.
 
 
-LPFILEITEMDATA GetCurSel(HWND hwndTree, HTREEITEM FAR * lphtiSel)
+LPFILEITEMDATA GetCurSel(HWND hwndTree, HTREEITEM FAR* lphtiSel)
 {
     TV_ITEM  tvi;
 
     tvi.hItem = TreeView_GetSelection(hwndTree);
 
-    if (lphtiSel)
-    {
+    if (lphtiSel) {
         *lphtiSel = tvi.hItem;
     }
 
-    if (tvi.hItem == NULL)
-    {
+    if (tvi.hItem == NULL) {
         return(NULL);
     }
 
@@ -292,8 +266,7 @@ HTREEITEM AddSpecialFolder(HWND hwndTree, HTREEITEM htiParent, int nFolder,
 
     SHGetSpecialFolderLocation(hwndTree, nFolder, &pidl);
 
-    if (pidl)
-    {
+    if (pidl) {
         SHGetPathFromIDList(pidl, lpszPath);
 
 
@@ -301,8 +274,7 @@ HTREEITEM AddSpecialFolder(HWND hwndTree, HTREEITEM htiParent, int nFolder,
         //  for the magic desktop PIDL.
 
 
-        if (nFolder == CSIDL_DESKTOPDIRECTORY)
-        {
+        if (nFolder == CSIDL_DESKTOPDIRECTORY) {
             SHFree(pidl);
             SHGetSpecialFolderLocation(hwndTree, CSIDL_DESKTOP, &pidl);
         }
@@ -323,15 +295,13 @@ BOOL _inline MakePrgIcon0Index(HWND hwndTree, HIMAGELIST himl)
 
     SHGetSpecialFolderLocation(hwndTree, CSIDL_PROGRAMS, &pidl);
 
-    if (pidl)
-    {
-        fOk = SHGetFileInfo( (LPTSTR) pidl, 0, &fi, sizeof( fi ),
-                              SHGFI_ICON | SHGFI_SMALLICON | SHGFI_PIDL );
+    if (pidl) {
+        fOk = SHGetFileInfo((LPTSTR)pidl, 0, &fi, sizeof(fi),
+                            SHGFI_ICON | SHGFI_SMALLICON | SHGFI_PIDL);
 
-        SHFree( pidl );
+        SHFree(pidl);
 
-        if (fOk)
-        {
+        if (fOk) {
             ImageList_AddIcon(himl, fi.hIcon);
             DestroyIcon(fi.hIcon);
             return(TRUE);
@@ -345,7 +315,7 @@ BOOL _inline MakePrgIcon0Index(HWND hwndTree, HIMAGELIST himl)
 //  Initialize the tree
 
 
-void InitFolderTree( HWND hwndTree, BOOL bAddFiles, HIMAGELIST *phiml )
+void InitFolderTree(HWND hwndTree, BOOL bAddFiles, HIMAGELIST* phiml)
 {
     HCURSOR    hcurOld = SetCursor(LoadCursor(NULL, IDC_WAIT));
     HTREEITEM  htiStart = NULL;
@@ -360,8 +330,7 @@ void InitFolderTree( HWND hwndTree, BOOL bAddFiles, HIMAGELIST *phiml )
     if (phiml)
         *phiml = himl;
 
-    if (!himl)
-    {
+    if (!himl) {
         return;
     }
 
@@ -372,23 +341,19 @@ void InitFolderTree( HWND hwndTree, BOOL bAddFiles, HIMAGELIST *phiml )
     // will also have the same icon.  This saves both memory and time.
 
 
-    if (!MakePrgIcon0Index(hwndTree, himl))
-    {
+    if (!MakePrgIcon0Index(hwndTree, himl)) {
         return;
     }
 
-    if (!bAddFiles)
-    {
+    if (!bAddFiles) {
         AddSpecialFolder(hwndTree, TVI_ROOT, CSIDL_DESKTOPDIRECTORY, szPathStart, 0);
     }
 
     htiStart = AddSpecialFolder(hwndTree, TVI_ROOT, CSIDL_STARTMENU, szPathStart, FIDFLAG_CANADDNEW);
 
-    if (htiStart)
-    {
+    if (htiStart) {
         htiPrgs = AddSpecialFolder(hwndTree, htiStart, CSIDL_PROGRAMS, szPathPrgs, FIDFLAG_CANADDNEW | FIDFLAG_ISPROGS);
-        if (htiPrgs)
-        {
+        if (htiPrgs) {
             FillFolder(hwndTree, szPathPrgs, NULL, htiPrgs,
                        FFF_AddDirs | (bAddFiles ? FFF_AddFiles : 0));
 
@@ -404,11 +369,9 @@ void InitFolderTree( HWND hwndTree, BOOL bAddFiles, HIMAGELIST *phiml )
     // Now select and expand the programs folder.
 
 
-    if (htiPrgs)
-    {
+    if (htiPrgs) {
         TreeView_SelectItem(hwndTree, htiPrgs);
-        if (bAddFiles)
-        {
+        if (bAddFiles) {
             TreeView_Expand(hwndTree, htiPrgs, TVE_EXPAND);
         }
     }
@@ -425,16 +388,12 @@ VOID RemoveSelItem(HWND hDlg, HWND hwndTree)
     HTREEITEM hCur;
     LPFILEITEMDATA lpfid = GetCurSel(hwndTree, &hCur);
 
-    if (!lpfid)
-    {
+    if (!lpfid) {
         ShellMessageBox(hInstance, hDlg, MAKEINTRESOURCE(IDS_NONESEL),
                         0, MB_OK | MB_ICONEXCLAMATION);
-    }
-    else
-    {
-        if (lpfid->dwFlags & FIDFLAG_CANDEL)
-        {
-            TCHAR szFileDblNull[MAX_PATH+1];
+    } else {
+        if (lpfid->dwFlags & FIDFLAG_CANDEL) {
+            TCHAR szFileDblNull[MAX_PATH + 1];
 
             SHFILEOPSTRUCT sFileOp =
             {
@@ -449,19 +408,15 @@ VOID RemoveSelItem(HWND hDlg, HWND hwndTree)
 
             lstrcpy(szFileDblNull, lpfid->szPath);
 
-            szFileDblNull[lstrlen(szFileDblNull)+1] = 0;
+            szFileDblNull[lstrlen(szFileDblNull) + 1] = 0;
 
-            if (!SHFileOperation(&sFileOp))
-            {
-                if (!(sFileOp.fAnyOperationsAborted))
-                {
+            if (!SHFileOperation(&sFileOp)) {
+                if (!(sFileOp.fAnyOperationsAborted)) {
                     TreeView_DeleteItem(hwndTree, hCur);
                 }
             }
 
-        }
-        else
-        {
+        } else {
             ShellMessageBox(hInstance, hDlg, MAKEINTRESOURCE(IDS_CANTDELETE),
                             0, MB_OK | MB_ICONEXCLAMATION, PathFindFileName(lpfid->szPath));
         }
@@ -482,14 +437,11 @@ LPARAM PickFolderNextHit(LPWIZDATA lpwd)
 {
     LPFILEITEMDATA lpfid = GetCurSel(GetDlgItem(lpwd->hwnd, IDC_FOLDERTREE), NULL);
 
-    if (lpfid)
-    {
-        lpwd->lpszFolder = (LPTSTR)&(lpfid->szPath);
+    if (lpfid) {
+        lpwd->lpszFolder = (LPTSTR) & (lpfid->szPath);
         lpwd->szProgDesc[0] = 0;
         return(0);
-    }
-    else
-    {
+    } else {
         return(-1);
     }
 }
@@ -505,8 +457,7 @@ VOID CreateNewFolder(LPWIZDATA lpwd)
     HTREEITEM      hParent;
     LPFILEITEMDATA lpfidParent = GetCurSel(GetDlgItem(lpwd->hwnd, IDC_FOLDERTREE), &hParent);
 
-    if (lpfidParent && (lpfidParent->dwFlags & FIDFLAG_CANADDNEW))
-    {
+    if (lpfidParent && (lpfidParent->dwFlags & FIDFLAG_CANADDNEW)) {
         int   iDirLen = lstrlen(lpfidParent->szPath);
         TCHAR szNewShort[10];
         TCHAR szNewLong[80];
@@ -518,31 +469,25 @@ VOID CreateNewFolder(LPWIZDATA lpwd)
 
         szNewName[iDirLen] = TEXT('\\');
 
-        PathMakeUniqueName(&(szNewName[iDirLen+1]), ARRAYSIZE(szNewName)-iDirLen-1,
+        PathMakeUniqueName(&(szNewName[iDirLen + 1]), ARRAYSIZE(szNewName) - iDirLen - 1,
                            szNewShort, szNewLong, lpfidParent->szPath);
 
-        if (CreateDirectory(szNewName, NULL))
-        {
+        if (CreateDirectory(szNewName, NULL)) {
             HWND    hwndTree = GetDlgItem(lpwd->hwnd, IDC_FOLDERTREE);
             HTREEITEM hNewDude = AddItem(hwndTree, szNewName, hParent, NULL,
-                              FIDFLAG_ISFOLDER | FIDFLAG_CANADDNEW | FIDFLAG_CANDEL);
+                                         FIDFLAG_ISFOLDER | FIDFLAG_CANADDNEW | FIDFLAG_CANDEL);
 
             WIZERRORIF((hNewDude == NULL), TEXT("Unable to add new folder to tree."));
 
-            if (hNewDude)
-            {
+            if (hNewDude) {
                 SortFolder(hwndTree, hParent);
                 TreeView_SelectItem(hwndTree, hNewDude);
                 TreeView_EditLabel(hwndTree, hNewDude);
             }
-        }
-        else
-        {
+        } else {
             WIZERROR(TEXT("Unable to create new directory"));
         }
-    }
-    else
-    {
+    } else {
         WIZERROR(TEXT("No group selected.  Can't create directory."));
     }
 }
@@ -553,15 +498,12 @@ VOID CreateNewFolder(LPWIZDATA lpwd)
 //  TRUE for failure.
 
 
-BOOL BeginEdit(LPWIZDATA lpwd, TV_DISPINFO FAR * lptvdi)
+BOOL BeginEdit(LPWIZDATA lpwd, TV_DISPINFO FAR* lptvdi)
 {
-    if (TreeView_GetParent(lptvdi->hdr.hwndFrom, lptvdi->item.hItem))
-    {
+    if (TreeView_GetParent(lptvdi->hdr.hwndFrom, lptvdi->item.hItem)) {
         lpwd->dwFlags |= WDFLAG_INEDITMODE;
         return(FALSE);
-    }
-    else
-    {
+    } else {
         return(TRUE);
     }
 }
@@ -571,22 +513,20 @@ BOOL BeginEdit(LPWIZDATA lpwd, TV_DISPINFO FAR * lptvdi)
 //  Return FALSE if rename can't happen.  True if it worked.
 
 
-BOOL EndEdit(LPWIZDATA lpwd, TV_DISPINFO FAR * lptvdi)
+BOOL EndEdit(LPWIZDATA lpwd, TV_DISPINFO FAR* lptvdi)
 {
     BOOL bWorked = FALSE;
-    #define lpszNewName (LPTSTR)lptvdi->item.pszText
-    #define lpfidOld ((LPFILEITEMDATA)(lptvdi->item.lParam))
-    #define hCurItem lptvdi->item.hItem;
+#define lpszNewName (LPTSTR)lptvdi->item.pszText
+#define lpfidOld ((LPFILEITEMDATA)(lptvdi->item.lParam))
+#define hCurItem lptvdi->item.hItem;
 
     lpwd->dwFlags &= ~WDFLAG_INEDITMODE;
 
-    if (lpszNewName)
-    {
+    if (lpszNewName) {
         LPFILEITEMDATA lpfidNew = (LPFILEITEMDATA)LocalAlloc(LMEM_FIXED,
-                                   sizeof(LPFILEITEMDATA)+MAX_PATH*sizeof(TCHAR));
+                                                             sizeof(LPFILEITEMDATA) + MAX_PATH * sizeof(TCHAR));
 
-        if (lpfidNew)
-        {
+        if (lpfidNew) {
             lpfidNew->dwFlags = lpfidOld->dwFlags;
 
             lstrcpy(lpfidNew->szPath, lpfidOld->szPath);
@@ -597,17 +537,14 @@ BOOL EndEdit(LPWIZDATA lpwd, TV_DISPINFO FAR * lptvdi)
 
             PathCombine(lpfidNew->szPath, lpfidNew->szPath, lpszNewName);
 
-            if (MoveFile(lpfidOld->szPath, lpfidNew->szPath))
-            {
+            if (MoveFile(lpfidOld->szPath, lpfidNew->szPath)) {
                 TV_ITEM tvi;
                 tvi.hItem = hCurItem;
                 tvi.mask = TVIF_PARAM;
                 tvi.lParam = (LPARAM)lpfidNew;
                 TreeView_SetItem(lptvdi->hdr.hwndFrom, &tvi);
                 bWorked = TRUE;
-            }
-            else
-            {
+            } else {
                 WIZERROR(TEXT("Unable to rename directory"));
             }
             LocalFree(bWorked ? lpfidOld : lpfidNew);
@@ -616,9 +553,9 @@ BOOL EndEdit(LPWIZDATA lpwd, TV_DISPINFO FAR * lptvdi)
 
     return(bWorked);
 
-    #undef lpszNewName
-    #undef lpfidOld
-    #undef hCurItem
+#undef lpszNewName
+#undef lpfidOld
+#undef hCurItem
 }
 
 
@@ -629,8 +566,7 @@ BOOL EndEdit(LPWIZDATA lpwd, TV_DISPINFO FAR * lptvdi)
 void ForceEndEdit(LPWIZDATA lpwd)
 
 {
-    if (lpwd->dwFlags & WDFLAG_INEDITMODE)
-    {
+    if (lpwd->dwFlags & WDFLAG_INEDITMODE) {
         TreeView_EndEditLabelNow(GetDlgItem(lpwd->hwnd, IDC_FOLDERTREE), FALSE);
     }
 }
@@ -640,140 +576,130 @@ void ForceEndEdit(LPWIZDATA lpwd)
 //  Main dialog procedure for tree of folders
 
 
-BOOL CALLBACK PickFolderDlgProc(HWND hDlg, UINT message , WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK PickFolderDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    NMHDR FAR *lpnm;
+    NMHDR FAR* lpnm;
     LPPROPSHEETPAGE lpp = (LPPROPSHEETPAGE)(GetWindowLong(hDlg, DWL_USER));
     LPWIZDATA lpwd = lpp ? (LPWIZDATA)lpp->lParam : NULL;
 
-    switch(message)
-    {
-        case WM_NOTIFY:
-            lpnm = (NMHDR FAR *)lParam;
-            switch(lpnm->code)
-            {
-                case PSN_SETACTIVE:
-                    if (lpwd->dwFlags & WDFLAG_LINKHEREWIZ)
-                    {
-                        SetDlgMsgResult(hDlg, WM_NOTIFY, -1);
-                    }
-                    else
-                    {
-                        lpwd->hwnd = hDlg;
-                        PropSheet_SetWizButtons(GetParent(hDlg),
-                                                (lpwd->dwFlags & WDFLAG_NOBROWSEPAGE) ?
-                                                  PSWIZB_NEXT : PSWIZB_BACK | PSWIZB_NEXT);
+    switch (message) {
+    case WM_NOTIFY:
+        lpnm = (NMHDR FAR*)lParam;
+        switch (lpnm->code) {
+        case PSN_SETACTIVE:
+            if (lpwd->dwFlags & WDFLAG_LINKHEREWIZ) {
+                SetDlgMsgResult(hDlg, WM_NOTIFY, -1);
+            } else {
+                lpwd->hwnd = hDlg;
+                PropSheet_SetWizButtons(GetParent(hDlg),
+                                        (lpwd->dwFlags & WDFLAG_NOBROWSEPAGE) ?
+                                        PSWIZB_NEXT : PSWIZB_BACK | PSWIZB_NEXT);
 
-                        PostMessage(hDlg, WMPRIV_POKEFOCUS, 0, 0);
-                    }
-                    break;
-
-                case PSN_WIZBACK:
-                    ForceEndEdit(lpwd);
-                    SetDlgMsgResult(hDlg, WM_NOTIFY, 0);
-                    break;
-
-                case PSN_WIZNEXT:
-                    ForceEndEdit(lpwd);
-                    SetDlgMsgResult(hDlg, WM_NOTIFY, PickFolderNextHit(lpwd));
-                    break;
-
-                case PSN_RESET:
-                    CleanUpWizData(lpwd);
-                    break;
-
-                case NM_DBLCLK:
-                    PropSheet_PressButton(GetParent(hDlg), PSBTN_NEXT);
-                    break;
-
-                #define lpfidNew ((LPFILEITEMDATA)(((LPNM_TREEVIEW)lParam)->itemNew.lParam))
-
-                case TVN_SELCHANGED:
-                    Button_Enable(GetDlgItem(hDlg, IDC_NEWFOLDER),
-                                  (lpfidNew->dwFlags & FIDFLAG_CANADDNEW));
-                    break;
-                #undef lpfidNew
-
-                #define lptvdi ((TV_DISPINFO FAR *)lParam)
-
-                case TVN_BEGINLABELEDIT:
-                    SetDlgMsgResult(hDlg, WM_NOTIFY, BeginEdit(lpwd, lptvdi));
-                    break;
-
-                case TVN_ENDLABELEDIT:
-                    SetDlgMsgResult(hDlg, WM_NOTIFY, EndEdit(lpwd, lptvdi));
-                    break;
-                #undef lptvdi
-
-                #define lptvn ((LPNM_TREEVIEW)lParam)
-
-                case TVN_ITEMEXPANDING:
-                    if (lptvn->action != TVE_EXPAND)
-                    {
-                        SetDlgMsgResult(hDlg, WM_NOTIFY, -1);
-                    }
-                    break;
-
-                case TVN_DELETEITEM:
-                    if (lptvn->itemOld.lParam)
-                    {
-                        LocalFree((LPVOID)lptvn->itemOld.lParam);
-                    }
-                    break;
-                #undef lptvn
-
-                default:
-                    return FALSE;
+                PostMessage(hDlg, WMPRIV_POKEFOCUS, 0, 0);
             }
             break;
 
-        case WM_INITDIALOG:
-            lpwd = InitWizSheet(hDlg, lParam, 0);
-            lpwd->himl = NULL;
+        case PSN_WIZBACK:
+            ForceEndEdit(lpwd);
+            SetDlgMsgResult(hDlg, WM_NOTIFY, 0);
+            break;
 
-            if( !( lpwd->dwFlags & WDFLAG_LINKHEREWIZ ) )
-            {
-                InitFolderTree( GetDlgItem( hDlg, IDC_FOLDERTREE ),
-                                FALSE, &lpwd->himl );
+        case PSN_WIZNEXT:
+            ForceEndEdit(lpwd);
+            SetDlgMsgResult(hDlg, WM_NOTIFY, PickFolderNextHit(lpwd));
+            break;
+
+        case PSN_RESET:
+            CleanUpWizData(lpwd);
+            break;
+
+        case NM_DBLCLK:
+            PropSheet_PressButton(GetParent(hDlg), PSBTN_NEXT);
+            break;
+
+#define lpfidNew ((LPFILEITEMDATA)(((LPNM_TREEVIEW)lParam)->itemNew.lParam))
+
+        case TVN_SELCHANGED:
+            Button_Enable(GetDlgItem(hDlg, IDC_NEWFOLDER),
+                          (lpfidNew->dwFlags & FIDFLAG_CANADDNEW));
+            break;
+#undef lpfidNew
+
+#define lptvdi ((TV_DISPINFO FAR *)lParam)
+
+        case TVN_BEGINLABELEDIT:
+            SetDlgMsgResult(hDlg, WM_NOTIFY, BeginEdit(lpwd, lptvdi));
+            break;
+
+        case TVN_ENDLABELEDIT:
+            SetDlgMsgResult(hDlg, WM_NOTIFY, EndEdit(lpwd, lptvdi));
+            break;
+#undef lptvdi
+
+#define lptvn ((LPNM_TREEVIEW)lParam)
+
+        case TVN_ITEMEXPANDING:
+            if (lptvn->action != TVE_EXPAND) {
+                SetDlgMsgResult(hDlg, WM_NOTIFY, -1);
             }
             break;
 
-
-        case WM_NCDESTROY:
-
-            //  See if we should destroy the himl...
-
-
-            if (lpwd->himl)
-            {
-                ImageList_Destroy(lpwd->himl);
-                lpwd->himl = NULL;  // make sure not twice
+        case TVN_DELETEITEM:
+            if (lptvn->itemOld.lParam) {
+                LocalFree((LPVOID)lptvn->itemOld.lParam);
             }
-            return FALSE;
-
-
-        case WMPRIV_POKEFOCUS:
-            SetFocus(GetDlgItem(hDlg, IDC_FOLDERTREE));
             break;
-
-        case WM_COMMAND:
-            switch (GET_WM_COMMAND_ID(wParam, lParam))
-            {
-                case IDC_NEWFOLDER:
-                    CreateNewFolder(lpwd);
-                    break;
-
-             //   case IDC_DELFOLDER:
-             //   {
-             //       HWND    hTree = GetDlgItem(hDlg, IDC_FOLDERTREE);
-             //       RemoveSelItem(hDlg, hTree);
-             //       SetFocus(hTree);
-             //       break;
-             //   }
-            }
+#undef lptvn
 
         default:
             return FALSE;
+        }
+        break;
+
+    case WM_INITDIALOG:
+        lpwd = InitWizSheet(hDlg, lParam, 0);
+        lpwd->himl = NULL;
+
+        if (!(lpwd->dwFlags & WDFLAG_LINKHEREWIZ)) {
+            InitFolderTree(GetDlgItem(hDlg, IDC_FOLDERTREE),
+                           FALSE, &lpwd->himl);
+        }
+        break;
+
+
+    case WM_NCDESTROY:
+
+        //  See if we should destroy the himl...
+
+
+        if (lpwd->himl) {
+            ImageList_Destroy(lpwd->himl);
+            lpwd->himl = NULL;  // make sure not twice
+        }
+        return FALSE;
+
+
+    case WMPRIV_POKEFOCUS:
+        SetFocus(GetDlgItem(hDlg, IDC_FOLDERTREE));
+        break;
+
+    case WM_COMMAND:
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
+        case IDC_NEWFOLDER:
+            CreateNewFolder(lpwd);
+            break;
+
+            //   case IDC_DELFOLDER:
+            //   {
+            //       HWND    hTree = GetDlgItem(hDlg, IDC_FOLDERTREE);
+            //       RemoveSelItem(hDlg, hTree);
+            //       SetFocus(hTree);
+            //       break;
+            //   }
+        }
+
+    default:
+        return FALSE;
 
     }
     return TRUE;
@@ -789,7 +715,7 @@ typedef struct _FOLDERTHREADINFO {
     HANDLE     hThread;
     HWND       hwndTree;
     HIMAGELIST himl;
-} FOLDERTHREADINFO, FAR * PFOLDERTHREADINFO;
+} FOLDERTHREADINFO, FAR* PFOLDERTHREADINFO;
 
 
 void CALLBACK FolderEnumItems(PFOLDERTHREADINFO pfti, HTREEITEM hParent)
@@ -797,10 +723,9 @@ void CALLBACK FolderEnumItems(PFOLDERTHREADINFO pfti, HTREEITEM hParent)
     HTREEITEM hitem;
 
     hitem = hParent;
-    while (hitem && pfti->hThread)
-    {
+    while (hitem && pfti->hThread) {
         TV_ITEM tvi;
-        tvi.mask  = TVIF_IMAGE;
+        tvi.mask = TVIF_IMAGE;
         tvi.hItem = hitem;
         TreeView_GetItem(pfti->hwndTree, &tvi);
         hitem = TreeView_GetNextSibling(pfti->hwndTree, hitem);
@@ -808,8 +733,7 @@ void CALLBACK FolderEnumItems(PFOLDERTHREADINFO pfti, HTREEITEM hParent)
 
     hitem = TreeView_GetChild(pfti->hwndTree, hParent);
 
-    while (hitem && pfti->hThread)
-    {
+    while (hitem && pfti->hThread) {
         FolderEnumItems(pfti, hitem);
         hitem = TreeView_GetNextSibling(pfti->hwndTree, hitem);
     }
@@ -839,26 +763,25 @@ VOID CreateFolderThread(PFOLDERTHREADINFO pfti)
     DWORD idThread;
 
     if (pfti->hThread)
-            return;
+        return;
 
     pfti->hThread = CreateThread(NULL, 0, FolderThread, pfti, 0, &idThread);
-    if(pfti->hThread)
-            SetThreadPriority(pfti->hThread, THREAD_PRIORITY_BELOW_NORMAL);
+    if (pfti->hThread)
+        SetThreadPriority(pfti->hThread, THREAD_PRIORITY_BELOW_NORMAL);
 }
 
 
-void FillInItem(TV_DISPINFO FAR * lptvdi)
+void FillInItem(TV_DISPINFO FAR* lptvdi)
 {
     SHFILEINFO        fi;
 
-    #define lpfid ((LPFILEITEMDATA)(lptvdi->item.lParam))
+#define lpfid ((LPFILEITEMDATA)(lptvdi->item.lParam))
 
     if (SHGetFileInfo(lpfid->szPath, 0, &fi, sizeof(fi),
-                      SHGFI_ICON | SHGFI_DISPLAYNAME | SHGFI_SMALLICON))
-    {
+                      SHGFI_ICON | SHGFI_DISPLAYNAME | SHGFI_SMALLICON)) {
         lptvdi->item.iImage = lptvdi->item.iSelectedImage =
-                  ImageList_AddIcon(TreeView_GetImageList(lptvdi->hdr.hwndFrom, TVSIL_NORMAL),
-                                    fi.hIcon);
+            ImageList_AddIcon(TreeView_GetImageList(lptvdi->hdr.hwndFrom, TVSIL_NORMAL),
+                              fi.hIcon);
 
         lptvdi->item.pszText = fi.szDisplayName;
 
@@ -871,37 +794,33 @@ void FillInItem(TV_DISPINFO FAR * lptvdi)
 }
 
 
-void _inline WaitForThreadDeath(HWND hDlg, HANDLE FAR * phThread)
+void _inline WaitForThreadDeath(HWND hDlg, HANDLE FAR* phThread)
 {
     HANDLE hThread = *phThread;
     MSG msg;
 
-    if (hThread)
-    {
+    if (hThread) {
         *phThread = 0;
 
-        while(TRUE)
-        {
+        while (TRUE) {
             DWORD result = MsgWaitForMultipleObjects(1, &hThread, FALSE, 5000, QS_SENDMESSAGE);
 
-            switch (result)
-            {
+            switch (result) {
             case WAIT_OBJECT_0:
             case WAIT_FAILED:
                 return;
 
             case WAIT_TIMEOUT:
-                #ifdef DEBUG
+#ifdef DEBUG
                 ShellMessageBox(hInstance, hDlg, TEXT("Forced to terminate background thread"), 0, MB_OK | MB_ICONEXCLAMATION);
-                #endif
+#endif
 
                 TerminateThread(hThread, 0);
 
                 return;
 
             case WAIT_OBJECT_0 + 1:
-                while (PeekMessage(&msg, hDlg, TVN_FIRST, TVN_LAST, PM_REMOVE))
-                {
+                while (PeekMessage(&msg, hDlg, TVN_FIRST, TVN_LAST, PM_REMOVE)) {
                     DispatchMessage(&msg);
                 }
                 break;
@@ -923,120 +842,106 @@ const static DWORD aDelItemHelpIDs[] = {  // Context Help IDs
     0, 0
 };
 
-BOOL CALLBACK DelItemDlgProc(HWND hDlg, UINT message , WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK DelItemDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     PFOLDERTHREADINFO pfti = (PFOLDERTHREADINFO)GetWindowLong(hDlg, DWL_USER);
 
-    switch(message)
-    {
-        case WM_NOTIFY:
-            #define lpnm ((NMHDR FAR *)lParam)
+    switch (message) {
+    case WM_NOTIFY:
+#define lpnm ((NMHDR FAR *)lParam)
 
-            switch(lpnm->code)
-            {
-                #define lpfidNew ((LPFILEITEMDATA)(((LPNM_TREEVIEW)lParam)->itemNew.lParam))
+        switch (lpnm->code) {
+#define lpfidNew ((LPFILEITEMDATA)(((LPNM_TREEVIEW)lParam)->itemNew.lParam))
 
-                case TVN_SELCHANGED:
-                {
-                    BOOL fCanDel = (lpfidNew->dwFlags & FIDFLAG_CANDEL);
-                    HWND hwndDelItem = GetDlgItem(hDlg, IDC_DELETEITEM);
+        case TVN_SELCHANGED:
+        {
+            BOOL fCanDel = (lpfidNew->dwFlags & FIDFLAG_CANDEL);
+            HWND hwndDelItem = GetDlgItem(hDlg, IDC_DELETEITEM);
 
-                    if ((!fCanDel) && (GetFocus() == hwndDelItem))
-                    {
-                        SetFocus(GetDlgItem(hDlg, IDOK));
-                        SendMessage(hDlg, DM_SETDEFID, IDOK, 0);
-                    }
-                    Button_Enable(hwndDelItem, fCanDel);
-                    break;
-                }
+            if ((!fCanDel) && (GetFocus() == hwndDelItem)) {
+                SetFocus(GetDlgItem(hDlg, IDOK));
+                SendMessage(hDlg, DM_SETDEFID, IDOK, 0);
+            }
+            Button_Enable(hwndDelItem, fCanDel);
+            break;
+        }
 
-                #undef lpfidNew
+#undef lpfidNew
 
-                #define lptvn ((LPNM_TREEVIEW)lParam)
+#define lptvn ((LPNM_TREEVIEW)lParam)
 
-                case TVN_DELETEITEM:
-                    if (lptvn->itemOld.lParam)
-                    {
-                        LocalFree((LPVOID)lptvn->itemOld.lParam);
-                    }
-                    break;
-
-                #undef lptvn
-
-                #define lptkd ((TV_KEYDOWN FAR *)lParam)
-
-                case TVN_KEYDOWN:
-                    if (lptkd->wVKey == VK_DELETE)
-                    {
-                        WaitForThreadDeath(hDlg, &(pfti->hThread));
-                        RemoveSelItem(hDlg, GetDlgItem(hDlg, IDC_FOLDERTREE));
-                        CreateFolderThread(pfti);
-                        return TRUE;
-                    }
-                    break;
-
-                #undef lptkd
-
-                case TVN_GETDISPINFO:
-                    FillInItem(((TV_DISPINFO FAR *)lParam));
-                    break;
-
-                default:
-                    return FALSE;
-
-            #undef lpnm
+        case TVN_DELETEITEM:
+            if (lptvn->itemOld.lParam) {
+                LocalFree((LPVOID)lptvn->itemOld.lParam);
             }
             break;
 
-        case WM_INITDIALOG:
+#undef lptvn
 
-            SetWindowLong(hDlg, DWL_USER, lParam);
+#define lptkd ((TV_KEYDOWN FAR *)lParam)
 
-            pfti = (PFOLDERTHREADINFO)lParam;
-
-            InitFolderTree(GetDlgItem(hDlg, IDC_FOLDERTREE), TRUE, &pfti->himl);
-
-            pfti->hwndTree = GetDlgItem(hDlg, IDC_FOLDERTREE);
-            pfti->hThread = 0;
-
-            CreateFolderThread(pfti);
-            break;
-
-        case WM_HELP:
-            WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL,
-                HELP_WM_HELP, (DWORD)(LPTSTR) aDelItemHelpIDs);
-            break;
-
-        case WM_CONTEXTMENU:
-            WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU,
-                (DWORD)(LPVOID) aDelItemHelpIDs);
-            break;
-
-        case WM_COMMAND:
-            switch (GET_WM_COMMAND_ID(wParam, lParam))
-            {
-                case IDOK:
-                case IDCANCEL:
-                    WaitForThreadDeath(hDlg, &(pfti->hThread));
-                    EndDialog(hDlg, GET_WM_COMMAND_ID(wParam, lParam));
-                    break;
-
-                case IDC_DELETEITEM:
-                    WaitForThreadDeath(hDlg, &(pfti->hThread));
-                    RemoveSelItem(hDlg, GetDlgItem(hDlg, IDC_FOLDERTREE));
-                    CreateFolderThread(pfti);
-                    break;
+        case TVN_KEYDOWN:
+            if (lptkd->wVKey == VK_DELETE) {
+                WaitForThreadDeath(hDlg, &(pfti->hThread));
+                RemoveSelItem(hDlg, GetDlgItem(hDlg, IDC_FOLDERTREE));
+                CreateFolderThread(pfti);
+                return TRUE;
             }
+            break;
 
+#undef lptkd
+
+        case TVN_GETDISPINFO:
+            FillInItem(((TV_DISPINFO FAR*)lParam));
+            break;
         default:
             return FALSE;
 
+#undef lpnm
+        }
+        break;
+    case WM_INITDIALOG:
+        SetWindowLong(hDlg, DWL_USER, lParam);
+
+        pfti = (PFOLDERTHREADINFO)lParam;
+
+        InitFolderTree(GetDlgItem(hDlg, IDC_FOLDERTREE), TRUE, &pfti->himl);
+
+        pfti->hwndTree = GetDlgItem(hDlg, IDC_FOLDERTREE);
+        pfti->hThread = 0;
+
+        CreateFolderThread(pfti);
+        break;
+    case WM_HELP:
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, NULL,
+                HELP_WM_HELP, (DWORD)(LPTSTR)aDelItemHelpIDs);
+        break;
+    case WM_CONTEXTMENU:
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU,
+                (DWORD)(LPVOID)aDelItemHelpIDs);
+        break;
+    case WM_COMMAND:
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
+        case IDOK:
+        case IDCANCEL:
+            WaitForThreadDeath(hDlg, &(pfti->hThread));
+            EndDialog(hDlg, GET_WM_COMMAND_ID(wParam, lParam));
+            break;
+        case IDC_DELETEITEM:
+            WaitForThreadDeath(hDlg, &(pfti->hThread));
+            RemoveSelItem(hDlg, GetDlgItem(hDlg, IDC_FOLDERTREE));
+            CreateFolderThread(pfti);
+            break;
+        }
+    default:
+        return FALSE;
     }
+
     return TRUE;
 }
 
 
-BOOL RemoveItemsDialog( HWND hParent )
+BOOL RemoveItemsDialog(HWND hParent)
 {
     BOOL fReturn;
 
@@ -1044,11 +949,11 @@ BOOL RemoveItemsDialog( HWND hParent )
 
     fti.himl = NULL;    // incase we can not create the window
 
-    fReturn = DialogBoxParam( hInstance, MAKEINTRESOURCE( DLG_DELITEM ),
-                              hParent, DelItemDlgProc, (LPARAM) &fti );
+    fReturn = DialogBoxParam(hInstance, MAKEINTRESOURCE(DLG_DELITEM),
+                             hParent, DelItemDlgProc, (LPARAM)&fti);
 
-    if( fti.himl )
-        ImageList_Destroy( fti.himl );
+    if (fti.himl)
+        ImageList_Destroy(fti.himl);
 
     return fReturn;
 }

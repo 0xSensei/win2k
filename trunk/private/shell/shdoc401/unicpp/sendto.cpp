@@ -41,34 +41,34 @@
 class CSendToMenu : public IContextMenu3, IShellExtInit
 {
     // IUnknown
-    STDMETHOD(QueryInterface)(REFIID riid, void **ppvObj);
-    STDMETHOD_(ULONG,AddRef)(void);
-    STDMETHOD_(ULONG,Release)(void);
+    STDMETHOD(QueryInterface)(REFIID riid, void** ppvObj);
+    STDMETHOD_(ULONG, AddRef)(void);
+    STDMETHOD_(ULONG, Release)(void);
 
     // IContextMenu
     STDMETHOD(QueryContextMenu)(HMENU hmenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags);
     STDMETHOD(InvokeCommand)(LPCMINVOKECOMMANDINFO lpici);
-    STDMETHOD(GetCommandString)(UINT idCmd, UINT uType, UINT *pRes, LPSTR pszName, UINT cchMax);
+    STDMETHOD(GetCommandString)(UINT idCmd, UINT uType, UINT* pRes, LPSTR pszName, UINT cchMax);
 
     // IContextMenu2
     STDMETHOD(HandleMenuMsg)(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     // IContextMenu3
-    STDMETHOD(HandleMenuMsg2)(UINT uMsg, WPARAM wParam, LPARAM lParam,LRESULT *lResult);
+    STDMETHOD(HandleMenuMsg2)(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* lResult);
 
     // IShellExtInit
-    STDMETHOD(Initialize)(LPCITEMIDLIST pidlFolder, IDataObject *pdtobj, HKEY hkeyProgID);
+    STDMETHOD(Initialize)(LPCITEMIDLIST pidlFolder, IDataObject* pdtobj, HKEY hkeyProgID);
 
     UINT    _cRef;
     HMENU   _hmenu;
     UINT    _idCmdFirst;
     // UINT    _idCmdLast;
     BOOL    _bFirstTime;
-    IDataObject *_pdtobj;
+    IDataObject* _pdtobj;
     CSendToMenu();
     ~CSendToMenu();
 
-    friend HRESULT CSendToMenu_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppvOut);
+    friend HRESULT CSendToMenu_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppvOut);
 };
 
 CSendToMenu::CSendToMenu() : _cRef(1)
@@ -89,13 +89,12 @@ CSendToMenu::~CSendToMenu()
     DllRelease();
 }
 
-HRESULT CSendToMenu_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppvOut)
+HRESULT CSendToMenu_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppvOut)
 {
     // aggregation checking is handled in class factory
 
-    CSendToMenu * psendto = new CSendToMenu();
-    if (psendto)
-    {
+    CSendToMenu* psendto = new CSendToMenu();
+    if (psendto) {
         HRESULT hres = psendto->QueryInterface(riid, ppvOut);
         psendto->Release();
         return hres;
@@ -104,21 +103,16 @@ HRESULT CSendToMenu_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppvO
     return E_OUTOFMEMORY;
 }
 
-HRESULT CSendToMenu::QueryInterface(REFIID riid, void **ppvObj)
+HRESULT CSendToMenu::QueryInterface(REFIID riid, void** ppvObj)
 {
     if (IsEqualIID(riid, IID_IUnknown) ||
         IsEqualIID(riid, IID_IContextMenu) ||
         IsEqualIID(riid, IID_IContextMenu2) ||
-        IsEqualIID(riid, IID_IContextMenu3))
-    {
-        *ppvObj = SAFECAST(this, IContextMenu3 *);
-    }
-    else if (IsEqualIID(riid, IID_IShellExtInit))
-    {
-        *ppvObj = SAFECAST(this, IShellExtInit *);
-    }
-    else
-    {
+        IsEqualIID(riid, IID_IContextMenu3)) {
+        *ppvObj = SAFECAST(this, IContextMenu3*);
+    } else if (IsEqualIID(riid, IID_IShellExtInit)) {
+        *ppvObj = SAFECAST(this, IShellExtInit*);
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -156,8 +150,7 @@ HRESULT CSendToMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT idCmdFir
     UINT idMax = idCmdFirst;
 
     _hmenu = CreatePopupMenu();
-    if (_hmenu)
-    {
+    if (_hmenu) {
         TCHAR szSendLinkTo[80];
         TCHAR szSendPageTo[80];
         MENUITEMINFO mii;
@@ -173,8 +166,7 @@ HRESULT CSendToMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT idCmdFir
         mii.dwTypeData = szSendLinkTo;
         mii.wID = idCmdFirst + 1;
 
-        if (InsertMenuItem(_hmenu, 0, TRUE, &mii))
-        {
+        if (InsertMenuItem(_hmenu, 0, TRUE, &mii)) {
             _idCmdFirst = idCmdFirst + 1;   // remember this for later
             // _idCmdLast  = idCmdLast;    //
 
@@ -185,15 +177,12 @@ HRESULT CSendToMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT idCmdFir
             mii.fMask = MIIM_TYPE | MIIM_SUBMENU | MIIM_ID;
             mii.hSubMenu = _hmenu;
 
-            if (InsertMenuItem(hmenu, indexMenu, TRUE, &mii))
-            {
+            if (InsertMenuItem(hmenu, indexMenu, TRUE, &mii)) {
                 idMax += 0x40;      // reserve space for this many items
                 _bFirstTime = TRUE; // fill this at WM_INITMENUPOPUP time
 
                 //                InsertMenu(hmenu, indexMenu + 1, MF_BYPOSITION | MF_SEPARATOR, (UINT)-1, NULL);
-            }
-            else
-            {
+            } else {
                 _hmenu = NULL;
             }
         }
@@ -206,8 +195,7 @@ HRESULT CSendToMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 {
     HRESULT hres;
 
-    if (_pdtobj)
-    {
+    if (_pdtobj) {
         LPITEMIDLIST pidlFolder = NULL;
         LPITEMIDLIST pidlItem = NULL;
 
@@ -216,20 +204,16 @@ HRESULT CSendToMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 #else
         FileMenu_GetLastSelectedItemPidls(_hmenu, &pidlFolder, &pidlItem);
 #endif
-        if (pidlFolder && pidlItem)
-        {
-            IShellFolder *psfDesktop;
+        if (pidlFolder && pidlItem) {
+            IShellFolder* psfDesktop;
             hres = SHGetDesktopFolder(&psfDesktop);
-            if (SUCCEEDED(hres))
-            {
-                IShellFolder *psf;
+            if (SUCCEEDED(hres)) {
+                IShellFolder* psf;
                 hres = psfDesktop->BindToObject(pidlFolder, NULL, IID_IShellFolder, (void**)&psf);
-                if (SUCCEEDED(hres))
-                {
-                    IDropTarget *pdrop;
-                    hres = psf->GetUIObjectOf(pici->hwnd, 1, (LPCITEMIDLIST *)&pidlItem, IID_IDropTarget, 0, (void**)&pdrop);
-                    if (SUCCEEDED(hres))
-                    {
+                if (SUCCEEDED(hres)) {
+                    IDropTarget* pdrop;
+                    hres = psf->GetUIObjectOf(pici->hwnd, 1, (LPCITEMIDLIST*)&pidlItem, IID_IDropTarget, 0, (void**)&pdrop);
+                    if (SUCCEEDED(hres)) {
                         DWORD grfKeyState;
 
                         if (GetAsyncKeyState(VK_SHIFT) < 0)
@@ -245,7 +229,7 @@ HRESULT CSendToMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 
                         if (hres == S_FALSE)
                             ShellMessageBox(MLGetHinst(), pici->hwnd, MAKEINTRESOURCE(IDS_SENDTO_ERRORMSG),
-                                            MAKEINTRESOURCE(IDS_CABINET), MB_OK|MB_ICONEXCLAMATION);
+                                            MAKEINTRESOURCE(IDS_CABINET), MB_OK | MB_ICONEXCLAMATION);
                         pdrop->Release();
                     }
                     psf->Release();
@@ -255,16 +239,14 @@ HRESULT CSendToMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 
             ILFree(pidlItem);
             ILFree(pidlFolder);
-        }
-        else
+        } else
             hres = E_FAIL;
-    }
-    else
+    } else
         hres = E_INVALIDARG;
     return hres;
 }
 
-HRESULT CSendToMenu::GetCommandString(UINT idCmd, UINT uType, UINT *pRes, LPSTR pszName, UINT cchMax)
+HRESULT CSendToMenu::GetCommandString(UINT idCmd, UINT uType, UINT* pRes, LPSTR pszName, UINT cchMax)
 {
     return E_NOTIMPL;
 }
@@ -274,76 +256,68 @@ HRESULT CSendToMenu::HandleMenuMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
     return HandleMenuMsg2(uMsg, wParam, lParam, NULL);
 }
 
-HRESULT CSendToMenu::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *lres)
+HRESULT CSendToMenu::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* lres)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_INITMENUPOPUP:
-        {
-            if (_bFirstTime)
-            {
-                //In case of Shell_MergeMenus
-                if(_hmenu == NULL)
-                {
-                    _hmenu = (HMENU)wParam;
-                }
-                _bFirstTime = FALSE;
-
-                // delete the dummy entry
-                DeleteMenu(_hmenu, 0, MF_BYPOSITION);
-
-                FileMenu_CreateFromMenu(_hmenu, (COLORREF)-1, 0, NULL, 0, FMF_NONE);
-
-                LPITEMIDLIST pidlSendTo = SHCloneSpecialIDList(NULL, CSIDL_SENDTO, TRUE);
-                if (pidlSendTo)
-                {
-                    FMCOMPOSE fmc = {0};
-
-                    fmc.cbSize     = SIZEOF(fmc);
-                    fmc.id         = _idCmdFirst;
-                    fmc.dwMask     = FMC_PIDL | FMC_FILTER;
-                    fmc.pidlFolder = pidlSendTo;
-                    fmc.dwFSFilter = SHCONTF_FOLDERS | SHCONTF_NONFOLDERS;
-
-                    FileMenu_Compose(_hmenu, FMCM_REPLACE, &fmc);
-
-                    ILFree(pidlSendTo);
-                }
+    {
+        if (_bFirstTime) {
+            //In case of Shell_MergeMenus
+            if (_hmenu == NULL) {
+                _hmenu = (HMENU)wParam;
             }
-            else if (_hmenu != (HMENU)wParam)
-            {
-                // secondary cascade menu
-                FileMenu_InitMenuPopup((HMENU)wParam);
+            _bFirstTime = FALSE;
+
+            // delete the dummy entry
+            DeleteMenu(_hmenu, 0, MF_BYPOSITION);
+
+            FileMenu_CreateFromMenu(_hmenu, (COLORREF)-1, 0, NULL, 0, FMF_NONE);
+
+            LPITEMIDLIST pidlSendTo = SHCloneSpecialIDList(NULL, CSIDL_SENDTO, TRUE);
+            if (pidlSendTo) {
+                FMCOMPOSE fmc = {0};
+
+                fmc.cbSize = SIZEOF(fmc);
+                fmc.id = _idCmdFirst;
+                fmc.dwMask = FMC_PIDL | FMC_FILTER;
+                fmc.pidlFolder = pidlSendTo;
+                fmc.dwFSFilter = SHCONTF_FOLDERS | SHCONTF_NONFOLDERS;
+
+                FileMenu_Compose(_hmenu, FMCM_REPLACE, &fmc);
+
+                ILFree(pidlSendTo);
             }
+        } else if (_hmenu != (HMENU)wParam) {
+            // secondary cascade menu
+            FileMenu_InitMenuPopup((HMENU)wParam);
         }
-        break;
+    }
+    break;
 
     case WM_DRAWITEM:
-        {
-            DRAWITEMSTRUCT * pdi = (DRAWITEMSTRUCT *)lParam;
+    {
+        DRAWITEMSTRUCT* pdi = (DRAWITEMSTRUCT*)lParam;
 
-            if (pdi->CtlType == ODT_MENU && pdi->itemID == _idCmdFirst)
-            {
-                FileMenu_DrawItem(NULL, pdi);
-            }
+        if (pdi->CtlType == ODT_MENU && pdi->itemID == _idCmdFirst) {
+            FileMenu_DrawItem(NULL, pdi);
         }
-        break;
+    }
+    break;
 
     case WM_MEASUREITEM:
-        {
-            MEASUREITEMSTRUCT *pmi = (MEASUREITEMSTRUCT *)lParam;
+    {
+        MEASUREITEMSTRUCT* pmi = (MEASUREITEMSTRUCT*)lParam;
 
-            if (pmi->CtlType == ODT_MENU && pmi->itemID == _idCmdFirst)
-            {
-                FileMenu_MeasureItem(NULL, pmi);
-            }
+        if (pmi->CtlType == ODT_MENU && pmi->itemID == _idCmdFirst) {
+            FileMenu_MeasureItem(NULL, pmi);
         }
-        break;
+    }
+    break;
     }
     return NOERROR;
 }
 
-HRESULT CSendToMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject *pdtobj, HKEY hkeyProgID)
+HRESULT CSendToMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject* pdtobj, HKEY hkeyProgID)
 {
     if (_pdtobj)
         _pdtobj->Release();
@@ -365,23 +339,19 @@ BOOL _IsShortcut(LPCTSTR pszFile)
     return SHGetFileInfo(pszFile, 0, &sfi, sizeof(sfi), SHGFI_ATTRIBUTES) && (sfi.dwAttributes & SFGAO_LINK);
 }
 
-HRESULT _BindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void **ppv, LPCITEMIDLIST *ppidlLast)
+HRESULT _BindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast)
 {
     HRESULT hres;
     LPITEMIDLIST pidlLast = ILFindLastID(pidl);
-    if (pidlLast)
-    {
-        IShellFolder *psfDesktop;
+    if (pidlLast) {
+        IShellFolder* psfDesktop;
         SHGetDesktopFolder(&psfDesktop);
 
         // Special case for the object in the root
-        if (pidlLast == pidl)
-        {
+        if (pidlLast == pidl) {
             // REVIEW: should this be CreateViewObject?
             hres = psfDesktop->QueryInterface(riid, ppv);
-        }
-        else
-        {
+        } else {
             USHORT uSave = pidlLast->mkid.cb;
             pidlLast->mkid.cb = 0;
 
@@ -389,9 +359,7 @@ HRESULT _BindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void **ppv, LPCITEM
 
             pidlLast->mkid.cb = uSave;
         }
-    }
-    else
-    {
+    } else {
         hres = E_INVALIDARG;
     }
 
@@ -404,23 +372,23 @@ HRESULT _BindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void **ppv, LPCITEM
 class CTargetMenu : public IShellExtInit, public IContextMenu3
 {
     // IUnknown
-    STDMETHOD(QueryInterface)(REFIID riid, void **ppvObj);
-    STDMETHOD_(ULONG,AddRef)(void);
-    STDMETHOD_(ULONG,Release)(void);
+    STDMETHOD(QueryInterface)(REFIID riid, void** ppvObj);
+    STDMETHOD_(ULONG, AddRef)(void);
+    STDMETHOD_(ULONG, Release)(void);
 
     // IContextMenu
     STDMETHOD(QueryContextMenu)(HMENU hmenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags);
     STDMETHOD(InvokeCommand)(LPCMINVOKECOMMANDINFO lpici);
-    STDMETHOD(GetCommandString)(UINT idCmd, UINT uType, UINT *pRes, LPSTR pszName, UINT cchMax);
+    STDMETHOD(GetCommandString)(UINT idCmd, UINT uType, UINT* pRes, LPSTR pszName, UINT cchMax);
 
     // IContextMenu2
     STDMETHOD(HandleMenuMsg)(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     // IContextMenu3
-    STDMETHOD(HandleMenuMsg2)(UINT uMsg, WPARAM wParam, LPARAM lParam,LRESULT *lResult);
+    STDMETHOD(HandleMenuMsg2)(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* lResult);
 
     // IShellExtInit
-    STDMETHOD(Initialize)(LPCITEMIDLIST pidlFolder, IDataObject *pdtobj, HKEY hkeyProgID);
+    STDMETHOD(Initialize)(LPCITEMIDLIST pidlFolder, IDataObject* pdtobj, HKEY hkeyProgID);
 
     HRESULT GetTargetMenu();
 
@@ -432,12 +400,12 @@ class CTargetMenu : public IShellExtInit, public IContextMenu3
     UINT _idCmdFirst;
     BOOL _bFirstTime;
 
-    IDataObject *_pdtobj;
+    IDataObject* _pdtobj;
     LPITEMIDLIST _pidlTargetParent;
     LPITEMIDLIST _pidlTarget;
-    IContextMenu *_pcmTarget;
+    IContextMenu* _pcmTarget;
 
-//    friend HRESULT CTargetMenu_CreateInstance(IUnknown *punkOuter, IUnknown **ppunk, LPCOBJECTINFO poi);
+    //    friend HRESULT CTargetMenu_CreateInstance(IUnknown *punkOuter, IUnknown **ppunk, LPCOBJECTINFO poi);
 };
 
 CTargetMenu::CTargetMenu() : _cRef(1)
@@ -454,21 +422,16 @@ CTargetMenu::~CTargetMenu()
         _pcmTarget->Release();
 }
 
-STDMETHODIMP CTargetMenu::QueryInterface(REFIID riid, LPVOID * ppvObj)
+STDMETHODIMP CTargetMenu::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
     if (IsEqualIID(riid, IID_IUnknown) ||
         IsEqualIID(riid, IID_IContextMenu) ||
         IsEqualIID(riid, IID_IContextMenu2) ||
-        IsEqualIID(riid, IID_IContextMenu3))
-    {
-        *ppvObj = SAFECAST(this, IContextMenu3 *);
-    }
-    else if (IsEqualIID(riid, IID_IShellExtInit))
-    {
-        *ppvObj = SAFECAST(this, IShellExtInit *);
-    }
-    else
-    {
+        IsEqualIID(riid, IID_IContextMenu3)) {
+        *ppvObj = SAFECAST(this, IContextMenu3*);
+    } else if (IsEqualIID(riid, IID_IShellExtInit)) {
+        *ppvObj = SAFECAST(this, IShellExtInit*);
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -494,7 +457,7 @@ STDMETHODIMP_(ULONG) CTargetMenu::Release()
     return 0;
 }
 
-STDMETHODIMP CTargetMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject *pdtobj, HKEY hkeyProgID)
+STDMETHODIMP CTargetMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject* pdtobj, HKEY hkeyProgID)
 {
     if (_pdtobj)
         _pdtobj->Release();
@@ -512,39 +475,31 @@ HRESULT CTargetMenu::GetTargetMenu()
     STGMEDIUM medium;
     FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
     HRESULT hres = _pdtobj->GetData(&fmte, &medium);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         TCHAR szShortcut[MAX_PATH];
 
         if (DragQueryFile((HDROP)medium.hGlobal, 0, szShortcut, ARRAYSIZE(szShortcut)) &&
-            _IsShortcut(szShortcut))
-        {
-            IShellLink *psl;
+            _IsShortcut(szShortcut)) {
+            IShellLink* psl;
 
-            hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
-            if (SUCCEEDED(hres))
-            {
-                IPersistFile *ppf;
-                hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
-                if (SUCCEEDED(hres))
-                {
+            hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void**)&psl);
+            if (SUCCEEDED(hres)) {
+                IPersistFile* ppf;
+                hres = psl->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf);
+                if (SUCCEEDED(hres)) {
                     WCHAR wszFile[MAX_PATH];
 
                     StrToOleStrN(wszFile, ARRAYSIZE(wszFile), szShortcut, -1);
                     hres = ppf->Load(wszFile, 0);
-                    if (SUCCEEDED(hres))
-                    {
+                    if (SUCCEEDED(hres)) {
                         hres = psl->GetIDList(&_pidlTargetParent);
-                        if (SUCCEEDED(hres) && _pidlTargetParent)
-                        {
-                            IShellFolder *psf;
+                        if (SUCCEEDED(hres) && _pidlTargetParent) {
+                            IShellFolder* psf;
 
-                            hres = _BindToIDListParent(_pidlTargetParent, IID_IShellFolder, (void **)&psf, (LPCITEMIDLIST *)&_pidlTarget);
-                            if (SUCCEEDED(hres))
-                            {
-                                hres = psf->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST *)&_pidlTarget, IID_IContextMenu, 0, (void **)&_pcmTarget);
-                                if (SUCCEEDED(hres))
-                                {
+                            hres = _BindToIDListParent(_pidlTargetParent, IID_IShellFolder, (void**)&psf, (LPCITEMIDLIST*)&_pidlTarget);
+                            if (SUCCEEDED(hres)) {
+                                hres = psf->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&_pidlTarget, IID_IContextMenu, 0, (void**)&_pcmTarget);
+                                if (SUCCEEDED(hres)) {
                                     ILRemoveLastID(_pidlTargetParent);
                                     hres = NOERROR;
                                 }
@@ -577,8 +532,7 @@ STDMETHODIMP CTargetMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT idC
     UINT idMax = idCmdFirst;
 
     _hmenu = CreatePopupMenu();
-    if (_hmenu)
-    {
+    if (_hmenu) {
         TCHAR szString[80];
         MENUITEMINFO mii;
 
@@ -592,8 +546,7 @@ STDMETHODIMP CTargetMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT idC
         mii.dwTypeData = szString;
         mii.wID = idCmdFirst + IDC_OPENCONTAINER;
 
-        if (InsertMenuItem(_hmenu, 0, TRUE, &mii))
-        {
+        if (InsertMenuItem(_hmenu, 0, TRUE, &mii)) {
             _idCmdFirst = idCmdFirst;
 
             SetMenuDefaultItem(_hmenu, 0, TRUE);
@@ -609,17 +562,14 @@ STDMETHODIMP CTargetMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT idC
             mii.fType = MFT_STRING;
             mii.dwTypeData = szString;
             mii.wID = idCmdFirst;
-            mii.fState = MF_DISABLED|MF_GRAYED;
+            mii.fState = MF_DISABLED | MF_GRAYED;
             mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
             mii.hSubMenu = _hmenu;
 
-            if (InsertMenuItem(hmenu, indexMenu, TRUE, &mii))
-            {
+            if (InsertMenuItem(hmenu, indexMenu, TRUE, &mii)) {
                 idMax += NUM_TARGET_CMDS;    // reserve space for this many items
                 _bFirstTime = TRUE; // fill this at WM_INITMENUPOPUP time
-            }
-            else
-            {
+            } else {
                 DestroyMenu(_hmenu);
                 _hmenu = NULL;
             }
@@ -633,30 +583,27 @@ STDMETHODIMP CTargetMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpici)
 {
     UINT idCmd = LOWORD(lpici->lpVerb);
 
-    switch (idCmd)
-    {
+    switch (idCmd) {
     case IDC_OPENCONTAINER:
         SHELLEXECUTEINFOA sei;
 
         sei.cbSize = sizeof(sei);
         sei.fMask = SEE_MASK_INVOKEIDLIST;
         sei.lpVerb = NULL;
-        sei.hwnd         = lpici->hwnd;
+        sei.hwnd = lpici->hwnd;
         sei.lpParameters = lpici->lpParameters;
-        sei.lpDirectory  = lpici->lpDirectory;
-        sei.nShow        = lpici->nShow;
-        sei.lpIDList     = _pidlTargetParent;
+        sei.lpDirectory = lpici->lpDirectory;
+        sei.nShow = lpici->nShow;
+        sei.lpIDList = _pidlTargetParent;
 
 
         SHWaitForFileToOpen(_pidlTargetParent, WFFO_ADD, 0L);
-        if (ShellExecuteExA(&sei))
-        {
+        if (ShellExecuteExA(&sei)) {
             SHWaitForFileToOpen(_pidlTargetParent, WFFO_REMOVE | WFFO_WAIT, WFFO_WAITTIME);
             HWND hwndCabinet = FindWindow(TEXT("CabinetWClass"), NULL);
             if (hwndCabinet)
                 SendMessage(hwndCabinet, CWM_SELECTITEM, SVSI_SELECT | SVSI_ENSUREVISIBLE | SVSI_FOCUSED | SVSI_DESELECTOTHERS, (LPARAM)_pidlTarget);
-        }
-        else
+        } else
             SHWaitForFileToOpen(_pidlTargetParent, WFFO_REMOVE, 0L);
         break;
 
@@ -676,7 +623,7 @@ STDMETHODIMP CTargetMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpici)
     return NOERROR;
 }
 
-HRESULT CTargetMenu::GetCommandString(UINT idCmd, UINT uType, UINT *pwReserved, LPSTR pszName, UINT cchMax)
+HRESULT CTargetMenu::GetCommandString(UINT idCmd, UINT uType, UINT* pwReserved, LPSTR pszName, UINT cchMax)
 {
     return E_NOTIMPL;
 }
@@ -687,21 +634,18 @@ STDMETHODIMP CTargetMenu::HandleMenuMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-STDMETHODIMP CTargetMenu::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *pres)
+STDMETHODIMP CTargetMenu::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pres)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_INITMENUPOPUP:
-        if (_hmenu == (HMENU)wParam)
-        {
-            if (_bFirstTime)
-            {
+        if (_hmenu == (HMENU)wParam) {
+            if (_bFirstTime) {
                 _bFirstTime = FALSE;
 
                 if (SUCCEEDED(GetTargetMenu()))
                     _pcmTarget->QueryContextMenu(_hmenu, IDC_TARGET_LAST,
-                    _idCmdFirst + IDC_TARGET_LAST,
-                    _idCmdFirst - IDC_TARGET_LAST + NUM_TARGET_CMDS, CMF_NOVERBS);
+                                                 _idCmdFirst + IDC_TARGET_LAST,
+                                                 _idCmdFirst - IDC_TARGET_LAST + NUM_TARGET_CMDS, CMF_NOVERBS);
             }
             break;
         }
@@ -710,11 +654,9 @@ STDMETHODIMP CTargetMenu::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam
 
     case WM_DRAWITEM:
     case WM_MEASUREITEM:
-        if (_pcmTarget)
-        {
-            IContextMenu2 *pcm2;
-            if (SUCCEEDED(_pcmTarget->QueryInterface(IID_IContextMenu2, (void **)&pcm2)))
-            {
+        if (_pcmTarget) {
+            IContextMenu2* pcm2;
+            if (SUCCEEDED(_pcmTarget->QueryInterface(IID_IContextMenu2, (void**)&pcm2))) {
                 pcm2->HandleMenuMsg(uMsg, wParam, lParam);
                 pcm2->Release();
             }
@@ -726,14 +668,13 @@ STDMETHODIMP CTargetMenu::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam
 }
 
 #if 0
-STDAPI CTargetMenu_CreateInstance(IUnknown *punkOuter, IUnknown **ppunk, LPCOBJECTINFO poi)
+STDAPI CTargetMenu_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk, LPCOBJECTINFO poi)
 {
     // aggregation checking is handled in class factory
 
-    CTargetMenu * psendto = new CTargetMenu();
-    if (psendto)
-    {
-        *ppunk = SAFECAST(psendto, IContextMenu2 *);
+    CTargetMenu* psendto = new CTargetMenu();
+    if (psendto) {
+        *ppunk = SAFECAST(psendto, IContextMenu2*);
         return NOERROR;
     }
 
@@ -754,7 +695,7 @@ STDAPI CTargetMenu_CreateInstance(IUnknown *punkOuter, IUnknown **ppunk, LPCOBJE
 class CHIDA
 {
 public:
-    CHIDA(HGLOBAL hIDA, IUnknown *punk)
+    CHIDA(HGLOBAL hIDA, IUnknown* punk)
     {
         m_punk = punk;
         m_hIDA = hIDA;
@@ -776,14 +717,14 @@ public:
         if (nIndex > m_pIDA->cidl)
             return(NULL);
 
-        return (LPCITEMIDLIST)(((BYTE *)m_pIDA) + m_pIDA->aoffset[nIndex]);
+        return (LPCITEMIDLIST)(((BYTE*)m_pIDA) + m_pIDA->aoffset[nIndex]);
     }
 
 private:
     HGLOBAL m_hIDA;
     LPIDA m_pIDA;
-    IUnknown *m_punk;
-} ;
+    IUnknown* m_punk;
+};
 
 
 class CVoidArray
@@ -792,12 +733,10 @@ public:
     CVoidArray() : m_dpa(NULL), m_dsa(NULL) {}
     ~CVoidArray()
     {
-        if (m_dpa)
-        {
+        if (m_dpa) {
             DPA_Destroy(m_dpa);
         }
-        if (m_dsa)
-        {
+        if (m_dsa) {
             DSA_Destroy(m_dsa);
         }
     }
@@ -824,13 +763,12 @@ private:
 
     PFNDPACOMPARE m_pfnCompare;
     LPARAM LPVOID;
-} ;
+};
 
 
 m_lParam CVoidArray::operator[](int i)
 {
-    if (!m_dpa || i>=DPA_GetPtrCount(m_dpa))
-    {
+    if (!m_dpa || i >= DPA_GetPtrCount(m_dpa)) {
         return(NULL);
     }
 
@@ -849,13 +787,11 @@ BOOL CVoidArray::Init(UINT uSize, UINT uJump)
 BOOL CVoidArray::Add(LPVOID pv)
 {
     int iItem = DSA_InsertItem(m_dsa, DPA_LAST, pv);
-    if (iItem < 0)
-    {
+    if (iItem < 0) {
         return(FALSE);
     }
 
-    if (DPA_InsertPtr(m_dpa, DPA_LAST, (LPVOID)iItem) < 0)
-    {
+    if (DPA_InsertPtr(m_dpa, DPA_LAST, (LPVOID)iItem) < 0) {
         DSA_DeleteItem(m_dsa, iItem);
         return(FALSE);
     }
@@ -866,27 +802,27 @@ BOOL CVoidArray::Add(LPVOID pv)
 
 int CALLBACK CVoidArray::ArrayCompare(LPVOID pv1, LPVOID pv2, LPARAM lParam)
 {
-    CVoidArray *pThis = (CVoidArray *)lParam;
+    CVoidArray* pThis = (CVoidArray*)lParam;
 
     return(pThis->m_pfnCompare(DSA_GetItemPtr(pThis->m_dsa, (int)pv1),
-        DSA_GetItemPtr(pThis->m_dsa, (int)pv2), pThis->m_lParam));
+                               DSA_GetItemPtr(pThis->m_dsa, (int)pv2), pThis->m_lParam));
 }
 
 
 class CContentItemData
 {
 public:
-    CContentItemData() : m_dwDummy(0) {Empty();}
-    ~CContentItemData() {Free();}
+    CContentItemData() : m_dwDummy(0) { Empty(); }
+    ~CContentItemData() { Free(); }
 
     void Free();
-    void Empty() {m_pidl=NULL; m_hbm=NULL;}
+    void Empty() { m_pidl = NULL; m_hbm = NULL; }
 
     // Here to work around a Tray menu bug
     DWORD m_dwDummy;
     LPITEMIDLIST m_pidl;
     HBITMAP m_hbm;
-} ;
+};
 
 
 void CContentItemData::Free()
@@ -903,26 +839,25 @@ public:
     CContentItemDataArray(LPCITEMIDLIST pidlFolder) : m_pidlFolder(pidlFolder) {}
     ~CContentItemDataArray();
 
-    CContentItemData * operator[](int i) {return((CContentItemData*)(*(CVoidArray*)this)[i]);}
+    CContentItemData* operator[](int i) { return((CContentItemData*)(*(CVoidArray*)this)[i]); }
 
     HRESULT Init();
-    BOOL Add(CContentItemData *pv) {return(CVoidArray::Add((LPVOID)pv));}
+    BOOL Add(CContentItemData* pv) { return(CVoidArray::Add((LPVOID)pv)); }
 
 private:
     static int CALLBACK DefaultSort(LPVOID pv1, LPVOID pv2, LPARAM lParam);
 
-    HRESULT GetShellFolder(IShellFolder **ppsf);
+    HRESULT GetShellFolder(IShellFolder** ppsf);
     BOOL IsLocal();
 
     LPCITEMIDLIST CContentItemDataArray;
-} ;
+};
 
 
 CContentItemDataArray::~CContentItemDataArray()
 {
-    for (int i=0; ; ++i)
-    {
-        CContentItemData *pID = (*this)[i];
+    for (int i = 0; ; ++i) {
+        CContentItemData* pID = (*this)[i];
         if (!pID)
             break;
         pID->Free();
@@ -932,13 +867,12 @@ CContentItemDataArray::~CContentItemDataArray()
 
 int CALLBACK CContentItemDataArray::DefaultSort(LPVOID pv1, LPVOID pv2, LPARAM lParam)
 {
-    IShellFolder *psfFolder = (IShellFolder *)lParam;
-    CContentItemData *pID1 = (CContentItemData *)pv1;
-    CContentItemData *pID2 = (CContentItemData *)pv2;
+    IShellFolder* psfFolder = (IShellFolder*)lParam;
+    CContentItemData* pID1 = (CContentItemData*)pv1;
+    CContentItemData* pID2 = (CContentItemData*)pv2;
 
     HRESULT hRes = psfFolder->CompareIDs(0, pID1->m_pidl, pID2->m_pidl);
-    if (FAILED(hRes))
-    {
+    if (FAILED(hRes)) {
         return(0);
     }
 
@@ -946,17 +880,16 @@ int CALLBACK CContentItemDataArray::DefaultSort(LPVOID pv1, LPVOID pv2, LPARAM l
 }
 
 
-HRESULT CContentItemDataArray::GetShellFolder(IShellFolder **ppsf)
+HRESULT CContentItemDataArray::GetShellFolder(IShellFolder** ppsf)
 {
-    IShellFolder *psfDesktop;
-    HRESULT hRes = CoCreateInstance(CLSID_ShellDesktop, NULL, CLSCTX_INPROC_SERVER, IID_IShellFolder, (void **)&psfDesktop);
-    if (FAILED(hRes))
-    {
+    IShellFolder* psfDesktop;
+    HRESULT hRes = CoCreateInstance(CLSID_ShellDesktop, NULL, CLSCTX_INPROC_SERVER, IID_IShellFolder, (void**)&psfDesktop);
+    if (FAILED(hRes)) {
         return(hRes);
     }
     CEnsureRelease erDesktop(psfDesktop);
 
-    return(psfDesktop->BindToObject(m_pidlFolder, NULL, IID_IShellFolder, (LPVOID *)ppsf));
+    return(psfDesktop->BindToObject(m_pidlFolder, NULL, IID_IShellFolder, (LPVOID*)ppsf));
 }
 
 
@@ -964,41 +897,36 @@ BOOL CContentItemDataArray::IsLocal()
 {
     char szPath[MAX_PATH];
 
-    if (!SHGetPathFromIDList(m_pidlFolder, szPath))
-    {
+    if (!SHGetPathFromIDList(m_pidlFolder, szPath)) {
         return(FALSE);
     }
 
     CharUpper(szPath);
-    return(DriveType(szPath[0]-'A') == DRIVE_FIXED);
+    return(DriveType(szPath[0] - 'A') == DRIVE_FIXED);
 }
 
 
 HRESULT CContentItemDataArray::Init()
 {
-    if (!IsLocal() && !(GetKeyState(VK_SHIFT)&0x8000))
-    {
+    if (!IsLocal() && !(GetKeyState(VK_SHIFT) & 0x8000)) {
         return(S_FALSE);
     }
 
-    if (!CVoidArray::Init(sizeof(CContentItemData), 16))
-    {
+    if (!CVoidArray::Init(sizeof(CContentItemData), 16)) {
         return(E_OUTOFMEMORY);
     }
 
-    IShellFolder *psfFolder;
+    IShellFolder* psfFolder;
     HRESULT hRes = GetShellFolder(&psfFolder);
-    if (FAILED(hRes))
-    {
+    if (FAILED(hRes)) {
         return(hRes);
     }
     CEnsureRelease erFolder(psfFolder);
 
-    IEnumIDList *penumFolder;
+    IEnumIDList* penumFolder;
     hRes = psfFolder->EnumObjects(NULL,
-        SHCONTF_FOLDERS|SHCONTF_NONFOLDERS|SHCONTF_INCLUDEHIDDEN, &penumFolder);
-    if (FAILED(hRes))
-    {
+                                  SHCONTF_FOLDERS | SHCONTF_NONFOLDERS | SHCONTF_INCLUDEHIDDEN, &penumFolder);
+    if (FAILED(hRes)) {
         return(hRes);
     }
     CEnsureRelease erEnumFolder(penumFolder);
@@ -1008,23 +936,18 @@ HRESULT CContentItemDataArray::Init()
     DWORD dwStart = 0;
     hRes = S_OK;
 
-    for ( ; ; )
-    {
+    for (; ; ) {
         CContentItemData cID;
-        if (penumFolder->Next(1, &cID.m_pidl, &cNum)!=S_OK || cNum!=1)
-        {
+        if (penumFolder->Next(1, &cID.m_pidl, &cNum) != S_OK || cNum != 1) {
             // Just in case
             cID.Empty();
             break;
         }
 
-        if (!dwStart)
-        {
+        if (!dwStart) {
             dwStart = GetTickCount();
-        }
-        else if (!(GetAsyncKeyState(VK_SHIFT)&0x8000)
-            && GetTickCount()-dwStart>MENU_TIMEOUT)
-        {
+        } else if (!(GetAsyncKeyState(VK_SHIFT) & 0x8000)
+                   && GetTickCount() - dwStart > MENU_TIMEOUT) {
             // Only go for 2 seconds after the first Next call
             hRes = S_FALSE;
             break;
@@ -1032,13 +955,11 @@ HRESULT CContentItemDataArray::Init()
 
         CMenuDraw mdItem(m_pidlFolder, cID.m_pidl);
         cID.m_hbm = mdItem.CreateBitmap(TRUE);
-        if (!cID.m_hbm)
-        {
+        if (!cID.m_hbm) {
             continue;
         }
 
-        if (!Add(&cID))
-        {
+        if (!Add(&cID)) {
             break;
         }
 
@@ -1055,7 +976,7 @@ HRESULT CContentItemDataArray::Init()
 class CContentItemInfo : public tagMENUITEMINFOA
 {
 public:
-    CContentItemInfo(UINT fMsk) {fMask=fMsk; cbSize=sizeof(MENUITEMINFO);}
+    CContentItemInfo(UINT fMsk) { fMask = fMsk; cbSize = sizeof(MENUITEMINFO); }
     ~CContentItemInfo() {}
 
     BOOL GetMenuItemInfo(HMENU hm, int nID, BOOL bByPos)
@@ -1063,12 +984,12 @@ public:
         return(::GetMenuItemInfo(hm, nID, bByPos, this));
     }
 
-    CContentItemData *GetItemData() {return((CContentItemData*)dwItemData);}
-    void SetItemData(CContentItemData *pd) {dwItemData=(DWORD)pd; fMask|=MIIM_DATA;}
+    CContentItemData* GetItemData() { return((CContentItemData*)dwItemData); }
+    void SetItemData(CContentItemData* pd) { dwItemData = (DWORD)pd; fMask |= MIIM_DATA; }
 
-    HBITMAP GetBitmap() {return(fType&MFT_BITMAP ? dwTypeData : NULL);}
-    void SetBitmap(HBITMAP hb) {dwTypeData=(LPSTR)hb; fType|=MFT_BITMAP;}
-} ;
+    HBITMAP GetBitmap() { return(fType & MFT_BITMAP ? dwTypeData : NULL); }
+    void SetBitmap(HBITMAP hb) { dwTypeData = (LPSTR)hb; fType |= MFT_BITMAP; }
+};
 
 #define CXIMAGEGAP 6
 #define CYIMAGEGAP 4
@@ -1076,47 +997,46 @@ public:
 class CWindowDC
 {
 public:
-    CWindowDC(HWND hWnd) : m_hWnd(hWnd) {m_hDC=GetDC(hWnd);}
-    ~CWindowDC() {ReleaseDC(m_hWnd, m_hDC);}
+    CWindowDC(HWND hWnd) : m_hWnd(hWnd) { m_hDC = GetDC(hWnd); }
+    ~CWindowDC() { ReleaseDC(m_hWnd, m_hDC); }
 
-    operator HDC() {return(m_hDC);}
+    operator HDC() { return(m_hDC); }
 
 private:
     HDC m_hDC;
     HWND m_hWnd;
-} ;
+};
 
 
 class CDCTemp
 {
 public:
     CDCTemp(HDC hDC) : m_hDC(hDC) {}
-    ~CDCTemp() {if (m_hDC) DeleteDC(m_hDC);}
+    ~CDCTemp() { if (m_hDC) DeleteDC(m_hDC); }
 
-    operator HDC() {return(m_hDC);}
+    operator HDC() { return(m_hDC); }
 
 private:
     HDC m_hDC;
-} ;
+};
 
 
 class CRefMenuFont
 {
 public:
-    CRefMenuFont(CMenuDraw *pmd) {m_pmd = pmd->InitMenuFont() ? pmd : NULL;}
-    ~CRefMenuFont() {if (m_pmd) m_pmd->ReleaseMenuFont();}
+    CRefMenuFont(CMenuDraw* pmd) { m_pmd = pmd->InitMenuFont() ? pmd : NULL; }
+    ~CRefMenuFont() { if (m_pmd) m_pmd->ReleaseMenuFont(); }
 
-    operator BOOL() {return(m_pmd != NULL);}
+    operator BOOL() { return(m_pmd != NULL); }
 
 private:
-    CMenuDraw *m_pmd;
-} ;
+    CMenuDraw* m_pmd;
+};
 
 
 BOOL CMenuDraw::InitMenuFont()
 {
-    if (m_cRefFont.GetRef())
-    {
+    if (m_cRefFont.GetRef()) {
         m_cRefFont.AddRef();
         return(TRUE);
     }
@@ -1124,11 +1044,10 @@ BOOL CMenuDraw::InitMenuFont()
     NONCLIENTMETRICS ncm;
     ncm.cbSize = sizeof(ncm);
     SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm),
-        (void far *)(LPNONCLIENTMETRICS)&ncm, FALSE);
+                         (void far*)(LPNONCLIENTMETRICS) & ncm, FALSE);
 
     m_hfMenu = CreateFontIndirect(&ncm.lfMenuFont);
-    if (m_hfMenu)
-    {
+    if (m_hfMenu) {
         m_cRefFont.AddRef();
         return(TRUE);
     }
@@ -1139,8 +1058,7 @@ BOOL CMenuDraw::InitMenuFont()
 
 void CMenuDraw::ReleaseMenuFont()
 {
-    if (m_cRefFont.Release())
-    {
+    if (m_cRefFont.Release()) {
         return;
     }
 
@@ -1151,26 +1069,22 @@ void CMenuDraw::ReleaseMenuFont()
 
 BOOL CMenuDraw::InitStringAndIcon()
 {
-    if (!m_pidlAbs)
-    {
+    if (!m_pidlAbs) {
         return(FALSE);
     }
 
-    if (m_pszString)
-    {
+    if (m_pszString) {
         return(TRUE);
     }
 
     SHFILEINFO sfi;
 
     if (!SHGetFileInfo((LPCSTR)m_pidlAbs, 0, &sfi, sizeof(sfi),
-        SHGFI_DISPLAYNAME | SHGFI_ICON | SHGFI_SMALLICON | SHGFI_PIDL))
-    {
+                       SHGFI_DISPLAYNAME | SHGFI_ICON | SHGFI_SMALLICON | SHGFI_PIDL)) {
         return(FALSE);
     }
 
-    if (!Str_SetPtr(&m_pszString, sfi.szDisplayName))
-    {
+    if (!Str_SetPtr(&m_pszString, sfi.szDisplayName)) {
         DestroyIcon(sfi.hIcon);
     }
 
@@ -1182,8 +1096,7 @@ BOOL CMenuDraw::InitStringAndIcon()
 
 BOOL CMenuDraw::GetName(LPSTR szName)
 {
-    if (!InitStringAndIcon())
-    {
+    if (!InitStringAndIcon()) {
         return(FALSE);
     }
 
@@ -1193,16 +1106,14 @@ BOOL CMenuDraw::GetName(LPSTR szName)
 }
 
 
-BOOL CMenuDraw::GetExtent(SIZE *pSize, BOOL bFull)
+BOOL CMenuDraw::GetExtent(SIZE* pSize, BOOL bFull)
 {
-    if (!InitStringAndIcon())
-    {
+    if (!InitStringAndIcon()) {
         return(FALSE);
     }
 
     CRefMenuFont crFont(this);
-    if (!(BOOL)crFont)
-    {
+    if (!(BOOL)crFont) {
         return(FALSE);
     }
 
@@ -1211,26 +1122,21 @@ BOOL CMenuDraw::GetExtent(SIZE *pSize, BOOL bFull)
 
     BOOL bRet = GetTextExtentPoint32(hDC, m_pszString, lstrlen(m_pszString), pSize);
 
-    if (hfOld)
-    {
+    if (hfOld) {
         SelectObject(hDC, hfOld);
     }
     ReleaseDC(NULL, hDC);
 
-    if (bRet)
-    {
+    if (bRet) {
         int cxIcon = GetSystemMetrics(SM_CXSMICON);
         int cyIcon = GetSystemMetrics(SM_CYSMICON);
 
         pSize->cy = max(pSize->cy, cyIcon);
 
-        if (bFull)
-        {
+        if (bFull) {
             pSize->cx += CXIMAGEGAP + GetSystemMetrics(SM_CXSMICON) + CXIMAGEGAP + CXIMAGEGAP;
             pSize->cy += CYIMAGEGAP;
-        }
-        else
-        {
+        } else {
             pSize->cx = cxIcon;
         }
     }
@@ -1239,7 +1145,7 @@ BOOL CMenuDraw::GetExtent(SIZE *pSize, BOOL bFull)
 }
 
 
-BOOL CMenuDraw::DrawItem(HDC hDC, RECT *prc, BOOL bFull)
+BOOL CMenuDraw::DrawItem(HDC hDC, RECT* prc, BOOL bFull)
 {
     RECT rc = *prc;
     int cxIcon = GetSystemMetrics(SM_CXSMICON);
@@ -1247,45 +1153,40 @@ BOOL CMenuDraw::DrawItem(HDC hDC, RECT *prc, BOOL bFull)
 
     FillRect(hDC, prc, GetSysColorBrush(COLOR_MENU));
 
-    if (!InitStringAndIcon())
-    {
+    if (!InitStringAndIcon()) {
         return(FALSE);
     }
 
-    if (bFull)
-    {
+    if (bFull) {
         rc.left += CXIMAGEGAP;
     }
 
-    DrawIconEx(hDC, rc.left, rc.top + (rc.bottom-rc.top-cyIcon)/2, m_hiItem,
-        0, 0, 0, NULL, DI_NORMAL);
+    DrawIconEx(hDC, rc.left, rc.top + (rc.bottom - rc.top - cyIcon) / 2, m_hiItem,
+               0, 0, 0, NULL, DI_NORMAL);
 
-    if (!bFull)
-    {
+    if (!bFull) {
         // All done
         return(TRUE);
     }
 
     CRefMenuFont crFont(this);
-    if (!(BOOL)crFont)
-    {
+    if (!(BOOL)crFont) {
         return(FALSE);
     }
 
     rc.left += cxIcon + CXIMAGEGAP;
     HFONT hfOld = SelectObject(hDC, m_hfMenu);
 
-    COLORREF crOldBk = SetBkColor  (hDC, GetSysColor(COLOR_MENU));
+    COLORREF crOldBk = SetBkColor(hDC, GetSysColor(COLOR_MENU));
     COLORREF crOldTx = SetTextColor(hDC, GetSysColor(COLOR_MENUTEXT));
 
     DrawText(hDC, m_pszString, -1, &rc,
-        DT_VCENTER|DT_SINGLELINE|DT_LEFT|DT_NOCLIP);
+             DT_VCENTER | DT_SINGLELINE | DT_LEFT | DT_NOCLIP);
 
-    SetBkColor  (hDC, GetSysColor(crOldBk));
+    SetBkColor(hDC, GetSysColor(crOldBk));
     SetTextColor(hDC, GetSysColor(crOldTx));
 
-    if (hfOld)
-    {
+    if (hfOld) {
         SelectObject(hDC, hfOld);
     }
 
@@ -1299,37 +1200,32 @@ HBITMAP CMenuDraw::CreateBitmap(BOOL bFull)
 
     // Reference font here so we do not create it twice
     CRefMenuFont crFont(this);
-    if (!(BOOL)crFont)
-    {
+    if (!(BOOL)crFont) {
         return(FALSE);
     }
 
-    if (!GetExtent(&size, bFull))
-    {
+    if (!GetExtent(&size, bFull)) {
         return(NULL);
     }
 
     CWindowDC wdcScreen(NULL);
     CDCTemp cdcTemp(CreateCompatibleDC(wdcScreen));
-    if (!(HDC)cdcTemp)
-    {
+    if (!(HDC)cdcTemp) {
         return(NULL);
     }
 
     HBITMAP hbmItem = CreateCompatibleBitmap(wdcScreen, size.cx, size.cy);
-    if (!hbmItem)
-    {
+    if (!hbmItem) {
         return(NULL);
     }
 
     HBITMAP hbmOld = (HBITMAP)SelectObject(cdcTemp, hbmItem);
-    RECT rc = { 0, 0, size.cx, size.cy };
+    RECT rc = {0, 0, size.cx, size.cy};
     BOOL bDrawn = DrawItem(cdcTemp, &rc, bFull);
 
     SelectObject(cdcTemp, hbmOld);
 
-    if (!bDrawn)
-    {
+    if (!bDrawn) {
         DeleteObject(hbmItem);
         hbmItem = NULL;
     }
@@ -1344,20 +1240,20 @@ class CContentMenu : public IShellExtInit, public IContextMenu2
     ~CContentMenu();
 
     // IUnknown
-    STDMETHOD(QueryInterface)(REFIID riid, void **ppvObj);
-    STDMETHOD_(ULONG,AddRef)(void);
-    STDMETHOD_(ULONG,Release)(void);
+    STDMETHOD(QueryInterface)(REFIID riid, void** ppvObj);
+    STDMETHOD_(ULONG, AddRef)(void);
+    STDMETHOD_(ULONG, Release)(void);
 
     // IContextMenu
     STDMETHOD(QueryContextMenu)(HMENU hmenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags);
     STDMETHOD(InvokeCommand)(LPCMINVOKECOMMANDINFO lpici);
-    STDMETHOD(GetCommandString)(UINT idCmd, UINT uType, UINT *pRes, LPSTR pszName, UINT cchMax);
+    STDMETHOD(GetCommandString)(UINT idCmd, UINT uType, UINT* pRes, LPSTR pszName, UINT cchMax);
 
     // IContextMenu2
     STDMETHOD(HandleMenuMsg)(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     // IShellExtInit
-    STDMETHOD(Initialize)(LPCITEMIDLIST pidlFolder, IDataObject *pdtobj, HKEY hkeyProgID);
+    STDMETHOD(Initialize)(LPCITEMIDLIST pidlFolder, IDataObject* pdtobj, HKEY hkeyProgID);
 
     static HMENU LoadPopupMenu(UINT id, UINT uSubMenu);
     HRESULT InitMenu();
@@ -1365,10 +1261,10 @@ class CContentMenu : public IShellExtInit, public IContextMenu2
     LPITEMIDLIST m_pidlFolder;
     HMENU m_hmItems;
 
-    friend STDAPI CContentMenu_CreateInstance(IUnknown *punkOuter, IUnknown **ppunk, LPCOBJECTINFO poi);
+    friend STDAPI CContentMenu_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk, LPCOBJECTINFO poi);
 
-    class CContentItemDataArray *m_pIDs;
-} ;
+    class CContentItemDataArray* m_pIDs;
+};
 
 CContentMenu::CContentMenu() : m_pidlFolder(0), m_hmItems(NULL), m_pIDs(NULL)
 {
@@ -1386,20 +1282,15 @@ CContentMenu::~CContentMenu()
         delete m_pIDs;
 }
 
-HRESULT CContentMenu::QueryInterface(REFIID riid, void **ppvObj)
+HRESULT CContentMenu::QueryInterface(REFIID riid, void** ppvObj)
 {
     if (IsEqualIID(riid, IID_IUnknown) ||
         IsEqualIID(riid, IID_IContextMenu) ||
-        IsEqualIID(riid, IID_IContextMenu2))
-    {
-        *ppvObj = SAFECAST(this, IContextMenu2 *);
-    }
-    else if (IsEqualIID(riid, IID_IShellExtInit))
-    {
-        *ppvObj = SAFECAST(this, IShellExtInit *);
-    }
-    else
-    {
+        IsEqualIID(riid, IID_IContextMenu2)) {
+        *ppvObj = SAFECAST(this, IContextMenu2*);
+    } else if (IsEqualIID(riid, IID_IShellExtInit)) {
+        *ppvObj = SAFECAST(this, IShellExtInit*);
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -1426,10 +1317,9 @@ ULONG CContentMenu::Release()
 }
 
 
-STDMETHODIMP CContentMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject *pdtobj, HKEY hkeyProgID)
+STDMETHODIMP CContentMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject* pdtobj, HKEY hkeyProgID)
 {
-    if (!pdtobj)
-    {
+    if (!pdtobj) {
         return(E_INVALIDARG);
     }
 
@@ -1437,15 +1327,13 @@ STDMETHODIMP CContentMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject *pdt
     FORMATETC fmte = {(USHORT)cfHIDA, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
     STGMEDIUM medium;
     HRESULT hRes = pdtobj->GetData(&fmte, &medium);
-    if (FAILED(hRes))
-    {
+    if (FAILED(hRes)) {
         return(hRes);
     }
 
     CHIDA chSel(medium.hGlobal, medium.pUnkForRelease);
 
-    if (m_pidlFolder)
-    {
+    if (m_pidlFolder) {
         ILFree(m_pidlFolder);
     }
 
@@ -1456,11 +1344,11 @@ STDMETHODIMP CContentMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject *pdt
 
 // ** IContextMenu methods **
 STDMETHODIMP CContentMenu::QueryContextMenu(
-                                            HMENU hmenu,
-                                            UINT indexMenu,
-                                            UINT idCmdFirst,
-                                            UINT idCmdLast,
-                                            UINT uFlags)
+    HMENU hmenu,
+    UINT indexMenu,
+    UINT idCmdFirst,
+    UINT idCmdLast,
+    UINT uFlags)
 {
     MENUITEMINFO mii;
     UINT idMax = idCmdFirst + IDC_PRESSMOD;
@@ -1468,7 +1356,7 @@ STDMETHODIMP CContentMenu::QueryContextMenu(
     if (uFlags & CMF_DEFAULTONLY)
         return NOERROR;
 
-    HMENU hmenuSub =  CreatePopupMenu();
+    HMENU hmenuSub = CreatePopupMenu();
     if (!hmenuSub)
         return E_OUTOFMEMORY;
 
@@ -1480,26 +1368,22 @@ STDMETHODIMP CContentMenu::QueryContextMenu(
     mii.fType = MFT_STRING;
     mii.dwTypeData = szTitle;
     mii.wID = idCmdFirst + IDC_PRESSMOD;
-    mii.fState = MF_DISABLED|MF_GRAYED;
+    mii.fState = MF_DISABLED | MF_GRAYED;
     idMax = mii.wID + 1;
 
     HRESULT hRes = InitMenu();
-    if (SUCCEEDED(hRes))
-    {
+    if (SUCCEEDED(hRes)) {
         UINT idM = Shell_MergeMenus(hmenuSub, m_hmItems, 0, idCmdFirst, idCmdLast, 0);
 
-        if (GetMenuItemCount(hmenuSub) > 0)
-        {
+        if (GetMenuItemCount(hmenuSub) > 0) {
             mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
             mii.hSubMenu = hmenuSub;
             idMax = idM;
         }
     }
 
-    if (InsertMenuItem(hmenu, indexMenu, TRUE, &mii) && (mii.fMask & MIIM_SUBMENU))
-    {
-    }
-    else
+    if (InsertMenuItem(hmenu, indexMenu, TRUE, &mii) && (mii.fMask & MIIM_SUBMENU)) {
+    } else
         DestroyMenu(hmenuSub);
 
     return(ResultFromShort(idMax - idCmdFirst));
@@ -1508,44 +1392,38 @@ STDMETHODIMP CContentMenu::QueryContextMenu(
 
 STDMETHODIMP CContentMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpici)
 {
-    if (HIWORD(lpici->lpVerb))
-    {
+    if (HIWORD(lpici->lpVerb)) {
         // Deal with string commands
         return(E_INVALIDARG);
     }
 
     UINT uID = (UINT)LOWORD((DWORD)lpici->lpVerb);
-    switch (uID)
-    {
+    switch (uID) {
     case IDC_PRESSMOD:
         ShellMessageBox(MLGetHinst(), lpici->hwnd, MAKEINTRESOURCE(IDS_PRESSMOD),
-            MAKEINTRESOURCE(IDS_THISDLL), MB_OK|MB_ICONINFORMATION);
+                        MAKEINTRESOURCE(IDS_THISDLL), MB_OK | MB_ICONINFORMATION);
         break;
 
     case IDC_SHIFTMORE:
         ShellMessageBox(MLGetHinst(), lpici->hwnd, MAKEINTRESOURCE(IDS_SHIFTMORE),
-            MAKEINTRESOURCE(IDS_THISDLL), MB_OK|MB_ICONINFORMATION);
+                        MAKEINTRESOURCE(IDS_THISDLL), MB_OK | MB_ICONINFORMATION);
         break;
 
     default:
-        if (m_hmItems)
-        {
+        if (m_hmItems) {
             CContentItemInfo mii(MIIM_DATA);
 
-            if (!mii.GetMenuItemInfo(m_hmItems, uID, FALSE))
-            {
+            if (!mii.GetMenuItemInfo(m_hmItems, uID, FALSE)) {
                 return(E_INVALIDARG);
             }
 
-            CContentItemData *pData = mii.GetItemData();
-            if (!pData || !pData->m_pidl)
-            {
+            CContentItemData* pData = mii.GetItemData();
+            if (!pData || !pData->m_pidl) {
                 return(E_INVALIDARG);
             }
 
             LPITEMIDLIST pidlAbs = ILCombine(m_pidlFolder, pData->m_pidl);
-            if (!pidlAbs)
-            {
+            if (!pidlAbs) {
                 return(E_OUTOFMEMORY);
             }
 
@@ -1554,10 +1432,10 @@ STDMETHODIMP CContentMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpici)
             sei.cbSize = sizeof(sei);
             sei.fMask = SEE_MASK_INVOKEIDLIST;
             sei.lpVerb = NULL;
-            sei.hwnd         = lpici->hwnd;
+            sei.hwnd = lpici->hwnd;
             sei.lpParameters = lpici->lpParameters;
-            sei.lpDirectory  = lpici->lpDirectory;
-            sei.nShow        = lpici->nShow;
+            sei.lpDirectory = lpici->lpDirectory;
+            sei.nShow = lpici->nShow;
             sei.lpIDList = (LPVOID)pidlAbs;
 
             ShellExecuteEx(&sei);
@@ -1574,7 +1452,7 @@ STDMETHODIMP CContentMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpici)
 }
 
 
-STDMETHODIMP CContentMenu::GetCommandString(UINT idCmd, UINT uType, UINT *pRes, LPSTR pszName, UINT cchMax)
+STDMETHODIMP CContentMenu::GetCommandString(UINT idCmd, UINT uType, UINT* pRes, LPSTR pszName, UINT cchMax)
 {
     return E_NOTIMPL;
 }
@@ -1588,61 +1466,50 @@ STDMETHODIMP CContentMenu::HandleMenuMsg(UINT uMsg, WPARAM wParam, LPARAM lParam
 
 HRESULT CContentMenu::InitMenu()
 {
-    if (!m_pidlFolder)
-    {
+    if (!m_pidlFolder) {
         return(E_UNEXPECTED);
     }
 
-    if (m_hmItems)
-    {
+    if (m_hmItems) {
         return(NOERROR);
     }
 
-    if (m_pIDs)
-    {
+    if (m_pIDs) {
         return(E_UNEXPECTED);
     }
 
     m_pIDs = new CContentItemDataArray(m_pidlFolder);
-    if (!m_pIDs)
-    {
+    if (!m_pIDs) {
         return(E_OUTOFMEMORY);
     }
 
     HRESULT hRes = m_pIDs->Init();
-    if (FAILED(hRes))
-    {
+    if (FAILED(hRes)) {
         return(hRes);
     }
 
     BOOL bGotAll = (hRes == S_OK);
 
     m_hmItems = CreatePopupMenu();
-    if (!m_hmItems)
-    {
+    if (!m_hmItems) {
         return(E_OUTOFMEMORY);
     }
 
     UINT cy = 0;
     BOOL bBitmaps = TRUE;
 
-    if (!bGotAll)
-    {
+    if (!bGotAll) {
         HMENU hmenuMerge = LoadPopupMenu(MENU_ITEMCONTEXT, 1);
-        if (hmenuMerge)
-        {
+        if (hmenuMerge) {
             Shell_MergeMenus(m_hmItems, hmenuMerge, 0, 0, 1000, 0);
             DestroyMenu(hmenuMerge);
-        }
-        else
+        } else
             return E_OUTOFMEMORY;
     }
 
-    for (int i=0; ; ++i)
-    {
-        CContentItemData * pID = (*m_pIDs)[i];
-        if (!pID)
-        {
+    for (int i = 0; ; ++i) {
+        CContentItemData* pID = (*m_pIDs)[i];
+        if (!pID) {
             // All done
             break;
         }
@@ -1654,8 +1521,7 @@ HRESULT CContentMenu::InitMenu()
 
         cy += bm.bmHeight;
 
-        if (i==0 && !bGotAll)
-        {
+        if (i == 0 && !bGotAll) {
             // Account for the menu item we added above
             cy += cy;
         }
@@ -1665,8 +1531,7 @@ HRESULT CContentMenu::InitMenu()
         mii.SetItemData(pID);
         mii.wID = id;
 
-        if (cy >= (UINT)GetSystemMetrics(SM_CYSCREEN)*4/5)
-        {
+        if (cy >= (UINT)GetSystemMetrics(SM_CYSCREEN) * 4 / 5) {
             // Put in a menu break when we fill 80% the screen
             mii.fType |= MFT_MENUBARBREAK;
             cy = bm.bmHeight;
@@ -1675,13 +1540,12 @@ HRESULT CContentMenu::InitMenu()
 
         mii.SetBitmap(pID->m_hbm);
 
-        if (!InsertMenuItem(m_hmItems, DPA_LAST, TRUE, &mii))
-        {
+        if (!InsertMenuItem(m_hmItems, DPA_LAST, TRUE, &mii)) {
             return(E_OUTOFMEMORY);
         }
     }
 
-    return(m_hmItems ? NOERROR: HMENU);
+    return(m_hmItems ? NOERROR : HMENU);
 }
 
 
@@ -1701,14 +1565,13 @@ HMENU CContentMenu::LoadPopupMenu(UINT id, UINT uSubMenu)
 // 57D5ECC0-A23F-11CE-AE65-08002B2E1262
 DEFINE_GUID(CLSID_ContentMenu, 0x57D5ECC0L, 0xA23F, 0x11CE, 0xAE, 0x65, 0x08, 0x00, 0x2B, 0x2E, 0x12, 0x62);
 
-STDAPI CContentMenu_CreateInstance(IUnknown *punkOuter, IUnknown **ppunk, LPCOBJECTINFO poi)
+STDAPI CContentMenu_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk, LPCOBJECTINFO poi)
 {
     // aggregation checking is handled in class factory
 
-    CContentMenu *pmenu = new CContentMenu();
-    if (pmenu)
-    {
-        *ppunk = SAFECAST(pmenu, IContextMenu2 *);
+    CContentMenu* pmenu = new CContentMenu();
+    if (pmenu) {
+        *ppunk = SAFECAST(pmenu, IContextMenu2*);
         return NOERROR;
     }
 
@@ -1746,7 +1609,7 @@ typedef struct
     LPVOID lpData;
     DWORD cbData;
     HKEY hkeyNew;
-} NEWFILEINFO, *LPNEWFILEINFO;
+} NEWFILEINFO, * LPNEWFILEINFO;
 
 
 // ShellNew config flags
@@ -1761,40 +1624,40 @@ typedef struct
 #define NEWTYPE_FOLDER  0x0007
 #define NEWTYPE_LINK    0x0008
 
-class CNewMenu : public IContextMenu3, IShellExtInit,IObjectWithSite
+class CNewMenu : public IContextMenu3, IShellExtInit, IObjectWithSite
 {
 
 
     // IUnknown
-    STDMETHOD(QueryInterface)(REFIID riid, void **ppvObj);
-    STDMETHOD_(ULONG,AddRef)(void);
-    STDMETHOD_(ULONG,Release)(void);
+    STDMETHOD(QueryInterface)(REFIID riid, void** ppvObj);
+    STDMETHOD_(ULONG, AddRef)(void);
+    STDMETHOD_(ULONG, Release)(void);
 
     // IContextMenu
     STDMETHOD(QueryContextMenu)(HMENU hmenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags);
     STDMETHOD(InvokeCommand)(LPCMINVOKECOMMANDINFO lpici);
-    STDMETHOD(GetCommandString)(UINT idCmd, UINT uType, UINT *pRes, LPSTR pszName, UINT cchMax);
+    STDMETHOD(GetCommandString)(UINT idCmd, UINT uType, UINT* pRes, LPSTR pszName, UINT cchMax);
 
     // IContextMenu2
     STDMETHOD(HandleMenuMsg)(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     // IContextMenu3
-    STDMETHOD(HandleMenuMsg2)(UINT uMsg, WPARAM wParam, LPARAM lParam,LRESULT *lResult);
+    STDMETHOD(HandleMenuMsg2)(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* lResult);
 
     // IShellExtInit
-    STDMETHOD(Initialize)(LPCITEMIDLIST pidlFolder, IDataObject *pdtobj, HKEY hkeyProgID);
+    STDMETHOD(Initialize)(LPCITEMIDLIST pidlFolder, IDataObject* pdtobj, HKEY hkeyProgID);
 
     //IObjectWithSite
     STDMETHOD(SetSite)(IUnknown*);
-    STDMETHOD(GetSite)(REFIID,void**);
+    STDMETHOD(GetSite)(REFIID, void**);
 
     int    _cRef;
     HMENU   _hmenu;
     UINT    _idCmdFirst;
     HIMAGELIST _himlSystemImageList;
     // UINT    _idCmdLast;
-    IDataObject *_pdtobj;
-    IShellView2*    _pShellView2;
+    IDataObject* _pdtobj;
+    IShellView2* _pShellView2;
     LPCITEMIDLIST   _pidlFolder;
     POINT           _ptNewItem;
     BOOL            _bMenuBar;
@@ -1803,12 +1666,12 @@ class CNewMenu : public IContextMenu3, IShellExtInit,IObjectWithSite
     LPNEWOBJECTINFO _lpnoiLast;
 
 
-    friend HRESULT CNewMenu_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppvOut);
+    friend HRESULT CNewMenu_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppvOut);
 
 private:
     //Handle Menu messages submitted to HandleMenuMsg
-    void DrawItem(DRAWITEMSTRUCT *lpdi);
-    LRESULT MeasureItem(MEASUREITEMSTRUCT *lpmi);
+    void DrawItem(DRAWITEMSTRUCT* lpdi);
+    LRESULT MeasureItem(MEASUREITEMSTRUCT* lpmi);
     BOOL InitMenuPopup(HMENU hMenu);
 
     //Internal Helpers
@@ -1817,37 +1680,35 @@ private:
     HRESULT CopyTemplate(HWND hwnd, LPTSTR szPath, LPNEWFILEINFO lpnfi);
 };
 
-extern "C" void DisplaySystemError(HWND hwnd,DWORD dwError, ...)
+extern "C" void DisplaySystemError(HWND hwnd, DWORD dwError, ...)
 {
     LPTSTR szMessage;
     va_list ArgList;
 
     va_start(ArgList, dwError);
-    DWORD dw = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-        NULL,dwError,GetSystemDefaultLangID(),(LPTSTR)&szMessage,0,&ArgList);
+    DWORD dw = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+                             NULL, dwError, GetSystemDefaultLangID(), (LPTSTR)&szMessage, 0, &ArgList);
     va_end(ArgList);
-    if (dw)
-    {
-        ShellMessageBox(MLGetHinst(),hwnd,szMessage, MAKEINTRESOURCE(IDS_NEWFILE_ERROR_TITLE),
-            (MB_OK | MB_ICONEXCLAMATION),NULL);
+    if (dw) {
+        ShellMessageBox(MLGetHinst(), hwnd, szMessage, MAKEINTRESOURCE(IDS_NEWFILE_ERROR_TITLE),
+                        (MB_OK | MB_ICONEXCLAMATION), NULL);
         LocalFree(szMessage);
     }
 }
 
-void GetConfigFlags(HKEY hkey, DWORD * pdwFlags)
+void GetConfigFlags(HKEY hkey, DWORD* pdwFlags)
 {
     TCHAR szTemp[MAX_PATH];
     DWORD cbData = ARRAYSIZE(szTemp);
 
     *pdwFlags = SNCF_DEFAULT;
 
-    if (RegQueryValueEx(hkey, TEXT("NoExtension"), 0, NULL, (BYTE *)szTemp, &cbData) == ERROR_SUCCESS)
-    {
+    if (RegQueryValueEx(hkey, TEXT("NoExtension"), 0, NULL, (BYTE*)szTemp, &cbData) == ERROR_SUCCESS) {
         *pdwFlags |= SNCF_NOEXT;
     }
 }
 
-BOOL GetNewFileInfoForKey(HKEY hkeyExt, LPNEWFILEINFO lpnfi, DWORD * pdwFlags)
+BOOL GetNewFileInfoForKey(HKEY hkeyExt, LPNEWFILEINFO lpnfi, DWORD* pdwFlags)
 {
     BOOL fRet = FALSE;
     HKEY hKey; // this gets the \\.ext\progid  key
@@ -1856,7 +1717,7 @@ BOOL GetNewFileInfoForKey(HKEY hkeyExt, LPNEWFILEINFO lpnfi, DWORD * pdwFlags)
     LONG lSize = SIZEOF(szProgID);
 
     // open the Newcommand
-    if (RegQueryValue(hkeyExt, NULL,  szProgID, &lSize) != ERROR_SUCCESS) {
+    if (RegQueryValue(hkeyExt, NULL, szProgID, &lSize) != ERROR_SUCCESS) {
         return FALSE;
     }
 
@@ -1880,15 +1741,12 @@ BOOL GetNewFileInfoForKey(HKEY hkeyExt, LPNEWFILEINFO lpnfi, DWORD * pdwFlags)
                 *pdwFlags = 0;
         }
 
-        if (cbData = SIZEOF(szTemp), (RegQueryValueEx(hkeyNew, TEXT("NullFile"), 0, &dwType, (LPBYTE)szTemp, &cbData) == ERROR_SUCCESS))
-        {
+        if (cbData = SIZEOF(szTemp), (RegQueryValueEx(hkeyNew, TEXT("NullFile"), 0, &dwType, (LPBYTE)szTemp, &cbData) == ERROR_SUCCESS)) {
             fRet = TRUE;
             if (lpnfi)
                 lpnfi->type = NEWTYPE_NULL;
-        }
-        else if (cbData = SIZEOF(szTemp), (RegQueryValueEx(hkeyNew, TEXT("FileName"), 0, &dwType, (LPBYTE)szTemp, &cbData) == ERROR_SUCCESS)
-            && ((dwType == REG_SZ) || (dwType == REG_EXPAND_SZ)))
-        {
+        } else if (cbData = SIZEOF(szTemp), (RegQueryValueEx(hkeyNew, TEXT("FileName"), 0, &dwType, (LPBYTE)szTemp, &cbData) == ERROR_SUCCESS)
+                   && ((dwType == REG_SZ) || (dwType == REG_EXPAND_SZ))) {
             fRet = TRUE;
             if (lpnfi) {
                 lpnfi->type = NEWTYPE_FILE;
@@ -1898,10 +1756,8 @@ BOOL GetNewFileInfoForKey(HKEY hkeyExt, LPNEWFILEINFO lpnfi, DWORD * pdwFlags)
 
                 hkeyNew = NULL;
             }
-        }
-        else if (cbData = SIZEOF(szTemp), (RegQueryValueEx(hkeyNew, TEXT("command"), 0, &dwType, (LPBYTE)szTemp, &cbData) == ERROR_SUCCESS)
-            && ((dwType == REG_SZ) || (dwType == REG_EXPAND_SZ)))
-        {
+        } else if (cbData = SIZEOF(szTemp), (RegQueryValueEx(hkeyNew, TEXT("command"), 0, &dwType, (LPBYTE)szTemp, &cbData) == ERROR_SUCCESS)
+                   && ((dwType == REG_SZ) || (dwType == REG_EXPAND_SZ))) {
 
             fRet = TRUE;
             if (lpnfi) {
@@ -1911,54 +1767,42 @@ BOOL GetNewFileInfoForKey(HKEY hkeyExt, LPNEWFILEINFO lpnfi, DWORD * pdwFlags)
                 lpnfi->lpData = StrDup(szTemp);
                 hkeyNew = NULL;
             }
-        }
-        else if ((RegQueryValueEx(hkeyNew, TEXT("Data"), 0, &dwType, NULL, &cbData) == ERROR_SUCCESS) && cbData)
-        {
+        } else if ((RegQueryValueEx(hkeyNew, TEXT("Data"), 0, &dwType, NULL, &cbData) == ERROR_SUCCESS) && cbData) {
             // yes!  the data for a new file is stored in the registry
             fRet = TRUE;
             // do they want the data?
-            if (lpnfi)
-            {
+            if (lpnfi) {
                 lpnfi->type = NEWTYPE_DATA;
                 lpnfi->cbData = cbData;
                 lpnfi->lpData = (void*)LocalAlloc(LPTR, cbData);
 #ifdef UNICODE
-                if (lpnfi->lpData)
-                {
-                    if (dwType == REG_SZ)
-                    {
+                if (lpnfi->lpData) {
+                    if (dwType == REG_SZ) {
 
 
                         //  Get the Unicode data from the registry.
 
                         LPWSTR pszTemp = (LPWSTR)LocalAlloc(LPTR, cbData);
-                        if (pszTemp)
-                        {
+                        if (pszTemp) {
                             RegQueryValueEx(hkeyNew, TEXT("Data"), 0, &dwType, (LPBYTE)pszTemp, &cbData);
 
                             lpnfi->cbData = SHUnicodeToAnsi(pszTemp, (LPSTR)lpnfi->lpData, cbData);
-                            if (lpnfi->cbData == 0)
-                            {
+                            if (lpnfi->cbData == 0) {
                                 LocalFree(lpnfi->lpData);
                                 lpnfi->lpData = NULL;
                             }
 
                             LocalFree(pszTemp);
-                        }
-                        else
-                        {
+                        } else {
                             LocalFree(lpnfi->lpData);
                             lpnfi->lpData = NULL;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         RegQueryValueEx(hkeyNew, TEXT("Data"), 0, &dwType, (BYTE*)lpnfi->lpData, &cbData);
                     }
                 }
 #else
-                if (lpnfi->lpData)
-                {
+                if (lpnfi->lpData) {
                     RegQueryValueEx(hkeyNew, TEXT("Data"), 0, &dwType, (BYTE*)lpnfi->lpData, &cbData);
                 }
 #endif
@@ -1994,15 +1838,14 @@ BOOL GetNewFileInfoForExtension(LPNEWOBJECTINFO lpnoi, LPNEWFILEINFO lpnfi, HKEY
 
     // if there IS a UserFile specified, then it's a file, and that szUserFile points to it..
     if (!phKey && !lpnoi->szUserFile[0] ||
-        (phKey && !*phKey))
-    {
+        (phKey && !*phKey)) {
         // check the new keys under the class id (if any)
         TCHAR szSubKey[128];
         wsprintf(szSubKey, TEXT("%s\\CLSID"), lpnoi->szClass);
         lSize = SIZEOF(szValue);
         if (RegQueryValue(HKEY_CLASSES_ROOT, szSubKey, szValue, &lSize) == ERROR_SUCCESS) {
 
-            wsprintf(szSubKey,TEXT("CLSID\\%s"), szValue);
+            wsprintf(szSubKey, TEXT("CLSID\\%s"), szValue);
             lSize = SIZEOF(szValue);
             if (RegOpenKey(HKEY_CLASSES_ROOT, szSubKey, &hkeyNew) == ERROR_SUCCESS) {
 
@@ -2050,13 +1893,13 @@ BOOL GetNewFileInfoForExtension(LPNEWOBJECTINFO lpnoi, LPNEWFILEINFO lpnfi, HKEY
         DWORD dwType;
         // we're iterating through...
 
-Iterate:
+    Iterate:
 
         dwSize = ARRAYSIZE(lpnoi->szUserFile);
         dwData = ARRAYSIZE(lpnoi->szMenuText);
 
         if (RegEnumValue(*phKey, *piIndex, lpnoi->szUserFile, &dwSize, NULL,
-            &dwType, (LPBYTE)lpnoi->szMenuText, &dwData) == ERROR_SUCCESS) {
+                         &dwType, (LPBYTE)lpnoi->szMenuText, &dwData) == ERROR_SUCCESS) {
             (*piIndex)++;
             // if there's something more than the null..
             if (dwData <= 1) {
@@ -2078,13 +1921,13 @@ Iterate:
 HFILE WINAPI Win32_lcreat(LPCTSTR lpszFileName, int fnAttrib)
 {
 #ifdef UNICODE
-    HFILE handle = (HFILE)CreateFile( lpszFileName,
-        GENERIC_READ | GENERIC_WRITE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE,
-        NULL,
-        CREATE_ALWAYS,
-        fnAttrib & FILE_ATTRIBUTE_VALID_FLAGS,
-        NULL);
+    HFILE handle = (HFILE)CreateFile(lpszFileName,
+                                     GENERIC_READ | GENERIC_WRITE,
+                                     FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                     NULL,
+                                     CREATE_ALWAYS,
+                                     fnAttrib & FILE_ATTRIBUTE_VALID_FLAGS,
+                                     NULL);
 #else
     HFILE handle = _lcreat(lpszFileName, fnAttrib);
 #endif
@@ -2097,23 +1940,19 @@ HFILE WINAPI Win32_lcreat(LPCTSTR lpszFileName, int fnAttrib)
 BOOL CreateWriteCloseFile(HWND hwnd, LPTSTR szFileName, LPVOID lpData, DWORD cbData)
 {
     HFILE hfile = Win32_lcreat(szFileName, 0);
-    if (hfile != HFILE_ERROR)
-    {
-        if (cbData)
-        {
+    if (hfile != HFILE_ERROR) {
+        if (cbData) {
             _lwrite(hfile, (char*)lpData, cbData);
         }
         _lclose(hfile);
         return TRUE;
-    }
-    else
-    {
+    } else {
         PathRemoveExtension(szFileName);
 
         //SHSysErrorMessageBox(hwnd, NULL, IDS_CANNOTCREATEFILE,
         //    GetLastError(), PathFindFileName(szFileName),
         //    MB_OK | MB_ICONEXCLAMATION);
-        DisplaySystemError(NULL,GetLastError(), PathFindFileName(szFileName));
+        DisplaySystemError(NULL, GetLastError(), PathFindFileName(szFileName));
     }
     return FALSE;
 }
@@ -2130,12 +1969,10 @@ CNewMenu::~CNewMenu()
     TraceMsg(TF_SHDLIFE, "dtor CNewMenu %x", this);
     int i;
 
-    if (_hmenu)
-    {
-        for (i = GetMenuItemCount(_hmenu) - 1 ; i >= 0 ; i--)
-        {
+    if (_hmenu) {
+        for (i = GetMenuItemCount(_hmenu) - 1; i >= 0; i--) {
             LPNEWOBJECTINFO lpNewObjInfo = GetItemData(_hmenu, i);
-            if(lpNewObjInfo != NULL)
+            if (lpNewObjInfo != NULL)
                 LocalFree(lpNewObjInfo);
 
             // Since we own the sub menu items, delete them.
@@ -2153,13 +1990,12 @@ CNewMenu::~CNewMenu()
     ATOMICRELEASE(_pShellView2);
 }
 
-HRESULT CNewMenu_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppvOut)
+HRESULT CNewMenu_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppvOut)
 {
     // aggregation checking is handled in class factory
 
-    CNewMenu * pShellNew = new CNewMenu();
-    if (pShellNew)
-    {
+    CNewMenu* pShellNew = new CNewMenu();
+    if (pShellNew) {
         HRESULT hres = pShellNew->QueryInterface(riid, ppvOut);
         pShellNew->Release();
         return hres;
@@ -2168,25 +2004,18 @@ HRESULT CNewMenu_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppvOut)
     return E_OUTOFMEMORY;
 }
 
-HRESULT CNewMenu::QueryInterface(REFIID riid, void **ppvObj)
+HRESULT CNewMenu::QueryInterface(REFIID riid, void** ppvObj)
 {
     if (IsEqualIID(riid, IID_IUnknown) ||
         IsEqualIID(riid, IID_IContextMenu) ||
         IsEqualIID(riid, IID_IContextMenu2) ||
-        IsEqualIID(riid, IID_IContextMenu3))
-    {
-        *ppvObj = SAFECAST(this, IContextMenu3 *);
-    }
-    else if (IsEqualIID(riid, IID_IShellExtInit))
-    {
-        *ppvObj = SAFECAST(this, IShellExtInit *);
-    }
-    else if (IsEqualIID(riid, IID_IObjectWithSite))
-    {
-        *ppvObj = SAFECAST(this, IObjectWithSite *);
-    }
-    else
-    {
+        IsEqualIID(riid, IID_IContextMenu3)) {
+        *ppvObj = SAFECAST(this, IContextMenu3*);
+    } else if (IsEqualIID(riid, IID_IShellExtInit)) {
+        *ppvObj = SAFECAST(this, IShellExtInit*);
+    } else if (IsEqualIID(riid, IID_IObjectWithSite)) {
+        *ppvObj = SAFECAST(this, IObjectWithSite*);
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -2223,12 +2052,12 @@ HRESULT CNewMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT idCmdFirst,
 
     if (uFlags & (CMF_DEFAULTONLY | CMF_VERBSONLY))
         return NOERROR;
-    if(uFlags & CMF_DVFILE)
+    if (uFlags & CMF_DVFILE)
         _bMenuBar = TRUE;
     else
         _bMenuBar = FALSE;
 
-    _idCmdFirst = idCmdFirst+2;
+    _idCmdFirst = idCmdFirst + 2;
     TCHAR szNewMenu[80];
     MLLoadString(IDS_NEWMENU, szNewMenu, ARRAYSIZE(szNewMenu));
 
@@ -2239,32 +2068,32 @@ HRESULT CNewMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT idCmdFirst,
 
     _hmenu = CreatePopupMenu();
     mfi.cbSize = sizeof(MENUITEMINFO);
-    mfi.fMask = MIIM_ID|MIIM_TYPE;
-    mfi.wID = idCmdFirst+1;
+    mfi.fMask = MIIM_ID | MIIM_TYPE;
+    mfi.wID = idCmdFirst + 1;
     mfi.fType = MFT_STRING;
     mfi.dwTypeData = szNewMenu;
 
-    InsertMenuItem(_hmenu,0,TRUE,&mfi);
+    InsertMenuItem(_hmenu, 0, TRUE, &mfi);
 
-    mfi.fMask = MIIM_ID|MIIM_SUBMENU|MIIM_TYPE|MIIM_DATA;
+    mfi.fMask = MIIM_ID | MIIM_SUBMENU | MIIM_TYPE | MIIM_DATA;
     mfi.fType = MFT_STRING;
     mfi.wID = idCmdFirst;
     mfi.hSubMenu = _hmenu;
     mfi.dwTypeData = szNewMenu;
 
-    InsertMenuItem(hmenu,indexMenu,TRUE,&mfi);
+    InsertMenuItem(hmenu, indexMenu, TRUE, &mfi);
 
     _hmenu = NULL;
     return ResultFromShort(_idCmdFirst - idCmdFirst + 1);
 }
 
 #define HACKERISH //When this is defined, the behavior looks nicer,
-                    //but the code sucks and is hard to understand.
+//but the code sucks and is hard to understand.
 
 HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 {
     TCHAR szPath[MAX_PATH];
-    TCHAR szFileSpec[MAX_PATH+80];   // Add some slop incase we overflow
+    TCHAR szFileSpec[MAX_PATH + 80];   // Add some slop incase we overflow
 
     NEWFILEINFO nfi;
     DWORD dwError;
@@ -2276,13 +2105,11 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
     if (_lpnoiLast == NULL)
         return E_FAIL;
 
-    SHGetPathFromIDList(_pidlFolder,szPath);
+    SHGetPathFromIDList(_pidlFolder, szPath);
 
 
-    if (IsLFNDrive(szPath))
-    {
-        switch(_lpnoiLast->dwFlags)
-        {
+    if (IsLFNDrive(szPath)) {
+        switch (_lpnoiLast->dwFlags) {
         case NEWTYPE_FOLDER:
             MLLoadString(IDS_FOLDERLONGPLATE, szFileSpec, ARRAYSIZE(szFileSpec));
             break;
@@ -2294,15 +2121,12 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
             lstrcat(szFileSpec, _lpnoiLast->szMenuText);
             SHStripMneumonic(szFileSpec);
 
-            if ( !(_lpnoiLast->dwFlags & SNCF_NOEXT) )
+            if (!(_lpnoiLast->dwFlags & SNCF_NOEXT))
                 lstrcat(szFileSpec, _lpnoiLast->szExt);
             break;
         }
-    }
-    else
-    {
-        switch(_lpnoiLast->dwFlags)
-        {
+    } else {
+        switch (_lpnoiLast->dwFlags) {
         case NEWTYPE_FOLDER:
             MLLoadString(IDS_FOLDERTEMPLATE, szFileSpec, ARRAYSIZE(szFileSpec));
             break;
@@ -2321,20 +2145,17 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
             // then flip the order of concatenation so that the
             // string is read properly for Arabic. [samera]
 
-            if (IS_BIDI_LOCALIZED_SYSTEM())
-            {
-                TCHAR szTemp[MAX_PATH+80];       // Add some slop incase we overflow
+            if (IS_BIDI_LOCALIZED_SYSTEM()) {
+                TCHAR szTemp[MAX_PATH + 80];       // Add some slop incase we overflow
                 szTemp[0] = 0;
                 lstrcpy(szTemp, szFileSpec);
                 wnsprintf(szFileSpec, ARRAYSIZE(szFileSpec), TEXT("%s %s"), _lpnoiLast->szMenuText, szTemp);
-            }
-            else
-            {
+            } else {
                 lstrcat(szFileSpec, _lpnoiLast->szMenuText);
             }
             SHStripMneumonic(szFileSpec);
 
-            if ( !(_lpnoiLast->dwFlags & SNCF_NOEXT) )
+            if (!(_lpnoiLast->dwFlags & SNCF_NOEXT))
                 lstrcat(szFileSpec, _lpnoiLast->szExt);
             break;
         }
@@ -2342,63 +2163,53 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
         PathCleanupSpec(szPath, szFileSpec);
     }
 
-    if (!PathYetAnotherMakeUniqueName(szPath, szPath, szFileSpec, szFileSpec))
-    {
+    if (!PathYetAnotherMakeUniqueName(szPath, szPath, szFileSpec, szFileSpec)) {
         dwError = ERROR_FILENAME_EXCED_RANGE;
         goto Error;
     }
 
 
-    switch(_lpnoiLast->dwFlags)
-    {
+    switch (_lpnoiLast->dwFlags) {
     case NEWTYPE_FOLDER:
-        {//Special Case: Handle Folder creation here.
-            if (CreateDirectory(szPath,NULL))
-            {
+    {//Special Case: Handle Folder creation here.
+        if (CreateDirectory(szPath, NULL)) {
 #ifdef HACKERISH
-                SHChangeNotify(SHCNE_MKDIR,SHCNF_PATH,szPath,NULL);
+            SHChangeNotify(SHCNE_MKDIR, SHCNF_PATH, szPath, NULL);
 #endif
-                hres = NOERROR;
-            }
-            else
-                goto Error;
-            break;
-        }
+            hres = NOERROR;
+        } else
+            goto Error;
+        break;
+    }
     case NEWTYPE_LINK:
-        {//Special Case: Lookup Command in Registry under key
-            //HKCR/.lnk/ShellNew/Command
-            TCHAR szCommand[MAX_PATH];
-            DWORD dwLength = ARRAYSIZE(szCommand);
-            DWORD dwType;
-            CreateWriteCloseFile(pici->hwnd,szPath,NULL,0);
-            if(ERROR_SUCCESS == SHGetValue(HKEY_CLASSES_ROOT,TEXT(".lnk\\ShellNew"),
-                TEXT("Command"),&dwType,szCommand,&dwLength))
-            {
-                hres = RunCommand(pici->hwnd,szPath,szCommand);
-            }
-            break;
+    {//Special Case: Lookup Command in Registry under key
+        //HKCR/.lnk/ShellNew/Command
+        TCHAR szCommand[MAX_PATH];
+        DWORD dwLength = ARRAYSIZE(szCommand);
+        DWORD dwType;
+        CreateWriteCloseFile(pici->hwnd, szPath, NULL, 0);
+        if (ERROR_SUCCESS == SHGetValue(HKEY_CLASSES_ROOT, TEXT(".lnk\\ShellNew"),
+                                        TEXT("Command"), &dwType, szCommand, &dwLength)) {
+            hres = RunCommand(pici->hwnd, szPath, szCommand);
         }
+        break;
+    }
     default:
         break;
     }
 
-    if (FAILED(hres) && !GetNewFileInfoForExtension(_lpnoiLast, &nfi, NULL, NULL))
-    {
+    if (FAILED(hres) && !GetNewFileInfoForExtension(_lpnoiLast, &nfi, NULL, NULL)) {
         dwError = ERROR_BADKEY;
         goto Error;
     }
 
-    if(FAILED(hres))
-    {
-        switch (nfi.type)
-        {
+    if (FAILED(hres)) {
+        switch (nfi.type) {
         case NEWTYPE_NULL:
-            if (!CreateWriteCloseFile(pici->hwnd, szPath, NULL, 0))
-            {
+            if (!CreateWriteCloseFile(pici->hwnd, szPath, NULL, 0)) {
                 // do some sort of error
                 hres = E_FAIL;
-            }
-            else
+            } else
                 hres = NOERROR;
             break;
 
@@ -2411,8 +2222,7 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 
         case NEWTYPE_FILE:
             hres = CopyTemplate(pici->hwnd, szPath, &nfi);
-            if (hres == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
-            {
+            if (hres == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
                 dwError = ERROR_FILE_NOT_FOUND;
                 goto Error;
             }
@@ -2420,7 +2230,7 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 
         case NEWTYPE_COMMAND:
             hres = RunCommand(pici->hwnd, szPath, (LPTSTR)nfi.lpData);
-            if(hres == S_FALSE)
+            if (hres == S_FALSE)
                 hres = NOERROR;
             break;
         default:
@@ -2429,8 +2239,7 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
         }
     }
 
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
 
 #if defined (HACKERISH) && 0 // see #if 0 below for explanation
         //"SHCNE_FREESPACE instead of SHCNE_CREATE?" You ask?
@@ -2445,28 +2254,24 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
         // things without drive letters.  So this hack doesn't work after
         // all.  We'll live with the icon flicker.
 #endif
-        SHChangeNotify(SHCNE_FREESPACE,SHCNF_PATH | SHCNF_FLUSH,szPath,NULL);
+        SHChangeNotify(SHCNE_FREESPACE, SHCNF_PATH | SHCNF_FLUSH, szPath, NULL);
 #else
-        SHChangeNotify(SHCNE_CREATE,SHCNF_PATH | SHCNF_FLUSH,szPath,NULL);
+        SHChangeNotify(SHCNE_CREATE, SHCNF_PATH | SHCNF_FLUSH, szPath, NULL);
 #endif
         SHChangeNotifyHandleEvents();
-        if(_pShellView2)
-        {
+        if (_pShellView2) {
             pidlNewObj = ILCreateFromPath(szPath);
-            if (pidlNewObj)
-            {
+            if (pidlNewObj) {
 #ifndef HACKERISH
                 IShellFolderView* pFolderView = NULL;
-                if(SUCCEEDED(_pShellView2->QueryInterface(IID_IShellFolderView,(void**)&pFolderView)))
-                {
+                if (SUCCEEDED(_pShellView2->QueryInterface(IID_IShellFolderView, (void**)&pFolderView))) {
                     pFolderView->SetRedraw(FALSE);
                 }
 #endif
-                if(!_bMenuBar)
-                {
+                if (!_bMenuBar) {
                     DWORD dwFlags = SVSI_SELECT | SVSI_TRANSLATEPT;
 #ifdef HACKERISH
-                    if(!(_lpnoiLast->dwFlags & NEWTYPE_LINK))
+                    if (!(_lpnoiLast->dwFlags & NEWTYPE_LINK))
                         dwFlags |= SVSI_EDIT;
 #endif
 
@@ -2474,17 +2279,16 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
                 }
 #ifdef HACKERISH
                 else
-                    _pShellView2->SelectItem(ILFindLastID(pidlNewObj),SVSI_EDIT|SVSI_SELECT);
+                    _pShellView2->SelectItem(ILFindLastID(pidlNewObj), SVSI_EDIT | SVSI_SELECT);
 #endif
 
 #ifndef HACKERISH
-                if(pFolderView)
-                {
+                if (pFolderView) {
                     pFolderView->SetRedraw(TRUE);
                     pFolderView->Release();
                     pFolderView = NULL;
                 }
-                _pShellView2->SelectItem(ILFindLastID(pidlNewObj),SVSI_EDIT|SVSI_SELECT);
+                _pShellView2->SelectItem(ILFindLastID(pidlNewObj), SVSI_EDIT | SVSI_SELECT);
 #endif
                 ILFree(pidlNewObj);
             }
@@ -2499,14 +2303,14 @@ HRESULT CNewMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 
 Error:
 
-    DisplaySystemError(NULL,GetLastError(), PathFindFileName(szPath));
+    DisplaySystemError(NULL, GetLastError(), PathFindFileName(szPath));
     return E_FAIL;
 
 
 
 }
 
-HRESULT CNewMenu::GetCommandString(UINT idCmd, UINT uType, UINT *pRes, LPSTR pszName, UINT cchMax)
+HRESULT CNewMenu::GetCommandString(UINT idCmd, UINT uType, UINT* pRes, LPSTR pszName, UINT cchMax)
 {
     return E_NOTIMPL;
 }
@@ -2516,63 +2320,59 @@ BOOL _MenuCharMatch(LPCTSTR lpsz, TCHAR ch, BOOL fIgnoreAmpersand);
 
 HRESULT CNewMenu::HandleMenuMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    return HandleMenuMsg2(uMsg,wParam,lParam,NULL);
+    return HandleMenuMsg2(uMsg, wParam, lParam, NULL);
 }
 
-HRESULT CNewMenu::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam,LRESULT *lResult)
+HRESULT CNewMenu::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* lResult)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_INITMENUPOPUP:
-        {
-            if(_hmenu == NULL)
-            {
-                _hmenu = (HMENU)wParam;
-            }
-
-            InitMenuPopup(_hmenu);
+    {
+        if (_hmenu == NULL) {
+            _hmenu = (HMENU)wParam;
         }
-        break;
+
+        InitMenuPopup(_hmenu);
+    }
+    break;
 
     case WM_DRAWITEM:
-        {
-            DRAWITEMSTRUCT * pdi = (DRAWITEMSTRUCT *)lParam;
+    {
+        DRAWITEMSTRUCT* pdi = (DRAWITEMSTRUCT*)lParam;
 
-            DrawItem(pdi);
-        }
-        break;
+        DrawItem(pdi);
+    }
+    break;
 
     case WM_MEASUREITEM:
-        {
-            MEASUREITEMSTRUCT *pmi = (MEASUREITEMSTRUCT *)lParam;
+    {
+        MEASUREITEMSTRUCT* pmi = (MEASUREITEMSTRUCT*)lParam;
 
-            MeasureItem(pmi);
+        MeasureItem(pmi);
 
-        }
-        break;
+    }
+    break;
     case WM_MENUCHAR:
-        {
-            int c = GetMenuItemCount(_hmenu);
-            for (int i = 0; i < c; i++)
-            {
-                LPNEWOBJECTINFO lpnoi = GetItemData(_hmenu, i);
-                if(lpnoi && _MenuCharMatch(lpnoi->szMenuText,(TCHAR)LOWORD(wParam),FALSE))
-                {
-                    _lpnoiLast = lpnoi;
-                    if(lResult) *lResult = MAKELONG(i,MNC_EXECUTE);
-                    return S_OK;
-                }
+    {
+        int c = GetMenuItemCount(_hmenu);
+        for (int i = 0; i < c; i++) {
+            LPNEWOBJECTINFO lpnoi = GetItemData(_hmenu, i);
+            if (lpnoi && _MenuCharMatch(lpnoi->szMenuText, (TCHAR)LOWORD(wParam), FALSE)) {
+                _lpnoiLast = lpnoi;
+                if (lResult) *lResult = MAKELONG(i, MNC_EXECUTE);
+                return S_OK;
             }
-            if(lResult) *lResult = MAKELONG(0,MNC_IGNORE);
-            return S_FALSE;
-
         }
+        if (lResult) *lResult = MAKELONG(0, MNC_IGNORE);
+        return S_FALSE;
+
+    }
 
     }
     return NOERROR;
 }
 
-HRESULT CNewMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject *pdtobj, HKEY hkeyProgID)
+HRESULT CNewMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject* pdtobj, HKEY hkeyProgID)
 {
     if (_pdtobj)
         _pdtobj->Release();
@@ -2589,10 +2389,9 @@ HRESULT CNewMenu::Initialize(LPCITEMIDLIST pidlFolder, IDataObject *pdtobj, HKEY
 }
 
 
-void CNewMenu::DrawItem(DRAWITEMSTRUCT *lpdi)
+void CNewMenu::DrawItem(DRAWITEMSTRUCT* lpdi)
 {
-    if ((lpdi->itemAction & ODA_SELECT) || (lpdi->itemAction & ODA_DRAWENTIRE))
-    {
+    if ((lpdi->itemAction & ODA_SELECT) || (lpdi->itemAction & ODA_DRAWENTIRE)) {
         DWORD dwRop;
         int x, y;
         SIZE sz;
@@ -2602,66 +2401,56 @@ void CNewMenu::DrawItem(DRAWITEMSTRUCT *lpdi)
 
         GetTextExtentPoint(lpdi->hDC, lpnoi->szMenuText, lstrlen(lpnoi->szMenuText), &sz);
 
-        if (lpdi->itemState & ODS_SELECTED)
-        {
+        if (lpdi->itemState & ODS_SELECTED) {
             SetBkColor(lpdi->hDC, GetSysColor(COLOR_HIGHLIGHT));
             SetTextColor(lpdi->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
             // REVIEW HACK - keep track of the last selected item.
             _lpnoiLast = lpnoi;
             dwRop = SRCSTENCIL;
-            FillRect(lpdi->hDC,&lpdi->rcItem,GetSysColorBrush(COLOR_HIGHLIGHT));
-        }
-        else
-        {
+            FillRect(lpdi->hDC, &lpdi->rcItem, GetSysColorBrush(COLOR_HIGHLIGHT));
+        } else {
             dwRop = SRCAND;
             SetTextColor(lpdi->hDC, GetSysColor(COLOR_MENUTEXT));
-            FillRect(lpdi->hDC,&lpdi->rcItem,GetSysColorBrush(COLOR_MENU));
+            FillRect(lpdi->hDC, &lpdi->rcItem, GetSysColorBrush(COLOR_MENU));
         }
 
         RECT rc = lpdi->rcItem;
-        rc.left += +2*CXIMAGEGAP+g_cxSmIcon;
+        rc.left += +2 * CXIMAGEGAP + g_cxSmIcon;
 
 
-        DrawText(lpdi->hDC,lpnoi->szMenuText,lstrlen(lpnoi->szMenuText),
-            &rc,DT_SINGLELINE|DT_VCENTER);
-        if (lpnoi->iImage != -1)
-        {
-            x = lpdi->rcItem.left+CXIMAGEGAP;
-            y = (lpdi->rcItem.bottom+lpdi->rcItem.top-g_cySmIcon)/2;
+        DrawText(lpdi->hDC, lpnoi->szMenuText, lstrlen(lpnoi->szMenuText),
+                 &rc, DT_SINGLELINE | DT_VCENTER);
+        if (lpnoi->iImage != -1) {
+            x = lpdi->rcItem.left + CXIMAGEGAP;
+            y = (lpdi->rcItem.bottom + lpdi->rcItem.top - g_cySmIcon) / 2;
             ImageList_Draw(_himlSystemImageList, lpnoi->iImage, lpdi->hDC, x, y, ILD_TRANSPARENT);
-        }
-        else
-        {
-            x = lpdi->rcItem.left+CXIMAGEGAP;
-            y = (lpdi->rcItem.bottom+lpdi->rcItem.top-g_cySmIcon)/2;
+        } else {
+            x = lpdi->rcItem.left + CXIMAGEGAP;
+            y = (lpdi->rcItem.bottom + lpdi->rcItem.top - g_cySmIcon) / 2;
         }
     }
 }
 
-LRESULT CNewMenu::MeasureItem(MEASUREITEMSTRUCT *lpmi)
+LRESULT CNewMenu::MeasureItem(MEASUREITEMSTRUCT* lpmi)
 {
     LRESULT lres = FALSE;
     LPNEWOBJECTINFO lpnoi = (LPNEWOBJECTINFO)lpmi->itemData;
-    if (lpnoi)
-    {
+    if (lpnoi) {
         // Get the rough height of an item so we can work out when to break the
         // menu. User should really do this for us but that would be useful.
         HDC hdc = GetDC(NULL);
-        if (hdc)
-        {
+        if (hdc) {
             // REVIEW cache out the menu font?
             NONCLIENTMETRICS ncm;
             ncm.cbSize = SIZEOF(NONCLIENTMETRICS);
-            if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SIZEOF(ncm), &ncm, FALSE))
-            {
+            if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SIZEOF(ncm), &ncm, FALSE)) {
                 HFONT hfont = CreateFontIndirect(&ncm.lfMenuFont);
-                if (hfont)
-                {
+                if (hfont) {
                     SIZE sz;
                     HFONT hfontOld = (HFONT)SelectObject(hdc, hfont);
                     GetTextExtentPoint(hdc, lpnoi->szMenuText, lstrlen(lpnoi->szMenuText), &sz);
-                    lpmi->itemHeight = max (g_cySmIcon+CXIMAGEGAP/2, ncm.iMenuHeight);
-                    lpmi->itemWidth = g_cxSmIcon + 2*CXIMAGEGAP + sz.cx;
+                    lpmi->itemHeight = max(g_cySmIcon + CXIMAGEGAP / 2, ncm.iMenuHeight);
+                    lpmi->itemWidth = g_cxSmIcon + 2 * CXIMAGEGAP + sz.cx;
                     //lpmi->itemWidth = 2*CXIMAGEGAP + sz.cx;
                     SelectObject(hdc, hfontOld);
                     DeleteObject(hfont);
@@ -2670,34 +2459,30 @@ LRESULT CNewMenu::MeasureItem(MEASUREITEMSTRUCT *lpmi)
             }
             ReleaseDC(NULL, hdc);
         }
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_SHDLIFE, "fm_mi: Filemenu is invalid.");
     }
 
     return lres;
 }
 
-BOOL GetClassDisplayName(LPTSTR szClass,LPTSTR szDisplayName,DWORD cchDisplayName)
+BOOL GetClassDisplayName(LPTSTR szClass, LPTSTR szDisplayName, DWORD cchDisplayName)
 {
     DWORD dwType;
     cchDisplayName *= sizeof(TCHAR);
-    if(SHGetValue(HKEY_CLASSES_ROOT,szClass,TEXT(""), &dwType,
-        (BYTE*)szDisplayName,&cchDisplayName) == ERROR_SUCCESS)
-    {
-        TCHAR szTemp[MAX_PATH+40]; //Saw this in shell32/fsassoc.h
+    if (SHGetValue(HKEY_CLASSES_ROOT, szClass, TEXT(""), &dwType,
+                   (BYTE*)szDisplayName, &cchDisplayName) == ERROR_SUCCESS) {
+        TCHAR szTemp[MAX_PATH + 40]; //Saw this in shell32/fsassoc.h
         DWORD cbExe;
-        wsprintf(szTemp,TEXT("%s\\%s"),szClass,TEXT("shell\\open\\command"));
+        wsprintf(szTemp, TEXT("%s\\%s"), szClass, TEXT("shell\\open\\command"));
 
         //I just want to see if there is an open command for this class.
-        if(SHGetValue(HKEY_CLASSES_ROOT,szTemp,TEXT(""),
-            &dwType,NULL,&cbExe) == ERROR_SUCCESS)
-        {
-            if(szDisplayName[0] == TEXT('\0'))
+        if (SHGetValue(HKEY_CLASSES_ROOT, szTemp, TEXT(""),
+                       &dwType, NULL, &cbExe) == ERROR_SUCCESS) {
+            if (szDisplayName[0] == TEXT('\0'))
                 return FALSE;
 
-            if(cbExe > 0)
+            if (cbExe > 0)
                 return TRUE;
         }
     }
@@ -2714,7 +2499,7 @@ BOOL CNewMenu::InitMenuPopup(HMENU hmenu)
         return FALSE;
 
     //Remove the place holder.
-    DeleteMenu(hmenu,0,MF_BYPOSITION);
+    DeleteMenu(hmenu, 0, MF_BYPOSITION);
 
     //Insert Special Owner Draw Menuitems
     noi.szExt[0] = '\0';
@@ -2722,32 +2507,28 @@ BOOL CNewMenu::InitMenuPopup(HMENU hmenu)
     MLLoadString(IDS_NEWFOLDER, noi.szMenuText, ARRAYSIZE(noi.szMenuText));
     noi.dwFlags = NEWTYPE_FOLDER;
     noi.szUserFile[0] = 0;
-    noi.iImage = Shell_GetCachedImageIndex(TEXT("shell32.dll"),II_FOLDER,0); //Shange to indicate Folder
+    noi.iImage = Shell_GetCachedImageIndex(TEXT("shell32.dll"), II_FOLDER, 0); //Shange to indicate Folder
     lpnoi = (LPNEWOBJECTINFO)LocalAlloc(LPTR, SIZEOF(NEWOBJECTINFO));
-    if (lpnoi)
-    {
+    if (lpnoi) {
         *lpnoi = noi;
-        if(!AppendMenu(hmenu, MF_OWNERDRAW, _idCmdFirst-2, (LPTSTR)lpnoi))
-        {
+        if (!AppendMenu(hmenu, MF_OWNERDRAW, _idCmdFirst - 2, (LPTSTR)lpnoi)) {
             LocalFree((void*)lpnoi);
         }
     }
 
     MLLoadString(IDS_NEWLINK, noi.szMenuText, ARRAYSIZE(noi.szMenuText));
-    noi.iImage = noi.iImage = Shell_GetCachedImageIndex(TEXT("shell32.dll"),II_LINK,0); //Shange to indicate Link
+    noi.iImage = noi.iImage = Shell_GetCachedImageIndex(TEXT("shell32.dll"), II_LINK, 0); //Shange to indicate Link
     noi.dwFlags = NEWTYPE_LINK;
     lpnoi = (LPNEWOBJECTINFO)LocalAlloc(LPTR, SIZEOF(NEWOBJECTINFO));
-    if (lpnoi)
-    {
+    if (lpnoi) {
         *lpnoi = noi;
-        if(!AppendMenu(hmenu, MF_OWNERDRAW, _idCmdFirst-1, (LPTSTR)lpnoi))
-        {
+        if (!AppendMenu(hmenu, MF_OWNERDRAW, _idCmdFirst - 1, (LPTSTR)lpnoi)) {
             LocalFree((void*)lpnoi);
         }
     }
 
     //Seperator
-    AppendMenu(hmenu,MF_SEPARATOR,0,NULL);
+    AppendMenu(hmenu, MF_SEPARATOR, 0, NULL);
 
 
 
@@ -2755,8 +2536,7 @@ BOOL CNewMenu::InitMenuPopup(HMENU hmenu)
     int i;
 
     for (i = 0; RegEnumKey(HKEY_CLASSES_ROOT, i, szExt, ARRAYSIZE(szExt))
-        == ERROR_SUCCESS; i++)
-    {
+         == ERROR_SUCCESS; i++) {
         TCHAR szClass[CCH_KEYMAX];
         TCHAR szDisplayName[CCH_KEYMAX];
         LONG lSize = SIZEOF(szClass);
@@ -2766,8 +2546,7 @@ BOOL CNewMenu::InitMenuPopup(HMENU hmenu)
             RegQueryValue(HKEY_CLASSES_ROOT, szExt, szClass, &lSize) == ERROR_SUCCESS
             && (lSize > 0)
             && GetClassDisplayName(szClass,
-            szDisplayName, ARRAYSIZE(szDisplayName)))
-        {
+                                   szDisplayName, ARRAYSIZE(szDisplayName))) {
             HKEY hkeyIterate = NULL;
             int iIndex = 0;
 
@@ -2778,29 +2557,23 @@ BOOL CNewMenu::InitMenuPopup(HMENU hmenu)
             noi.szUserFile[0] = 0;
             noi.iImage = -1;
 
-            while (GetNewFileInfoForExtension(&noi, NULL, &hkeyIterate, &iIndex))
-            {
+            while (GetNewFileInfoForExtension(&noi, NULL, &hkeyIterate, &iIndex)) {
                 lpnoi = (LPNEWOBJECTINFO)
                     LocalAlloc(LPTR, SIZEOF(NEWOBJECTINFO));
-                if (lpnoi)
-                {
+                if (lpnoi) {
                     SHFILEINFO sfi;
                     *lpnoi = noi;
 
-                    if(0 != (_himlSystemImageList = (HIMAGELIST)SHGetFileInfo(szExt,FILE_ATTRIBUTE_NORMAL,
-                        &sfi,sizeof(SHFILEINFO),SHGFI_USEFILEATTRIBUTES | SHGFI_SYSICONINDEX | SHGFI_SMALLICON)))
-                    {
+                    if (0 != (_himlSystemImageList = (HIMAGELIST)SHGetFileInfo(szExt, FILE_ATTRIBUTE_NORMAL,
+                                                                               &sfi, sizeof(SHFILEINFO), SHGFI_USEFILEATTRIBUTES | SHGFI_SYSICONINDEX | SHGFI_SMALLICON))) {
                         //lpnoi->himlSmallIcons = sfi.hIcon;
                         lpnoi->iImage = sfi.iIcon;
-                    }
-                    else
-                    {
+                    } else {
                         //lpnoi->himlSmallIcons = INVALID_HANDLE_VALUE;
                         lpnoi->iImage = -1;
                     }
 
-                    if(!AppendMenu(hmenu, MF_OWNERDRAW, _idCmdFirst, (LPTSTR)lpnoi))
-                    {
+                    if (!AppendMenu(hmenu, MF_OWNERDRAW, _idCmdFirst, (LPTSTR)lpnoi)) {
                         LocalFree((void*)lpnoi);
                     }
                 }
@@ -2808,19 +2581,17 @@ BOOL CNewMenu::InitMenuPopup(HMENU hmenu)
         }
     }
     TraceMsg(TF_SHDLIFE, "sh TR - QueryContextMenu: filed (%x, %d)",
-        hmenu, GetMenuItemCount(hmenu));
+             hmenu, GetMenuItemCount(hmenu));
 
     // remove dups.
     // need to call GetMenuItemCount each time because
     // we're removing things...
-    for (i = iStart; i < GetMenuItemCount(hmenu); i++)
-    {
+    for (i = iStart; i < GetMenuItemCount(hmenu); i++) {
         int j;
         LPNEWOBJECTINFO lpnoi = GetItemData(hmenu, i);
         for (j = GetMenuItemCount(hmenu) - 1; j > i; j--) {
             LPNEWOBJECTINFO lpnoi2 = GetItemData(hmenu, j);
-            if (!lstrcmpi(lpnoi->szMenuText, lpnoi2->szMenuText))
-            {
+            if (!lstrcmpi(lpnoi->szMenuText, lpnoi2->szMenuText)) {
                 DeleteMenu(hmenu, j, MF_BYPOSITION);
                 LocalFree(lpnoi2);
             }
@@ -2828,7 +2599,7 @@ BOOL CNewMenu::InitMenuPopup(HMENU hmenu)
     }
 
     TraceMsg(TF_SHDLIFE, "sh TR - QueryContextMenu: dup removed (%x, %d)",
-        hmenu, GetMenuItemCount(hmenu));
+             hmenu, GetMenuItemCount(hmenu));
     return TRUE;
 }
 
@@ -2848,15 +2619,14 @@ LPNEWOBJECTINFO CNewMenu::GetItemData(HMENU hmenu, UINT iItem)
     return NULL;
 }
 
-LPTSTR ProcessArgs(LPTSTR szArgs,...)
+LPTSTR ProcessArgs(LPTSTR szArgs, ...)
 {
     LPTSTR szRet;
     va_list ArgList;
-    va_start(ArgList,szArgs);
-    if(!FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_STRING,
-        szArgs, 0, 0, (LPTSTR)&szRet, 0, &ArgList))
-    {
-        TraceMsg(TF_SHDLIFE,"sh tr - ProcessArgs failed");
+    va_start(ArgList, szArgs);
+    if (!FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_STRING,
+                       szArgs, 0, 0, (LPTSTR)&szRet, 0, &ArgList)) {
+        TraceMsg(TF_SHDLIFE, "sh tr - ProcessArgs failed");
         return NULL;
     }
     va_end(ArgList);
@@ -2867,14 +2637,14 @@ LPTSTR ProcessArgs(LPTSTR szArgs,...)
 HRESULT CNewMenu::RunCommand(HWND hwnd, LPTSTR pszPath, LPTSTR pszRun)
 {
     HRESULT hres;
-    SHELLEXECUTEINFO ei = { 0 };
+    SHELLEXECUTEINFO ei = {0};
     TCHAR szCommand[MAX_PATH];
     TCHAR szRun[MAX_PATH];
     LPTSTR pszArgs;
 
-//    lstrcpy(szCommand, pszRun);
-    ExpandEnvironmentStrings(pszRun,szCommand,MAX_PATH);
-    lstrcpy(szRun,szCommand);
+    //    lstrcpy(szCommand, pszRun);
+    ExpandEnvironmentStrings(pszRun, szCommand, MAX_PATH);
+    lstrcpy(szRun, szCommand);
     PathRemoveArgs(szCommand);
 
 
@@ -2900,37 +2670,30 @@ HRESULT CNewMenu::RunCommand(HWND hwnd, LPTSTR pszPath, LPTSTR pszRun)
 
     pszArgs = PathGetArgs(szRun);
     ptszPercent2 = StrStr(pszArgs, TEXT("%2"));
-    if (ptszPercent2 && ptszPercent2[2] != TEXT('!'))
-    {
+    if (ptszPercent2 && ptszPercent2[2] != TEXT('!')) {
         // App wants %1 = hwnd and %2 = filename
         pszArgs = ProcessArgs(pszArgs, (DWORD)hwnd, pszPath);
-    }
-    else
-    {
+    } else {
         // App wants %2 = hwnd and %1 = filename
         pszArgs = ProcessArgs(pszArgs, pszPath, (DWORD)hwnd);
     }
 
 
-    if (pszArgs)
-    {
-        ei.hwnd            = hwnd;
-        ei.lpFile          = szCommand;
-        ei.lpParameters    = pszArgs;
-        ei.nShow           = SW_SHOWNORMAL;
-        ei.cbSize          = sizeof(SHELLEXECUTEINFO);
+    if (pszArgs) {
+        ei.hwnd = hwnd;
+        ei.lpFile = szCommand;
+        ei.lpParameters = pszArgs;
+        ei.nShow = SW_SHOWNORMAL;
+        ei.cbSize = sizeof(SHELLEXECUTEINFO);
 
-        if (ShellExecuteEx(&ei))
-        {
+        if (ShellExecuteEx(&ei)) {
             // Return S_FALSE because ShellExecuteEx is not atomic
             hres = S_FALSE;
-        }
-        else
+        } else
             hres = E_FAIL;
 
         LocalFree(pszArgs);
-    }
-    else
+    } else
         hres = E_OUTOFMEMORY;
 
     return hres;
@@ -2939,7 +2702,7 @@ HRESULT CNewMenu::RunCommand(HWND hwnd, LPTSTR pszPath, LPTSTR pszRun)
 HRESULT CNewMenu::CopyTemplate(HWND hwnd, LPTSTR szPath, LPNEWFILEINFO lpnfi)
 {
     TCHAR szSrc[MAX_PATH + 1];
-    TCHAR szFileName[MAX_PATH +1];
+    TCHAR szFileName[MAX_PATH + 1];
     // now do the actual restore.
     SHFILEOPSTRUCT sFileOp =
     {
@@ -2948,7 +2711,7 @@ HRESULT CNewMenu::CopyTemplate(HWND hwnd, LPTSTR szPath, LPNEWFILEINFO lpnfi)
             szSrc,
             szPath,
             FOF_NOCONFIRMATION | FOF_MULTIDESTFILES | FOF_SILENT,
-    } ;
+    };
 
     lstrcpy(szFileName, (LPTSTR)lpnfi->lpData);
     if (PathIsFileSpec(szFileName)) {
@@ -2972,18 +2735,17 @@ HRESULT CNewMenu::SetSite(IUnknown* pUnk)
     ATOMICRELEASE(_pShellView2);
     TraceMsg(TF_SHDLIFE, "CNewMenu::SetSite = 0x%x", pUnk);
 
-    if(pUnk)
-        return pUnk->QueryInterface(IID_IShellView2,(void**)&_pShellView2);
+    if (pUnk)
+        return pUnk->QueryInterface(IID_IShellView2, (void**)&_pShellView2);
 
     return NOERROR;
 }
 
-HRESULT CNewMenu::GetSite(REFIID riid,void** ppvObj)
+HRESULT CNewMenu::GetSite(REFIID riid, void** ppvObj)
 {
-    if(_pShellView2)
-        return _pShellView2->QueryInterface(riid,ppvObj);
-    else
-    {
+    if (_pShellView2)
+        return _pShellView2->QueryInterface(riid, ppvObj);
+    else {
         ASSERT(ppvObj != NULL);
         *ppvObj = NULL;
         return E_NOINTERFACE;

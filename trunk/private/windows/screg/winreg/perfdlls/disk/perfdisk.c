@@ -73,8 +73,8 @@ Revision History:
 // global variables to this DLL
 
 HANDLE  ThisDLLHandle = NULL;
-HANDLE  hEventLog     = NULL;
-HANDLE  hLibHeap      = NULL;
+HANDLE  hEventLog = NULL;
+HANDLE  hLibHeap = NULL;
 
 BOOL    bShownDiskPerfMessage = FALSE;
 BOOL    bShownDiskVolumeMessage = FALSE;
@@ -97,9 +97,9 @@ BOOL                bRemapDriveLetters = TRUE;
 DWORD               dwMaxVolumeNumber = 0;
 
 // start off with a big buffer then size according to return values
-DWORD   WmiBufSize  = 0x10000;   // this can be smaller when the Diskperf.sys
+DWORD   WmiBufSize = 0x10000;   // this can be smaller when the Diskperf.sys
 DWORD   WmiAllocSize = 0x10000;  // function is fixed to return the right status
-LPBYTE  WmiBuffer   = NULL;
+LPBYTE  WmiBuffer = NULL;
 
 // variables local to this module
 
@@ -110,7 +110,7 @@ static POS_FUNCTION_INFO    posDataFuncInfo[] = {
 
 #define POS_NUM_FUNCS   (sizeof(posDataFuncInfo) / sizeof(posDataFuncInfo[1]))
 
-static  bInitOk  = FALSE;
+static  bInitOk = FALSE;
 static  DWORD   dwOpenCount = 0;
 
 WMIHANDLE   hWmiDiskPerf = NULL;
@@ -138,8 +138,8 @@ UCHAR PerfDiskDebugBuffer[DEBUG_BUFFER_LENGTH];
 
 static
 BOOL
-WriteNewBootTimeEntry (
-    LONGLONG *pBootTime
+WriteNewBootTimeEntry(
+    LONGLONG* pBootTime
 )
 {
     LONG    lStatus;
@@ -149,12 +149,12 @@ WriteNewBootTimeEntry (
 
     // try to read the registry value of the last time
     // this error was reported
-    lStatus = RegOpenKeyExW (HKEY_LOCAL_MACHINE, cszRegKeyPath, (DWORD)0, KEY_WRITE, &hKeyPerfDiskPerf);
+    lStatus = RegOpenKeyExW(HKEY_LOCAL_MACHINE, cszRegKeyPath, (DWORD)0, KEY_WRITE, &hKeyPerfDiskPerf);
     if (lStatus == ERROR_SUCCESS) {
         // read the key value
         dwType = REG_BINARY;
-        dwSize = sizeof (*pBootTime);
-        lStatus = RegSetValueExW (
+        dwSize = sizeof(*pBootTime);
+        lStatus = RegSetValueExW(
             hKeyPerfDiskPerf,
             (LPCWSTR)L"SystemStartTimeOfLastErrorMsg",
             0L,  // reserved
@@ -165,20 +165,20 @@ WriteNewBootTimeEntry (
             bReturn = TRUE;
         } else {
             // the value hasn't been written and
-            SetLastError (lStatus);
+            SetLastError(lStatus);
         } // else assume the value hasn't been written and
           // return FALSE
-        RegCloseKey (hKeyPerfDiskPerf);
+        RegCloseKey(hKeyPerfDiskPerf);
     } else {
         // assume the value hasn't been written and
-        SetLastError (lStatus);
+        SetLastError(lStatus);
     }
 
     return bReturn;
 }
 static
 BOOL
-NT4NamesAreDefault ()
+NT4NamesAreDefault()
 {
     LONG    lStatus;
     HKEY    hKeyPerfDiskPerf;
@@ -188,15 +188,15 @@ NT4NamesAreDefault ()
 
     // try to read the registry value of the last time
     // this error was reported
-    lStatus = RegOpenKeyExW (HKEY_LOCAL_MACHINE, cszRegKeyPath, (DWORD)0, KEY_READ, &hKeyPerfDiskPerf);
+    lStatus = RegOpenKeyExW(HKEY_LOCAL_MACHINE, cszRegKeyPath, (DWORD)0, KEY_READ, &hKeyPerfDiskPerf);
     if (lStatus == ERROR_SUCCESS) {
         // read the key value
         dwType = 0;
-        dwSize = sizeof (dwValue);
-        lStatus = RegQueryValueExW (hKeyPerfDiskPerf, cszNT4InstanceNames, 0L,  // reserved
-            &dwType,
-            (LPBYTE)&dwValue,
-            &dwSize);
+        dwSize = sizeof(dwValue);
+        lStatus = RegQueryValueExW(hKeyPerfDiskPerf, cszNT4InstanceNames, 0L,  // reserved
+                                   &dwType,
+                                   (LPBYTE)&dwValue,
+                                   &dwSize);
         if ((lStatus == ERROR_SUCCESS) && (dwType == REG_DWORD)) {
             if (dwValue != 0) {
                 bReturn = TRUE;
@@ -206,19 +206,19 @@ NT4NamesAreDefault ()
             // leave default as is and
             // return FALSE
         }
-        RegCloseKey (hKeyPerfDiskPerf);
+        RegCloseKey(hKeyPerfDiskPerf);
     } else {
         // the key could not be opened.
-        SetLastError (lStatus);
+        SetLastError(lStatus);
     }
 
     return bReturn;
 }
 
 
-static BOOL SystemHasBeenRestartedSinceLastEntry (
+static BOOL SystemHasBeenRestartedSinceLastEntry(
     DWORD   dwReserved, // just in case we want to have multiple tests in the future
-    LONGLONG *pBootTime // a buffer to receive the current boot time
+    LONGLONG* pBootTime // a buffer to receive the current boot time
 )
 {
     BOOL        bReturn = TRUE;
@@ -234,22 +234,22 @@ static BOOL SystemHasBeenRestartedSinceLastEntry (
     DBG_UNREFERENCED_PARAMETER(dwReserved);
 
     // get the current system boot time (as a filetime)
-    memset ((LPVOID)&SysTimeInfo, 0, sizeof(SysTimeInfo));
+    memset((LPVOID)&SysTimeInfo, 0, sizeof(SysTimeInfo));
 
     ntStatus = NtQuerySystemInformation(SystemTimeOfDayInformation, &SysTimeInfo, sizeof(SysTimeInfo), &dwReturnedBufferSize);
     if (NT_SUCCESS(ntStatus)) {
         // try to read the registry value of the last time
         // this error was reported
-        lStatus = RegOpenKeyExW (HKEY_LOCAL_MACHINE, cszRegKeyPath, (DWORD)0, KEY_READ, &hKeyPerfDiskPerf);
+        lStatus = RegOpenKeyExW(HKEY_LOCAL_MACHINE, cszRegKeyPath, (DWORD)0, KEY_READ, &hKeyPerfDiskPerf);
         if (lStatus == ERROR_SUCCESS) {
             // read the key value
             dwType = 0;
-            dwSize = sizeof (llLastErrorStartTime);
-            lStatus = RegQueryValueExW (hKeyPerfDiskPerf, (LPCWSTR)L"SystemStartTimeOfLastErrorMsg", 0L,  // reserved
-                &dwType, (LPBYTE)&llLastErrorStartTime, &dwSize);
+            dwSize = sizeof(llLastErrorStartTime);
+            lStatus = RegQueryValueExW(hKeyPerfDiskPerf, (LPCWSTR)L"SystemStartTimeOfLastErrorMsg", 0L,  // reserved
+                                       &dwType, (LPBYTE)&llLastErrorStartTime, &dwSize);
             if (lStatus == ERROR_SUCCESS) {
-                assert (dwType == REG_BINARY);  // this should be a binary type
-                assert (dwSize == sizeof (LONGLONG)); // and it should be 8 bytes long
+                assert(dwType == REG_BINARY);  // this should be a binary type
+                assert(dwSize == sizeof(LONGLONG)); // and it should be 8 bytes long
                 // compare times
                 // if the times are the same, then this message has already been
                 // written since the last boot so we don't need to do it again.
@@ -259,7 +259,7 @@ static BOOL SystemHasBeenRestartedSinceLastEntry (
                 } // else they are the different times so return FALSE
             } // else assume the value hasn't been written and
               // return TRUE
-            RegCloseKey (hKeyPerfDiskPerf);
+            RegCloseKey(hKeyPerfDiskPerf);
         } // else assume the value hasn't been written and
           // return TRUE
 
@@ -275,7 +275,7 @@ static BOOL SystemHasBeenRestartedSinceLastEntry (
 
 static
 BOOL
-DllProcessAttach (
+DllProcessAttach(
     IN  HANDLE DllHandle
 )
 /*++
@@ -297,17 +297,17 @@ Description:
     UNREFERENCED_PARAMETER(DllHandle);
 
     // create heap for this library
-    if (hLibHeap == NULL) hLibHeap = HeapCreate (0, 1, 0);
-    assert (hLibHeap != NULL);
+    if (hLibHeap == NULL) hLibHeap = HeapCreate(0, 1, 0);
+    assert(hLibHeap != NULL);
 
     if (hLibHeap == NULL) {
         return FALSE;
     }
     // open handle to the event log
     if (hEventLog == NULL) hEventLog = MonOpenEventLog((LPWSTR)L"PerfDisk");
-    assert (hEventLog != NULL);
+    assert(hEventLog != NULL);
 
-    lStatus = GetPerflibKeyValue (
+    lStatus = GetPerflibKeyValue(
         szTotalValue,
         REG_SZ,
         sizeof(wszTempBuffer),
@@ -317,20 +317,20 @@ Description:
 
     if (lStatus == ERROR_SUCCESS) {
         // then a string was returned in the temp buffer
-        dwBufferSize = lstrlenW (wszTempBuffer) + 1;
-        dwBufferSize *= sizeof (WCHAR);
-        wszTotal = ALLOCMEM (hLibHeap, HEAP_ZERO_MEMORY, dwBufferSize);
+        dwBufferSize = lstrlenW(wszTempBuffer) + 1;
+        dwBufferSize *= sizeof(WCHAR);
+        wszTotal = ALLOCMEM(hLibHeap, HEAP_ZERO_MEMORY, dwBufferSize);
         if (wszTotal == NULL) {
             // unable to allocate buffer so use static buffer
             wszTotal = (LPWSTR)&szDefaultTotalString[0];
         } else {
-            memcpy (wszTotal, wszTempBuffer, dwBufferSize);
+            memcpy(wszTotal, wszTempBuffer, dwBufferSize);
 #if DBG
             HeapUsed += dwBufferSize;
             wszSize = dwBufferSize;
             DebugPrint((4,
-                "DllAttach: wszTotal add %d to %d\n",
-                dwBufferSize, HeapUsed));
+                        "DllAttach: wszTotal add %d to %d\n",
+                        dwBufferSize, HeapUsed));
 #endif
         }
     } else {
@@ -338,7 +338,7 @@ Description:
         wszTotal = (LPWSTR)&szDefaultTotalString[0];
     }
 
-    QueryPerformanceFrequency (&liSysTick);
+    QueryPerformanceFrequency(&liSysTick);
     dSysTickTo100Ns = (DOUBLE)liSysTick.QuadPart;
     dSysTickTo100Ns /= 10000000.0;
 
@@ -347,7 +347,7 @@ Description:
 
 static
 BOOL
-DllProcessDetach (
+DllProcessDetach(
     IN  HANDLE DllHandle
 )
 {
@@ -362,18 +362,18 @@ DllProcessDetach (
     }
 
     if ((wszTotal != NULL) && (wszTotal != &szDefaultTotalString[0])) {
-        FREEMEM (hLibHeap, 0, wszTotal);
+        FREEMEM(hLibHeap, 0, wszTotal);
 #if DBG
         HeapUsed -= wszSize;
         DebugPrint((4,
-            "DllDetach: wsz freed %d to %d\n",
-            wszSize, HeapUsed));
+                    "DllDetach: wsz freed %d to %d\n",
+                    wszSize, HeapUsed));
         wszSize = 0;
 #endif
         wszTotal = NULL;
     }
 
-    if (HeapDestroy (hLibHeap)) {
+    if (HeapDestroy(hLibHeap)) {
         hLibHeap = NULL;
         pVolumeList = NULL;
         pPhysDiskList = NULL;
@@ -382,7 +382,7 @@ DllProcessDetach (
     }
 
     if (hEventLog != NULL) {
-        MonCloseEventLog ();
+        MonCloseEventLog();
     }
     return TRUE;
 }
@@ -399,19 +399,19 @@ DllInit(
 
     // this will prevent the DLL from getting
     // the DLL_THREAD_* messages
-    DisableThreadLibraryCalls (DLLHandle);
+    DisableThreadLibraryCalls(DLLHandle);
 
-    switch(Reason) {
-        case DLL_PROCESS_ATTACH:
-            return DllProcessAttach (DLLHandle);
+    switch (Reason) {
+    case DLL_PROCESS_ATTACH:
+        return DllProcessAttach(DLLHandle);
 
-        case DLL_PROCESS_DETACH:
-            return DllProcessDetach (DLLHandle);
+    case DLL_PROCESS_DETACH:
+        return DllProcessDetach(DLLHandle);
 
-        case DLL_THREAD_ATTACH:
-        case DLL_THREAD_DETACH:
-        default:
-            return TRUE;
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+    default:
+        return TRUE;
     }
 }
 
@@ -425,11 +425,11 @@ MapDriveLetters()
     DWORD   dwThisEntry;
 
     if (pPhysDiskList != NULL) {
-        HeapFree (hLibHeap, 0, pPhysDiskList);
+        HeapFree(hLibHeap, 0, pPhysDiskList);
 #if DBG
         HeapUsed -= oldPLSize;
-        DebugPrint((4,"MapDriveLetters: PL Freed %d to %d\n",
-            oldPLSize, HeapUsed));
+        DebugPrint((4, "MapDriveLetters: PL Freed %d to %d\n",
+                    oldPLSize, HeapUsed));
         oldPLSize = 0;
 #endif
         pPhysDiskList = NULL;
@@ -437,12 +437,12 @@ MapDriveLetters()
     dwNumPhysDiskListEntries = INITIAL_NUM_VOL_LIST_ENTRIES;
 
     // Initially allocate enough entries for drives A through Z
-    pPhysDiskList = (PDRIVE_VOLUME_ENTRY)HeapAlloc (hLibHeap, HEAP_ZERO_MEMORY, (dwNumPhysDiskListEntries * sizeof (DRIVE_VOLUME_ENTRY)));
+    pPhysDiskList = (PDRIVE_VOLUME_ENTRY)HeapAlloc(hLibHeap, HEAP_ZERO_MEMORY, (dwNumPhysDiskListEntries * sizeof(DRIVE_VOLUME_ENTRY)));
 
 #if DBG
     if (pPhysDiskList == NULL) {
         DebugPrint((2,
-            "MapDriveLetters: pPhysDiskList alloc failure\n"));
+                    "MapDriveLetters: pPhysDiskList alloc failure\n"));
     }
 #endif
 
@@ -453,47 +453,47 @@ MapDriveLetters()
         HeapUsed += oldsize;
         oldPLSize = oldsize;
         DebugPrint((4, "MapDriveLetter: Alloc %d to %d\n",
-            oldsize, HeapUsed));
+                    oldsize, HeapUsed));
 #endif
         dwLoopCount = 10;   // no more than 10 retries to get the right size
-        while ((status = BuildPhysDiskList (
-                hWmiDiskPerf,
-                pPhysDiskList,
-                &dwNumPhysDiskListEntries)) == ERROR_INSUFFICIENT_BUFFER) {
+        while ((status = BuildPhysDiskList(
+            hWmiDiskPerf,
+            pPhysDiskList,
+            &dwNumPhysDiskListEntries)) == ERROR_INSUFFICIENT_BUFFER) {
 
-            DebugPrint ((3,
-                "MapDriveLetters: BuildPhysDiskList returns: %d, requesting %d entries\n",
-                status, dwNumPhysDiskListEntries));
+            DebugPrint((3,
+                        "MapDriveLetters: BuildPhysDiskList returns: %d, requesting %d entries\n",
+                        status, dwNumPhysDiskListEntries));
 #if DBG
             if (!HeapValidate(hLibHeap, 0, pPhysDiskList)) {
                 DebugPrint((2,
-                    "\tERROR! pPhysDiskList %X corrupted BuildPhysDiskList\n",
-                    pPhysDiskList));
+                            "\tERROR! pPhysDiskList %X corrupted BuildPhysDiskList\n",
+                            pPhysDiskList));
                 DbgBreakPoint();
             }
 #endif
 
             // if ERROR_INSUFFICIENT_BUFFER, then
             // dwNumPhysDiskListEntries should contain the required size
-            pPhysDiskList = (PDRIVE_VOLUME_ENTRY)HeapReAlloc (
+            pPhysDiskList = (PDRIVE_VOLUME_ENTRY)HeapReAlloc(
                 hLibHeap, HEAP_ZERO_MEMORY,
-                pPhysDiskList, (dwNumPhysDiskListEntries * sizeof (DRIVE_VOLUME_ENTRY)));
+                pPhysDiskList, (dwNumPhysDiskListEntries * sizeof(DRIVE_VOLUME_ENTRY)));
 
             if (pPhysDiskList == NULL) {
                 // bail if the allocation failed
                 DebugPrint((2,
-                    "MapDriveLetters: pPhysDiskList realloc failure\n"));
+                            "MapDriveLetters: pPhysDiskList realloc failure\n"));
                 status = ERROR_OUTOFMEMORY;
                 break;
             }
 #if DBG
             else {
                 HeapUsed -= oldsize; // subtract the old size and add new size
-                oldPLSize = dwNumPhysDiskListEntries*sizeof(DRIVE_VOLUME_ENTRY);
+                oldPLSize = dwNumPhysDiskListEntries * sizeof(DRIVE_VOLUME_ENTRY);
                 HeapUsed += oldPLSize;
                 DebugPrint((4,
-                    "MapDriveLetter: Realloc old %d new %d to %d\n",
-                    oldsize, oldPLSize, HeapUsed));
+                            "MapDriveLetter: Realloc old %d new %d to %d\n",
+                            oldsize, oldPLSize, HeapUsed));
             }
 #endif
             dwLoopCount--;
@@ -501,7 +501,7 @@ MapDriveLetters()
                 status = ERROR_OUTOFMEMORY;
                 break;
             }
-            DebugPrint ((3, "MapDriveLetters: %d retrying BuildPhysDiskList with %d entries\n", status, dwNumPhysDiskListEntries));
+            DebugPrint((3, "MapDriveLetters: %d retrying BuildPhysDiskList with %d entries\n", status, dwNumPhysDiskListEntries));
         }
     }
 
@@ -509,13 +509,13 @@ MapDriveLetters()
         return ERROR_OUTOFMEMORY;
     }
 
-    DebugPrint ((4,
-        "MapDriveLetters: BuildPhysDiskList returns: %d\n", status));
+    DebugPrint((4,
+                "MapDriveLetters: BuildPhysDiskList returns: %d\n", status));
 #if DBG
     if (pPhysDiskList != NULL) {
         if (!HeapValidate(hLibHeap, 0, pPhysDiskList)) {
             DebugPrint((2, "\tERROR! pPhysDiskList %X corrupted after Builds\n",
-                pPhysDiskList));
+                        pPhysDiskList));
             DbgBreakPoint();
         }
     }
@@ -527,68 +527,68 @@ MapDriveLetters()
         while (dwThisEntry != 0) {
             dwThisEntry--;
             if (pVolumeList[dwThisEntry].hVolume != NULL) {
-                NtClose (pVolumeList[dwThisEntry].hVolume);
+                NtClose(pVolumeList[dwThisEntry].hVolume);
             }
         }
 #if DBG
         HeapUsed -= oldVLSize;
-        DebugPrint((4,"MapDriveLetters: VL Freed %d to %d\n",
-            oldVLSize, HeapUsed));
+        DebugPrint((4, "MapDriveLetters: VL Freed %d to %d\n",
+                    oldVLSize, HeapUsed));
         oldVLSize = 0;
         if (!HeapValidate(hLibHeap, 0, pVolumeList)) {
             DebugPrint((2, "\tERROR! pVolumeList %X is corrupted before free\n",
-                pVolumeList));
+                        pVolumeList));
             DbgBreakPoint();
         }
 #endif
-        HeapFree (hLibHeap, 0, pVolumeList);
+        HeapFree(hLibHeap, 0, pVolumeList);
         pVolumeList = NULL;
     }
     dwNumVolumeListEntries = INITIAL_NUM_VOL_LIST_ENTRIES;
 
     // Initially allocate enough entries for letters C through Z
-    pVolumeList = (PDRIVE_VOLUME_ENTRY)HeapAlloc (hLibHeap, HEAP_ZERO_MEMORY, (dwNumVolumeListEntries * sizeof (DRIVE_VOLUME_ENTRY)));
+    pVolumeList = (PDRIVE_VOLUME_ENTRY)HeapAlloc(hLibHeap, HEAP_ZERO_MEMORY, (dwNumVolumeListEntries * sizeof(DRIVE_VOLUME_ENTRY)));
 
 #if DBG
     if (pVolumeList == NULL) {
         DebugPrint((2,
-            "MapDriveLetters: pPhysVolumeList alloc failure\n"));
+                    "MapDriveLetters: pPhysVolumeList alloc failure\n"));
     }
 #endif
 
     if (pVolumeList != NULL) {
         // try until we get a big enough buffer
 #if DBG
-        ULONG oldsize = dwNumVolumeListEntries * sizeof (DRIVE_VOLUME_ENTRY);
+        ULONG oldsize = dwNumVolumeListEntries * sizeof(DRIVE_VOLUME_ENTRY);
         HeapUsed += oldsize;
         oldVLSize = oldsize;
         DebugPrint((4,
-            "MapDriveLetter: Add %d HeapUsed %d\n", oldsize, HeapUsed));
+                    "MapDriveLetter: Add %d HeapUsed %d\n", oldsize, HeapUsed));
 #endif
         dwLoopCount = 10;   // no more than 10 retries to get the right size
-        while ((status = BuildVolumeList (
-                pVolumeList,
-                &dwNumVolumeListEntries)) == ERROR_INSUFFICIENT_BUFFER) {
+        while ((status = BuildVolumeList(
+            pVolumeList,
+            &dwNumVolumeListEntries)) == ERROR_INSUFFICIENT_BUFFER) {
             // if ERROR_INSUFFICIENT_BUFFER, then
 
-            DebugPrint ((3, "MapDriveLetters: BuildVolumeList returns: %d, requesting %d entries\n", status, dwNumPhysDiskListEntries));
+            DebugPrint((3, "MapDriveLetters: BuildVolumeList returns: %d, requesting %d entries\n", status, dwNumPhysDiskListEntries));
 
 #if DBG
             if (!HeapValidate(hLibHeap, 0, pVolumeList)) {
                 DebugPrint((2, "\tERROR! pVolumeList %X corrupted in while\n",
-                    pVolumeList));
+                            pVolumeList));
                 DbgBreakPoint();
             }
 #endif
             // dwNumVolumeListEntries should contain the required size
-            pVolumeList = (PDRIVE_VOLUME_ENTRY)HeapReAlloc (
+            pVolumeList = (PDRIVE_VOLUME_ENTRY)HeapReAlloc(
                 hLibHeap, HEAP_ZERO_MEMORY,
-                pVolumeList, (dwNumVolumeListEntries * sizeof (DRIVE_VOLUME_ENTRY)));
+                pVolumeList, (dwNumVolumeListEntries * sizeof(DRIVE_VOLUME_ENTRY)));
 
             if (pVolumeList == NULL) {
                 // bail if the allocation failed
                 DebugPrint((2,
-                    "MapDriveLetters: pPhysVolumeList realloc failure\n"));
+                            "MapDriveLetters: pPhysVolumeList realloc failure\n"));
                 status = ERROR_OUTOFMEMORY;
                 break;
             }
@@ -596,15 +596,15 @@ MapDriveLetters()
             else {
                 if (!HeapValidate(hLibHeap, 0, pVolumeList)) {
                     DebugPrint((2, "\tpVolumeList %X corrupted - realloc\n",
-                        pVolumeList));
+                                pVolumeList));
                     DbgBreakPoint();
                 }
                 HeapUsed -= oldsize; // subtract the old size and add new size
-                oldVLSize = dwNumVolumeListEntries*sizeof(DRIVE_VOLUME_ENTRY);
+                oldVLSize = dwNumVolumeListEntries * sizeof(DRIVE_VOLUME_ENTRY);
                 HeapUsed += oldVLSize;
                 DebugPrint((4,
-                    "MapDriveLetter: Realloc old %d new %d to %d\n",
-                    oldsize, oldVLSize, HeapUsed));
+                            "MapDriveLetter: Realloc old %d new %d to %d\n",
+                            oldsize, oldVLSize, HeapUsed));
             }
 #endif
             dwLoopCount--;
@@ -612,57 +612,57 @@ MapDriveLetters()
                 status = ERROR_OUTOFMEMORY;
                 break;
             }
-            DebugPrint ((3, "MapDriveLetters: retrying BuildVolumeList with %d entries\n", status, dwNumPhysDiskListEntries));
+            DebugPrint((3, "MapDriveLetters: retrying BuildVolumeList with %d entries\n", status, dwNumPhysDiskListEntries));
         }
 
-        DebugPrint ((4, "MapDriveLetters: BuildVolumeList returns %d\n", status));
+        DebugPrint((4, "MapDriveLetters: BuildVolumeList returns %d\n", status));
 
 #if DBG
         if (!HeapValidate(hLibHeap, 0, pVolumeList)) {
             DebugPrint((2, "\tpVolumeList %X corrupted after build\n",
-                pVolumeList));
+                        pVolumeList));
             DbgBreakPoint();
         }
 #endif
         // now map the disks to their drive letters
         if (status == ERROR_SUCCESS) {
-            status = MapLoadedDisks (
+            status = MapLoadedDisks(
                 hWmiDiskPerf,
                 pVolumeList,
                 &dwNumVolumeListEntries,
                 &dwMaxVolumeNumber,
                 &dwWmiDriveCount
-                );
+            );
 
-            DebugPrint ((4,
-                "MapDriveLetters: MapLoadedDisks returns status %d %d MaxVol %d WmiDrive\n",
-                status, dwNumVolumeListEntries,
-                dwMaxVolumeNumber, dwWmiDriveCount));
+            DebugPrint((4,
+                        "MapDriveLetters: MapLoadedDisks returns status %d %d MaxVol %d WmiDrive\n",
+                        status, dwNumVolumeListEntries,
+                        dwMaxVolumeNumber, dwWmiDriveCount));
         }
 
 #if DBG
         if (!HeapValidate(hLibHeap, 0, pVolumeList)) {
             DebugPrint((2, "\tpVolumeList %X corrupted by MapLoadedDisks\n",
-                pVolumeList));
+                        pVolumeList));
             DbgBreakPoint();
         }
 #endif
         if (status == ERROR_SUCCESS) {
             // now assign drive letters to the phys disk list
             dwDriveCount = 0;
-            status = MakePhysDiskInstanceNames (
-                    pPhysDiskList,
-                    dwNumPhysDiskListEntries,
-                    &dwDriveCount,
-                    pVolumeList,
-                    dwNumVolumeListEntries);
+            status = MakePhysDiskInstanceNames(
+                pPhysDiskList,
+                dwNumPhysDiskListEntries,
+                &dwDriveCount,
+                pVolumeList,
+                dwNumVolumeListEntries);
 
 #if DBG
-        if (!HeapValidate(hLibHeap, 0, pPhysDiskList)) {
-            DebugPrint((2, "\tpPhysList %X corrupted by MakePhysDiskInst\n",
-                pPhysDiskList));
-            DbgBreakPoint();
-        }
+            if (!HeapValidate(hLibHeap, 0, pPhysDiskList)) {
+                DebugPrint((2, "\tpPhysList %X corrupted by MakePhysDiskInst\n",
+                            pPhysDiskList));
+                DbgBreakPoint();
+            }
 #endif
             if (status == ERROR_SUCCESS) {
                 // then compress this into an indexed table
@@ -674,40 +674,39 @@ MapDriveLetters()
                 // the "0" drive
                 dwDriveCount += 1;
 
-                DebugPrint ((4, "\tDrive count now = %d\n",
-                    dwDriveCount));
+                DebugPrint((4, "\tDrive count now = %d\n",
+                            dwDriveCount));
 
                 // and allocate just enough for the actual physical drives
-                pPhysDiskList = (PDRIVE_VOLUME_ENTRY)HeapAlloc (hLibHeap, HEAP_ZERO_MEMORY, (dwDriveCount * sizeof (DRIVE_VOLUME_ENTRY)));
+                pPhysDiskList = (PDRIVE_VOLUME_ENTRY)HeapAlloc(hLibHeap, HEAP_ZERO_MEMORY, (dwDriveCount * sizeof(DRIVE_VOLUME_ENTRY)));
                 if (pPhysDiskList != NULL) {
-                    status = CompressPhysDiskTable (
+                    status = CompressPhysDiskTable(
                         pTempPtr,
                         dwNumPhysDiskListEntries,
                         pPhysDiskList,
                         dwDriveCount);
 
 #if DBG
-        if (!HeapValidate(hLibHeap, 0, pPhysDiskList)) {
-            DebugPrint((2, "\tpPhysList %X corrupted by CompressPhys\n",
-                pPhysDiskList));
-            DbgBreakPoint();
-        }
+                    if (!HeapValidate(hLibHeap, 0, pPhysDiskList)) {
+                        DebugPrint((2, "\tpPhysList %X corrupted by CompressPhys\n",
+                                    pPhysDiskList));
+                        DbgBreakPoint();
+                    }
 #endif
                     if (status == ERROR_SUCCESS) {
                         dwNumPhysDiskListEntries = dwDriveCount;
-                    }
-                    else {  // free if cannot compress
+                    } else {  // free if cannot compress
                         HeapFree(hLibHeap, 0, pPhysDiskList);
 #if DBG
                         HeapUsed -= dwDriveCount * sizeof(DRIVE_VOLUME_ENTRY);
                         DebugPrint((4,
-                            "MapDriveLetters: Compress freed %d to %d\n",
-                            dwDriveCount*sizeof(DRIVE_VOLUME_ENTRY), HeapUsed));
+                                    "MapDriveLetters: Compress freed %d to %d\n",
+                                    dwDriveCount * sizeof(DRIVE_VOLUME_ENTRY), HeapUsed));
 #endif
                         pPhysDiskList = NULL;
                     }
                 } else {
-                    DebugPrint((2,"MapDriveLetters: pPhysDiskList alloc fail for compress\n"));
+                    DebugPrint((2, "MapDriveLetters: pPhysDiskList alloc fail for compress\n"));
                     status = ERROR_OUTOFMEMORY;
                 }
                 if (pTempPtr) {     // Free the previous list
@@ -715,8 +714,8 @@ MapDriveLetters()
 #if DBG
                     HeapUsed -= oldPLSize;
                     DebugPrint((4,
-                        "MapDriveLetters: tempPtr freed %d to %d\n",
-                        oldPLSize, HeapUsed));
+                                "MapDriveLetters: tempPtr freed %d to %d\n",
+                                oldPLSize, HeapUsed));
                     oldPLSize = 0;
 #endif
                 }
@@ -725,8 +724,8 @@ MapDriveLetters()
                     oldPLSize = dwDriveCount * sizeof(DRIVE_VOLUME_ENTRY);
                     HeapUsed += oldPLSize;
                     DebugPrint((4,
-                        "MapDriveLetters: Compress add %d to %d\n",
-                        oldPLSize, HeapUsed));
+                                "MapDriveLetters: Compress add %d to %d\n",
+                                oldPLSize, HeapUsed));
                 }
 #endif
             }
@@ -747,9 +746,9 @@ MapDriveLetters()
 }
 
 DWORD APIENTRY
-OpenDiskObject (
+OpenDiskObject(
     LPWSTR lpDeviceNames
-    )
+)
 /*++
 
 Routine Description:
@@ -771,26 +770,26 @@ Return Value:
     LONGLONG    llLastBootTime;
     BOOL        bWriteMessage;
 
-    UNREFERENCED_PARAMETER (lpDeviceNames);
+    UNREFERENCED_PARAMETER(lpDeviceNames);
 
     DebugPrint((1, "BEGIN OpenDiskObject:\n",
-                   status));
+                status));
     if (dwOpenCount == 0) {
-        status = WmiOpenBlock (
-            (GUID *)&DiskPerfGuid,
+        status = WmiOpenBlock(
+            (GUID*)&DiskPerfGuid,
             GENERIC_READ,
             &hWmiDiskPerf);
 
         DebugPrint((3, "WmiOpenBlock returns: %d\n",
-                   status));
+                    status));
 
         if (status == ERROR_SUCCESS) {
             // build drive map
             status = MapDriveLetters();
 
             DebugPrint((3,
-                "OpenDiskObject: MapDriveLetters returns: %d\n",
-                status));
+                        "OpenDiskObject: MapDriveLetters returns: %d\n",
+                        status));
         }
         // determine instance name format
         bUseNT4InstanceNames = NT4NamesAreDefault();
@@ -805,33 +804,33 @@ Return Value:
         // write the error once per boot cycle
 
         if (status == ERROR_WMI_GUID_NOT_FOUND) {
-            bWriteMessage = SystemHasBeenRestartedSinceLastEntry (
+            bWriteMessage = SystemHasBeenRestartedSinceLastEntry(
                 0, &llLastBootTime);
 
             if (bWriteMessage) {
                 // update registry time
-                WriteNewBootTimeEntry (&llLastBootTime);
-                ReportEvent (hEventLog,
-                    EVENTLOG_ERROR_TYPE,
-                    0,
-                    PERFDISK_UNABLE_QUERY_DISKPERF_INFO,
-                    NULL,
-                    0,
-                    sizeof(DWORD),
-                    NULL,
-                    (LPVOID)&status);
+                WriteNewBootTimeEntry(&llLastBootTime);
+                ReportEvent(hEventLog,
+                            EVENTLOG_ERROR_TYPE,
+                            0,
+                            PERFDISK_UNABLE_QUERY_DISKPERF_INFO,
+                            NULL,
+                            0,
+                            sizeof(DWORD),
+                            NULL,
+                            (LPVOID)&status);
             } // else it's already been written
         } else {
             // always write other messages
-            ReportEvent (hEventLog,
-                EVENTLOG_ERROR_TYPE,
-                0,
-                PERFDISK_UNABLE_OPEN,
-                NULL,
-                0,
-                sizeof(DWORD),
-                NULL,
-                (LPVOID)&status);
+            ReportEvent(hEventLog,
+                        EVENTLOG_ERROR_TYPE,
+                        0,
+                        PERFDISK_UNABLE_OPEN,
+                        NULL,
+                        0,
+                        sizeof(DWORD),
+                        NULL,
+                        (LPVOID)&status);
         }
     } else {
         dwOpenCount++;
@@ -846,7 +845,7 @@ Return Value:
     if (status == ERROR_SUCCESS) {
         if (pPhysDiskList) {
             DebugPrint((4, "\t Validating pPhysDiskList %X at end Open\n",
-                pPhysDiskList));
+                        pPhysDiskList));
             if (!HeapValidate(hLibHeap, 0, pPhysDiskList)) {
                 DebugPrint((2, "OpenDiskObject: PhysDiskList heap corrupt!\n"));
                 DbgBreakPoint();
@@ -854,7 +853,7 @@ Return Value:
         }
         if (pVolumeList) {
             DebugPrint((4, "\t Validating pVolumeList %X at end Open\n",
-                pVolumeList));
+                        pVolumeList));
             if (!HeapValidate(hLibHeap, 0, pVolumeList)) {
                 DebugPrint((2, "OpenDiskObject: VolumeList heap corrupt!\n"));
                 DbgBreakPoint();
@@ -862,7 +861,7 @@ Return Value:
         }
         if (WmiBuffer) {
             DebugPrint((4, "\t Validating WmiBuffer %X at end Open\n",
-                WmiBuffer));
+                        WmiBuffer));
             if (!HeapValidate(hLibHeap, 0, WmiBuffer)) {
                 DebugPrint((2, "OpenDiskObject: WmiBuffer heap corrupt!\n"));
                 DbgBreakPoint();
@@ -875,9 +874,9 @@ Return Value:
 }
 
 DWORD APIENTRY
-CollectDiskObjectData (
+CollectDiskObjectData(
     IN      LPWSTR  lpValueName,
-    IN OUT  LPVOID  *lppData,
+    IN OUT  LPVOID* lppData,
     IN OUT  LPDWORD lpcbTotalBytes,
     IN OUT  LPDWORD lpNumObjectTypes
 )
@@ -935,41 +934,41 @@ Arguments:
 
     DebugPrint((1, "BEGIN CollectDiskObject:\n"));
     if (!bInitOk) {
-        *lpcbTotalBytes = (DWORD) 0;
-        *lpNumObjectTypes = (DWORD) 0;
+        *lpcbTotalBytes = (DWORD)0;
+        *lpNumObjectTypes = (DWORD)0;
         lReturn = ERROR_SUCCESS;
         bShownDiskPerfMessage = TRUE;
         goto COLLECT_BAIL_OUT;
     }
 
-    dwQueryType = GetQueryType (lpValueName);
+    dwQueryType = GetQueryType(lpValueName);
 
     switch (dwQueryType) {
-        case QUERY_ITEMS:
-            for (FunctionIndex = 0; FunctionIndex < POS_NUM_FUNCS; FunctionIndex++) {
-                if (IsNumberInUnicodeList (
-                    posDataFuncInfo[FunctionIndex].dwObjectId, lpValueName)) {
-                    FunctionCallMask |=
-                        posDataFuncInfo[FunctionIndex].dwCollectFunctionBit;
-                }
+    case QUERY_ITEMS:
+        for (FunctionIndex = 0; FunctionIndex < POS_NUM_FUNCS; FunctionIndex++) {
+            if (IsNumberInUnicodeList(
+                posDataFuncInfo[FunctionIndex].dwObjectId, lpValueName)) {
+                FunctionCallMask |=
+                    posDataFuncInfo[FunctionIndex].dwCollectFunctionBit;
             }
-            break;
+        }
+        break;
 
-        case QUERY_GLOBAL:
-            FunctionCallMask = POS_COLLECT_GLOBAL_DATA;
-            break;
+    case QUERY_GLOBAL:
+        FunctionCallMask = POS_COLLECT_GLOBAL_DATA;
+        break;
 
-        case QUERY_FOREIGN:
-            FunctionCallMask = POS_COLLECT_FOREIGN_DATA;
-            break;
+    case QUERY_FOREIGN:
+        FunctionCallMask = POS_COLLECT_FOREIGN_DATA;
+        break;
 
-        case QUERY_COSTLY:
-            FunctionCallMask = POS_COLLECT_COSTLY_DATA;
-            break;
+    case QUERY_COSTLY:
+        FunctionCallMask = POS_COLLECT_COSTLY_DATA;
+        break;
 
-        default:
-            FunctionCallMask = POS_COLLECT_COSTLY_DATA;
-            break;
+    default:
+        FunctionCallMask = POS_COLLECT_COSTLY_DATA;
+        break;
     }
 
     // collect data
@@ -982,64 +981,64 @@ Arguments:
             // only one call at a time is permitted. This should be
             // throttled by the perflib, but just in case we'll test it
 
-            assert (WmiBuffer == NULL);
+            assert(WmiBuffer == NULL);
 
             if (WmiBuffer != NULL) {
-                ReportEvent (hEventLog,
-                    EVENTLOG_ERROR_TYPE,
-                    0,
-                    PERFDISK_BUSY,
-                    NULL,
-                    0,
-                    0,
-                    NULL,
-                    NULL);
-                *lpcbTotalBytes = (DWORD) 0;
-                *lpNumObjectTypes = (DWORD) 0;
+                ReportEvent(hEventLog,
+                            EVENTLOG_ERROR_TYPE,
+                            0,
+                            PERFDISK_BUSY,
+                            NULL,
+                            0,
+                            0,
+                            NULL,
+                            NULL);
+                *lpcbTotalBytes = (DWORD)0;
+                *lpNumObjectTypes = (DWORD)0;
                 lReturn = ERROR_SUCCESS;
                 goto COLLECT_BAIL_OUT;
             } else {
-                WmiBuffer = ALLOCMEM (hLibHeap, HEAP_ZERO_MEMORY, WmiAllocSize);
+                WmiBuffer = ALLOCMEM(hLibHeap, HEAP_ZERO_MEMORY, WmiAllocSize);
 #if DBG
                 if (WmiBuffer != NULL) {
                     HeapUsed += WmiAllocSize;
                     DebugPrint((4,
-                        "CollecDiskObjectData: WmiBuffer added %d to %d\n",
-                        WmiAllocSize, HeapUsed));
+                                "CollecDiskObjectData: WmiBuffer added %d to %d\n",
+                                WmiAllocSize, HeapUsed));
                 }
 #endif
             }
 
             // the buffer pointer should NOT be null if here
 
-            if ( WmiBuffer == NULL ) {
-                ReportEvent (hEventLog,
-                    EVENTLOG_WARNING_TYPE,
-                    0,
-                    PERFDISK_UNABLE_ALLOC_BUFFER,
-                    NULL,
-                    0,
-                    0,
-                    NULL,
-                    NULL);
+            if (WmiBuffer == NULL) {
+                ReportEvent(hEventLog,
+                            EVENTLOG_WARNING_TYPE,
+                            0,
+                            PERFDISK_UNABLE_ALLOC_BUFFER,
+                            NULL,
+                            0,
+                            0,
+                            NULL,
+                            NULL);
 
-                *lpcbTotalBytes = (DWORD) 0;
-                *lpNumObjectTypes = (DWORD) 0;
+                *lpcbTotalBytes = (DWORD)0;
+                *lpNumObjectTypes = (DWORD)0;
                 lReturn = ERROR_SUCCESS;
                 goto COLLECT_BAIL_OUT;
             }
 
             WmiBufSize = WmiAllocSize;
-            Status = WmiQueryAllDataW (
+            Status = WmiQueryAllDataW(
                 hWmiDiskPerf,
                 &WmiBufSize,
                 WmiBuffer);
 
             // if buffer size attempted is too big or too small, resize
             if ((WmiBufSize > 0) && (WmiBufSize != WmiAllocSize)) {
-                WmiBuffer = REALLOCMEM (hLibHeap,
-                    HEAP_ZERO_MEMORY,
-                    WmiBuffer, WmiBufSize);
+                WmiBuffer = REALLOCMEM(hLibHeap,
+                                       HEAP_ZERO_MEMORY,
+                                       WmiBuffer, WmiBufSize);
 
                 if (WmiBuffer == NULL) {
                     // reallocation failed so bail out
@@ -1050,8 +1049,8 @@ Arguments:
 #if DBG
                     HeapUsed += (WmiBufSize - WmiAllocSize);
                     DebugPrint((4,
-                        "CollectDiskObjectData: Realloc old %d new %d to %d\n",
-                        WmiAllocSize, WmiBufSize, HeapUsed));
+                                "CollectDiskObjectData: Realloc old %d new %d to %d\n",
+                                WmiAllocSize, WmiBufSize, HeapUsed));
 #endif
                     if (WmiBufSize > WmiAllocSize) {
                         WmiAllocSize = WmiBufSize;
@@ -1062,7 +1061,7 @@ Arguments:
             if (Status == ERROR_INSUFFICIENT_BUFFER) {
                 // if it didn't work because it was too small the first time
                 // try one more time
-                Status = WmiQueryAllDataW (
+                Status = WmiQueryAllDataW(
                     hWmiDiskPerf,
                     &WmiBufSize,
                     WmiBuffer);
@@ -1074,7 +1073,7 @@ Arguments:
 
         } __except (EXCEPTION_EXECUTE_HANDLER) {
             DebugPrint((2, "\tWmiBuffer %X size %d set to NULL\n",
-                WmiBuffer, WmiAllocSize));
+                        WmiBuffer, WmiAllocSize));
             if (WmiBuffer != NULL) {
                 if (HeapValidate(hLibHeap, 0, WmiBuffer)) {
                     FREEMEM(hLibHeap, 0, WmiBuffer);
@@ -1084,14 +1083,14 @@ Arguments:
             Status = ERROR_OUTOFMEMORY;
         }
         DebugPrint((3,
-            "WmiQueryAllData status return: %x Buffer %d bytes\n",
-            Status, WmiBufSize));
+                    "WmiQueryAllData status return: %x Buffer %d bytes\n",
+                    Status, WmiBufSize));
 
     } else {
         // no data required so these counter objects must not be in
         // the query list
-        *lpcbTotalBytes = (DWORD) 0;
-        *lpNumObjectTypes = (DWORD) 0;
+        *lpcbTotalBytes = (DWORD)0;
+        *lpNumObjectTypes = (DWORD)0;
         lReturn = ERROR_SUCCESS;
         goto COLLECT_BAIL_OUT;
     }
@@ -1126,25 +1125,25 @@ Arguments:
 #if DBG
             dwQueryType = HeapValidate(hLibHeap, 0, WmiBuffer);
             DebugPrint((4,
-                "CollectDiskObjectData: Index %d HeapValid %d lReturn %d\n",
-                FunctionIndex, dwQueryType, lReturn));
+                        "CollectDiskObjectData: Index %d HeapValid %d lReturn %d\n",
+                        FunctionIndex, dwQueryType, lReturn));
             if (!dwQueryType)
                 DbgBreakPoint();
 #endif
         }
     } else {
-        ReportEvent (hEventLog,
-            EVENTLOG_WARNING_TYPE,
-            0,
-            PERFDISK_UNABLE_QUERY_DISKPERF_INFO,
-            NULL,
-            0,
-            sizeof(DWORD),
-            NULL,
-            (LPVOID)&Status);
+        ReportEvent(hEventLog,
+                    EVENTLOG_WARNING_TYPE,
+                    0,
+                    PERFDISK_UNABLE_QUERY_DISKPERF_INFO,
+                    NULL,
+                    0,
+                    sizeof(DWORD),
+                    NULL,
+                    (LPVOID)&Status);
 
-        *lpcbTotalBytes = (DWORD) 0;
-        *lpNumObjectTypes = (DWORD) 0;
+        *lpcbTotalBytes = (DWORD)0;
+        *lpNumObjectTypes = (DWORD)0;
         lReturn = ERROR_SUCCESS;
     }
 
@@ -1154,11 +1153,11 @@ Arguments:
 
 COLLECT_BAIL_OUT:
     if (WmiBuffer != NULL) {
-        FREEMEM (hLibHeap, 0, WmiBuffer);
+        FREEMEM(hLibHeap, 0, WmiBuffer);
 #if DBG
         HeapUsed -= WmiBufSize;
         DebugPrint((4, "CollectDiskObjectData: Freed %d to %d\n",
-            WmiBufSize, HeapUsed));
+                    WmiBufSize, HeapUsed));
 #endif
         WmiBuffer = NULL;
     }
@@ -1168,25 +1167,16 @@ COLLECT_BAIL_OUT:
 }
 
 DWORD APIENTRY
-CloseDiskObject (
+CloseDiskObject(
 )
 /*++
-
 Routine Description:
-
     This routine closes the open handles to the Signal Gen counters.
-
 Arguments:
-
     None.
-
-
 Return Value:
-
     ERROR_SUCCESS
-
 --*/
-
 {
     DWORD   status = ERROR_SUCCESS;
     DWORD   dwThisEntry;
@@ -1199,25 +1189,25 @@ Return Value:
             while (dwThisEntry != 0) {
                 dwThisEntry--;
                 if (pVolumeList[dwThisEntry].hVolume != NULL) {
-                    NtClose (pVolumeList[dwThisEntry].hVolume);
+                    NtClose(pVolumeList[dwThisEntry].hVolume);
                 }
             }
-            HeapFree (hLibHeap, 0, pVolumeList);
+            HeapFree(hLibHeap, 0, pVolumeList);
 #if DBG
             HeapUsed -= oldVLSize;
             DebugPrint((4, "CloseDiskObject: Freed VL %d to %d\n",
-                oldVLSize, HeapUsed));
+                        oldVLSize, HeapUsed));
             oldVLSize = 0;
 #endif
             pVolumeList = NULL;
             dwNumVolumeListEntries = 0;
         }
         if (pPhysDiskList != NULL) {
-            HeapFree (hLibHeap, 0, pPhysDiskList);
+            HeapFree(hLibHeap, 0, pPhysDiskList);
 #if DBG
             HeapUsed -= oldPLSize;
             DebugPrint((4, "CloseDiskObject: Freed PL %d to %d\n",
-                oldVLSize, HeapUsed));
+                        oldVLSize, HeapUsed));
             oldPLSize = 0;
 #endif
             pPhysDiskList = NULL;
@@ -1225,7 +1215,7 @@ Return Value:
         }
         // close PDisk object
         if (hWmiDiskPerf != NULL) {
-            status = WmiCloseBlock (hWmiDiskPerf);
+            status = WmiCloseBlock(hWmiDiskPerf);
             hWmiDiskPerf = NULL;
         }
     }
@@ -1237,51 +1227,41 @@ Return Value:
 #ifndef _DONT_CHECK_FOR_VOLUME_FILTER
 ULONG
 CheckVolumeFilter(
-    )
+)
 /*++
-
 Routine Description:
-
     This routine checks to see if diskperf is set to be an upper filter
     for Storage Volumes
-
 Arguments:
-
     None.
-
-
 Return Value:
-
     TRUE if there is a filter
-
 --*/
 {
-    WCHAR Buffer[MAX_PATH+1];
-    WCHAR *string = Buffer;
+    WCHAR Buffer[MAX_PATH + 1];
+    WCHAR* string = Buffer;
     DWORD dwSize = sizeof(Buffer);
     ULONG stringLength, diskperfLen, result, status;
     HKEY hKey;
 
-    status = RegOpenKeyExW(HKEY_LOCAL_MACHINE, cszVolumeKey, (DWORD) 0, KEY_QUERY_VALUE, &hKey);
+    status = RegOpenKeyExW(HKEY_LOCAL_MACHINE, cszVolumeKey, (DWORD)0, KEY_QUERY_VALUE, &hKey);
     if (status != ERROR_SUCCESS) {
         return FALSE;
     }
 
-    status = RegQueryValueExW(hKey, (LPCWSTR)REGSTR_VAL_UPPERFILTERS, NULL, NULL, (LPBYTE) Buffer, &dwSize);
+    status = RegQueryValueExW(hKey, (LPCWSTR)REGSTR_VAL_UPPERFILTERS, NULL, NULL, (LPBYTE)Buffer, &dwSize);
     if (status != ERROR_SUCCESS) {
         RegCloseKey(hKey);
         return FALSE;
     }
 
     stringLength = wcslen(string);
-
     diskperfLen = wcslen((LPCWSTR)DISKPERF_SERVICE_NAME);
 
     result = FALSE;
-    while(stringLength != 0) {
-
+    while (stringLength != 0) {
         if (diskperfLen == stringLength) {
-            if(_wcsicmp(string, (LPCWSTR)DISKPERF_SERVICE_NAME) == 0) {
+            if (_wcsicmp(string, (LPCWSTR)DISKPERF_SERVICE_NAME) == 0) {
                 result = TRUE;
                 break;
             }
@@ -1301,32 +1281,22 @@ PerfDiskDebugPrint(
     ULONG DebugPrintLevel,
     PCCHAR DebugMessage,
     ...
-    )
-
+)
 /*++
-
 Routine Description:
-
     Debug print for all PerfDisk
-
 Arguments:
-
     Debug print level between 0 and 3, with 3 being the most verbose.
-
 Return Value:
-
     None
-
 --*/
-
 {
     va_list ap;
 
     if ((DebugPrintLevel <= (PerfDiskDebug & 0x0000ffff)) ||
         ((1 << (DebugPrintLevel + 15)) & PerfDiskDebug)) {
         DbgPrint("%d:Perfdisk!", GetCurrentThreadId());
-    }
-    else
+    } else
         return;
 
     va_start(ap, DebugMessage);
@@ -1334,9 +1304,7 @@ Return Value:
 
     if ((DebugPrintLevel <= (PerfDiskDebug & 0x0000ffff)) ||
         ((1 << (DebugPrintLevel + 15)) & PerfDiskDebug)) {
-
         _vsnprintf((LPSTR)PerfDiskDebugBuffer, DEBUG_BUFFER_LENGTH, DebugMessage, ap);
-
         DbgPrint((LPSTR)PerfDiskDebugBuffer);
     }
 

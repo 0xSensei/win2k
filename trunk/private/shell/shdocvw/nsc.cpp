@@ -42,12 +42,12 @@
 #define DXYFRAMESEL 1
 const DEFAULTORDERPOSITION = 32000;
 
-HRESULT CheckForExpandOnce( HWND hwndTree, HTREEITEM hti );
+HRESULT CheckForExpandOnce(HWND hwndTree, HTREEITEM hti);
 
 // from util.cpp
 // same guid as in bandisf.cpp
 // {F47162A0-C18F-11d0-A3A5-00C04FD706EC}
-static const GUID TOID_ExtractImage = { 0xf47162a0, 0xc18f, 0x11d0, { 0xa3, 0xa5, 0x0, 0xc0, 0x4f, 0xd7, 0x6, 0xec } };
+static const GUID TOID_ExtractImage = {0xf47162a0, 0xc18f, 0x11d0, { 0xa3, 0xa5, 0x0, 0xc0, 0x4f, 0xd7, 0x6, 0xec }};
 //from nicotask.cpp
 EXTERN_C const GUID TASKID_IconExtraction; // = { 0xeb30900c, 0x1ac4, 0x11d2, { 0x83, 0x83, 0x0, 0xc0, 0x4f, 0xd9, 0x18, 0xd0 } };
 
@@ -58,10 +58,10 @@ COLORREF g_clrBk = 0;
 
 typedef struct
 {
-    DWORD   iIcon     : 12;
+    DWORD   iIcon : 12;
     DWORD   iOpenIcon : 12;
-    DWORD   nFlags    : 4;
-    DWORD   nMagic    : 4;
+    DWORD   nFlags : 4;
+    DWORD   nMagic : 4;
 } NSC_ICONCALLBACKINFO;
 
 //if you don't remove the selection, treeview will expand everything below the current selection
@@ -82,18 +82,15 @@ BOOL IsParentOfItem(HWND hwnd, HTREEITEM htiParent, HTREEITEM htiChild)
 }
 
 
-STDAPI CNscTree_CreateInstance(IUnknown * punkOuter, IUnknown ** ppunk, LPCOBJECTINFO poi)
+STDAPI CNscTree_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk, LPCOBJECTINFO poi)
 {
     HRESULT hr;
-    CNscTree * pncst = new CNscTree();
-    if (pncst == NULL)
-    {
+    CNscTree* pncst = new CNscTree();
+    if (pncst == NULL) {
         *ppunk = NULL;
         hr = E_OUTOFMEMORY;
-    }
-    else
-    {
-        *ppunk = SAFECAST(pncst, INSCTree *);
+    } else {
+        *ppunk = SAFECAST(pncst, INSCTree*);
         hr = S_OK;
     }
 
@@ -101,11 +98,11 @@ STDAPI CNscTree_CreateInstance(IUnknown * punkOuter, IUnknown ** ppunk, LPCOBJEC
 }
 
 
-INSCTree *CNscTree_CreateInstance(void)
+INSCTree* CNscTree_CreateInstance(void)
 {
-    CNscTree * pncst = new CNscTree();
+    CNscTree* pncst = new CNscTree();
     if (pncst)
-        return SAFECAST(pncst, INSCTree *);
+        return SAFECAST(pncst, INSCTree*);
     return NULL;
 }
 
@@ -130,14 +127,13 @@ CNscTree::~CNscTree()
     ATOMICRELEASE(_pFilter);
 
     // This needs to be destroyed or we leak the icon handle.
-    if (_hicoPinned)
-    {
+    if (_hicoPinned) {
         DestroyIcon(_hicoPinned);
     }
 }
 
 
-HRESULT CNscTree::QueryInterface(REFIID riid, void **ppvObj)
+HRESULT CNscTree::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] = {
         QITABENT(CNscTree, IShellChangeNotify),         // IID_IShellChangeNotify
@@ -184,8 +180,7 @@ void CNscTree::TraceHTREE(HTREEITEM hti, LPCTSTR pszDebugMsg)
 {
     TCHAR szDebug[MAX_PATH] = TEXT("Root");
 
-    if (hti != TVI_ROOT && hti)
-    {
+    if (hti != TVI_ROOT && hti) {
         TVITEM tvi;
         tvi.mask = TVIF_TEXT | TVIF_HANDLE;
         tvi.hItem = hti;
@@ -202,8 +197,7 @@ void CNscTree::TracePIDL(LPCITEMIDLIST pidl, LPCTSTR pszDebugMsg)
 {
     TCHAR szDebugName[MAX_URL_STRING] = TEXT("Desktop");
     STRRET str;
-    if (_psfCache && SUCCEEDED(_psfCache->GetDisplayNameOf(pidl, SHGDN_FORPARSING, &str)))
-    {
+    if (_psfCache && SUCCEEDED(_psfCache->GetDisplayNameOf(pidl, SHGDN_FORPARSING, &str))) {
         StrRetToBuf(&str, pidl, szDebugName, ARRAYSIZE(szDebugName));
     }
     TraceMsg(TF_NSC, "NSCBand: %s - %s", pszDebugMsg, szDebugName);
@@ -231,27 +225,25 @@ void CNscTree::_SubClass(LPCITEMIDLIST pidlRoot)
 
     if (NULL == pidlRoot)       // (NULL == CSIDL_DESKTOP)
     {
-        SHGetSpecialFolderLocation(NULL, CSIDL_DESKTOP, (LPITEMIDLIST *) &pidlRoot);
-        pidlToFree = (LPITEMIDLIST) pidlRoot;
+        SHGetSpecialFolderLocation(NULL, CSIDL_DESKTOP, (LPITEMIDLIST*)&pidlRoot);
+        pidlToFree = (LPITEMIDLIST)pidlRoot;
     }
 
     // It's necessary
-    if (EVAL(!_fSubClassed && pidlRoot))
-    {
-        if (_SubclassWindow(_hwndTree))
-        {
+    if (EVAL(!_fSubClassed && pidlRoot)) {
+        if (_SubclassWindow(_hwndTree)) {
             _RegisterWindow(_hwndTree, pidlRoot,
-                SHCNE_DRIVEADD|SHCNE_CREATE|SHCNE_MKDIR|SHCNE_DRIVEREMOVED|
-                SHCNE_DELETE|SHCNE_RMDIR|SHCNE_RENAMEITEM|SHCNE_RENAMEFOLDER|
-                SHCNE_MEDIAINSERTED|SHCNE_MEDIAREMOVED|SHCNE_NETUNSHARE|SHCNE_NETSHARE|
-                SHCNE_UPDATEITEM|SHCNE_UPDATEIMAGE|SHCNE_ASSOCCHANGED|
-                SHCNE_UPDATEDIR | SHCNE_EXTENDED_EVENT,
-                ((_mode & MODE_HISTORY) ? SHCNRF_ShellLevel : SHCNRF_ShellLevel | SHCNRF_InterruptLevel));
+                            SHCNE_DRIVEADD | SHCNE_CREATE | SHCNE_MKDIR | SHCNE_DRIVEREMOVED |
+                            SHCNE_DELETE | SHCNE_RMDIR | SHCNE_RENAMEITEM | SHCNE_RENAMEFOLDER |
+                            SHCNE_MEDIAINSERTED | SHCNE_MEDIAREMOVED | SHCNE_NETUNSHARE | SHCNE_NETSHARE |
+                            SHCNE_UPDATEITEM | SHCNE_UPDATEIMAGE | SHCNE_ASSOCCHANGED |
+                            SHCNE_UPDATEDIR | SHCNE_EXTENDED_EVENT,
+                            ((_mode & MODE_HISTORY) ? SHCNRF_ShellLevel : SHCNRF_ShellLevel | SHCNRF_InterruptLevel));
         }
 
         ASSERT(_hwndTree);
         _fSubClassed = SetWindowSubclass(_hwndTree, _SubClassTreeWndProc,
-            ID_NSCTREE, (DWORD_PTR)this);
+                                         ID_NSCTREE, (DWORD_PTR)this);
     }
 
     if (pidlToFree) // Did we have to alloc our own pidl?
@@ -268,8 +260,7 @@ void CNscTree::_SubClass(LPCITEMIDLIST pidlRoot)
 \******/
 void CNscTree::_UnSubClass(void)
 {
-    if (_fSubClassed)
-    {
+    if (_fSubClassed) {
         _fSubClassed = FALSE;
         RemoveWindowSubclass(_hwndTree, _SubClassTreeWndProc, ID_NSCTREE);
         _UnregisterWindow(_hwndTree);
@@ -295,10 +286,9 @@ HRESULT CNscTree::ShowWindow(BOOL fShow)
 }
 
 
-HRESULT CNscTree::SetSite(IUnknown *punkSite)
+HRESULT CNscTree::SetSite(IUnknown* punkSite)
 {
-    if (!punkSite)
-    {
+    if (!punkSite) {
         // We need to prepare to go away and squirel
         // away the currently selected pidl(s) because
         // the caller may call INSCTree::GetSelectedItem()
@@ -315,8 +305,7 @@ HRESULT CNscTree::_OnWindowCleanup(void)
 {
     // Squirel away the selected pidl in case the caller asks for it after the
     // treeview is gone.
-    if (!_fIsSelectionCached)
-    {
+    if (!_fIsSelectionCached) {
         _fIsSelectionCached = TRUE;
         Pidl_Set(&_pidlSelected, NULL);
         GetSelectedItem(&_pidlSelected, 0);
@@ -342,7 +331,7 @@ HRESULT CNscTree::_OnWindowCleanup(void)
 }
 
 
-ITEMINFO *CNscTree::_GetTreeItemInfo(HTREEITEM hti)
+ITEMINFO* CNscTree::_GetTreeItemInfo(HTREEITEM hti)
 {
     TV_ITEM tvi;
 
@@ -350,13 +339,13 @@ ITEMINFO *CNscTree::_GetTreeItemInfo(HTREEITEM hti)
     tvi.hItem = hti;
     if (!TreeView_GetItem(_hwndTree, &tvi))
         return NULL;
-    return (ITEMINFO *)tvi.lParam;
+    return (ITEMINFO*)tvi.lParam;
 }
 
 
 PORDERITEM CNscTree::_GetTreeOrderItem(HTREEITEM hti)
 {
-    ITEMINFO *pii = _GetTreeItemInfo(hti);
+    ITEMINFO* pii = _GetTreeItemInfo(hti);
     return pii ? pii->poi : NULL;
 }
 
@@ -374,16 +363,13 @@ LPITEMIDLIST CNscTree::_GetFullIDList(HTREEITEM hti)
     }
     // now lets get the information about the item
     PORDERITEM poi = _GetTreeOrderItem(hti);
-    if (!poi)
-    {
+    if (!poi) {
         return NULL;
     }
 
     pidl = ILClone(poi->pidl);
-    if (pidl && _pidlRoot)
-    {
-        while ((hti = TreeView_GetParent(_hwndTree, hti)))
-        {
+    if (pidl && _pidlRoot) {
+        while ((hti = TreeView_GetParent(_hwndTree, hti))) {
             poi = _GetTreeOrderItem(hti);
             if (!poi)
                 return pidl;   // will assume I screwed up...
@@ -398,15 +384,12 @@ LPITEMIDLIST CNscTree::_GetFullIDList(HTREEITEM hti)
             if (pidl == NULL)
                 break;          // outta memory
         }
-        if (pidl)
-        {
+        if (pidl) {
             // MODE_NORMAL has the pidl root in the tree
-            if (_mode != MODE_NORMAL)
-            {
+            if (_mode != MODE_NORMAL) {
                 pidlT = ILCombine(_pidlRoot, pidl);    // gotta get the silent root
                 ILFree(pidl);
-            }
-            else
+            } else
                 pidlT = pidl;
         }
     }
@@ -414,7 +397,7 @@ LPITEMIDLIST CNscTree::_GetFullIDList(HTREEITEM hti)
 }
 
 
-BOOL _IsItemFileSystem(IShellFolder *psf, LPCITEMIDLIST pidl)
+BOOL _IsItemFileSystem(IShellFolder* psf, LPCITEMIDLIST pidl)
 {
     DWORD dwAttributes = SFGAO_FOLDER | SFGAO_FILESYSTEM;
     HRESULT hr = psf->GetAttributesOf(1, &pidl, &dwAttributes);
@@ -432,40 +415,32 @@ HTREEITEM CNscTree::_AddItemToTree(HTREEITEM htiParent, LPCITEMIDLIST pidl,
     BOOL fCached;
 
     // So we need to cached the shell folder of the parent item. But, this is a little interesting:
-    if (_mode == MODE_NORMAL && htiParent == TVI_ROOT)
-    {
+    if (_mode == MODE_NORMAL && htiParent == TVI_ROOT) {
         // In "Normal" mode, or "Display root in NSC" mode, there is only 1 item that is parented to
         // TVI_ROOT. So when we do an _AddItemToTree, we need the shell folder that contains _pidlRoot or
         // the Parent of TVI_ROOT.
         fCached = (NULL != _CacheParentShellFolder(htiParent, NULL));
-    }
-    else
-    {
+    } else {
         // But, in the "Favorites, Control or History" if htiParent is TVI_ROOT, then we are not adding _pidlRoot,
         // so we actually need the folder that IS TVI_ROOT.
         fCached = _CacheShellFolder(htiParent);
     }
 
 
-    if (fCached)
-    {
+    if (fCached) {
         PORDERITEM poi = OrderItem_Create((LPITEMIDLIST)pidl, iPos);
-        if (poi)
-        {
-            ITEMINFO *pii = (ITEMINFO *)LocalAlloc(LPTR, sizeof(*pii));
-            if (pii)
-            {
+        if (poi) {
+            ITEMINFO* pii = (ITEMINFO*)LocalAlloc(LPTR, sizeof(*pii));
+            if (pii) {
                 pii->poi = poi;
 
                 // For the normal case, we need a relative pidl for this add, but the lParam needs to have a full
                 // pidl (This is so that arbitrary mounting works, as well as desktop case).
-                if (_mode == MODE_NORMAL && htiParent == TVI_ROOT)
-                {
+                if (_mode == MODE_NORMAL && htiParent == TVI_ROOT) {
                     pidl = ILFindLastID(pidl);
                 }
 
-                if (!fCheckForDups || (NULL == (htiRet = _FindChild(_psfCache, htiParent, pidl))))
-                {
+                if (!fCheckForDups || (NULL == (htiRet = _FindChild(_psfCache, htiParent, pidl)))) {
                     TV_INSERTSTRUCT tii;
                     // Initialize item to add with callback for everything
                     tii.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_PARAM | TVIF_CHILDREN;
@@ -482,15 +457,14 @@ HTREEITEM CNscTree::_AddItemToTree(HTREEITEM htiParent, LPCITEMIDLIST pidl,
 #ifdef DEBUG
                     TracePIDL(pidl, TEXT("Inserting"));
                     TraceMsg(TF_NSC, "_AddItemToTree(htiParent=%#08lx, htiAfter=%#08lx, fCheckForDups=%d, _psfCache=%#08lx)",
-                                htiParent, htiAfter, fCheckForDups, _psfCache);
+                             htiParent, htiAfter, fCheckForDups, _psfCache);
 
 #endif // DEBUG
 
                     pii->fNavigable = !_IsItemFileSystem(_psfCache, pidl);
 
                     htiRet = TreeView_InsertItem(_hwndTree, &tii);
-                    if (htiRet)
-                    {
+                    if (htiRet) {
                         pii = NULL;     // don't free
                         poi = NULL;     // don't free
                         pidl = NULL;    // don't free
@@ -509,20 +483,19 @@ HTREEITEM CNscTree::_AddItemToTree(HTREEITEM htiParent, LPCITEMIDLIST pidl,
 }
 
 
-HRESULT CNscTree::CreateTree(HWND hwndParent, DWORD dwStyles, HWND *phwnd)
+HRESULT CNscTree::CreateTree(HWND hwndParent, DWORD dwStyles, HWND* phwnd)
 {
     _fIsSelectionCached = FALSE;
     if (*phwnd)
         return S_OK;
 
     _style |= (WS_CHILD | TVS_INFOTIP | TVS_FULLROWSELECT | TVS_EDITLABELS
-        | TVS_SHOWSELALWAYS | TVS_NONEVENHEIGHT | TVS_NOHSCROLL | dwStyles);
+               | TVS_SHOWSELALWAYS | TVS_NONEVENHEIGHT | TVS_NOHSCROLL | dwStyles);
 
     if (TVS_HASLINES & _style)
         _style &= ~TVS_FULLROWSELECT;       // If it has TVS_HASLINES, it can't have TVS_FULLROWSELECT
 
-    if (_mode != MODE_NORMAL)
-    {
+    if (_mode != MODE_NORMAL) {
         // We don't want track select (underline and blue) for the folder or tree view.
         _style |= TVS_TRACKSELECT;
 
@@ -531,15 +504,12 @@ HRESULT CNscTree::CreateTree(HWND hwndParent, DWORD dwStyles, HWND *phwnd)
         DWORD dwSize = SIZEOF(dwValue);
         BOOL  fDefault = TRUE;
 
-        SHRegGetUSValue(L"Software\\Microsoft\\Internet Explorer\\Main", L"NscSingleExpand", NULL, (LPBYTE)&dwValue, &dwSize, FALSE, (void *) &fDefault, SIZEOF(fDefault));
-        if (dwValue)
-        {
+        SHRegGetUSValue(L"Software\\Microsoft\\Internet Explorer\\Main", L"NscSingleExpand", NULL, (LPBYTE)&dwValue, &dwSize, FALSE, (void*)&fDefault, SIZEOF(fDefault));
+        if (dwValue) {
             _style |= TVS_SINGLEEXPAND;
             _fSingleExpand = TRUE;
         }
-    }
-    else
-    {
+    } else {
         // According to Bug#241601, Tooltips display too quickly. The problem is
         // the original designer of the InfoTips in the Treeview merged the "InfoTip" tooltip and
         // the "I'm too small to display correctly" tooltips. This is really unfortunate because you
@@ -550,8 +520,7 @@ HRESULT CNscTree::CreateTree(HWND hwndParent, DWORD dwStyles, HWND *phwnd)
 
     _hwndParent = hwndParent;
     *phwnd = _CreateTreeview();
-    if (*phwnd == NULL)
-    {
+    if (*phwnd == NULL) {
         ASSERT(FALSE);
         return E_OUTOFMEMORY;
     }
@@ -565,8 +534,7 @@ HWND CNscTree::_CreateTreeview()
 {
     ASSERT(_hwndTree == NULL);
 
-    if (!_hwndParent)
-    {
+    if (!_hwndParent) {
         TraceMsg(TF_WARNING, "CNscTree::_CreateTreeview has no parent window");
     }
 
@@ -577,15 +545,12 @@ HWND CNscTree::_CreateTreeview()
 
     _style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP;
     _hwndTree = CreateWindowEx(dwExStyle, WC_TREEVIEW, NULL, _style,
-        0, 0, rcParent.right, rcParent.bottom, _hwndParent, (HMENU)ID_CONTROL, HINST_THISDLL, NULL);
+                               0, 0, rcParent.right, rcParent.bottom, _hwndParent, (HMENU)ID_CONTROL, HINST_THISDLL, NULL);
 
-    if (_hwndTree)
-    {
+    if (_hwndTree) {
         SendMessage(_hwndTree, TVM_SETSCROLLTIME, 100, 0);
         SendMessage(_hwndTree, CCM_SETUNICODEFORMAT, DLL_IS_UNICODE, 0);
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_ERROR, "_hwndTree failed");
     }
 
@@ -609,8 +574,7 @@ HRESULT CNscTree::_HandleWinIniChange()
 {
     g_clrBk = GetSysColor(COLOR_WINDOW);
 
-    if (_mode != MODE_NORMAL)
-    {
+    if (_mode != MODE_NORMAL) {
         // make things a bit more spaced out
         int cyItem = TreeView_GetItemHeight(_hwndTree);
         cyItem += LOGOGAP + 1;
@@ -628,13 +592,12 @@ HRESULT CNscTree::Initialize(LPCITEMIDLIST pidlRoot, DWORD grfFlags, DWORD dwFla
     _grfFlags = grfFlags;                          // Filter flags.
     _dwFlags = dwFlags;                            // Behavior Flags
 
-    if (!_fInitialized)
-    {
+    if (!_fInitialized) {
         _fInitialized = TRUE;
 
         SHFILEINFO sfi;
         HIMAGELIST himl = (HIMAGELIST)SHGetFileInfo(TEXT(DEFAULT_PATHSTR), 0, &sfi
-            , sizeof(SHFILEINFO),  SHGFI_SYSICONINDEX | SHGFI_SMALLICON);
+                                                    , sizeof(SHFILEINFO), SHGFI_SYSICONINDEX | SHGFI_SMALLICON);
 
         TreeView_SetImageList(_hwndTree, himl, TVSIL_NORMAL);
         _DtRegister();
@@ -643,32 +606,28 @@ HRESULT CNscTree::Initialize(LPCITEMIDLIST pidlRoot, DWORD grfFlags, DWORD dwFla
 
         ASSERT(SUCCEEDED(hres));
 
-        if (_mode != MODE_NORMAL)
-        {
+        if (_mode != MODE_NORMAL) {
             // set borders and space out for all, much cleaner.
-            TreeView_SetBorder(_hwndTree, TVSBF_XBORDER, 2*LOGOGAP, 0);
+            TreeView_SetBorder(_hwndTree, TVSBF_XBORDER, 2 * LOGOGAP, 0);
         }
 
         //init g_clrBk
         _HandleWinIniChange();
 
         // pidlRoot may equal NULL because that is equal to CSIDL_DESKTOP.
-        if ((LPITEMIDLIST)INVALID_HANDLE_VALUE != pidlRoot)
-        {
+        if ((LPITEMIDLIST)INVALID_HANDLE_VALUE != pidlRoot) {
             _UnSubClass();
             _SetRoot(pidlRoot, 1, NULL, NSSR_CREATEPIDL);
             _SubClass(pidlRoot);
         }
 
         // need top level frame available for D&D if possible.
-        IOleWindow *pOleWindow;
+        IOleWindow* pOleWindow;
 
         _hwndDD = GetParent(_hwndTree);
-        if (_punkSite)
-        {
-            HRESULT hr = IUnknown_QueryService(_punkSite, SID_STopLevelBrowser, IID_IOleWindow, (void **)&pOleWindow);
-            if (SUCCEEDED(hr))
-            {
+        if (_punkSite) {
+            HRESULT hr = IUnknown_QueryService(_punkSite, SID_STopLevelBrowser, IID_IOleWindow, (void**)&pOleWindow);
+            if (SUCCEEDED(hr)) {
                 ASSERT(pOleWindow);
                 pOleWindow->GetWindow(&_hwndDD);
                 pOleWindow->Release();
@@ -680,9 +639,8 @@ HRESULT CNscTree::Initialize(LPCITEMIDLIST pidlRoot, DWORD grfFlags, DWORD dwFla
         ASSERT(_hicoPinned);
 
         //failure ignored intentionally
-        THR(CoCreateInstance(CLSID_ShellTaskScheduler, NULL, CLSCTX_INPROC, IID_IShellTaskScheduler, (void **)&_pTaskScheduler));
-    }
-    else
+        THR(CoCreateInstance(CLSID_ShellTaskScheduler, NULL, CLSCTX_INPROC, IID_IShellTaskScheduler, (void**)&_pTaskScheduler));
+    } else
         hres = _ChangePidlRoot(pidlRoot);
 
     return hres;
@@ -690,17 +648,15 @@ HRESULT CNscTree::Initialize(LPCITEMIDLIST pidlRoot, DWORD grfFlags, DWORD dwFla
 
 
 // BUGBUG: Move to \shlwapi\util.cpp
-HRESULT IUnknown_UIActivateIO(IUnknown * punk, BOOL fActivate, LPMSG pMsg)
+HRESULT IUnknown_UIActivateIO(IUnknown* punk, BOOL fActivate, LPMSG pMsg)
 {
     HRESULT hr = E_INVALIDARG;
 
-    if (punk)
-    {
-        IInputObject * pio;
+    if (punk) {
+        IInputObject* pio;
 
-        hr = punk->QueryInterface(IID_IInputObject, (void **) &pio);
-        if (SUCCEEDED(hr))
-        {
+        hr = punk->QueryInterface(IID_IInputObject, (void**)&pio);
+        if (SUCCEEDED(hr)) {
             hr = pio->UIActivateIO(fActivate, pMsg);
             pio->Release();
         }
@@ -729,34 +685,27 @@ BOOL CNscTree::_SetRoot(LPCITEMIDLIST pidlRoot, int iExpandDepth, LPCITEMIDLIST 
     // HIWORD/LOWORD stuff is to support pidl IDs instead of full pidl here
     if (HIWORD(pidlRoot))
         _pidlRoot = ILClone(pidlRoot);
-    else
-    {
+    else {
         SHGetSpecialFolderLocation(NULL, LOWORD(pidlRoot)
-            ? LOWORD(pidlRoot)
-            : CSIDL_DESKTOP, &_pidlRoot);
+                                   ? LOWORD(pidlRoot)
+                                   : CSIDL_DESKTOP, &_pidlRoot);
     }
-    if (_pidlRoot)
-    {
+    if (_pidlRoot) {
         HTREEITEM htiRoot = TVI_ROOT;
-        if (_mode == MODE_NORMAL)
-        {
+        if (_mode == MODE_NORMAL) {
             // Since we'll be adding this into the tree, we need
             // to clone it: We have a copy for the class, and we
             // have one for the tree itself (Makes life easier so
             // we don't have to special case TVI_ROOT).
             LPITEMIDLIST pidlRoot = ILClone(_pidlRoot);
-            if (pidlRoot)
-            {
+            if (pidlRoot) {
                 htiRoot = _AddItemToTree(TVI_ROOT, pidlRoot, 1, 0);
-                if (htiRoot)
-                {
+                if (htiRoot) {
                     TraceMsg(TF_NSC, "NSCBand: Setting Root to \"Desktop\"");
                     TreeView_Expand(_hwndTree, htiRoot, TVE_EXPAND);
                     TreeView_SelectItem(_hwndTree, htiRoot);
                     return TRUE;
-                }
-                else
-                {
+                } else {
                     ILFree(pidlRoot);
                     htiRoot = TVI_ROOT;
                 }
@@ -773,8 +722,7 @@ BOOL CNscTree::_SetRoot(LPCITEMIDLIST pidlRoot, int iExpandDepth, LPCITEMIDLIST 
 #endif // DEBUG
 
         // in organize favorites, select the first item by default
-        if (_mode & MODE_CONTROL)
-        {
+        if (_mode & MODE_CONTROL) {
             //yes, this is really necessary. the selectitem scrolls the list down so the
             //first item is not visible. doing just the select has no effect!
             HTREEITEM htiFirst = TreeView_GetFirstVisible(_hwndTree);
@@ -801,8 +749,7 @@ BOOL CNscTree::_SetRoot(LPCITEMIDLIST pidlRoot, int iExpandDepth, LPCITEMIDLIST 
 BOOL CNscTree::_CacheShellFolder(HTREEITEM hti)
 {
     // in the cache?
-    if ((hti != _htiCache) || (_psfCache == NULL))
-    {
+    if ((hti != _htiCache) || (_psfCache == NULL)) {
         // cache miss, do the work
         LPITEMIDLIST pidl;
         BOOL fRet = FALSE;
@@ -810,20 +757,16 @@ BOOL CNscTree::_CacheShellFolder(HTREEITEM hti)
         _fpsfCacheIsTopLevel = FALSE;
         _ReleaseCachedShellFolder();
 
-        if ((hti == NULL) || (hti == TVI_ROOT))
-        {
+        if ((hti == NULL) || (hti == TVI_ROOT)) {
             pidl = ILClone(_pidlRoot);
-        }
-        else
+        } else
             pidl = _GetFullIDList(hti);
 
-        if (pidl)
-        {
-            if (SUCCEEDED(IEBindToObject(pidl, &_psfCache)))
-            {
+        if (pidl) {
+            if (SUCCEEDED(IEBindToObject(pidl, &_psfCache))) {
                 ASSERT(_psfCache);
                 _htiCache = hti;    // this is for the cache match
-                _fpsfCacheIsTopLevel = ( hti == TVI_ROOT || hti == NULL );
+                _fpsfCacheIsTopLevel = (hti == TVI_ROOT || hti == NULL);
                 fRet = TRUE;
             }
 
@@ -846,11 +789,10 @@ LPITEMIDLIST CNscTree::_CacheParentShellFolder(HTREEITEM hti, LPITEMIDLIST pidl)
     if (hti == TVI_ROOT ||
         hti == NULL ||
         (_mode == MODE_NORMAL &&
-        TreeView_GetParent(_hwndTree, hti) == NULL))    // If we have a null parent and we're a normal,
-                                                        // than that's the same as root.
+         TreeView_GetParent(_hwndTree, hti) == NULL))    // If we have a null parent and we're a normal,
+                                                         // than that's the same as root.
     {
-        if (_htiCache != TVI_ROOTPARENT)
-        {
+        if (_htiCache != TVI_ROOTPARENT) {
             _ReleaseCachedShellFolder();
             IEBindToParentFolder(_pidlRoot, &_psfCache, NULL);
 
@@ -860,10 +802,8 @@ LPITEMIDLIST CNscTree::_CacheParentShellFolder(HTREEITEM hti, LPITEMIDLIST pidl)
         return ILFindLastID(_pidlRoot);
     }
 
-    if (_CacheShellFolder(TreeView_GetParent(_hwndTree, hti)))
-    {
-        if (pidl == NULL)
-        {
+    if (_CacheShellFolder(TreeView_GetParent(_hwndTree, hti))) {
+        if (pidl == NULL) {
             PORDERITEM poi = _GetTreeOrderItem(hti);
             if (!poi)
                 return NULL;
@@ -879,13 +819,13 @@ LPITEMIDLIST CNscTree::_CacheParentShellFolder(HTREEITEM hti, LPITEMIDLIST pidl)
 
 typedef struct _SORTPARAMS
 {
-    CNscTree *pnsc;
-    IShellFolder *psf;
+    CNscTree* pnsc;
+    IShellFolder* psf;
 } SORTPARAMS;
 
 int CALLBACK CNscTree::_TreeCompare(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
-    SORTPARAMS *pSortParams = (SORTPARAMS *)lParamSort;
+    SORTPARAMS* pSortParams = (SORTPARAMS*)lParamSort;
     PORDERITEM poi1 = GetPoi(lParam1), poi2 = GetPoi(lParam2);
 
     HRESULT hres = pSortParams->pnsc->_CompareIDs(pSortParams->psf, poi1->pidl, poi2->pidl);
@@ -907,13 +847,13 @@ int CALLBACK CNscTree::_TreeOrder(LPARAM lParam1, LPARAM lParam2, LPARAM lParamS
     return (short)SCODE_CODE(hres);
 }
 // review chrisny:  instead of sort, insert items on the fly.
-void CNscTree::_Sort(HTREEITEM hti, IShellFolder *psf)
+void CNscTree::_Sort(HTREEITEM hti, IShellFolder* psf)
 {
     TV_SORTCB   scb;
     SORTPARAMS  SortParams = {this, psf};
     BOOL        fOrdering = _IsOrdered(hti);
 #ifdef DEBUG
-        TraceHTREE(hti, TEXT("Sorting"));
+    TraceHTREE(hti, TEXT("Sorting"));
 #endif
 
     scb.hParent = hti;
@@ -925,13 +865,11 @@ void CNscTree::_Sort(HTREEITEM hti, IShellFolder *psf)
 
 BOOL CNscTree::_IsOrdered(HTREEITEM htiRoot)
 {
-    if ( (htiRoot == TVI_ROOT) || (htiRoot == NULL) )
+    if ((htiRoot == TVI_ROOT) || (htiRoot == NULL))
         return _fOrdered;
-    else
-    {
+    else {
         PORDERITEM poi = _GetTreeOrderItem(htiRoot);
-        if (poi)
-        {
+        if (poi) {
             // LParam Is a Boolean:
             // TRUE: It has an order.
             // FALSE: It does not have an order.
@@ -960,24 +898,20 @@ HRESULT CNscTree::_PopulateOrderList(HTREEITEM htiRoot)
         return E_FAIL;
 
     for (hti = TreeView_GetChild(_hwndTree, htiRoot); hti;
-    hti = TreeView_GetNextSibling(_hwndTree, hti))
-    {
+         hti = TreeView_GetNextSibling(_hwndTree, hti)) {
         PORDERITEM poi = _GetTreeOrderItem(hti);
-        if (poi)
-        {
+        if (poi) {
             poi->nOrder = i;        // reset the positions of the nodes.
-            DPA_SetPtr(_hdpaOrd, i++, (void *)poi);
+            DPA_SetPtr(_hdpaOrd, i++, (void*)poi);
         }
     }
 
     //set the root's ordered flag
     if (htiRoot == TVI_ROOT)
         _fOrdered = TRUE;
-    else
-    {
+    else {
         PORDERITEM poi = _GetTreeOrderItem(htiRoot);
-        if (poi)
-        {
+        if (poi) {
             poi->lParam = TRUE;
         }
     }
@@ -999,13 +933,10 @@ void CNscTree::_FreeOrderList(HTREEITEM htiRoot)
 
     // Persist the new order out to the registry
     LPITEMIDLIST pidl = _GetFullIDList(htiRoot);
-    if (pidl)
-    {
+    if (pidl) {
         IStream* pstm = GetOrderStream(pidl, STGM_WRITE | STGM_CREATE);
-        if (pstm)
-        {
-            if (_CacheShellFolder(htiRoot))
-            {
+        if (pstm) {
+            if (_CacheShellFolder(htiRoot)) {
                 OrderList_SaveToStream(pstm, _hdpaOrd, _psfCache);
                 pstm->Release();
 
@@ -1018,8 +949,7 @@ void CNscTree::_FreeOrderList(HTREEITEM htiRoot)
                 // and we'll ignore this event in above OnChange method)
 
                 // _FlushNotifyMessages(_hwndTree);
-            }
-            else
+            } else
                 pstm->Release();
         }
         ILFree(pidl);
@@ -1048,8 +978,7 @@ HRESULT CNscTree::ResetSort(void)
 
     _CacheShellFolder(TVI_ROOT);
 
-    if (pstm == NULL || _psfCache == NULL)
-    {
+    if (pstm == NULL || _psfCache == NULL) {
         ATOMICRELEASE(pstm);
         _FreeOrderList(TVI_ROOT);
         return S_OK;
@@ -1060,7 +989,7 @@ HRESULT CNscTree::ResetSort(void)
     oinfo.psf = _psfCache;
     (oinfo.psf)->AddRef();
     oinfo.dwSortBy = OI_SORTBYNAME;
-    DPA_Sort(_hdpaOrd, OrderItem_Compare,(LPARAM)&oinfo);
+    DPA_Sort(_hdpaOrd, OrderItem_Compare, (LPARAM)&oinfo);
     ATOMICRELEASE(oinfo.psf);
 
     OrderList_Reorder(_hdpaOrd);
@@ -1086,7 +1015,7 @@ void CNscTree::MoveItemUpOrDown(BOOL fUp)
 
     htiSelected = TreeView_GetSelection(_hwndTree);
     htiToSwap = (fUp) ? TreeView_GetPrevSibling(_hwndTree, htiSelected) :
-                        TreeView_GetNextSibling(_hwndTree, htiSelected);
+        TreeView_GetNextSibling(_hwndTree, htiSelected);
     htiParent = TreeView_GetParent(_hwndTree, htiSelected);
     if (htiParent == NULL)
         htiParent = TVI_ROOT;
@@ -1096,16 +1025,14 @@ void CNscTree::MoveItemUpOrDown(BOOL fUp)
     if (FAILED(_PopulateOrderList(htiParent)))
         return;
 
-    if ( (htiSelected) && (htiToSwap) )
-    {
+    if ((htiSelected) && (htiToSwap)) {
         if ((poiSelected = _GetTreeOrderItem(htiSelected)) &&
-            (poiToSwap   = _GetTreeOrderItem(htiToSwap)))
-        {
+            (poiToSwap = _GetTreeOrderItem(htiToSwap))) {
             int iOrder = 0;
 
             iOrder = poiSelected->nOrder;
             poiSelected->nOrder = poiToSwap->nOrder;
-            poiToSwap->nOrder   = iOrder;
+            poiToSwap->nOrder = iOrder;
         }
 
         _CacheShellFolder(htiParent);
@@ -1130,7 +1057,7 @@ BOOL CNscTree::_ShouldAdd(LPCITEMIDLIST pidl)
 }
 
 
-BOOL CNscTree::_OnItemExpandingMsg(NM_TREEVIEW *pnm)
+BOOL CNscTree::_OnItemExpandingMsg(NM_TREEVIEW* pnm)
 {
     HCURSOR hCursorOld = SetCursor(LoadCursor(NULL, IDC_WAIT));
 
@@ -1149,16 +1076,14 @@ BOOL CNscTree::_IsExpandable(HTREEITEM hti)
 {
     BOOL fExpandable = FALSE;
     LPCITEMIDLIST pidlItem = _CacheParentShellFolder(hti, NULL);
-    if (pidlItem)
-    {
+    if (pidlItem) {
         // make sure item is actually a folder and not a non-expandable channel folder
         // except: in org favs, never expand channel folders
         ULONG ulAttr = SFGAO_FOLDER;
         LPITEMIDLIST pidlTarget = NULL;
         if (SUCCEEDED(_psfCache->GetAttributesOf(1, &pidlItem, &ulAttr)) &&
             (ulAttr & SFGAO_FOLDER) &&
-            !(SUCCEEDED(SHGetNavigateTarget(_psfCache, pidlItem, &pidlTarget, &ulAttr)) && ((_mode & MODE_CONTROL) ? TRUE : !IsExpandableChannelFolder(_psfCache, pidlItem))) )
-        {
+            !(SUCCEEDED(SHGetNavigateTarget(_psfCache, pidlItem, &pidlTarget, &ulAttr)) && ((_mode & MODE_CONTROL) ? TRUE : !IsExpandableChannelFolder(_psfCache, pidlItem)))) {
             fExpandable = TRUE;
         }
         ILFree(pidlTarget);
@@ -1170,21 +1095,14 @@ BOOL CNscTree::_OnItemExpanding(HTREEITEM htiToActivate, UINT action, BOOL fExpa
 {
     int cAdded = 0;
 
-    if (action != TVE_EXPAND)
-    {
+    if (action != TVE_EXPAND) {
         htiToActivate = TreeView_GetParent(_hwndTree, htiToActivate);
-    }
-    else if (fExpandedOnce)
-    {
+    } else if (fExpandedOnce) {
         ; //item has already been expanded, don't add items
-    }
-    else
-    {
-        if (_IsExpandable(htiToActivate))
-        {
+    } else {
+        if (_IsExpandable(htiToActivate)) {
             LPITEMIDLIST pidlParent = _GetFullIDList(htiToActivate);
-            if (pidlParent)
-            {
+            if (pidlParent) {
                 BOOL fOrdered;
 
                 // if we're refreshing, fAddingOnly should false
@@ -1196,8 +1114,7 @@ BOOL CNscTree::_OnItemExpanding(HTREEITEM htiToActivate, UINT action, BOOL fExpa
         // If we did not add anything we should update this item to let
         // the user know something happened.
 
-        if (cAdded == 0)
-        {
+        if (cAdded == 0) {
             TV_ITEM tvi;
             tvi.mask = TVIF_CHILDREN | TVIF_HANDLE;   // only change the number of children
             tvi.hItem = htiToActivate;
@@ -1221,34 +1138,29 @@ HTREEITEM CNscTree::_FindFromRoot(HTREEITEM htiRoot, LPCITEMIDLIST pidl)
     TraceHTREE(htiRoot, TEXT("from this root"));
 #endif
 
-    if (!htiRoot)
-    {
+    if (!htiRoot) {
         // When in "Normal" mode, we need to use the first child, not the root
         // in order to calculate, because there is no "Invisible" root. On the
         // other hand, History and Favorites have an invisible root: Their
         // parent folder, so they need this fudge.
-        htiRoot = (MODE_NORMAL == _mode)?TreeView_GetChild(_hwndTree, 0) : TVI_ROOT;
+        htiRoot = (MODE_NORMAL == _mode) ? TreeView_GetChild(_hwndTree, 0) : TVI_ROOT;
         pidlParent = _pidlRoot;    // the invisible root.
-    }
-    else
-    {
-        pidlParent      = _GetFullIDList(htiRoot);
+    } else {
+        pidlParent = _GetFullIDList(htiRoot);
         fFreePidlParent = TRUE;
     }
 
     if (pidlParent == NULL)
         return NULL;
 
-    if (ILIsEqual(pidlParent, pidl))
-    {
+    if (ILIsEqual(pidlParent, pidl)) {
         if (fFreePidlParent)
             ILFree(pidlParent);
         return htiRoot;
     }
 
     pidlChild = ILFindChild(pidlParent, pidl);
-    if (pidlChild == NULL)
-    {
+    if (pidlChild == NULL) {
         if (fFreePidlParent)
             ILFree(pidlParent);
         return NULL;    // not root match, no hti
@@ -1257,28 +1169,25 @@ HTREEITEM CNscTree::_FindFromRoot(HTREEITEM htiRoot, LPCITEMIDLIST pidl)
     // root match, carry on . . .
 
     // Are we rooted under the Desktop (i.e. Empty pidl or ILIsEmpty(_pidlRoot))
-    IShellFolder *psf = NULL;
+    IShellFolder* psf = NULL;
     HRESULT hres = IEBindToObject(pidlParent, &psf);
 
-    if (FAILED(hres))
-    {
+    if (FAILED(hres)) {
         if (fFreePidlParent)
             ILFree(pidlParent);
         return htiRet;
     }
 
-    while (htiRoot && psf)
-    {
+    while (htiRoot && psf) {
         LPITEMIDLIST pidlItem = ILCloneFirst(pidlChild);
         if (!pidlItem)
             break;
 
         htiRoot = _FindChild(psf, htiRoot, pidlItem);
-        IShellFolder *psfNext = NULL;
-        hres = psf->BindToObject(pidlItem, NULL, IID_IShellFolder, (void **)&psfNext);
+        IShellFolder* psfNext = NULL;
+        hres = psf->BindToObject(pidlItem, NULL, IID_IShellFolder, (void**)&psfNext);
         ILFree(pidlItem);
-        if (!htiRoot)
-        {
+        if (!htiRoot) {
             ATOMICRELEASE(psfNext);
             break;
         }
@@ -1286,13 +1195,11 @@ HTREEITEM CNscTree::_FindFromRoot(HTREEITEM htiRoot, LPCITEMIDLIST pidl)
         psf = psfNext;
         pidlChild = _ILNext(pidlChild);
         // if we're down to an empty pidl, we've found it!
-        if (ILIsEmpty(pidlChild))
-        {
+        if (ILIsEmpty(pidlChild)) {
             htiRet = htiRoot;
             break;
         }
-        if (FAILED(hres))
-        {
+        if (FAILED(hres)) {
             ASSERT(psfNext == NULL);
             break;
         }
@@ -1308,12 +1215,11 @@ HTREEITEM CNscTree::_FindFromRoot(HTREEITEM htiRoot, LPCITEMIDLIST pidl)
     return htiRet;
 }
 
-BOOL CNscTree::_FIsItem(IShellFolder * psf, LPCITEMIDLIST pidl, HTREEITEM hti)
+BOOL CNscTree::_FIsItem(IShellFolder* psf, LPCITEMIDLIST pidl, HTREEITEM hti)
 {
     PORDERITEM poi = _GetTreeOrderItem(hti);
 
-    if (poi)
-    {
+    if (poi) {
 
         if (poi->pidl && psf->CompareIDs(0, poi->pidl, pidl) == 0)
             return TRUE;
@@ -1321,7 +1227,7 @@ BOOL CNscTree::_FIsItem(IShellFolder * psf, LPCITEMIDLIST pidl, HTREEITEM hti)
     return FALSE;
 }
 
-HRESULT CNscTree::_OnSHNotifyDelete(LPCITEMIDLIST pidl, int *piPosDeleted, HTREEITEM *phtiParent)
+HRESULT CNscTree::_OnSHNotifyDelete(LPCITEMIDLIST pidl, int* piPosDeleted, HTREEITEM* phtiParent)
 {
     HRESULT     hres = S_FALSE;
     HTREEITEM   hti = _FindFromRoot(NULL, pidl);
@@ -1330,18 +1236,15 @@ HRESULT CNscTree::_OnSHNotifyDelete(LPCITEMIDLIST pidl, int *piPosDeleted, HTREE
         return E_INVALIDARG;        // invalid arg, DELETION OF TVI_ROOT
     // need to clear _pidlDrag if the one being deleted is _pidlDrag.
     // handles case where dragging into another folder from within or dragging out.
-    if (_pidlDrag)
-    {
+    if (_pidlDrag) {
         LPCITEMIDLIST pidltst = _CacheParentShellFolder(hti, NULL);
-        if (pidltst)
-        {
+        if (pidltst) {
             if (!_psfCache->CompareIDs(0, pidltst, _pidlDrag))
                 _pidlDrag = NULL;
         }
     }
 
-    if (pidl && (hti != NULL))
-    {
+    if (pidl && (hti != NULL)) {
         _fIgnoreNextItemExpanding = TRUE;
 
         HTREEITEM htiParent = TreeView_GetParent(_hwndTree, hti);
@@ -1350,22 +1253,17 @@ HRESULT CNscTree::_OnSHNotifyDelete(LPCITEMIDLIST pidl, int *piPosDeleted, HTREE
             *phtiParent = htiParent;
 
         //if caller wants the position of the deleted item, don't reorder the other items
-        if (piPosDeleted)
-        {
+        if (piPosDeleted) {
             PORDERITEM poi = _GetTreeOrderItem(hti);
-            if (poi)
-            {
+            if (poi) {
                 *piPosDeleted = poi->nOrder;
                 hres = S_OK;
             }
             TreeView_DeleteItem(_hwndTree, hti);
-        }
-        else
-        {
+        } else {
             if (htiParent == NULL)
                 htiParent = TVI_ROOT;
-            if (TreeView_DeleteItem(_hwndTree, hti))
-            {
+            if (TreeView_DeleteItem(_hwndTree, hti)) {
                 _ReorderChildren(htiParent);
                 hres = S_OK;
             }
@@ -1374,15 +1272,12 @@ HRESULT CNscTree::_OnSHNotifyDelete(LPCITEMIDLIST pidl, int *piPosDeleted, HTREE
         // Update the + next to the parent folder. Note that History and Favorites
         // set ALL of their items to be Folder items, so this is not needed for
         // favorites.
-        if (_mode == MODE_NORMAL)
-        {
+        if (_mode == MODE_NORMAL) {
             LPCITEMIDLIST pidl = _CacheParentShellFolder(htiParent, NULL);
-            if (pidl && !ILIsEmpty(pidl))
-            {
+            if (pidl && !ILIsEmpty(pidl)) {
                 DWORD dwAttrib = SFGAO_HASSUBFOLDER;
                 if (SUCCEEDED(_psfCache->GetAttributesOf(1, &pidl, &dwAttrib)) &&
-                    !(dwAttrib & SFGAO_HASSUBFOLDER))
-                {
+                    !(dwAttrib & SFGAO_HASSUBFOLDER)) {
                     TV_ITEM tvi;
                     tvi.mask = TVIF_CHILDREN | TVIF_HANDLE;
                     tvi.hItem = htiParent;
@@ -1395,8 +1290,7 @@ HRESULT CNscTree::_OnSHNotifyDelete(LPCITEMIDLIST pidl, int *piPosDeleted, HTREE
 
         _fIgnoreNextItemExpanding = FALSE;
 
-        if (hti == _htiCut)
-        {
+        if (hti == _htiCut) {
             _htiCut = NULL;
             _TreeNukeCutState();
         }
@@ -1427,7 +1321,7 @@ HRESULT CNscTree::_OnSHNotifyRename(LPCITEMIDLIST pidl, LPCITEMIDLIST pidlNew)
     LPITEMIDLIST pidlNewParent = ILCloneParent(pidlNew);
     LPCITEMIDLIST pidlNewChild;
     LPITEMIDLIST pidlRealChild;
-    IShellFolder *psf = NULL;
+    IShellFolder* psf = NULL;
     PORDERITEM poi;
 
     if (pidlParent && pidlNewParent &&
@@ -1435,8 +1329,7 @@ HRESULT CNscTree::_OnSHNotifyRename(LPCITEMIDLIST pidl, LPCITEMIDLIST pidlNew)
         (hti = _FindFromRoot(NULL, pidl)) &&
         (poi = _GetTreeOrderItem(hti)) &&
         SUCCEEDED(_ParentFromItem(pidlNew, &psf, &pidlNewChild)) &&
-        SUCCEEDED(_IdlRealFromIdlSimple(psf, pidlNewChild, &pidlRealChild)))
-    {
+        SUCCEEDED(_IdlRealFromIdlSimple(psf, pidlNewChild, &pidlRealChild))) {
         // Just substitute the final pidl component
         ILFree(poi->pidl);
         poi->pidl = pidlRealChild;
@@ -1447,19 +1340,15 @@ HRESULT CNscTree::_OnSHNotifyRename(LPCITEMIDLIST pidl, LPCITEMIDLIST pidlNew)
         // edit control.
 
         hres = S_OK;
-    }
-    else
-    // rename can be a move, so do not depend on the delete happening successfully.
-    if ((_OnSHNotifyDelete(pidl, &iPosDeleted, &htiParent) != E_INVALIDARG)   // invalid arg indication of bogus rename, do not continue.
-        && ((hti = _FindFromRoot(NULL, pidlNew)) == NULL)
-        && (_OnSHNotifyCreate(pidlNew, iPosDeleted, htiParent) == S_OK))
-    {
-        hres = S_OK;
-    }
-    else
-    {
-        hres = S_FALSE;
-    }
+    } else
+        // rename can be a move, so do not depend on the delete happening successfully.
+        if ((_OnSHNotifyDelete(pidl, &iPosDeleted, &htiParent) != E_INVALIDARG)   // invalid arg indication of bogus rename, do not continue.
+            && ((hti = _FindFromRoot(NULL, pidlNew)) == NULL)
+            && (_OnSHNotifyCreate(pidlNew, iPosDeleted, htiParent) == S_OK)) {
+            hres = S_OK;
+        } else {
+            hres = S_FALSE;
+        }
 
     ILFree(pidlParent);
     ILFree(pidlNewParent);
@@ -1483,16 +1372,14 @@ HRESULT CNscTree::_OnSHNotifyUpdateDir(LPCITEMIDLIST pidl)
 {
     HRESULT         hres = S_FALSE;
     HTREEITEM       hti;
-    if (((hti = _FindFromRoot(NULL, pidl)) != NULL))
-    {   // folder exists in tree refresh folder now if had been loaded by expansion.
+    if (((hti = _FindFromRoot(NULL, pidl)) != NULL)) {   // folder exists in tree refresh folder now if had been loaded by expansion.
         TV_ITEM tvi;
         tvi.mask = TVIF_STATE;
         tvi.stateMask = (TVIS_EXPANDEDONCE | TVIS_EXPANDED | TVIS_EXPANDPARTIAL);
         tvi.hItem = (HTREEITEM)hti;
         if ((hti == TVI_ROOT) || (TreeView_GetItem(_hwndTree, &tvi) && (tvi.state & TVIS_EXPANDEDONCE)))
             hres = _UpdateDir(hti);
-        else if (!(tvi.state & TVIS_EXPANDEDONCE))
-        {
+        else if (!(tvi.state & TVIS_EXPANDEDONCE)) {
             TV_ITEM     tvi;
             tvi.mask = TVIF_CHILDREN | TVIF_HANDLE;   // only change the number of children so expand below will work.
             tvi.hItem = hti;
@@ -1503,16 +1390,14 @@ HRESULT CNscTree::_OnSHNotifyUpdateDir(LPCITEMIDLIST pidl)
     return hres;
 }
 
-HRESULT CNscTree::_GetEnum(IShellFolder *psf, LPCITEMIDLIST pidlFolder, IEnumIDList **ppenum)
+HRESULT CNscTree::_GetEnum(IShellFolder* psf, LPCITEMIDLIST pidlFolder, IEnumIDList** ppenum)
 {
     HWND hwnd = NULL;
     DWORD grfFlags = _grfFlags;
 
-    if (_pFilter)
-    {
+    if (_pFilter) {
         LPITEMIDLIST pidlFree = NULL;
-        if (pidlFolder == NULL)
-        {
+        if (pidlFolder == NULL) {
             SHGetIDListFromUnk(psf, &pidlFree);
             pidlFolder = pidlFree;
         }
@@ -1533,11 +1418,9 @@ HRESULT CNscTree::_GetEnum(IShellFolder *psf, LPCITEMIDLIST pidlFolder, IEnumIDL
 BOOL CNscTree::_ShouldShow(IShellFolder* psf, LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlItem)
 {
     BOOL bRet = TRUE;
-    if (_pFilter)
-    {
+    if (_pFilter) {
         LPITEMIDLIST pidlFree = NULL;
-        if (pidlFolder == NULL)
-        {
+        if (pidlFolder == NULL) {
             SHGetIDListFromUnk(psf, &pidlFree);
             pidlFolder = pidlFree;
         }
@@ -1555,14 +1438,14 @@ HRESULT CNscTree::_UpdateDir(HTREEITEM hti)
 {
     HTREEITEM       htiTemp;
 #ifdef DEBUG
-//    TraceHTREE(hti, TEXT("UpdateDIR"));
+    //    TraceHTREE(hti, TEXT("UpdateDIR"));
 #endif
 
     // we now know the true state of the folder represented by input hti
     // , so recursively updatedir on all it's children. Nasty. . .
     // review chrisny:  perf on this.
     for (htiTemp = TreeView_GetChild(_hwndTree, hti); htiTemp
-        ; htiTemp = TreeView_GetNextSibling(_hwndTree, htiTemp))
+         ; htiTemp = TreeView_GetNextSibling(_hwndTree, htiTemp))
         _UpdateDir(htiTemp);
     if (!_CacheShellFolder(hti))          // immediate failure if not folder causing return.
         return S_FALSE;
@@ -1580,25 +1463,20 @@ HRESULT CNscTree::_UpdateDir(HTREEITEM hti)
         return E_OUTOFMEMORY;
 
     LPITEMIDLIST pidlParent = _GetFullIDList(hti);
-    if (pidlParent == NULL)
-    {
+    if (pidlParent == NULL) {
         DPA_Destroy(hdpa);
         return S_FALSE;
     }
 
-    IEnumIDList *penum;
-    if (S_OK == _GetEnum(_psfCache, pidlParent, &penum))
-    {
+    IEnumIDList* penum;
+    if (S_OK == _GetEnum(_psfCache, pidlParent, &penum)) {
         LPITEMIDLIST pidlChild;
         ULONG celt, i = 0;
 
-        while (penum->Next(1, &pidlChild, &celt) == S_OK && celt == 1)
-        {
-            if (_ShouldShow(_psfCache, pidlParent, pidlChild))
-            {
+        while (penum->Next(1, &pidlChild, &celt) == S_OK && celt == 1) {
+            if (_ShouldShow(_psfCache, pidlParent, pidlChild)) {
                 DPA_SetPtr(hdpa, i++, pidlChild);
-            }
-            else
+            } else
                 ILFree(pidlChild);
         }
 
@@ -1606,8 +1484,7 @@ HRESULT CNscTree::_UpdateDir(HTREEITEM hti)
 
         // set pointers to be kept to NULL in DPA and delete item from tree
         celt = i;
-        if (celt && (hti != TVI_ROOT))
-        {
+        if (celt && (hti != TVI_ROOT)) {
             TV_ITEM tvi;
             tvi.mask = TVIF_CHILDREN | TVIF_HANDLE;   // only change the number of children so expand below will work.
             tvi.hItem = hti;
@@ -1620,42 +1497,34 @@ HRESULT CNscTree::_UpdateDir(HTREEITEM hti)
             return E_FAIL;
 
         i = 0;
-        for (htiTemp = TreeView_GetChild(_hwndTree, hti); htiTemp; )
-        {
+        for (htiTemp = TreeView_GetChild(_hwndTree, hti); htiTemp; ) {
             HTREEITEM htiNextChild = TreeView_GetNextSibling(_hwndTree, htiTemp);
             // must delete in this way or break the linkage of tree.
-            if (!_FInTree(hdpa, celt, htiTemp))
-            {
-                DPA_SetPtr( hDel, i++, htiTemp );
+            if (!_FInTree(hdpa, celt, htiTemp)) {
+                DPA_SetPtr(hDel, i++, htiTemp);
                 //if (!TreeView_DeleteItem(_hwndTree, htiTemp))
                 //    ASSERT(FALSE);       // somethings hosed in the tree.
             }
             htiTemp = htiNextChild;
         }
 
-        ULONG cDel = DPA_GetPtrCount( hDel );
-        for(i = 0;i < cDel; i++ )
-        {
-            if (!TreeView_DeleteItem(_hwndTree, (HTREEITEM)DPA_FastGetPtr(hDel,i)))
-            {
+        ULONG cDel = DPA_GetPtrCount(hDel);
+        for (i = 0; i < cDel; i++) {
+            if (!TreeView_DeleteItem(_hwndTree, (HTREEITEM)DPA_FastGetPtr(hDel, i))) {
                 ASSERT(FALSE);       // somethings hosed in the tree.
             }
         }
 
         DPA_Destroy(hDel);
 
-        for (i = 0; i < celt; i++)
-        {
+        for (i = 0; i < celt; i++) {
             pidlChild = (LPITEMIDLIST)DPA_GetPtr(hdpa, i);
-            if (pidlChild)
-            {
+            if (pidlChild) {
                 LPITEMIDLIST pidlFull = ILCombine(pidlParent, pidlChild);
-                if (pidlFull)
-                {
+                if (pidlFull) {
                     htiTemp = _FindFromRoot(hti, pidlFull);
                     // if we DON'T FIND IT add it to the tree . . .
-                    if (!htiTemp)
-                    {
+                    if (!htiTemp) {
                         if (_AddItemToTree(hti, pidlChild, 1, 32000, TVI_LAST, TRUE, _IsMarked(hti)))
                             DPA_SetPtr(hdpa, i, NULL);  // so we don't free below
                     }
@@ -1664,8 +1533,7 @@ HRESULT CNscTree::_UpdateDir(HTREEITEM hti)
             }
         }
         // pidls away . . .
-        for (i = 0; i < celt; i++)
-        {
+        for (i = 0; i < celt; i++) {
             LPITEMIDLIST pidl = (LPITEMIDLIST)DPA_GetPtr(hdpa, i);
             if (pidl)
                 ILFree(pidl);
@@ -1674,23 +1542,18 @@ HRESULT CNscTree::_UpdateDir(HTREEITEM hti)
 
         // Handle Ordering information.
         HDPA hdpaOrder;
-        if (_LoadOrder(hti, pidlParent, _psfCache, &hdpaOrder))
-        {
+        if (_LoadOrder(hti, pidlParent, _psfCache, &hdpaOrder)) {
             HTREEITEM htiChild = TreeView_GetChild(_hwndTree, hti);
             // We have to do a manual merge with the items in the listview.
             // Exercise left for the student: Make this fast.
 
-            for (; htiChild; htiChild = TreeView_GetNextSibling(_hwndTree, htiChild))
-            {
+            for (; htiChild; htiChild = TreeView_GetNextSibling(_hwndTree, htiChild)) {
                 PORDERITEM poi = _GetTreeOrderItem(htiChild);
-                if (poi)
-                {
+                if (poi) {
                     int cOrder = DPA_GetPtrCount(hdpaOrder);
-                    for (int i = 0; i < cOrder; i++)
-                    {
+                    for (int i = 0; i < cOrder; i++) {
                         PORDERITEM poiOrder = (PORDERITEM)DPA_FastGetPtr(hdpaOrder, i);
-                        if (_psfCache->CompareIDs(0, poi->pidl, poiOrder->pidl) == 0)
-                        {
+                        if (_psfCache->CompareIDs(0, poi->pidl, poiOrder->pidl) == 0) {
                             poi->nOrder = poiOrder->nOrder;
                             OrderItem_Free(poiOrder);
                             DPA_DeletePtr(hdpaOrder, i);
@@ -1715,16 +1578,13 @@ BOOL CNscTree::_FInTree(HDPA hdpa, int celt, HTREEITEM hti)
 
     ASSERT(hti);
     PORDERITEM poi = _GetTreeOrderItem(hti);
-    if (poi)
-    {
-        for (int i = 0; i < celt; i++)
-        {
+    if (poi) {
+        for (int i = 0; i < celt; i++) {
             LPITEMIDLIST    pidl;
             if ((pidl = (LPITEMIDLIST)DPA_GetPtr(hdpa, i)) == NULL)
                 continue;
             if (_psfCache->CompareIDs(0, poi->pidl
-                , pidl) == 0)
-            {
+                                      , pidl) == 0) {
                 ILFree(pidl);
                 DPA_SetPtr(hdpa, i++, NULL);
                 return TRUE;
@@ -1734,13 +1594,12 @@ BOOL CNscTree::_FInTree(HDPA hdpa, int celt, HTREEITEM hti)
     return FALSE;
 }
 
-HTREEITEM CNscTree::_FindChild(IShellFolder *psf, HTREEITEM htiParent, LPCITEMIDLIST pidlChild)
+HTREEITEM CNscTree::_FindChild(IShellFolder* psf, HTREEITEM htiParent, LPCITEMIDLIST pidlChild)
 {
-     HTREEITEM hti;
+    HTREEITEM hti;
 
     for (hti = TreeView_GetChild(_hwndTree, htiParent); hti
-        ; hti = TreeView_GetNextSibling(_hwndTree, hti))
-    {
+         ; hti = TreeView_GetNextSibling(_hwndTree, hti)) {
         if (_FIsItem(psf, pidlChild, hti))
             break;
     }
@@ -1752,40 +1611,32 @@ void CNscTree::_ReorderChildren(HTREEITEM htiParent)
     int i = 0;
     HTREEITEM hti;
     for (hti = TreeView_GetChild(_hwndTree, htiParent); hti
-        ; hti = TreeView_GetNextSibling(_hwndTree, hti))
-    {
+         ; hti = TreeView_GetNextSibling(_hwndTree, hti)) {
         PORDERITEM poi = _GetTreeOrderItem(hti);
-        if (poi)
-        {
+        if (poi) {
             poi->nOrder = i++;        // reset the positions of the nodes.
         }
     }
 }
 
 
-HRESULT CNscTree::_InsertChild(HTREEITEM htiParent, IShellFolder *psfParent, LPCITEMIDLIST pidlChild, BOOL fExpand, int iPosition)
+HRESULT CNscTree::_InsertChild(HTREEITEM htiParent, IShellFolder* psfParent, LPCITEMIDLIST pidlChild, BOOL fExpand, int iPosition)
 {
     LPITEMIDLIST pidlReal;
     HRESULT hres = S_OK;
 
     // review chrisny:  no sort here, use compareitems to insert item instead.
-    if (SUCCEEDED(_IdlRealFromIdlSimple(psfParent, pidlChild, &pidlReal)))
-    {
+    if (SUCCEEDED(_IdlRealFromIdlSimple(psfParent, pidlChild, &pidlReal))) {
         HTREEITEM htiAfter = TVI_LAST;
-        if (iPosition != DEFAULTORDERPOSITION)
-        {
+        if (iPosition != DEFAULTORDERPOSITION) {
             if (iPosition == 0)
                 htiAfter = htiParent;
-            else
-            {
+            else {
                 for (HTREEITEM hti = TreeView_GetChild(_hwndTree, htiParent); hti
-                    ; hti = TreeView_GetNextSibling(_hwndTree, hti))
-                {
+                     ; hti = TreeView_GetNextSibling(_hwndTree, hti)) {
                     PORDERITEM poi = _GetTreeOrderItem(hti);
-                    if (poi)
-                    {
-                        if (poi->nOrder == iPosition-1)
-                        {
+                    if (poi) {
+                        if (poi->nOrder == iPosition - 1) {
                             htiAfter = hti;
 #ifdef DEBUG
                             TraceHTREE(htiAfter, TEXT("Inserting After"));
@@ -1802,18 +1653,16 @@ HRESULT CNscTree::_InsertChild(HTREEITEM htiParent, IShellFolder *psfParent, LPC
         if ((_FindChild(psfParent, htiParent, pidlReal) == NULL) &&
             SUCCEEDED(psfParent->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlReal, &dwAttrib)) &&
             ((htiNew = _AddItemToTree(htiParent, pidlReal,
-                                      (MODE_NORMAL != _mode || dwAttrib & SFGAO_HASSUBFOLDER)? 1 : 0,
-                                      iPosition, htiAfter)) != NULL))
-        {
+                                      (MODE_NORMAL != _mode || dwAttrib & SFGAO_HASSUBFOLDER) ? 1 : 0,
+                                      iPosition, htiAfter)) != NULL)) {
             // if added at the default position OR anywhere when sorted by name,
             //  refresh the order information for the items including the newly added item.
-            if ( (iPosition == DEFAULTORDERPOSITION) || !_IsOrdered(htiParent) )
-            {
+            if ((iPosition == DEFAULTORDERPOSITION) || !_IsOrdered(htiParent)) {
                 _ReorderChildren(htiParent);
                 _Sort(htiParent, psfParent);
             }
 
-            if (fExpand )
+            if (fExpand)
                 TreeView_Expand(_hwndTree, htiParent, TVE_EXPAND);    // force expansion to show new item.
 
             //ensure the item is visible after a rename (or external drop, but that should always be a noop)
@@ -1821,9 +1670,7 @@ HRESULT CNscTree::_InsertChild(HTREEITEM htiParent, IShellFolder *psfParent, LPC
                 TreeView_EnsureVisible(_hwndTree, htiNew);
 
             hres = S_OK;
-        }
-        else
-        {
+        } else {
             ILFree(pidlReal);
             hres = S_FALSE;
         }
@@ -1838,17 +1685,15 @@ HRESULT CheckForExpandOnce(HWND hwndTree, HTREEITEM hti)
     TV_ITEM tvi;
 
     // Root node always expanded.
-    if( hti == TVI_ROOT )
+    if (hti == TVI_ROOT)
         return hres;
 
     tvi.mask = TVIF_STATE | TVIF_CHILDREN;
     tvi.stateMask = (TVIS_EXPANDEDONCE | TVIS_EXPANDED | TVIS_EXPANDPARTIAL);
     tvi.hItem = (HTREEITEM)hti;
 
-    if (TreeView_GetItem(hwndTree, &tvi))
-    {
-        if( !(tvi.state & TVIS_EXPANDEDONCE) && (tvi.cChildren == 0) )
-        {
+    if (TreeView_GetItem(hwndTree, &tvi)) {
+        if (!(tvi.state & TVIS_EXPANDEDONCE) && (tvi.cChildren == 0)) {
             tvi.mask = TVIF_CHILDREN | TVIF_HANDLE;
             tvi.hItem = hti;
             tvi.cChildren = 1;
@@ -1860,12 +1705,11 @@ HRESULT CheckForExpandOnce(HWND hwndTree, HTREEITEM hti)
 }
 
 
-HRESULT _InvokeCommandThunk(IContextMenu * pcm, HWND hwndParent)
+HRESULT _InvokeCommandThunk(IContextMenu* pcm, HWND hwndParent)
 {
     HRESULT hr;
 
-    if (g_fRunningOnNT)
-    {
+    if (g_fRunningOnNT) {
         CMINVOKECOMMANDINFOEX ici = {0};
 
         ici.cbSize = sizeof(ici);
@@ -1876,9 +1720,7 @@ HRESULT _InvokeCommandThunk(IContextMenu * pcm, HWND hwndParent)
         ici.lpVerbW = CMDSTR_NEWFOLDERW;
 
         hr = pcm->InvokeCommand((LPCMINVOKECOMMANDINFO)(&ici));
-    }
-    else
-    {
+    } else {
         CMINVOKECOMMANDINFO ici = {0};
 
         ici.cbSize = sizeof(ici);
@@ -1917,22 +1759,18 @@ HRESULT CNscTree::CreateNewFolder(HTREEITEM hti)
 {
     HRESULT hr = E_FAIL;
 
-    if (hti)
-    {
+    if (hti) {
         // If the user selected a folder item (file), we need
         // to bind set the cache to the parent folder.
 
         LPITEMIDLIST pidl = _GetFullIDList(hti);
 
-        if (EVAL(pidl))
-        {
+        if (EVAL(pidl)) {
             ULONG ulAttr = SFGAO_FOLDER;    // make sure item is actually a folder
 
-            if (EVAL(SUCCEEDED(IEGetAttributesOf(pidl, &ulAttr))))
-            {
+            if (EVAL(SUCCEEDED(IEGetAttributesOf(pidl, &ulAttr)))) {
                 // Is it a folder?
-                if (ulAttr & SFGAO_FOLDER)
-                {
+                if (ulAttr & SFGAO_FOLDER) {
                     // non-Normal modes (!MODE_NORMAL) wants the new folder to be created as
                     // a sibling instead of as a child of the selected folder if it's
                     // closed.  I assume their reasoning is that closed folders are often
@@ -1942,8 +1780,7 @@ HRESULT CNscTree::CreateNewFolder(HTREEITEM hti)
                         _CacheShellFolder(TreeView_GetParent(_hwndTree, hti));
                     else
                         _CacheShellFolder(hti);     // Yes, so fine.
-                }
-                else
+                } else
                     _CacheShellFolder(TreeView_GetParent(_hwndTree, hti));  // No, so bind to the parent.
             }
 
@@ -1956,26 +1793,22 @@ HRESULT CNscTree::CreateNewFolder(HTREEITEM hti)
     // Favorites folder is completely empty.
 
 
-    if (_psfCache)
-    {
+    if (_psfCache) {
         // On Win95 it was only the view background menu that supported NewFolder,
         // On IE4 Shell+, it's the folder background object itself, but the view
         // still works.
 
-        IShellView * psv;
-        hr = _psfCache->CreateViewObject(_hwndTree, IID_IShellView, (LPVOID *)&psv);
-        if (SUCCEEDED(hr))
-        {
-            IContextMenu * pcm;
+        IShellView* psv;
+        hr = _psfCache->CreateViewObject(_hwndTree, IID_IShellView, (LPVOID*)&psv);
+        if (SUCCEEDED(hr)) {
+            IContextMenu* pcm;
 
-            if (SUCCEEDED(psv->GetItemObject(SVGIO_BACKGROUND, IID_IContextMenu, (LPVOID *)&pcm)))
-            {
+            if (SUCCEEDED(psv->GetItemObject(SVGIO_BACKGROUND, IID_IContextMenu, (LPVOID*)&pcm))) {
                 IUnknown_SetSite(pcm, psv);
 
                 HMENU hmContext = CreatePopupMenu();
                 hr = pcm->QueryContextMenu(hmContext, 0, 1, 256, 0);
-                if (SUCCEEDED(hr))
-                {
+                if (SUCCEEDED(hr)) {
                     _pidlNewFolderParent = _GetFullIDList(_htiCache);
                     hr = _InvokeCommandThunk(pcm, _hwndParent);
                     SHChangeNotifyHandleEvents(); // Flush the events to it doesn't take forever to shift into edit mode
@@ -2008,8 +1841,7 @@ HRESULT CNscTree::_EnterNewFolderEditMode(LPCITEMIDLIST pidlNewFolder)
     // 3. Put it into the rename mode.
     EVAL(SUCCEEDED(SetSelectedItem(pidlNewFolder, FALSE, FALSE, 0)));
 
-    if (htiNewFolder == NULL)
-    {
+    if (htiNewFolder == NULL) {
         pidlParent = ILClone(pidlNewFolder);
         ILRemoveLastID(pidlParent);
         HTREEITEM htiParent = _FindFromRoot(NULL, pidlParent);
@@ -2020,8 +1852,7 @@ HRESULT CNscTree::_EnterNewFolderEditMode(LPCITEMIDLIST pidlNewFolder)
 
         // NOTE: If it is root, Tree view is pretty stupid and will
         // try and deref TVI_ROOT and faults.
-        if (htiParent != TVI_ROOT)
-        {
+        if (htiParent != TVI_ROOT) {
             // Try expanding the parent and finding again.
             CheckForExpandOnce(_hwndTree, htiParent);
             TreeView_SelectItem(_hwndTree, htiParent);
@@ -2031,16 +1862,14 @@ HRESULT CNscTree::_EnterNewFolderEditMode(LPCITEMIDLIST pidlNewFolder)
         htiNewFolder = _FindFromRoot(NULL, pidlNewFolder);
     }
 
-    if (htiNewFolder == NULL)
-    {
+    if (htiNewFolder == NULL) {
         // Something went very wrong here. We are not able to find newly added node.
         // One last try after refreshing the entire tree. (slow)
         // May be we didn't get notification.
         Refresh();
 
         htiNewFolder = _FindFromRoot(NULL, pidlNewFolder);
-        if(htiNewFolder && (htiNewFolder != TVI_ROOT))
-        {
+        if (htiNewFolder && (htiNewFolder != TVI_ROOT)) {
             HTREEITEM htiParent = _FindFromRoot(NULL, pidlParent);
 
             // We are looking for the parent folder. If this is NOT
@@ -2048,8 +1877,7 @@ HRESULT CNscTree::_EnterNewFolderEditMode(LPCITEMIDLIST pidlNewFolder)
 
             // NOTE: If it is root, Tree view is pretty stupid and will
             // try and deref TVI_ROOT and faults.
-            if (htiParent != TVI_ROOT)
-            {
+            if (htiParent != TVI_ROOT) {
                 CheckForExpandOnce(_hwndTree, htiParent);
                 TreeView_SelectItem(_hwndTree, htiParent);
                 TreeView_Expand(_hwndTree, htiParent, TVE_EXPAND);
@@ -2060,8 +1888,7 @@ HRESULT CNscTree::_EnterNewFolderEditMode(LPCITEMIDLIST pidlNewFolder)
     }
 
     // Put Edit label on the item for possible renaming by user.
-    if (htiNewFolder)
-    {
+    if (htiNewFolder) {
         _fRclick = TRUE;  //otherwise label editing is canceled
         TreeView_EditLabel(_hwndTree, htiNewFolder);
         _fRclick = FALSE;
@@ -2079,32 +1906,27 @@ HRESULT CNscTree::_OnSHNotifyCreate(LPCITEMIDLIST pidl, int iPosition, HTREEITEM
     HRESULT   hres = S_OK;
     HTREEITEM hti = NULL;
 
-    if (ILIsParent(_pidlRoot, pidl, FALSE))
-    {
+    if (ILIsParent(_pidlRoot, pidl, FALSE)) {
         LPITEMIDLIST pidlParent = ILCloneParent(pidl);
-        if (pidlParent)
-        {
+        if (pidlParent) {
             hti = _FindFromRoot(NULL, pidlParent);
             ILFree(pidlParent);
         }
 
-        if (hti)
-        {   // folder exists in tree, if item expanded, load the node, else bag out.
+        if (hti) {   // folder exists in tree, if item expanded, load the node, else bag out.
             TV_ITEM tvi;
-            if (hti != TVI_ROOT)
-            {
+            if (hti != TVI_ROOT) {
                 tvi.mask = TVIF_STATE | TVIF_CHILDREN;
                 tvi.stateMask = (TVIS_EXPANDEDONCE | TVIS_EXPANDED | TVIS_EXPANDPARTIAL);
                 tvi.hItem = (HTREEITEM)hti;
 
-                if(!TreeView_GetItem(_hwndTree, &tvi))
+                if (!TreeView_GetItem(_hwndTree, &tvi))
                     return hres;
 
                 // If we drag and item over to a node which has never beem expanded
                 // before we will always fail to add the new node.
-                if( !(tvi.state & TVIS_EXPANDEDONCE) )
-                {
-                    CheckForExpandOnce( _hwndTree, hti );
+                if (!(tvi.state & TVIS_EXPANDEDONCE)) {
+                    CheckForExpandOnce(_hwndTree, hti);
 
                     tvi.mask = TVIF_STATE;
                     tvi.stateMask = (TVIS_EXPANDEDONCE | TVIS_EXPANDED | TVIS_EXPANDPARTIAL);
@@ -2116,23 +1938,19 @@ HRESULT CNscTree::_OnSHNotifyCreate(LPCITEMIDLIST pidl, int iPosition, HTREEITEM
                     if (!TreeView_GetItem(_hwndTree, &tvi))
                         return hres;
                 }
-            }
-            else
+            } else
                 tvi.state = (TVIS_EXPANDEDONCE);    // evil root is always expanded.
 
-            if (tvi.state & TVIS_EXPANDEDONCE)
-            {
+            if (tvi.state & TVIS_EXPANDEDONCE) {
                 LPCITEMIDLIST   pidlChild;
-                IShellFolder    *psf;
+                IShellFolder* psf;
                 hres = _ParentFromItem(pidl, &psf, &pidlChild);
                 if (_fAsyncDrop)    // inserted via drag/drop
                 {
-                    int iNewPos =   _fInsertBefore ? (_iDragDest - 1) : _iDragDest;
+                    int iNewPos = _fInsertBefore ? (_iDragDest - 1) : _iDragDest;
                     LPITEMIDLIST pidlReal;
-                    if (SUCCEEDED(_IdlRealFromIdlSimple(psf, pidlChild, &pidlReal)))
-                    {
-                        if (_MoveNode(_hwndTree, _iDragSrc, iNewPos, pidlReal))
-                        {
+                    if (SUCCEEDED(_IdlRealFromIdlSimple(psf, pidlChild, &pidlReal))) {
+                        if (_MoveNode(_hwndTree, _iDragSrc, iNewPos, pidlReal)) {
                             TraceMsg(TF_NSC, "NSCBand:  Reordering Item");
                             _fDropping = TRUE;
                             _Dropped();
@@ -2143,17 +1961,14 @@ HRESULT CNscTree::_OnSHNotifyCreate(LPCITEMIDLIST pidl, int iPosition, HTREEITEM
                     _htiCur = NULL;
                     _fDragging = _fInserting = _fDropping = FALSE;
                     _iDragDest = _iDragSrc = -1;
-                }
-                else   // standard shell notify create or drop with no insert, rename.
+                } else   // standard shell notify create or drop with no insert, rename.
                 {
-                    if (SUCCEEDED(hres))
-                    {
+                    if (SUCCEEDED(hres)) {
                         if (_iDragDest >= 0)
                             iPosition = _iDragDest;
                         hres = _InsertChild(hti, psf, pidlChild, BOOLIFY(tvi.state & TVIS_SELECTED), iPosition);
                         if (_iDragDest >= 0 &&
-                            SUCCEEDED(_PopulateOrderList(hti)))
-                        {
+                            SUCCEEDED(_PopulateOrderList(hti))) {
                             _fDropping = TRUE;
                             _Dropped();
                             _fDropping = FALSE;
@@ -2178,15 +1993,15 @@ HRESULT CNscTree::_OnSHNotifyCreate(LPCITEMIDLIST pidl, int iPosition, HTREEITEM
 }
 
 //BUGBUG make this void
-HRESULT CNscTree::_OnDeleteItem(NM_TREEVIEW *pnm)
+HRESULT CNscTree::_OnDeleteItem(NM_TREEVIEW* pnm)
 {
     if (_htiActiveBorder == pnm->itemOld.hItem)
         _htiActiveBorder = NULL;
 
-    ITEMINFO *  pii = (ITEMINFO *) pnm->itemOld.lParam;
+    ITEMINFO* pii = (ITEMINFO*)pnm->itemOld.lParam;
     pnm->itemOld.lParam = NULL;
 
-//    TraceMsg(TF_ALWAYS, "Nsc_Del(htiItem=%#08lx, pii=%#08lx)", pnm->itemOld.hItem, pii);
+    //    TraceMsg(TF_ALWAYS, "Nsc_Del(htiItem=%#08lx, pii=%#08lx)", pnm->itemOld.hItem, pii);
 
     OrderItem_Free(pii->poi, TRUE);
     LocalFree(pii);
@@ -2194,16 +2009,14 @@ HRESULT CNscTree::_OnDeleteItem(NM_TREEVIEW *pnm)
     return S_OK;
 }
 
-void CNscTree::_GetDefaultIconIndex(LPCITEMIDLIST pidl, ULONG ulAttrs, TVITEM *pitem, BOOL fFolder)
+void CNscTree::_GetDefaultIconIndex(LPCITEMIDLIST pidl, ULONG ulAttrs, TVITEM* pitem, BOOL fFolder)
 {
-    if (_iDefaultFavoriteIcon == 0)
-    {
+    if (_iDefaultFavoriteIcon == 0) {
         WCHAR psz[MAX_PATH];
         DWORD cbSize = ARRAYSIZE(psz);
         int iTemp = 0;
 
-        if (ERROR_SUCCESS == SHGetValue(HKEY_CLASSES_ROOT, L"InternetShortcut\\DefaultIcon", NULL, NULL, (LPBYTE)&psz, &cbSize))
-        {
+        if (ERROR_SUCCESS == SHGetValue(HKEY_CLASSES_ROOT, L"InternetShortcut\\DefaultIcon", NULL, NULL, (LPBYTE)&psz, &cbSize)) {
             iTemp = PathParseIconLocation(psz);
         }
 
@@ -2228,13 +2041,11 @@ BOOL CNscTree::_LoadOrder(HTREEITEM hti, LPCITEMIDLIST pidl, IShellFolder* psf, 
     if (_hdpaOrd == NULL)
         _hdpaOrd = DPA_Create(2);
 
-    if (_hdpaOrd)
-    {
+    if (_hdpaOrd) {
         HDPA hdpaOrder = NULL;
 
-        IStream *pstm = GetOrderStream(pidl, STGM_READ);
-        if (pstm)
-        {
+        IStream* pstm = GetOrderStream(pidl, STGM_READ);
+        if (pstm) {
             OrderList_LoadFromStream(pstm, &hdpaOrder, psf);
             pstm->Release();
         }
@@ -2245,12 +2056,9 @@ BOOL CNscTree::_LoadOrder(HTREEITEM hti, LPCITEMIDLIST pidl, IShellFolder* psf, 
 
         //set the tree item's ordered flag
         PORDERITEM poi;
-        if (hti == TVI_ROOT)
-        {
+        if (hti == TVI_ROOT) {
             _fOrdered = TRUE;
-        }
-        else if ((poi = _GetTreeOrderItem(hti)) != NULL)
-        {
+        } else if ((poi = _GetTreeOrderItem(hti)) != NULL) {
             poi->lParam = fOrdered;
         }
 
@@ -2261,7 +2069,7 @@ BOOL CNscTree::_LoadOrder(HTREEITEM hti, LPCITEMIDLIST pidl, IShellFolder* psf, 
 }
 
 // load shell folder and deal with persisted ordering.
-HRESULT CNscTree::_LoadSF(HTREEITEM htiRoot, LPCITEMIDLIST pidl, BOOL fAddingOnly, int * pcAdded, BOOL * pfOrdered)
+HRESULT CNscTree::_LoadSF(HTREEITEM htiRoot, LPCITEMIDLIST pidl, BOOL fAddingOnly, int* pcAdded, BOOL* pfOrdered)
 {
     ASSERT(pcAdded);
     ASSERT(pfOrdered);
@@ -2269,47 +2077,39 @@ HRESULT CNscTree::_LoadSF(HTREEITEM htiRoot, LPCITEMIDLIST pidl, BOOL fAddingOnl
     TraceHTREE(htiRoot, TEXT("Loading the Shell Folder for"));
 #endif
 
-    if (_CacheShellFolder(htiRoot))
-    {
+    if (_CacheShellFolder(htiRoot)) {
         HRESULT hres;
         HDPA hdpaOrder = NULL;
-        IShellFolder *psfItem = _psfCache;
+        IShellFolder* psfItem = _psfCache;
 
         psfItem->AddRef();  // hang on as adding items may change the cached psfCache
 
         *pfOrdered = _LoadOrder(htiRoot, pidl, psfItem, &hdpaOrder);
-        if (_hdpaOrd)
-        {
-            IEnumIDList *penum;
+        if (_hdpaOrd) {
+            IEnumIDList* penum;
             hres = _GetEnum(psfItem, pidl, &penum);
-            if (S_OK == hres)
-            {
+            if (S_OK == hres) {
                 ULONG celt;
                 LPITEMIDLIST pidlTemp;
-                while (penum->Next(1, &pidlTemp, &celt) == S_OK && celt == 1)
-                {
-                    if (_ShouldShow(_psfCache, pidl, pidlTemp))
-                    {
-                        if (!OrderList_Append(_hdpaOrd, pidlTemp, -1))
-                        {
+                while (penum->Next(1, &pidlTemp, &celt) == S_OK && celt == 1) {
+                    if (_ShouldShow(_psfCache, pidl, pidlTemp)) {
+                        if (!OrderList_Append(_hdpaOrd, pidlTemp, -1)) {
                             ILFree(pidlTemp);
                             penum->Release();
                             goto LGone;
                         }
-                    }
-                    else
+                    } else
                         ILFree(pidlTemp);
                 }
                 penum->Release();
-            }
-            else
+            } else
                 hres = S_FALSE;
 
             ORDERINFO oinfo;
             oinfo.psf = psfItem;
             oinfo.dwSortBy = OI_SORTBYNAME; // merge depends on by name.
             if (*pfOrdered)
-                OrderList_Merge(_hdpaOrd, hdpaOrder,  -1, (LPARAM)&oinfo, NULL, NULL);
+                OrderList_Merge(_hdpaOrd, hdpaOrder, -1, (LPARAM)&oinfo, NULL, NULL);
             oinfo.dwSortBy = (*pfOrdered ? OI_SORTBYORDINAL : OI_SORTBYNAME);
 
             DPA_Sort(_hdpaOrd, OrderItem_Compare, (LPARAM)&oinfo);
@@ -2321,8 +2121,7 @@ HRESULT CNscTree::_LoadSF(HTREEITEM htiRoot, LPCITEMIDLIST pidl, BOOL fAddingOnl
 
             // load merged item list into tree.
             *pcAdded = DPA_GetPtrCount(_hdpaOrd);
-            for (int i = 0; i < *pcAdded; i++)
-            {
+            for (int i = 0; i < *pcAdded; i++) {
                 DWORD dwAttrib = SFGAO_HASSUBFOLDER;
                 PORDERITEM pitoi = (PORDERITEM)DPA_FastGetPtr(_hdpaOrd, i);
                 if (pitoi == NULL)
@@ -2332,17 +2131,15 @@ HRESULT CNscTree::_LoadSF(HTREEITEM htiRoot, LPCITEMIDLIST pidl, BOOL fAddingOnl
 
                 // If this is a normal NSC, we need to display the plus sign correctly.
                 HTREEITEM hti = _AddItemToTree(htiRoot, pitoi->pidl,
-                                               (MODE_NORMAL != _mode || dwAttrib & SFGAO_HASSUBFOLDER)? 1 : 0,
+                                               (MODE_NORMAL != _mode || dwAttrib & SFGAO_HASSUBFOLDER) ? 1 : 0,
                                                pitoi->nOrder, TVI_LAST, fCheckForDups, fParentMarked);
                 if (hti == NULL)
                     break;
             }
-        }
-        else
-        {
+        } else {
             hres = E_OUTOFMEMORY;
         }
-LGone:
+    LGone:
         OrderList_Destroy(&_hdpaOrd, FALSE);
         OrderList_Destroy(&hdpaOrder, TRUE);        // calls DPA_Destroy(hdpaOrder)
         psfItem->Release();
@@ -2353,29 +2150,23 @@ LGone:
 }
 
 // review chrisny:  get rid of this function.
-int CNscTree::_GetChildren(IShellFolder *psf, LPCITEMIDLIST pidl, ULONG ulAttrs)
+int CNscTree::_GetChildren(IShellFolder* psf, LPCITEMIDLIST pidl, ULONG ulAttrs)
 {
     int cChildren = 0;  // assume none
 
-    if (ulAttrs & SFGAO_FOLDER)
-    {
-        if (_grfFlags & SHCONTF_NONFOLDERS)
-        {
+    if (ulAttrs & SFGAO_FOLDER) {
+        if (_grfFlags & SHCONTF_NONFOLDERS) {
             // there is no SFGAO_ bit that includes non folders so we need to enum
-            IShellFolder *psfItem;
-            if (SUCCEEDED(psf->BindToObject(pidl, NULL, IID_IShellFolder, (void **)&psfItem)))
-            {
+            IShellFolder* psfItem;
+            if (SUCCEEDED(psf->BindToObject(pidl, NULL, IID_IShellFolder, (void**)&psfItem))) {
                 // if we are showing non folders we have to do an enum to peek down at items below
-                IEnumIDList *penum;
-                if (S_OK == _GetEnum(psfItem, NULL, &penum))
-                {
+                IEnumIDList* penum;
+                if (S_OK == _GetEnum(psfItem, NULL, &penum)) {
                     ULONG celt;
                     LPITEMIDLIST pidlTemp;
 
-                    if (penum->Next(1, &pidlTemp, &celt) == S_OK && celt == 1)
-                    {
-                        if (_ShouldShow(psfItem, NULL, pidlTemp))
-                        {
+                    if (penum->Next(1, &pidlTemp, &celt) == S_OK && celt == 1) {
+                        if (_ShouldShow(psfItem, NULL, pidlTemp)) {
                             cChildren = 1;
                         }
 
@@ -2385,9 +2176,7 @@ int CNscTree::_GetChildren(IShellFolder *psf, LPCITEMIDLIST pidl, ULONG ulAttrs)
                 }
                 psfItem->Release();
             }
-        }
-        else
-        {
+        } else {
             // if just folders we can peek at the attributes
             ULONG ulAttrs = SFGAO_HASSUBFOLDER;
             psf->GetAttributesOf(1, &pidl, &ulAttrs);
@@ -2398,7 +2187,7 @@ int CNscTree::_GetChildren(IShellFolder *psf, LPCITEMIDLIST pidl, ULONG ulAttrs)
     return cChildren;
 }
 
-void CNscTree::_OnGetDisplayInfo(TV_DISPINFO *pnm)
+void CNscTree::_OnGetDisplayInfo(TV_DISPINFO* pnm)
 {
     PORDERITEM poi = GetPoi(pnm->item.lParam);
     LPCITEMIDLIST pidl = _CacheParentShellFolder(pnm->item.hItem, poi->pidl);
@@ -2407,15 +2196,13 @@ void CNscTree::_OnGetDisplayInfo(TV_DISPINFO *pnm)
         return;
     ASSERT(_psfCache);
     ASSERT(pnm->item.mask & (TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_TEXT | TVIF_CHILDREN));
-    if (pnm->item.mask & TVIF_TEXT)
-    {
+    if (pnm->item.mask & TVIF_TEXT) {
         SHELLDETAILS details;
         if (SUCCEEDED(_GetDisplayNameOf(_psfCache, pidl, SHGDN_INFOLDER, &details)))
             StrRetToBuf(&details.str, pidl, pnm->item.pszText, pnm->item.cchTextMax);
     }
     // make sure we set the attributes for those flags that need them
-    if (pnm->item.mask & (TVIF_CHILDREN | TVIF_IMAGE | TVIF_SELECTEDIMAGE))
-    {
+    if (pnm->item.mask & (TVIF_CHILDREN | TVIF_IMAGE | TVIF_SELECTEDIMAGE)) {
         ULONG ulAttrs = SFGAO_FOLDER | SFGAO_NEWCONTENT;
         _psfCache->GetAttributesOf(1, &pidl, &ulAttrs);
         // review chrisny:  still need to handle notify of changes from
@@ -2423,8 +2210,7 @@ void CNscTree::_OnGetDisplayInfo(TV_DISPINFO *pnm)
 
         // HACKHACK!!!  we're using the TVIS_FOCUSED bit to stored whether there's
         // new content or not.
-        if (ulAttrs & SFGAO_NEWCONTENT)
-        {
+        if (ulAttrs & SFGAO_NEWCONTENT) {
             pnm->item.mask |= TVIF_STATE;
             pnm->item.stateMask = TVIS_FOCUSED;  // init state mask to bold
             pnm->item.state = TVIS_FOCUSED;  // init state mask to bold
@@ -2448,28 +2234,23 @@ void CNscTree::_OnGetDisplayInfo(TV_DISPINFO *pnm)
 #define SZ_RENAMEA              "rename"
 #define SZ_RENAME               TEXT(SZ_RENAMEA)
 
-void CNscTree::_ApplyCmd(HTREEITEM hti, IContextMenu *pcm, UINT idCmd)
+void CNscTree::_ApplyCmd(HTREEITEM hti, IContextMenu* pcm, UINT idCmd)
 {
     TCHAR szCommandString[40];
     BOOL fHandled = FALSE;
     BOOL fCutting = FALSE;
 
     // We need to special case the rename command
-    if (SUCCEEDED(ContextMenu_GetCommandStringVerb(pcm, idCmd, szCommandString, ARRAYSIZE(szCommandString))))
-    {
-        if (StrCmpI(szCommandString, SZ_RENAME)==0)
-        {
+    if (SUCCEEDED(ContextMenu_GetCommandStringVerb(pcm, idCmd, szCommandString, ARRAYSIZE(szCommandString)))) {
+        if (StrCmpI(szCommandString, SZ_RENAME) == 0) {
             TreeView_EditLabel(_hwndTree, hti);
             fHandled = TRUE;
-        }
-        else if (!StrCmpI(szCommandString, SZ_CUT))
-        {
+        } else if (!StrCmpI(szCommandString, SZ_CUT)) {
             fCutting = TRUE;
         }
     }
 
-    if (!fHandled)
-    {
+    if (!fHandled) {
         CMINVOKECOMMANDINFO ici = {
             sizeof(CMINVOKECOMMANDINFO),
                 0L,
@@ -2480,8 +2261,7 @@ void CNscTree::_ApplyCmd(HTREEITEM hti, IContextMenu *pcm, UINT idCmd)
         };
 
         HRESULT hres = pcm->InvokeCommand(&ici);
-        if (fCutting && SUCCEEDED(hres))
-        {
+        if (fCutting && SUCCEEDED(hres)) {
             TV_ITEM tvi;
             tvi.mask = TVIF_STATE;
             tvi.stateMask = TVIS_CUT;
@@ -2494,8 +2274,7 @@ void CNscTree::_ApplyCmd(HTREEITEM hti, IContextMenu *pcm, UINT idCmd)
         }
 
         //hack to force a selection update, so oc can update it's status text
-        if (_mode & MODE_CONTROL)
-        {
+        if (_mode & MODE_CONTROL) {
             HTREEITEM hti = TreeView_GetSelection(_hwndTree);
 
             SendMessage(_hwndTree, WM_SETREDRAW, FALSE, 0);
@@ -2516,23 +2295,17 @@ HRESULT CNscTree::InvokeContextMenuCommand(BSTR strCommand)
     ASSERT(strCommand);
     HTREEITEM htiSelected = TreeView_GetSelection(_hwndTree);
 
-    if (htiSelected)
-    {
-        if (StrCmpIW(strCommand, L"rename") == 0)
-        {
+    if (htiSelected) {
+        if (StrCmpIW(strCommand, L"rename") == 0) {
             _fRclick = TRUE;  //otherwise label editing is canceled
             TreeView_EditLabel(_hwndTree, htiSelected);
             _fRclick = FALSE;
-        }
-        else
-        {
+        } else {
             LPCITEMIDLIST pidl = _CacheParentShellFolder(htiSelected, NULL);
-            if (pidl)
-            {
-                IContextMenu *pcm;
+            if (pidl) {
+                IContextMenu* pcm;
 
-                if (SUCCEEDED(_psfCache->GetUIObjectOf(_hwndTree, 1, &pidl, IID_IContextMenu, NULL, (void **)&pcm)))
-                {
+                if (SUCCEEDED(_psfCache->GetUIObjectOf(_hwndTree, 1, &pidl, IID_IContextMenu, NULL, (void**)&pcm))) {
                     CHAR szCommand[MAX_PATH];
                     SHUnicodeToAnsi(strCommand, szCommand, ARRAYSIZE(szCommand));
 
@@ -2558,8 +2331,7 @@ HRESULT CNscTree::InvokeContextMenuCommand(BSTR strCommand)
                     };
 
                     HRESULT hres = pcm->InvokeCommand((LPCMINVOKECOMMANDINFO)&ici);
-                    if (hres == E_INVALIDARG)
-                    {
+                    if (hres == E_INVALIDARG) {
                         // Recipient didn't like the unicode command; send an ANSI one
                         ici.cbSize = sizeof(CMINVOKECOMMANDINFO);
                         ici.fMask &= ~CMIC_MASK_UNICODE;
@@ -2567,11 +2339,9 @@ HRESULT CNscTree::InvokeContextMenuCommand(BSTR strCommand)
                     }
 
                     // do any visuals for cut state
-                    if (SUCCEEDED(hres) && StrCmpIW(strCommand, L"cut") == 0)
-                    {
+                    if (SUCCEEDED(hres) && StrCmpIW(strCommand, L"cut") == 0) {
                         HTREEITEM hti = TreeView_GetSelection(_hwndTree);
-                        if (hti)
-                        {
+                        if (hti) {
                             _TreeSetItemState(hti, TVIS_CUT, TVIS_CUT);
                             ASSERT(!_hwndNextViewer);
                             _hwndNextViewer = SetClipboardViewer(_hwndTree);
@@ -2586,8 +2356,7 @@ HRESULT CNscTree::InvokeContextMenuCommand(BSTR strCommand)
         }
 
         //if properties was invoked, who knows what might have changed, so force a reselect
-        if (StrCmpNW(strCommand, L"properties", 10) == 0)
-        {
+        if (StrCmpNW(strCommand, L"properties", 10) == 0) {
             TreeView_SelectItem(_hwndTree, htiSelected);
         }
     }
@@ -2615,17 +2384,16 @@ HRESULT CNscTree::InvokeContextMenuCommand(BSTR strCommand)
 //      We replace the existing "Open" command with our own.
 
 
-HMENU CNscTree::_CreateContextMenu(IContextMenu *pcm, HTREEITEM hti)
+HMENU CNscTree::_CreateContextMenu(IContextMenu* pcm, HTREEITEM hti)
 {
     BOOL fExpandable = _IsExpandable(hti);
     HRESULT hres;
 
     HMENU hmenu = CreatePopupMenu();
 
-    if (hmenu)
-    {
+    if (hmenu) {
         pcm->QueryContextMenu(hmenu, 0, idCmdStart, 0x7fff,
-            CMF_EXPLORE | CMF_CANRENAME);
+                              CMF_EXPLORE | CMF_CANRENAME);
 
 
         //  Always delete "Create shortcut" from the context menu.
@@ -2651,20 +2419,17 @@ HMENU CNscTree::_CreateContextMenu(IContextMenu *pcm, HTREEITEM hti)
             fReplaceOpen = TRUE;
 
         UINT ilast = GetMenuItemCount(hmenu);
-        for (UINT ipos = 0; ipos < ilast; ipos++)
-        {
+        for (UINT ipos = 0; ipos < ilast; ipos++) {
             UINT idCmd = GetMenuItemID(hmenu, ipos);
 
-            if (idCmd >= idCmdStart && idCmd <= 0x7fff)
-            {
+            if (idCmd >= idCmdStart && idCmd <= 0x7fff) {
                 TCHAR szVerb[40];
-                hres = ContextMenu_GetCommandStringVerb(pcm, idCmd-idCmdStart, szVerb, ARRAYSIZE(szVerb));
+                hres = ContextMenu_GetCommandStringVerb(pcm, idCmd - idCmdStart, szVerb, ARRAYSIZE(szVerb));
 
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     if ((fReplaceOpen && 0 == StrCmpI(szVerb, TEXT("open"))) ||
-                                         0 == StrCmpI(szVerb, TEXT("link")))
-                        DeleteMenu(hmenu, idCmd, MF_BYCOMMAND );
+                        0 == StrCmpI(szVerb, TEXT("link")))
+                        DeleteMenu(hmenu, idCmd, MF_BYCOMMAND);
                 }
             }
         }
@@ -2676,8 +2441,7 @@ HMENU CNscTree::_CreateContextMenu(IContextMenu *pcm, HTREEITEM hti)
 
         HMENU hmenuctx = LoadMenuPopup_PrivateNoMungeW(POPUP_CONTEXT_NSC);
 
-        if (hmenuctx)
-        {
+        if (hmenuctx) {
 
             // create new folder doesn't make sense outside of favorites
             // (actually, it does, but there's no interface to it)
@@ -2690,8 +2454,7 @@ HMENU CNscTree::_CreateContextMenu(IContextMenu *pcm, HTREEITEM hti)
 
             UINT idmKeep;
 
-            if (fExpandable)
-            {
+            if (fExpandable) {
                 // Even if the item has no children, we still show Expand.
                 // The reason is that an item that has never been expanded
                 // is marked as "children: unknown" so we show an Expand
@@ -2708,13 +2471,9 @@ HMENU CNscTree::_CreateContextMenu(IContextMenu *pcm, HTREEITEM hti)
                     idmKeep = RSVIDM_EXPAND;
 
 
-            }
-            else if (!(_mode & MODE_CONTROL))
-            {
+            } else if (!(_mode & MODE_CONTROL)) {
                 idmKeep = RSVIDM_OPEN;
-            }
-            else
-            {
+            } else {
                 idmKeep = 0;
             }
 
@@ -2723,11 +2482,11 @@ HMENU CNscTree::_CreateContextMenu(IContextMenu *pcm, HTREEITEM hti)
             //  RSVIDM_OPEN we want to keep.
 
             if (idmKeep != RSVIDM_EXPAND)
-                DeleteMenu(hmenuctx, RSVIDM_EXPAND,   MF_BYCOMMAND);
+                DeleteMenu(hmenuctx, RSVIDM_EXPAND, MF_BYCOMMAND);
             if (idmKeep != RSVIDM_COLLAPSE)
                 DeleteMenu(hmenuctx, RSVIDM_COLLAPSE, MF_BYCOMMAND);
             if (idmKeep != RSVIDM_OPEN)
-                DeleteMenu(hmenuctx, RSVIDM_OPEN,     MF_BYCOMMAND);
+                DeleteMenu(hmenuctx, RSVIDM_OPEN, MF_BYCOMMAND);
 
             Shell_MergeMenus(hmenu, hmenuctx, 0, 0, 0xFFFF, fReplaceOpen ? 0 : MM_ADDSEPARATOR);
 
@@ -2749,12 +2508,10 @@ LRESULT CNscTree::_OnContextMenu(short x, short y)
     //assert that the SetFocus() below won't be ripping focus away from anyone
     ASSERT((_mode & MODE_CONTROL) ? (GetFocus() == _hwndTree) : TRUE);
 
-    if (x == -1 && y == -1)
-    {
+    if (x == -1 && y == -1) {
         // Keyboard-driven: Get the popup position from the selected item.
         hti = TreeView_GetSelection(_hwndTree);
-        if (hti)
-        {
+        if (hti) {
             RECT rc;
 
             // Note that TV_GetItemRect returns it in client coordinate!
@@ -2766,9 +2523,7 @@ LRESULT CNscTree::_OnContextMenu(short x, short y)
         }
         //so we can go into rename mode
         _fRclick = TRUE;
-    }
-    else
-    {
+    } else {
         TV_HITTESTINFO tvht;
 
         // Mouse-driven: Pick the treeitem from the position.
@@ -2781,22 +2536,18 @@ LRESULT CNscTree::_OnContextMenu(short x, short y)
         hti = TreeView_HitTest(_hwndTree, &tvht);
     }
 
-    if (hti)
-    {
+    if (hti) {
         LPCITEMIDLIST pidl = _CacheParentShellFolder(hti, NULL);
-        if (pidl)
-        {
-            IContextMenu *pcm;
+        if (pidl) {
+            IContextMenu* pcm;
 
             TreeView_SelectDropTarget(_hwndTree, hti);
 
-            if (SUCCEEDED(_psfCache->GetUIObjectOf(_hwndTree, 1, &pidl, IID_IContextMenu, NULL, (void **)&pcm)))
-            {
-                pcm->QueryInterface(IID_IContextMenu2, (void **)&_pcmSendTo);
+            if (SUCCEEDED(_psfCache->GetUIObjectOf(_hwndTree, 1, &pidl, IID_IContextMenu, NULL, (void**)&pcm))) {
+                pcm->QueryInterface(IID_IContextMenu2, (void**)&_pcmSendTo);
 
                 HMENU hmenu = _CreateContextMenu(pcm, hti);
-                if (hmenu)
-                {
+                if (hmenu) {
                     UINT idCmd;
 
                     _pcm = pcm; // for IContextMenu2 code
@@ -2806,8 +2557,8 @@ LRESULT CNscTree::_OnContextMenu(short x, short y)
 
                     // review chrisny:  useTrackPopupMenuEx for clipping etc.
                     idCmd = TrackPopupMenu(hmenu,
-                        TPM_RETURNCMD | TPM_RIGHTBUTTON | TPM_LEFTALIGN,
-                        ptPopup.x, ptPopup.y, 0, _hwndTree, NULL);
+                                           TPM_RETURNCMD | TPM_RIGHTBUTTON | TPM_LEFTALIGN,
+                                           ptPopup.x, ptPopup.y, 0, _hwndTree, NULL);
                     // Note:  must requery selected item to verify that the hti is good.  This
                     // solves the problem where the hti was deleted, hence pointed to something
                     // bogus, then we write to it causing heap corruption, while the menu was up.
@@ -2815,10 +2566,8 @@ LRESULT CNscTree::_OnContextMenu(short x, short y)
                     tvht.pt = ptPopup;
                     ScreenToClient(_hwndTree, &tvht.pt);
                     hti = TreeView_HitTest(_hwndTree, &tvht);
-                    if (hti && idCmd)
-                    {
-                        switch (idCmd)
-                        {
+                    if (hti && idCmd) {
+                        switch (idCmd) {
                         case RSVIDM_OPEN:
                         case RSVIDM_EXPAND:
                         case RSVIDM_COLLAPSE:
@@ -2830,15 +2579,15 @@ LRESULT CNscTree::_OnContextMenu(short x, short y)
                             TreeView_Expand(_hwndTree, hti, idCmd == RSVIDM_COLLAPSE ? TVE_COLLAPSE : TVE_EXPAND);
                             break;
 
-                        // This WAS unix only, now win32 does it too
-                        // IEUNIX : We allow new folder creation from context menu. since
-                        // this control was used to organize favorites in IEUNIX4.0
+                            // This WAS unix only, now win32 does it too
+                            // IEUNIX : We allow new folder creation from context menu. since
+                            // this control was used to organize favorites in IEUNIX4.0
                         case RSVIDM_NEWFOLDER:
                             CreateNewFolder(hti);
                             break;
 
                         default:
-                            _ApplyCmd(hti, pcm, idCmd-idCmdStart);
+                            _ApplyCmd(hti, pcm, idCmd - idCmdStart);
                             break;
                         }
 
@@ -2865,22 +2614,17 @@ LRESULT CNscTree::_OnContextMenu(short x, short y)
 }
 
 
-HRESULT CNscTree::_QuerySelection(IContextMenu **ppcm, HTREEITEM *phti)
+HRESULT CNscTree::_QuerySelection(IContextMenu** ppcm, HTREEITEM* phti)
 {
     HRESULT hres = E_FAIL;
     HTREEITEM hti = TreeView_GetSelection(_hwndTree);
-    if (hti)
-    {
+    if (hti) {
         LPCITEMIDLIST pidl = _CacheParentShellFolder(hti, NULL);
-        if (pidl)
-        {
-            if (ppcm)
-            {
+        if (pidl) {
+            if (ppcm) {
                 hres = _psfCache->GetUIObjectOf(_hwndTree,
-                    1, &pidl, IID_IContextMenu, NULL, (void **)ppcm);
-            }
-            else
-            {
+                                                1, &pidl, IID_IContextMenu, NULL, (void**)ppcm);
+            } else {
                 hres = S_OK;
             }
         }
@@ -2895,20 +2639,18 @@ HRESULT CNscTree::_QuerySelection(IContextMenu **ppcm, HTREEITEM *phti)
 LRESULT NSCEditBoxSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
                                   UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-    if (uIdSubclass == ID_NSC_SUBCLASS && uMsg == WM_GETDLGCODE)
-    {
+    if (uIdSubclass == ID_NSC_SUBCLASS && uMsg == WM_GETDLGCODE) {
         return DLGC_WANTMESSAGE;
     }
     return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
-LRESULT CNscTree::_OnBeginLabelEdit(TV_DISPINFO *ptvdi)
+LRESULT CNscTree::_OnBeginLabelEdit(TV_DISPINFO* ptvdi)
 {
     BOOL fCantRename = TRUE;
 
     LPCITEMIDLIST pidl = _CacheParentShellFolder(ptvdi->item.hItem, NULL);
-    if (pidl)
-    {
+    if (pidl) {
         DWORD dwAttribs = SFGAO_CANRENAME;
         _psfCache->GetAttributesOf(1, &pidl, &dwAttribs);
         if (dwAttribs & SFGAO_CANRENAME)
@@ -2916,8 +2658,7 @@ LRESULT CNscTree::_OnBeginLabelEdit(TV_DISPINFO *ptvdi)
     }
 
     HWND hwndEdit = (HWND)SendMessage(_hwndTree, TVM_GETEDITCONTROL, 0, 0);
-    if (hwndEdit)
-    {
+    if (hwndEdit) {
         SetWindowSubclass(hwndEdit, NSCEditBoxSubclassWndProc, ID_NSC_SUBCLASS, NULL);
     }
 
@@ -2928,12 +2669,11 @@ LRESULT CNscTree::_OnBeginLabelEdit(TV_DISPINFO *ptvdi)
     return fCantRename;
 }
 
-LRESULT CNscTree::_OnEndLabelEdit(TV_DISPINFO *ptvdi)
+LRESULT CNscTree::_OnEndLabelEdit(TV_DISPINFO* ptvdi)
 {
 
     HWND hwndEdit = (HWND)SendMessage(_hwndTree, TVM_GETEDITCONTROL, 0, 0);
-    if (hwndEdit)
-    {
+    if (hwndEdit) {
         RemoveWindowSubclass(hwndEdit, NSCEditBoxSubclassWndProc, ID_NSC_SUBCLASS);
     }
 
@@ -2946,11 +2686,10 @@ LRESULT CNscTree::_OnEndLabelEdit(TV_DISPINFO *ptvdi)
 
     BOOL fHasActivation = FALSE;
 
-    if(GetActiveWindow() && IsChild(GetActiveWindow(), _hwndTree))
+    if (GetActiveWindow() && IsChild(GetActiveWindow(), _hwndTree))
         fHasActivation = TRUE;
 
-    if (!fHasActivation)
-    {
+    if (!fHasActivation) {
 
         TV_ITEM tvi;
         tvi.mask = TVIF_TEXT;
@@ -2961,18 +2700,15 @@ LRESULT CNscTree::_OnEndLabelEdit(TV_DISPINFO *ptvdi)
     }
 #endif
 
-    if (ptvdi->item.pszText != NULL)
-    {
+    if (ptvdi->item.pszText != NULL) {
         ASSERT(ptvdi->item.hItem);
 
         LPCITEMIDLIST pidl = _CacheParentShellFolder(ptvdi->item.hItem, NULL);
-        if (pidl)
-        {
+        if (pidl) {
             WCHAR wszName[MAX_PATH - 5]; //-5 to work around nt4 shell32 bug
             SHTCharToUnicode(ptvdi->item.pszText, wszName, ARRAYSIZE(wszName));
 
-            if (SUCCEEDED(_psfCache->SetNameOf(_hwndTree, pidl, wszName, 0, NULL)))
-            {
+            if (SUCCEEDED(_psfCache->SetNameOf(_hwndTree, pidl, wszName, 0, NULL))) {
                 // NOTES: pidl is no longer valid here.
 
                 // Set the handle to NULL in the notification to let
@@ -2984,9 +2720,7 @@ LRESULT CNscTree::_OnEndLabelEdit(TV_DISPINFO *ptvdi)
 #ifdef UNIX
                 SHChangeNotifyHandleEvents();
 #endif
-            }
-            else
-            {
+            } else {
                 // not leaving label edit mode here, so do not set _fInLabelEdit to FALSE or we
                 // will not get ::TranslateAcceleratorIO() and backspace, etc, will not work.
                 _fRclick = TRUE;  //otherwise label editing is canceled
@@ -2994,8 +2728,7 @@ LRESULT CNscTree::_OnEndLabelEdit(TV_DISPINFO *ptvdi)
                 _fRclick = FALSE;
             }
         }
-    }
-    else
+    } else
         _fInLabelEdit = FALSE;
 
     if (!_fInLabelEdit)
@@ -3006,14 +2739,12 @@ LRESULT CNscTree::_OnEndLabelEdit(TV_DISPINFO *ptvdi)
 }
 
 
-void CNscTree::_OnBeginDrag(NM_TREEVIEW *pnmhdr)
+void CNscTree::_OnBeginDrag(NM_TREEVIEW* pnmhdr)
 {
     LPCITEMIDLIST pidl = _CacheParentShellFolder(pnmhdr->itemNew.hItem, NULL);
     _htiDragging = pnmhdr->itemNew.hItem;   // item we are dragging.
-    if (pidl)
-    {
-        if (_pidlDrag)
-        {
+    if (pidl) {
+        if (_pidlDrag) {
             ILFree(_pidlDrag);
             _pidlDrag = NULL;
         }
@@ -3024,30 +2755,25 @@ void CNscTree::_OnBeginDrag(NM_TREEVIEW *pnmhdr)
 
         dwEffect &= DROPEFFECT_MOVE | DROPEFFECT_COPY | DROPEFFECT_LINK;
 
-        if (dwEffect)
-        {
-            IDataObject *pdtobj;
+        if (dwEffect) {
+            IDataObject* pdtobj;
             HRESULT hres = _psfCache->GetUIObjectOf(_hwndTree, 1, &pidl,
-                IID_IDataObject, NULL, (void **)&pdtobj);
-            if (SUCCEEDED(hres))
-            {
+                                                    IID_IDataObject, NULL, (void**)&pdtobj);
+            if (SUCCEEDED(hres)) {
                 HWND hwndTT;
 
                 _fDragging = TRUE;
                 if (hwndTT = TreeView_GetToolTips(_hwndTree))
-                    SendMessage(hwndTT, TTM_POP, (WPARAM) 0, (LPARAM) 0);
+                    SendMessage(hwndTT, TTM_POP, (WPARAM)0, (LPARAM)0);
                 PORDERITEM poi = _GetTreeOrderItem(pnmhdr->itemNew.hItem);
-                if (poi)
-                {
+                if (poi) {
                     _iDragSrc = poi->nOrder;
                     TraceMsg(TF_NSC, "NSCBand: Starting Drag");
                     _pidlDrag = ILClone(poi->pidl);
                     _htiFolderStart = TreeView_GetParent(_hwndTree, pnmhdr->itemNew.hItem);
                     if (_htiFolderStart == NULL)
                         _htiFolderStart = TVI_ROOT;
-                }
-                else
-                {
+                } else {
                     _iDragSrc = -1;
                     _pidlDrag = NULL;
                     _htiFolderStart = NULL;
@@ -3058,26 +2784,21 @@ void CNscTree::_OnBeginDrag(NM_TREEVIEW *pnmhdr)
                 // REST_NoRemovingChannels is set.
 
                 if (!SHRestricted2(REST_NoRemovingChannels, NULL, 0) ||
-                    !_IsChannelFolder(_htiDragging))
-                {
+                    !_IsChannelFolder(_htiDragging)) {
                     HIMAGELIST himlDrag;
 
                     SHLoadOLE(SHELLNOTIFY_OLELOADED); // Browser Only - our shell32 doesn't know ole has been loaded
 
                     _fStartingDrag = TRUE;
                     IDragSourceHelper* pdsh = NULL;
-                    if (SUCCEEDED(CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER, IID_IDragSourceHelper, (void**)&pdsh)))
-                    {
+                    if (SUCCEEDED(CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER, IID_IDragSourceHelper, (void**)&pdsh))) {
                         pdsh->InitializeFromWindow(_hwndTree, &pnmhdr->ptDrag, pdtobj);
                         _fStartingDrag = FALSE;
-                    }
-                    else
-                    {
+                    } else {
                         himlDrag = TreeView_CreateDragImage(_hwndTree, pnmhdr->itemNew.hItem);
                         _fStartingDrag = FALSE;
 
-                        if (himlDrag)
-                        {
+                        if (himlDrag) {
                             DAD_SetDragImage(himlDrag, NULL);
                         }
                     }
@@ -3085,19 +2806,15 @@ void CNscTree::_OnBeginDrag(NM_TREEVIEW *pnmhdr)
 
                     SHDoDragDrop(_hwndTree, pdtobj, NULL, dwEffect, &dwEffect);
                     // nothing happened when the d&d terminated, so clean up you fool.
-                    if (dwEffect == DROPEFFECT_NONE)
-                    {
+                    if (dwEffect == DROPEFFECT_NONE) {
                         ILFree(_pidlDrag);
                         _pidlDrag = NULL;
                     }
 
-                    if (pdsh)
-                    {
+                    if (pdsh) {
                         pdsh->Release();
 
-                    }
-                    else
-                    {
+                    } else {
                         DAD_SetDragImage((HIMAGELIST)-1, NULL);
                         ImageList_Destroy(himlDrag);
                     }
@@ -3111,7 +2828,7 @@ void CNscTree::_OnBeginDrag(NM_TREEVIEW *pnmhdr)
     _htiDragging = NULL;
 }
 
-BOOL CNscTree::IsExpandableChannelFolder(IShellFolder *psf, LPCITEMIDLIST pidl)
+BOOL CNscTree::IsExpandableChannelFolder(IShellFolder* psf, LPCITEMIDLIST pidl)
 {
     if (WhichPlatform() == PLATFORM_INTEGRATED)
         return SHIsExpandableFolder(psf, pidl);
@@ -3122,21 +2839,17 @@ BOOL CNscTree::IsExpandableChannelFolder(IShellFolder *psf, LPCITEMIDLIST pidl)
     BOOL          fExpand = FALSE;
     IShellFolder* psfChannelFolder;
 
-    if (pidl && psf && SUCCEEDED(SHBindToObject(psf, IID_IShellFolder, pidl, (void**)&psfChannelFolder)))
-    {
-        IEnumIDList *penum;
-        if (S_OK == _GetEnum(psfChannelFolder, NULL, &penum))
-        {
+    if (pidl && psf && SUCCEEDED(SHBindToObject(psf, IID_IShellFolder, pidl, (void**)&psfChannelFolder))) {
+        IEnumIDList* penum;
+        if (S_OK == _GetEnum(psfChannelFolder, NULL, &penum)) {
             ULONG celt;
             LPITEMIDLIST pidlTemp;
 
-            if (penum->Next(1, &pidlTemp, &celt) == S_OK && celt == 1)
-            {
+            if (penum->Next(1, &pidlTemp, &celt) == S_OK && celt == 1) {
                 ILFree(pidlTemp);
                 fExpand = FALSE;
             }
-            if (penum->Next(1, &pidlTemp, &celt) == S_OK && celt == 1)
-            {
+            if (penum->Next(1, &pidlTemp, &celt) == S_OK && celt == 1) {
                 ILFree(pidlTemp);
                 fExpand = TRUE;
             }
@@ -3155,32 +2868,25 @@ BOOL CNscTree::_OnSelChange()
     HTREEITEM hti = TreeView_GetSelection(_hwndTree);
 
     //if we're in control mode (where pswProxy always null), never navigate
-    if (hti)
-    {
+    if (hti) {
         LPCITEMIDLIST pidlItem = _CacheParentShellFolder(hti, NULL);
-        if (pidlItem)
-        {
-            IShellBrowser *psb;
-            if (SUCCEEDED(IUnknown_QueryService(_punkSite, SID_SProxyBrowser, IID_PPV_ARG(IShellBrowser, &psb))))
-            {
+        if (pidlItem) {
+            IShellBrowser* psb;
+            if (SUCCEEDED(IUnknown_QueryService(_punkSite, SID_SProxyBrowser, IID_PPV_ARG(IShellBrowser, &psb)))) {
                 LPITEMIDLIST pidlTarget;
                 ULONG ulAttrs = SFGAO_FOLDER | SFGAO_NEWCONTENT;
                 HRESULT hr = SHGetNavigateTarget(_psfCache, pidlItem, &pidlTarget, &ulAttrs);
-                if (SUCCEEDED(hr))
-                {
-                    if ( !( (ulAttrs & SFGAO_FOLDER) && IsExpandableChannelFolder(_psfCache, pidlItem)))
-                    {
-                        if (!_fInSelectPidl)
-                        {
+                if (SUCCEEDED(hr)) {
+                    if (!((ulAttrs & SFGAO_FOLDER) && IsExpandableChannelFolder(_psfCache, pidlItem))) {
+                        if (!_fInSelectPidl) {
                             BOOL fNavigateDone = FALSE;
 
                             fExpand = FALSE;
 
-                            if (_mode & MODE_FAVORITES)
-                            {
+                            if (_mode & MODE_FAVORITES) {
                                 TCHAR szPath[MAX_PATH];
                                 fNavigateDone = SUCCEEDED(GetPathForItem(_psfCache, pidlItem, szPath, NULL)) &&
-                                                SUCCEEDED(NavFrameWithFile(szPath, psb));
+                                    SUCCEEDED(NavFrameWithFile(szPath, psb));
                             }
 
                             if (!fNavigateDone)
@@ -3188,21 +2894,18 @@ BOOL CNscTree::_OnSelChange()
 
                             // whether we succeed or not... (BUGBUG?)
                             UEMFireEvent(&UEMIID_BROWSER, UEME_INSTRBROWSER, UEMF_INSTRUMENT, UIBW_NAVIGATE,
-                                _mode==MODE_FAVORITES ? UIBL_NAVFAVS : _mode==MODE_HISTORY ? UIBL_NAVHIST : UIBL_NAVOTHER);
+                                         _mode == MODE_FAVORITES ? UIBL_NAVFAVS : _mode == MODE_HISTORY ? UIBL_NAVHIST : UIBL_NAVOTHER);
 
-                            if (_mode & MODE_FAVORITES)
-                            {
+                            if (_mode & MODE_FAVORITES) {
                                 LPITEMIDLIST pidlFull = _GetFullIDList(hti);
-                                if (pidlFull)
-                                {
+                                if (pidlFull) {
                                     UEMFireEvent(&UEMIID_BROWSER, UEME_RUNPIDL, UEMF_XEVENT, (WPARAM)_psfCache, (LPARAM)pidlItem);
                                     SHSendChangeMenuNotify(NULL, SHCNEE_PROMOTEDITEM, 0, pidlFull);
                                     ILFree(pidlFull);
                                 }
                             }
                         }
-                    }
-                    else    //it's a channel folder that can be expanded
+                    } else    //it's a channel folder that can be expanded
                     {
                         fExpand = TRUE;
                     }
@@ -3213,8 +2916,7 @@ BOOL CNscTree::_OnSelChange()
 
                     // review chrisny:  still need to handle notify of changes from
                     //  other navs.
-                    if (ulAttrs & SFGAO_NEWCONTENT)
-                    {
+                    if (ulAttrs & SFGAO_NEWCONTENT) {
                         TV_ITEM tvi;
                         tvi.hItem = hti;
                         tvi.mask = TVIF_STATE | TVIF_HANDLE;
@@ -3223,15 +2925,12 @@ BOOL CNscTree::_OnSelChange()
 
                         TreeView_SetItem(_hwndTree, &tvi);
                     }
-                }
-                else
-                {
+                } else {
                     ulAttrs = SFGAO_FOLDER;
                     _psfCache->GetAttributesOf(1, &pidlItem, &ulAttrs);
                 }
 
-                if ( FAILED(hr) && !(ulAttrs & SFGAO_FOLDER) )
-                {
+                if (FAILED(hr) && !(ulAttrs & SFGAO_FOLDER)) {
                     SHInvokeCommand(_hwndTree, _psfCache, pidlItem, NULL);
                 }
 
@@ -3242,8 +2941,7 @@ BOOL CNscTree::_OnSelChange()
 
     if (!_fSingleExpand &&
         fExpand &&
-        (_mode != MODE_NORMAL))
-    {
+        (_mode != MODE_NORMAL)) {
         TreeView_Expand(_hwndTree, hti, TVE_TOGGLE);
     }
 
@@ -3259,8 +2957,7 @@ void CNscTree::_OnGetInfoTip(NMTVGETINFOTIP* pnm)
         return;
 
     PORDERITEM poi = GetPoi(pnm->lParam);
-    if (poi)
-    {
+    if (poi) {
         LPITEMIDLIST pidl = _CacheParentShellFolder(pnm->hItem, poi->pidl);
         if (EVAL(pidl))
             GetInfoTip(_psfCache, pidl, pnm->pszText, pnm->cchTextMax);
@@ -3272,28 +2969,21 @@ LRESULT CNscTree::_OnSetCursor(NMMOUSE* pnm)
     if (!pnm->dwItemData)
         return 0;        // ot on an item.  return.  (bogus, why am I even getting called?)
 
-    if (!(_mode & MODE_CONTROL) && (_mode != MODE_NORMAL))
-    {
+    if (!(_mode & MODE_CONTROL) && (_mode != MODE_NORMAL)) {
         ITEMINFO* pii = GetPii(pnm->dwItemData);
-        if (pii)
-        {
-            if (!pii->fNavigable)
-            {
+        if (pii) {
+            if (!pii->fNavigable) {
                 //folders always get the arrow
                 SetCursor(LoadCursor(NULL, IDC_ARROW));
-            }
-            else
-            {
+            } else {
                 //favorites always get some form of the hand
                 HCURSOR hCursor = pii->fGreyed ? (HCURSOR)LoadCursor(HINST_THISDLL, MAKEINTRESOURCE(IDC_OFFLINE_HAND)) :
-                                         LoadHandCursor(0);
+                    LoadHandCursor(0);
                 if (hCursor)
                     SetCursor(hCursor);
             }
         }
-    }
-    else
-    {
+    } else {
         //always show the arrow in org favs
         SetCursor(LoadCursor(NULL, IDC_ARROW));
     }
@@ -3303,15 +2993,14 @@ LRESULT CNscTree::_OnSetCursor(NMMOUSE* pnm)
 
 BOOL CNscTree::_IsTopParentItem(HTREEITEM hti)
 {
-    return (hti && (!TreeView_GetParent(_hwndTree, hti)) );
+    return (hti && (!TreeView_GetParent(_hwndTree, hti)));
 }
 
 LRESULT CNscTree::_OnNotify(LPNMHDR pnm)
 {
     LRESULT lres = 0;
 
-    switch (pnm->code)
-    {
+    switch (pnm->code) {
     case NM_CUSTOMDRAW:
         return _OnCDNotify((LPNMCUSTOMDRAW)pnm);
 
@@ -3337,119 +3026,113 @@ LRESULT CNscTree::_OnNotify(LPNMHDR pnm)
         break;
 
     case NM_KILLFOCUS:
-        {
-            _fHasFocus = FALSE;
+    {
+        _fHasFocus = FALSE;
 
-            //invalidate the item because tabbing away doesn't
-            RECT rc;
+        //invalidate the item because tabbing away doesn't
+        RECT rc;
 
-            // Tree can focus and not have any items.
-            HTREEITEM hti = TreeView_GetSelection(_hwndTree);
-            if (hti)
-            {
-                TreeView_GetItemRect(_hwndTree, hti, &rc, FALSE);
-                //does this need to be UpdateWindow? only if focus rect gets left behind.
-                InvalidateRect(_hwndTree, &rc, FALSE);
-            }
+        // Tree can focus and not have any items.
+        HTREEITEM hti = TreeView_GetSelection(_hwndTree);
+        if (hti) {
+            TreeView_GetItemRect(_hwndTree, hti, &rc, FALSE);
+            //does this need to be UpdateWindow? only if focus rect gets left behind.
+            InvalidateRect(_hwndTree, &rc, FALSE);
         }
-        break;
+    }
+    break;
 
     case TVN_KEYDOWN:
-        {
-            TV_KEYDOWN *ptvkd = (TV_KEYDOWN *) pnm;
-            switch (ptvkd->wVKey)
-            {
-            case VK_RETURN:
-            case VK_SPACE:
-                lres = _OnSelChange();
-                break;
+    {
+        TV_KEYDOWN* ptvkd = (TV_KEYDOWN*)pnm;
+        switch (ptvkd->wVKey) {
+        case VK_RETURN:
+        case VK_SPACE:
+            lres = _OnSelChange();
+            break;
 
-            case VK_DELETE:
-                if ( !((_mode & MODE_HISTORY) && IsInetcplRestricted(L"History")) )
-                {
-                    _fIgnoreNextSelChange = TRUE;
-                    InvokeContextMenuCommand(L"delete");
-                }
-                break;
-
-            case VK_UP:
-            case VK_DOWN:
-                //VK_MENU == VK_ALT
-                if ((_mode != MODE_HISTORY) && (GetKeyState(VK_MENU) < 0))
-                {
-                    MoveItemUpOrDown(ptvkd->wVKey == VK_UP);
-                    lres = 0;
-                    _fIgnoreNextSelChange = TRUE;
-                }
-                break;
-
-            case VK_F2:
-                //only do this in org favs, because the band accel handler usually processes this
-                if (_mode & MODE_CONTROL)
-                    InvokeContextMenuCommand(L"rename");
-                break;
-
-            default:
-                break;
+        case VK_DELETE:
+            if (!((_mode & MODE_HISTORY) && IsInetcplRestricted(L"History"))) {
+                _fIgnoreNextSelChange = TRUE;
+                InvokeContextMenuCommand(L"delete");
             }
+            break;
 
-            if (!_fSingleExpand)
-                _UpdateActiveBorder(TreeView_GetSelection(_hwndTree));
+        case VK_UP:
+        case VK_DOWN:
+            //VK_MENU == VK_ALT
+            if ((_mode != MODE_HISTORY) && (GetKeyState(VK_MENU) < 0)) {
+                MoveItemUpOrDown(ptvkd->wVKey == VK_UP);
+                lres = 0;
+                _fIgnoreNextSelChange = TRUE;
+            }
+            break;
+
+        case VK_F2:
+            //only do this in org favs, because the band accel handler usually processes this
+            if (_mode & MODE_CONTROL)
+                InvokeContextMenuCommand(L"rename");
+            break;
+
+        default:
+            break;
         }
-        break;
+
+        if (!_fSingleExpand)
+            _UpdateActiveBorder(TreeView_GetSelection(_hwndTree));
+    }
+    break;
 
     case TVN_SELCHANGINGA:
     case TVN_SELCHANGING:
-        {
-            //hack because treeview keydown ALWAYS does it's default processing
-            if (_fIgnoreNextSelChange)
-            {
-                _fIgnoreNextSelChange = FALSE;
-                return TRUE;
-            }
-
-            NM_TREEVIEW * pnmtv = (NM_TREEVIEW *) pnm;
-
-            //if it's coming from somewhere weird (like a WM_SETFOCUS), don't let it select
-            return (pnmtv->action != TVC_BYKEYBOARD) && (pnmtv->action != TVC_BYMOUSE) && (pnmtv->action != TVC_UNKNOWN);
+    {
+        //hack because treeview keydown ALWAYS does it's default processing
+        if (_fIgnoreNextSelChange) {
+            _fIgnoreNextSelChange = FALSE;
+            return TRUE;
         }
-        break;
+
+        NM_TREEVIEW* pnmtv = (NM_TREEVIEW*)pnm;
+
+        //if it's coming from somewhere weird (like a WM_SETFOCUS), don't let it select
+        return (pnmtv->action != TVC_BYKEYBOARD) && (pnmtv->action != TVC_BYMOUSE) && (pnmtv->action != TVC_UNKNOWN);
+    }
+    break;
 
     case TVN_SELCHANGEDA:
     case TVN_SELCHANGED:
 
 #ifdef DEBUG
-        {
-            HTREEITEM hti = TreeView_GetSelection(_hwndTree);
-            LPITEMIDLIST pidl = _GetFullIDList(hti);
-            if (pidl)
-            {
-                TCHAR sz[MAX_PATH];
-                SHGetNameAndFlags(pidl, SHGDN_NORMAL, sz, SIZECHARS(sz), NULL);
-                TraceMsg(TF_NSC, "NSCBand: Selecting %s", sz);
+    {
+        HTREEITEM hti = TreeView_GetSelection(_hwndTree);
+        LPITEMIDLIST pidl = _GetFullIDList(hti);
+        if (pidl) {
+            TCHAR sz[MAX_PATH];
+            SHGetNameAndFlags(pidl, SHGDN_NORMAL, sz, SIZECHARS(sz), NULL);
+            TraceMsg(TF_NSC, "NSCBand: Selecting %s", sz);
 
-                // On NT4 and W95 shell this call will miss the history
-                // shell extension junction point.  It will then deref into
-                // history pidls as if they were shell pidls.  On short
-                // history pidls this would fault on a debug version of the OS.
+            // On NT4 and W95 shell this call will miss the history
+            // shell extension junction point.  It will then deref into
+            // history pidls as if they were shell pidls.  On short
+            // history pidls this would fault on a debug version of the OS.
 
-                // SHGetNameAndFlags(pidl, SHGDN_FORPARSING | SHGDN_FORADDRESSBAR, sz, SIZECHARS(sz), NULL);
-                //TraceMsg(TF_NSC, "displayname = %s", sz);
-                ILFree(pidl);
-            }
+            // SHGetNameAndFlags(pidl, SHGDN_FORPARSING | SHGDN_FORADDRESSBAR, sz, SIZECHARS(sz), NULL);
+            //TraceMsg(TF_NSC, "displayname = %s", sz);
+            ILFree(pidl);
         }
+    }
 #endif  // DEBUG
-        break;
+    break;
 
 #if 0
-        // no navigation when dropping or closing or prev selected in other folder.
-        if (_fRefreshing || _fDropping || _fClosing)
-            return TRUE;
+    // no navigation when dropping or closing or prev selected in other folder.
+    if (_fRefreshing || _fDropping || _fClosing)
+        return TRUE;
 
-        return (((NM_TREEVIEW *)pnm)->action == TVC_BYKEYBOARD) ? TRUE : _OnSelChange();
+    return (((NM_TREEVIEW*)pnm)->action == TVC_BYKEYBOARD) ? TRUE : _OnSelChange();
 #endif
     case TVN_GETDISPINFO:
-        _OnGetDisplayInfo((TV_DISPINFO *)pnm);
+        _OnGetDisplayInfo((TV_DISPINFO*)pnm);
         break;
 
     case TVN_ITEMEXPANDING:
@@ -3466,7 +3149,7 @@ LRESULT CNscTree::_OnNotify(LPNMHDR pnm)
 
     case TVN_BEGINDRAG:
     case TVN_BEGINRDRAG:
-        _OnBeginDrag((NM_TREEVIEW *)pnm);
+        _OnBeginDrag((NM_TREEVIEW*)pnm);
         break;
 
     case TVN_BEGINLABELEDIT:
@@ -3475,14 +3158,14 @@ LRESULT CNscTree::_OnNotify(LPNMHDR pnm)
         if (!_fRclick)
             return 1;
 
-        lres = _OnBeginLabelEdit((TV_DISPINFO *)pnm);
+        lres = _OnBeginLabelEdit((TV_DISPINFO*)pnm);
 
         if (_punkSite)
             IUnknown_UIActivateIO(_punkSite, TRUE, NULL);
         break;
 
     case TVN_ENDLABELEDIT:
-        lres = _OnEndLabelEdit((TV_DISPINFO *)pnm);
+        lres = _OnEndLabelEdit((TV_DISPINFO*)pnm);
         break;
 
     case TVN_SINGLEEXPAND:
@@ -3502,8 +3185,7 @@ LRESULT CNscTree::_OnNotify(LPNMHDR pnm)
 
         // But not if they click on the button, since that means that they
         // are merely expanding/contracting and not selecting
-        if (hti && !(tvht.flags & TVHT_ONITEMBUTTON))
-        {
+        if (hti && !(tvht.flags & TVHT_ONITEMBUTTON)) {
             TreeView_SelectItem(_hwndTree, hti);
             _OnSelChange();
         }
@@ -3542,8 +3224,8 @@ void CNscTree::_SelectPidl(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinsert)
         , pidlParent;
     LPCITEMIDLIST   pidlTemp = NULL;
     TV_ITEM         tvi;
-    IShellFolder    *psf = NULL;
-    IShellFolder    *psfNext = NULL;
+    IShellFolder* psf = NULL;
+    IShellFolder* psfNext = NULL;
     HRESULT         hres = S_OK;
 
 #ifdef DEBUG
@@ -3552,7 +3234,7 @@ void CNscTree::_SelectPidl(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinsert)
 
     // We need to do this so items that are rooted at the Desktop, are found
     // correctly.
-    htiParent = (_mode == MODE_NORMAL)? TreeView_GetRoot(_hwndTree) : TVI_ROOT;
+    htiParent = (_mode == MODE_NORMAL) ? TreeView_GetRoot(_hwndTree) : TVI_ROOT;
     ASSERT((_hwndTree != NULL) && (pidl != NULL));
 
     if (_hwndTree == NULL)
@@ -3561,15 +3243,11 @@ void CNscTree::_SelectPidl(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinsert)
     // We should unify the "FindFromRoot" code path and this one.
     pidlParent = _pidlRoot;
 
-    if (ILIsEmpty(pidlParent))
-    {
+    if (ILIsEmpty(pidlParent)) {
         pidlTemp = pidl;
         SHGetDesktopFolder(&psf);
-    }
-    else
-    {
-        if ((pidlTemp = ILFindChild(pidlParent, pidl)) == NULL)
-        {
+    } else {
+        if ((pidlTemp = ILFindChild(pidlParent, pidl)) == NULL) {
             goto LGone;    // not root match, no hti
         }
 
@@ -3577,13 +3255,11 @@ void CNscTree::_SelectPidl(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinsert)
         hres = IEBindToObject(pidlParent, &psf);
     }
 
-    if (FAILED(hres))
-    {
+    if (FAILED(hres)) {
         goto LGone;
     }
 
-    while(!ILIsEmpty(pidlTemp))
-    {
+    while (!ILIsEmpty(pidlTemp)) {
         if ((pidlItem = ILCloneFirst(pidlTemp)) == NULL)
             goto LGone;
         pidlTemp = _ILNext(pidlTemp);
@@ -3592,20 +3268,17 @@ void CNscTree::_SelectPidl(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinsert)
         // Since we are selecting a pidl, we need to make sure it's parent is visible.
         // We do it this before the insert, so that we don't have to check for duplicates.
         // when enumerating NTDev it goes from about 10min to about 8 seconds.
-        if (htiParent != TVI_ROOT)
-        {
+        if (htiParent != TVI_ROOT) {
             // Check to see if it's expanded.
             tvi.mask = TVIF_STATE;
             tvi.stateMask = (TVIS_EXPANDEDONCE | TVIS_EXPANDED | TVIS_EXPANDPARTIAL);
             tvi.hItem = (HTREEITEM)htiParent;
-            if (!TreeView_GetItem(_hwndTree, &tvi))
-            {
+            if (!TreeView_GetItem(_hwndTree, &tvi)) {
                 goto LGone;
             }
 
             // If not, Expand it.
-            if (!(tvi.state & TVIS_EXPANDED))
-            {
+            if (!(tvi.state & TVIS_EXPANDED)) {
                 TreeView_Expand(_hwndTree, htiParent, TVE_EXPAND);
             }
         }
@@ -3614,27 +3287,23 @@ void CNscTree::_SelectPidl(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinsert)
         hti = _FindChild(psf, htiParent, pidlItem);
 
         // fReinsert will allow us to force the item to be reinserted
-        if (hti && fReinsert)
-        {
+        if (hti && fReinsert) {
             ASSERT(fCreate);
             TreeView_DeleteItem(_hwndTree, hti);
             hti = NULL;
         }
 
         // Do we have a child in the newly expanded tree?
-        if (NULL == hti)
-        {
+        if (NULL == hti) {
             // No. We must have to create it.
-            if (!fCreate)
-            {
+            if (!fCreate) {
                 // But, we're not allowed to... Shoot.
                 goto LGone;
             }
 
             // Get a real pidl.
             LPITEMIDLIST pidlReal;
-            if (SUCCEEDED(_IdlRealFromIdlSimple(psf, pidlItem, &pidlReal)))
-            {
+            if (SUCCEEDED(_IdlRealFromIdlSimple(psf, pidlItem, &pidlReal))) {
                 // Figure out if it has a submenu.
                 DWORD dwAttrib = SFGAO_HASSUBFOLDER;
                 psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlReal, &dwAttrib);
@@ -3642,17 +3311,16 @@ void CNscTree::_SelectPidl(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinsert)
                 // Add to the tree. NOTE: If we're in "Normal" mode, we only have the + if it has sub menus
                 // but in other modes we always have the +. Why? who knows.
                 hti = _AddItemToTree(htiParent, pidlReal,
-                                        (MODE_NORMAL != _mode || dwAttrib & SFGAO_HASSUBFOLDER)? 1 : 0,
-                                        DEFAULTORDERPOSITION,
-                                        TVI_LAST, TRUE, FALSE);
+                                     (MODE_NORMAL != _mode || dwAttrib & SFGAO_HASSUBFOLDER) ? 1 : 0,
+                                     DEFAULTORDERPOSITION,
+                                     TVI_LAST, TRUE, FALSE);
 
                 // Once we add something, reorder the children.
                 _ReorderChildren(htiParent);
             }
 
             // Unable to add?
-            if (NULL == hti)
-            {
+            if (NULL == hti) {
                 // Cleanup and return.
                 ILFree(pidlReal);
                 goto LGone;
@@ -3662,7 +3330,7 @@ void CNscTree::_SelectPidl(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinsert)
         // we don't need to bind if its the last one
         //   -- a half-implemented ISF might not like this bind...
         if (!ILIsEmpty(pidlTemp))
-            hres = psf->BindToObject(pidlItem, NULL, IID_IShellFolder, (void **) &psfNext);
+            hres = psf->BindToObject(pidlItem, NULL, IID_IShellFolder, (void**)&psfNext);
 
         ILFree(pidlItem);
         pidlItem = NULL;
@@ -3675,8 +3343,7 @@ void CNscTree::_SelectPidl(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinsert)
         psfNext = NULL;
     }
 LGone:
-    if (hti != NULL)
-    {
+    if (hti != NULL) {
         TreeView_SelectItem(_hwndTree, hti);
 #ifdef DEBUG
         TraceHTREE(hti, TEXT("Found"));
@@ -3692,45 +3359,36 @@ LGone:
 }
 
 
-HRESULT CNscTree::GetSelectedItem(LPITEMIDLIST * ppidl, int nItem)
+HRESULT CNscTree::GetSelectedItem(LPITEMIDLIST* ppidl, int nItem)
 {
     HRESULT hr = E_INVALIDARG;
 
     // nItem will be used in the future when we support multiple selections.
     // GetSelectedItem() returns S_FALSE and (NULL == *ppidl) if not that many
     // items are selected.  Not yet implemented.
-    if (nItem > 0)
-    {
+    if (nItem > 0) {
         *ppidl = NULL;
         return S_FALSE;
     }
 
-    if (ppidl)
-    {
+    if (ppidl) {
         *ppidl = NULL;
         // Is the ListView still there?
-        if (_fIsSelectionCached)
-        {
+        if (_fIsSelectionCached) {
             // No, so get the selection that was saved before
             // the listview was destroyed.
-            if (_pidlSelected)
-            {
+            if (_pidlSelected) {
                 *ppidl = ILClone(_pidlSelected);
                 hr = S_OK;
-            }
-            else
+            } else
                 hr = S_FALSE;
-        }
-        else
-        {
+        } else {
             HTREEITEM htiSelected = TreeView_GetSelection(_hwndTree);
 
-            if (htiSelected)
-            {
+            if (htiSelected) {
                 *ppidl = _GetFullIDList(htiSelected);
                 hr = S_OK;
-            }
-            else
+            } else
                 hr = S_FALSE;
         }
     }
@@ -3745,8 +3403,7 @@ HRESULT CNscTree::SetSelectedItem(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinse
 
     // nItem will be used in the future when we support multiple selections.
     // Not yet implemented.
-    if (nItem > 0)
-    {
+    if (nItem > 0) {
         return S_FALSE;
     }
 
@@ -3765,10 +3422,9 @@ HRESULT CNscTree::SetSelectedItem(LPCITEMIDLIST pidl, BOOL fCreate, BOOL fReinse
 
 
 //***   CNscTree::IWinEventHandler
-HRESULT CNscTree::OnWinEvent(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *plres)
+HRESULT CNscTree::OnWinEvent(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* plres)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_NOTIFY:
         *plres = _OnNotify((LPNMHDR)lParam);
         return S_OK;
@@ -3791,8 +3447,7 @@ HRESULT CNscTree::OnWinEvent(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 void CNscTree::_OnChangeNotify(LONG lEvent, LPCITEMIDLIST pidl, LPCITEMIDLIST pidlExtra)
 {
-    switch (lEvent)
-    {
+    switch (lEvent) {
     case SHCNE_RENAMEFOLDER:
     case SHCNE_RENAMEITEM:
         if (pidl && pidlExtra)
@@ -3822,8 +3477,7 @@ void CNscTree::_OnChangeNotify(LONG lEvent, LPCITEMIDLIST pidl, LPCITEMIDLIST pi
 
     case SHCNE_CREATE:
     case SHCNE_MKDIR:
-        if (pidl)
-        {
+        if (pidl) {
             _OnSHNotifyCreate(pidl, DEFAULTORDERPOSITION, NULL);
             if (SHCNE_MKDIR == lEvent &&
                 _pidlNewFolderParent &&
@@ -3847,82 +3501,72 @@ void CNscTree::_OnChangeNotify(LONG lEvent, LPCITEMIDLIST pidl, LPCITEMIDLIST pi
         break;
 
     case SHCNE_UPDATEIMAGE:
-        if (pidl)
-        {
+        if (pidl) {
             int iIndex;
-            if (pidlExtra )
-            {   // new style update image notification.....
-                iIndex = SHHandleUpdateImage( pidlExtra );
-                if ( iIndex == -1 )
+            if (pidlExtra) {   // new style update image notification.....
+                iIndex = SHHandleUpdateImage(pidlExtra);
+                if (iIndex == -1)
                     break;
-            }
-            else
-                iIndex = *(int UNALIGNED *)((BYTE*)pidl + 2);
+            } else
+                iIndex = *(int UNALIGNED*)((BYTE*)pidl + 2);
 
             _InvalidateImageIndex(NULL, iIndex);
         }
         break;
     case SHCNE_EXTENDED_EVENT:
-        {
+    {
 #ifndef UNIX
-            SHChangeDWORDAsIDList* pdwidl = (SHChangeDWORDAsIDList UNALIGNED *)pidl;
+        SHChangeDWORDAsIDList* pdwidl = (SHChangeDWORDAsIDList UNALIGNED*)pidl;
 #else
-            SHChangeDWORDAsIDList* pdwidl = (SHChangeDWORDAsIDList *)pidl;
+        SHChangeDWORDAsIDList* pdwidl = (SHChangeDWORDAsIDList*)pidl;
 #endif
 
-            INT_PTR iEvent = pdwidl->dwItem1;
+        INT_PTR iEvent = pdwidl->dwItem1;
 
-            switch (iEvent)
-            {
-            case SHCNEE_ORDERCHANGED:
-                if (EVAL(pidl))
+        switch (iEvent) {
+        case SHCNEE_ORDERCHANGED:
+            if (EVAL(pidl)) {
+                if (_fDropping ||                           // If WE are dropping.
+                    _fInLabelEdit ||                        // We're editing a name (Kicks us out)
+                    SHChangeMenuWasSentByMe(this, pidl) || // Ignore if we sent it.
+                    (_mode == MODE_HISTORY))                // Always ignore history changes
                 {
-                    if (_fDropping ||                           // If WE are dropping.
-                        _fInLabelEdit ||                        // We're editing a name (Kicks us out)
-                        SHChangeMenuWasSentByMe(this, pidl)  || // Ignore if we sent it.
-                        (_mode == MODE_HISTORY))                // Always ignore history changes
-                    {
-                        TraceMsg(TF_NSC, "NSCBand: Ignoring Change Notify: We sent");
-                        //ignore the notification
-                    }
-                    else
-                    {
-                        TraceMsg(TF_BAND, "NSCBand: OnChange SHCNEE_ORDERCHANGED accepted");
+                    TraceMsg(TF_NSC, "NSCBand: Ignoring Change Notify: We sent");
+                    //ignore the notification
+                } else {
+                    TraceMsg(TF_BAND, "NSCBand: OnChange SHCNEE_ORDERCHANGED accepted");
 
-                        HTREEITEM htiRoot = _FindFromRoot(TVI_ROOT, pidlExtra);
-                        if (htiRoot != NULL)
-                            _UpdateDir(htiRoot);
-                    }
-                }
-                break;
-            case SHCNEE_WININETCHANGED:
-                {
-                    if (pdwidl->dwItem2 & (CACHE_NOTIFY_SET_ONLINE | CACHE_NOTIFY_SET_OFFLINE))
-                    {
-                        BOOL fOnline = !SHIsGlobalOffline();
-                        if ((fOnline && !_fOnline) || (!fOnline && _fOnline))
-                        {
-                            // State changed
-                            _fOnline = fOnline;
-                            _OnSHNotifyOnlineChange(TVI_ROOT, _fOnline);
-                        }
-                    }
-
-                    if (pdwidl->dwItem2 & (CACHE_NOTIFY_ADD_URL |
-                        CACHE_NOTIFY_DELETE_URL |
-                        CACHE_NOTIFY_DELETE_ALL |
-                        CACHE_NOTIFY_URL_SET_STICKY |
-                        CACHE_NOTIFY_URL_UNSET_STICKY))
-                    {
-                        // Something in the cache changed
-                        _OnSHNotifyCacheChange(TVI_ROOT, pdwidl->dwItem2);
-                    }
-                    break;
+                    HTREEITEM htiRoot = _FindFromRoot(TVI_ROOT, pidlExtra);
+                    if (htiRoot != NULL)
+                        _UpdateDir(htiRoot);
                 }
             }
             break;
+        case SHCNEE_WININETCHANGED:
+        {
+            if (pdwidl->dwItem2 & (CACHE_NOTIFY_SET_ONLINE | CACHE_NOTIFY_SET_OFFLINE)) {
+                BOOL fOnline = !SHIsGlobalOffline();
+                if ((fOnline && !_fOnline) || (!fOnline && _fOnline)) {
+                    // State changed
+                    _fOnline = fOnline;
+                    _OnSHNotifyOnlineChange(TVI_ROOT, _fOnline);
+                }
+            }
+
+            if (pdwidl->dwItem2 & (CACHE_NOTIFY_ADD_URL |
+                                   CACHE_NOTIFY_DELETE_URL |
+                                   CACHE_NOTIFY_DELETE_ALL |
+                                   CACHE_NOTIFY_URL_SET_STICKY |
+                                   CACHE_NOTIFY_URL_UNSET_STICKY)) {
+                // Something in the cache changed
+                _OnSHNotifyCacheChange(TVI_ROOT, pdwidl->dwItem2);
+            }
+            break;
+        }
         }
         break;
+    }
+    break;
     }
     return;
 }
@@ -3931,18 +3575,16 @@ void CNscTree::_OnChangeNotify(LONG lEvent, LPCITEMIDLIST pidl, LPCITEMIDLIST pi
 // BUGBUG: if it is not a file system pidl SFGAO_FILESYSTEM, we don't need to do this...
 // review chrisny:  but this is only called in the case of SHCNE_CREATE for shell notify
 // and all shell notify pidls are SFGAO_FILESYSTEM
-HRESULT CNscTree::_IdlRealFromIdlSimple(IShellFolder *psf, LPCITEMIDLIST pidlSimple, LPITEMIDLIST *ppidlReal)
+HRESULT CNscTree::_IdlRealFromIdlSimple(IShellFolder* psf, LPCITEMIDLIST pidlSimple, LPITEMIDLIST* ppidlReal)
 {
     STRRET str;
     HRESULT hres = psf->GetDisplayNameOf(pidlSimple, SHGDN_FORPARSING | SHGDN_INFOLDER, &str);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         WCHAR wszPath[MAX_PATH];
         ULONG cbEaten;
 
         if (FAILED(hres = StrRetToBufW(&str, pidlSimple, wszPath, ARRAYSIZE(wszPath))) ||
-            FAILED(hres = psf->ParseDisplayName(NULL, NULL, wszPath, &cbEaten, ppidlReal, NULL )))
-        {
+            FAILED(hres = psf->ParseDisplayName(NULL, NULL, wszPath, &cbEaten, ppidlReal, NULL))) {
             *ppidlReal = ILClone(pidlSimple);   // we don't own the lifetime of pidlSimple
             hres = *ppidlReal ? S_OK : E_OUTOFMEMORY;
         }
@@ -3962,8 +3604,7 @@ HRESULT CNscTree::Refresh(void)
     LPITEMIDLIST pidlRoot = CSIDL_DESKTOP;
     if (MODE_NORMAL != _mode)
         pidlRoot = ILClone(_pidlRoot);    // Need to do this because it's freed
-    if (pidlRoot)
-    {
+    if (pidlRoot) {
         _ChangePidlRoot(pidlRoot);
         if (MODE_NORMAL != _mode)
             ILFree(pidlRoot);
@@ -3974,22 +3615,20 @@ HRESULT CNscTree::Refresh(void)
     return S_OK;
 }
 
-void CNscTree::_CacheDetails(IShellFolder *psf)
+void CNscTree::_CacheDetails(IShellFolder* psf)
 {
-    if (_ulDisplayCol == (ULONG)-1)
-    {
+    if (_ulDisplayCol == (ULONG)-1) {
         ASSERT(_psf2Cache == NULL);
 
         _ulSortCol = _ulDisplayCol = 0;
 
-        if (SUCCEEDED(psf->QueryInterface(IID_IShellFolder2, (void **)&_psf2Cache)))
-        {
+        if (SUCCEEDED(psf->QueryInterface(IID_IShellFolder2, (void**)&_psf2Cache))) {
             _psf2Cache->GetDefaultColumn(0, &_ulSortCol, &_ulDisplayCol);
         }
     }
 }
 
-HRESULT CNscTree::_GetDisplayNameOf(IShellFolder *psf, LPCITEMIDLIST pidl, DWORD uFlags,
+HRESULT CNscTree::_GetDisplayNameOf(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD uFlags,
                                     LPSHELLDETAILS pdetails)
 {
     _CacheDetails(psf);
@@ -3999,14 +3638,14 @@ HRESULT CNscTree::_GetDisplayNameOf(IShellFolder *psf, LPCITEMIDLIST pidl, DWORD
 }
 
 // if fSort, then compare for sort, else compare for existence.
-HRESULT CNscTree::_CompareIDs(IShellFolder *psf, LPITEMIDLIST pidl1, LPITEMIDLIST pidl2)
+HRESULT CNscTree::_CompareIDs(IShellFolder* psf, LPITEMIDLIST pidl1, LPITEMIDLIST pidl2)
 {
     _CacheDetails(psf);
 
     return psf->CompareIDs(_ulSortCol, pidl1, pidl2);
 }
 
-HRESULT CNscTree::_ParentFromItem(LPCITEMIDLIST pidl, IShellFolder** ppsfParent, LPCITEMIDLIST *ppidlChild)
+HRESULT CNscTree::_ParentFromItem(LPCITEMIDLIST pidl, IShellFolder** ppsfParent, LPCITEMIDLIST* ppidlChild)
 {
     return IEBindToParentFolder(pidl, ppsfParent, ppidlChild);
 }
@@ -4018,109 +3657,101 @@ LRESULT CNscTree::_OnCDNotify(LPNMCUSTOMDRAW pnm)
     if (MODE_NORMAL == _mode)
         return 0;
 
-    switch (pnm->dwDrawStage)
-    {
+    switch (pnm->dwDrawStage) {
     case CDDS_PREPAINT:
         if (NSS_BROWSERSELECT & _dwFlags)
             lres = CDRF_NOTIFYITEMDRAW;
         break;
 
     case CDDS_ITEMPREPAINT:
-        {
-            //BUGBUG davemi: why is comctl giving us empty rects?
-            if (IsRectEmpty(&(pnm->rc)))
-                break;
-            PORDERITEM poi = GetPoi(pnm->lItemlParam);
-            DWORD dwFlags = 0;
-            COLORREF    clrBk, clrText;
-            LPNMTVCUSTOMDRAW pnmtv = (LPNMTVCUSTOMDRAW)pnm;
-            TV_ITEM tvi;
-            TCHAR sz[MAX_URL_STRING];
-            tvi.mask = TVIF_TEXT | TVIF_HANDLE | TVIF_STATE;
-            tvi.stateMask = TVIS_EXPANDED | TVIS_STATEIMAGEMASK | TVIS_DROPHILITED;
-            tvi.pszText = sz;
-            tvi.cchTextMax = MAX_URL_STRING;
-            tvi.hItem = (HTREEITEM)pnm->dwItemSpec;
-            if (!TreeView_GetItem(_hwndTree, &tvi))
-                break;
-
-            //  See if we have fetched greyed/pinned information for this item yet
-
-            ITEMINFO * pii = GetPii(pnm->lItemlParam);
-            pii->fFetched = TRUE;
-
-            if (pii->fGreyed && !(_mode & MODE_CONTROL))
-                dwFlags |= DIGREYED;
-            if (pii->fPinned)
-                dwFlags |= DIPINNED;
-
-            if (!pii->fNavigable)
-                dwFlags |= DIFOLDER;
-
-            dwFlags |= DIICON;
-
-            clrBk   = g_clrBk;
-            clrText = GetSysColor(COLOR_WINDOWTEXT);
-
-            //if we're renaming an item, don't draw any text for it (otherwise it shows behind the item)
-            if (tvi.hItem == _htiRenaming)
-                sz[0] = 0;
-
-            if (tvi.state & TVIS_EXPANDED)
-                dwFlags |= DIFOLDEROPEN;
-
-            if (tvi.state & NSC_TVIS_MARKED)
-                dwFlags |= DIACTIVEBORDER;
-
-            if ( (pnm->uItemState & CDIS_SELECTED) || (tvi.state & TVIS_DROPHILITED) )
-            {
-                if (_fHasFocus || tvi.state & TVIS_DROPHILITED)
-                {
-                    clrBk = GetSysColor(COLOR_HIGHLIGHT);
-                    clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
-                }
-                else
-                    clrBk = GetSysColor(COLOR_BTNFACE);
-//                    dwFlags |= DIFOCUSRECT;
-            }
-
-            if (pnm->uItemState & CDIS_HOT)
-            {
-                if (!(_mode & MODE_CONTROL))
-                    dwFlags |= DIHOT;
-                clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
-
-                if (clrText == clrBk)
-                    clrText = GetSysColor(COLOR_HIGHLIGHT);
-            }
-
-            if (tvi.state & NSC_TVIS_MARKED)
-            {
-                //top level item
-                if (_IsTopParentItem((HTREEITEM)pnm->dwItemSpec))
-                {
-                    dwFlags |= DISUBFIRST;
-                    if (!(tvi.state & TVIS_EXPANDED))
-                        dwFlags |= DISUBLAST;
-                }
-                else    // lower level items
-                {
-                    HTREEITEM hti;
-
-                    dwFlags |= DISUBITEM;
-                    if (((HTREEITEM)pnm->dwItemSpec) == _htiActiveBorder)
-                        dwFlags |= DISUBFIRST;
-
-                    hti = TreeView_GetNextVisible(_hwndTree, (HTREEITEM)pnm->dwItemSpec);
-                    if ( (hti && !_IsMarked(hti)) || (hti == NULL) )
-                        dwFlags |= DISUBLAST;
-                }
-            }
-
-            _DrawItem((HTREEITEM)pnm->dwItemSpec, sz, pnm->hdc, &(pnm->rc), dwFlags, pnmtv->iLevel, clrBk, clrText);
-            lres = CDRF_SKIPDEFAULT;
+    {
+        //BUGBUG davemi: why is comctl giving us empty rects?
+        if (IsRectEmpty(&(pnm->rc)))
             break;
+        PORDERITEM poi = GetPoi(pnm->lItemlParam);
+        DWORD dwFlags = 0;
+        COLORREF    clrBk, clrText;
+        LPNMTVCUSTOMDRAW pnmtv = (LPNMTVCUSTOMDRAW)pnm;
+        TV_ITEM tvi;
+        TCHAR sz[MAX_URL_STRING];
+        tvi.mask = TVIF_TEXT | TVIF_HANDLE | TVIF_STATE;
+        tvi.stateMask = TVIS_EXPANDED | TVIS_STATEIMAGEMASK | TVIS_DROPHILITED;
+        tvi.pszText = sz;
+        tvi.cchTextMax = MAX_URL_STRING;
+        tvi.hItem = (HTREEITEM)pnm->dwItemSpec;
+        if (!TreeView_GetItem(_hwndTree, &tvi))
+            break;
+
+        //  See if we have fetched greyed/pinned information for this item yet
+
+        ITEMINFO* pii = GetPii(pnm->lItemlParam);
+        pii->fFetched = TRUE;
+
+        if (pii->fGreyed && !(_mode & MODE_CONTROL))
+            dwFlags |= DIGREYED;
+        if (pii->fPinned)
+            dwFlags |= DIPINNED;
+
+        if (!pii->fNavigable)
+            dwFlags |= DIFOLDER;
+
+        dwFlags |= DIICON;
+
+        clrBk = g_clrBk;
+        clrText = GetSysColor(COLOR_WINDOWTEXT);
+
+        //if we're renaming an item, don't draw any text for it (otherwise it shows behind the item)
+        if (tvi.hItem == _htiRenaming)
+            sz[0] = 0;
+
+        if (tvi.state & TVIS_EXPANDED)
+            dwFlags |= DIFOLDEROPEN;
+
+        if (tvi.state & NSC_TVIS_MARKED)
+            dwFlags |= DIACTIVEBORDER;
+
+        if ((pnm->uItemState & CDIS_SELECTED) || (tvi.state & TVIS_DROPHILITED)) {
+            if (_fHasFocus || tvi.state & TVIS_DROPHILITED) {
+                clrBk = GetSysColor(COLOR_HIGHLIGHT);
+                clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
+            } else
+                clrBk = GetSysColor(COLOR_BTNFACE);
+            //                    dwFlags |= DIFOCUSRECT;
         }
+
+        if (pnm->uItemState & CDIS_HOT) {
+            if (!(_mode & MODE_CONTROL))
+                dwFlags |= DIHOT;
+            clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
+
+            if (clrText == clrBk)
+                clrText = GetSysColor(COLOR_HIGHLIGHT);
+        }
+
+        if (tvi.state & NSC_TVIS_MARKED) {
+            //top level item
+            if (_IsTopParentItem((HTREEITEM)pnm->dwItemSpec)) {
+                dwFlags |= DISUBFIRST;
+                if (!(tvi.state & TVIS_EXPANDED))
+                    dwFlags |= DISUBLAST;
+            } else    // lower level items
+            {
+                HTREEITEM hti;
+
+                dwFlags |= DISUBITEM;
+                if (((HTREEITEM)pnm->dwItemSpec) == _htiActiveBorder)
+                    dwFlags |= DISUBFIRST;
+
+                hti = TreeView_GetNextVisible(_hwndTree, (HTREEITEM)pnm->dwItemSpec);
+                if ((hti && !_IsMarked(hti)) || (hti == NULL))
+                    dwFlags |= DISUBLAST;
+            }
+        }
+
+        _DrawItem((HTREEITEM)pnm->dwItemSpec, sz, pnm->hdc, &(pnm->rc), dwFlags, pnmtv->iLevel, clrBk, clrText);
+        lres = CDRF_SKIPDEFAULT;
+        break;
+    }
     case CDDS_POSTPAINT:
         break;
     }
@@ -4131,8 +3762,7 @@ LRESULT CNscTree::_OnCDNotify(LPNMCUSTOMDRAW pnm)
 // **droptarget implementation.
 void CNscTree::_DtRevoke()
 {
-    if (_fDTRegistered)
-    {
+    if (_fDTRegistered) {
         RevokeDragDrop(_hwndTree);
         _fDTRegistered = FALSE;
     }
@@ -4141,22 +3771,18 @@ void CNscTree::_DtRevoke()
 // review chrisny:  return hresult here.
 void CNscTree::_DtRegister()
 {
-    if (!_fDTRegistered && (_dwFlags & NSS_DROPTARGET))
-    {
-        if (IsWindow(_hwndTree))
-        {
+    if (!_fDTRegistered && (_dwFlags & NSS_DROPTARGET)) {
+        if (IsWindow(_hwndTree)) {
             HRESULT hr = THR(RegisterDragDrop(_hwndTree, SAFECAST(this, IDropTarget*)));
             _fDTRegistered = BOOLIFY(SUCCEEDED(hr));
-        }
-        else
+        } else
             ASSERT(FALSE);
     }
 }
 
-HRESULT CNscTree::GetWindowsDDT (HWND * phwndLock, HWND * phwndScroll)
+HRESULT CNscTree::GetWindowsDDT(HWND* phwndLock, HWND* phwndScroll)
 {
-    if (!IsWindow(_hwndTree))
-    {
+    if (!IsWindow(_hwndTree)) {
         ASSERT(FALSE);
         return S_FALSE;
     }
@@ -4167,10 +3793,9 @@ HRESULT CNscTree::GetWindowsDDT (HWND * phwndLock, HWND * phwndScroll)
 const int iInsertThresh = 6;
 
 
-HRESULT CNscTree::HitTestDDT (UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD * pdwDropEffect)
+HRESULT CNscTree::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD* pdwId, DWORD* pdwDropEffect)
 {
-    switch (nEvent)
-    {
+    switch (nEvent) {
     case HTDDT_ENTER:
         break;
 
@@ -4186,203 +3811,173 @@ HRESULT CNscTree::HitTestDDT (UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD * pd
     }
 
     case HTDDT_OVER:
-        {
-            // review chrisny:  make function TreeView_InsertMarkHittest!!!!!
-            RECT rc;
-            TV_HITTESTINFO tvht;
-            HTREEITEM htiOver;     // item to insert before or after.
-            BOOL fWasInserting = BOOLIFY(_fInserting);
-            BOOL fOldInsertBefore = BOOLIFY(_fInsertBefore);
-            TV_ITEM tvi;
-            PORDERITEM poi = NULL;
-            IDropTarget     *pdtgt = NULL;
-            HRESULT         hres;
-            LPITEMIDLIST    pidl;
+    {
+        // review chrisny:  make function TreeView_InsertMarkHittest!!!!!
+        RECT rc;
+        TV_HITTESTINFO tvht;
+        HTREEITEM htiOver;     // item to insert before or after.
+        BOOL fWasInserting = BOOLIFY(_fInserting);
+        BOOL fOldInsertBefore = BOOLIFY(_fInsertBefore);
+        TV_ITEM tvi;
+        PORDERITEM poi = NULL;
+        IDropTarget* pdtgt = NULL;
+        HRESULT         hres;
+        LPITEMIDLIST    pidl;
 
-            _fDragging = TRUE;
+        _fDragging = TRUE;
+        *pdwDropEffect = DROPEFFECT_NONE;   // dropping from without.
+        tvht.pt = *ppt;
+        htiOver = TreeView_HitTest(_hwndTree, &tvht);
+        // if no hittest assume we are dropping on the evil root.
+        if (htiOver != NULL) {
+            TreeView_GetItemRect(_hwndTree, (HTREEITEM)htiOver, &rc, TRUE);
+            tvi.mask = TVIF_STATE | TVIF_PARAM | TVIF_HANDLE;
+            tvi.stateMask = TVIS_EXPANDED;
+            tvi.hItem = (HTREEITEM)htiOver;
+            if (TreeView_GetItem(_hwndTree, &tvi))
+                poi = GetPoi(tvi.lParam);
+            if (poi == NULL) {
+                ASSERT(FALSE);
+                return S_FALSE;
+            }
+        } else
+            htiOver = TVI_ROOT;
+
+        // NO DROPPY ON HISTORY
+        if (_mode & MODE_HISTORY) {
+            *pdwId = PtrToUlong(htiOver);
             *pdwDropEffect = DROPEFFECT_NONE;   // dropping from without.
-            tvht.pt = *ppt;
-            htiOver = TreeView_HitTest(_hwndTree, &tvht);
-            // if no hittest assume we are dropping on the evil root.
-            if (htiOver != NULL)
-            {
-                TreeView_GetItemRect(_hwndTree, (HTREEITEM)htiOver, &rc, TRUE);
-                tvi.mask = TVIF_STATE | TVIF_PARAM | TVIF_HANDLE;
-                tvi.stateMask = TVIS_EXPANDED;
-                tvi.hItem = (HTREEITEM)htiOver;
-                if (TreeView_GetItem(_hwndTree, &tvi))
-                    poi = GetPoi(tvi.lParam);
-                if (poi == NULL)
-                {
-                    ASSERT(FALSE);
-                    return S_FALSE;
-                }
-            }
-            else
-                htiOver = TVI_ROOT;
+            return S_OK;
+        }
 
-            // NO DROPPY ON HISTORY
-            if (_mode & MODE_HISTORY)
-            {
-                *pdwId = PtrToUlong(htiOver);
+        pidl = (poi == NULL) ? _pidlRoot : poi->pidl;
+        pidl = _CacheParentShellFolder(htiOver, pidl);
+        if (pidl) {
+            // Is this the desktop pidl?
+            if (ILIsEmpty(pidl)) {
+                // Desktop's GetUIObject does not support the Empty pidl, so
+                // create the view object.
+                hres = _psfCache->CreateViewObject(_hwndTree, IID_IDropTarget, (void**)&pdtgt);
+            } else
+                hres = _psfCache->GetUIObjectOf(_hwndTree, 1, (LPCITEMIDLIST*)&pidl, IID_IDropTarget, NULL, (void**)&pdtgt);
+        }
+
+        _fInserting = ((htiOver != TVI_ROOT) && ((ppt->y < (rc.top + iInsertThresh)
+                                                  || (ppt->y > (rc.bottom - iInsertThresh))) || !pdtgt));
+        // review chrisny:  do I need folderstart == folder over?
+        // If in normal mode, we never want to insert before, always _ON_...
+        if (_mode != MODE_NORMAL && _fInserting) {
+            ASSERT(poi);
+            _iDragDest = poi->nOrder;   // index of item within folder pdwId
+            if ((ppt->y < (rc.top + iInsertThresh)) || !pdtgt)
+                _fInsertBefore = TRUE;
+            else {
+                ASSERT(ppt->y > (rc.bottom - iInsertThresh));
+                _fInsertBefore = FALSE;
+            }
+            if (_iDragSrc != -1)
+                *pdwDropEffect = DROPEFFECT_MOVE;   // moving from within.
+            else
                 *pdwDropEffect = DROPEFFECT_NONE;   // dropping from without.
-                return S_OK;
-            }
-
-            pidl = (poi == NULL) ? _pidlRoot : poi->pidl;
-            pidl = _CacheParentShellFolder(htiOver, pidl);
-            if (pidl)
-            {
-                // Is this the desktop pidl?
-                if (ILIsEmpty(pidl))
-                {
-                    // Desktop's GetUIObject does not support the Empty pidl, so
-                    // create the view object.
-                    hres = _psfCache->CreateViewObject(_hwndTree, IID_IDropTarget, (void **)&pdtgt);
-                }
-                else
-                    hres = _psfCache->GetUIObjectOf(_hwndTree, 1, (LPCITEMIDLIST *)&pidl, IID_IDropTarget, NULL, (void **)&pdtgt);
-            }
-
-            _fInserting = ((htiOver != TVI_ROOT) && ((ppt->y < (rc.top + iInsertThresh)
-                || (ppt->y > (rc.bottom - iInsertThresh)))  || !pdtgt));
-            // review chrisny:  do I need folderstart == folder over?
-            // If in normal mode, we never want to insert before, always _ON_...
-            if (_mode != MODE_NORMAL && _fInserting)
-            {
-                ASSERT(poi);
-                _iDragDest = poi->nOrder;   // index of item within folder pdwId
-                if ((ppt->y < (rc.top + iInsertThresh)) || !pdtgt)
-                    _fInsertBefore = TRUE;
-                else
-                {
-                    ASSERT (ppt->y > (rc.bottom - iInsertThresh));
-                    _fInsertBefore = FALSE;
-                }
-                if (_iDragSrc != -1)
-                    *pdwDropEffect = DROPEFFECT_MOVE;   // moving from within.
-                else
-                    *pdwDropEffect = DROPEFFECT_NONE;   // dropping from without.
-                // inserting, drop target is actually parent folder of this item
-                if (_fInsertBefore || ((htiOver != TVI_ROOT) && !(tvi.state & TVIS_EXPANDED)))
-                {
-                    _htiDropInsert = TreeView_GetParent(_hwndTree, (HTREEITEM)htiOver);
-                }
-                else
-                    _htiDropInsert = htiOver;
-                if (_htiDropInsert == NULL)
-                    _htiDropInsert = TVI_ROOT;
-                *pdwId = PtrToUlong(_htiDropInsert);
-            }
-            else
-            {
+            // inserting, drop target is actually parent folder of this item
+            if (_fInsertBefore || ((htiOver != TVI_ROOT) && !(tvi.state & TVIS_EXPANDED))) {
+                _htiDropInsert = TreeView_GetParent(_hwndTree, (HTREEITEM)htiOver);
+            } else
                 _htiDropInsert = htiOver;
-                *pdwId =PtrToUlong(htiOver);
-                _iDragDest = -1;     // no insertion point.
-                *pdwDropEffect = DROPEFFECT_NONE;
-            }
+            if (_htiDropInsert == NULL)
+                _htiDropInsert = TVI_ROOT;
+            *pdwId = PtrToUlong(_htiDropInsert);
+        } else {
+            _htiDropInsert = htiOver;
+            *pdwId = PtrToUlong(htiOver);
+            _iDragDest = -1;     // no insertion point.
+            *pdwDropEffect = DROPEFFECT_NONE;
+        }
 
-            // if we're over the item we're dragging, don't allow drop here
-            if ( (_htiDragging == htiOver) || (IsParentOfItem(_hwndTree, _htiDragging, htiOver)) )
-            {
-                *pdwDropEffect = DROPEFFECT_NONE;
-                *pdwId = (DWORD)-1;
-                _fInserting = FALSE;
-                ATOMICRELEASE(pdtgt);
-            }
-
-            // update UI
-            if (_htiCur != (HTREEITEM)htiOver || fWasInserting != BOOLIFY(_fInserting) || fOldInsertBefore != BOOLIFY(_fInsertBefore))
-            {
-                // change in target
-                _dwLastTime = GetTickCount();     // keep track for auto-expanding the tree
-                DAD_ShowDragImage(FALSE);
-                if (_fInserting)
-                {
-                    TraceMsg(TF_NSC, "NSCBand: drop insert now");
-                    if (htiOver != TVI_ROOT)
-                    {
-                        if (_mode != MODE_NORMAL)
-                        {
-                            TreeView_SelectDropTarget(_hwndTree, NULL);
-                            TreeView_SetInsertMark(_hwndTree, htiOver, !_fInsertBefore);
-                        }
-                    }
-                }
-                else
-                {
-                    TraceMsg(TF_NSC, "NSCBand: drop select now");
-                    if (_mode != MODE_NORMAL)
-                        TreeView_SetInsertMark(_hwndTree, NULL, !_fInsertBefore);
-
-                    if (htiOver != TVI_ROOT)
-                    {
-                        if (pdtgt)
-                        {
-                            TreeView_SelectDropTarget(_hwndTree, htiOver);
-                        }
-                        else if (_mode != MODE_NORMAL)
-                        {
-                            // We do not want to select the drop target in normal mode
-                            // because it causes a weird flashing of some item unrelated
-                            // to the drag and drop when the drop is not supported.
-                            TreeView_SelectDropTarget(_hwndTree, NULL);
-                        }
-                    }
-                }
-                UpdateWindow(_hwndTree);
-                DAD_ShowDragImage(TRUE);
-            }
-            else
-            {
-                // No target change
-                // auto expand the tree
-                if (_htiCur)
-                {
-                    DWORD dwNow = GetTickCount();
-                    if ((dwNow - _dwLastTime) >= 1000)
-                    {
-                        _dwLastTime = dwNow;
-                        DAD_ShowDragImage(FALSE);
-                        _fAutoExpanding = TRUE;
-                        if (_htiCur != TVI_ROOT)
-                            TreeView_Expand(_hwndTree, _htiCur, TVE_EXPAND);
-                        _fAutoExpanding = FALSE;
-                        UpdateWindow(_hwndTree);
-                        DAD_ShowDragImage(TRUE);
-                    }
-                }
-            }
-            _htiCur = (HTREEITEM)htiOver;
+        // if we're over the item we're dragging, don't allow drop here
+        if ((_htiDragging == htiOver) || (IsParentOfItem(_hwndTree, _htiDragging, htiOver))) {
+            *pdwDropEffect = DROPEFFECT_NONE;
+            *pdwId = (DWORD)-1;
+            _fInserting = FALSE;
             ATOMICRELEASE(pdtgt);
         }
-        break;
+
+        // update UI
+        if (_htiCur != (HTREEITEM)htiOver || fWasInserting != BOOLIFY(_fInserting) || fOldInsertBefore != BOOLIFY(_fInsertBefore)) {
+            // change in target
+            _dwLastTime = GetTickCount();     // keep track for auto-expanding the tree
+            DAD_ShowDragImage(FALSE);
+            if (_fInserting) {
+                TraceMsg(TF_NSC, "NSCBand: drop insert now");
+                if (htiOver != TVI_ROOT) {
+                    if (_mode != MODE_NORMAL) {
+                        TreeView_SelectDropTarget(_hwndTree, NULL);
+                        TreeView_SetInsertMark(_hwndTree, htiOver, !_fInsertBefore);
+                    }
+                }
+            } else {
+                TraceMsg(TF_NSC, "NSCBand: drop select now");
+                if (_mode != MODE_NORMAL)
+                    TreeView_SetInsertMark(_hwndTree, NULL, !_fInsertBefore);
+
+                if (htiOver != TVI_ROOT) {
+                    if (pdtgt) {
+                        TreeView_SelectDropTarget(_hwndTree, htiOver);
+                    } else if (_mode != MODE_NORMAL) {
+                        // We do not want to select the drop target in normal mode
+                        // because it causes a weird flashing of some item unrelated
+                        // to the drag and drop when the drop is not supported.
+                        TreeView_SelectDropTarget(_hwndTree, NULL);
+                    }
+                }
+            }
+            UpdateWindow(_hwndTree);
+            DAD_ShowDragImage(TRUE);
+        } else {
+            // No target change
+            // auto expand the tree
+            if (_htiCur) {
+                DWORD dwNow = GetTickCount();
+                if ((dwNow - _dwLastTime) >= 1000) {
+                    _dwLastTime = dwNow;
+                    DAD_ShowDragImage(FALSE);
+                    _fAutoExpanding = TRUE;
+                    if (_htiCur != TVI_ROOT)
+                        TreeView_Expand(_hwndTree, _htiCur, TVE_EXPAND);
+                    _fAutoExpanding = FALSE;
+                    UpdateWindow(_hwndTree);
+                    DAD_ShowDragImage(TRUE);
+                }
+            }
+        }
+        _htiCur = (HTREEITEM)htiOver;
+        ATOMICRELEASE(pdtgt);
+    }
+    break;
     }
 
     return S_OK;
 }
 
 
-HRESULT CNscTree::GetObjectDDT(DWORD dwId, REFIID riid, void ** ppvObj)
+HRESULT CNscTree::GetObjectDDT(DWORD dwId, REFIID riid, void** ppvObj)
 {
     HRESULT hres = S_FALSE;
 
     // We use -1 as the sentinal "This is where you started stupid"
-    if (dwId != -1)
-    {
+    if (dwId != -1) {
         LPCITEMIDLIST pidl = _CacheParentShellFolder((HTREEITEM)dwId, NULL);
-        if (pidl)
-        {
+        if (pidl) {
             if (ILIsEmpty(pidl))
-                hres = _psfCache->CreateViewObject(_hwndTree, riid, (void **)ppvObj);
+                hres = _psfCache->CreateViewObject(_hwndTree, riid, (void**)ppvObj);
             else
-                hres = _psfCache->GetUIObjectOf(_hwndTree, 1, &pidl, riid, NULL, (void **)ppvObj);
+                hres = _psfCache->GetUIObjectOf(_hwndTree, 1, &pidl, riid, NULL, (void**)ppvObj);
         }
     }
     return hres;
 }
 
-HRESULT CNscTree::OnDropDDT(IDropTarget *pdt, IDataObject *pdtobj, DWORD * pgrfKeyState, POINTL pt, DWORD *pdwEffect)
+HRESULT CNscTree::OnDropDDT(IDropTarget* pdt, IDataObject* pdtobj, DWORD* pgrfKeyState, POINTL pt, DWORD* pdwEffect)
 {
     HRESULT hres;
 
@@ -4390,15 +3985,12 @@ HRESULT CNscTree::OnDropDDT(IDropTarget *pdt, IDataObject *pdtobj, DWORD * pgrfK
     _fDropping = TRUE;
 
     // move within same folder, else let Drop() handle it.
-    if (_iDragSrc >= 0)
-    {
-        if (_htiFolderStart == _htiDropInsert && _mode != MODE_NORMAL)
-        {
+    if (_iDragSrc >= 0) {
+        if (_htiFolderStart == _htiDropInsert && _mode != MODE_NORMAL) {
             if (_iDragSrc != _iDragDest)    // no moving needed
             {
-                int iNewPos =   _fInsertBefore ? (_iDragDest - 1) : _iDragDest;
-                if (_MoveNode(_hwndTree, _iDragSrc, iNewPos, _pidlDrag))
-                {
+                int iNewPos = _fInsertBefore ? (_iDragDest - 1) : _iDragDest;
+                if (_MoveNode(_hwndTree, _iDragSrc, iNewPos, _pidlDrag)) {
                     TraceMsg(TF_NSC, "NSCBand:  Reordering");
                     _fDropping = TRUE;
                     _Dropped();
@@ -4411,33 +4003,27 @@ HRESULT CNscTree::OnDropDDT(IDropTarget *pdt, IDataObject *pdtobj, DWORD * pgrfK
             }
             DragLeave();
             _htiCur = _htiFolderStart = NULL;
-            _htiDropInsert =  (HTREEITEM)-1;
+            _htiDropInsert = (HTREEITEM)-1;
             _fDragging = _fInserting = _fDropping = FALSE;
             _iDragDest = -1;
             hres = S_FALSE;     // handled
         }
-    }
-    else
-    {
+    } else {
         // the item will get created in SHNotifyCreate()
         TraceMsg(TF_NSC, "NSCBand:  Dropped and External Item");
 
         BOOL         fSafe = TRUE;
         LPITEMIDLIST pidl;
 
-        if (SUCCEEDED(SHPidlFromDataObject(pdtobj, &pidl, NULL, 0)))
-        {
+        if (SUCCEEDED(SHPidlFromDataObject(pdtobj, &pidl, NULL, 0))) {
             fSafe = IEIsLinkSafe(_hwndParent, pidl, ILS_ADDTOFAV);
             ILFree(pidl);
         }
 
-        if (fSafe)
-        {
+        if (fSafe) {
             _fAsyncDrop = TRUE;
             hres = S_OK;
-        }
-        else
-        {
+        } else {
             hres = S_FALSE;
         }
 
@@ -4454,10 +4040,10 @@ HRESULT CNscTree::OnDropDDT(IDropTarget *pdt, IDataObject *pdtobj, DWORD * pgrfK
     return hres;
 }
 
-IStream * CNscTree::GetOrderStream(LPCITEMIDLIST pidl, DWORD grfMode)
+IStream* CNscTree::GetOrderStream(LPCITEMIDLIST pidl, DWORD grfMode)
 {
     // only do this for favorites
-    if (!ILIsEmpty(pidl) && (_mode & MODE_FAVORITES) )
+    if (!ILIsEmpty(pidl) && (_mode & MODE_FAVORITES))
         return OpenPidlOrderStream((LPCITEMIDLIST)CSIDL_FAVORITES, pidl, REG_SUBKEY_FAVORITESA, grfMode);
     return NULL;
 }
@@ -4470,8 +4056,7 @@ BOOL CNscTree::_MoveNode(HWND _hwndTree, int iDragSrc, int iNewPos, LPCITEMIDLIS
     // if we are not moving and not dropping directly on a folder with no insert.
     if ((iDragSrc == iNewPos) && (iNewPos != -1))
         return FALSE;       // no need to move
-    for (hti = TreeView_GetChild(_hwndTree, _htiDropInsert); hti; hti = TreeView_GetNextSibling(_hwndTree, hti))
-    {
+    for (hti = TreeView_GetChild(_hwndTree, _htiDropInsert); hti; hti = TreeView_GetNextSibling(_hwndTree, hti)) {
         if (i == iDragSrc)
             htiDel = hti;       // save node to be deleted, can't deelete it while enumerating
         // cuz the treeview will go down the tubes.
@@ -4496,22 +4081,17 @@ void CNscTree::_Dropped(void)
 {
     // Persist the new order out to the registry
     LPITEMIDLIST pidl = _GetFullIDList(_htiDropInsert);
-    if (pidl)
-    {
+    if (pidl) {
         IStream* pstm = GetOrderStream(pidl, STGM_WRITE | STGM_CREATE);
-        if (pstm)
-        {
-            if (_CacheShellFolder(_htiDropInsert))
-            {
+        if (pstm) {
+            if (_CacheShellFolder(_htiDropInsert)) {
                 OrderList_SaveToStream(pstm, _hdpaOrd, _psfCache);
                 // remember we are now ordered.
                 if (_htiDropInsert == TVI_ROOT)
                     _fOrdered = TRUE;
-                else
-                {
+                else {
                     PORDERITEM poi = _GetTreeOrderItem(_htiDropInsert);
-                    if (poi)
-                    {
+                    if (poi) {
                         poi->lParam = (DWORD)FALSE;
                     }
                 }
@@ -4535,7 +4115,7 @@ CNscTree::CSelectionContextMenu::~CSelectionContextMenu()
     ATOMICRELEASE(_pcm2Selection);
 }
 
-HRESULT CNscTree::CSelectionContextMenu::QueryInterface(REFIID riid, void **ppvObj)
+HRESULT CNscTree::CSelectionContextMenu::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] = {
         QITABENT(CNscTree::CSelectionContextMenu, IContextMenu2),                      // IID_IContextMenu2
@@ -4558,8 +4138,7 @@ ULONG CNscTree::CSelectionContextMenu::Release(void)
     CNscTree* pnsc = IToClass(CNscTree, _scm, this);
     ASSERT(_ulRefs > 0);
     _ulRefs--;
-    if (0 == _ulRefs)
-    {
+    if (0 == _ulRefs) {
         ATOMICRELEASE(_pcmSelection);
         ATOMICRELEASE(_pcm2Selection);
     }
@@ -4569,12 +4148,9 @@ ULONG CNscTree::CSelectionContextMenu::Release(void)
 HRESULT CNscTree::CSelectionContextMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu,
                                                           UINT idCmdFirst, UINT idCmdLast, UINT uFlags)
 {
-    if (NULL == _pcmSelection)
-    {
+    if (NULL == _pcmSelection) {
         return E_FAIL;
-    }
-    else
-    {
+    } else {
         return _pcmSelection->QueryContextMenu(hmenu, indexMenu, idCmdFirst, idCmdLast, uFlags);
     }
 }
@@ -4586,18 +4162,14 @@ HRESULT CNscTree::CSelectionContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pic
     CNscTree* pnsc = IToClass(CNscTree, _scm, this);
     UINT idCmd;
 
-    if (!HIWORD(pici->lpVerb))
-    {
+    if (!HIWORD(pici->lpVerb)) {
         idCmd = LOWORD(pici->lpVerb);
-    }
-    else
-    {
+    } else {
         return E_FAIL;
     }
 
     hres = pnsc->_QuerySelection(NULL, &hti);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         pnsc->_ApplyCmd(hti, _pcmSelection, idCmd);
     }
     return hres;
@@ -4605,31 +4177,26 @@ HRESULT CNscTree::CSelectionContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pic
 
 HRESULT CNscTree::CSelectionContextMenu::HandleMenuMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (NULL == _pcm2Selection)
-    {
+    if (NULL == _pcm2Selection) {
         return E_FAIL;
-    }
-    else
-    {
+    } else {
         //  HACK alert.  Work around bug in win95 user code for WM_DRAWITEM that sign extends
         //  itemID
-        if (!g_fRunningOnNT && WM_DRAWITEM == uMsg)
-        {
+        if (!g_fRunningOnNT && WM_DRAWITEM == uMsg) {
             LPDRAWITEMSTRUCT lpDraw = (LPDRAWITEMSTRUCT)lParam;
 
             if (0xFFFF0000 == (lpDraw->itemID & 0xFFFF0000) &&
                 (lpDraw->itemID & 0xFFFF) >= FCIDM_BROWSERFIRST &&
-                (lpDraw->itemID & 0xFFFF) <= FCIDM_BROWSERLAST)
-            {
+                (lpDraw->itemID & 0xFFFF) <= FCIDM_BROWSERLAST) {
                 lpDraw->itemID = lpDraw->itemID & 0xFFFF;
             }
         }
 
-        return _pcm2Selection->HandleMenuMsg(uMsg,wParam,lParam);
+        return _pcm2Selection->HandleMenuMsg(uMsg, wParam, lParam);
     }
 }
 
-IContextMenu *CNscTree::CSelectionContextMenu::_QuerySelection()
+IContextMenu* CNscTree::CSelectionContextMenu::_QuerySelection()
 {
     CNscTree* pnsc = IToClass(CNscTree, _scm, this);
 
@@ -4637,9 +4204,8 @@ IContextMenu *CNscTree::CSelectionContextMenu::_QuerySelection()
     ATOMICRELEASE(_pcm2Selection);
 
     pnsc->_QuerySelection(&_pcmSelection, NULL);
-    if (_pcmSelection)
-    {
-        _pcmSelection->QueryInterface(IID_IContextMenu2, (void **) &_pcm2Selection);
+    if (_pcmSelection) {
+        _pcmSelection->QueryInterface(IID_IContextMenu2, (void**)&_pcm2Selection);
         AddRef();
         return SAFECAST(this, IContextMenu*);
     }
@@ -4647,9 +4213,9 @@ IContextMenu *CNscTree::CSelectionContextMenu::_QuerySelection()
 }
 
 LRESULT CALLBACK CNscTree::_SubClassTreeWndProc(
-                                  HWND hwnd, UINT uMsg,
-                                  WPARAM wParam, LPARAM lParam,
-                                  UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+    HWND hwnd, UINT uMsg,
+    WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
     LRESULT lres = 0;
     CNscTree* pns = (CNscTree*)dwRefData;
@@ -4658,8 +4224,7 @@ LRESULT CALLBACK CNscTree::_SubClassTreeWndProc(
     if (pns == NULL)
         return 0;
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_COMMAND:
         lres = pns->_OnCommand(wParam, lParam);
         break;
@@ -4681,44 +4246,41 @@ LRESULT CALLBACK CNscTree::_SubClassTreeWndProc(
     case WM_INITMENUPOPUP:
     case WM_MEASUREITEM:
     case WM_DRAWITEM:
-        if (pns->_pcmSendTo)
-        {
+        if (pns->_pcmSendTo) {
             pns->_pcmSendTo->HandleMenuMsg(uMsg, wParam, lParam);
             return TRUE;
         }
         break;
 
     case WM_NSCUPDATEICONINFO:
-        {
-            NSC_ICONCALLBACKINFO nici = {(DWORD) (lParam&0x00000FFF),
-                                         (DWORD) ((lParam&0x00FFF000) >> 12),
-                                         (DWORD) ((lParam&0x0F000000) >> 24),
-                                         (DWORD) ((lParam&0xF0000000) >> 28) };
-            // make sure the magic numbers match
-            if (nici.nMagic == pns->_bSynchId)
-            {
-                TVITEM    tvi;
-                tvi.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
-                tvi.hItem = (HTREEITEM)wParam;
+    {
+        NSC_ICONCALLBACKINFO nici = {(DWORD)(lParam & 0x00000FFF),
+                                     (DWORD)((lParam & 0x00FFF000) >> 12),
+                                     (DWORD)((lParam & 0x0F000000) >> 24),
+                                     (DWORD)((lParam & 0xF0000000) >> 28)};
+        // make sure the magic numbers match
+        if (nici.nMagic == pns->_bSynchId) {
+            TVITEM    tvi;
+            tvi.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+            tvi.hItem = (HTREEITEM)wParam;
 
-                // This can fail if the item was moved before the async icon
-                // extraction finished for that item.
-                if (TreeView_GetItem(pns->_hwndTree, &tvi))
-                {
-                    ITEMINFO* pii = GetPii(tvi.lParam);
+            // This can fail if the item was moved before the async icon
+            // extraction finished for that item.
+            if (TreeView_GetItem(pns->_hwndTree, &tvi)) {
+                ITEMINFO* pii = GetPii(tvi.lParam);
 
-                    pii->fGreyed      = BOOLIFY(nici.nFlags & NSCICON_GREYED);
-                    pii->fPinned      = BOOLIFY(nici.nFlags & NSCICON_PINNED);
-                    pii->fDontRefetch = BOOLIFY(nici.nFlags & NSCICON_DONTREFETCH);
+                pii->fGreyed = BOOLIFY(nici.nFlags & NSCICON_GREYED);
+                pii->fPinned = BOOLIFY(nici.nFlags & NSCICON_PINNED);
+                pii->fDontRefetch = BOOLIFY(nici.nFlags & NSCICON_DONTREFETCH);
 
-                    tvi.iImage         = nici.iIcon;
-                    tvi.iSelectedImage = nici.iOpenIcon;
+                tvi.iImage = nici.iIcon;
+                tvi.iSelectedImage = nici.iOpenIcon;
 
-                    TreeView_SetItem(pns->_hwndTree, &tvi);
-                }
+                TreeView_SetItem(pns->_hwndTree, &tvi);
             }
         }
-        break;
+    }
+    break;
 
     // UGLY: Win95/NT4 shell DefView code sends this msg and does not deal
     // with the failure case. other ISVs do the same so this needs to stay forever
@@ -4728,15 +4290,15 @@ LRESULT CALLBACK CNscTree::_SubClassTreeWndProc(
         break;
 
     case WM_HELP:
-        {
-            const static DWORD aBrowseHelpIDs[] =
-            {  // Context Help IDs
-                ID_CONTROL,         IDH_BROWSELIST,
-                0,                  0
-            };
-            WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aBrowseHelpIDs);
-        }
-        break;
+    {
+        const static DWORD aBrowseHelpIDs[] =
+        {  // Context Help IDs
+            ID_CONTROL,         IDH_BROWSELIST,
+            0,                  0
+        };
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aBrowseHelpIDs);
+    }
+    break;
 
     case WM_SYSCOLORCHANGE:
     case WM_WININICHANGE:
@@ -4756,7 +4318,7 @@ LRESULT CALLBACK CNscTree::_SubClassTreeWndProc(
     }
 
     if (lres == 0)
-       lres = DefSubclassProc(hwnd, uMsg, wParam, lParam);
+        lres = DefSubclassProc(hwnd, uMsg, wParam, lParam);
 
     return lres;
 }
@@ -4766,8 +4328,8 @@ HRESULT CNscTree::_OnPaletteChanged(WPARAM wParam, LPARAM lParam)
     // forward this to our child view by invalidating their window (they should never realize their palette
     // in the foreground so they don't need the message parameters.) ...
     RECT rc;
-    GetClientRect( _hwndTree, &rc );
-    InvalidateRect( _hwndTree, &rc, FALSE );
+    GetClientRect(_hwndTree, &rc);
+    InvalidateRect(_hwndTree, &rc, FALSE);
 
     return NOERROR;
 }
@@ -4777,8 +4339,7 @@ void CNscTree::_InvalidateImageIndex(HTREEITEM hItem, int iImage)
     HTREEITEM hChild;
     TV_ITEM tvi;
 
-    if (hItem)
-    {
+    if (hItem) {
         tvi.mask = TVIF_SELECTEDIMAGE | TVIF_IMAGE;
         tvi.hItem = hItem;
 
@@ -4791,7 +4352,7 @@ void CNscTree::_InvalidateImageIndex(HTREEITEM hItem, int iImage)
     if (!hChild)
         return;
 
-    for ( ; hChild; hChild = TreeView_GetNextSibling(_hwndTree, hChild))
+    for (; hChild; hChild = TreeView_GetNextSibling(_hwndTree, hChild))
         _InvalidateImageIndex(hChild, iImage);
 }
 
@@ -4799,7 +4360,7 @@ void CNscTree::_TreeInvalidateItemInfo(HTREEITEM hItem, UINT mask)
 {
     TV_ITEM tvi;
 
-    tvi.mask =  mask | TVIF_CHILDREN | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+    tvi.mask = mask | TVIF_CHILDREN | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
     tvi.hItem = hItem;
     tvi.cChildren = I_CHILDRENCALLBACK;
     tvi.iImage = I_IMAGECALLBACK;
@@ -4817,7 +4378,7 @@ void CNscTree::_DrawActiveBorder(HDC hdc, LPRECT prc)
 
 #define DXLEFT      8
 #define MAGICINDENT 3
-void CNscTree::_DrawIcon(HTREEITEM hti, HDC hdc, int iLevel, RECT *prc, DWORD dwFlags)
+void CNscTree::_DrawIcon(HTREEITEM hti, HDC hdc, int iLevel, RECT* prc, DWORD dwFlags)
 {
     HIMAGELIST  himl = TreeView_GetImageList(_hwndTree, TVSIL_NORMAL);
     TV_ITEM     tvi;
@@ -4825,8 +4386,7 @@ void CNscTree::_DrawIcon(HTREEITEM hti, HDC hdc, int iLevel, RECT *prc, DWORD dw
 
     tvi.mask = TVIF_SELECTEDIMAGE | TVIF_IMAGE | TVIF_HANDLE;
     tvi.hItem = hti;
-    if (TreeView_GetItem(_hwndTree, &tvi))
-    {
+    if (TreeView_GetItem(_hwndTree, &tvi)) {
         ImageList_GetIconSize(himl, &dx, &dy);
         if (!_fStartingDrag)
             x = DXLEFT;
@@ -4837,8 +4397,7 @@ void CNscTree::_DrawIcon(HTREEITEM hti, HDC hdc, int iLevel, RECT *prc, DWORD dw
         int iImage = (dwFlags & DIFOLDEROPEN) ? tvi.iSelectedImage : tvi.iImage;
         ImageList_DrawEx(himl, iImage, hdc, x, y, 0, 0, CLR_NONE, GetSysColor(COLOR_WINDOW), (dwFlags & DIGREYED) ? ILD_BLEND50 : ILD_TRANSPARENT);
 
-        if (dwFlags & DIPINNED)
-        {
+        if (dwFlags & DIPINNED) {
             ASSERT(_hicoPinned);
             DrawIconEx(hdc, x, y, _hicoPinned, 16, 16, 0, NULL, DI_NORMAL);
         }
@@ -4848,7 +4407,7 @@ void CNscTree::_DrawIcon(HTREEITEM hti, HDC hdc, int iLevel, RECT *prc, DWORD dw
 
 #define TreeView_GetFont(hwnd)  (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0)
 
-void CNscTree::_DrawItem(HTREEITEM hti, TCHAR * psz, HDC hdc
+void CNscTree::_DrawItem(HTREEITEM hti, TCHAR* psz, HDC hdc
                          , LPRECT prc, DWORD dwFlags, int iLevel, COLORREF clrbk, COLORREF clrtxt)
 {
     SIZE        size;
@@ -4859,8 +4418,7 @@ void CNscTree::_DrawItem(HTREEITEM hti, TCHAR * psz, HDC hdc
     LOGFONT     lf;
 
     COLORREF clrGreyed = GetSysColor(COLOR_BTNSHADOW);
-    if ((dwFlags & DIGREYED) && (clrbk != clrGreyed))
-    {
+    if ((dwFlags & DIGREYED) && (clrbk != clrGreyed)) {
         clrtxt = clrGreyed;
     }
 
@@ -4870,8 +4428,7 @@ void CNscTree::_DrawItem(HTREEITEM hti, TCHAR * psz, HDC hdc
     if (_mode != MODE_FAVORITES && _mode != MODE_HISTORY)
         hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 
-    if ((dwFlags & DIHOT) && !(dwFlags & DIFOLDER))
-    {
+    if ((dwFlags & DIHOT) && !(dwFlags & DIFOLDER)) {
         if (!hfont)
             hfont = TreeView_GetFont(_hwndTree);
 
@@ -4886,8 +4443,7 @@ void CNscTree::_DrawItem(HTREEITEM hti, TCHAR * psz, HDC hdc
     GetTextExtentPoint32(hdc, psz, lstrlen(psz), &size);
     if (himl)
         ImageList_GetIconSize(himl, &dx, &dy);
-    else
-    {
+    else {
         dx = 0;
         dy = 0;
     }
@@ -4919,18 +4475,15 @@ void CNscTree::_DrawItem(HTREEITEM hti, TCHAR * psz, HDC hdc
     if (hfontOld)
         SelectObject(hdc, hfontOld);
 
-    if (dwFlags & DIACTIVEBORDER)
-    {
-        if (dwFlags & DIFIRST)
-        {
+    if (dwFlags & DIACTIVEBORDER) {
+        if (dwFlags & DIFIRST) {
             rc = *prc;
             rc.left += 2;
             rc.bottom = rc.top + 1;
             rc.right -= 2;
             SHFillRectClr(hdc, &rc, GetSysColor(COLOR_BTNSHADOW));
         }
-        if (dwFlags & DISUBITEM)
-        {
+        if (dwFlags & DISUBITEM) {
             rc = *prc;
             rc.left += 2;
             rc.right = rc.left + 1;
@@ -4939,8 +4492,7 @@ void CNscTree::_DrawItem(HTREEITEM hti, TCHAR * psz, HDC hdc
             rc.left = rc.right - 1;
             SHFillRectClr(hdc, &rc, GetSysColor(COLOR_BTNSHADOW));
         }
-        if (dwFlags & DILAST)
-        {
+        if (dwFlags & DILAST) {
             rc = *prc;
             rc.left += 2;
             rc.top = rc.bottom - 1;
@@ -4952,8 +4504,7 @@ void CNscTree::_DrawItem(HTREEITEM hti, TCHAR * psz, HDC hdc
 #if 0
     //focus is currently shown by drawing the selection with a different color
     // (in default scheme, it's blue when has focus, gray when not)
-    if (dwFlags & DIFOCUSRECT)
-    {
+    if (dwFlags & DIFOCUSRECT) {
         rc = *prc;
         InflateRect(&rc, -1, -1);
         DrawFocusRect(hdc, &rc);
@@ -4973,25 +4524,18 @@ void CNscTree::_OnSHNotifyOnlineChange(HTREEITEM htiRoot, BOOL fGoingOnline)
     HTREEITEM hItem;
 
     for (hItem = TreeView_GetChild(_hwndTree, htiRoot); hItem
-        ; hItem = TreeView_GetNextSibling(_hwndTree, hItem))
-    {
-        ITEMINFO *pii = _GetTreeItemInfo(hItem);
-        if (pii)
-        {
-            if (fGoingOnline)
-            {
+         ; hItem = TreeView_GetNextSibling(_hwndTree, hItem)) {
+        ITEMINFO* pii = _GetTreeItemInfo(hItem);
+        if (pii) {
+            if (fGoingOnline) {
                 // Going online, if previously greyed then ungrey it
-                if (pii->fGreyed)
-                {
+                if (pii->fGreyed) {
                     pii->fGreyed = FALSE;
                     _UpdateItemDisplayInfo(hItem);
                 }
-            }
-            else
-            {
+            } else {
                 // Recheck each item to see if they should be greyed
-                if (pii->fFetched && !pii->fDontRefetch)
-                {
+                if (pii->fFetched && !pii->fDontRefetch) {
                     pii->fFetched = FALSE;
                     _UpdateItemDisplayInfo(hItem);
                 }
@@ -5007,31 +4551,28 @@ void CNscTree::_OnSHNotifyOnlineChange(HTREEITEM htiRoot, BOOL fGoingOnline)
 
 void CNscTree::_OnSHNotifyCacheChange
 (
- HTREEITEM htiRoot,      // recurse through all children
- DWORD_PTR dwFlags       // CACHE_NOTIFY_* flags
- )
+    HTREEITEM htiRoot,      // recurse through all children
+    DWORD_PTR dwFlags       // CACHE_NOTIFY_* flags
+)
 {
     HTREEITEM hItem;
 
     for (hItem = TreeView_GetChild(_hwndTree, htiRoot); hItem
-        ; hItem = TreeView_GetNextSibling(_hwndTree, hItem))
-    {
-        ITEMINFO *pii = _GetTreeItemInfo(hItem);
-        if (pii)
-        {
+         ; hItem = TreeView_GetNextSibling(_hwndTree, hItem)) {
+        ITEMINFO* pii = _GetTreeItemInfo(hItem);
+        if (pii) {
             // If we have cached info for this item, refresh it if it's state may have toggled
             if ((pii->fFetched && !pii->fDontRefetch) &&
                 ((pii->fGreyed && (dwFlags | CACHE_NOTIFY_ADD_URL)) ||
 
-                // We only need to check ungreyed items for changes to the
-                // stickey bit in the cache!
-                (!pii->fGreyed &&
-                ((dwFlags & (CACHE_NOTIFY_DELETE_URL | CACHE_NOTIFY_DELETE_ALL))) ||
-                (!pii->fPinned && (dwFlags & CACHE_NOTIFY_URL_SET_STICKY)) ||
-                (pii->fPinned && (dwFlags & CACHE_NOTIFY_URL_UNSET_STICKY))
-                )
-                ))
-            {
+                 // We only need to check ungreyed items for changes to the
+                 // stickey bit in the cache!
+                 (!pii->fGreyed &&
+                  ((dwFlags & (CACHE_NOTIFY_DELETE_URL | CACHE_NOTIFY_DELETE_ALL))) ||
+                  (!pii->fPinned && (dwFlags & CACHE_NOTIFY_URL_SET_STICKY)) ||
+                  (pii->fPinned && (dwFlags & CACHE_NOTIFY_URL_UNSET_STICKY))
+                  )
+                 )) {
                 pii->fFetched = FALSE;
                 _UpdateItemDisplayInfo(hItem);
             }
@@ -5050,8 +4591,7 @@ HRESULT CNscTree::DoImportOrExport(BOOL fImport)
 {
     HTREEITEM htiSelected = TreeView_GetSelection(_hwndTree);
     LPITEMIDLIST pidl = _GetFullIDList(htiSelected);
-    if (pidl)
-    {
+    if (pidl) {
 
         // If current selection is not a folder get the parent pidl
 
@@ -5061,18 +4601,16 @@ HRESULT CNscTree::DoImportOrExport(BOOL fImport)
 
         // Create the actual routine in shdocvw to do the import/export work
 
-        IShellUIHelper *pShellUIHelper;
-        HRESULT hr = CoCreateInstance(CLSID_ShellUIHelper, NULL, CLSCTX_INPROC_SERVER,  IID_IShellUIHelper,  (void **)&pShellUIHelper);
-        if (SUCCEEDED(hr))
-        {
+        IShellUIHelper* pShellUIHelper;
+        HRESULT hr = CoCreateInstance(CLSID_ShellUIHelper, NULL, CLSCTX_INPROC_SERVER, IID_IShellUIHelper, (void**)&pShellUIHelper);
+        if (SUCCEEDED(hr)) {
             VARIANT_BOOL vbImport = fImport ? VARIANT_TRUE : VARIANT_FALSE;
             WCHAR wszPath[MAX_PATH];
 
             SHGetPathFromIDListW(pidl, wszPath);
 
             hr = pShellUIHelper->ImportExportFavorites(vbImport, wszPath);
-            if (SUCCEEDED(hr) && fImport)
-            {
+            if (SUCCEEDED(hr) && fImport) {
 
                 // Successfully imported favorites so need to update view
                 // BUGBUG ie5 24973 - flicker alert, should optimize to just redraw selected
@@ -5096,14 +4634,12 @@ HRESULT CNscTree::GetSelectedItemName(LPWSTR pszName, DWORD cchName)
     TV_ITEM tvi;
 
     tvi.hItem = TreeView_GetSelection(_hwndTree);
-    if (tvi.hItem != NULL)
-    {
+    if (tvi.hItem != NULL) {
         tvi.mask = TVIF_HANDLE | TVIF_TEXT;
         tvi.pszText = szPath;
         tvi.cchTextMax = ARRAYSIZE(szPath);
 
-        if (TreeView_GetItem(_hwndTree, &tvi))
-        {
+        if (TreeView_GetItem(_hwndTree, &tvi)) {
             SHTCharToUnicode(szPath, pszName, cchName);
             hr = S_OK;
         }
@@ -5111,22 +4647,18 @@ HRESULT CNscTree::GetSelectedItemName(LPWSTR pszName, DWORD cchName)
     return hr;
 }
 
-HRESULT CNscTree::BindToSelectedItemParent(REFIID riid, void **ppv, LPITEMIDLIST *ppidl)
+HRESULT CNscTree::BindToSelectedItemParent(REFIID riid, void** ppv, LPITEMIDLIST* ppidl)
 {
     HRESULT hres = E_FAIL;
-    if (!_fClosing)
-    {
+    if (!_fClosing) {
         LPCITEMIDLIST pidlItem = _CacheParentShellFolder(TreeView_GetSelection(_hwndTree), NULL);
-        if (pidlItem)
-        {
+        if (pidlItem) {
             hres = _psfCache->QueryInterface(riid, ppv);
-            if (SUCCEEDED(hres) && ppidl)
-            {
+            if (SUCCEEDED(hres) && ppidl) {
                 *ppidl = ILClone(pidlItem);
-                if (*ppidl == NULL)
-                {
+                if (*ppidl == NULL) {
                     hres = E_OUTOFMEMORY;
-                    ((IUnknown *)*ppv)->Release();
+                    ((IUnknown*)*ppv)->Release();
                     *ppv = NULL;
                 }
             }
@@ -5157,8 +4689,7 @@ BOOL CNscTree::MoveItemsIntoFolder(HWND hwndParent)
 
     htiSelected = TreeView_GetSelection(_hwndTree);
     pidlSelected = _GetFullIDList(htiSelected);
-    if (!pidlSelected)
-    {
+    if (!pidlSelected) {
         ILFree((LPITEMIDLIST)browse.pidlRoot);
         return FALSE;
     }
@@ -5174,10 +4705,9 @@ BOOL CNscTree::MoveItemsIntoFolder(HWND hwndParent)
     browse.iImage = 0;
 
     pidlDest = SHBrowseForFolder(&browse);
-    if (pidlDest)
-    {
-        TCHAR szFrom[MAX_PATH+1];  // +1 for double null
-        TCHAR szDest[MAX_PATH+1];
+    if (pidlDest) {
+        TCHAR szFrom[MAX_PATH + 1];  // +1 for double null
+        TCHAR szDest[MAX_PATH + 1];
         SHGetPathFromIDList(pidlDest, szDest);
         SHGetPathFromIDList(pidlSelected, szFrom);
 
@@ -5188,7 +4718,7 @@ BOOL CNscTree::MoveItemsIntoFolder(HWND hwndParent)
         szFrom[lstrlen(szFrom) + 1] = 0;   // double null
 
 
-        SHFILEOPSTRUCT  shop = {hwndParent, FO_MOVE, szFrom, szDest, 0, };
+        SHFILEOPSTRUCT  shop = {hwndParent, FO_MOVE, szFrom, szDest, 0,};
         SHFileOperation(&shop);
 
         fSuccess = TRUE;
@@ -5221,16 +4751,13 @@ BOOL IsChannelFolder(LPCWSTR pwzPath, LPWSTR pwzChannelURL)
     if (!PathCombineW(wzIniFile, pwzPath, L"desktop.ini"))
         return FALSE;
 
-    if (GetPrivateProfileString(L".ShellClassInfo", L"CLSID", L"", wzFolderGUID, ARRAYSIZE(wzFolderGUID), wzIniFile))
-    {
+    if (GetPrivateProfileString(L".ShellClassInfo", L"CLSID", L"", wzFolderGUID, ARRAYSIZE(wzFolderGUID), wzIniFile)) {
         WCHAR wzChannelGUID[GUID_STR_LEN];
 
         //it's only a channel if it's got the right guid and an url
-        if (SHStringFromGUID(CLSID_CDFINI, wzChannelGUID, ARRAYSIZE(wzChannelGUID)))
-        {
+        if (SHStringFromGUID(CLSID_CDFINI, wzChannelGUID, ARRAYSIZE(wzChannelGUID))) {
             fRet = (StrCmpN(wzFolderGUID, wzChannelGUID, ARRAYSIZE(wzChannelGUID)) == 0);
-            if (fRet && pwzChannelURL)
-            {
+            if (fRet && pwzChannelURL) {
                 fRet = (SHGetIniStringW(L"Channel", L"CDFURL", pwzChannelURL, INTERNET_MAX_URL_LENGTH, wzIniFile) != 0);
             }
         }
@@ -5245,13 +4772,11 @@ BOOL CNscTree::_IsChannelFolder(HTREEITEM hti)
 
     LPITEMIDLIST pidl = _GetFullIDList(hti);
 
-    if (pidl)
-    {
+    if (pidl) {
         WCHAR szPath[MAX_PATH];
 
         if (SUCCEEDED(IEGetNameAndFlags(pidl, SHGDN_FORPARSING, szPath,
-                                        ARRAYSIZE(szPath), NULL)))
-        {
+                                        ARRAYSIZE(szPath), NULL))) {
             fRet = IsChannelFolder(szPath, NULL);
         }
 
@@ -5262,7 +4787,7 @@ BOOL CNscTree::_IsChannelFolder(HTREEITEM hti)
 }
 
 
-HRESULT CNscTree::CreateSubscriptionForSelection(/*[out, retval]*/ VARIANT_BOOL *pBool)
+HRESULT CNscTree::CreateSubscriptionForSelection(/*[out, retval]*/ VARIANT_BOOL* pBool)
 {
     HRESULT hr = DoSubscriptionForSelection(TRUE);
 
@@ -5273,7 +4798,7 @@ HRESULT CNscTree::CreateSubscriptionForSelection(/*[out, retval]*/ VARIANT_BOOL 
 }
 
 
-HRESULT CNscTree::DeleteSubscriptionForSelection(/*[out, retval]*/ VARIANT_BOOL *pBool)
+HRESULT CNscTree::DeleteSubscriptionForSelection(/*[out, retval]*/ VARIANT_BOOL* pBool)
 {
     HRESULT hr = DoSubscriptionForSelection(FALSE);
 
@@ -5315,8 +4840,7 @@ HRESULT CNscTree::DoSubscriptionForSelection(BOOL fCreate)
     WCHAR wzPath[MAX_PATH];
 
     LPITEMIDLIST pidlItem = _CacheParentShellFolder(htiSelected, NULL);
-    if (pidlItem)
-    {
+    if (pidlItem) {
         GetPathForItem(_psfCache, pidlItem, wzPath, NULL);
         hr = GetNavTargetName(_psfCache, pidlItem, wzUrl, ARRAYSIZE(wzUrl));
     }
@@ -5324,55 +4848,48 @@ HRESULT CNscTree::DoSubscriptionForSelection(BOOL fCreate)
     if (FAILED(hr))     //if we couldn't get an url, not much to do
         return hr;
 
-    ISubscriptionMgr *psm;
+    ISubscriptionMgr* psm;
 
     hr = JITCoCreateInstance(CLSID_SubscriptionMgr, NULL, CLSCTX_INPROC_SERVER, IID_ISubscriptionMgr, (void**)&psm, _hwndTree, FIEF_FLAG_FORCE_JITUI);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         HCURSOR hCursorOld = SetCursor(LoadCursor(NULL, IDC_WAIT));
         //IsChannelFolder will fixup wzUrl if it's a channel
         BOOL fChannel = IsChannelFolder(wzPath, wzUrl);
 
-        if (fCreate)
-        {
-            SUBSCRIPTIONINFO si = { sizeof(SUBSCRIPTIONINFO) };
+        if (fCreate) {
+            SUBSCRIPTIONINFO si = {sizeof(SUBSCRIPTIONINFO)};
             TASK_TRIGGER tt;
             BOOL bIsSoftware = FALSE;
 
-            if (fChannel)
-            {
-                IChannelMgrPriv *pChannelMgrPriv;
+            if (fChannel) {
+                IChannelMgrPriv* pChannelMgrPriv;
 
-                hr = JITCoCreateInstance(CLSID_ChannelMgr, NULL, CLSCTX_INPROC_SERVER, IID_IChannelMgrPriv, (void **)&pChannelMgrPriv, 
-                _hwndTree, FIEF_FLAG_PEEK);
+                hr = JITCoCreateInstance(CLSID_ChannelMgr, NULL, CLSCTX_INPROC_SERVER, IID_IChannelMgrPriv, (void**)&pChannelMgrPriv,
+                                         _hwndTree, FIEF_FLAG_PEEK);
 
-                if (SUCCEEDED(hr))
-                {
+                if (SUCCEEDED(hr)) {
                     WCHAR wszTitle[MAX_PATH];
 
                     si.fUpdateFlags |= SUBSINFO_SCHEDULE;
-                    si.schedule     = SUBSSCHED_AUTO;
-                    si.pTrigger     = (LPVOID)&tt;
+                    si.schedule = SUBSSCHED_AUTO;
+                    si.pTrigger = (LPVOID)&tt;
 
                     hr = pChannelMgrPriv->DownloadMinCDF(_hwndTree, wzUrl,
-                        wszTitle, ARRAYSIZE(wszTitle),
-                        &si, &bIsSoftware);
+                                                         wszTitle, ARRAYSIZE(wszTitle),
+                                                         &si, &bIsSoftware);
                     pChannelMgrPriv->Release();
                 }
             }
 
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 DWORD dwFlags = CREATESUBS_NOUI | CREATESUBS_FROMFAVORITES |
                     ((!bIsSoftware) ? 0 : CREATESUBS_SOFTWAREUPDATE);
 
                 hr = psm->CreateSubscription(_hwndTree, wzUrl, wzName, dwFlags,
-                    (fChannel ? SUBSTYPE_CHANNEL : SUBSTYPE_URL),
-                    &si);
+                                             (fChannel ? SUBSTYPE_CHANNEL : SUBSTYPE_URL),
+                                             &si);
             }
-        }
-        else
-        {
+        } else {
             hr = psm->DeleteSubscription(wzUrl, NULL);
         }
 
@@ -5418,8 +4935,7 @@ HRESULT CNscTree::_ChangePidlRoot(LPCITEMIDLIST pidl)
         _ReleaseCachedShellFolder();
 
     // We do this even for (NULL == pidl) because (CSIDL_DESKTOP == NULL)
-    if ((LPCITEMIDLIST)INVALID_HANDLE_VALUE != pidl)
-    {
+    if ((LPCITEMIDLIST)INVALID_HANDLE_VALUE != pidl) {
         _UnSubClass();
         _SetRoot(pidl, 3/*random*/, NULL, NSSR_CREATEPIDL);
         _SubClass(pidl);
@@ -5432,7 +4948,7 @@ HRESULT CNscTree::_ChangePidlRoot(LPCITEMIDLIST pidl)
 
 BOOL CNscTree::_IsMarked(HTREEITEM hti)
 {
-    if ( (hti == NULL) || (hti == TVI_ROOT) )
+    if ((hti == NULL) || (hti == TVI_ROOT))
         return FALSE;
 
     TVITEM tvi;
@@ -5454,8 +4970,7 @@ void CNscTree::_MarkChildren(HTREEITEM htiParent, BOOL fOn)
     tvi.hItem = htiParent;
     TreeView_SetItem(_hwndTree, &tvi);
 
-    for (HTREEITEM htiTemp = TreeView_GetChild(_hwndTree, htiParent); htiTemp; htiTemp = TreeView_GetNextSibling(_hwndTree, htiTemp))
-    {
+    for (HTREEITEM htiTemp = TreeView_GetChild(_hwndTree, htiParent); htiTemp; htiTemp = TreeView_GetNextSibling(_hwndTree, htiTemp)) {
         tvi.hItem = htiTemp;
         TreeView_SetItem(_hwndTree, &tvi);
 
@@ -5472,22 +4987,20 @@ void CNscTree::_UpdateActiveBorder(HTREEITEM htiSelected)
         return;
 
     //if an item is a folder, then it should have the border
-    if (htiSelected != TVI_ROOT)
-    {
+    if (htiSelected != TVI_ROOT) {
         if (TreeView_GetChild(_hwndTree, htiSelected))
             htiNewBorder = htiSelected;
         else
             htiNewBorder = TreeView_GetParent(_hwndTree, htiSelected);
-    }
-    else
+    } else
         htiNewBorder = NULL;
 
     //clear the old state
-    if ( (_htiActiveBorder != TVI_ROOT) && (_htiActiveBorder != NULL) && (htiNewBorder != _htiActiveBorder))
+    if ((_htiActiveBorder != TVI_ROOT) && (_htiActiveBorder != NULL) && (htiNewBorder != _htiActiveBorder))
         _MarkChildren(_htiActiveBorder, FALSE);
 
     //set the new state
-    if ( (htiNewBorder != TVI_ROOT) && (htiNewBorder != NULL) )
+    if ((htiNewBorder != TVI_ROOT) && (htiNewBorder != NULL))
         _MarkChildren(htiNewBorder, TRUE);
 
     //treeview knows to invalidate itself
@@ -5498,12 +5011,9 @@ void CNscTree::_UpdateActiveBorder(HTREEITEM htiSelected)
 void CNscTree::_UpdateItemDisplayInfo(HTREEITEM hti)
 {
     LPITEMIDLIST pidl = _GetFullIDList(hti);
-    if (_GetTreeItemInfo(hti) && _pTaskScheduler && pidl)
-    {
-        AddNscIconTask(_pTaskScheduler, pidl, &s_NscIconCallback, this, (UINT_PTR) hti, (UINT)_bSynchId);
-    }
-    else
-    {
+    if (_GetTreeItemInfo(hti) && _pTaskScheduler && pidl) {
+        AddNscIconTask(_pTaskScheduler, pidl, &s_NscIconCallback, this, (UINT_PTR)hti, (UINT)_bSynchId);
+    } else {
         ILFree(pidl);
     }
     //pidl gets freed by CNscIconTask
@@ -5519,7 +5029,7 @@ void CNscTree::s_NscIconCallback(LPVOID pvData, UINT_PTR uId, int iIcon, int iIc
     //on the main thread only.
 
     //assert that wacky packing is going to work
-    ASSERT( (iIcon < 4096) && (iIconOpen < 4096) && (dwFlags < 16) && (uMagic < 16));
+    ASSERT((iIcon < 4096) && (iIconOpen < 4096) && (dwFlags < 16) && (uMagic < 16));
 
     LPARAM lParam = (uMagic << 28) + (dwFlags << 24) + (iIconOpen << 12) + iIcon;
 
@@ -5531,8 +5041,7 @@ LRESULT CNscTree::_OnCommand(WPARAM wParam, LPARAM lParam)
 {
     UINT idCmd = GET_WM_COMMAND_ID(wParam, lParam);
 
-    switch(idCmd)
-    {
+    switch (idCmd) {
     case FCIDM_MOVE:
         InvokeContextMenuCommand(L"cut");
         break;
@@ -5551,8 +5060,7 @@ LRESULT CNscTree::_OnCommand(WPARAM wParam, LPARAM lParam)
 
     case FCIDM_DELETE:
         InvokeContextMenuCommand(L"delete");
-        if (_hwndTree)
-        {
+        if (_hwndTree) {
             SHChangeNotifyHandleEvents();
         }
         break;
@@ -5562,15 +5070,15 @@ LRESULT CNscTree::_OnCommand(WPARAM wParam, LPARAM lParam)
         break;
 
     case FCIDM_RENAME:
-        {
-            // HACKHACK (lamadio): This is to hack around tree view renaming on click and hover
-            _fRclick = TRUE;
-            HTREEITEM hti = TreeView_GetSelection(_hwndTree);
-            if (hti)
-                TreeView_EditLabel(_hwndTree, hti);
-            _fRclick = FALSE;
-        }
-        break;
+    {
+        // HACKHACK (lamadio): This is to hack around tree view renaming on click and hover
+        _fRclick = TRUE;
+        HTREEITEM hti = TreeView_GetSelection(_hwndTree);
+        if (hti)
+            TreeView_EditLabel(_hwndTree, hti);
+        _fRclick = FALSE;
+    }
+    break;
 
     default:
         return FALSE;
@@ -5581,8 +5089,7 @@ LRESULT CNscTree::_OnCommand(WPARAM wParam, LPARAM lParam)
 
 void CNscTree::_TreeSetItemState(HTREEITEM hti, UINT stateMask, UINT state)
 {
-    if (hti)
-    {
+    if (hti) {
         TV_ITEM tvi;
         tvi.mask = TVIF_STATE;
         tvi.stateMask = stateMask;
@@ -5602,7 +5109,7 @@ void CNscTree::_TreeNukeCutState()
     _hwndNextViewer = NULL;
 }
 
-    // *** IShellFolderFilterSite methods ***
+// *** IShellFolderFilterSite methods ***
 HRESULT CNscTree::SetFilter(IUnknown* punk)
 {
     HRESULT hres = S_OK;

@@ -25,7 +25,7 @@
 
 #define CC_INTERNAL
 
-// Conditional for apithk.c
+ // Conditional for apithk.c
 #ifndef _WIN32_WINDOWS
 #define _WIN32_WINDOWS      0x0400
 #endif
@@ -153,8 +153,8 @@ EXTERN_C HDC g_hdcMask;
 EXTERN_C BOOL g_bMirroredOS;
 EXTERN_C DWORD g_tlsThreadRef;
 
-EXTERN_C DWORD_PTR _SHGetFileInfoA(LPCSTR pszPath, DWORD dwFileAttributes, SHFILEINFOA FAR  *psfi, UINT cbFileInfo, UINT uFlags);
-EXTERN_C DWORD_PTR _SHGetFileInfoW(LPCWSTR pwzPath, DWORD dwFileAttributes, SHFILEINFOW FAR  *psfi, UINT cbFileInfo, UINT uFlags);
+EXTERN_C DWORD_PTR _SHGetFileInfoA(LPCSTR pszPath, DWORD dwFileAttributes, SHFILEINFOA FAR* psfi, UINT cbFileInfo, UINT uFlags);
+EXTERN_C DWORD_PTR _SHGetFileInfoW(LPCWSTR pwzPath, DWORD dwFileAttributes, SHFILEINFOW FAR* psfi, UINT cbFileInfo, UINT uFlags);
 
 EXTERN_C UINT  _DragQueryFileA(HDROP hDrop, UINT iFile, LPSTR lpszFile, UINT cch);
 EXTERN_C UINT  _DragQueryFileW(HDROP hDrop, UINT iFile, LPWSTR lpszFile, UINT cch);
@@ -168,10 +168,10 @@ EXTERN_C LPITEMIDLIST _SHBrowseForFolderW(LPBROWSEINFOW pbiW);
 EXTERN_C LPITEMIDLIST _SHBrowseForFolderA(LPBROWSEINFOA pbiA);
 EXTERN_C BOOL _SHGetPathFromIDListW(LPCITEMIDLIST pidl, LPWSTR pwzPath);
 EXTERN_C BOOL _SHGetPathFromIDListA(LPCITEMIDLIST pidl, LPSTR pszPath);
-EXTERN_C BOOL _SHGetNewLinkInfoW(LPCWSTR pszpdlLinkTo, LPCWSTR pszDir, LPWSTR pszName, BOOL *pfMustCopy, UINT uFlags);
-EXTERN_C BOOL _SHGetNewLinkInfoA(LPCSTR pszpdlLinkTo, LPCSTR pszDir, LPSTR pszName, BOOL *pfMustCopy, UINT uFlags);
-EXTERN_C HRESULT _SHDefExtractIconW(LPCWSTR pszFile, int nIconIndex, UINT  uFlags, HICON *phiconLarge, HICON *phiconSmall, UINT nIconSize);
-EXTERN_C HRESULT _SHDefExtractIconA(LPCSTR pszFile, int nIconIndex, UINT  uFlags, HICON *phiconLarge, HICON *phiconSmall, UINT nIconSize);
+EXTERN_C BOOL _SHGetNewLinkInfoW(LPCWSTR pszpdlLinkTo, LPCWSTR pszDir, LPWSTR pszName, BOOL* pfMustCopy, UINT uFlags);
+EXTERN_C BOOL _SHGetNewLinkInfoA(LPCSTR pszpdlLinkTo, LPCSTR pszDir, LPSTR pszName, BOOL* pfMustCopy, UINT uFlags);
+EXTERN_C HRESULT _SHDefExtractIconW(LPCWSTR pszFile, int nIconIndex, UINT  uFlags, HICON* phiconLarge, HICON* phiconSmall, UINT nIconSize);
+EXTERN_C HRESULT _SHDefExtractIconA(LPCSTR pszFile, int nIconIndex, UINT  uFlags, HICON* phiconLarge, HICON* phiconSmall, UINT nIconSize);
 EXTERN_C HICON _ExtractIconA(HINSTANCE hInst, LPCSTR lpszExeFileName, UINT nIconIndex);
 EXTERN_C HICON _ExtractIconW(HINSTANCE hInst, LPCWSTR lpszExeFileName, UINT nIconIndex);
 EXTERN_C BOOL _GetSaveFileNameA(LPOPENFILENAMEA lpofn);
@@ -182,7 +182,7 @@ EXTERN_C BOOL _GetOpenFileNameW(LPOPENFILENAMEW lpofn);
 EXTERN_C int  _Shell_GetCachedImageIndexW(LPVOID pszIconPath, int iIconIndex, UINT uIconFlags);
 EXTERN_C void _SHChangeNotify(LONG wEventId, UINT uFlags, LPCVOID dwItem1, LPCVOID dwItem2);
 EXTERN_C void _SHFlushSFCache();
-EXTERN_C HRESULT _SHGetInstanceExplorer(IUnknown **ppunk);
+EXTERN_C HRESULT _SHGetInstanceExplorer(IUnknown** ppunk);
 
 EXTERN_C BOOL _PrintDlgA(LPPRINTDLGA lppd);
 EXTERN_C BOOL _PrintDlgW(LPPRINTDLGW lppd);
@@ -192,8 +192,8 @@ EXTERN_C BOOL _ShellExecuteExW(LPSHELLEXECUTEINFOW pExecInfoW);
 EXTERN_C BOOL _ShellExecuteExA(LPSHELLEXECUTEINFOA pExecInfoA);
 EXTERN_C int _SHFileOperationW(LPSHFILEOPSTRUCTW pFileOpW);
 EXTERN_C int _SHFileOperationA(LPSHFILEOPSTRUCTA pFileOpA);
-EXTERN_C UINT _ExtractIconExW(LPCWSTR pwzFile, int nIconIndex, HICON FAR *phiconLarge, HICON FAR *phiconSmall, UINT nIcons);
-EXTERN_C UINT _ExtractIconExA(LPCSTR pszFile, int nIconIndex, HICON FAR *phiconLarge, HICON FAR *phiconSmall, UINT nIcons);
+EXTERN_C UINT _ExtractIconExW(LPCWSTR pwzFile, int nIconIndex, HICON FAR* phiconLarge, HICON FAR* phiconSmall, UINT nIcons);
+EXTERN_C UINT _ExtractIconExA(LPCSTR pszFile, int nIconIndex, HICON FAR* phiconLarge, HICON FAR* phiconSmall, UINT nIcons);
 
 
 EXTERN_C BOOL  _PlaySoundA(LPCSTR pszSound, HMODULE hMod, DWORD fFlags);
@@ -204,7 +204,7 @@ EXTERN_C HRESULT _CLSIDFromProgID(LPCOLESTR lpszProgID, LPCLSID lpclsid);
 EXTERN_C int DrawTextFLW(HDC hdc, LPCWSTR lpString, int nCount, LPRECT lpRect, UINT uFormat);
 EXTERN_C int DrawTextExFLW(HDC hdc, LPWSTR pwzText, int cchText, LPRECT lprc, UINT dwDTFormat, LPDRAWTEXTPARAMS lpDTParams);
 EXTERN_C BOOL GetTextExtentPointFLW(HDC hdc, LPCWSTR lpString, int nCount, LPSIZE lpSize);
-EXTERN_C int ExtTextOutFLW(HDC hdc, int xp, int yp, UINT eto, CONST RECT *lprect, LPCWSTR lpwch, UINT cLen, CONST INT *lpdxp);
+EXTERN_C int ExtTextOutFLW(HDC hdc, int xp, int yp, UINT eto, CONST RECT* lprect, LPCWSTR lpwch, UINT cLen, CONST INT* lpdxp);
 
 #undef ExpandEnvironmentStrings
 #define ExpandEnvironmentStrings #error "Use SHExpandEnvironmentStrings instead"

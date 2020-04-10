@@ -5,7 +5,7 @@
 #pragma intrinsic( memcmp ) // for debug, to avoid all CRT
 
 // {AA7C7080-860A-11CE-8424-08002B2CFF76}
-const GUID CLSID_OtherFolder = { 0xAA7C7080L, 0x860A, 0x11CE, 0x84, 0x24, 0x08, 0x00, 0x2B, 0x2C, 0xFF, 0x76 };
+const GUID CLSID_OtherFolder = {0xAA7C7080L, 0x860A, 0x11CE, 0x84, 0x24, 0x08, 0x00, 0x2B, 0x2C, 0xFF, 0x76};
 
 
 #define ARRAYSIZE(a)    (sizeof(a)/sizeof(a[0]))
@@ -20,9 +20,9 @@ const GUID CLSID_OtherFolder = { 0xAA7C7080L, 0x860A, 0x11CE, 0x84, 0x24, 0x08, 
 UINT g_cRefDll = 0;
 HANDLE g_hinst = NULL;    // Handle to this DLL itself.
 
-HRESULT OtherFolder_CreateInstance(IUnknown *, REFIID, void **);
+HRESULT OtherFolder_CreateInstance(IUnknown*, REFIID, void**);
 
-void DoSendToOtherFolder(IDataObject *pdtobj, DWORD dwEffect);
+void DoSendToOtherFolder(IDataObject* pdtobj, DWORD dwEffect);
 
 LPSTR PathFindFileName(LPCSTR pszPath);
 
@@ -53,9 +53,9 @@ STDAPI DllCanUnloadNow(void)
 
 typedef struct
 {
-    const IClassFactoryVtbl *cf;
+    const IClassFactoryVtbl* cf;
     REFCLSID rclsid;
-    HRESULT(*pfnCreate)(IUnknown *, REFIID, void **);
+    HRESULT(*pfnCreate)(IUnknown*, REFIID, void**);
 } OBJ_ENTRY;
 
 extern const IClassFactoryVtbl c_CFVtbl;        // forward
@@ -63,16 +63,15 @@ extern const IClassFactoryVtbl c_CFVtbl;        // forward
 
 // we always do a linear search here so put your most often used things first
 
-const OBJ_ENTRY c_clsmap [] = {
+const OBJ_ENTRY c_clsmap[] = {
     { &c_CFVtbl, &CLSID_OtherFolder, OtherFolder_CreateInstance },
     { NULL, NULL, NULL }
 };
 
-STDMETHODIMP CCF_QueryInterface(IClassFactory *pcf, REFIID riid, void **ppvObj)
+STDMETHODIMP CCF_QueryInterface(IClassFactory* pcf, REFIID riid, void** ppvObj)
 {
-    if (IsEqualIID(riid, &IID_IClassFactory) || IsEqualIID(riid, &IID_IUnknown))
-    {
-        *ppvObj = (void *) pcf;
+    if (IsEqualIID(riid, &IID_IClassFactory) || IsEqualIID(riid, &IID_IUnknown)) {
+        *ppvObj = (void*)pcf;
         return NOERROR;
     }
 
@@ -80,23 +79,23 @@ STDMETHODIMP CCF_QueryInterface(IClassFactory *pcf, REFIID riid, void **ppvObj)
     return E_NOINTERFACE;
 }
 
-STDMETHODIMP_(ULONG) CCF_AddRef(IClassFactory *pcf)
+STDMETHODIMP_(ULONG) CCF_AddRef(IClassFactory* pcf)
 {
     return 3;
 }
 
-STDMETHODIMP_(ULONG) CCF_Release(IClassFactory *pcf)
+STDMETHODIMP_(ULONG) CCF_Release(IClassFactory* pcf)
 {
     return 2;
 }
 
-STDMETHODIMP CCF_CreateInstance(IClassFactory *pcf, IUnknown *punkOuter, REFIID riid, void **ppvObject)
+STDMETHODIMP CCF_CreateInstance(IClassFactory* pcf, IUnknown* punkOuter, REFIID riid, void** ppvObject)
 {
-    OBJ_ENTRY *this = IToClass(OBJ_ENTRY, cf, pcf);
+    OBJ_ENTRY* this = IToClass(OBJ_ENTRY, cf, pcf);
     return this->pfnCreate(punkOuter, riid, ppvObject);
 }
 
-STDMETHODIMP CCF_LockServer(IClassFactory *pcf, BOOL fLock)
+STDMETHODIMP CCF_LockServer(IClassFactory* pcf, BOOL fLock)
 {
     if (fLock)
         DllAddRef();
@@ -111,16 +110,13 @@ const IClassFactoryVtbl c_CFVtbl = {
     CCF_LockServer
 };
 
-STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, void **ppv)
+STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv)
 {
-    if (IsEqualIID(riid, &IID_IClassFactory))
-    {
-        const OBJ_ENTRY *pcls;
-        for (pcls = c_clsmap; pcls->rclsid; pcls++)
-        {
-            if (IsEqualIID(rclsid, pcls->rclsid))
-            {
-                *ppv = (void *) &(pcls->cf);
+    if (IsEqualIID(riid, &IID_IClassFactory)) {
+        const OBJ_ENTRY* pcls;
+        for (pcls = c_clsmap; pcls->rclsid; pcls++) {
+            if (IsEqualIID(rclsid, pcls->rclsid)) {
+                *ppv = (void*)&(pcls->cf);
                 return NOERROR;
             }
         }
@@ -144,25 +140,18 @@ typedef struct
 
 } COtherFolder;
 
-STDMETHODIMP OtherFolder_QueryInterface(IDropTarget *pdropt, REFIID riid, void **ppv)
+STDMETHODIMP OtherFolder_QueryInterface(IDropTarget* pdropt, REFIID riid, void** ppv)
 {
-    COtherFolder *this = IToClass(COtherFolder, dt, pdropt);
+    COtherFolder* this = IToClass(COtherFolder, dt, pdropt);
 
     if (IsEqualIID(riid, &IID_IUnknown) ||
-        IsEqualIID(riid, &IID_IDropTarget))
-    {
+        IsEqualIID(riid, &IID_IDropTarget)) {
         *ppv = &this->dt;
-    }
-    else if (IsEqualIID(riid, &IID_IPersistFile))
-    {
+    } else if (IsEqualIID(riid, &IID_IPersistFile)) {
         *ppv = &this->pf;
-    }
-    else if (IsEqualIID(riid, &IID_IShellExtInit))
-    {
+    } else if (IsEqualIID(riid, &IID_IShellExtInit)) {
         *ppv = &this->sxi;
-    }
-    else
-    {
+    } else {
         *ppv = NULL;
         return E_NOINTERFACE;
     }
@@ -172,16 +161,16 @@ STDMETHODIMP OtherFolder_QueryInterface(IDropTarget *pdropt, REFIID riid, void *
     return S_OK;
 }
 
-STDMETHODIMP_(ULONG) OtherFolder_AddRef(IDropTarget *pdropt)
+STDMETHODIMP_(ULONG) OtherFolder_AddRef(IDropTarget* pdropt)
 {
-    COtherFolder *this = IToClass(COtherFolder, dt, pdropt);
+    COtherFolder* this = IToClass(COtherFolder, dt, pdropt);
     this->cRef++;
     return this->cRef;
 }
 
-STDMETHODIMP_(ULONG) OtherFolder_Release(IDropTarget *pdropt)
+STDMETHODIMP_(ULONG) OtherFolder_Release(IDropTarget* pdropt)
 {
-    COtherFolder *this = IToClass(COtherFolder, dt, pdropt);
+    COtherFolder* this = IToClass(COtherFolder, dt, pdropt);
 
     this->cRef--;
     if (this->cRef > 0)
@@ -194,9 +183,9 @@ STDMETHODIMP_(ULONG) OtherFolder_Release(IDropTarget *pdropt)
     return 0;
 }
 
-STDMETHODIMP OtherFolder_DragEnter(IDropTarget *pdropt, IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+STDMETHODIMP OtherFolder_DragEnter(IDropTarget* pdropt, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-    COtherFolder *this = IToClass(COtherFolder, dt, pdropt);
+    COtherFolder* this = IToClass(COtherFolder, dt, pdropt);
 
     DebugMsg(DM_TRACE, "OtherFolder_DragEnter");
     this->grfKeyStateLast = grfKeyState;
@@ -204,9 +193,9 @@ STDMETHODIMP OtherFolder_DragEnter(IDropTarget *pdropt, IDataObject *pdtobj, DWO
     return S_OK;
 }
 
-STDMETHODIMP OtherFolder_DragOver(IDropTarget *pdropt, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+STDMETHODIMP OtherFolder_DragOver(IDropTarget* pdropt, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-    COtherFolder *this = IToClass(COtherFolder, dt, pdropt);
+    COtherFolder* this = IToClass(COtherFolder, dt, pdropt);
 
     this->grfKeyStateLast = grfKeyState;
 
@@ -214,15 +203,15 @@ STDMETHODIMP OtherFolder_DragOver(IDropTarget *pdropt, DWORD grfKeyState, POINTL
     return S_OK;
 }
 
-STDMETHODIMP OtherFolder_DragLeave(IDropTarget *pdropt)
+STDMETHODIMP OtherFolder_DragLeave(IDropTarget* pdropt)
 {
-    COtherFolder *this = IToClass(COtherFolder, dt, pdropt);
+    COtherFolder* this = IToClass(COtherFolder, dt, pdropt);
     return S_OK;
 }
 
-STDMETHODIMP OtherFolder_Drop(IDropTarget *pdropt, IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+STDMETHODIMP OtherFolder_Drop(IDropTarget* pdropt, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-    COtherFolder *this = IToClass(COtherFolder, dt, pdropt);
+    COtherFolder* this = IToClass(COtherFolder, dt, pdropt);
 
     DoSendToOtherFolder(pdtobj, this->dwEffectLast);
     return S_OK;
@@ -238,53 +227,53 @@ const IDropTargetVtbl c_OtherFolder_DTVtbl =
 };
 
 
-STDMETHODIMP OtherFolder_PF_QueryInterface(IPersistFile *ppf, REFIID riid, void **ppv)
+STDMETHODIMP OtherFolder_PF_QueryInterface(IPersistFile* ppf, REFIID riid, void** ppv)
 {
-    COtherFolder *this = IToClass(COtherFolder, pf, ppf);
+    COtherFolder* this = IToClass(COtherFolder, pf, ppf);
     return OtherFolder_QueryInterface(&this->dt, riid, ppv);
 }
 
-STDMETHODIMP_(ULONG) OtherFolder_PF_AddRef(IPersistFile *ppf)
+STDMETHODIMP_(ULONG) OtherFolder_PF_AddRef(IPersistFile* ppf)
 {
-    COtherFolder *this = IToClass(COtherFolder, pf, ppf);
+    COtherFolder* this = IToClass(COtherFolder, pf, ppf);
     return ++this->cRef;
 }
 
-STDMETHODIMP_(ULONG) OtherFolder_PF_Release(IPersistFile *ppf)
+STDMETHODIMP_(ULONG) OtherFolder_PF_Release(IPersistFile* ppf)
 {
-    COtherFolder *this = IToClass(COtherFolder, pf, ppf);
+    COtherFolder* this = IToClass(COtherFolder, pf, ppf);
     return OtherFolder_Release(&this->dt);
 }
 
-STDMETHODIMP OtherFolder_GetClassID(IPersistFile *ppf, CLSID *pClassID)
+STDMETHODIMP OtherFolder_GetClassID(IPersistFile* ppf, CLSID* pClassID)
 {
     *pClassID = CLSID_OtherFolder;
     return S_OK;
 }
 
-STDMETHODIMP OtherFolder_IsDirty(IPersistFile *psf)
+STDMETHODIMP OtherFolder_IsDirty(IPersistFile* psf)
 {
     return S_FALSE;
 }
 
-STDMETHODIMP OtherFolder_Load(IPersistFile *psf, LPCOLESTR pwszFile, DWORD grfMode)
+STDMETHODIMP OtherFolder_Load(IPersistFile* psf, LPCOLESTR pwszFile, DWORD grfMode)
 {
     DebugMsg(DM_TRACE, "OtherFolder_Load");
 
     return S_OK;
 }
 
-STDMETHODIMP OtherFolder_Save(IPersistFile *psf, LPCOLESTR pwszFile, BOOL fRemember)
+STDMETHODIMP OtherFolder_Save(IPersistFile* psf, LPCOLESTR pwszFile, BOOL fRemember)
 {
     return S_OK;
 }
 
-STDMETHODIMP OtherFolder_SaveCompleted(IPersistFile *psf, LPCOLESTR pwszFile)
+STDMETHODIMP OtherFolder_SaveCompleted(IPersistFile* psf, LPCOLESTR pwszFile)
 {
     return S_OK;
 }
 
-STDMETHODIMP OtherFolder_GetCurFile(IPersistFile *psf, LPOLESTR *ppszFileName)
+STDMETHODIMP OtherFolder_GetCurFile(IPersistFile* psf, LPOLESTR* ppszFileName)
 {
     *ppszFileName = NULL;
     return S_OK;
@@ -303,27 +292,27 @@ const IPersistFileVtbl c_OtherFolder_PFVtbl = {
 };
 
 
-STDMETHODIMP OtherFolder_SXI_QueryInterface(IShellExtInit *psxi, REFIID riid, LPVOID *ppv)
+STDMETHODIMP OtherFolder_SXI_QueryInterface(IShellExtInit* psxi, REFIID riid, LPVOID* ppv)
 {
-    COtherFolder *this = IToClass(COtherFolder, sxi, psxi);
+    COtherFolder* this = IToClass(COtherFolder, sxi, psxi);
     return OtherFolder_QueryInterface(&this->dt, riid, ppv);
 }
 
-STDMETHODIMP_(ULONG) OtherFolder_SXI_AddRef(IShellExtInit *psxi)
+STDMETHODIMP_(ULONG) OtherFolder_SXI_AddRef(IShellExtInit* psxi)
 {
-    COtherFolder *this = IToClass(COtherFolder, sxi, psxi);
+    COtherFolder* this = IToClass(COtherFolder, sxi, psxi);
     return ++this->cRef;
 }
 
-STDMETHODIMP_(ULONG) OtherFolder_SXI_Release(IShellExtInit *psxi)
+STDMETHODIMP_(ULONG) OtherFolder_SXI_Release(IShellExtInit* psxi)
 {
-    COtherFolder *this = IToClass(COtherFolder, sxi, psxi);
+    COtherFolder* this = IToClass(COtherFolder, sxi, psxi);
     return OtherFolder_Release(&this->dt);
 }
 
-STDMETHODIMP OtherFolder_SXI_Initialize(IShellExtInit *psxi, LPCITEMIDLIST pidl, IDataObject *pdtobj, HKEY hkeyProgID)
+STDMETHODIMP OtherFolder_SXI_Initialize(IShellExtInit* psxi, LPCITEMIDLIST pidl, IDataObject* pdtobj, HKEY hkeyProgID)
 {
-    COtherFolder *this = IToClass(COtherFolder, sxi, psxi);
+    COtherFolder* this = IToClass(COtherFolder, sxi, psxi);
 
     DebugMsg(DM_TRACE, "OtherFolder_SXI_Initialize");
 
@@ -336,10 +325,10 @@ IShellExtInitVtbl c_OtherFolder_SXIVtbl = {
 };
 
 
-HRESULT OtherFolder_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppv)
+HRESULT OtherFolder_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv)
 {
     HRESULT hres;
-    COtherFolder *this;
+    COtherFolder* this;
 
     *ppv = NULL;        // assume error
 
@@ -348,9 +337,8 @@ HRESULT OtherFolder_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppv)
     if (punkOuter)
         return CLASS_E_NOAGGREGATION;
 
-    this = (COtherFolder *) LocalAlloc(LPTR, sizeof(COtherFolder));
-    if (this)
-    {
+    this = (COtherFolder*)LocalAlloc(LPTR, sizeof(COtherFolder));
+    if (this) {
         this->dt.lpVtbl = &c_OtherFolder_DTVtbl;
         this->pf.lpVtbl = &c_OtherFolder_PFVtbl;
         this->sxi.lpVtbl = &c_OtherFolder_SXIVtbl;
@@ -361,8 +349,7 @@ HRESULT OtherFolder_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppv)
 
         hres = OtherFolder_QueryInterface(&this->dt, riid, ppv);
         OtherFolder_Release(&this->dt);
-    }
-    else
+    } else
         hres = E_OUTOFMEMORY;
 
     return hres;
@@ -371,7 +358,7 @@ HRESULT OtherFolder_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppv)
 // Procedure for uninstalling this DLL (given an INF file)
 void CALLBACK Uninstall(HWND hwndStub, HINSTANCE hInstance, LPSTR lpszCmdLine, int nCmdShow)
 {
-    const static char szFmt [] = "rundll.exe setupx.dll,InstallHinfSection DefaultUninstall 132 %s";
+    const static char szFmt[] = "rundll.exe setupx.dll,InstallHinfSection DefaultUninstall 132 %s";
     char szCmd[sizeof(szFmt) + MAX_PATH];
     char szTitle[100];
     char szMessage[256];
@@ -405,22 +392,21 @@ typedef struct
 
 } OTHERFOLDERDATA;
 
-const char c_szOtherFldMRU [] = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\OtherFolder";
+const char c_szOtherFldMRU[] = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\OtherFolder";
 
 LPSTR PathFindFileName(LPCSTR pPath)
 {
     LPCSTR pT;
 
-    for (pT = pPath; *pPath; pPath = AnsiNext(pPath))
-    {
+    for (pT = pPath; *pPath; pPath = AnsiNext(pPath)) {
         if ((pPath[0] == '\\' || pPath[0] == ':') && pPath[1] && (pPath[1] != '\\'))
             pT = pPath + 1;
     }
 
-    return (LPSTR) pT;   // const -> non const
+    return (LPSTR)pT;   // const -> non const
 }
 
-void OtherFolderInitDlg(HWND hDlg, OTHERFOLDERDATA *pofd)
+void OtherFolderInitDlg(HWND hDlg, OTHERFOLDERDATA* pofd)
 {
     LPSTR psz;
     HWND hwndLB = GetDlgItem(hDlg, IDC_FROM);
@@ -430,12 +416,11 @@ void OtherFolderInitDlg(HWND hDlg, OTHERFOLDERDATA *pofd)
 
     CheckRadioButton(hDlg, IDC_MOVE, IDC_COPY, IDC_COPY);
 
-    for (psz = pofd->szFiles; *psz; psz += lstrlen(psz) + 1)
-    {
+    for (psz = pofd->szFiles; *psz; psz += lstrlen(psz) + 1) {
         ListBox_AddString(hwndLB, PathFindFileName(psz));
     }
 
-    SendMessage(hDlg, WM_SETICON, 1, (LPARAM) LoadIcon(GetWindowInstance(hDlg), MAKEINTRESOURCE(IDI_OTHERFLD)));
+    SendMessage(hDlg, WM_SETICON, 1, (LPARAM)LoadIcon(GetWindowInstance(hDlg), MAKEINTRESOURCE(IDI_OTHERFLD)));
 
     {
         MRUINFO mi = {
@@ -446,13 +431,11 @@ void OtherFolderInitDlg(HWND hDlg, OTHERFOLDERDATA *pofd)
 
         pofd->hMRU = CreateMRUList(&mi);
 
-        if (pofd->hMRU)
-        {
+        if (pofd->hMRU) {
             int i;
             char szCommand[MAX_PATH];
 
-            for (i = 0; EnumMRUList(pofd->hMRU, i, szCommand, sizeof(szCommand)) > 0; i++)
-            {
+            for (i = 0; EnumMRUList(pofd->hMRU, i, szCommand, sizeof(szCommand)) > 0; i++) {
                 ComboBox_AddString(pofd->hwndTo, szCommand);
             }
         }
@@ -466,17 +449,16 @@ void OtherFolderInitDlg(HWND hDlg, OTHERFOLDERDATA *pofd)
 
 int CALLBACK BrowseCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
-    switch (uMsg)
-    {
-        case BFFM_INITIALIZED:
-            // lpData is the path string
-            SendMessage(hwnd, BFFM_SETSELECTION, TRUE, lpData);
-            break;
+    switch (uMsg) {
+    case BFFM_INITIALIZED:
+        // lpData is the path string
+        SendMessage(hwnd, BFFM_SETSELECTION, TRUE, lpData);
+        break;
     }
     return 0;
 }
 
-void DoBrowse(OTHERFOLDERDATA *pofd)
+void DoBrowse(OTHERFOLDERDATA* pofd)
 {
     LPITEMIDLIST pidl;
     TCHAR szPath[MAX_PATH];
@@ -485,18 +467,16 @@ void DoBrowse(OTHERFOLDERDATA *pofd)
         "Pick a target folder",
         BIF_RETURNONLYFSDIRS,
         BrowseCallback,
-        (LPARAM) szPath
+        (LPARAM)szPath
     };
 
     ComboBox_GetText(pofd->hwndTo, szPath, ARRAYSIZE(szPath));
 
     pidl = SHBrowseForFolder(&bi);
-    if (pidl)
-    {
-        IMalloc *pmalloc;
+    if (pidl) {
+        IMalloc* pmalloc;
 
-        if (SHGetPathFromIDList(pidl, szPath))
-        {
+        if (SHGetPathFromIDList(pidl, szPath)) {
             ComboBox_SetText(pofd->hwndTo, szPath);
         }
 
@@ -512,15 +492,14 @@ void DoBrowse(OTHERFOLDERDATA *pofd)
 
 BOOL ValidateUNC(HWND hwnd, LPCSTR pszFile)
 {
-    if (PathIsUNC(pszFile) && (GetFileAttributes(pszFile) == (DWORD) -1))
-    {
+    if (PathIsUNC(pszFile) && (GetFileAttributes(pszFile) == (DWORD)-1)) {
         DWORD dwResult;
         char szAccessName[MAX_PATH];
         UINT cbAccessName = sizeof(szAccessName);
-        NETRESOURCE rc = { 0, RESOURCETYPE_DISK, 0, 0, NULL, (LPSTR) pszFile, NULL, NULL };
+        NETRESOURCE rc = {0, RESOURCETYPE_DISK, 0, 0, NULL, (LPSTR)pszFile, NULL, NULL};
 
         if (WNetUseConnection(hwnd, &rc, NULL, NULL,
-            CONNECT_TEMPORARY | CONNECT_INTERACTIVE, szAccessName, &cbAccessName, &dwResult))
+                              CONNECT_TEMPORARY | CONNECT_INTERACTIVE, szAccessName, &cbAccessName, &dwResult))
             return FALSE;
     }
 
@@ -530,11 +509,11 @@ BOOL ValidateUNC(HWND hwnd, LPCSTR pszFile)
 #define ValidateUNC(w, p)    (TRUE)
 #endif
 
-void DoTransfer(OTHERFOLDERDATA *pofd)
+void DoTransfer(OTHERFOLDERDATA* pofd)
 {
     LPTSTR pszSpec;
     TCHAR szTemp[MAX_PATH], szDest[MAX_PATH];
-    SHFILEOPSTRUCT fo = { pofd->hDlg, FO_COPY, pofd->szFiles, szDest, FOF_ALLOWUNDO };
+    SHFILEOPSTRUCT fo = {pofd->hDlg, FO_COPY, pofd->szFiles, szDest, FOF_ALLOWUNDO};
 
     // HACK, set current directory so GetFullPathName can do it's stuff
     // any other thread in the shell could change this (cur dir is per
@@ -571,68 +550,54 @@ void DoTransfer(OTHERFOLDERDATA *pofd)
 
 BOOL CALLBACK OtherFolderDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    OTHERFOLDERDATA *pofd = (OTHERFOLDERDATA *) GetWindowLong(hDlg, DWL_USER);
+    OTHERFOLDERDATA* pofd = (OTHERFOLDERDATA*)GetWindowLong(hDlg, DWL_USER);
 
-    switch (uMsg)
-    {
-        case WM_INITDIALOG:
-            SetWindowLong(hDlg, DWL_USER, lParam);
-            OtherFolderInitDlg(hDlg, (OTHERFOLDERDATA *) lParam);
+    switch (uMsg) {
+    case WM_INITDIALOG:
+        SetWindowLong(hDlg, DWL_USER, lParam);
+        OtherFolderInitDlg(hDlg, (OTHERFOLDERDATA*)lParam);
+        break;
+    case WM_DESTROY:
+        if (pofd && pofd->hMRU)
+            FreeMRUList(pofd->hMRU);
+        break;
+    case WM_COMMAND:
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
+        case IDC_BROWSE:
+            DoBrowse(pofd);
             break;
-
-        case WM_DESTROY:
-            if (pofd && pofd->hMRU)
-                FreeMRUList(pofd->hMRU);
+        case IDC_MOVE:
+        case IDC_COPY:
+            CheckRadioButton(hDlg, IDC_MOVE, IDC_COPY, GET_WM_COMMAND_ID(wParam, lParam));
             break;
-
-        case WM_COMMAND:
-            switch (GET_WM_COMMAND_ID(wParam, lParam))
-            {
-
-                case IDC_BROWSE:
-                    DoBrowse(pofd);
-                    break;
-
-                case IDC_MOVE:
-                case IDC_COPY:
-                    CheckRadioButton(hDlg, IDC_MOVE, IDC_COPY, GET_WM_COMMAND_ID(wParam, lParam));
-                    break;
-
-                case IDCANCEL:
-                    EndDialog(hDlg, IDCANCEL);
-                    break;
-
-                case IDOK:
-                    DoTransfer(pofd);
-                    EndDialog(hDlg, GET_WM_COMMAND_ID(wParam, lParam));
-                    break;
-            }
+        case IDCANCEL:
+            EndDialog(hDlg, IDCANCEL);
             break;
-
-        default:
-            return FALSE;
+        case IDOK:
+            DoTransfer(pofd);
+            EndDialog(hDlg, GET_WM_COMMAND_ID(wParam, lParam));
+            break;
+        }
+        break;
+    default:
+        return FALSE;
     }
     return TRUE;
 }
 
-void OFReleaseStgMedium(STGMEDIUM *pmedium)
+void OFReleaseStgMedium(STGMEDIUM* pmedium)
 {
-    if (pmedium->pUnkForRelease)
-    {
+    if (pmedium->pUnkForRelease) {
         pmedium->pUnkForRelease->lpVtbl->Release(pmedium->pUnkForRelease);
-    }
-    else
-    {
-        switch (pmedium->tymed)
-        {
-            case TYMED_HGLOBAL:
-                GlobalFree(pmedium->hGlobal);
-                break;
-
-            case TYMED_ISTORAGE: // depends on pstm/pstg overlap in union
-            case TYMED_ISTREAM:
-                pmedium->pstm->lpVtbl->Release(pmedium->pstm);
-                break;
+    } else {
+        switch (pmedium->tymed) {
+        case TYMED_HGLOBAL:
+            GlobalFree(pmedium->hGlobal);
+            break;
+        case TYMED_ISTORAGE: // depends on pstm/pstg overlap in union
+        case TYMED_ISTREAM:
+            pmedium->pstm->lpVtbl->Release(pmedium->pstm);
+            break;
         }
     }
 }
@@ -640,9 +605,9 @@ void OFReleaseStgMedium(STGMEDIUM *pmedium)
 
 DWORD CALLBACK SendToOtherFolderhreadProc(LPVOID pv)
 {
-    OTHERFOLDERDATA *pofd = (OTHERFOLDERDATA *) pv;
+    OTHERFOLDERDATA* pofd = (OTHERFOLDERDATA*)pv;
 
-    DialogBoxParam(g_hinst, MAKEINTRESOURCE(IDD_DIALOG1), NULL, OtherFolderDlgProc, (LPARAM) pofd);
+    DialogBoxParam(g_hinst, MAKEINTRESOURCE(IDD_DIALOG1), NULL, OtherFolderDlgProc, (LPARAM)pofd);
 
     GlobalFree(pofd);
 
@@ -652,38 +617,32 @@ DWORD CALLBACK SendToOtherFolderhreadProc(LPVOID pv)
 }
 
 
-void DoSendToOtherFolder(IDataObject *pdtobj, DWORD dwEffect)
+void DoSendToOtherFolder(IDataObject* pdtobj, DWORD dwEffect)
 {
     STGMEDIUM medium;
-    FORMATETC fmte = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+    FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 
-    if (SUCCEEDED(pdtobj->lpVtbl->GetData(pdtobj, &fmte, &medium)))
-    {
-        DROPFILES *pdrop = GlobalLock(medium.hGlobal);
-        if (pdrop)
-        {
+    if (SUCCEEDED(pdtobj->lpVtbl->GetData(pdtobj, &fmte, &medium))) {
+        DROPFILES* pdrop = GlobalLock(medium.hGlobal);
+        if (pdrop) {
             // copy data for thread (can't pass object across threads, need
             // state in memory that is not on the stack)
 
             DWORD dwSizeStrings = GlobalSize(medium.hGlobal) - pdrop->pFiles;
-            OTHERFOLDERDATA *pofd = GlobalAlloc(GPTR, dwSizeStrings + sizeof(*pofd));
-            if (pofd)
-            {
+            OTHERFOLDERDATA* pofd = GlobalAlloc(GPTR, dwSizeStrings + sizeof(*pofd));
+            if (pofd) {
                 HANDLE hThread;
                 DWORD idThread;
 
                 pofd->dwEffect = dwEffect;
 
-                CopyMemory(pofd->szFiles, (LPBYTE) pdrop + pdrop->pFiles, dwSizeStrings);
+                CopyMemory(pofd->szFiles, (LPBYTE)pdrop + pdrop->pFiles, dwSizeStrings);
 
                 DllAddRef();
                 hThread = CreateThread(NULL, 0, SendToOtherFolderhreadProc, pofd, 0, &idThread);
-                if (hThread)
-                {
+                if (hThread) {
                     CloseHandle(hThread);
-                }
-                else
-                {
+                } else {
                     GlobalFree(pofd);
                     DllRelease();
                 }

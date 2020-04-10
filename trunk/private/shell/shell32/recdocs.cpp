@@ -1,5 +1,3 @@
-
-
 // Copyright (c) Microsoft Corporation 1991-1996
 
 // File:      recdocs.cpp
@@ -35,16 +33,14 @@ STDAPI RecentDocs_Install(BOOL bInstall)
     // get the path to the favorites folder. Create it if it is missing and we
     // are installing, otherwise don't bother.
 
-    if (SHGetSpecialFolderPath(NULL, szPath, CSIDL_RECENT, bInstall))
-    {
-        if (bInstall)
-        {
+    if (SHGetSpecialFolderPath(NULL, szPath, CSIDL_RECENT, bInstall)) {
+        if (bInstall) {
             SHFOLDERCUSTOMSETTINGS fcs = {sizeof(fcs), FCSM_INFOTIP | FCSM_ICONFILE, 0};
             TCHAR szInfoTip[128];
             TCHAR szIconFile[MAX_PATH];
 
             //Get the infotip for the recent files Folder
-            LoadString(HINST_THISDLL, IDS_RECENT, szInfoTip, ARRAYSIZE(szInfoTip) );
+            LoadString(HINST_THISDLL, IDS_RECENT, szInfoTip, ARRAYSIZE(szInfoTip));
             fcs.pszInfoTip = szInfoTip;
 
             // Get the IconFile and IconIndex for the Recent Files Folder
@@ -73,7 +69,7 @@ private:
 
     void _AddToRecentDocs(LPCITEMIDLIST pidlItem, LPCTSTR pszPath);
     void _TryDeleteMRUItem(HANDLE hmru, DWORD cMax, LPCTSTR pszFileName, LPCITEMIDLIST pidlItem, HANDLE hmruOther, BOOL fOverwrite);
-    LPBYTE _CreateMRUItem(LPCITEMIDLIST pidlItem, LPCTSTR pszItem, DWORD *pcbItem, UINT uFlags);
+    LPBYTE _CreateMRUItem(LPCITEMIDLIST pidlItem, LPCTSTR pszItem, DWORD* pcbItem, UINT uFlags);
     BOOL _AddDocToRecentAndExtRecent(LPCITEMIDLIST pidlItem, LPCTSTR pszFileName, LPCTSTR pszExt);
     void _TryUpdateNetHood(LPCITEMIDLIST pidlFolder, LPCTSTR pszFolder);
     void _UpdateNetHood(LPCITEMIDLIST pidlFolder, LPCTSTR pszShare);
@@ -95,20 +91,19 @@ BOOL ShouldAddToRecentDocs(LPCITEMIDLIST pidl)
 
     SHGetClassKey(pidl, &hk, NULL);
 
-    if (hk)
-    {
+    if (hk) {
         fRet = !(GetFileTypeAttributes(hk) & FTA_NoRecentDocs);
         SHCloseClassKey(hk);
     }
     return fRet;
 }
 
-int cdecl RecentDocsCompareName(const void * p1, const void *p2, size_t cb)
+int cdecl RecentDocsCompareName(const void* p1, const void* p2, size_t cb)
 {
     return lstrcmpi(GETRECNAME(p2), (LPCTSTR)p1);
 }
 
-int cdecl RecentDocsComparePidl(const void * p1, const void *p2, size_t cb)
+int cdecl RecentDocsComparePidl(const void* p1, const void* p2, size_t cb)
 {
     //  p2 is the one that is in the MRU and p1 is the one that we are passing in...
     return !ILIsEqual(GETRECPIDL(p2), (LPCITEMIDLIST)p1);
@@ -125,10 +120,9 @@ CTaskAddDoc::CTaskAddDoc(void) : CRunnableTask(RTF_DEFAULT)
 }
 
 
-HRESULT CTaskAddDoc::Init( HANDLE hMem, DWORD dwProcId)
+HRESULT CTaskAddDoc::Init(HANDLE hMem, DWORD dwProcId)
 {
-    if (hMem)
-    {
+    if (hMem) {
         _hMem = hMem;
         _dwProcId = dwProcId;
         return S_OK;
@@ -139,7 +133,7 @@ HRESULT CTaskAddDoc::Init( HANDLE hMem, DWORD dwProcId)
 typedef struct _ARD {
     DWORD   dwOffsetPath;
     DWORD   dwOffsetPidl;
-} XMITARD, *PXMITARD;
+} XMITARD, * PXMITARD;
 
 
 HRESULT CTaskAddDoc::RunInitRT(void)
@@ -147,10 +141,9 @@ HRESULT CTaskAddDoc::RunInitRT(void)
     TraceMsg(DM_RECENTDOCS, "[%X] CTaskAddDoc::RunInitRT() running", this);
 
     PXMITARD px = (PXMITARD)SHLockShared(_hMem, _dwProcId);
-    if (px)
-    {
-        LPITEMIDLIST pidl = px->dwOffsetPidl ? (LPITEMIDLIST)((LPBYTE)px+px->dwOffsetPidl) : NULL;
-        LPTSTR pszPath = px->dwOffsetPath ? (LPTSTR)((LPBYTE)px+px->dwOffsetPath) : NULL;
+    if (px) {
+        LPITEMIDLIST pidl = px->dwOffsetPidl ? (LPITEMIDLIST)((LPBYTE)px + px->dwOffsetPidl) : NULL;
+        LPTSTR pszPath = px->dwOffsetPath ? (LPTSTR)((LPBYTE)px + px->dwOffsetPath) : NULL;
 
         ASSERT(pszPath);
 
@@ -167,13 +160,11 @@ HRESULT CTaskAddDoc::RunInitRT(void)
 BOOL GetExtensionClassDescription(LPCTSTR lpszFile)
 {
     LPTSTR lpszExt = PathFindExtension(lpszFile);
-    if (*lpszExt)
-    {
+    if (*lpszExt) {
         TCHAR szClass[128];
         TCHAR szDescription[MAX_PATH];
         long cchClass = SIZEOF(szClass);
-        if (SHRegQueryValue(HKEY_CLASSES_ROOT, lpszExt, szClass, &cchClass) != ERROR_SUCCESS)
-        {
+        if (SHRegQueryValue(HKEY_CLASSES_ROOT, lpszExt, szClass, &cchClass) != ERROR_SUCCESS) {
             // if this fails, use the extension cause it might be a pseudoclass
             lstrcpyn(szClass, lpszExt, ARRAYSIZE(szClass));
         }
@@ -193,8 +184,7 @@ STDAPI_(void) FlushRunDlgMRU(void);
 void _CleanRecentDocs(void)
 {
     LPITEMIDLIST pidlTargetLocal = SHCloneSpecialIDList(NULL, CSIDL_RECENT, TRUE);
-    if (pidlTargetLocal)
-    {
+    if (pidlTargetLocal) {
         HKEY hkey;
         TCHAR szDir[MAX_PATH];
 
@@ -210,7 +200,7 @@ void _CleanRecentDocs(void)
 
         SHGetPathFromIDList(pidlTargetLocal, szDir);
         PathAppend(szDir, c_szStarDotStar);
-        szDir[lstrlen(szDir) +1] = 0;     // double null terminate
+        szDir[lstrlen(szDir) + 1] = 0;     // double null terminate
         SHFileOperation(&sFileOp);
 
 
@@ -218,34 +208,29 @@ void _CleanRecentDocs(void)
 
         pidlTargetLocal = SHCloneSpecialIDList(NULL, CSIDL_NETHOOD, TRUE);
 
-        if (pidlTargetLocal)
-        {
+        if (pidlTargetLocal) {
             //  now we take care of cleaning out the nethood
             //  we have to more careful, cuz we let other people
             //  add their own stuff in here.
 
             HANDLE hmru = CreateSharedRecentMRUList(TEXT("NetHood"), NULL, SRMLF_COMPPIDL);
 
-            if (hmru)
-            {
+            if (hmru) {
                 IShellFolder* psf;
 
-                if (SUCCEEDED(SHBindToObject(NULL, IID_IShellFolder, pidlTargetLocal, (void **)&psf)))
-                {
+                if (SUCCEEDED(SHBindToObject(NULL, IID_IShellFolder, pidlTargetLocal, (void**)&psf))) {
                     BOOL fUpdate = FALSE;
                     int iItem = 0;
                     LPITEMIDLIST pidlItem;
 
                     ASSERT(psf);
 
-                    while (-1 != EnumSharedRecentMRUList(hmru, iItem++, NULL, &pidlItem))
-                    {
+                    while (-1 != EnumSharedRecentMRUList(hmru, iItem++, NULL, &pidlItem)) {
                         ASSERT(pidlItem);
                         STRRET str;
                         if (SUCCEEDED(psf->GetDisplayNameOf(pidlItem, SHGDN_FORPARSING, &str))
-                        && SUCCEEDED(StrRetToBuf(&str, pidlItem, szDir, ARRAYSIZE(szDir))))
-                        {
-                            szDir[lstrlen(szDir) +1] = 0;     // double null terminate
+                            && SUCCEEDED(StrRetToBuf(&str, pidlItem, szDir, ARRAYSIZE(szDir)))) {
+                            szDir[lstrlen(szDir) + 1] = 0;     // double null terminate
                             SHFileOperation(&sFileOp);
                         }
 
@@ -253,7 +238,7 @@ void _CleanRecentDocs(void)
                     }
 
                     if (fUpdate)
-                        SHChangeNotify(SHCNE_UPDATEDIR, 0, (void *)pidlTargetLocal, NULL);
+                        SHChangeNotify(SHCNE_UPDATEDIR, 0, (void*)pidlTargetLocal, NULL);
 
                     psf->Release();
                 }
@@ -266,8 +251,7 @@ void _CleanRecentDocs(void)
 
         // now delete the registry stuff
         hkey = SHGetExplorerHkey(HKEY_CURRENT_USER, TRUE);
-        if (hkey)
-        {
+        if (hkey) {
             SHDeleteKey(hkey, REGSTR_KEY_RECENTDOCS);
             RegCloseKey(hkey);
         }
@@ -297,8 +281,7 @@ void CTaskAddDoc::_TryDeleteMRUItem(HANDLE hmru, DWORD cMax, LPCTSTR pszFileName
 
     //  if iItem is not -1 then it is already existing item that we will replace.
     //  if it is -1 then we need to point iItem to the last in the list.
-    if (iItem == -1)
-    {
+    if (iItem == -1) {
         //  torch the last one if we have the max number of items in the list.
         //  default to success, cuz if we dont find it we dont need to delete it
         iItem = cMax - 1;
@@ -306,18 +289,15 @@ void CTaskAddDoc::_TryDeleteMRUItem(HANDLE hmru, DWORD cMax, LPCTSTR pszFileName
 
     //  if we cannot get it in order to delete it,
     //  then we will not overwrite the item.
-    if (EnumMRUList(hmru, iItem, buf, SIZEOF(buf)) != -1)
-    {
+    if (EnumMRUList(hmru, iItem, buf, SIZEOF(buf)) != -1) {
         //  convert the buf into the last segment of the pidl
         LPITEMIDLIST pidlFullLink = ILCombine(_pidlTarget, GETRECPIDL(buf));
-        if (pidlFullLink)
-        {
+        if (pidlFullLink) {
             // This is semi-gross, but some link types like calling cards are the
             // actual data.  If we delete and recreate they lose their info for the
             // run.  We will detect this by knowing that their pidl will be the
             // same as the one we are deleting...
-            if (!ILIsEqual(pidlFullLink, pidlItem))
-            {
+            if (!ILIsEqual(pidlFullLink, pidlItem)) {
                 TCHAR sz[MAX_PATH];
 
                 // now remove out link to it
@@ -326,11 +306,10 @@ void CTaskAddDoc::_TryDeleteMRUItem(HANDLE hmru, DWORD cMax, LPCTSTR pszFileName
                 Win32DeleteFile(sz);
                 TraceMsg(DM_RECENTDOCS, "[%X] CTaskAddDoc::_TryDeleteMRUItem() deleting '%s'", this, sz);
 
-                if (hmruOther)
-                {
+                if (hmruOther) {
                     //  deleted a shortcut,
                     //  need to try and remove it from the hmruOther...
-                    iItem = FindMRUData(hmruOther, GETRECNAME(buf), CbFromCch(lstrlen(GETRECNAME(buf)) +1), NULL);
+                    iItem = FindMRUData(hmruOther, GETRECNAME(buf), CbFromCch(lstrlen(GETRECNAME(buf)) + 1), NULL);
                     if (iItem != -1)
                         DelMRUString(hmruOther, iItem);
                 }
@@ -346,28 +325,25 @@ void CTaskAddDoc::_TryDeleteMRUItem(HANDLE hmru, DWORD cMax, LPCTSTR pszFileName
 // uFlags   - SHCL_ flags
 
 LPBYTE CTaskAddDoc::_CreateMRUItem(LPCITEMIDLIST pidlItem, LPCTSTR pszItem,
-                                   DWORD *pcbOut, UINT uFlags)
+                                   DWORD* pcbOut, UINT uFlags)
 {
     TCHAR sz[MAX_PATH];
     LPBYTE pitem = NULL;
 
     // create the new one
-    if (SHGetPathFromIDList(_pidlTarget, sz))
-    {
+    if (SHGetPathFromIDList(_pidlTarget, sz)) {
         LPITEMIDLIST pidlFullLink;
 
         if (SUCCEEDED(CreateLinkToPidl(pidlItem, sz, &pidlFullLink, uFlags)) &&
-            pidlFullLink)
-        {
+            pidlFullLink) {
             LPCITEMIDLIST pidlLinkLast = ILFindLastID(pidlFullLink);
             int cbLinkLast = ILGetSize(pidlLinkLast);
             DWORD cbItem = CbFromCch(lstrlen(pszItem) + 1);
 
-            pitem = (LPBYTE) LocalAlloc(LPTR, cbItem + cbLinkLast);
-            if (pitem)
-            {
-                memcpy( pitem, pszItem, cbItem );
-                memcpy( pitem + cbItem, pidlLinkLast, cbLinkLast);
+            pitem = (LPBYTE)LocalAlloc(LPTR, cbItem + cbLinkLast);
+            if (pitem) {
+                memcpy(pitem, pszItem, cbItem);
+                memcpy(pitem + cbItem, pidlLinkLast, cbLinkLast);
                 *pcbOut = cbItem + cbLinkLast;
             }
             ILFree(pidlFullLink);
@@ -377,7 +353,7 @@ LPBYTE CTaskAddDoc::_CreateMRUItem(LPCITEMIDLIST pidlItem, LPCTSTR pszItem,
     return pitem;
 }
 
-int EnumSharedRecentMRUList(HANDLE hmru, int iItem, LPTSTR *ppszName, LPITEMIDLIST *ppidl)
+int EnumSharedRecentMRUList(HANDLE hmru, int iItem, LPTSTR* ppszName, LPITEMIDLIST* ppidl)
 {
     BYTE buf[MAX_RECMRU_BUF] = {0};
     int iRet;
@@ -390,16 +366,12 @@ int EnumSharedRecentMRUList(HANDLE hmru, int iItem, LPTSTR *ppszName, LPITEMIDLI
 
     if (iItem < 0 || (!ppszName && !ppidl))
         iRet = EnumMRUList(hmru, -1, NULL, 0);
-    else if (-1 != (iRet = EnumMRUList(hmru, iItem, buf, SIZEOF(buf))))
-    {
-        if (ppszName)
-        {
+    else if (-1 != (iRet = EnumMRUList(hmru, iItem, buf, SIZEOF(buf)))) {
+        if (ppszName) {
             *ppszName = StrDup(GETRECNAME(buf));
             if (!*ppszName)
                 iRet = -1;
-        }
-        else if (ppidl)
-        {
+        } else if (ppidl) {
             *ppidl = ILClone(GETRECPIDL(buf));
             if (!*ppidl)
                 iRet = -1;
@@ -412,7 +384,7 @@ int EnumSharedRecentMRUList(HANDLE hmru, int iItem, LPTSTR *ppszName, LPITEMIDLI
 #define MAXRECENT_DEFAULTDOC      10
 #define MAXRECENT_MAJORDOC        20
 
-HANDLE CreateSharedRecentMRUList(LPCTSTR pszClass, DWORD *pcMax, DWORD dwFlags)
+HANDLE CreateSharedRecentMRUList(LPCTSTR pszClass, DWORD* pcMax, DWORD dwFlags)
 {
     if (SHRestricted(REST_NORECENTDOCSHISTORY))
         return NULL;
@@ -422,8 +394,7 @@ HANDLE CreateSharedRecentMRUList(LPCTSTR pszClass, DWORD *pcMax, DWORD dwFlags)
     TCHAR szKey[MAX_PATH];
     LPCTSTR pszKey = REGSTR_PATH_EXPLORER TEXT("\\") REGSTR_KEY_RECENTDOCS;
 
-    if (pszClass)
-    {
+    if (pszClass) {
         //  want to use the pszExt as a sub key
         lstrcpy(szKey, pszKey);
         StrCatBuff(szKey, TEXT("\\"), SIZECHARS(szKey));
@@ -434,9 +405,7 @@ HANDLE CreateSharedRecentMRUList(LPCTSTR pszClass, DWORD *pcMax, DWORD dwFlags)
         DWORD dwType = REG_DWORD, dwMajor = 0, cbSize = SIZEOF(cbSize);
         SHGetValue(HKEY_CLASSES_ROOT, pszClass, TEXT("MajorDoc"), &dwType, (LPVOID)&dwMajor, &cbSize);
         cMax = dwMajor ? MAXRECENT_MAJORDOC : MAXRECENT_DEFAULTDOC;
-    }
-    else
-    {
+    } else {
         //  this the root MRU
         cMax = SHRestricted(REST_MaxRecentDocs);
 
@@ -448,19 +417,19 @@ HANDLE CreateSharedRecentMRUList(LPCTSTR pszClass, DWORD *pcMax, DWORD dwFlags)
     if (dwFlags & SRMLF_COMPPIDL)
         procCompare = RecentDocsComparePidl;
 
-    MRUDATAINFO mi =  {
+    MRUDATAINFO mi = {
         SIZEOF(MRUDATAINFO),
         cMax,
         MRU_BINARY | MRU_CACHEWRITE,
         HKEY_CURRENT_USER,
         pszKey,
         procCompare
-        };
+    };
 
     if (pcMax)
         *pcMax = cMax;
 
-    return CreateMRUList((MRUINFO *)&mi);
+    return CreateMRUList((MRUINFO*)&mi);
 
 }
 
@@ -474,12 +443,10 @@ BOOL CTaskAddDoc::_AddDocToRecentAndExtRecent(LPCITEMIDLIST pidlItem, LPCTSTR ps
     _TryDeleteMRUItem(_hmruRecent, _cMaxRecent, pszFileName, pidlItem, hmru, TRUE);
 
     LPBYTE pitem = _CreateMRUItem(pidlItem, pszFileName, &cbItem, 0);
-    if (pitem)
-    {
+    if (pitem) {
         AddMRUData(_hmruRecent, pitem, cbItem);
 
-        if (hmru)
-        {
+        if (hmru) {
             //  we dont want to delete the file if it already existed, because
             //  the TryDelete on the RecentMRU would have already done that
             //  we only want to delete if we have some overflow from the ExtMRU
@@ -509,8 +476,7 @@ void CTaskAddDoc::_UpdateNetHood(LPCITEMIDLIST pidlFolder, LPCTSTR pszShare)
 
     //  need to add this boy to the Network Places
     LPITEMIDLIST pidl = ILCreateFromPath(pszShare);
-    if (pidl)
-    {
+    if (pidl) {
 
         //  BUGBUG - must verify parentage here - ZekeL - 27-MAY-99
         //  http servers exist in both the webfolders namespace
@@ -518,23 +484,19 @@ void CTaskAddDoc::_UpdateNetHood(LPCITEMIDLIST pidlFolder, LPCTSTR pszShare)
         //  that what ever parent the folder had, the share has
         //  the same one.
 
-        if (ILIsParent(pidl, pidlFolder, FALSE))
-        {
+        if (ILIsParent(pidl, pidlFolder, FALSE)) {
             ASSERT(_pidlTarget);
             ILFree(_pidlTarget);
 
             _pidlTarget = SHCloneSpecialIDList(NULL, CSIDL_NETHOOD, TRUE);
-            if (_pidlTarget)
-            {
+            if (_pidlTarget) {
                 DWORD cMax;
                 HANDLE hmru = CreateSharedRecentMRUList(TEXT("NetHood"), &cMax, SRMLF_COMPNAME);
-                if (hmru)
-                {
+                if (hmru) {
                     _TryDeleteMRUItem(hmru, cMax, pszShare, pidl, NULL, TRUE);
                     DWORD cbItem = CbFromCch(lstrlen(pszShare) + 1);
                     LPBYTE pitem = _CreateMRUItem(pidl, pszShare, &cbItem, SHCL_MAKEFOLDERSHORTCUT);
-                    if (pitem)
-                    {
+                    if (pitem) {
                         AddMRUData(hmru, pitem, cbItem);
                         LocalFree(pitem);
                     }
@@ -576,11 +538,9 @@ void _AddToUrlHistory(LPCTSTR pszPath)
     SHTCharToUnicode(pszPath, szUrl, cchUrl);
 
     //  the URL parsing APIs tolerate same in/out buffer
-    if (SUCCEEDED(UrlCreateFromPathW(szUrl, szUrl, &cchUrl, 0)))
-    {
-        IUrlHistoryStg *puhs;
-        if (SUCCEEDED(CoCreateInstance(CLSID_CUrlHistory, NULL, CLSCTX_INPROC_SERVER, IID_IUrlHistoryStg, (void **)&puhs)))
-        {
+    if (SUCCEEDED(UrlCreateFromPathW(szUrl, szUrl, &cchUrl, 0))) {
+        IUrlHistoryStg* puhs;
+        if (SUCCEEDED(CoCreateInstance(CLSID_CUrlHistory, NULL, CLSCTX_INPROC_SERVER, IID_IUrlHistoryStg, (void**)&puhs))) {
             ASSERT(puhs);
             puhs->AddUrl(szUrl, NULL, 0);
             puhs->Release();
@@ -597,12 +557,12 @@ void CTaskAddDoc::_TryUpdateNetHood(LPCITEMIDLIST pidlFolder, LPCTSTR pszFolder)
     //  if this is an URL or a UNC share add it to the nethood
 
     if (UrlIs(pszFolder, URLIS_URL)
-    && !UrlIs(pszFolder, URLIS_OPAQUE)
-    && SUCCEEDED(UrlCombine(pszFolder, TEXT("/"), sz, &cch, 0)))
+        && !UrlIs(pszFolder, URLIS_OPAQUE)
+        && SUCCEEDED(UrlCombine(pszFolder, TEXT("/"), sz, &cch, 0)))
         fUpdate = TRUE;
     else if (PathIsUNC(pszFolder)
-    && StrCpyN(sz, pszFolder, cch)
-    && PathStripToRoot(sz))
+             && StrCpyN(sz, pszFolder, cch)
+             && PathStripToRoot(sz))
         fUpdate = TRUE;
 
     if (fUpdate)
@@ -636,17 +596,16 @@ void CTaskAddDoc::_AddToRecentDocs(LPCITEMIDLIST pidlItem, LPCTSTR pszItem)
     //     it actually has a file name
     //     it can be shell exec'd with "open" verb
 
-    if ( (SHRestricted(REST_NORECENTDOCSHISTORY))     ||
-         (PathIsTemporary(pszItem))                   ||
-         (!(pszFileName = PathFindFileName(pszItem))) ||
-         (!*pszFileName)                              ||
-         (!GetExtensionClassDescription(pszFileName))
-       )
+    if ((SHRestricted(REST_NORECENTDOCSHISTORY)) ||
+        (PathIsTemporary(pszItem)) ||
+        (!(pszFileName = PathFindFileName(pszItem))) ||
+        (!*pszFileName) ||
+        (!GetExtensionClassDescription(pszFileName))
+        )
         return;
 
     //  pretty up the URL file names.
-    if (UrlIs(pszItem, URLIS_URL))
-    {
+    if (UrlIs(pszItem, URLIS_URL)) {
         StrCpyN(szUnescaped, pszFileName, SIZECHARS(szUnescaped));
         UrlUnescapeInPlace(szUnescaped, 0);
         pszFileName = szUnescaped;
@@ -655,27 +614,22 @@ void CTaskAddDoc::_AddToRecentDocs(LPCITEMIDLIST pidlItem, LPCTSTR pszItem)
     //  otherwise we try our best.
     ASSERT(!_pidlTarget);
     _pidlTarget = SHCloneSpecialIDList(NULL, CSIDL_RECENT, TRUE);
-    if (_pidlTarget)
-    {
+    if (_pidlTarget) {
         _hmruRecent = CreateSharedRecentMRUList(NULL, &_cMaxRecent, SRMLF_COMPNAME);
-        if (_hmruRecent)
-        {
-            if (_AddDocToRecentAndExtRecent(pidlItem, pszFileName, PathFindExtension(pszFileName)))
-            {
+        if (_hmruRecent) {
+            if (_AddDocToRecentAndExtRecent(pidlItem, pszFileName, PathFindExtension(pszFileName))) {
                 _AddToUrlHistory(pszItem);
                 //  get the folder and do it to the folder
                 LPITEMIDLIST pidlFolder = ILClone(pidlItem);
 
-                if (pidlFolder)
-                {
+                if (pidlFolder) {
                     ILRemoveLastID(pidlFolder);
                     //  if it is a folder we already have quick
                     //  access to from the shell, dont put it in here
 
                     TCHAR szFolder[MAX_URL_STRING];
                     if (SUCCEEDED(SHGetNameAndFlags(pidlFolder, SHGDN_FORPARSING, szFolder, SIZECHARS(szFolder), NULL))
-                    && !_IsPlacesFolder(szFolder))
-                    {
+                        && !_IsPlacesFolder(szFolder)) {
                         //  get the friendly name for the folder
                         TCHAR szTitle[MAX_PATH];
                         if (FAILED(SHGetNameAndFlags(pidlFolder, SHGDN_NORMAL, szTitle, SIZECHARS(szTitle), NULL)))
@@ -696,8 +650,7 @@ void CTaskAddDoc::_AddToRecentDocs(LPCITEMIDLIST pidlItem, LPCTSTR pszItem)
         }
 
         //cleanup
-        if (_pidlTarget)
-        {
+        if (_pidlTarget) {
             ILFree(_pidlTarget);
             _pidlTarget = NULL;
         }
@@ -722,22 +675,20 @@ void AddToRecentDocs(LPCITEMIDLIST pidl, LPCTSTR pszItem)
     cbSizePath = CbFromCch(lstrlen(pszItem) + 1);
 
     hwnd = GetShellWindow();
-    if (hwnd)
-    {
+    if (hwnd) {
         PXMITARD px;
         DWORD dwProcId, dwOffset;
         HANDLE hARD;
 
         GetWindowThreadProcessId(hwnd, &dwProcId);
 
-        hARD = SHAllocShared(NULL, SIZEOF(XMITARD)+cbSizePath+cbSizePidl, dwProcId);
+        hARD = SHAllocShared(NULL, SIZEOF(XMITARD) + cbSizePath + cbSizePidl, dwProcId);
         if (!hARD)
             return;         // Well, we are going to miss one, sorry.
 
-        px = (PXMITARD)SHLockShared(hARD,dwProcId);
-        if (!px)
-        {
-            SHFreeShared(hARD,dwProcId);
+        px = (PXMITARD)SHLockShared(hARD, dwProcId);
+        if (!px) {
+            SHFreeShared(hARD, dwProcId);
             return;         // Well, we are going to miss one, sorry.
         }
 
@@ -745,14 +696,12 @@ void AddToRecentDocs(LPCITEMIDLIST pidl, LPCTSTR pszItem)
         px->dwOffsetPath = 0;
 
         dwOffset = SIZEOF(XMITARD);
-        if (pszItem)
-        {
+        if (pszItem) {
             px->dwOffsetPath = dwOffset;
             memcpy((LPBYTE)px + dwOffset, pszItem, cbSizePath);
             dwOffset += cbSizePath;
         }
-        if (pidl)
-        {
+        if (pidl) {
             px->dwOffsetPidl = dwOffset;
             memcpy((LPBYTE)px + dwOffset, pidl, cbSizePidl);
         }
@@ -762,8 +711,6 @@ void AddToRecentDocs(LPCITEMIDLIST pidl, LPCTSTR pszItem)
         PostMessage(hwnd, CWM_ADDTORECENT, (WPARAM)hARD, (LPARAM)dwProcId);
     }
 }
-
-
 
 // put things in the shells recent docs list for the start menu
 
@@ -790,35 +737,28 @@ STDAPI_(void) SHAddToRecentDocs(UINT uFlags, LPCVOID pv)
         // for privacy.
         return;
 
-    if (uFlags == SHARD_PIDL)
-    {
+    if (uFlags == SHARD_PIDL) {
         // pv is a LPCITEMIDLIST (pidl)
-        if (SUCCEEDED(SHGetNameAndFlags((LPCITEMIDLIST)pv, SHGDN_FORPARSING, szTemp, SIZECHARS(szTemp), NULL)))
-        {
+        if (SUCCEEDED(SHGetNameAndFlags((LPCITEMIDLIST)pv, SHGDN_FORPARSING, szTemp, SIZECHARS(szTemp), NULL))) {
             AddToRecentDocs((LPCITEMIDLIST)pv, szTemp);
         }
-    }
-    else if (uFlags == SHARD_PATH)
-    {
+    } else if (uFlags == SHARD_PATH) {
         // pv is a LPTCSTR (path)
         LPITEMIDLIST pidl = ILCreateFromPath((LPCTSTR)pv);
         if (!pidl)
             pidl = SHSimpleIDListFromPath((LPCTSTR)pv);
-        if (pidl)
-        {
+        if (pidl) {
             AddToRecentDocs(pidl, (LPCTSTR)pv);
             ILFree(pidl);
         }
     }
 #ifdef UNICODE
-    else if (uFlags == SHARD_PATHA)
-    {
+    else if (uFlags == SHARD_PATHA) {
         SHAnsiToUnicode((LPCSTR)pv, szTemp, ARRAYSIZE(szTemp));
         SHAddToRecentDocs(SHARD_PATH, szTemp);
     }
 #else
-    else if (uFlags == SHARD_PATHW)
-    {
+    else if (uFlags == SHARD_PATHW) {
         SHUnicodeToAnsi((LPCWSTR)pv, szTemp, ARRAYSIZE(szTemp));
         SHAddToRecentDocs(SHARD_PATH, szTemp);
     }
@@ -831,18 +771,16 @@ WINSHELLAPI void ReceiveAddToRecentDocs(HANDLE hARD, DWORD dwProcId)
     ASSERT(FALSE);
 }
 
-STDAPI CTaskAddDoc_Create(HANDLE hMem, DWORD dwProcId, IRunnableTask **pptask)
+STDAPI CTaskAddDoc_Create(HANDLE hMem, DWORD dwProcId, IRunnableTask** pptask)
 {
     HRESULT hres;
-    CTaskAddDoc *ptad = new CTaskAddDoc();
-    if (ptad)
-    {
+    CTaskAddDoc* ptad = new CTaskAddDoc();
+    if (ptad) {
         hres = ptad->Init(hMem, dwProcId);
         if (SUCCEEDED(hres))
-            hres = ptad->QueryInterface(IID_IRunnableTask, (void **)pptask);
+            hres = ptad->QueryInterface(IID_IRunnableTask, (void**)pptask);
         ptad->Release();
-    }
-    else
+    } else
         hres = E_OUTOFMEMORY;
     return hres;
 }
@@ -851,24 +789,19 @@ STDAPI RecentDocs_GetDisplayName(LPCITEMIDLIST pidl, LPTSTR pszName, DWORD cchNa
 {
     HRESULT hr = E_FAIL;
     HANDLE hmru = CreateSharedRecentMRUList(NULL, NULL, SRMLF_COMPPIDL);
-
-    if (hmru)
-    {
+    if (hmru) {
         int iItem = FindMRUData(hmru, pidl, ILGetSize(pidl), NULL);
-
-        if (-1 != iItem)
-        {
+        if (-1 != iItem) {
             BYTE buf[MAX_RECMRU_BUF];
 
-            if (-1 != EnumMRUList(hmru, iItem, buf, SIZEOF(buf)))
-            {
+            if (-1 != EnumMRUList(hmru, iItem, buf, SIZEOF(buf))) {
                 StrCpyN(pszName, GETRECNAME(buf), cchName);
                 hr = S_OK;
             }
         }
 
         FreeMRUList(hmru);
-     }
+    }
 
-     return hr;
- }
+    return hr;
+}

@@ -12,7 +12,7 @@
 #define IS_FORCE_COPY(grfKeyState)   (grfKeyState == (MK_LBUTTON | MK_CONTROL))
 
 
-STDAPI DesktopShortcutDropHandler(IDataObject *pdtobj, DWORD grfKeyState, DWORD dwEffect);
+STDAPI DesktopShortcutDropHandler(IDataObject* pdtobj, DWORD grfKeyState, DWORD dwEffect);
 
 UINT g_cfShellURL = 0;
 UINT g_cfFileContents = 0;
@@ -91,22 +91,22 @@ int _AorW_PathCleanupSpec(/*IN OPTIONAL*/ LPCTSTR pszDir, /*IN OUT*/ LPTSTR pszS
 // cFileName field need to go through this function.
 
 
-FILEDESCRIPTOR *GetFileDescriptor(FILEGROUPDESCRIPTOR *pfgd, BOOL fUnicode, int nIndex, LPTSTR pszName)
+FILEDESCRIPTOR* GetFileDescriptor(FILEGROUPDESCRIPTOR* pfgd, BOOL fUnicode, int nIndex, LPTSTR pszName)
 {
     if (fUnicode) {
         // Yes, so grab the data because it matches.
-        FILEGROUPDESCRIPTORW * pfgdW = (FILEGROUPDESCRIPTORW *)pfgd;    // cast to what this really is
+        FILEGROUPDESCRIPTORW* pfgdW = (FILEGROUPDESCRIPTORW*)pfgd;    // cast to what this really is
         if (pszName)
             SHUnicodeToTChar(pfgdW->fgd[nIndex].cFileName, pszName, MAX_PATH);
 
-        return (FILEDESCRIPTOR *)&pfgdW->fgd[nIndex];   // cast assume the non string parts are the same!
+        return (FILEDESCRIPTOR*)&pfgdW->fgd[nIndex];   // cast assume the non string parts are the same!
     } else {
-        FILEGROUPDESCRIPTORA *pfgdA = (FILEGROUPDESCRIPTORA *)pfgd;     // cast to what this really is
+        FILEGROUPDESCRIPTORA* pfgdA = (FILEGROUPDESCRIPTORA*)pfgd;     // cast to what this really is
 
         if (pszName)
             SHAnsiToTChar(pfgdA->fgd[nIndex].cFileName, pszName, MAX_PATH);
 
-        return (FILEDESCRIPTOR *)&pfgdA->fgd[nIndex];   // cast assume the non string parts are the same!
+        return (FILEDESCRIPTOR*)&pfgdA->fgd[nIndex];   // cast assume the non string parts are the same!
     }
 }
 
@@ -117,11 +117,11 @@ FILEDESCRIPTOR *GetFileDescriptor(FILEGROUPDESCRIPTOR *pfgd, BOOL fUnicode, int 
 
 // our own impl since URLMON IStream::CopyTo is busted, danpoz will be fixing this
 
-HRESULT IStream_CopyTo(IStream *pstmFrom, 
-                       IStream *pstmTo, 
-                       ULARGE_INTEGER cb, 
-                       ULARGE_INTEGER *pcbRead, 
-                       ULARGE_INTEGER *pcbWritten)
+HRESULT IStream_CopyTo(IStream* pstmFrom,
+                       IStream* pstmTo,
+                       ULARGE_INTEGER cb,
+                       ULARGE_INTEGER* pcbRead,
+                       ULARGE_INTEGER* pcbWritten)
 {
     BYTE buf[512];
     ULONG cbRead;
@@ -163,9 +163,9 @@ HRESULT IStream_CopyTo(IStream *pstmFrom,
 }
 
 
-STDMETHODIMP DropHandler_QueryInterface(IDropTarget *pdropt, REFIID riid, void **ppv)
+STDMETHODIMP DropHandler_QueryInterface(IDropTarget* pdropt, REFIID riid, void** ppv)
 {
-    CDropHandler *this = IToClass(CDropHandler, dt, pdropt);
+    CDropHandler* this = IToClass(CDropHandler, dt, pdropt);
 
     if (IsEqualIID(riid, &IID_IUnknown) || IsEqualIID(riid, &IID_IDropTarget)) {
         *ppv = &this->dt;
@@ -184,17 +184,17 @@ STDMETHODIMP DropHandler_QueryInterface(IDropTarget *pdropt, REFIID riid, void *
 }
 
 
-STDMETHODIMP_(ULONG) DropHandler_AddRef(IDropTarget *pdropt)
+STDMETHODIMP_(ULONG) DropHandler_AddRef(IDropTarget* pdropt)
 {
-    CDropHandler *this = IToClass(CDropHandler, dt, pdropt);
+    CDropHandler* this = IToClass(CDropHandler, dt, pdropt);
     this->cRef++;
     return this->cRef;
 }
 
 
-STDMETHODIMP_(ULONG) DropHandler_Release(IDropTarget *pdropt)
+STDMETHODIMP_(ULONG) DropHandler_Release(IDropTarget* pdropt)
 {
-    CDropHandler *this = IToClass(CDropHandler, dt, pdropt);
+    CDropHandler* this = IToClass(CDropHandler, dt, pdropt);
 
     this->cRef--;
     if (this->cRef > 0)
@@ -206,13 +206,13 @@ STDMETHODIMP_(ULONG) DropHandler_Release(IDropTarget *pdropt)
 }
 
 
-STDMETHODIMP DropHandler_DragEnter(IDropTarget *pdropt, 
-                                   IDataObject *pdtobj,
+STDMETHODIMP DropHandler_DragEnter(IDropTarget* pdropt,
+                                   IDataObject* pdtobj,
                                    DWORD grfKeyState,
-                                   POINTL pt, 
-                                   DWORD *pdwEffect)
+                                   POINTL pt,
+                                   DWORD* pdwEffect)
 {
-    CDropHandler *this = IToClass(CDropHandler, dt, pdropt);
+    CDropHandler* this = IToClass(CDropHandler, dt, pdropt);
 
     TraceMsg(DM_TRACE, "DropHandler_DragEnter");
     this->grfKeyStateLast = grfKeyState;
@@ -222,9 +222,9 @@ STDMETHODIMP DropHandler_DragEnter(IDropTarget *pdropt,
 }
 
 
-STDMETHODIMP DropHandler_DragOver(IDropTarget *pdropt, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+STDMETHODIMP DropHandler_DragOver(IDropTarget* pdropt, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-    CDropHandler *this = IToClass(CDropHandler, dt, pdropt);
+    CDropHandler* this = IToClass(CDropHandler, dt, pdropt);
     *pdwEffect &= ~DROPEFFECT_MOVE;
 
     if (IS_FORCE_COPY(grfKeyState))
@@ -238,16 +238,16 @@ STDMETHODIMP DropHandler_DragOver(IDropTarget *pdropt, DWORD grfKeyState, POINTL
 }
 
 
-STDMETHODIMP DropHandler_DragLeave(IDropTarget *pdropt)
+STDMETHODIMP DropHandler_DragLeave(IDropTarget* pdropt)
 {
-    CDropHandler *this = IToClass(CDropHandler, dt, pdropt);
+    CDropHandler* this = IToClass(CDropHandler, dt, pdropt);
     return S_OK;
 }
 
 
-STDMETHODIMP DropHandler_Drop(IDropTarget *pdropt, IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+STDMETHODIMP DropHandler_Drop(IDropTarget* pdropt, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-    CDropHandler *this = IToClass(CDropHandler, dt, pdropt);
+    CDropHandler* this = IToClass(CDropHandler, dt, pdropt);
     HRESULT hres = this->pfnDrop(pdtobj, this->grfKeyStateLast, this->dwEffectLast);
 
     *pdwEffect = DROPEFFECT_COPY;   // don't let source delete data
@@ -265,60 +265,60 @@ const IDropTargetVtbl c_DropHandler_DTVtbl =
 };
 
 
-STDMETHODIMP DropHandler_PF_QueryInterface(IPersistFile *ppf, REFIID riid, void **ppv)
+STDMETHODIMP DropHandler_PF_QueryInterface(IPersistFile* ppf, REFIID riid, void** ppv)
 {
-    CDropHandler *this = IToClass(CDropHandler, pf, ppf);
+    CDropHandler* this = IToClass(CDropHandler, pf, ppf);
     return DropHandler_QueryInterface(&this->dt, riid, ppv);
 }
 
 
-STDMETHODIMP_(ULONG) DropHandler_PF_AddRef(IPersistFile *ppf)
+STDMETHODIMP_(ULONG) DropHandler_PF_AddRef(IPersistFile* ppf)
 {
-    CDropHandler *this = IToClass(CDropHandler, pf, ppf);
+    CDropHandler* this = IToClass(CDropHandler, pf, ppf);
     return ++this->cRef;
 }
 
 
-STDMETHODIMP_(ULONG) DropHandler_PF_Release(IPersistFile *ppf)
+STDMETHODIMP_(ULONG) DropHandler_PF_Release(IPersistFile* ppf)
 {
-    CDropHandler *this = IToClass(CDropHandler, pf, ppf);
+    CDropHandler* this = IToClass(CDropHandler, pf, ppf);
     return DropHandler_Release(&this->dt);
 }
 
 
-STDMETHODIMP DropHandler_GetClassID(IPersistFile *ppf, CLSID *pClassID)
+STDMETHODIMP DropHandler_GetClassID(IPersistFile* ppf, CLSID* pClassID)
 {
     *pClassID = CLSID_MailRecipient;
     return S_OK;
 }
 
 
-STDMETHODIMP DropHandler_IsDirty(IPersistFile *psf)
+STDMETHODIMP DropHandler_IsDirty(IPersistFile* psf)
 {
     return S_FALSE;
 }
 
 
-STDMETHODIMP DropHandler_Load(IPersistFile *psf, LPCOLESTR pwszFile, DWORD grfMode)
+STDMETHODIMP DropHandler_Load(IPersistFile* psf, LPCOLESTR pwszFile, DWORD grfMode)
 {
     TraceMsg(DM_TRACE, "DropHandler_Load");
     return S_OK;
 }
 
 
-STDMETHODIMP DropHandler_Save(IPersistFile *psf, LPCOLESTR pwszFile, BOOL fRemember)
+STDMETHODIMP DropHandler_Save(IPersistFile* psf, LPCOLESTR pwszFile, BOOL fRemember)
 {
     return S_OK;
 }
 
 
-STDMETHODIMP DropHandler_SaveCompleted(IPersistFile *psf, LPCOLESTR pwszFile)
+STDMETHODIMP DropHandler_SaveCompleted(IPersistFile* psf, LPCOLESTR pwszFile)
 {
     return S_OK;
 }
 
 
-STDMETHODIMP DropHandler_GetCurFile(IPersistFile *psf, LPOLESTR *ppszFileName)
+STDMETHODIMP DropHandler_GetCurFile(IPersistFile* psf, LPOLESTR* ppszFileName)
 {
     *ppszFileName = NULL;
     return S_OK;
@@ -336,30 +336,30 @@ const IPersistFileVtbl c_DropHandler_PFVtbl = {
 };
 
 
-STDMETHODIMP DropHandler_SXI_QueryInterface(IShellExtInit *psxi, REFIID riid, void **ppv)
+STDMETHODIMP DropHandler_SXI_QueryInterface(IShellExtInit* psxi, REFIID riid, void** ppv)
 {
-    CDropHandler *this = IToClass(CDropHandler, sxi, psxi);
+    CDropHandler* this = IToClass(CDropHandler, sxi, psxi);
     return DropHandler_QueryInterface(&this->dt, riid, ppv);
 }
 
 
-STDMETHODIMP_(ULONG) DropHandler_SXI_AddRef(IShellExtInit *psxi)
+STDMETHODIMP_(ULONG) DropHandler_SXI_AddRef(IShellExtInit* psxi)
 {
-    CDropHandler *this = IToClass(CDropHandler, sxi, psxi);
+    CDropHandler* this = IToClass(CDropHandler, sxi, psxi);
     return ++this->cRef;
 }
 
 
-STDMETHODIMP_(ULONG) DropHandler_SXI_Release(IShellExtInit *psxi)
+STDMETHODIMP_(ULONG) DropHandler_SXI_Release(IShellExtInit* psxi)
 {
-    CDropHandler *this = IToClass(CDropHandler, sxi, psxi);
+    CDropHandler* this = IToClass(CDropHandler, sxi, psxi);
     return DropHandler_Release(&this->dt);
 }
 
 
-STDMETHODIMP DropHandler_SXI_Initialize(IShellExtInit *psxi, LPCITEMIDLIST pidl, IDataObject *pdtobj, HKEY hkeyProgID)
+STDMETHODIMP DropHandler_SXI_Initialize(IShellExtInit* psxi, LPCITEMIDLIST pidl, IDataObject* pdtobj, HKEY hkeyProgID)
 {
-    CDropHandler *this = IToClass(CDropHandler, sxi, psxi);
+    CDropHandler* this = IToClass(CDropHandler, sxi, psxi);
 
     TraceMsg(DM_TRACE, "DropHandler_SXI_Initialize");
 
@@ -373,10 +373,10 @@ IShellExtInitVtbl c_DropHandler_SXIVtbl = {
 };
 
 
-STDAPI DropHandler_CreateInstance(LPDROPPROC pfnDrop, IUnknown *punkOuter, REFIID riid, void **ppv)
+STDAPI DropHandler_CreateInstance(LPDROPPROC pfnDrop, IUnknown* punkOuter, REFIID riid, void** ppv)
 {
     HRESULT hres;
-    CDropHandler *this;
+    CDropHandler* this;
 
     *ppv = NULL;                // assume error
 
@@ -385,7 +385,7 @@ STDAPI DropHandler_CreateInstance(LPDROPPROC pfnDrop, IUnknown *punkOuter, REFII
     if (punkOuter)
         return CLASS_E_NOAGGREGATION;
 
-    this = (CDropHandler *)LocalAlloc(LPTR, sizeof(CDropHandler));
+    this = (CDropHandler*)LocalAlloc(LPTR, sizeof(CDropHandler));
     if (this) {
         this->dt.lpVtbl = &c_DropHandler_DTVtbl;
         this->sxi.lpVtbl = &c_DropHandler_SXIVtbl;
@@ -404,20 +404,20 @@ STDAPI DropHandler_CreateInstance(LPDROPPROC pfnDrop, IUnknown *punkOuter, REFII
 
 // deal with IShellLinkA/W uglyness...
 
-HRESULT ShellLinkSetPath(IUnknown *punk, LPCTSTR pszPath)
+HRESULT ShellLinkSetPath(IUnknown* punk, LPCTSTR pszPath)
 {
     HRESULT hres;
 #ifdef UNICODE
-    IShellLinkW *pslW;
-    hres = punk->lpVtbl->QueryInterface(punk, &IID_IShellLinkW, (void **)&pslW);
+    IShellLinkW* pslW;
+    hres = punk->lpVtbl->QueryInterface(punk, &IID_IShellLinkW, (void**)&pslW);
     if (SUCCEEDED(hres)) {
         hres = pslW->lpVtbl->SetPath(pslW, pszPath);
         pslW->lpVtbl->Release(pslW);
     } else
 #endif
     {
-        IShellLinkA *pslA;
-        hres = punk->lpVtbl->QueryInterface(punk, &IID_IShellLinkA, (void **)&pslA);
+        IShellLinkA* pslA;
+        hres = punk->lpVtbl->QueryInterface(punk, &IID_IShellLinkA, (void**)&pslA);
         if (SUCCEEDED(hres)) {
             CHAR szPath[MAX_PATH];
             SHUnicodeToAnsi(pszPath, szPath, ARRAYSIZE(szPath));
@@ -432,20 +432,20 @@ HRESULT ShellLinkSetPath(IUnknown *punk, LPCTSTR pszPath)
 
 // deal with IShellLinkA/W uglyness...
 
-HRESULT ShellLinkGetPath(IUnknown *punk, LPTSTR pszPath, UINT cch)
+HRESULT ShellLinkGetPath(IUnknown* punk, LPTSTR pszPath, UINT cch)
 {
     HRESULT hres;
 #ifdef UNICODE
-    IShellLinkW *pslW;
-    hres = punk->lpVtbl->QueryInterface(punk, &IID_IShellLinkW, (void **)&pslW);
+    IShellLinkW* pslW;
+    hres = punk->lpVtbl->QueryInterface(punk, &IID_IShellLinkW, (void**)&pslW);
     if (SUCCEEDED(hres)) {
         hres = pslW->lpVtbl->GetPath(pslW, pszPath, cch, NULL, SLGP_UNCPRIORITY);
         pslW->lpVtbl->Release(pslW);
     } else
 #endif
     {
-        IShellLinkA *pslA;
-        hres = punk->lpVtbl->QueryInterface(punk, &IID_IShellLinkA, (void **)&pslA);
+        IShellLinkA* pslA;
+        hres = punk->lpVtbl->QueryInterface(punk, &IID_IShellLinkA, (void**)&pslA);
         if (SUCCEEDED(hres)) {
             CHAR szPath[MAX_PATH];
             hres = pslA->lpVtbl->GetPath(pslA, szPath, ARRAYSIZE(szPath), NULL, SLGP_UNCPRIORITY);
@@ -461,10 +461,10 @@ HRESULT ShellLinkGetPath(IUnknown *punk, LPTSTR pszPath, UINT cch)
 
 HRESULT _CreateShortcutToPath(LPCTSTR pszPath, LPCTSTR pszTarget)
 {
-    IUnknown *punk;
+    IUnknown* punk;
     HRESULT hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, &IID_IUnknown, &punk);
     if (SUCCEEDED(hres)) {
-        IPersistFile *ppf;
+        IPersistFile* ppf;
 
         ShellLinkSetPath(punk, pszTarget);
 
@@ -527,7 +527,7 @@ BOOL _CreateTempFileShortcut(LPCTSTR pszTarget, LPTSTR pszShortcut)
 }
 
 
-BOOL AllocatePMP(MRPARAM *pmp, DWORD cchTitle, DWORD cchFiles)
+BOOL AllocatePMP(MRPARAM* pmp, DWORD cchTitle, DWORD cchFiles)
 {
     pmp->pszTitle = GlobalAlloc(GPTR, cchTitle * SIZEOF(TCHAR));
     if (!pmp->pszTitle)
@@ -554,7 +554,7 @@ void DeleteMultipleFiles(LPCTSTR pszFiles)
 }
 
 
-BOOL CleanupPMP(MRPARAM *pmp)
+BOOL CleanupPMP(MRPARAM* pmp)
 {
     if (pmp->dwFlags & MRPARAM_DELETEFILE)
         DeleteMultipleFiles(pmp->pszFiles);
@@ -574,17 +574,17 @@ BOOL CleanupPMP(MRPARAM *pmp)
 }
 
 
-HRESULT _GetFileNameFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, LPTSTR pszDescription)
+HRESULT _GetFileNameFromData(IDataObject* pdtobj, FORMATETC* pfmtetc, LPTSTR pszDescription)
 {
     STGMEDIUM medium;
     HRESULT hres = pdtobj->lpVtbl->GetData(pdtobj, pfmtetc, &medium);
     if (SUCCEEDED(hres)) {
         // NOTE: this is a TCHAR format, we depend on how we are compiled, we really
         // should test both the A and W formats
-        FILEGROUPDESCRIPTOR *pfgd = (FILEGROUPDESCRIPTOR *)GlobalLock(medium.hGlobal);
+        FILEGROUPDESCRIPTOR* pfgd = (FILEGROUPDESCRIPTOR*)GlobalLock(medium.hGlobal);
         if (pfgd) {
             TCHAR szFdName[MAX_PATH];       // pfd->cFileName
-            FILEDESCRIPTOR *pfd;
+            FILEDESCRIPTOR* pfd;
 
             // &pfgd->fgd[0], w/ thunk
             ASSERT(pfmtetc->cfFormat == g_cfFileDescW || pfmtetc->cfFormat == g_cfFileDescA);
@@ -623,13 +623,13 @@ void _GetFileAndTypeDescFromPath(LPCTSTR pszPath, LPTSTR pszDesc)
 */
 HRESULT CreateNewURLShortcut(LPCTSTR pcszURL, LPCTSTR pcszURLFile)
 {
-    IUniformResourceLocator *purl;
-    HRESULT hr = CoCreateInstance(&CLSID_InternetShortcut, NULL, CLSCTX_INPROC_SERVER, &IID_IUniformResourceLocator, (void **)&purl);
+    IUniformResourceLocator* purl;
+    HRESULT hr = CoCreateInstance(&CLSID_InternetShortcut, NULL, CLSCTX_INPROC_SERVER, &IID_IUniformResourceLocator, (void**)&purl);
     if (SUCCEEDED(hr)) {
         hr = purl->lpVtbl->SetURL(purl, pcszURL, 0);
         if (SUCCEEDED(hr)) {
-            IPersistFile *ppf;
-            hr = purl->lpVtbl->QueryInterface(purl, &IID_IPersistFile, (void **)&ppf);
+            IPersistFile* ppf;
+            hr = purl->lpVtbl->QueryInterface(purl, &IID_IPersistFile, (void**)&ppf);
             if (SUCCEEDED(hr)) {
                 WCHAR wszFile[INTERNET_MAX_URL_LENGTH];
                 SHTCharToUnicode(pcszURLFile, wszFile, ARRAYSIZE(wszFile));
@@ -645,7 +645,7 @@ HRESULT CreateNewURLShortcut(LPCTSTR pcszURL, LPCTSTR pcszURLFile)
 }
 
 
-HRESULT _CreateURLFileToSend(IDataObject *pdtobj, MRPARAM *pmp)
+HRESULT _CreateURLFileToSend(IDataObject* pdtobj, MRPARAM* pmp)
 {
     HRESULT hr = CreateNewURLShortcut(pmp->pszTitle, pmp->pszFiles);
     if (SUCCEEDED(hr)) {
@@ -751,7 +751,7 @@ BOOL PathYetAnotherMakeUniqueNameT(LPTSTR  pszUniqueName,
 }
 
 
-HRESULT _GetHDROPFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, STGMEDIUM *pmedium, DWORD grfKeyState, MRPARAM *pmp)
+HRESULT _GetHDROPFromData(IDataObject* pdtobj, FORMATETC* pfmtetc, STGMEDIUM* pmedium, DWORD grfKeyState, MRPARAM* pmp)
 {
     HRESULT hres = E_FAIL;
     TCHAR szPath[MAX_PATH], szDesc[MAX_PATH];
@@ -796,7 +796,7 @@ HRESULT _GetHDROPFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, STGMEDIUM *pm
 
 // "Uniform Resource Locator" format
 
-HRESULT _GetURLFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, STGMEDIUM *pmedium, DWORD grfKeyState, MRPARAM *pmp)
+HRESULT _GetURLFromData(IDataObject* pdtobj, FORMATETC* pfmtetc, STGMEDIUM* pmedium, DWORD grfKeyState, MRPARAM* pmp)
 {
     HRESULT hres = E_FAIL;
 
@@ -841,17 +841,17 @@ HRESULT _GetURLFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, STGMEDIUM *pmed
 // transfer FILECONTENTS/FILEGROUPDESCRIPTOR data to a temp file then send that in mail
 
 
-HRESULT _GetFileContentsFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, STGMEDIUM *pmedium, DWORD grfKeyState, MRPARAM *pmp)
+HRESULT _GetFileContentsFromData(IDataObject* pdtobj, FORMATETC* pfmtetc, STGMEDIUM* pmedium, DWORD grfKeyState, MRPARAM* pmp)
 {
     HRESULT hres = E_FAIL;
 
     // NOTE: We only allow to send one file here.
     pmp->nFiles = 1;
     if (AllocatePMP(pmp, INTERNET_MAX_URL_LENGTH, MAX_PATH)) {
-        FILEGROUPDESCRIPTOR *pfgd = (FILEGROUPDESCRIPTOR *)GlobalLock(pmedium->hGlobal);
+        FILEGROUPDESCRIPTOR* pfgd = (FILEGROUPDESCRIPTOR*)GlobalLock(pmedium->hGlobal);
         if (pfgd) {
             TCHAR szFdName[MAX_PATH];       // pfd->cFileName
-            FILEDESCRIPTOR *pfd;
+            FILEDESCRIPTOR* pfd;
 
             // &pfgd->fgd[0], w/ thunk
             ASSERT(pfmtetc->cfFormat == g_cfFileDescW || pfmtetc->cfFormat == g_cfFileDescA);
@@ -862,7 +862,7 @@ HRESULT _GetFileContentsFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, STGMED
                 FORMATETC fmte = {(CLIPFORMAT)g_cfFileContents, NULL, pfmtetc->dwAspect, 0, TYMED_ISTREAM | TYMED_HGLOBAL};
                 hres = pdtobj->lpVtbl->GetData(pdtobj, &fmte, &medium);
                 if (SUCCEEDED(hres)) {
-                    IStream *pstmFile;
+                    IStream* pstmFile;
 
                     PathAppend(pmp->pszFiles, szFdName);    // pfd->cFileName
                     PathCleanupSpec(pmp->pszFiles, PathFindFileName(pmp->pszFiles));
@@ -874,17 +874,17 @@ HRESULT _GetFileContentsFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, STGMED
 
                         switch (medium.tymed) {
                         case TYMED_ISTREAM:
-                        hres = IStream_CopyTo(medium.pstm, pstmFile, li, NULL, NULL);
-                        break;
+                            hres = IStream_CopyTo(medium.pstm, pstmFile, li, NULL, NULL);
+                            break;
                         case TYMED_HGLOBAL:
-                        hres = pstmFile->lpVtbl->Write(pstmFile,
-                                                       GlobalLock(medium.hGlobal),
-                                                       pfd->dwFlags & FD_FILESIZE ? pfd->nFileSizeLow : (DWORD)GlobalSize(medium.hGlobal),
-                                                       NULL);
-                        GlobalUnlock(medium.hGlobal);
-                        break;
+                            hres = pstmFile->lpVtbl->Write(pstmFile,
+                                                           GlobalLock(medium.hGlobal),
+                                                           pfd->dwFlags & FD_FILESIZE ? pfd->nFileSizeLow : (DWORD)GlobalSize(medium.hGlobal),
+                                                           NULL);
+                            GlobalUnlock(medium.hGlobal);
+                            break;
                         default:
-                        hres = E_FAIL;
+                            hres = E_FAIL;
                         }
                         pstmFile->lpVtbl->Release(pstmFile);
                         if (FAILED(hres))
@@ -903,12 +903,12 @@ HRESULT _GetFileContentsFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, STGMED
         pmp->dwFlags |= MRPARAM_DELETEFILE;
 
         if (pfmtetc->dwAspect == DVASPECT_COPY) {
-            IQueryCodePage *pqcp;
+            IQueryCodePage* pqcp;
 
             pmp->dwFlags |= MRPARAM_DOC;    // we are sending the document
 
             // get the code page if there is one
-            if (SUCCEEDED(pdtobj->lpVtbl->QueryInterface(pdtobj, &IID_IQueryCodePage, (void **)&pqcp))) {
+            if (SUCCEEDED(pdtobj->lpVtbl->QueryInterface(pdtobj, &IID_IQueryCodePage, (void**)&pqcp))) {
                 if (SUCCEEDED(pqcp->lpVtbl->GetCodePage(pqcp, &pmp->uiCodePage)))
                     pmp->dwFlags |= MRPARAM_USECODEPAGE;
                 pqcp->lpVtbl->Release(pqcp);
@@ -929,17 +929,17 @@ HRESULT _GetFileContentsFromData(IDataObject *pdtobj, FORMATETC *pfmtetc, STGMED
 }
 
 
-typedef struct{
-    HRESULT(*pfnCreateFromData)(IDataObject *, FORMATETC *, STGMEDIUM *, DWORD, MRPARAM *);
+typedef struct {
+    HRESULT(*pfnCreateFromData)(IDataObject*, FORMATETC*, STGMEDIUM*, DWORD, MRPARAM*);
     FORMATETC fmte;
 } DATA_HANDLER;
 
 
-HRESULT _CreateSendToFilesFromDataObj(IDataObject *pdtobj, DWORD grfKeyState, MRPARAM *pmp)
+HRESULT _CreateSendToFilesFromDataObj(IDataObject* pdtobj, DWORD grfKeyState, MRPARAM* pmp)
 {
     HRESULT hres;
     DWORD dwAspectPrefered;
-    IEnumFORMATETC *penum;
+    IEnumFORMATETC* penum;
 
     if (g_cfShellURL == 0) {
         // URL is always ANSI
@@ -975,7 +975,7 @@ HRESULT _CreateSendToFilesFromDataObj(IDataObject *pdtobj, DWORD grfKeyState, MR
         while (penum->lpVtbl->Next(penum, 1, &fmte, NULL) == S_OK) {
             int i;
             for (i = 0; i < ARRAYSIZE(rg_data_handlers); i++) {
-                if (rg_data_handlers[i].fmte.cfFormat == fmte.cfFormat && 
+                if (rg_data_handlers[i].fmte.cfFormat == fmte.cfFormat &&
                     rg_data_handlers[i].fmte.dwAspect == fmte.dwAspect) {
                     STGMEDIUM medium;
                     if (SUCCEEDED(pdtobj->lpVtbl->GetData(pdtobj, &rg_data_handlers[i].fmte, &medium))) {
@@ -1008,7 +1008,7 @@ const GUID CLSID_DesktopShortcut = {0x9E56BE61L, 0xC50F, 0x11CF, 0x9A, 0x2C, 0x0
 
 // like OLE GetClassFile(), but it only works on ProgID\CLSID type registration
 // not real doc files or pattern matched files
-HRESULT _CLSIDFromExtension(LPCTSTR pszExt, CLSID *pclsid)
+HRESULT _CLSIDFromExtension(LPCTSTR pszExt, CLSID* pclsid)
 {
     TCHAR szProgID[80];
     ULONG cb = SIZEOF(szProgID);
@@ -1036,7 +1036,7 @@ BOOL _GetShortcutTarget(LPCTSTR pszPath, LPTSTR pszTarget, UINT cch)
 // this uses IShellLink which Internet Shortcuts (.URL) and Shell Shortcuts (.LNK) support so
 // it should work generally
 {
-    IUnknown *punk;
+    IUnknown* punk;
     HRESULT hres;
     CLSID clsid;
 
@@ -1050,7 +1050,7 @@ BOOL _GetShortcutTarget(LPCTSTR pszPath, LPTSTR pszTarget, UINT cch)
 
     hres = CoCreateInstance(&clsid, NULL, CLSCTX_INPROC_SERVER, &IID_IUnknown, &punk);
     if (SUCCEEDED(hres)) {
-        IPersistFile *ppf;
+        IPersistFile* ppf;
         if (SUCCEEDED(punk->lpVtbl->QueryInterface(punk, &IID_IPersistFile, &ppf))) {
             WCHAR wszPath[MAX_PATH];
             SHTCharToUnicode(pszPath, wszPath, ARRAYSIZE(wszPath));
@@ -1070,7 +1070,7 @@ BOOL _GetShortcutTarget(LPCTSTR pszPath, LPTSTR pszTarget, UINT cch)
 #define MAIL_ATHENA_V2  TEXT("Outlook Express")
 
 
-BOOL GetDefaultMailHandler(LPTSTR pszMAPIDLL, DWORD cbMAPIDLL, BOOL *pbWantsCodePageInfo)
+BOOL GetDefaultMailHandler(LPTSTR pszMAPIDLL, DWORD cbMAPIDLL, BOOL* pbWantsCodePageInfo)
 {
     TCHAR szDefaultProg[80];
     DWORD cb = SIZEOF(szDefaultProg);
@@ -1103,7 +1103,7 @@ BOOL GetDefaultMailHandler(LPTSTR pszMAPIDLL, DWORD cbMAPIDLL, BOOL *pbWantsCode
 }
 
 
-HMODULE LoadMailProvider(BOOL *pbWantsCodePageInfo)
+HMODULE LoadMailProvider(BOOL* pbWantsCodePageInfo)
 {
     TCHAR szMAPIDLL[MAX_PATH];
 
@@ -1117,7 +1117,7 @@ HMODULE LoadMailProvider(BOOL *pbWantsCodePageInfo)
 }
 
 
-typedef struct{
+typedef struct {
     TCHAR szTempShortcut[MAX_PATH];
     MapiMessage mm;
     MapiFileDesc mfd[0];
@@ -1165,9 +1165,9 @@ BOOL SHPathToAnsi(LPCTSTR pszSrc, LPSTR pszDest, int cbDest)
 }
 
 
-MAPI_FILES *_AllocMapiFiles(int nFiles, LPCTSTR pszFiles)
+MAPI_FILES* _AllocMapiFiles(int nFiles, LPCTSTR pszFiles)
 {
-    MAPI_FILES *pmf;
+    MAPI_FILES* pmf;
     int n;
 
     n = SIZEOF(*pmf) + (nFiles * SIZEOF(pmf->mfd[0]));
@@ -1178,7 +1178,7 @@ MAPI_FILES *_AllocMapiFiles(int nFiles, LPCTSTR pszFiles)
         if (nFiles) {
             int i;
             LPCTSTR psz;
-            LPSTR pszA = (CHAR *)pmf + n;   // thunk buffer
+            LPSTR pszA = (CHAR*)pmf + n;   // thunk buffer
 
             pmf->mm.lpFiles = pmf->mfd;
 
@@ -1200,7 +1200,7 @@ MAPI_FILES *_AllocMapiFiles(int nFiles, LPCTSTR pszFiles)
 }
 
 
-void _FreeMapiFiles(MAPI_FILES *pmf)
+void _FreeMapiFiles(MAPI_FILES* pmf)
 {
     if (pmf->szTempShortcut[0])
         DeleteFile(pmf->szTempShortcut);
@@ -1214,10 +1214,10 @@ void _FreeMapiFiles(MAPI_FILES *pmf)
 const TCHAR c_szPad[] = TEXT(" \r\n ");
 
 
-STDAPI_(DWORD) MailRecipientThreadProc(void *pv)
+STDAPI_(DWORD) MailRecipientThreadProc(void* pv)
 {
-    MRPARAM *pmp = (MRPARAM *)pv;
-    MAPI_FILES *pmf;
+    MRPARAM* pmp = (MRPARAM*)pv;
+    MAPI_FILES* pmf;
 
     CoInitialize(NULL);     // we are going to do some COM stuff
 
@@ -1258,7 +1258,7 @@ STDAPI_(DWORD) MailRecipientThreadProc(void *pv)
             // Athena will then look at ulReserved for the code page
             // BUGBUG: Will the other MAPI handlers puke on this?  -- dli
             ASSERT(pmf->mm.nFileCount == 1);
-            pmf->mfd[0].ulReserved = ((MRPARAM *)pmp)->uiCodePage;
+            pmf->mfd[0].ulReserved = ((MRPARAM*)pmp)->uiCodePage;
         }
 
         if (hmodMail) {
@@ -1278,9 +1278,9 @@ STDAPI_(DWORD) MailRecipientThreadProc(void *pv)
 }
 
 
-STDAPI MailRecipientDropHandler(IDataObject *pdtobj, DWORD grfKeyState, DWORD dwEffect)
+STDAPI MailRecipientDropHandler(IDataObject* pdtobj, DWORD grfKeyState, DWORD dwEffect)
 {
-    MRPARAM *pmp = GlobalAlloc(GPTR, SIZEOF(*pmp));
+    MRPARAM* pmp = GlobalAlloc(GPTR, SIZEOF(*pmp));
     if (pmp) {
         if (!pdtobj || SUCCEEDED(_CreateSendToFilesFromDataObj(pdtobj, grfKeyState, pmp))) {
             DllAddRef();
@@ -1298,7 +1298,7 @@ STDAPI MailRecipientDropHandler(IDataObject *pdtobj, DWORD grfKeyState, DWORD dw
 }
 
 
-STDAPI MailRecipient_CreateInstance(IUnknown *punkOuter, REFIID riid, void **ppv)
+STDAPI MailRecipient_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv)
 {
     return DropHandler_CreateInstance(MailRecipientDropHandler, punkOuter, riid, ppv);
 }
@@ -1341,7 +1341,7 @@ void CommonRegister(HKEY hkCLSID, LPCTSTR pszCLSID, LPCTSTR pszExtension, int id
     TCHAR szKey[80];
 
     // BUGBUG 981007 review BYTE/TEXT
-    RegSetValueEx(hkCLSID, NEVERSHOWEXT, 0, REG_SZ, (BYTE *)TEXT(""), SIZEOF(TCHAR));
+    RegSetValueEx(hkCLSID, NEVERSHOWEXT, 0, REG_SZ, (BYTE*)TEXT(""), SIZEOF(TCHAR));
 
     if (RegCreateKey(hkCLSID, SHELLEXT_DROPHANDLER, &hk) == ERROR_SUCCESS) {
         RegSetValueEx(hk, NULL, 0, REG_SZ, (LPBYTE)pszCLSID, (lstrlen(pszCLSID) + 1) * SIZEOF(TCHAR));

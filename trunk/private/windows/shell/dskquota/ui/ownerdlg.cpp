@@ -23,7 +23,7 @@ const static DWORD rgFileOwnerDialogHelpIDs[] =
 CFileOwnerDialog::CFileOwnerDialog(HINSTANCE hInstance,
                                    HWND hwndParent,
                                    LPCTSTR pszVolumeRoot,
-                                   const CArray<IDiskQuotaUser *>& rgpOwners
+                                   const CArray<IDiskQuotaUser*>& rgpOwners
 ) : m_hInstance(hInstance),
 m_hwndParent(hwndParent),
 m_hwndDlg(NULL),
@@ -66,18 +66,16 @@ CFileOwnerDialog::DlgProc(
     // Retrieve the dialog object's ptr from the window's userdata.
     // Place there in response to WM_INITDIALOG.
 
-    CFileOwnerDialog *pThis = (CFileOwnerDialog *)GetWindowLongPtr(hwnd, DWLP_USER);
+    CFileOwnerDialog* pThis = (CFileOwnerDialog*)GetWindowLongPtr(hwnd, DWLP_USER);
 
-    try
-    {
-        switch (uMsg)
-        {
+    try {
+        switch (uMsg) {
         case WM_INITDIALOG:
 
             // Store "this" ptr in window's userdata.
 
             SetWindowLongPtr(hwnd, DWLP_USER, (INT_PTR)lParam);
-            pThis = (CFileOwnerDialog *)lParam;
+            pThis = (CFileOwnerDialog*)lParam;
 
             // Save the HWND in our object.  We'll need it later.
 
@@ -102,9 +100,7 @@ CFileOwnerDialog::DlgProc(
                     HELP_WM_HELP, (DWORD_PTR)(LPTSTR)rgFileOwnerDialogHelpIDs);
             return TRUE;
         }
-    }
-    catch (CAllocException& me)
-    {
+    } catch (CAllocException& me) {
 
         // Announce any out-of-memory errors associated with running the dlg.
 
@@ -144,8 +140,7 @@ CFileOwnerDialog::OnInitDialog(
     HRESULT hr = BuildFileOwnerList(m_strVolumeRoot,
                                     m_rgpOwners,
                                     &m_OwnerList);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
 
         // Set the message in the top of the dialog.
 
@@ -185,19 +180,16 @@ CFileOwnerDialog::OnCommand(
     WORD wNotifyCode = HIWORD(wParam);
     HWND hCtl = (HWND)lParam;
 
-    switch (wID)
-    {
+    switch (wID) {
     case IDCANCEL:
         EndDialog(hwnd, 0);
         bResult = FALSE;
         break;
 
     case IDC_CMB_OWNERDLG_OWNERS:
-        if (CBN_SELCHANGE == wNotifyCode)
-        {
+        if (CBN_SELCHANGE == wNotifyCode) {
             int iOwner = ComboBox_GetCurSel(m_hwndOwnerCombo);
-            if (1 < m_OwnerList.OwnerCount())
-            {
+            if (1 < m_OwnerList.OwnerCount()) {
 
                 // Owner list contains more than one owner.  The combo
                 // contains a leading "All owners" entry.
@@ -241,8 +233,7 @@ CFileOwnerDialog::OnCommand(
         strDest.Trim();
         strDest.GetRoot(&strRoot);
 
-        if (IsSameVolume(strRoot, m_strVolumeRoot))
-        {
+        if (IsSameVolume(strRoot, m_strVolumeRoot)) {
 
             // Don't let operator move files to a folder
             // on the same volume.
@@ -254,9 +245,7 @@ CFileOwnerDialog::OnCommand(
 
             SetWindowText(m_hwndEditMoveTo, strDest);
             SetFocus(m_hwndEditMoveTo);
-        }
-        else
-        {
+        } else {
 
             // Eveything looks OK.  Try to move the files.
 
@@ -269,24 +258,21 @@ CFileOwnerDialog::OnCommand(
     case IDC_BTN_OWNERDLG_TAKE:
     {
         HRESULT hr = TakeOwnershipOfSelectedFiles(m_hwndLV);
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)) {
             DBGERROR((TEXT("TakeOwnershipOfSelectedFiles failed with hr = 0x%08X"), hr));
         }
         break;
     }
 
     case IDC_EDIT_OWNERDLG_MOVETO:
-        if (EN_UPDATE == wNotifyCode)
-        {
+        if (EN_UPDATE == wNotifyCode) {
 
             // Disable the "Move" button if the destination edit field
             // is blank.
 
             HWND hwnd = GetDlgItem(m_hwndDlg, IDC_BTN_OWNERDLG_MOVETO);
             bool bEnable = ShouldEnableButton(IDC_BTN_OWNERDLG_MOVETO);
-            if (bEnable != boolify(IsWindowEnabled(hwnd)))
-            {
+            if (bEnable != boolify(IsWindowEnabled(hwnd))) {
                 EnableWindow(hwnd, bEnable);
             }
         }
@@ -324,8 +310,7 @@ CFileOwnerDialog::ShouldEnableButton(
 {
     bool bEnable = true;
     int cLVSel = ListView_GetSelectedCount(m_hwndLV);
-    switch (idBtn)
-    {
+    switch (idBtn) {
     case IDC_BTN_OWNERDLG_DELETE:
     case IDC_BTN_OWNERDLG_TAKE:
         bEnable = 0 < cLVSel;
@@ -333,8 +318,7 @@ CFileOwnerDialog::ShouldEnableButton(
 
     case IDC_BTN_OWNERDLG_MOVETO:
         bEnable = false;
-        if (0 < cLVSel)
-        {
+        if (0 < cLVSel) {
             CPath s;
             int cch = Edit_GetTextLength(m_hwndEditMoveTo);
             Edit_GetText(m_hwndEditMoveTo, s.GetBuffer(cch + 1), cch + 1);
@@ -361,22 +345,21 @@ CFileOwnerDialog::OnNotify(
     BOOL bResult = TRUE;
     LPNMHDR pnm = (LPNMHDR)lParam;
 
-    switch (pnm->code)
-    {
+    switch (pnm->code) {
     case LVN_GETDISPINFO:
-        OnLVN_GetDispInfo((LV_DISPINFO *)lParam);
+        OnLVN_GetDispInfo((LV_DISPINFO*)lParam);
         break;
 
     case LVN_COLUMNCLICK:
-        OnLVN_ColumnClick((NM_LISTVIEW *)lParam);
+        OnLVN_ColumnClick((NM_LISTVIEW*)lParam);
         break;
 
     case LVN_ITEMCHANGED:
-        OnLVN_ItemChanged((NM_LISTVIEW *)lParam);
+        OnLVN_ItemChanged((NM_LISTVIEW*)lParam);
         break;
 
     case LVN_KEYDOWN:
-        OnLVN_KeyDown((NMLVKEYDOWN *)lParam);
+        OnLVN_KeyDown((NMLVKEYDOWN*)lParam);
         break;
 
     default:
@@ -389,7 +372,7 @@ CFileOwnerDialog::OnNotify(
 
 void
 CFileOwnerDialog::OnLVN_GetDispInfo(
-    LV_DISPINFO *plvdi
+    LV_DISPINFO* plvdi
 )
 {
     static CPath strPath;
@@ -399,10 +382,8 @@ CFileOwnerDialog::OnLVN_GetDispInfo(
     int iOwner = hItem.OwnerIndex();
     int iFile = hItem.FileIndex();
 
-    if (LVIF_TEXT & plvdi->item.mask)
-    {
-        switch (plvdi->item.iSubItem)
-        {
+    if (LVIF_TEXT & plvdi->item.mask) {
+        switch (plvdi->item.iSubItem) {
         case iLVSUBITEM_FILE:
             m_OwnerList.GetFileName(iOwner, iFile, &strPath);
             plvdi->item.pszText = (LPTSTR)strPath.Cstr();
@@ -420,8 +401,7 @@ CFileOwnerDialog::OnLVN_GetDispInfo(
         }
     }
 
-    if (LVIF_IMAGE & plvdi->item.mask)
-    {
+    if (LVIF_IMAGE & plvdi->item.mask) {
 
         // Not displaying any images.  This is just a placeholder.
         // Should be optimized out by compiler.
@@ -437,10 +417,9 @@ CFileOwnerDialog::CompareLVItems(
     LPARAM lParamSort
 )
 {
-    CFileOwnerDialog *pdlg = reinterpret_cast<CFileOwnerDialog *>(lParamSort);
+    CFileOwnerDialog* pdlg = reinterpret_cast<CFileOwnerDialog*>(lParamSort);
     int diff = 0;
-    try
-    {
+    try {
         COwnerListItemHandle h1(lParam1);
         COwnerListItemHandle h2(lParam2);
         int iOwner1 = h1.OwnerIndex();
@@ -461,10 +440,8 @@ CFileOwnerDialog::CompareLVItems(
             { iLVSUBITEM_OWNER,  iLVSUBITEM_FILE,   iLVSUBITEM_FOLDER }
         };
         int iCompare = 0;
-        while (0 == diff && iCompare < ARRAYSIZE(rgColComp))
-        {
-            switch (rgColComp[pdlg->m_iLastColSorted][iCompare++])
-            {
+        while (0 == diff && iCompare < ARRAYSIZE(rgColComp)) {
+            switch (rgColComp[pdlg->m_iLastColSorted][iCompare++]) {
             case iLVSUBITEM_FILE:
                 pdlg->m_OwnerList.GetFileName(iOwner1, iFile1, &s1);
                 pdlg->m_OwnerList.GetFileName(iOwner2, iFile2, &s2);
@@ -501,9 +478,7 @@ CFileOwnerDialog::CompareLVItems(
 
         s1.Empty();
         s2.Empty();
-    }
-    catch (...)
-    {
+    } catch (...) {
 
         // Do nothing.  Just return diff "as is".
         // Don't want to throw an exception back into comctl32.
@@ -515,18 +490,15 @@ CFileOwnerDialog::CompareLVItems(
 
 void
 CFileOwnerDialog::OnLVN_ColumnClick(
-    NM_LISTVIEW *pnmlv
+    NM_LISTVIEW* pnmlv
 )
 {
     DBGTRACE((DM_VIEW, DL_LOW, TEXT("CFileOwnerDialog::OnLVN_ColumnClick")));
 
-    if (m_iLastColSorted != pnmlv->iSubItem)
-    {
+    if (m_iLastColSorted != pnmlv->iSubItem) {
         m_bSortAscending = true;
         m_iLastColSorted = pnmlv->iSubItem;
-    }
-    else
-    {
+    } else {
         m_bSortAscending = !m_bSortAscending;
     }
 
@@ -542,12 +514,12 @@ CFileOwnerDialog::OnLVN_ColumnClick(
 
 void
 CFileOwnerDialog::OnLVN_ItemChanged(
-    NM_LISTVIEW *pnmlv
+    NM_LISTVIEW* pnmlv
 )
 {
-    static const int rgBtns[] = { IDC_BTN_OWNERDLG_DELETE,
+    static const int rgBtns[] = {IDC_BTN_OWNERDLG_DELETE,
                                   IDC_BTN_OWNERDLG_TAKE,
-                                  IDC_BTN_OWNERDLG_MOVETO };
+                                  IDC_BTN_OWNERDLG_MOVETO};
 
 
     // LVN_ITEMCHANGED is sent multiple times when you move the
@@ -556,14 +528,11 @@ CFileOwnerDialog::OnLVN_ItemChanged(
     // for the "new state".  This should be the last call in
     // the series.
 
-    if (LVIS_FOCUSED & pnmlv->uNewState)
-    {
-        for (int i = 0; i < ARRAYSIZE(rgBtns); i++)
-        {
+    if (LVIS_FOCUSED & pnmlv->uNewState) {
+        for (int i = 0; i < ARRAYSIZE(rgBtns); i++) {
             HWND hwnd = GetDlgItem(m_hwndDlg, rgBtns[i]);
             bool bEnable = ShouldEnableButton(rgBtns[i]);
-            if (bEnable != boolify(IsWindowEnabled(hwnd)))
-            {
+            if (bEnable != boolify(IsWindowEnabled(hwnd))) {
                 EnableWindow(hwnd, bEnable);
             }
         }
@@ -573,11 +542,10 @@ CFileOwnerDialog::OnLVN_ItemChanged(
 
 void
 CFileOwnerDialog::OnLVN_KeyDown(
-    NMLVKEYDOWN *plvkd
+    NMLVKEYDOWN* plvkd
 )
 {
-    if (VK_DELETE == plvkd->wVKey)
-    {
+    if (VK_DELETE == plvkd->wVKey) {
         DeleteSelectedFiles(m_hwndLV);
         FocusOnSomethingInListview(m_hwndLV);
     }
@@ -631,8 +599,7 @@ CFileOwnerDialog::CreateListColumns(
 
     ListView_DeleteAllItems(hwndList);
     HWND hwndHeader = ListView_GetHeader(hwndList);
-    if (NULL != hwndHeader)
-    {
+    if (NULL != hwndHeader) {
         while (0 < Header_GetItemCount(hwndHeader))
             ListView_DeleteColumn(hwndList, 0);
     }
@@ -662,10 +629,8 @@ CFileOwnerDialog::CreateListColumns(
     // Add the columns to the listview.
 
     int cCols = bShowOwner ? ARRAYSIZE(rgCols) : ARRAYSIZE(rgCols) - 1;
-    for (INT i = 0; i < cCols; i++)
-    {
-        if (-1 == ListView_InsertColumn(hwndList, i, &rgCols[i]))
-        {
+    for (INT i = 0; i < cCols; i++) {
+        if (-1 == ListView_InsertColumn(hwndList, i, &rgCols[i])) {
             DBGERROR((TEXT("CFileOwnerDialog::CreateListColumns failed to add column %d"), i));
         }
     }
@@ -697,8 +662,7 @@ CFileOwnerDialog::FillListView(
 
     int iFirst = iOwner;
     int iLast = iOwner;
-    if (-1 == iOwner)
-    {
+    if (-1 == iOwner) {
         iFirst = 0;
         iLast = fol.OwnerCount() - 1;
     }
@@ -707,13 +671,10 @@ CFileOwnerDialog::FillListView(
     // WARNING:  Reusing formal arg iOwner.  It's safe to do, but you
     //           should be aware that I'm doing it.
 
-    for (iOwner = iFirst; iOwner <= iLast; iOwner++)
-    {
+    for (iOwner = iFirst; iOwner <= iLast; iOwner++) {
         int cFiles = fol.FileCount(iOwner);
-        for (int iFile = 0; iFile < cFiles; iFile++)
-        {
-            if (!fol.IsFileDeleted(iOwner, iFile))
-            {
+        for (int iFile = 0; iFile < cFiles; iFile++) {
+            if (!fol.IsFileDeleted(iOwner, iFile)) {
                 item.lParam = COwnerListItemHandle(iOwner, iFile);
                 item.iItem = iItem++;
                 if (-1 == ListView_InsertItem(hwndList, &item))
@@ -737,8 +698,7 @@ CFileOwnerDialog::InitializeOwnerCombo(
 
     CString s, s2;
     int cOwners = fol.OwnerCount();
-    if (1 < cOwners)
-    {
+    if (1 < cOwners) {
 
         // Add "all owners" entry.
 
@@ -746,8 +706,7 @@ CFileOwnerDialog::InitializeOwnerCombo(
         ComboBox_InsertString(hwndCombo, -1, s);
     }
 
-    for (int iOwner = 0; iOwner < cOwners; iOwner++)
-    {
+    for (int iOwner = 0; iOwner < cOwners; iOwner++) {
         fol.GetOwnerName(iOwner, &s2);
         s.Format(m_hInstance, IDS_FMT_OWNER, s2.Cstr(), fol.FileCount(iOwner));
         ComboBox_InsertString(hwndCombo, -1, s);
@@ -791,14 +750,12 @@ CFileOwnerDialog::IsSameVolume(
     lstrcpyn(szTemp, pszRoot1, ARRAYSIZE(szTemp));
     PathAddBackslash(szTemp);
 
-    if (GetVolumeNameForVolumeMountPoint(szTemp, szVolGUID1, ARRAYSIZE(szVolGUID1)))
-    {
+    if (GetVolumeNameForVolumeMountPoint(szTemp, szVolGUID1, ARRAYSIZE(szVolGUID1))) {
         TCHAR szVolGUID2[MAX_PATH];
         lstrcpyn(szTemp, pszRoot2, ARRAYSIZE(szTemp));
         PathAddBackslash(szTemp);
 
-        if (GetVolumeNameForVolumeMountPoint(szTemp, szVolGUID2, ARRAYSIZE(szVolGUID2)))
-        {
+        if (GetVolumeNameForVolumeMountPoint(szTemp, szVolGUID2, ARRAYSIZE(szVolGUID2))) {
             if (0 == lstrcmpi(szVolGUID1, szVolGUID2))
                 bSameVolume = true;
         }
@@ -813,7 +770,7 @@ CFileOwnerDialog::IsSameVolume(
 bool
 CFileOwnerDialog::BrowseForFolder(
     HWND hwndParent,
-    CString *pstrFolder
+    CString* pstrFolder
 )
 {
     bool bResult = false;
@@ -861,10 +818,9 @@ CFileOwnerDialog::BrowseForFolderCallback(
 )
 {
     DBGTRACE((DM_VIEW, DL_MID, TEXT("CFileOwnerDialog::BrowseForFolderCallback")));
-    CString *pstrFolder = (CString *)lpData;
+    CString* pstrFolder = (CString*)lpData;
 
-    if (BFFM_SELCHANGED == uMsg)
-    {
+    if (BFFM_SELCHANGED == uMsg) {
         SHGetPathFromIDList((LPCITEMIDLIST)lParam, pstrFolder->GetBuffer(MAX_PATH));
         pstrFolder->ReleaseBuffer();
     }
@@ -885,8 +841,8 @@ CFileOwnerDialog::BrowseForFolderCallback(
 void
 CFileOwnerDialog::BuildListOfSelectedFiles(
     HWND hwndLV,
-    DblNulTermList *pList,
-    CArray<COwnerListItemHandle> *prgItemHandles
+    DblNulTermList* pList,
+    CArray<COwnerListItemHandle>* prgItemHandles
 )
 {
     DBGTRACE((DM_VIEW, DL_MID, TEXT("CFileOwnerDialog::BuildListOfSelectedFiles")));
@@ -896,13 +852,11 @@ CFileOwnerDialog::BuildListOfSelectedFiles(
 
     if (NULL != prgItemHandles)
         prgItemHandles->Clear();
-    while (-1 != (iItem = ListView_GetNextItem(hwndLV, iItem, LVNI_SELECTED)))
-    {
+    while (-1 != (iItem = ListView_GetNextItem(hwndLV, iItem, LVNI_SELECTED))) {
         item.iSubItem = 0;
         item.iItem = iItem;
         item.mask = LVIF_PARAM;
-        if (-1 != ListView_GetItem(hwndLV, &item))
-        {
+        if (-1 != ListView_GetItem(hwndLV, &item)) {
             COwnerListItemHandle hItem(item.lParam);
             m_OwnerList.GetFileFullPath(hItem.OwnerIndex(),
                                         hItem.FileIndex(),
@@ -947,18 +901,15 @@ CFileOwnerDialog::RemoveListViewItems(
 
     CAutoSetRedraw autoredraw(hwndLV, false);
     int cHandles = rgItemHandles.Count();
-    for (int iHandle = 0; iHandle < cHandles; iHandle++)
-    {
+    for (int iHandle = 0; iHandle < cHandles; iHandle++) {
         COwnerListItemHandle handle = rgItemHandles[iHandle];
         int iItem = FindItemFromHandle(hwndLV, handle);
-        if (-1 != iItem)
-        {
+        if (-1 != iItem) {
             int iOwner = handle.OwnerIndex();
             int iFile = handle.FileIndex();
             m_OwnerList.GetFileFullPath(iOwner, iFile, &strPath);
 
-            if ((DWORD)-1 == GetFileAttributes(strPath))
-            {
+            if ((DWORD)-1 == GetFileAttributes(strPath)) {
 
                 // File doesn't exist any more.
                 // Delete from the listview.
@@ -992,8 +943,7 @@ CFileOwnerDialog::DeleteSelectedFiles(
     CArray<COwnerListItemHandle> rgItemHandles;
 
     BuildListOfSelectedFiles(hwndLV, &list, &rgItemHandles);
-    if (0 < list.Count())
-    {
+    if (0 < list.Count()) {
         SHFILEOPSTRUCT fo;
         fo.hwnd = m_hwndDlg;
         fo.wFunc = FO_DELETE;
@@ -1001,8 +951,7 @@ CFileOwnerDialog::DeleteSelectedFiles(
         fo.pTo = NULL;
         fo.fFlags = 0;
 
-        if (0 != SHFileOperation(&fo))
-        {
+        if (0 != SHFileOperation(&fo)) {
             DBGERROR((TEXT("SHFileOperation [FO_DELETE] failed")));
         }
 
@@ -1028,11 +977,9 @@ CFileOwnerDialog::MoveSelectedFiles(
     CArray<COwnerListItemHandle> rgItemHandles;
 
     BuildListOfSelectedFiles(hwndLV, &list, &rgItemHandles);
-    if (0 < list.Count())
-    {
+    if (0 < list.Count()) {
         CPath strDest(pszDest);
-        if (1 == list.Count())
-        {
+        if (1 == list.Count()) {
 
             // If we have only a single file we MUST create a fully-qualified
             // path to the destination file.  Oddities in the shell's move/copy
@@ -1044,8 +991,7 @@ CFileOwnerDialog::MoveSelectedFiles(
 
             LPCTSTR psz;
             DblNulTermListIter iter(list);
-            if (iter.Next(&psz))
-            {
+            if (iter.Next(&psz)) {
                 CPath strSrc(psz);           // Copy the source
                 CPath strFile;
                 strSrc.GetFileSpec(&strFile);// Extract the filename.
@@ -1060,8 +1006,7 @@ CFileOwnerDialog::MoveSelectedFiles(
         fo.pTo = strDest;
         fo.fFlags = FOF_RENAMEONCOLLISION;
 
-        if (0 != SHFileOperation(&fo))
-        {
+        if (0 != SHFileOperation(&fo)) {
             DBGERROR((TEXT("SHFileOperation [FO_MOVE] failed")));
         }
 
@@ -1080,7 +1025,7 @@ CFileOwnerDialog::MoveSelectedFiles(
 
 HRESULT
 CFileOwnerDialog::GetOwnershipSid(
-    array_autoptr<BYTE> *ptrSid
+    array_autoptr<BYTE>* ptrSid
 )
 {
     HRESULT hr = NOERROR;
@@ -1095,21 +1040,16 @@ CFileOwnerDialog::GetOwnershipSid(
     if (!OpenThreadToken(GetCurrentThread(),
                          TOKEN_READ,
                          TRUE,
-                         hToken.HandlePtr()))
-    {
-        if (ERROR_NO_TOKEN == GetLastError())
-        {
+                         hToken.HandlePtr())) {
+        if (ERROR_NO_TOKEN == GetLastError()) {
             if (!OpenProcessToken(GetCurrentProcess(),
                                   TOKEN_READ,
-                                  hToken.HandlePtr()))
-            {
+                                  hToken.HandlePtr())) {
                 dwErr = GetLastError();
                 DBGERROR((TEXT("Error %d opening process token"), dwErr));
                 return HRESULT_FROM_WIN32(dwErr);
             }
-        }
-        else
-        {
+        } else {
             dwErr = GetLastError();
             DBGERROR((TEXT("Error %d opening thread token"), dwErr));
             return HRESULT_FROM_WIN32(dwErr);
@@ -1126,15 +1066,11 @@ CFileOwnerDialog::GetOwnershipSid(
                              TokenGroups,
                              NULL,
                              cbTokenInfo,
-                             &cbTokenInfo))
-    {
+                             &cbTokenInfo)) {
         dwErr = GetLastError();
-        if (ERROR_INSUFFICIENT_BUFFER == dwErr)
-        {
+        if (ERROR_INSUFFICIENT_BUFFER == dwErr) {
             ptrTokenInfo = new BYTE[cbTokenInfo];
-        }
-        else
-        {
+        } else {
             dwErr = GetLastError();
             DBGERROR((TEXT("Error %d getting TokenGroups info [for size]"), dwErr));
             hr = HRESULT_FROM_WIN32(hr);
@@ -1144,31 +1080,25 @@ CFileOwnerDialog::GetOwnershipSid(
 
     // Get the group token information.
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         if (!GetTokenInformation(hToken,
                                  TokenGroups,
                                  ptrTokenInfo.get(),
                                  cbTokenInfo,
-                                 &cbTokenInfo))
-        {
+                                 &cbTokenInfo)) {
             dwErr = GetLastError();
             DBGERROR((TEXT("Error %d getting TokenGroups info"), dwErr));
             hr = HRESULT_FROM_WIN32(dwErr);
-        }
-        else
-        {
+        } else {
 
             // Extract the first SID with the GROUP_OWNER bit set.
 
-            TOKEN_GROUPS *ptg = (TOKEN_GROUPS *)ptrTokenInfo.get();
+            TOKEN_GROUPS* ptg = (TOKEN_GROUPS*)ptrTokenInfo.get();
             DBGASSERT((NULL != ptg));
-            for (DWORD i = 0; i < ptg->GroupCount; i++)
-            {
-                SID_AND_ATTRIBUTES *psa = (SID_AND_ATTRIBUTES *)&ptg->Groups[i];
+            for (DWORD i = 0; i < ptg->GroupCount; i++) {
+                SID_AND_ATTRIBUTES* psa = (SID_AND_ATTRIBUTES*)&ptg->Groups[i];
                 DBGASSERT((NULL != psa));
-                if (SE_GROUP_OWNER & psa->Attributes)
-                {
+                if (SE_GROUP_OWNER & psa->Attributes) {
                     int cbSid = GetLengthSid(psa->Sid);
                     *ptrSid = new BYTE[cbSid];
                     CopySid(cbSid, ptrSid->get(), psa->Sid);
@@ -1179,8 +1109,7 @@ CFileOwnerDialog::GetOwnershipSid(
         }
     }
 
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
 
         // Didn't find a SID from the group information.
         // Use the operator's SID.
@@ -1190,23 +1119,18 @@ CFileOwnerDialog::GetOwnershipSid(
                                  TokenUser,
                                  NULL,
                                  cbTokenInfo,
-                                 &cbTokenInfo))
-        {
+                                 &cbTokenInfo)) {
             dwErr = GetLastError();
-            if (ERROR_INSUFFICIENT_BUFFER == dwErr)
-            {
+            if (ERROR_INSUFFICIENT_BUFFER == dwErr) {
                 ptrTokenInfo = new BYTE[cbTokenInfo];
-            }
-            else
-            {
+            } else {
                 dwErr = GetLastError();
                 DBGERROR((TEXT("Error %d getting TokenUser info [for size]"), dwErr));
                 hr = HRESULT_FROM_WIN32(hr);
             }
         }
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
 
             // Get the user token information.
 
@@ -1214,15 +1138,12 @@ CFileOwnerDialog::GetOwnershipSid(
                                      TokenUser,
                                      ptrTokenInfo.get(),
                                      cbTokenInfo,
-                                     &cbTokenInfo))
-            {
+                                     &cbTokenInfo)) {
                 dwErr = GetLastError();
                 DBGERROR((TEXT("Error %d getting TokenUser info"), dwErr));
                 hr = HRESULT_FROM_WIN32(dwErr);
-            }
-            else
-            {
-                SID_AND_ATTRIBUTES *psa = (SID_AND_ATTRIBUTES *)ptrTokenInfo.get();
+            } else {
+                SID_AND_ATTRIBUTES* psa = (SID_AND_ATTRIBUTES*)ptrTokenInfo.get();
                 DBGASSERT((NULL != psa));
                 int cbSid = GetLengthSid(psa->Sid);
                 *ptrSid = new BYTE[cbSid];
@@ -1231,8 +1152,7 @@ CFileOwnerDialog::GetOwnershipSid(
             }
         }
     }
-    if (SUCCEEDED(hr) && NULL != ptrSid->get() && !IsValidSid(ptrSid->get()))
-    {
+    if (SUCCEEDED(hr) && NULL != ptrSid->get() && !IsValidSid(ptrSid->get())) {
         hr = HRESULT_FROM_WIN32(ERROR_INVALID_SID);
     }
     return hr;
@@ -1263,49 +1183,36 @@ CFileOwnerDialog::TakeOwnershipOfSelectedFiles(
 
     CPath strFile;
     int cHandles = rgItemHandles.Count();
-    for (int i = 0; i < cHandles; i++)
-    {
+    for (int i = 0; i < cHandles; i++) {
         COwnerListItemHandle handle = rgItemHandles[i];
         int iItem = FindItemFromHandle(hwndLV, handle);
-        if (-1 != iItem)
-        {
+        if (-1 != iItem) {
             SECURITY_DESCRIPTOR sd;
-            if (InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION))
-            {
+            if (InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION)) {
                 int iOwner = handle.OwnerIndex();
                 int iFile = handle.FileIndex();
                 m_OwnerList.GetFileFullPath(iOwner, iFile, &strFile);
-                if (SetSecurityDescriptorOwner(&sd, ptrSid.get(), FALSE))
-                {
-                    if (SetFileSecurity(strFile, OWNER_SECURITY_INFORMATION, &sd))
-                    {
+                if (SetSecurityDescriptorOwner(&sd, ptrSid.get(), FALSE)) {
+                    if (SetFileSecurity(strFile, OWNER_SECURITY_INFORMATION, &sd)) {
                         ListView_DeleteItem(hwndLV, iItem);
                         m_OwnerList.MarkFileDeleted(iOwner, iFile);
-                    }
-                    else
-                    {
+                    } else {
                         dwErr = GetLastError();
                         DBGERROR((TEXT("Error %d setting new owner for \"%s\""),
                                   dwErr, strFile.Cstr()));
                         hr = HRESULT_FROM_WIN32(dwErr);
                     }
-                }
-                else
-                {
+                } else {
                     dwErr = GetLastError();
                     DBGERROR((TEXT("Error %d setting security descriptor owner"), dwErr));
                     hr = HRESULT_FROM_WIN32(dwErr);
                 }
-            }
-            else
-            {
+            } else {
                 dwErr = GetLastError();
                 DBGERROR((TEXT("Error %d initing security descriptor"), GetLastError()));
                 hr = HRESULT_FROM_WIN32(dwErr);
             }
-        }
-        else
-        {
+        } else {
             DBGERROR((TEXT("Can't find listview item for owner %d, file %d"),
                       handle.OwnerIndex(), handle.FileIndex()));
         }
@@ -1325,10 +1232,10 @@ CFileOwnerDialog::TakeOwnershipOfSelectedFiles(
 // to fit it into the diskquota project and make it more
 // exception safe.
 
-inline VOID *
-Add2Ptr(VOID *pv, ULONG cb)
+inline VOID*
+Add2Ptr(VOID* pv, ULONG cb)
 {
-    return((BYTE *)pv + cb);
+    return((BYTE*)pv + cb);
 }
 
 inline ULONG
@@ -1345,8 +1252,8 @@ HRESULT
 CFileOwnerDialog::AddFilesToOwnerList(
     LPCTSTR pszVolumeRoot,
     HANDLE hVolumeRoot,
-    IDiskQuotaUser *pOwner,
-    COwnerList *pOwnerList
+    IDiskQuotaUser* pOwner,
+    COwnerList* pOwnerList
 )
 {
     DBGTRACE((DM_VIEW, DL_MID, TEXT("CFileOwnerDialog::AddFilesToOwnerList")));
@@ -1366,8 +1273,7 @@ CFileOwnerDialog::AddFilesToOwnerList(
     // Get owner's SID.
 
     HRESULT hr = pOwner->GetSid(FsCtlInput.Sid, sizeof(FsCtlInput.Sid));
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         DBGERROR((TEXT("IDiskQuotaUser::GetSid failed with hr = 0x%08X"), hr));
         return hr;
     }
@@ -1394,13 +1300,11 @@ CFileOwnerDialog::AddFilesToOwnerList(
         sizeof(DeviceInfo),
         FileFsDeviceInformation);
 
-    if (NT_SUCCESS(status))
-    {
+    if (NT_SUCCESS(status)) {
         bPathIsRemote = (FILE_REMOTE_DEVICE == DeviceInfo.Characteristics);
     }
 
-    while (true)
-    {
+    while (true) {
         status = NtFsControlFile(hVolumeRoot,
                                  NULL,
                                  NULL,
@@ -1414,14 +1318,12 @@ CFileOwnerDialog::AddFilesToOwnerList(
 
         FsCtlInput.Restart = 0;
 
-        if (!NT_SUCCESS(status) && STATUS_BUFFER_OVERFLOW != status)
-        {
+        if (!NT_SUCCESS(status) && STATUS_BUFFER_OVERFLOW != status) {
             DBGERROR((TEXT("NtFsControlFile failed with status 0x%08X"), status));
             return HRESULT_FROM_NT(status);
         }
 
-        if (0 == iosb.Information)
-        {
+        if (0 == iosb.Information) {
 
             // No more data.
 
@@ -1430,8 +1332,7 @@ CFileOwnerDialog::AddFilesToOwnerList(
 
         PFILE_NAME_INFORMATION pFileNameInfo = (PFILE_NAME_INFORMATION)Output;
 
-        while ((PBYTE)pFileNameInfo < Output + iosb.Information)
-        {
+        while ((PBYTE)pFileNameInfo < Output + iosb.Information) {
             ULONG Length = sizeof(FILE_NAME_INFORMATION) - sizeof(WCHAR) +
                 pFileNameInfo->FileNameLength;
 
@@ -1448,13 +1349,10 @@ CFileOwnerDialog::AddFilesToOwnerList(
                                   FILE_OPEN,
                                   hChild.HandlePtr());
 
-            if (!NT_SUCCESS(status))
-            {
+            if (!NT_SUCCESS(status)) {
                 DBGERROR((TEXT("Unable to open file \"%s\".  Status = 0x%08X"),
                           szChild, status));
-            }
-            else
-            {
+            } else {
 
                 // Is the file a directory?  We don't include directories.
 
@@ -1465,13 +1363,10 @@ CFileOwnerDialog::AddFilesToOwnerList(
                                                 &fbi,
                                                 sizeof(fbi),
                                                 FileBasicInformation);
-                if (!NT_SUCCESS(status))
-                {
+                if (!NT_SUCCESS(status)) {
                     DBGERROR((TEXT("NtQueryInformationFile failed with status 0x%08X for \"%s\""),
                               status, szChild));
-                }
-                else if (0 == (FILE_ATTRIBUTE_DIRECTORY & fbi.FileAttributes))
-                {
+                } else if (0 == (FILE_ATTRIBUTE_DIRECTORY & fbi.FileAttributes)) {
 
                     // Get the file's name (full path).
 
@@ -1482,13 +1377,10 @@ CFileOwnerDialog::AddFilesToOwnerList(
                                                     sizeof(szFile),
                                                     FileNameInformation);
 
-                    if (!NT_SUCCESS(status))
-                    {
+                    if (!NT_SUCCESS(status)) {
                         DBGERROR((TEXT("NtQueryInformation file failed with status 0x%08X for \"%s\""),
                                   status, szChild));
-                    }
-                    else
-                    {
+                    } else {
                         PFILE_NAME_INFORMATION pfn = (PFILE_NAME_INFORMATION)szFile;
                         pfn->FileName[pfn->FileNameLength / sizeof(WCHAR)] = L'\0';
                         CPath path;
@@ -1508,13 +1400,10 @@ CFileOwnerDialog::AddFilesToOwnerList(
                         // valid UNC path.  For local paths we prepend the local
                         // drive specification.
 
-                        if (bPathIsRemote)
-                        {
+                        if (bPathIsRemote) {
                             path = L"\\";
                             path += CString(pfn->FileName);
-                        }
-                        else
-                        {
+                        } else {
                             path = pszVolumeRoot;
                             path.Append(pfn->FileName);
                         }
@@ -1544,8 +1433,8 @@ CFileOwnerDialog::AddFilesToOwnerList(
 HRESULT
 CFileOwnerDialog::BuildFileOwnerList(
     LPCTSTR pszVolumeRoot,
-    const CArray<IDiskQuotaUser *>& rgpOwners,
-    COwnerList *pOwnerList
+    const CArray<IDiskQuotaUser*>& rgpOwners,
+    COwnerList* pOwnerList
 )
 {
     DBGTRACE((DM_VIEW, DL_MID, TEXT("CFileOwnerDialog::BuildFileOwnerList")));
@@ -1563,8 +1452,7 @@ CFileOwnerDialog::BuildFileOwnerList(
         return HRESULT_FROM_NT(status);
 
     int cOwners = rgpOwners.Count();
-    for (int i = 0; i < cOwners; i++)
-    {
+    for (int i = 0; i < cOwners; i++) {
         hr = AddFilesToOwnerList(pszVolumeRoot, hVolumeRoot, rgpOwners[i], pOwnerList);
     }
     return hr;
@@ -1583,7 +1471,7 @@ CFileOwnerDialog::OpenNtObject(
     ULONG DesiredAccess,
     ULONG ShareAccess,
     ULONG CreateDisposition,
-    HANDLE *ph)
+    HANDLE* ph)
 {
     NTSTATUS status;
     OBJECT_ATTRIBUTES oa;
@@ -1591,13 +1479,10 @@ CFileOwnerDialog::OpenNtObject(
     IO_STATUS_BLOCK isb;
     bool bFreeString = false;
 
-    if (NULL == RelatedObject)
-    {
+    if (NULL == RelatedObject) {
         RtlDosPathNameToNtPathName_U(pszFile, &str, NULL, NULL);
         bFreeString = true;
-    }
-    else
-    {
+    } else {
         // This just attaches pszFile to the rtl string.
         // We don't free it.
         RtlInitUnicodeString(&str, pszFile);

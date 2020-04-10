@@ -2350,13 +2350,13 @@ FormatMessageWrapW(
     //  Otherwise, it's an opaque LPVOID (aka, an atom).
 
     if (((dwFlags == FORMAT_MESSAGE_FROM_STRING) ||
-        (dwFlags == (FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER))) &&
-         (dwMessageId == 0) && (dwLanguageId == 0)) {
+         (dwFlags == (FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER))) &&
+        (dwMessageId == 0) && (dwLanguageId == 0)) {
         TraceMsg(TF_WARNING, "This is a lite version of FormatMessage.  It may not act as you expect.");
         dwResult = FormatMessageLiteW(dwFlags, (LPCWSTR)lpSource, (PVOID*)lpBuffer, nSize, Arguments);
     } else {
         CStrIn strSource((dwFlags & FORMAT_MESSAGE_FROM_STRING) ? CP_ACP : CP_ATOM,
-            (LPCWSTR)lpSource, -1);
+                         (LPCWSTR)lpSource, -1);
 
         if (!(dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER)) {
             CStrOut str(lpBuffer, nSize);
@@ -4846,7 +4846,7 @@ DWORD GetCharacterPlacementWrapW(
     DWORD dwRet;
 
     dwRet = GetCharacterPlacementA(hdc, strText, nCount, nMaxExtent,
-        (LPGCP_RESULTSA)lpResults,
+                                   (LPGCP_RESULTSA)lpResults,
                                    dwFlags);
     return dwRet;
 }
@@ -4879,7 +4879,7 @@ BOOL WINAPI GetCharWidth32WrapW(
         // Convert string
         ch = (WCHAR)iFirstChar;
         WideCharToMultiByte(CP_ACP, 0, &ch, 1,
-            (char*)&mbChar, 2, NULL, NULL);
+                            (char*)&mbChar, 2, NULL, NULL);
     }
 
     return (GetCharWidthA(hdc, iFirstChar, iLastChar, lpBuffer));
@@ -6033,7 +6033,7 @@ SendMessageAThunk(
             }
 
             iWCharLen = SendMessageAThunk(hWnd, uiMsgTx,
-                ((uiMsgTx == WM_GETTEXT) ? (WPARAM)(iAnsiCharLen + 1) : wParam),
+                                          ((uiMsgTx == WM_GETTEXT) ? (WPARAM)(iAnsiCharLen + 1) : wParam),
                                           (LPARAM)lpwszTemp);
 
         L_Rtn:
@@ -6681,7 +6681,7 @@ SetMenuItemInfoWrapW(
         fRet = SetMenuItemInfoA(hMenu, uItem, fByPosition, &miiA);
     } else {
         fRet = SetMenuItemInfoA(hMenu, uItem, fByPosition,
-            (LPCMENUITEMINFOA)lpmiiW);
+                                (LPCMENUITEMINFOA)lpmiiW);
     }
 
     return fRet;

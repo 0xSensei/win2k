@@ -78,7 +78,7 @@ struct _DDECONV
     LONG        cRef;
     HCONV       hconv;                  // Handle to the conversation;
     BOOL        fDirty;                 // Has any changes been made;
-    IShellLink  *psl;                   // temp link to work with
+    IShellLink* psl;                   // temp link to work with
     TCHAR        szGroup[MAX_PATH];     // Group pathname
     TCHAR        szShare[MAX_PATH];      // Used to override UNC connections.
     TCHAR        chDrive;                // Used to override UNC connections.
@@ -89,21 +89,21 @@ LPTSTR      g_pszLastGroupName = NULL;  // Last group name used for items
                                         // that are created by programs
                                         // that do not setup a context
 
-DDECONV *DDEConv_Create(void)
+DDECONV* DDEConv_Create(void)
 {
-    DDECONV *pddec = (DDECONV *) LocalAlloc(LPTR, SIZEOF(DDECONV));
+    DDECONV* pddec = (DDECONV*)LocalAlloc(LPTR, SIZEOF(DDECONV));
     if (pddec)
         pddec->cRef = 1;
     return pddec;
 }
 
-LONG DDEConv_AddRef(DDECONV *pddec)
+LONG DDEConv_AddRef(DDECONV* pddec)
 {
     ASSERT(pddec->cRef > 0);
     return InterlockedIncrement(&pddec->cRef);
 }
 
-LONG DDEConv_Release(DDECONV *pddec)
+LONG DDEConv_Release(DDECONV* pddec)
 {
     ASSERT(pddec->cRef > 0);
     if (InterlockedDecrement(&pddec->cRef))
@@ -116,14 +116,12 @@ LONG DDEConv_Release(DDECONV *pddec)
     ATOMICRELEASE(pddec->psl);
 
     // Were we forced to create a redirected drive?
-    if (pddec->dwFlags & DDECONV_FORCED_CONNECTION)
-    {
+    if (pddec->dwFlags & DDECONV_FORCED_CONNECTION) {
         // Yep. Clean it up now.
         Net_DisconnectDrive(pddec->chDrive);
     }
 
-    if ((pddec->dwFlags & DDECONV_REPEAT_ACKS) && g_nTimer)
-    {
+    if ((pddec->dwFlags & DDECONV_REPEAT_ACKS) && g_nTimer) {
         KillTimer(NULL, g_nTimer);
         g_nTimer = 0;
     }
@@ -133,7 +131,7 @@ LONG DDEConv_Release(DDECONV *pddec)
 }
 
 
-typedef BOOL (*DDECOMMAND)(LPTSTR lpszBuf, UINT * lpwCmd, PDDECONV pddec);
+typedef BOOL(*DDECOMMAND)(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec);
 typedef struct _DDECOMMANDINFO
 {
     LPCTSTR     pszCommand;
@@ -141,64 +139,64 @@ typedef struct _DDECOMMANDINFO
 } DDECOMMANDINFO;
 
 DWORD GetDDEAppFlagsFromWindow(HWND hwnd);
-UINT* GetDDECommands(LPTSTR lpCmd, const DDECOMMANDINFO *lpsCommands, BOOL fLFN);
+UINT* GetDDECommands(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, BOOL fLFN);
 
 void DDE_AddShellServices(void);
 void DDE_RemoveShellServices(void);
 
-BOOL DDE_CreateGroup(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_ShowGroup(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_AddItem(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_ExitProgman(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_DeleteGroup(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_DeleteItem(LPTSTR, UINT *, PDDECONV);
+BOOL DDE_CreateGroup(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ShowGroup(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_AddItem(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ExitProgman(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_DeleteGroup(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_DeleteItem(LPTSTR, UINT*, PDDECONV);
 // BOOL NEAR PASCAL DDE_ReplaceItem(LPSTR, UINT *, PDDECONV);
 #define DDE_ReplaceItem DDE_DeleteItem
-BOOL DDE_Reload(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_ViewFolder(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_ExploreFolder(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_FindFolder(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_OpenFindFile(LPTSTR, UINT *, PDDECONV);
-BOOL DDE_ConfirmID(LPTSTR lpszBuf, UINT * lpwCmd, PDDECONV pddec);
-BOOL DDE_ShellFile(LPTSTR lpszBuf, UINT * lpwCmd, PDDECONV pddec);
+BOOL DDE_Reload(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ViewFolder(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ExploreFolder(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_FindFolder(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_OpenFindFile(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ConfirmID(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec);
+BOOL DDE_ShellFile(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec);
 #ifdef DEBUG
-BOOL DDE_Beep(LPTSTR, UINT *, PDDECONV);
+BOOL DDE_Beep(LPTSTR, UINT*, PDDECONV);
 #endif
 void MapGroupName(LPCTSTR lpszOld, LPTSTR lpszNew, ULONG cbNew);
 
 TCHAR const c_szGroupGroup[] = TEXT("groups");
 #define c_szStarDotStar TEXT("*.*")
- CHAR const c_szCRLF[] = "\r\n";
+CHAR const c_szCRLF[] = "\r\n";
 
-TCHAR const c_szCreateGroup[]   = TEXT("CreateGroup");
-TCHAR const c_szShowGroup[]     = TEXT("ShowGroup");
-TCHAR const c_szAddItem[]       = TEXT("AddItem");
-TCHAR const c_szExitProgman[]   = TEXT("ExitProgman");
-TCHAR const c_szDeleteGroup[]   = TEXT("DeleteGroup");
-TCHAR const c_szDeleteItem[]    = TEXT("DeleteItem");
-TCHAR const c_szReplaceItem[]   = TEXT("ReplaceItem");
-TCHAR const c_szReload[]        = TEXT("Reload");
-TCHAR const c_szFindFolder[]    = TEXT("FindFolder");
-TCHAR const c_szOpenFindFile[]  = TEXT("OpenFindFile");
+TCHAR const c_szCreateGroup[] = TEXT("CreateGroup");
+TCHAR const c_szShowGroup[] = TEXT("ShowGroup");
+TCHAR const c_szAddItem[] = TEXT("AddItem");
+TCHAR const c_szExitProgman[] = TEXT("ExitProgman");
+TCHAR const c_szDeleteGroup[] = TEXT("DeleteGroup");
+TCHAR const c_szDeleteItem[] = TEXT("DeleteItem");
+TCHAR const c_szReplaceItem[] = TEXT("ReplaceItem");
+TCHAR const c_szReload[] = TEXT("Reload");
+TCHAR const c_szFindFolder[] = TEXT("FindFolder");
+TCHAR const c_szOpenFindFile[] = TEXT("OpenFindFile");
 #define c_szDotPif TEXT(".pif")
-TCHAR const c_szTrioDataFax[]   = TEXT("DDEClient");
-TCHAR const c_szTalkToPlus[]    = TEXT("ddeClass");
-TCHAR const c_szStartUp[]       = TEXT("StartUp");
-TCHAR const c_szCCMail[]        = TEXT("ccInsDDE");
-TCHAR const c_szBodyWorks[]     = TEXT("BWWFrame");
+TCHAR const c_szTrioDataFax[] = TEXT("DDEClient");
+TCHAR const c_szTalkToPlus[] = TEXT("ddeClass");
+TCHAR const c_szStartUp[] = TEXT("StartUp");
+TCHAR const c_szCCMail[] = TEXT("ccInsDDE");
+TCHAR const c_szBodyWorks[] = TEXT("BWWFrame");
 TCHAR const c_szMediaRecorder[] = TEXT("DDEClientWndClass");
-TCHAR const c_szDiscis[]        = TEXT("BACKSCAPE");
-TCHAR const c_szMediaRecOld[]   = TEXT("MediaRecorder");
-TCHAR const c_szMediaRecNew[]   = TEXT("Media Recorder");
-TCHAR const c_szDialog[]        = TEXT("#32770");
-TCHAR const c_szJourneyMan[]    = TEXT("Sender");
-TCHAR const c_szCADDE[]         = TEXT("CA_DDECLASS");
-TCHAR const c_szFaxServe[]      = TEXT("Install");
-TCHAR const c_szMakePMG[]       = TEXT("Make Program Manager Group");
-TCHAR const c_szViewFolder[]    = TEXT("ViewFolder");
+TCHAR const c_szDiscis[] = TEXT("BACKSCAPE");
+TCHAR const c_szMediaRecOld[] = TEXT("MediaRecorder");
+TCHAR const c_szMediaRecNew[] = TEXT("Media Recorder");
+TCHAR const c_szDialog[] = TEXT("#32770");
+TCHAR const c_szJourneyMan[] = TEXT("Sender");
+TCHAR const c_szCADDE[] = TEXT("CA_DDECLASS");
+TCHAR const c_szFaxServe[] = TEXT("Install");
+TCHAR const c_szMakePMG[] = TEXT("Make Program Manager Group");
+TCHAR const c_szViewFolder[] = TEXT("ViewFolder");
 TCHAR const c_szExploreFolder[] = TEXT("ExploreFolder");
-TCHAR const c_szRUCabinet[]     = TEXT("ConfirmCabinetID");
- CHAR const c_szNULLA[] = "";
+TCHAR const c_szRUCabinet[] = TEXT("ConfirmCabinetID");
+CHAR const c_szNULLA[] = "";
 TCHAR const c_szGetIcon[] = TEXT("GetIcon");
 TCHAR const c_szGetDescription[] = TEXT("GetDescription");
 TCHAR const c_szGetWorkingDir[] = TEXT("GetWorkingDir");
@@ -211,15 +209,15 @@ TCHAR const c_szMapGroups[] = REGSTR_PATH_EXPLORER TEXT("\\MapGroups");
 #define c_szStar TEXT("*")
 TCHAR const c_szAppProps[] = TEXT("AppProperties");
 #define c_szDotLnk TEXT(".lnk")
- CHAR const c_szDesktopIniA[] = STR_DESKTOPINIA;
- CHAR const c_szGroupsA[] = "Groups";
+CHAR const c_szDesktopIniA[] = STR_DESKTOPINIA;
+CHAR const c_szGroupsA[] = "Groups";
 
-TCHAR const c_szShellFile[]     = TEXT("ShellFile");
+TCHAR const c_szShellFile[] = TEXT("ShellFile");
 
-TCHAR const c_szMrPostman[]     = TEXT("setupPmFrame");
+TCHAR const c_szMrPostman[] = TEXT("setupPmFrame");
 
 #ifdef DEBUG
-TCHAR const c_szBeep[]          = TEXT("Beep");
+TCHAR const c_szBeep[] = TEXT("Beep");
 #endif
 
 
@@ -243,7 +241,7 @@ DDECOMMANDINFO const c_sDDECommands[] =
     { c_szBeep         , DDE_Beep          },
 #endif
     { 0, 0 },
-} ;
+};
 
 #define HDDENULL        ((HDDEDATA)NULL)
 #define HSZNULL         ((HSZ)NULL)
@@ -262,13 +260,12 @@ typedef struct
     int iIcon;
     BOOL fMin;
     WORD wHotkey;
-} GROUPITEM, *PGROUPITEM;
+} GROUPITEM, * PGROUPITEM;
 
 STDAPI_(void) OpenGroup(LPCTSTR pszGroup, int nCmdShow)
 {
-    IETHREADPARAM *piei = SHCreateIETHREADPARAM(NULL, 0, NULL, NULL);
-    if (piei)
-    {
+    IETHREADPARAM* piei = SHCreateIETHREADPARAM(NULL, 0, NULL, NULL);
+    if (piei) {
         ASSERT(*pszGroup);
         piei->pidl = ILCreateFromPath(pszGroup);
         piei->uFlags = COF_NORMAL | COF_WAITFORPENDING;
@@ -282,13 +279,13 @@ STDAPI_(void) OpenGroup(LPCTSTR pszGroup, int nCmdShow)
 
 // Returns a pointer to the first non-whitespace character in a string.
 LPTSTR SkipWhite(LPTSTR lpsz)
-    {
+{
     /* prevent sign extension in case of DBCS */
     while (*lpsz && (TUCHAR)*lpsz <= TEXT(' '))
         lpsz++;
 
     return(lpsz);
-    }
+}
 
 
 // Reads a parameter out of a string removing leading and trailing whitespace.
@@ -302,99 +299,94 @@ LPTSTR SkipWhite(LPTSTR lpsz)
 // the quoted string will be ignored as before but the quotes won't be
 // removed and anything following the quotes will remain.
 LPTSTR GetOneParameter(LPCTSTR lpCmdStart, LPTSTR lpCmd,
-    UINT *lpW, BOOL fIncludeQuotes)
-    {
+                       UINT* lpW, BOOL fIncludeQuotes)
+{
     LPTSTR     lpT;
 
-    switch (*lpCmd)
-        {
-        case TEXT(','):
-            *lpW = (UINT) (lpCmd - lpCmdStart);  // compute offset
-            *lpCmd++ = 0;                /* comma: becomes a NULL string */
-            break;
+    switch (*lpCmd) {
+    case TEXT(','):
+        *lpW = (UINT)(lpCmd - lpCmdStart);  // compute offset
+        *lpCmd++ = 0;                /* comma: becomes a NULL string */
+        break;
 
-        case TEXT('"'):
-            if (fIncludeQuotes)
-            {
-                TraceMsg(TF_DDE, "GetOneParameter: Keeping quotes.");
+    case TEXT('"'):
+        if (fIncludeQuotes) {
+            TraceMsg(TF_DDE, "GetOneParameter: Keeping quotes.");
 
-                // quoted string... don't trim off "
-                *lpW = (UINT) (lpCmd - lpCmdStart);  // compute offset
-                ++lpCmd;
-                while (*lpCmd && *lpCmd != TEXT('"'))
-                    lpCmd = CharNext(lpCmd);
-                if (!*lpCmd)
-                    return(NULL);
-                lpT = lpCmd;
-                ++lpCmd;
-
-                goto skiptocomma;
-            }
-            else
-            {
-                // quoted string... trim off "
-                ++lpCmd;
-                *lpW = (UINT) (lpCmd - lpCmdStart);  // compute offset
-                while (*lpCmd && *lpCmd != TEXT('"'))
-                    lpCmd = CharNext(lpCmd);
-                if (!*lpCmd)
-                    return(NULL);
-                *lpCmd++ = 0;
-                lpCmd = SkipWhite(lpCmd);
-
-                // If there's a comma next then skip over it, else just go on as
-                // normal.
-                if (*lpCmd == TEXT(','))
-                    lpCmd++;
-            }
-            break;
-
-        case TEXT(')'):
-            return(lpCmd);                /* we ought not to hit this */
-
-        case TEXT('('):
-        case TEXT('['):
-        case TEXT(']'):
-            return(NULL);                 /* these are illegal */
-
-        default:
-            lpT = lpCmd;
-            *lpW = (UINT) (lpCmd - lpCmdStart);  // compute offset
-skiptocomma:
-            while (*lpCmd && *lpCmd != TEXT(',') && *lpCmd != TEXT(')'))
-            {
-                /* Check for illegal characters. */
-                if (*lpCmd == TEXT(']') || *lpCmd == TEXT('[') || *lpCmd == TEXT('(') )
-                    return(NULL);
-
-                /* Remove trailing whitespace */
-                /* prevent sign extension */
-                if ((TUCHAR)*lpCmd > TEXT(' '))
-                    lpT = lpCmd;
-
+            // quoted string... don't trim off "
+            *lpW = (UINT)(lpCmd - lpCmdStart);  // compute offset
+            ++lpCmd;
+            while (*lpCmd && *lpCmd != TEXT('"'))
                 lpCmd = CharNext(lpCmd);
-            }
+            if (!*lpCmd)
+                return(NULL);
+            lpT = lpCmd;
+            ++lpCmd;
 
-            /* Eat any trailing comma. */
+            goto skiptocomma;
+        } else {
+            // quoted string... trim off "
+            ++lpCmd;
+            *lpW = (UINT)(lpCmd - lpCmdStart);  // compute offset
+            while (*lpCmd && *lpCmd != TEXT('"'))
+                lpCmd = CharNext(lpCmd);
+            if (!*lpCmd)
+                return(NULL);
+            *lpCmd++ = 0;
+            lpCmd = SkipWhite(lpCmd);
+
+            // If there's a comma next then skip over it, else just go on as
+            // normal.
             if (*lpCmd == TEXT(','))
                 lpCmd++;
+        }
+        break;
 
-            /* NULL terminator after last nonblank character -- may write over
-             * terminating ')' but the caller checks for that because this is
-             * a hack.
-             */
+    case TEXT(')'):
+        return(lpCmd);                /* we ought not to hit this */
+
+    case TEXT('('):
+    case TEXT('['):
+    case TEXT(']'):
+        return(NULL);                 /* these are illegal */
+
+    default:
+        lpT = lpCmd;
+        *lpW = (UINT)(lpCmd - lpCmdStart);  // compute offset
+    skiptocomma:
+        while (*lpCmd && *lpCmd != TEXT(',') && *lpCmd != TEXT(')')) {
+            /* Check for illegal characters. */
+            if (*lpCmd == TEXT(']') || *lpCmd == TEXT('[') || *lpCmd == TEXT('('))
+                return(NULL);
+
+            /* Remove trailing whitespace */
+            /* prevent sign extension */
+            if ((TUCHAR)*lpCmd > TEXT(' '))
+                lpT = lpCmd;
+
+            lpCmd = CharNext(lpCmd);
+        }
+
+        /* Eat any trailing comma. */
+        if (*lpCmd == TEXT(','))
+            lpCmd++;
+
+        /* NULL terminator after last nonblank character -- may write over
+         * terminating ')' but the caller checks for that because this is
+         * a hack.
+         */
 
 #ifdef UNICODE
-            lpT[1] = 0;
+        lpT[1] = 0;
 #else
-            lpT[IsDBCSLeadByte(*lpT) ? 2 : 1] = 0;
+        lpT[IsDBCSLeadByte(*lpT) ? 2 : 1] = 0;
 #endif
-            break;
-        }
+        break;
+    }
 
     // Return next unused character.
     return(lpCmd);
-    }
+}
 
 
 // Extracts an alphabetic string and looks it up in a list of possible
@@ -402,8 +394,8 @@ skiptocomma:
 // sticking the command index somewhere.
 
 
-LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO * lpsCommands, UINT *lpW)
-    {
+LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, UINT* lpW)
+{
     TCHAR chT;
     UINT iCmd = 0;
     LPTSTR lpT;
@@ -421,21 +413,19 @@ LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO * lpsCommands, UINT *lp
 
     /* Look up the token in a list of commands. */
     *lpW = (UINT)-1;
-    while (lpsCommands->pszCommand)
-        {
-        if (!lstrcmpi(lpsCommands->pszCommand, lpT))
-            {
+    while (lpsCommands->pszCommand) {
+        if (!lstrcmpi(lpsCommands->pszCommand, lpT)) {
             *lpW = iCmd;
             break;
-            }
+        }
         iCmd++;
         ++lpsCommands;
-        }
+    }
 
     *lpCmd = chT;
 
     return(lpCmd);
-    }
+}
 
 /*  Called with: pointer to a string to parse and a pointer to a
  *  list of sz's containing the allowed function names.
@@ -448,115 +438,110 @@ LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO * lpsCommands, UINT *lp
  *  Caller must free block.
 */
 
-UINT* GetDDECommands(LPTSTR lpCmd, const DDECOMMANDINFO * lpsCommands, BOOL fLFN)
+UINT* GetDDECommands(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, BOOL fLFN)
 {
-  UINT cParm, cCmd = 0;
-  UINT *lpW;
-  UINT *lpRet;
-  LPCTSTR lpCmdStart = lpCmd;
-  BOOL fIncludeQuotes = FALSE;
+    UINT cParm, cCmd = 0;
+    UINT* lpW;
+    UINT* lpRet;
+    LPCTSTR lpCmdStart = lpCmd;
+    BOOL fIncludeQuotes = FALSE;
 
-  lpRet = lpW = (UINT*)GlobalAlloc(GPTR, 512L);
-  if (!lpRet)
-      return 0;
+    lpRet = lpW = (UINT*)GlobalAlloc(GPTR, 512L);
+    if (!lpRet)
+        return 0;
 
-  while (*lpCmd)
-    {
-      /* Skip leading whitespace. */
-      lpCmd = SkipWhite(lpCmd);
+    while (*lpCmd) {
+        /* Skip leading whitespace. */
+        lpCmd = SkipWhite(lpCmd);
 
-      /* Are we at a NULL? */
-      if (!*lpCmd)
-        {
-          /* Did we find any commands yet? */
-          if (cCmd)
-              goto GDEExit;
-          else
-              goto GDEErrExit;
+        /* Are we at a NULL? */
+        if (!*lpCmd) {
+            /* Did we find any commands yet? */
+            if (cCmd)
+                goto GDEExit;
+            else
+                goto GDEErrExit;
         }
 
-      /* Each command should be inside square brackets. */
-      if (*lpCmd != TEXT('['))
-          goto GDEErrExit;
-      lpCmd++;
+        /* Each command should be inside square brackets. */
+        if (*lpCmd != TEXT('['))
+            goto GDEErrExit;
+        lpCmd++;
 
-      /* Get the command name. */
-      lpCmd = GetCommandName(lpCmd, lpsCommands, lpW);
-      if (*lpW == (UINT)-1)
-          goto GDEErrExit;
+        /* Get the command name. */
+        lpCmd = GetCommandName(lpCmd, lpsCommands, lpW);
+        if (*lpW == (UINT)-1)
+            goto GDEErrExit;
 
-      // We need to leave quotes in for the first param of an AddItem.
-      if (fLFN && *lpW == 2)
-      {
-          TraceMsg(TF_DDE, "GetDDECommands: Potential LFN AddItem command...");
-          fIncludeQuotes = TRUE;
-      }
+        // We need to leave quotes in for the first param of an AddItem.
+        if (fLFN && *lpW == 2) {
+            TraceMsg(TF_DDE, "GetDDECommands: Potential LFN AddItem command...");
+            fIncludeQuotes = TRUE;
+        }
 
-      lpW++;
+        lpW++;
 
-      /* Start with zero parms. */
-      cParm = 0;
-      lpCmd = SkipWhite(lpCmd);
+        /* Start with zero parms. */
+        cParm = 0;
+        lpCmd = SkipWhite(lpCmd);
 
-      /* Check for opening '(' */
-      if (*lpCmd == TEXT('('))
-        {
-          lpCmd++;
+        /* Check for opening '(' */
+        if (*lpCmd == TEXT('(')) {
+            lpCmd++;
 
-          /* Skip white space and then find some parameters (may be none). */
-          lpCmd = SkipWhite(lpCmd);
+            /* Skip white space and then find some parameters (may be none). */
+            lpCmd = SkipWhite(lpCmd);
 
-          while (*lpCmd != TEXT(')'))
-            {
-              if (!*lpCmd)
-                  goto GDEErrExit;
+            while (*lpCmd != TEXT(')')) {
+                if (!*lpCmd)
+                    goto GDEErrExit;
 
-              // Only the first param of the AddItem command needs to
-              // handle quotes from LFN guys.
-              if (fIncludeQuotes && (cParm != 0))
-                  fIncludeQuotes = FALSE;
+                // Only the first param of the AddItem command needs to
+                // handle quotes from LFN guys.
+                if (fIncludeQuotes && (cParm != 0))
+                    fIncludeQuotes = FALSE;
 
-              /* Get the parameter. */
-              if (!(lpCmd = GetOneParameter(lpCmdStart, lpCmd, lpW + (++cParm), fIncludeQuotes)))
-                  goto GDEErrExit;
+                /* Get the parameter. */
+                if (!(lpCmd = GetOneParameter(lpCmdStart, lpCmd, lpW + (++cParm), fIncludeQuotes)))
+                    goto GDEErrExit;
 
-              /* HACK: Did GOP replace a ')' with a NULL? */
-              if (!*lpCmd)
-                  break;
+                /* HACK: Did GOP replace a ')' with a NULL? */
+                if (!*lpCmd)
+                    break;
 
-              /* Find the next one or ')' */
-              lpCmd = SkipWhite(lpCmd);
+                /* Find the next one or ')' */
+                lpCmd = SkipWhite(lpCmd);
             }
 
-          // Skip closing bracket.
-          lpCmd++;
+            // Skip closing bracket.
+            lpCmd++;
 
-          /* Skip the terminating stuff. */
-          lpCmd = SkipWhite(lpCmd);
+            /* Skip the terminating stuff. */
+            lpCmd = SkipWhite(lpCmd);
         }
 
-      /* Set the count of parameters and then skip the parameters. */
-      *lpW++ = cParm;
-      lpW += cParm;
+        /* Set the count of parameters and then skip the parameters. */
+        *lpW++ = cParm;
+        lpW += cParm;
 
-      /* We found one more command. */
-      cCmd++;
+        /* We found one more command. */
+        cCmd++;
 
-      /* Commands must be in square brackets. */
-      if (*lpCmd != TEXT(']'))
-          goto GDEErrExit;
-      lpCmd++;
+        /* Commands must be in square brackets. */
+        if (*lpCmd != TEXT(']'))
+            goto GDEErrExit;
+        lpCmd++;
     }
 
 GDEExit:
-  /* Terminate the command list with -1. */
-  *lpW = (UINT)-1;
+    /* Terminate the command list with -1. */
+    *lpW = (UINT)-1;
 
-  return lpRet;
+    return lpRet;
 
 GDEErrExit:
-  GlobalFree(lpW);
-  return(0);
+    GlobalFree(lpW);
+    return(0);
 }
 
 
@@ -576,15 +561,14 @@ void _ShortenGroupName(LPTSTR lpName)
 
     ASSERT(lpName);
 
-    while (*pCh)
-    {
+    while (*pCh) {
         // Spaces?
         if (*pCh == TEXT(' '))
             *pCh = TEXT('_');
         // Next
         pCh = CharNext(pCh);
         // Limit to 8 chars.
-        if (pCh-lpName >= 8)
+        if (pCh - lpName >= 8)
             break;
     }
     // Null term.
@@ -599,18 +583,15 @@ void FileName_MakeLegal(LPTSTR lpName)
 
     ASSERT(lpName);
 
-    for (lpT = lpName; *lpT != TEXT('\0'); lpT = CharNext(lpT))
-    {
-        if (!PathIsValidChar(*lpT, g_LFNGroups ? PIVC_LFN_NAME : PIVC_SFN_NAME))
-        {
+    for (lpT = lpName; *lpT != TEXT('\0'); lpT = CharNext(lpT)) {
+        if (!PathIsValidChar(*lpT, g_LFNGroups ? PIVC_LFN_NAME : PIVC_SFN_NAME)) {
             // Don't Allow invalid chars in names
             *lpT = TEXT('_');
         }
     }
 
     // Quick check to see if we support long group names.
-    if (!g_LFNGroups)
-    {
+    if (!g_LFNGroups) {
         // Nope, shorten it.
         _ShortenGroupName(lpName);
     }
@@ -639,8 +620,7 @@ void _CheckForCurrentGroup(PDDECONV pddec)
     // Need a group - if nothing is specified then we default to using
     // the last group name that someone either created or viewed.
 
-    if (!pddec->szGroup[0])
-    {
+    if (!pddec->szGroup[0]) {
         // We will use the last context that was set...
         // Note: after that point, we will not track the new create
         // groups and the like of other contexts.
@@ -650,7 +630,7 @@ void _CheckForCurrentGroup(PDDECONV pddec)
         } else {
             CABINETSTATE cs;
             if (IsUserAnAdmin() &&
-                    (ReadCabinetState(&cs, SIZEOF(cs)), cs.fAdminsCreateCommonGroups)) {
+                (ReadCabinetState(&cs, SIZEOF(cs)), cs.fAdminsCreateCommonGroups)) {
                 SHGetSpecialFolderPath(NULL, pddec->szGroup, CSIDL_COMMON_PROGRAMS, TRUE);
             } else {
                 SHGetSpecialFolderPath(NULL, pddec->szGroup, CSIDL_PROGRAMS, TRUE);
@@ -670,7 +650,7 @@ void _KeepLastGroup(LPCTSTR lpszGroup)
 
     ENTERCRITICAL;
 
-    lpGroup = (LPTSTR)_LocalReAlloc(g_pszLastGroupName, (lstrlen(lpszGroup) + 1) * SIZEOF(TCHAR), LMEM_MOVEABLE|LMEM_ZEROINIT);
+    lpGroup = (LPTSTR)_LocalReAlloc(g_pszLastGroupName, (lstrlen(lpszGroup) + 1) * SIZEOF(TCHAR), LMEM_MOVEABLE | LMEM_ZEROINIT);
     if (lpGroup != NULL) {
         g_pszLastGroupName = lpGroup;
         lstrcpy(g_pszLastGroupName, lpszGroup);
@@ -692,23 +672,20 @@ BOOL _SameLastGroup(LPCTSTR lpszGroup)
     static DWORD dwTimeOut = 0;
     BOOL fRet = FALSE;
 
-    if (lpszGroup && g_pszLastGroupName)
-    {
+    if (lpszGroup && g_pszLastGroupName) {
         // Too soon?
-        if (GetTickCount() - dwTimeOut < 30*1000)
-        {
+        if (GetTickCount() - dwTimeOut < 30 * 1000) {
             LPTSTR pszName1 = PathFindFileName(lpszGroup);
             LPTSTR pszName2 = PathFindFileName(g_pszLastGroupName);
 
             // Yep, same group as last time?
             ENTERCRITICAL;
-            if (lstrcmpi(pszName1, pszName2) == 0)
-            {
+            if (lstrcmpi(pszName1, pszName2) == 0) {
                 // Yep.
                 fRet = TRUE;
             }
             LEAVECRITICAL;
-        }
+    }
     }
 
     dwTimeOut = GetTickCount();
@@ -752,7 +729,7 @@ void GetGroupPath(LPCTSTR pszName, LPTSTR pszPath, DWORD dwFlags, INT iCommonGro
                                         // if find is unsuccessful
             } else {
                 bCommonGroup = FALSE;
-            }
+}
         }
     } else {
 
@@ -768,22 +745,17 @@ void GetGroupPath(LPCTSTR pszName, LPTSTR pszPath, DWORD dwFlags, INT iCommonGro
     {
         if (bCommonGroup) {
             SHGetSpecialFolderPath(NULL, pszPath, CSIDL_COMMON_STARTUP, TRUE);
-        } else {
+    } else {
             SHGetSpecialFolderPath(NULL, pszPath, CSIDL_STARTUP, TRUE);
         }
-    }
-    else
-    {
+    } else {
         // Hack for Media Recorder.
-        if (dwFlags & DDECONV_MAP_MEDIA_RECORDER)
-        {
+        if (dwFlags & DDECONV_MAP_MEDIA_RECORDER) {
             if (lstrcmpi(pszName, c_szMediaRecOld) == 0)
                 lstrcpy(szGroup, c_szMediaRecNew);
             else
                 lstrcpy(szGroup, pszName);
-        }
-        else
-        {
+        } else {
             // Map group name for FE characters which have identical
             // twins in both DBCS/SBCS. Stolen from grpconv's similar
             // function.
@@ -792,12 +764,10 @@ void GetGroupPath(LPCTSTR pszName, LPTSTR pszPath, DWORD dwFlags, INT iCommonGro
         }
 
         // Possibly find existing group
-        if (bFindPersonalGroup)
-        {
+        if (bFindPersonalGroup) {
             SHGetSpecialFolderPath(NULL, pszPath, CSIDL_PROGRAMS, TRUE);
             GenerateGroupName(pszPath, szGroup);
-            if (PathFileExistsAndAttributes(pszPath, NULL))
-            {
+            if (PathFileExistsAndAttributes(pszPath, NULL)) {
                 return;
             }
             bCommonGroup = TRUE;
@@ -812,22 +782,22 @@ void GetGroupPath(LPCTSTR pszName, LPTSTR pszPath, DWORD dwFlags, INT iCommonGro
 
         GenerateGroupName(pszPath, szGroup);
     }
-}
+        }
 
 BOOL IsParameterANumber(LPTSTR lp)
 {
-  while (*lp) {
-      if (*lp < TEXT('0') || *lp > TEXT('9'))
-          return(FALSE);
-      lp++;
-  }
-  return(TRUE);
+    while (*lp) {
+        if (*lp < TEXT('0') || *lp > TEXT('9'))
+            return(FALSE);
+        lp++;
+    }
+    return(TRUE);
 }
 
 
 // [ CreateGroup ( Group Name [, Group File] [,Common Flag] ) ]
 // REVIEW UNDONE Allow the use of a group file to be specified.
-BOOL DDE_CreateGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
+BOOL DDE_CreateGroup(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
 {
     BOOL bRet;
     INT iCommonGroup = -1;
@@ -835,8 +805,7 @@ BOOL DDE_CreateGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
 
     DBG_ENTER(FTF_DDE, DDE_CreateGroup);
 
-    if ((*lpwCmd > 3) || (*lpwCmd == 0))
-    {
+    if ((*lpwCmd > 3) || (*lpwCmd == 0)) {
         bRet = FALSE;
         goto Leave;
     }
@@ -852,46 +821,39 @@ BOOL DDE_CreateGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
             } else {
                 iCommonGroup = 0;
             }
-        } else if (*lpwCmd == 2 && IsParameterANumber(lpszBuf + *(lpwCmd+2))) {
-            if (lpszBuf[*(lpwCmd + 2)] == TEXT('1')) {
-                iCommonGroup = 1;
-            } else {
-                iCommonGroup = 0;
-            }
-        }
+} else if (*lpwCmd == 2 && IsParameterANumber(lpszBuf + *(lpwCmd + 2))) {
+    if (lpszBuf[*(lpwCmd + 2)] == TEXT('1')) {
+        iCommonGroup = 1;
+    } else {
+        iCommonGroup = 0;
+    }
+}
     }
 
     lpwCmd++;
 
     GetGroupPath(&lpszBuf[*lpwCmd], szGroup, pddec->dwFlags, iCommonGroup);
 
-    TraceMsg(TF_DDE, "Create Group %s", (LPTSTR) szGroup);
+    TraceMsg(TF_DDE, "Create Group %s", (LPTSTR)szGroup);
 
     // Stop creating lots of identical folders.
-    if (!_SameLastGroup(szGroup))
-    {
-        lstrcpy(pddec->szGroup,szGroup);    // Now working on this group...
+    if (!_SameLastGroup(szGroup)) {
+        lstrcpy(pddec->szGroup, szGroup);    // Now working on this group...
 
         // If it doesn't exist then create it.
-        if (!PathFileExistsAndAttributes(pddec->szGroup, NULL))
-        {
-            if (CreateDirectory(pddec->szGroup, NULL))
-            {
+        if (!PathFileExistsAndAttributes(pddec->szGroup, NULL)) {
+            if (CreateDirectory(pddec->szGroup, NULL)) {
                 SHChangeNotify(SHCNE_MKDIR, SHCNF_PATH, pddec->szGroup, NULL);
-            }
-            else
-            {
+            } else {
                 bRet = FALSE;
                 goto Leave;
             }
-        }
+}
 
         // Show it.
         OpenGroup(pddec->szGroup, SW_NORMAL);
         _KeepLastGroup(pddec->szGroup);
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_DDE, "Ignoring duplicate CreateGroup");
     }
 
@@ -911,19 +873,19 @@ Leave:
 // Return the hwnd of the guy we're talking too.
 HWND _GetDDEPartnerWindow(HCONV hconv)
 {
-        CONVINFO ci;
+    CONVINFO ci;
 
-        ci.hwndPartner = NULL;
-        ci.cb = SIZEOF(ci);
-        DdeQueryConvInfo(hconv, QID_SYNC, &ci);
-        return ci.hwndPartner;
+    ci.hwndPartner = NULL;
+    ci.cb = SIZEOF(ci);
+    DdeQueryConvInfo(hconv, QID_SYNC, &ci);
+    return ci.hwndPartner;
 }
 
 
 // [ ShowGroup (group_name, wShowParm) ]
 // REVIEW This sets the default group - not neccessarily what progman
 // used to do but probably close enough.
-BOOL DDE_ShowGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
+BOOL DDE_ShowGroup(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
 {
     BOOL bRet;
     int nShowCmd;
@@ -933,8 +895,7 @@ BOOL DDE_ShowGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
 
     DBG_ENTER(FTF_DDE, DDE_ShowGroup);
 
-    if (*lpwCmd < 2 || *lpwCmd > 3)
-    {
+    if (*lpwCmd < 2 || *lpwCmd > 3) {
         bRet = FALSE;
         goto Leave;
     }
@@ -958,8 +919,7 @@ BOOL DDE_ShowGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
 
     // NB VJE-r setup passes an invalid group name to ShowGroup command.
     // Use szGroup and check it before copying it to pddec->szGroup.
-    if (!PathFileExistsAndAttributes(szGroup, NULL))
-    {
+    if (!PathFileExistsAndAttributes(szGroup, NULL)) {
         bRet = FALSE;
         goto Leave;
     }
@@ -972,27 +932,25 @@ BOOL DDE_ShowGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     // Stop lots of cabinet windows from appearing without slowing down the dde
     // conversation if we're just doing a ShowNormal/ShowNA of a group we probably
     // just created.
-    switch (nShowCmd)
+    switch (nShowCmd) {
+    case SW_SHOWNORMAL:
+    case SW_SHOWNOACTIVATE:
+    case SW_SHOW:
+    case SW_SHOWNA:
     {
-        case SW_SHOWNORMAL:
-        case SW_SHOWNOACTIVATE:
-        case SW_SHOW:
-        case SW_SHOWNA:
-        {
-            if (_SameLastGroup(szGroup))
-            {
-                TraceMsg(TF_DDE, "Ignoring duplicate ShowGroup.");
-                bRet = TRUE;
-                goto Leave;
-            }
-            break;
-        }
-        case SW_SHOWMINNOACTIVE:
-        {
-                nShowCmd = SW_SHOWMINIMIZED;
-                break;
-        }
+        if (_SameLastGroup(szGroup)) {
+            TraceMsg(TF_DDE, "Ignoring duplicate ShowGroup.");
+            bRet = TRUE;
+            goto Leave;
     }
+        break;
+    }
+    case SW_SHOWMINNOACTIVE:
+    {
+        nShowCmd = SW_SHOWMINIMIZED;
+        break;
+    }
+}
 
     // It's OK to use the new group.
     lstrcpy(pddec->szGroup, szGroup);
@@ -1011,7 +969,7 @@ Leave:
 
 
 // [ DeleteGroup (group_name) ]
-BOOL DDE_DeleteGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
+BOOL DDE_DeleteGroup(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
 {
     BOOL bRet;
     TCHAR  szGroupName[MAX_PATH];
@@ -1019,8 +977,7 @@ BOOL DDE_DeleteGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
 
     DBG_ENTER(FTF_DDE, DDE_DeleteGroup);
 
-    if (*lpwCmd < 1 || *lpwCmd > 3)
-    {
+    if (*lpwCmd < 1 || *lpwCmd > 3) {
         bRet = FALSE;
         goto Leave;
     }
@@ -1038,8 +995,7 @@ BOOL DDE_DeleteGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
 
     GetGroupPath(&lpszBuf[*lpwCmd], szGroupName, pddec->dwFlags, iCommonGroup);
 
-    if (!PathFileExistsAndAttributes(szGroupName, NULL))
-    {
+    if (!PathFileExistsAndAttributes(szGroupName, NULL)) {
         bRet = FALSE;
         goto Leave;
     }
@@ -1056,7 +1012,7 @@ BOOL DDE_DeleteGroup(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
             szGroupName,
             NULL,
             FOF_RENAMEONCOLLISION | FOF_NOCONFIRMATION | FOF_SILENT,
-        } ;
+        };
 
         TraceMsg(TF_DDE, "Deleting group %s.", szGroupName);
         SHFileOperation(&sFileOp);
@@ -1100,26 +1056,24 @@ BOOL HConv_PartnerIsLFNAware(HCONV hconv)
         return FALSE;
     else
         return Window_IsLFNAware(hwndPartner);
-}
+        }
 
 
 BOOL PrivatePathStripToRoot(LPTSTR szRoot)
 {
-    while(!PathIsRoot(szRoot))
-    {
-        if (!PathRemoveFileSpec(szRoot))
-        {
+    while (!PathIsRoot(szRoot)) {
+        if (!PathRemoveFileSpec(szRoot)) {
             // If we didn't strip anything off,
             // must be current drive
             return(FALSE);
-        }
+}
     }
 
     return(TRUE);
 }
 
 
-BOOL Net_ConnectDrive(LPCTSTR pszShare, TCHAR *pchDrive)
+BOOL Net_ConnectDrive(LPCTSTR pszShare, TCHAR* pchDrive)
 {
     DWORD err;
     NETRESOURCE nr;
@@ -1133,9 +1087,8 @@ BOOL Net_ConnectDrive(LPCTSTR pszShare, TCHAR *pchDrive)
     nr.lpProvider = NULL;
     nr.dwType = RESOURCETYPE_DISK;
     err = WNetUseConnection(NULL, &nr, NULL, NULL, CONNECT_TEMPORARY | CONNECT_REDIRECT,
-        szAccessName, &cbAccessName, &dwResult);
-    if (err == WN_SUCCESS)
-    {
+                            szAccessName, &cbAccessName, &dwResult);
+    if (err == WN_SUCCESS) {
         TraceMsg(TF_DDE, "Net_ConnextDrive: %s %s %x", pszShare, szAccessName, dwResult);
         if (pchDrive)
             *pchDrive = szAccessName[0];
@@ -1159,7 +1112,7 @@ void Path_ChangeUNCToDrive(LPTSTR pszPath, TCHAR chDrive)
     pszPath[2] = TEXT('\\');
     pszSpec = pszPath + lstrlen(szPath) + 1;
     if (*pszSpec)
-        lstrcpy(&pszPath[3],pszSpec);
+        lstrcpy(&pszPath[3], pszSpec);
 }
 
 
@@ -1172,8 +1125,7 @@ LPITEMIDLIST Pidl_CreateUsingAppPaths(LPCTSTR pszApp)
 
     lstrcpy(sz, REGSTR_PATH_APPPATHS);
     PathAppend(sz, pszApp);
-    if (SHRegQueryValue(HKEY_LOCAL_MACHINE, sz, sz, &cb) == ERROR_SUCCESS)
-    {
+    if (SHRegQueryValue(HKEY_LOCAL_MACHINE, sz, sz, &cb) == ERROR_SUCCESS) {
         return ILCreateFromPath(sz);
     }
     return NULL;
@@ -1183,14 +1135,14 @@ LPITEMIDLIST Pidl_CreateUsingAppPaths(LPCTSTR pszApp)
 // [ AddItem (command,name,icopath,index,pointx,pointy, defdir,hotkey,fminimize,fsepvdm) ]
 // This adds things to the current group ie what ever's currently in
 // the conversations szGroup string
-BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
+BOOL DDE_AddItem(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
 {
     BOOL bRet;
     UINT nParams;
 
     TCHAR szTmp[MAX_PATH];
     TCHAR szName[MAX_PATH];
-    TCHAR szCL[MAX_PATH*2];     // scratch for path + args.
+    TCHAR szCL[MAX_PATH * 2];     // scratch for path + args.
     TCHAR szShare[MAX_PATH];
     WCHAR wszPath[MAX_PATH];
     LPTSTR lpszArgs;
@@ -1198,7 +1150,7 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     int nShowCmd;
     BOOL fIconPath = FALSE;
     LPITEMIDLIST pidl;
-    IPersistFile *ppf;
+    IPersistFile* ppf;
     LPTSTR dirs[2];
     TCHAR chDrive;
 
@@ -1209,8 +1161,7 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
 
     // Only certain param combinations are allowed.
     nParams = *lpwCmd;
-    if (nParams < 1 || nParams == 5 || nParams > 10)
-    {
+    if (nParams < 1 || nParams == 5 || nParams > 10) {
         bRet = FALSE;
         goto Leave;
     }
@@ -1220,10 +1171,9 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     // This fixing up was needed for Norton Utilities 2.0 which passed
     // unquoted long filenames with spaces.
 
-    *szCL = 0 ;
+    *szCL = 0;
     lpwCmd++;
-    if( lpszBuf && lpszBuf[*lpwCmd] )
-    {
+    if (lpszBuf && lpszBuf[*lpwCmd]) {
         TCHAR szTmp[MAX_PATH * 2];
         int cch;
 
@@ -1231,8 +1181,7 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
         cch = lstrlen(szTmp);
 
         // Is this string inside quotes?
-        if ((cch > 1) && (szTmp[0] == TEXT('"')) && (szTmp[cch-1] == TEXT('"')))
-        {
+        if ((cch > 1) && (szTmp[0] == TEXT('"')) && (szTmp[cch - 1] == TEXT('"'))) {
             LPTSTR pszChar;
 
             // HACKHACK (reinerf)
@@ -1240,38 +1189,32 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
             // others apps pass a quoted relative path that does NOT have args, but _does_ contain spaces (eg WSFtpPro6).
             // so we only strip off the outside quotes if one of the characters inside is NOT a legal filename character,
             // indicating that there are args in the string
-            for (pszChar = &szTmp[1]; pszChar < &szTmp[cch-1]; pszChar = CharNext(pszChar))
-            {
-                if (!PathIsValidChar(*pszChar, PIVC_LFN_FULLPATH | PIVC_ALLOW_QUOTE))
-                {
+            for (pszChar = &szTmp[1]; pszChar < &szTmp[cch - 1]; pszChar = CharNext(pszChar)) {
+                if (!PathIsValidChar(*pszChar, PIVC_LFN_FULLPATH | PIVC_ALLOW_QUOTE)) {
                     // we found something that isint a legal path character (eg '/'), so we assume that this
                     // string has args within the quotes and we strip them off (eg ""c:\foo\bar.exe /s /v:1"")
                     PathUnquoteSpaces(szTmp);
                     break;
-                }
+}
             }
         }
 
-        if( PathProcessCommand( szTmp, szCL, ARRAYSIZE(szCL),
-                                PPCF_ADDQUOTES|PPCF_ADDARGUMENTS|PPCF_LONGESTPOSSIBLE ) <= 0 )
-            lstrcpyn( szCL, szTmp, ARRAYSIZE(szCL) ) ;
+        if (PathProcessCommand(szTmp, szCL, ARRAYSIZE(szCL),
+                               PPCF_ADDQUOTES | PPCF_ADDARGUMENTS | PPCF_LONGESTPOSSIBLE) <= 0)
+            lstrcpyn(szCL, szTmp, ARRAYSIZE(szCL));
     }
 
-    if( !*szCL )
-    {
-        bRet = FALSE ;
-        goto Leave ;
+    if (!*szCL) {
+        bRet = FALSE;
+        goto Leave;
     }
 
 #ifdef DEBUG
     // Separate the args.
-    if (HConv_PartnerIsLFNAware(pddec->hconv))
-    {
+    if (HConv_PartnerIsLFNAware(pddec->hconv)) {
         // Quotes will have been left in the string.
         TraceMsg(TF_DDE, "Partner is LFN aware.");
-    }
-    else
-    {
+    } else {
         // Quotes will have been removed from the string.
         TraceMsg(TF_DDE, "Partner is not LFN aware.");
     }
@@ -1286,7 +1229,7 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     PathRemoveBlanks(szCL);
     lpszArgs = PathGetArgs(szCL);
     if (*lpszArgs)
-        *(lpszArgs-1) = TEXT('\0');
+        *(lpszArgs - 1) = TEXT('\0');
 
     // Win32/Win4.0 setup apps are allowed to use paths with (quoted)
     // spaces in them so we may need to remove them now.
@@ -1295,8 +1238,7 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     pddec->psl->SetArguments(lpszArgs);
 
     // Special case UNC paths.
-    if ((pddec->dwFlags & DDECONV_NO_UNC) && PathIsUNC(szCL))
-    {
+    if ((pddec->dwFlags & DDECONV_NO_UNC) && PathIsUNC(szCL)) {
         // CL is a UNC but we know this app can't handle UNC's, we'll need to
         // fake up a drive for it.
         TraceMsg(TF_DDE, "Mapping UNC to drive.");
@@ -1305,20 +1247,16 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
         lstrcpy(szShare, szCL);
         PrivatePathStripToRoot(szShare);
         // Do we already have a cached connection to this server share?
-        if (lstrcmpi(szShare, pddec->szShare) == 0)
-        {
+        if (lstrcmpi(szShare, pddec->szShare) == 0) {
             // Yes
             TraceMsg(TF_DDE, "Using cached connection.");
             // Mangle the path to use the drive instead of the UNC.
             Path_ChangeUNCToDrive(szCL, pddec->chDrive);
-        }
-        else
-        {
+        } else {
             // No
             TraceMsg(TF_DDE, "Creating new connection.");
             // Make a connection.
-            if (Net_ConnectDrive(szShare, &chDrive))
-            {
+            if (Net_ConnectDrive(szShare, &chDrive)) {
                 // Store the server/share.
                 lstrcpy(pddec->szShare, szShare);
                 // Store the drive.
@@ -1327,19 +1265,16 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
                 pddec->dwFlags |= DDECONV_FORCED_CONNECTION;
                 // Mangle the path to use the drive instead of the UNC.
                 Path_ChangeUNCToDrive(szCL, pddec->chDrive);
-            }
-            else
-            {
+            } else {
                 TraceMsg(TF_DDE, "Can't create connection.");
             }
-        }
+    }
         TraceMsg(TF_DDE, "CL changed to %s.", szCL);
     }
 
     // Is there a name?
     szName[0] = TEXT('\0');
-    if (nParams > 1)
-    {
+    if (nParams > 1) {
         // Yep,
         lpwCmd++;
         lstrcpy(szName, &lpszBuf[*lpwCmd]);
@@ -1356,50 +1291,42 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     // it.
 
     // Deal with the icon path.
-    if (nParams > 2)
-    {
+    if (nParams > 2) {
         lpwCmd++;
         lstrcpy(szTmp, &lpszBuf[*lpwCmd]);
-        if (*szTmp)
-        {
+        if (*szTmp) {
             // Some idiots try to put arguments on the icon path line.
             lpszArgs = PathGetArgs(szTmp);
             if (*lpszArgs)
-                *(lpszArgs-1) = TEXT('\0');
+                *(lpszArgs - 1) = TEXT('\0');
             // Save it.
             fIconPath = TRUE;
-        }
     }
-    else
-    {
+    } else {
         szTmp[0] = TEXT('\0');
     }
 
     iIcon = 0;
     // Icon index
-    if (nParams > 3)
-    {
+    if (nParams > 3) {
         lpwCmd++;
         // They must have had an icon path for this to make sense.
-        if (fIconPath)
-        {
+        if (fIconPath) {
             iIcon = StrToInt(&lpszBuf[*lpwCmd]);
             // REVIEW Don't support icon indexs > 666 hack anymore.
             // It used to mark this item as the selected one. This
             // won't work in the new shell.
-            if (iIcon >= 666)
-            {
+            if (iIcon >= 666) {
                 iIcon -= 666;
             }
         }
-    }
+}
 
     pddec->psl->SetIconLocation(szTmp, iIcon);
 
     // Get the point :-)
     // REVIEW UNDONE ForcePt stuff for ReplaceItem.
-    if (nParams > 4)
-    {
+    if (nParams > 4) {
         POINT ptIcon;
         lpwCmd++;
         ptIcon.x = StrToInt(&lpszBuf[*lpwCmd]);
@@ -1408,20 +1335,16 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     }
 
     // The working dir. Do we need a default one?
-    if (nParams > 6)
-    {
+    if (nParams > 6) {
         lpwCmd++;
         lstrcpy(szTmp, &lpszBuf[*lpwCmd]);
-    }
-    else
-    {
+    } else {
         szTmp[0] = TEXT('\0');
     }
 
     // If we don't have a default directory, try to derive one from the
     // given CL (unless it's a UNC).
-    if (!szTmp[0])
-    {
+    if (!szTmp[0]) {
         // Use the command for this.
         // REVIEW UNDONE It would be better fo the WD and the IP to be
         // moveable like the CL.
@@ -1442,8 +1365,7 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     PathResolve(szCL, (LPCTSTR*)dirs, PRF_TRYPROGRAMEXTENSIONS | PRF_VERIFYEXISTS);
 
     pidl = ILCreateFromPath(szCL);
-    if (!pidl)
-    {
+    if (!pidl) {
         TraceMsg(TF_DDE, "Can't create IL from path. Using simple idlist.");
         // REVIEW UNDONE Check that the file doesn't exist.
         pidl = SHSimpleIDListFromPath(szCL);
@@ -1451,19 +1373,15 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
         // to wordpad.exe but since that's now not on the path
         // we can't find it. The fix is to do what ShellExec does
         // and check the App Paths section of the registry.
-        if (!pidl)
-        {
+        if (!pidl) {
             pidl = Pidl_CreateUsingAppPaths(szCL);
         }
     }
 
-    if (pidl)
-    {
+    if (pidl) {
         pddec->psl->SetIDList(pidl);
         ILFree(pidl);
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_DDE, "Can't create idlist for %s", szCL);
 
         if (pddec->dwFlags & DDECONV_ALLOW_INVALID_CL)
@@ -1475,37 +1393,29 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     }
 
     // Hotkey.
-    if (nParams > 7)
-    {
+    if (nParams > 7) {
         WORD wHotkey;
         lpwCmd++;
         wHotkey = (WORD)StrToInt(&lpszBuf[*lpwCmd]);
         pddec->psl->SetHotkey(wHotkey);
-    }
-    else
-    {
+    } else {
         pddec->psl->SetHotkey(0);
     }
 
     // Show command
-    if (nParams > 8)
-    {
+    if (nParams > 8) {
         lpwCmd++;
         if (StrToInt(&lpszBuf[*lpwCmd]))
             nShowCmd = SW_SHOWMINNOACTIVE;
         else
             nShowCmd = SW_SHOWNORMAL;
         pddec->psl->SetShowCmd(nShowCmd);
-    }
-    else
-    {
+    } else {
         pddec->psl->SetShowCmd(SW_SHOWNORMAL);
     }
-    if (nParams > 9)
-    {
+    if (nParams > 9) {
         lpwCmd++;
-        if (StrToInt(&lpszBuf[*lpwCmd]))
-        {
+        if (StrToInt(&lpszBuf[*lpwCmd])) {
             // BUGBUG - BobDay - Handle Setup of Seperate VDM flag!
             // pddec->psl->SetSeperateVDM(pddec->psl, wHotkey);
         }
@@ -1518,8 +1428,7 @@ BOOL DDE_AddItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
     PathQualify(szTmp);
 
     // We need to handle link duplication problems on SFN drives.
-    if (!IsLFNDrive(szTmp) && PathFileExistsAndAttributes(szTmp, NULL))
-    {
+    if (!IsLFNDrive(szTmp) && PathFileExistsAndAttributes(szTmp, NULL)) {
         PathYetAnotherMakeUniqueName(szTmp, szTmp, NULL, NULL);
     }
 
@@ -1550,19 +1459,16 @@ Leave:
 
 // [ DeleteItem (ItemName)]
 // This deletes the specified item from a group
-BOOL DDE_DeleteItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
+BOOL DDE_DeleteItem(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
 {
     BOOL bRet;
     TCHAR szPath[MAX_PATH];
 
     DBG_ENTER(FTF_DDE, DDE_DeleteItem);
 
-    if (*lpwCmd != 1)
-    {
+    if (*lpwCmd != 1) {
         bRet = FALSE;
-    }
-    else
-    {
+    } else {
         lpwCmd++;
 
         // Make sure group name is setup
@@ -1591,7 +1497,7 @@ BOOL DDE_DeleteItem(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
 // old installations from barfing.
 // REVIEW UNDONE - We should keep track of the groups we've shown
 // and maybe hide them now.
-BOOL DDE_ExitProgman(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
+BOOL DDE_ExitProgman(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
 {
     return TRUE;
 }
@@ -1599,7 +1505,7 @@ BOOL DDE_ExitProgman(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
 
 // [ Reload (???) ]
 // REVIEW Just return FALSE
-BOOL DDE_Reload(LPTSTR lpszBuf, UINT *lpwCmd, PDDECONV pddec)
+BOOL DDE_Reload(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
 {
     return FALSE;
 }
@@ -1610,8 +1516,7 @@ PDDECONV DDE_MapHConv(HCONV hconv)
     PDDECONV pddec;
 
     ENTERCRITICAL;
-    for (pddec = g_pddecHead; pddec != NULL; pddec = pddec->pddecNext)
-    {
+    for (pddec = g_pddecHead; pddec != NULL; pddec = pddec->pddecNext) {
         if (pddec->hconv == hconv)
             break;
     }
@@ -1621,7 +1526,7 @@ PDDECONV DDE_MapHConv(HCONV hconv)
 
     LEAVECRITICAL;
 
-    TraceMsg(TF_DDE, "Mapping " SPRINTF_PTR " -> " SPRINTF_PTR , (DWORD_PTR)hconv, (ULONG_PTR)(LPVOID)pddec);
+    TraceMsg(TF_DDE, "Mapping " SPRINTF_PTR " -> " SPRINTF_PTR, (DWORD_PTR)hconv, (ULONG_PTR)(LPVOID)pddec);
     return(pddec);
 }
 
@@ -1634,20 +1539,19 @@ PDDECONV DDE_MapHConv(HCONV hconv)
 typedef struct _SHDDEERR {      // sde (Software Design Engineer, Not!)
     UINT idMsg;
     TCHAR szParam[MAX_PATH];
-} SHDDEERR, *PSHDDEERR;
+} SHDDEERR, * PSHDDEERR;
 
 
 // Helper function to convert passed in command parameters into the
 // appropriate Id list
-LPITEMIDLIST _GetPIDLFromDDEArgs(UINT nArg, LPTSTR lpszBuf, UINT * lpwCmd, PSHDDEERR psde, LPCITEMIDLIST *ppidlGlobal)
+LPITEMIDLIST _GetPIDLFromDDEArgs(UINT nArg, LPTSTR lpszBuf, UINT* lpwCmd, PSHDDEERR psde, LPCITEMIDLIST* ppidlGlobal)
 {
     LPTSTR lpsz;
     LPITEMIDLIST pidl = NULL;
 
     // Switch from 0-based to 1-based
     ++nArg;
-    if (*lpwCmd < nArg)
-    {
+    if (*lpwCmd < nArg) {
         TraceMsg(TF_DDE, "Invalid parameter count of %d", *lpwCmd);
         return NULL;
     }
@@ -1664,48 +1568,39 @@ LPITEMIDLIST _GetPIDLFromDDEArgs(UINT nArg, LPTSTR lpszBuf, UINT * lpwCmd, PSHDD
     // a pointer to a pidl (win95 classic) or a handle:pid (all other
     // platforms including win95+IE4)
 
-    if (lpsz[0] == TEXT(':'))
-    {
+    if (lpsz[0] == TEXT(':')) {
         HANDLE hMem;
         DWORD  dwProcId;
         LPTSTR pszNextColon;
 
         // Convert the string into a pidl.
 
-        hMem =  LongToHandle(StrToLong((LPTSTR)(lpsz+1))) ;
-        pszNextColon = StrChr(lpsz+1,TEXT(':'));
-        if (pszNextColon)
-        {
+        hMem = LongToHandle(StrToLong((LPTSTR)(lpsz + 1)));
+        pszNextColon = StrChr(lpsz + 1, TEXT(':'));
+        if (pszNextColon) {
             LPITEMIDLIST pidlShared;
 
-            dwProcId = (DWORD)StrToLong(pszNextColon+1);
-            pidlShared = (LPITEMIDLIST)SHLockShared(hMem,dwProcId);
-            if (pidlShared && !IsBadReadPtr(pidlShared,1))
-            {
+            dwProcId = (DWORD)StrToLong(pszNextColon + 1);
+            pidlShared = (LPITEMIDLIST)SHLockShared(hMem, dwProcId);
+            if (pidlShared && !IsBadReadPtr(pidlShared, 1)) {
                 pidl = ILClone(pidlShared);
                 SHUnlockShared(pidlShared);
-            }
-            else
-            {
+            } else {
                 TraceMsg(TF_WARNING, "DDE SHMem failed - App probably forgot to pass SEE_MASK_FLAG_DDEWAIT");
             }
-            SHFreeShared(hMem,dwProcId);
-        }
-        else if ( hMem && !IsBadReadPtr( hMem, sizeof(WORD)))
-        {
+            SHFreeShared(hMem, dwProcId);
+        } else if (hMem && !IsBadReadPtr(hMem, sizeof(WORD))) {
             // this is likely to be browser only mode on win95 with the old pidl arguments which is
             // going to be in shared memory.... (must be cloned into local memory)...
-            pidl = ILClone((LPITEMIDLIST) hMem);
+            pidl = ILClone((LPITEMIDLIST)hMem);
 
             // this will get freed if we succeed.
-            ASSERT( ppidlGlobal );
-            *ppidlGlobal = (LPITEMIDLIST) hMem;
-        }
+            ASSERT(ppidlGlobal);
+            *ppidlGlobal = (LPITEMIDLIST)hMem;
+    }
 
         return pidl;
-    }
-    else
-    {
+    } else {
         TCHAR tszQual[MAX_PATH];
 
         // We must copy to a temp buffer because the PathQualify may
@@ -1715,28 +1610,26 @@ LPITEMIDLIST _GetPIDLFromDDEArgs(UINT nArg, LPTSTR lpszBuf, UINT * lpwCmd, PSHDD
         lpsz = tszQual;
 
         // Is this a URL?
-        if ( !PathIsURL(lpsz) )
-            {
+        if (!PathIsURL(lpsz)) {
             // No; qualify it
             PathQualify(lpsz);
-            }
+        }
         pidl = ILCreateFromPath(lpsz);
-        if (pidl==NULL && psde) {
+        if (pidl == NULL && psde) {
             psde->idMsg = IDS_CANTFINDDIR;
             lstrcpyn(psde->szParam, lpsz, ARRAYSIZE(psde->szParam));
-        }
+}
         return pidl;
     }
 }
 
 
-LPITEMIDLIST GetPIDLFromDDEArgs(LPTSTR lpszBuf, UINT * lpwCmd, PSHDDEERR psde, LPCITEMIDLIST * ppidlGlobal)
+LPITEMIDLIST GetPIDLFromDDEArgs(LPTSTR lpszBuf, UINT* lpwCmd, PSHDDEERR psde, LPCITEMIDLIST* ppidlGlobal)
 {
     LPITEMIDLIST pidl = _GetPIDLFromDDEArgs(1, lpszBuf, lpwCmd, psde, ppidlGlobal);
-    if (!pidl)
-    {
+    if (!pidl) {
         pidl = _GetPIDLFromDDEArgs(0, lpszBuf, lpwCmd, psde, ppidlGlobal);
-    }
+}
 
     return pidl;
 }
@@ -1766,17 +1659,14 @@ HRESULT GetExplorerPath(LPTSTR pszExplorer, DWORD cchSize)
 
     // This process is either iexplore.exe or explorer.exe.
     // If it's explorer.exe, we want to use it's path also.
-    if (GetModuleFileName(NULL, pszExplorer, cchSize))
-    {
+    if (GetModuleFileName(NULL, pszExplorer, cchSize)) {
         LPCTSTR pszFileName = PathFindFileName(pszExplorer);
 
         // This may not be the explorer.exe process.
-        if (0 != StrCmpI(pszFileName, SZ_EXPLORER_EXE))
-        {
+        if (0 != StrCmpI(pszFileName, SZ_EXPLORER_EXE)) {
             StrCpyN(pszExplorer, SZ_EXPLORER_EXE, cchSize);
         }
-    }
-    else
+    } else
         hr = HRESULT_FROM_WIN32(GetLastError());
 
     return hr;
@@ -1801,7 +1691,7 @@ BOOL IsDesktopProcess(HWND hwnd)
 // after that is the starting offset into lpszBuf
 // for the respective parameter.
 
-BOOL DoDDE_ViewFolder(IShellBrowser* psb, HWND hwndParent, LPTSTR pszBuf, UINT *puCmd, BOOL fExplore, DWORD dwHotKey, HMONITOR hMonitor)
+BOOL DoDDE_ViewFolder(IShellBrowser* psb, HWND hwndParent, LPTSTR pszBuf, UINT* puCmd, BOOL fExplore, DWORD dwHotKey, HMONITOR hMonitor)
 {
     // used to support the older win95 (browser only mode) Global passing of pidl pointers..
     LPITEMIDLIST pidlGlobal = NULL;
@@ -1814,29 +1704,25 @@ BOOL DoDDE_ViewFolder(IShellBrowser* psb, HWND hwndParent, LPTSTR pszBuf, UINT *
         return FALSE;   // Wrong number of arguments
 
     // The ShowWindow parameter is the third
-    nCmdShow = StrToLong(&pszBuf[*(puCmd+3)]);
+    nCmdShow = StrToLong(&pszBuf[*(puCmd + 3)]);
 
     pidl = GetPIDLFromDDEArgs(pszBuf, puCmd, &sde, (LPCITEMIDLIST*)&pidlGlobal);
-    if (pidl)
-    {
-        IETHREADPARAM *pfi = SHCreateIETHREADPARAM(NULL, nCmdShow, NULL, NULL);
-        if (pfi)
-        {
+    if (pidl) {
+        IETHREADPARAM* pfi = SHCreateIETHREADPARAM(NULL, nCmdShow, NULL, NULL);
+        if (pfi) {
             pfi->hwndCaller = hwndParent;
             pfi->pidl = ILClone(pidl);
             pfi->wHotkey = (UINT)dwHotKey;
             pfi->uFlags = COF_NORMAL;
             pfi->psbCaller = psb;
-            if (psb)
-            {
+            if (psb) {
                 psb->AddRef();          // for pfi->psbCaller
             }
 
             psb = NULL;                 // ownership transferred to pfi!
 
             // Check for a :0 thing. Probably came from the command line.
-            if (lstrcmpi(&pszBuf[*(puCmd+2)], TEXT(":0")) != 0)
-            {
+            if (lstrcmpi(&pszBuf[*(puCmd + 2)], TEXT(":0")) != 0) {
                 // we need to use COF_USEOPENSETTINGS here.  this is where the open
                 // from within cabinets happen.  if it's done via the command line
                 // then it will esentially turn to COF_NORMAL because the a cabinet
@@ -1845,8 +1731,7 @@ BOOL DoDDE_ViewFolder(IShellBrowser* psb, HWND hwndParent, LPTSTR pszBuf, UINT *
                 pfi->uFlags = COF_USEOPENSETTINGS;
             }
 
-            if (hMonitor != NULL)
-            {
+            if (hMonitor != NULL) {
                 pfi->pidlRoot = reinterpret_cast<LPITEMIDLIST>(hMonitor);
                 pfi->uFlags |= COF_HASHMONITOR;
             }
@@ -1859,12 +1744,10 @@ BOOL DoDDE_ViewFolder(IShellBrowser* psb, HWND hwndParent, LPTSTR pszBuf, UINT *
             // However, shell windows need to be in the same second explorer.exe instance.
             BOOL bSepProcess = FALSE;
 
-            if (IsDesktopProcess(hwndParent))
-            {
+            if (IsDesktopProcess(hwndParent)) {
                 bSepProcess = TRUE;
 
-                if (!SHRestricted(REST_SEPARATEDESKTOPPROCESS))
-                {
+                if (!SHRestricted(REST_SEPARATEDESKTOPPROCESS)) {
                     SHELLSTATE ss;
 
                     SHGetSetSettings(&ss, SSF_SEPPROCESS, FALSE);
@@ -1872,42 +1755,35 @@ BOOL DoDDE_ViewFolder(IShellBrowser* psb, HWND hwndParent, LPTSTR pszBuf, UINT *
                 }
             }
 
-            if (bSepProcess)
-            {
+            if (bSepProcess) {
                 TCHAR szExplorer[MAX_PATH];
                 TCHAR szCmdLine[MAX_PATH];
-                SHELLEXECUTEINFO ei = { SIZEOF(ei), 0, NULL, NULL, szExplorer, szCmdLine, NULL, SW_SHOWNORMAL};
+                SHELLEXECUTEINFO ei = {SIZEOF(ei), 0, NULL, NULL, szExplorer, szCmdLine, NULL, SW_SHOWNORMAL};
 
                 DWORD dwProcess = GetCurrentProcessId();
                 HANDLE hIdList = NULL;
 
                 GetExplorerPath(szExplorer, ARRAYSIZE(szExplorer));
                 fSuccess = TRUE;
-                if (pfi->pidl)
-                {
+                if (pfi->pidl) {
                     hIdList = SHAllocShared(pfi->pidl, ILGetSize(pfi->pidl), dwProcess);
                     wsprintf(szCmdLine, TEXT("/IDLIST,:%ld:%ld"), hIdList, dwProcess);
                     if (!hIdList)
                         fSuccess = FALSE;
-                }
-                else
-                {
+                } else {
                     lstrcpy(szCmdLine, TEXT("/IDLIST,:0"));
                 }
 
                 _FlagsToParams(pfi->uFlags, szCmdLine + lstrlen(szCmdLine));
 
-                if (fSuccess)
-                {
+                if (fSuccess) {
                     fSuccess = ShellExecuteEx(&ei);
                 }
                 if (!fSuccess && hIdList)
                     SHFreeShared(hIdList, dwProcess);
 
                 SHDestroyIETHREADPARAM(pfi);
-            }
-            else
-            {
+            } else {
 
                 // Check if this is a folder or not. If not, we always create
                 // a new window (even though we can browse in-place). If you
@@ -1915,11 +1791,9 @@ BOOL DoDDE_ViewFolder(IShellBrowser* psb, HWND hwndParent, LPTSTR pszBuf, UINT *
 
                 //  I don't like it...  not for the explore case.
 
-                if (!(pfi->uFlags & COF_EXPLORE))
-                {
+                if (!(pfi->uFlags & COF_EXPLORE)) {
                     ULONG dwAttr = SFGAO_FOLDER;
-                    if (SUCCEEDED(SHGetAttributesOf(pidl, &dwAttr)) && !(dwAttr & SFGAO_FOLDER))
-                    {
+                    if (SUCCEEDED(SHGetAttributesOf(pidl, &dwAttr)) && !(dwAttr & SFGAO_FOLDER)) {
                         pfi->uFlags |= COF_CREATENEWWINDOW;
                     }
                 }
@@ -1933,42 +1807,38 @@ BOOL DoDDE_ViewFolder(IShellBrowser* psb, HWND hwndParent, LPTSTR pszBuf, UINT *
                                 // to create process as this will blow up...
         }
         ILFree(pidl);
-    }
-    else
-    {
-        if (sde.idMsg)
-        {
+    } else {
+        if (sde.idMsg) {
             ShellMessageBox(HINST_THISDLL, hwndParent,
-                MAKEINTRESOURCE(sde.idMsg), MAKEINTRESOURCE(IDS_CABINET),
-                MB_OK|MB_ICONHAND|MB_SETFOREGROUND, sde.szParam);
+                            MAKEINTRESOURCE(sde.idMsg), MAKEINTRESOURCE(IDS_CABINET),
+                            MB_OK | MB_ICONHAND | MB_SETFOREGROUND, sde.szParam);
         }
         fSuccess = FALSE;
     }
 
-    if (fSuccess && pidlGlobal)
-    {
+    if (fSuccess && pidlGlobal) {
         // WIN95 Browser only mode, only free it if we succeeded
         ILGlobalFree(pidlGlobal);
     }
 
     return fSuccess;
-}
+            }
 
 
-BOOL DDE_ViewFolder(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
+BOOL DDE_ViewFolder(LPTSTR lpszBuf, UINT* puCmd, PDDECONV pddec)
 {
     return DoDDE_ViewFolder(NULL, NULL, lpszBuf, puCmd, FALSE, 0, NULL);
 }
 
 
 // BUGBUG ExploreFolder and ViewFolder do the same thing right now.
-BOOL DDE_ExploreFolder(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
+BOOL DDE_ExploreFolder(LPTSTR lpszBuf, UINT* puCmd, PDDECONV pddec)
 {
     return DoDDE_ViewFolder(NULL, NULL, lpszBuf, puCmd, TRUE, 0, NULL);
 }
 
 
-BOOL DDE_FindFolder(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
+BOOL DDE_FindFolder(LPTSTR lpszBuf, UINT* puCmd, PDDECONV pddec)
 {
     LPITEMIDLIST pidl;
     LPITEMIDLIST pidlNetwork;
@@ -1976,8 +1846,7 @@ BOOL DDE_FindFolder(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
 
     pidl = GetPIDLFromDDEArgs(lpszBuf, puCmd, NULL, (LPCITEMIDLIST*)&pidlGlobal);
 
-    if (pidl != NULL)
-    {
+    if (pidl != NULL) {
         // A very large hack.  If the pidl is to the network neighborhood,
         // we do a FindComputer instead!
         pidlNetwork = SHCloneSpecialIDList(NULL, CSIDL_NETWORK, FALSE);
@@ -1990,8 +1859,8 @@ BOOL DDE_FindFolder(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
         ILFree(pidl);
 
         // WIN95 browser only mode, backwards compatibility
-        if ( pidlGlobal )
-            ILGlobalFree( pidlGlobal );
+        if (pidlGlobal)
+            ILGlobalFree(pidlGlobal);
 
         return TRUE;
     }
@@ -2001,29 +1870,27 @@ BOOL DDE_FindFolder(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
 
 // This processes the Find Folder command.  It is used for both for selecting
 // Find on a folders context menu as well as opening a find file.
-BOOL DDE_OpenFindFile(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
+BOOL DDE_OpenFindFile(LPTSTR lpszBuf, UINT* puCmd, PDDECONV pddec)
 {
     LPITEMIDLIST pidl;
     LPITEMIDLIST pidlGlobal = NULL;
 
     pidl = GetPIDLFromDDEArgs(lpszBuf, puCmd, NULL, (LPCITEMIDLIST*)&pidlGlobal);
 
-    if (pidl != NULL)
-    {
+    if (pidl != NULL) {
         SHFindFiles(NULL, pidl);
 
         // WIN95 browser only mode, backwards compatibility
-        if ( pidlGlobal )
-            ILGlobalFree( pidlGlobal );
+        if (pidlGlobal)
+            ILGlobalFree(pidlGlobal);
 
         return(TRUE);
-    }
-    else
+    } else
         return(FALSE);
 }
 
 
-BOOL DDE_ConfirmID(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
+BOOL DDE_ConfirmID(LPTSTR lpszBuf, UINT* puCmd, PDDECONV pddec)
 {
     BOOL bRet;
 
@@ -2037,13 +1904,12 @@ BOOL DDE_ConfirmID(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
 
 
 #ifdef DEBUG
-BOOL DDE_Beep(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
+BOOL DDE_Beep(LPTSTR lpszBuf, UINT* puCmd, PDDECONV pddec)
 {
 #if 0
     int i;
 
-    for (i=*puCmd; i>=0; --i)
-    {
+    for (i = *puCmd; i >= 0; --i) {
         MessageBeep(0);
     }
     return(TRUE);
@@ -2053,8 +1919,7 @@ BOOL DDE_Beep(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
     dwTime = GetTickCount();
     TraceMsg(TF_DDE, "Spin...");
     // Spin. Spin. Spin. Huh Huh. Cool.
-    while ((GetTickCount()-dwTime) < 4000)
-    {
+    while ((GetTickCount() - dwTime) < 4000) {
         // Spin.
     }
     TraceMsg(TF_DDE, "Spinning done.");
@@ -2064,7 +1929,7 @@ BOOL DDE_Beep(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
 #endif
 
 
-BOOL DDE_ShellFile(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
+BOOL DDE_ShellFile(LPTSTR lpszBuf, UINT* puCmd, PDDECONV pddec)
 {
     LPITEMIDLIST pidlGlobal = NULL;
     LPITEMIDLIST pidl = GetPIDLFromDDEArgs(lpszBuf, puCmd, NULL, (LPCITEMIDLIST*)&pidlGlobal);
@@ -2075,8 +1940,8 @@ BOOL DDE_ShellFile(LPTSTR lpszBuf, UINT * puCmd, PDDECONV pddec)
         ILFree(pidl);
 
         // WIN95 browser only mode, backwards compatibility
-        if ( pidlGlobal )
-            ILGlobalFree( pidlGlobal );
+        if (pidlGlobal)
+            ILGlobalFree(pidlGlobal);
 
         return TRUE;
     }
@@ -2088,11 +1953,9 @@ VOID CALLBACK TimerProc_RepeatAcks(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD
 {
     HWND hwndPartner;
 
-    if (g_hwndDde)
-    {
+    if (g_hwndDde) {
         hwndPartner = _GetDDEPartnerWindow((HCONV)g_hwndDde);
-        if (hwndPartner)
-        {
+        if (hwndPartner) {
             TraceMsg(TF_DDE, "DDE partner (%x) appears to be stuck - repeating Ack.", hwndPartner);
             PostMessage(hwndPartner, WM_DDE_ACK, (WPARAM)g_hwndDde, 0);
         }
@@ -2102,11 +1965,11 @@ VOID CALLBACK TimerProc_RepeatAcks(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD
 
 HDDEDATA HandleDDEExecute(HDDEDATA hData, HCONV hconv)
 {
-    UINT *lpwCmd;
-    UINT *lpwCmdTemp;
+    UINT* lpwCmd;
+    UINT* lpwCmdTemp;
     UINT wCmd;
     PDDECONV pddec;
-    HDDEDATA hddeRet = (HDDEDATA) DDE_FACK;
+    HDDEDATA hddeRet = (HDDEDATA)DDE_FACK;
     UINT nErr;
     LPTSTR pszBuf;
     int cbData;
@@ -2114,15 +1977,13 @@ HDDEDATA HandleDDEExecute(HDDEDATA hData, HCONV hconv)
     DBG_ENTER(FTF_DDE, HandleDDEExecute);
 
     pddec = DDE_MapHConv(hconv);
-    if (pddec == NULL)
-    {
+    if (pddec == NULL) {
         // Could not find conversation
         hddeRet = HDDENULL;
         goto Leave;
     }
 
-    if ((pddec->dwFlags & DDECONV_REPEAT_ACKS) && g_nTimer)
-    {
+    if ((pddec->dwFlags & DDECONV_REPEAT_ACKS) && g_nTimer) {
         KillTimer(NULL, g_nTimer);
         g_nTimer = 0;
     }
@@ -2131,16 +1992,14 @@ HDDEDATA HandleDDEExecute(HDDEDATA hData, HCONV hconv)
     // which requires about 300bytes - better just allocate it on
     // the fly.
     cbData = DdeGetData(hData, NULL, 0, 0L);
-    if (cbData == 0)
-    {
+    if (cbData == 0) {
         // No data?
         hddeRet = HDDENULL;
         goto Leave;
     }
 
     pszBuf = (LPTSTR)LocalAlloc(LPTR, cbData);
-    if (!pszBuf)
-    {
+    if (!pszBuf) {
         TraceMsg(TF_ERROR, "HandleDDEExecute: Can't allocate buffer (%d)", cbData);
         ASSERT(0);
         hddeRet = HDDENULL;
@@ -2148,8 +2007,7 @@ HDDEDATA HandleDDEExecute(HDDEDATA hData, HCONV hconv)
     }
 
     cbData = DdeGetData(hData, (LPBYTE)pszBuf, cbData, 0L);
-    if (cbData == 0)
-    {
+    if (cbData == 0) {
         nErr = DdeGetLastError(g_dwDDEInst);
         TraceMsg(TF_ERROR, "HandleDDEExecute: Data invalid (%d).", nErr);
         LocalFree(pszBuf);
@@ -2171,22 +2029,20 @@ HDDEDATA HandleDDEExecute(HDDEDATA hData, HCONV hconv)
     // properly translate the data for us because they correctly determine
     // ANSI/UNICODE conversions from the WM_DDE_INITIATE message.
 
-    if ((cbData>2) &&
-        ((*((LPBYTE)pszBuf)==(BYTE)' ') || (*((LPBYTE)pszBuf)==(BYTE)'[')) &&
-        (*((LPBYTE)pszBuf+1)!=0 ))
-    {
+    if ((cbData > 2) &&
+        ((*((LPBYTE)pszBuf) == (BYTE)' ') || (*((LPBYTE)pszBuf) == (BYTE)'[')) &&
+        (*((LPBYTE)pszBuf + 1) != 0)) {
         // We think that pszBuf is an ANSI string, so convert it
         LPTSTR pszUBuf;
 
-        pszUBuf = (LPTSTR)LocalAlloc( LPTR, cbData * SIZEOF(WCHAR) );
-        MultiByteToWideChar( CP_ACP, 0, (LPCSTR)pszBuf, -1, pszUBuf, cbData );
-        LocalFree( pszBuf );
+        pszUBuf = (LPTSTR)LocalAlloc(LPTR, cbData * SIZEOF(WCHAR));
+        MultiByteToWideChar(CP_ACP, 0, (LPCSTR)pszBuf, -1, pszUBuf, cbData);
+        LocalFree(pszBuf);
         pszBuf = pszUBuf;
     }
 #endif // UNICODE
 
-    if (pszBuf[0] == TEXT('\0'))
-    {
+    if (pszBuf[0] == TEXT('\0')) {
         TraceMsg(TF_ERROR, "HandleDDEExecute: Empty execute command.");
         LocalFree(pszBuf);
         ASSERT(0);
@@ -2198,17 +2054,15 @@ HDDEDATA HandleDDEExecute(HDDEDATA hData, HCONV hconv)
     TraceMsg(TF_DDE, "Executing %s", pszBuf);
 
     lpwCmd = GetDDECommands(pszBuf, c_sDDECommands, HConv_PartnerIsLFNAware(hconv));
-    if (!lpwCmd)
-    {
+    if (!lpwCmd) {
         TraceMsg(TF_ERROR, "HandleDDEExecute: Invalid command.");
         LocalFree(pszBuf);
         ASSERT(0);
 
         // Make sure Discis installers get the Ack they're waiting for.
-        if ((pddec->dwFlags & DDECONV_REPEAT_ACKS) && !g_nTimer)
-        {
+        if ((pddec->dwFlags & DDECONV_REPEAT_ACKS) && !g_nTimer) {
             g_nTimer = SetTimer(NULL, IDT_REPEAT_ACKS, 1000, (TIMERPROC)TimerProc_RepeatAcks);
-        }
+}
 
         hddeRet = HDDENULL;
         goto Leave;
@@ -2218,29 +2072,25 @@ HDDEDATA HandleDDEExecute(HDDEDATA hData, HCONV hconv)
     lpwCmdTemp = lpwCmd;
 
     // Execute a command.
-    while (*lpwCmd != (UINT)-1)
-    {
+    while (*lpwCmd != (UINT)-1) {
         wCmd = *lpwCmd++;
         // Subtract 1 to account for the terminating NULL
-        if (wCmd < ARRAYSIZE(c_sDDECommands)-1)
-        {
-            if (!c_sDDECommands[wCmd].lpfnCommand(pszBuf, lpwCmd, pddec))
-            {
+        if (wCmd < ARRAYSIZE(c_sDDECommands) - 1) {
+            if (!c_sDDECommands[wCmd].lpfnCommand(pszBuf, lpwCmd, pddec)) {
                 hddeRet = HDDENULL;
             }
         }
 
         // Next command.
         lpwCmd += *lpwCmd + 1;
-    }
+}
 
     // Tidyup...
     GlobalFree(lpwCmdTemp);
     LocalFree(pszBuf);
 
     // Make sure Discis installers get the Ack they're waiting for.
-    if ((pddec->dwFlags & DDECONV_REPEAT_ACKS) && !g_nTimer)
-    {
+    if ((pddec->dwFlags & DDECONV_REPEAT_ACKS) && !g_nTimer) {
         g_nTimer = SetTimer(NULL, IDT_REPEAT_ACKS, 1000, (TIMERPROC)TimerProc_RepeatAcks);
     }
 
@@ -2252,25 +2102,21 @@ Leave:
     DBG_EXIT_DWORD(FTF_DDE, HandleDDEExecute, hddeRet);
 
     return hddeRet;
-}
+    }
 
 
 // NOTE: ANSI ONLY
 
 // Used for filtering out hidden, . and .. stuff.
 
-BOOL FindData_FileIsNormalA(WIN32_FIND_DATAA *lpfd)
+BOOL FindData_FileIsNormalA(WIN32_FIND_DATAA* lpfd)
 {
     if ((lpfd->dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) ||
-        lstrcmpiA(lpfd->cFileName, c_szDesktopIniA) == 0)
-    {
+        lstrcmpiA(lpfd->cFileName, c_szDesktopIniA) == 0) {
         return FALSE;
-    }
-    else if (lpfd->cFileName[0] == '.')
-    {
+    } else if (lpfd->cFileName[0] == '.') {
         if ((lpfd->cFileName[1] == '\0') ||
-            ((lpfd->cFileName[1] == '.') && (lpfd->cFileName[2] == '\0')))
-        {
+            ((lpfd->cFileName[1] == '.') && (lpfd->cFileName[2] == '\0'))) {
             return FALSE;
         }
     }
@@ -2301,8 +2147,7 @@ HDDEDATA EnumGroups(HSZ hszItem)
     // BUGBUG - BobDay - Is this right? Can't we do all in unicode?
 
 #ifdef UNICODE
-    if (0 == WideCharToMultiByte(CP_ACP, 0, szGroup, -1, szAGroup, MAX_PATH, NULL, NULL))
-    {
+    if (0 == WideCharToMultiByte(CP_ACP, 0, szGroup, -1, szAGroup, MAX_PATH, NULL, NULL)) {
         return NULL;
     }
     hff = FindFirstFileA(szAGroup, &fd);
@@ -2310,27 +2155,21 @@ HDDEDATA EnumGroups(HSZ hszItem)
     hff = FindFirstFile(szGroup, &fd);
 #endif
 
-    if (hff != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
+    if (hff != INVALID_HANDLE_VALUE) {
+        do {
             if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-                (FindData_FileIsNormalA(&fd)))
-            {
+                (FindData_FileIsNormalA(&fd))) {
                 LPSTR lpsz;
                 // Data is seperated by \r\n.
                 cch = lstrlenA(fd.cFileName) + 2;
-                lpsz = (LPSTR)_LocalReAlloc(lpszBuf, cbBuf + (cch + 1) * SIZEOF(TCHAR), LMEM_MOVEABLE|LMEM_ZEROINIT);
-                if (lpsz)
-                {
+                lpsz = (LPSTR)_LocalReAlloc(lpszBuf, cbBuf + (cch + 1) * SIZEOF(TCHAR), LMEM_MOVEABLE | LMEM_ZEROINIT);
+                if (lpsz) {
                     // Copy it over.
                     lpszBuf = lpsz;
                     lstrcpyA(lpszBuf + cbBuf, fd.cFileName);
                     lstrcatA(lpszBuf + cbBuf, c_szCRLF);
-                    cbBuf = cbBuf + cch ;
-                }
-                else
-                {
+                    cbBuf = cbBuf + cch;
+        } else {
                     cbBuf = 0;
                     break;
                 }
@@ -2349,64 +2188,53 @@ HDDEDATA EnumGroups(HSZ hszItem)
             PathAppend(szGroup, c_szStarDotStar);
 
 #ifdef UNICODE
-            if (0 == WideCharToMultiByte(CP_ACP, 0, szGroup, -1, szAGroup, MAX_PATH, NULL, NULL))
-            {
+            if (0 == WideCharToMultiByte(CP_ACP, 0, szGroup, -1, szAGroup, MAX_PATH, NULL, NULL)) {
                 return NULL;
-            }
+                }
             hff = FindFirstFileA(szAGroup, &fd);
 #else
             hff = FindFirstFile(szGroup, &fd);
 #endif
 
 
-            if (hff != INVALID_HANDLE_VALUE)
-            {
-                do
-                {
+            if (hff != INVALID_HANDLE_VALUE) {
+                do {
                     if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-                            (FindData_FileIsNormalA(&fd)))
-                    {
-                        LPSTR lpsz;
-                         // Data is seperated by \r\n.
-                         cch = lstrlenA(fd.cFileName) + 2;
-                         lpsz = (LPSTR)_LocalReAlloc(lpszBuf, cbBuf + (cch + 1) * SIZEOF(TCHAR), LMEM_MOVEABLE|LMEM_ZEROINIT);
-                         if (lpsz)
-                         {
-                             // Copy it over.
-                             lpszBuf = lpsz;
-                             lstrcpyA(lpszBuf + cbBuf, fd.cFileName);
-                             lstrcatA(lpszBuf + cbBuf, c_szCRLF);
-                             cbBuf = cbBuf + cch ;
-                         }
-                         else
-                         {
-                             cbBuf = 0;
-                             break;
-                         }
-                    }
-                } while (FindNextFileA(hff, &fd));
-                FindClose(hff);
+                        (FindData_FileIsNormalA(&fd))) {
+            LPSTR lpsz;
+            // Data is seperated by \r\n.
+            cch = lstrlenA(fd.cFileName) + 2;
+            lpsz = (LPSTR)_LocalReAlloc(lpszBuf, cbBuf + (cch + 1) * SIZEOF(TCHAR), LMEM_MOVEABLE | LMEM_ZEROINIT);
+            if (lpsz) {
+                // Copy it over.
+                lpszBuf = lpsz;
+                lstrcpyA(lpszBuf + cbBuf, fd.cFileName);
+                lstrcatA(lpszBuf + cbBuf, c_szCRLF);
+                cbBuf = cbBuf + cch;
+            } else {
+                cbBuf = 0;
+                break;
+            }
+        }
+        } while (FindNextFileA(hff, &fd));
+        FindClose(hff);
             }
         }
 
         // Now package up the data and return.
-        if (lpszBuf)
-        {
+        if (lpszBuf) {
             // Don't stomp on the last crlf, Word hangs while setting up
             // if this isn't present, just stick a null on the end.
             lpszBuf[cbBuf] = TEXT('\0');
-            if (hszItem)
-            {
-                hData = DdeCreateDataHandle(g_dwDDEInst, (LPBYTE)lpszBuf, cbBuf+1, 0, hszItem, CF_TEXT, 0);
-            }
-            else
-            {
+            if (hszItem) {
+                hData = DdeCreateDataHandle(g_dwDDEInst, (LPBYTE)lpszBuf, cbBuf + 1, 0, hszItem, CF_TEXT, 0);
+            } else {
                 // Handle NULL hszItems (Logitech Fotomans installer does this). We need to create
                 // a new hszItem otherwise DDEML gets confused (Null hszItems are only supposed to
                 // be for DDE_EXECUTE data handles).
                 TraceMsg(TF_WARNING, "EnumGroups: Invalid (NULL) hszItem used in request, creating new valid one.");
                 hszItem = _DdeCreateStringHandle(g_dwDDEInst, c_szGroupsA, CP_WINANSI);
-                hData = DdeCreateDataHandle(g_dwDDEInst, (LPBYTE)lpszBuf, cbBuf+1, 0, hszItem, CF_TEXT, 0);
+                hData = DdeCreateDataHandle(g_dwDDEInst, (LPBYTE)lpszBuf, cbBuf + 1, 0, hszItem, CF_TEXT, 0);
                 DdeFreeStringHandle(g_dwDDEInst, hszItem);
             }
             LocalFree(lpszBuf);
@@ -2438,7 +2266,7 @@ void ConstructIconPath(LPTSTR pszIP, LPCTSTR pszCL, LPCTSTR pszWD)
 }
 
 
-BOOL GroupItem_GetLinkInfo(LPCTSTR lpszGroupPath, PGROUPITEM pgi, LPCITEMIDLIST pidlLink, IShellFolder * psf, IShellLink *psl, IPersistFile *ppf)
+BOOL GroupItem_GetLinkInfo(LPCTSTR lpszGroupPath, PGROUPITEM pgi, LPCITEMIDLIST pidlLink, IShellFolder* psf, IShellLink* psl, IPersistFile* ppf)
 {
     BOOL fRet = FALSE;
     DWORD dwAttribs;
@@ -2448,10 +2276,8 @@ BOOL GroupItem_GetLinkInfo(LPCTSTR lpszGroupPath, PGROUPITEM pgi, LPCITEMIDLIST 
     ASSERT(psf);
 
     dwAttribs = SFGAO_LINK;
-    if (SUCCEEDED(psf->GetAttributesOf(1, &pidlLink, &dwAttribs)))
-    {
-        if (dwAttribs & SFGAO_LINK)
-        {
+    if (SUCCEEDED(psf->GetAttributesOf(1, &pidlLink, &dwAttribs))) {
+        if (dwAttribs & SFGAO_LINK) {
             STRRET str;
             TCHAR szName[MAX_PATH];
 
@@ -2459,8 +2285,7 @@ BOOL GroupItem_GetLinkInfo(LPCTSTR lpszGroupPath, PGROUPITEM pgi, LPCITEMIDLIST 
             // Copy it.
             // Stick pointers in pgi.
             if (SUCCEEDED(psf->GetDisplayNameOf(pidlLink, SHGDN_NORMAL, &str)) &&
-                SUCCEEDED(StrRetToBuf(&str, pidlLink, szName, ARRAYSIZE(szName))))
-            {
+                SUCCEEDED(StrRetToBuf(&str, pidlLink, szName, ARRAYSIZE(szName)))) {
                 TCHAR sz[MAX_PATH], szCL[MAX_PATH];
                 WCHAR wszPath[MAX_PATH];
 
@@ -2475,11 +2300,9 @@ BOOL GroupItem_GetLinkInfo(LPCTSTR lpszGroupPath, PGROUPITEM pgi, LPCITEMIDLIST 
                 ppf->Load(wszPath, 0);
                 // Copy all the data.
                 szCL[0] = TEXT('\0');
-                if (SUCCEEDED(psl->GetPath(szCL, ARRAYSIZE(szCL), NULL, SLGP_SHORTPATH)))
-                {
+                if (SUCCEEDED(psl->GetPath(szCL, ARRAYSIZE(szCL), NULL, SLGP_SHORTPATH))) {
                     // Valid CL?
-                    if (szCL[0])
-                    {
+                    if (szCL[0]) {
                         int nShowCmd;
                         TCHAR szArgs[MAX_PATH];
 
@@ -2487,8 +2310,7 @@ BOOL GroupItem_GetLinkInfo(LPCTSTR lpszGroupPath, PGROUPITEM pgi, LPCITEMIDLIST 
                         szArgs[0] = 0;
                         psl->GetArguments(szArgs, ARRAYSIZE(szArgs));
                         lstrcpy(sz, szCL);
-                        if (szArgs[0])
-                        {
+                        if (szArgs[0]) {
                             lstrcat(sz, TEXT(" "));
                             StrCatBuff(sz, szArgs, ARRAYSIZE(sz));
                         }
@@ -2498,8 +2320,7 @@ BOOL GroupItem_GetLinkInfo(LPCTSTR lpszGroupPath, PGROUPITEM pgi, LPCITEMIDLIST 
                         sz[0] = TEXT('\0');
                         psl->GetWorkingDirectory(sz, ARRAYSIZE(sz));
                         TraceMsg(TF_DDE, "GroupItem_GetLinkInfo: WD %s", sz);
-                        if (sz[0])
-                        {
+                        if (sz[0]) {
                             TCHAR szShortPath[MAX_PATH];
                             if (GetShortPathName(sz, szShortPath, ARRAYSIZE(szShortPath)))
                                 lstrcpy(sz, szShortPath);
@@ -2508,13 +2329,10 @@ BOOL GroupItem_GetLinkInfo(LPCTSTR lpszGroupPath, PGROUPITEM pgi, LPCITEMIDLIST 
                         pgi->pszWD = StrDup(sz);
                         // Now setup the Show Command - Need to map to index numbers...
                         psl->GetShowCmd(&nShowCmd);
-                        if (nShowCmd == SW_SHOWMINNOACTIVE)
-                        {
+                        if (nShowCmd == SW_SHOWMINNOACTIVE) {
                             TraceMsg(TF_DDE, "GroupItem_GetLinkInfo: Show min.");
                             pgi->fMin = TRUE;
-                        }
-                        else
-                        {
+                        } else {
                             TraceMsg(TF_DDE, "GroupItem_GetLinkInfo: Show normal.");
                             pgi->fMin = FALSE;
                         }
@@ -2535,12 +2353,10 @@ BOOL GroupItem_GetLinkInfo(LPCTSTR lpszGroupPath, PGROUPITEM pgi, LPCITEMIDLIST 
                         psl->GetHotkey(&pgi->wHotkey);
                         // Success.
                         fRet = TRUE;
-                    }
-                    else
-                    {
+                    } else {
                         // Deal with links to weird things.
                         TraceMsg(TF_DDE, "GroupItem_GetLinkInfo: Invalid command line.");
-                    }
+                        }
                 }
             }
         }
@@ -2566,15 +2382,15 @@ HDDEDATA EnumItemsInGroup(HSZ hszItem, LPCTSTR lpszGroup)
 {
     HRESULT hres;
     LPITEMIDLIST pidl, pidlGroup;
-    IShellFolder * psf;
+    IShellFolder* psf;
     TCHAR sz[MAX_PATH];
-    TCHAR szLine[MAX_PATH*4];
+    TCHAR szLine[MAX_PATH * 4];
     HDDEDATA hddedata = HDDENULL;
     ULONG celt;
     GROUPITEM gi;
     int cItems = 0;
-    IPersistFile *ppf;
-    IShellLink *psl;
+    IPersistFile* ppf;
+    IShellLink* psl;
     HDSA hdsaGroup;
     UINT cbDDE;
     UINT cchDDE;
@@ -2597,62 +2413,54 @@ HDDEDATA EnumItemsInGroup(HSZ hszItem, LPCTSTR lpszGroup)
     lstrcat(sz, lpszGroup);
 
     // Test if the group exists.
-    hFile = FindFirstFile (sz, &fd);
+    hFile = FindFirstFile(sz, &fd);
     if (hFile == INVALID_HANDLE_VALUE) {
-       if (SHRestricted(REST_NOCOMMONGROUPS)) {
-           return NULL;
-       }
+        if (SHRestricted(REST_NOCOMMONGROUPS)) {
+            return NULL;
+        }
 
-       // Personal group doesn't exist.  Try a common group.
-       if (!SHGetSpecialFolderPath(NULL, sz, CSIDL_COMMON_PROGRAMS, FALSE)) {
-           return NULL;
-       }
+        // Personal group doesn't exist.  Try a common group.
+        if (!SHGetSpecialFolderPath(NULL, sz, CSIDL_COMMON_PROGRAMS, FALSE)) {
+            return NULL;
+        }
 
-       PathAddBackslash(sz);
-       lstrcat(sz, lpszGroup);
-       bCommon = TRUE;
+        PathAddBackslash(sz);
+        lstrcat(sz, lpszGroup);
+        bCommon = TRUE;
     } else {
-        FindClose (hFile);
+        FindClose(hFile);
     }
 
     hdsaGroup = DSA_Create(SIZEOF(GROUPITEM), 0);
-    if (hdsaGroup)
-    {
+    if (hdsaGroup) {
         // Get the group info.
         pidlGroup = ILCreateFromPath(sz);
-        if (pidlGroup)
-        {
+        if (pidlGroup) {
             IShellFolder* psfDesktop;
 
             hres = SHGetDesktopFolder(&psfDesktop);
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
                 hres = psfDesktop->BindToObject(pidlGroup, NULL, IID_IShellFolder, (LPVOID*)&psf);
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     LPENUMIDLIST penum;
                     hres = psf->EnumObjects(NULL, SHCONTF_NONFOLDERS, &penum);
-                    if (SUCCEEDED(hres))
-                    {
+                    if (SUCCEEDED(hres)) {
                         hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl);
-                        if (SUCCEEDED(hres))
-                        {
+                        if (SUCCEEDED(hres)) {
                             psl->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf);
                             ASSERT(ppf); // nobody checks it below
-                            while ((penum->Next(1, &pidl, &celt) == NOERROR) && (celt == 1))
-                            {
-                                if (GroupItem_GetLinkInfo(sz, &gi, pidl, psf, psl, ppf))
-                                {
+                            while ((penum->Next(1, &pidl, &celt) == NOERROR) && (celt == 1)) {
+                                if (GroupItem_GetLinkInfo(sz, &gi, pidl, psf, psl, ppf)) {
                                     // Add it to the list
                                     DSA_InsertItem(hdsaGroup, cItems, &gi);
                                     cItems++;
                                 }
                                 ILFree(pidl);
-                            }
+                }
                             fOK = TRUE;
                             ppf->Release();
                             psl->Release();
-                        }
+    }
                         penum->Release();
                     }
                     psf->Release();
@@ -2660,49 +2468,41 @@ HDDEDATA EnumItemsInGroup(HSZ hszItem, LPCTSTR lpszGroup)
                 psfDesktop->Release();
             }
             ILFree(pidlGroup);
-        }
-        else
-        {
+        } else {
             TraceMsg(DM_ERROR, "c.eiig: Can't create IDList for path..");
         }
 
-        if (fOK)
-        {
+        if (fOK) {
             // Create dde data.
             TraceMsg(TF_DDE, "c.eiig: %d links", cItems);
 
             // "Group Name",path,#items,showcmd
             PathGetShortPath(sz);
             wsprintf(szLine, TEXT("\"%s\",%s,%d,%d,%d\r\n"), lpszGroup, sz, cItems, SW_SHOWNORMAL, bCommon);
-            cchDDE = lstrlen(szLine)+1;
+            cchDDE = lstrlen(szLine) + 1;
             cbDDE = cchDDE * SIZEOF(TCHAR);
             pszDDE = (LPTSTR)LocalAlloc(LPTR, cbDDE);
-            if (pszDDE)
-            {
+            if (pszDDE) {
                 lstrcpy(pszDDE, szLine);
                 cItems--;
-                while (cItems >= 0)
-                {
+                while (cItems >= 0) {
                     LPTSTR pszRealloc;
                     pgi = (GROUPITEM*)DSA_GetItemPtr(hdsaGroup, cItems);
                     ASSERT(pgi);
                     // Fake up reasonable coords.
-                    x = ((cItems%ITEMSPERROW)*64)+32;
-                    y = ((cItems/ITEMSPERROW)*64)+32;
+                    x = ((cItems % ITEMSPERROW) * 64) + 32;
+                    y = ((cItems / ITEMSPERROW) * 64) + 32;
                     // "name","CL",def dir,icon path,x,y,icon index,hotkey,minflag.
                     wsprintf(szLine, TEXT("\"%s\",\"%s\",%s,%s,%d,%d,%d,%d,%d\r\n"), pgi->pszDesc, pgi->pszCL,
-                        pgi->pszWD, pgi->pszIconPath, x, y, pgi->iIcon, pgi->wHotkey, pgi->fMin);
+                             pgi->pszWD, pgi->pszIconPath, x, y, pgi->iIcon, pgi->wHotkey, pgi->fMin);
                     cchDDE += lstrlen(szLine);
                     cbDDE = cchDDE * SIZEOF(TCHAR);
-                    pszRealloc = (LPTSTR)_LocalReAlloc((HLOCAL)pszDDE, cbDDE + SIZEOF(TCHAR), LMEM_MOVEABLE|LMEM_ZEROINIT);
-                    if (pszRealloc)
-                    {
+                    pszRealloc = (LPTSTR)_LocalReAlloc((HLOCAL)pszDDE, cbDDE + SIZEOF(TCHAR), LMEM_MOVEABLE | LMEM_ZEROINIT);
+                    if (pszRealloc) {
                         pszDDE = pszRealloc;
                         lstrcat(pszDDE, szLine);
                         cItems--;
-                    }
-                    else
-                    {
+                    } else {
                         TraceMsg(DM_ERROR, "c.eiig: Unable to realocate DDE line.");
                         break;
                     }
@@ -2712,27 +2512,22 @@ HDDEDATA EnumItemsInGroup(HSZ hszItem, LPCTSTR lpszGroup)
                 // Multiply by two, for worst case, where every char was a multibyte char
                 int cbADDE = lstrlen(pszDDE) * 2;       // Trying to make an ANSI string!!!
                 LPSTR pszADDE = (LPSTR)LocalAlloc(LPTR, cbADDE + 2);
-                if (pszADDE)
-                {
+                if (pszADDE) {
                     WideCharToMultiByte(CP_ACP, 0, pszDDE, -1, pszADDE, cbADDE, NULL, NULL);
 
                     hddedata = DdeCreateDataHandle(g_dwDDEInst, (LPBYTE)pszADDE, cbADDE, 0, hszItem, CF_TEXT, 0);
                     LocalFree(pszADDE);
-                }
-                else
-                {
+                } else {
                     TraceMsg(DM_ERROR, "c.eiig: Can't allocate ANSI buffer.");
                 }
 #else
-                hddedata = DdeCreateDataHandle(g_dwDDEInst, (LPBYTE)pszDDE, cbDDE+1, 0, hszItem, CF_TEXT, 0);
+                hddedata = DdeCreateDataHandle(g_dwDDEInst, (LPBYTE)pszDDE, cbDDE + 1, 0, hszItem, CF_TEXT, 0);
 #endif
                 LocalFree(pszDDE);
             }
-        }
-        else
-        {
+        } else {
             TraceMsg(DM_ERROR, "c.eiig: Can't create group list.");
-        }
+                }
 
         DSA_DestroyCallback(hdsaGroup, DSA_DestroyGroupCallback, 0);
     }
@@ -2756,29 +2551,26 @@ HDDEDATA DDE_HandleRequest(HSZ hszItem, HCONV hconv)
 
     DdeQueryString(g_dwDDEInst, hszItem, szGroup, ARRAYSIZE(szGroup), CP_WINNATURAL);
 
-    TraceMsg(TF_DDE, "Request for item %s.", (LPTSTR) szGroup);
+    TraceMsg(TF_DDE, "Request for item %s.", (LPTSTR)szGroup);
     // There's a bug in Progman where null data returns the list of groups.
     // Logitech relies on this behaviour.
-    if (szGroup[0] == TEXT('\0'))
-    {
+    if (szGroup[0] == TEXT('\0')) {
         return EnumGroups(hszItem);
     }
     // Special case group names of "Groups" or "Progman" and return the list
     // of groups instead.
-    else if (lstrcmpi(szGroup, c_szGroupGroup) == 0 || lstrcmpi(szGroup, c_szTopic) == 0)
-    {
+    else if (lstrcmpi(szGroup, c_szGroupGroup) == 0 || lstrcmpi(szGroup, c_szTopic) == 0) {
         return EnumGroups(hszItem);
-    }
+                    }
     // Special case winoldapp properties.
     else if (lstrcmpi(szGroup, c_szGetIcon) == 0 ||
-        lstrcmpi(szGroup, c_szGetDescription) == 0 ||
-        lstrcmpi(szGroup, c_szGetWorkingDir) == 0)
+             lstrcmpi(szGroup, c_szGetDescription) == 0 ||
+             lstrcmpi(szGroup, c_szGetWorkingDir) == 0)
     {
         return HDDENULL;
     }
     // Assume it's a group name.
-    else
-    {
+    else {
         return EnumItemsInGroup(hszItem, szGroup);
     }
 }
@@ -2794,10 +2586,8 @@ void DDE_HandleDisconnect(HCONV hconv)
 
     // Find the conversation in the list of them and free it.
     ENTERCRITICAL;
-    for (pddec = g_pddecHead; pddec != NULL; pddec = pddec->pddecNext)
-    {
-        if (pddec->hconv == hconv)
-        {
+    for (pddec = g_pddecHead; pddec != NULL; pddec = pddec->pddecNext) {
+        if (pddec->hconv == hconv) {
             // Found it, so first unlink it
             // pass the next reference back up the chain.
             if (pddecPrev == NULL)
@@ -2919,7 +2709,7 @@ struct {
     c_szTrioDataFax,        NULL,           DDECONV_NULL_FOR_STARTUP,
     c_szTalkToPlus,         NULL,           DDECONV_ALLOW_INVALID_CL,
     c_szDialog,             c_szMakePMG,    DDECONV_REPEAT_ACKS,
-    c_szDialog,             c_szNULL,       DDECONV_EXPLORER_SERVICE_AND_TOPIC|DDECONV_USING_SENDMSG,
+    c_szDialog,             c_szNULL,       DDECONV_EXPLORER_SERVICE_AND_TOPIC | DDECONV_USING_SENDMSG,
     c_szJourneyMan,         NULL,           DDECONV_EXPLORER_SERVICE_AND_TOPIC,
     c_szCADDE,              NULL,           DDECONV_NO_INIT,
     c_szFaxServe,           NULL,           DDECONV_FAIL_CONNECTS
@@ -2931,28 +2721,21 @@ DWORD GetDDEAppFlagsFromWindow(HWND hwnd)
     int i;
     TCHAR szClass[MAX_PATH];
 
-    if (hwnd && !Window_IsLFNAware(hwnd))
-    {
+    if (hwnd && !Window_IsLFNAware(hwnd)) {
         GetClassName(hwnd, szClass, ARRAYSIZE(szClass));
-        for (i=0; i<ARRAYSIZE(c_DDEApps); i++)
-        {
+        for (i = 0; i < ARRAYSIZE(c_DDEApps); i++) {
             // NB Keep this case sensative to narrow the scope a bit.
-            if (lstrcmp(szClass, c_DDEApps[i].pszClass) == 0)
-            {
+            if (lstrcmp(szClass, c_DDEApps[i].pszClass) == 0) {
                 // Do we care about the title?
-                if (c_DDEApps[i].pszTitle)
-                {
+                if (c_DDEApps[i].pszTitle) {
                     TCHAR szTitle[MAX_PATH];
 
                     GetWindowText(hwnd, szTitle, ARRAYSIZE(szTitle));
-                    if (lstrcmp(szTitle, c_DDEApps[i].pszTitle) == 0)
-                    {
+                    if (lstrcmp(szTitle, c_DDEApps[i].pszTitle) == 0) {
                         TraceMsg(TF_DDE, "App flags 0x%x for %s %s.", c_DDEApps[i].id, c_DDEApps[i].pszClass, c_DDEApps[i].pszTitle);
                         return c_DDEApps[i].id;
                     }
-                }
-                else
-                {
+                } else {
                     // Nope.
                     TraceMsg(TF_DDE, "App flags 0x%x for %s.", c_DDEApps[i].id, c_DDEApps[i].pszClass);
                     return c_DDEApps[i].id;
@@ -2973,13 +2756,10 @@ DWORD GetDDEAppFlags(HCONV hconv)
 
 HDDEDATA DDE_HandleConnect(HSZ hsz1, HSZ hsz2)
 {
-    if ((hsz1 == g_hszTopic && hsz2 == g_hszService) || (hsz1 == g_hszAppProps && hsz2 == g_hszShell) || (hsz1 == g_hszAppProps && hsz2 == g_hszFolders))
-    {
+    if ((hsz1 == g_hszTopic && hsz2 == g_hszService) || (hsz1 == g_hszAppProps && hsz2 == g_hszShell) || (hsz1 == g_hszAppProps && hsz2 == g_hszFolders)) {
         TraceMsg(TF_DDE, "DDEML Connect.");
         return (HDDEDATA)DDE_FACK;
-    }
-    else
-    {
+    } else {
         // Unknown topic/service.
         TraceMsg(TF_DDE, "DDEML Connect - unknown service/topic.");
         return (HDDEDATA)NULL;
@@ -3008,17 +2788,14 @@ HDDEDATA DDE_HandleConnectConfirm(HCONV hconv)
     DWORD dwAppFlags = GetDDEAppFlags(hconv);
     PDDECONV pddec;
 
-    if (dwAppFlags & DDECONV_FAIL_CONNECTS)
-    {
+    if (dwAppFlags & DDECONV_FAIL_CONNECTS) {
         DdeDisconnect(hconv);
         return FALSE;
     }
 
     pddec = DDEConv_Create();
-    if (pddec)
-    {
-        if (SUCCEEDED(CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&pddec->psl)))
-        {
+    if (pddec) {
+        if (SUCCEEDED(CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void**)&pddec->psl))) {
             pddec->hconv = hconv;
             // pddec->szGroup[0] = '\0';   // implicit
             // pddec->fDirty = FALSE;      // implicit
@@ -3046,19 +2823,16 @@ HDDEDATA DDE_HandleConnectConfirm(HCONV hconv)
         TraceMsg(TF_DDE, "Unable to create IShellLink interface.");
 
         DDEConv_Release(pddec);
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_ERROR, "Unable to allocate memory for tracking dde conversations.");
     }
     return (HDDEDATA)NULL;
 }
 
 
-HDDEDATA CALLBACK DDECallback(UINT type, UINT fmt, HCONV hconv, HSZ hsz1, HSZ hsz2,HDDEDATA  hData, ULONG_PTR dwData1, ULONG_PTR dwData2)
+HDDEDATA CALLBACK DDECallback(UINT type, UINT fmt, HCONV hconv, HSZ hsz1, HSZ hsz2, HDDEDATA  hData, ULONG_PTR dwData1, ULONG_PTR dwData2)
 {
-    switch (type)
-    {
+    switch (type) {
     case XTYP_CONNECT:
         return DDE_HandleConnect(hsz1, hsz2);
     case XTYP_WILDCONNECT:
@@ -3067,29 +2841,26 @@ HDDEDATA CALLBACK DDECallback(UINT type, UINT fmt, HCONV hconv, HSZ hsz1, HSZ hs
         return DDE_HandleConnectConfirm(hconv);
     case XTYP_REGISTER:
     case XTYP_UNREGISTER:
-        return (HDDEDATA) NULL;
+        return (HDDEDATA)NULL;
     case XTYP_ADVDATA:
-        return (HDDEDATA) DDE_FACK;
+        return (HDDEDATA)DDE_FACK;
     case XTYP_XACT_COMPLETE:
-        return (HDDEDATA) NULL;
+        return (HDDEDATA)NULL;
     case XTYP_DISCONNECT:
         DDE_HandleDisconnect(hconv);
-        return (HDDEDATA) NULL;
+        return (HDDEDATA)NULL;
     case XTYP_EXECUTE:
         return HandleDDEExecute(hData, hconv);
     case XTYP_REQUEST:
-        if (hsz1 == g_hszTopic || hsz1 == g_hszAppProps)
-        {
+        if (hsz1 == g_hszTopic || hsz1 == g_hszAppProps) {
             return DDE_HandleRequest(hsz2, hconv);
-        }
-        else
-        {
+        } else {
             TraceMsg(TF_DDE, "DDEML Request - Invalid Topic.");
-            return (HDDEDATA) NULL;
+            return (HDDEDATA)NULL;
         }
 
     default:
-        return (HDDEDATA) NULL;
+        return (HDDEDATA)NULL;
     }
 }
 
@@ -3103,15 +2874,13 @@ void InitialiseDDE(void)
     DBG_ENTER(FTF_DDE, InitialiseDDE);
 
     // No need to do this twice
-    if ( !s_bDDEInited )
-    {
+    if (!s_bDDEInited) {
         // Hack for Alone In the Dark 2.
         // They do a case sensative comparison of the progman atom and they
         // need it to be uppercase.
         g_aProgman = GlobalAddAtom(TEXT("PROGMAN"));
 
-        if (DdeInitialize(&g_dwDDEInst, DDECallback, CBF_FAIL_POKES | CBF_FAIL_ADVISES, 0L))
-        {
+        if (DdeInitialize(&g_dwDDEInst, DDECallback, CBF_FAIL_POKES | CBF_FAIL_ADVISES, 0L)) {
             TraceMsg(TF_DDE, "DDE Initialization failure.");
         }
 
@@ -3122,7 +2891,7 @@ void InitialiseDDE(void)
         g_hszAppProps = _DdeCreateStringHandle(g_dwDDEInst, c_szAppProps, CP_WINNATURAL);
         g_hszFolders = _DdeCreateStringHandle(g_dwDDEInst, c_szFolders, CP_WINNATURAL);
 
-        DdeNameService(g_dwDDEInst, g_hszFolders,  HSZNULL, DNS_REGISTER);
+        DdeNameService(g_dwDDEInst, g_hszFolders, HSZNULL, DNS_REGISTER);
 
         DDE_AddShellServices();
 
@@ -3135,14 +2904,13 @@ void InitialiseDDE(void)
 
 void UnInitialiseDDE(void)
 {
-    if (!s_bDDEInited)
-    {
+    if (!s_bDDEInited) {
         return;
     }
 
     DDE_RemoveShellServices();
 
-    DdeNameService(g_dwDDEInst, g_hszFolders,  HSZNULL, DNS_UNREGISTER);
+    DdeNameService(g_dwDDEInst, g_hszFolders, HSZNULL, DNS_UNREGISTER);
 
     DdeFreeStringHandle(g_dwDDEInst, g_hszTopic);
     DdeFreeStringHandle(g_dwDDEInst, g_hszService);
@@ -3151,8 +2919,7 @@ void UnInitialiseDDE(void)
     DdeFreeStringHandle(g_dwDDEInst, g_hszAppProps);
     DdeFreeStringHandle(g_dwDDEInst, g_hszFolders);
 
-    if (!DdeUninitialize(g_dwDDEInst))
-    {
+    if (!DdeUninitialize(g_dwDDEInst)) {
         TraceMsg(TF_DDE, "DDE Un-Initialization failure.");
     }
 
@@ -3173,8 +2940,8 @@ void DDE_AddShellServices(void)
     ASSERT(g_hszShell);
 
     // Only register these if we are the shell...
-    DdeNameService(g_dwDDEInst, g_hszService,  HSZNULL, DNS_REGISTER);
-    DdeNameService(g_dwDDEInst, g_hszShell,  HSZNULL, DNS_REGISTER);
+    DdeNameService(g_dwDDEInst, g_hszService, HSZNULL, DNS_REGISTER);
+    DdeNameService(g_dwDDEInst, g_hszShell, HSZNULL, DNS_REGISTER);
 }
 
 
@@ -3186,8 +2953,8 @@ void DDE_RemoveShellServices(void)
 
     ASSERT(g_dwDDEInst);
 
-    DdeNameService(g_dwDDEInst, g_hszService,  HSZNULL, DNS_UNREGISTER);
-    DdeNameService(g_dwDDEInst, g_hszShell,  HSZNULL, DNS_UNREGISTER);
+    DdeNameService(g_dwDDEInst, g_hszService, HSZNULL, DNS_UNREGISTER);
+    DdeNameService(g_dwDDEInst, g_hszShell, HSZNULL, DNS_UNREGISTER);
 }
 
 
@@ -3201,34 +2968,29 @@ BOOL GetGroupName(LPCTSTR lpszOld, LPTSTR lpszNew, ULONG cbNew)
 
 void MapGroupName(LPCTSTR lpszOld, LPTSTR lpszNew, ULONG cbNew)
 {
-    if (!GetGroupName(lpszOld, lpszNew, cbNew))
-    {
+    if (!GetGroupName(lpszOld, lpszNew, cbNew)) {
         lstrcpyn(lpszNew, lpszOld, cbNew);
-    }
+}
 }
 
 
 STDAPI_(BOOL) DDEHandleViewFolderNotify(IShellBrowser* psb, HWND hwnd, LPNMVIEWFOLDER pnm)
 {
     BOOL fRet = FALSE;
-    UINT *pwCmd = GetDDECommands(pnm->szCmd, c_sDDECommands, FALSE);
+    UINT* pwCmd = GetDDECommands(pnm->szCmd, c_sDDECommands, FALSE);
 
     // -1 means there aren't any commands we understand.  Oh, well
-    if (pwCmd && (-1 != *pwCmd))
-    {
-        UINT *pwCmdSave = pwCmd;
+    if (pwCmd && (-1 != *pwCmd)) {
+        UINT* pwCmdSave = pwCmd;
         UINT c = *pwCmd++;
 
         LPCTSTR pszCommand = c_sDDECommands[c].pszCommand;
 
         ASSERT(c < ARRAYSIZE(c_sDDECommands));
 
-        if (pszCommand == c_szViewFolder || pszCommand == c_szExploreFolder)
-        {
+        if (pszCommand == c_szViewFolder || pszCommand == c_szExploreFolder) {
             fRet = DoDDE_ViewFolder(psb, hwnd, pnm->szCmd, pwCmd, pszCommand == c_szExploreFolder, pnm->dwHotKey, pnm->hMonitor);
-        }
-        else if (pszCommand == c_szShellFile)
-        {
+        } else if (pszCommand == c_szShellFile) {
             fRet = DDE_ShellFile(pnm->szCmd, pwCmd, 0);
         }
 
@@ -3244,19 +3006,17 @@ STDAPI_(LPNMVIEWFOLDER) DDECreatePostNotify(LPNMVIEWFOLDER pnm)
     LPNMVIEWFOLDER pnmPost = NULL;
     TCHAR szCmd[MAX_PATH * 2];
     StrCpyN(szCmd, pnm->szCmd, SIZECHARS(szCmd));
-    UINT *pwCmd = GetDDECommands(szCmd, c_sDDECommands, FALSE);
+    UINT* pwCmd = GetDDECommands(szCmd, c_sDDECommands, FALSE);
 
     // -1 means there aren't any commands we understand.  Oh, well
-    if (pwCmd && (-1 != *pwCmd))
-    {
+    if (pwCmd && (-1 != *pwCmd)) {
         LPCTSTR pszCommand = c_sDDECommands[*pwCmd].pszCommand;
 
         ASSERT(*pwCmd < ARRAYSIZE(c_sDDECommands));
 
 
         //  these are the only commands handled by a PostNotify
-        if (pszCommand == c_szViewFolder ||  pszCommand == c_szExploreFolder ||  pszCommand == c_szShellFile)
-        {
+        if (pszCommand == c_szViewFolder || pszCommand == c_szExploreFolder || pszCommand == c_szShellFile) {
             pnmPost = (LPNMVIEWFOLDER)LocalAlloc(LPTR, SIZEOF(NMVIEWFOLDER));
 
             if (pnmPost)
@@ -3264,7 +3024,7 @@ STDAPI_(LPNMVIEWFOLDER) DDECreatePostNotify(LPNMVIEWFOLDER pnm)
         }
 
         GlobalFree(pwCmd);
-    }
+}
 
     return pnmPost;
 }
@@ -3274,16 +3034,13 @@ LRESULT _ForwardDDEMsgs(HWND hwnd, HWND hwndForward, UINT uMsg, WPARAM wParam, L
 {
     TraceMsg(TF_DDE, "c.fdm: Forwarding DDE to %x", hwndForward);
 
-    if (hwndForward && IsWindow(hwndForward))
-    {
+    if (hwndForward && IsWindow(hwndForward)) {
         TraceMsg(TF_DDE, "c.fdm: %lx %lx %lx", uMsg, (WPARAM)hwnd, lParam);
         if (fSend)
             return SendMessage(hwndForward, uMsg, (WPARAM)hwnd, lParam);
         else
             return PostMessage(hwndForward, uMsg, (WPARAM)hwnd, lParam);
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_DDE, "c.fdm: Invalid DDEML window, Can't forward DDE messages.");
         return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
@@ -3299,24 +3056,19 @@ const TCHAR c_szDMGFrame[] = TEXT("DMGFrame");  // This is the 16-bit/Win95 wind
 
 void DDEML_Broadcast(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (g_fRunningOnNT)
-    {
+    if (g_fRunningOnNT) {
         HWND hwnd = GetWindow(GetDesktopWindow(), GW_CHILD);
-        while (hwnd)
-        {
+        while (hwnd) {
             TCHAR szClass[32];
             GetClassName(hwnd, szClass, ARRAYSIZE(szClass));
             if ((lstrcmp(szClass, c_szDMGFrame) == 0) || (lstrcmp(szClass, TEXT("DDEMLMom")) == 0)) // this is the 32-bit NT window class name
                 SendMessage(hwnd, uMsg, wParam, lParam);
             hwnd = GetWindow(hwnd, GW_HWNDNEXT);
         }
-    }
-    else
-    {
+    } else {
         // Win95 Version
         HWND hwnd = NULL;
-        while ((hwnd = FindWindowEx(NULL, hwnd, c_szDMGFrame, NULL)) != NULL)
-        {
+        while ((hwnd = FindWindowEx(NULL, hwnd, c_szDMGFrame, NULL)) != NULL) {
             // give the window 20 seconds before continuing
             // (this is the same wait USER uses before nuking hung apps)
             // BUGBUG: make this smaller
@@ -3336,8 +3088,7 @@ LRESULT _HandleDDEInitiateAndAck(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     WPARAM uHigh, uLow;
     BOOL fForceAccept = FALSE;
 
-    if (uMsg == WM_DDE_INITIATE)
-    {
+    if (uMsg == WM_DDE_INITIATE) {
         TraceMsg(TF_DDE, "c.hdi: Init.");
 
         // Don't handle DDE messages if we're already using DDEML. This happens when apps
@@ -3345,22 +3096,17 @@ LRESULT _HandleDDEInitiateAndAck(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         // the desktop end up replying. Most apps don't care and just talk to the first or
         // the last one but Ventura gets confused and thinks it's finished doing DDE when it
         // gets the second ACK and destroys it's internal DDE window.
-        if (g_hwndDde)
-        {
+        if (g_hwndDde) {
             TraceMsg(TF_DDE, "c.fpwp: Not forwarding DDE, DDEML is handing it.");
             KillTimer(hwnd, IDT_DDETIMEOUT);
         }
         // Are we re-cursing?
-        else if (!g_fInInit)
-        {
+        else if (!g_fInInit) {
             // Nope, Is this for Progman, Progman or Shell, AppProperties?
-            if (lParam)
-            {
+            if (lParam) {
                 GlobalGetAtomName(LOWORD(lParam), szService, ARRAYSIZE(szService));
                 GlobalGetAtomName(HIWORD(lParam), szTopic, ARRAYSIZE(szTopic));
-            }
-            else
-            {
+            } else {
                 // Progman allowed a null Service & a null Topic to imply Progman, Progman.
                 szService[0] = TEXT('\0');
                 szTopic[0] = TEXT('\0');
@@ -3371,13 +3117,11 @@ LRESULT _HandleDDEInitiateAndAck(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             g_dwAppFlags = GetDDEAppFlagsFromWindow((HWND)wParam);
 
             // Hacks for WinFax and Journeyman Project.
-            if ((g_dwAppFlags & DDECONV_EXPLORER_SERVICE_AND_TOPIC) && (lstrcmpi(szTopic, c_szExplorerTopic) == 0) && (lstrcmpi(szService, c_szExplorerTopic) == 0))
-            {
+            if ((g_dwAppFlags & DDECONV_EXPLORER_SERVICE_AND_TOPIC) && (lstrcmpi(szTopic, c_szExplorerTopic) == 0) && (lstrcmpi(szService, c_szExplorerTopic) == 0)) {
                 fForceAccept = TRUE;
             }
 
-            if (((lstrcmpi(szTopic, c_szTopic) == 0) && (lstrcmpi(szService, c_szService) == 0)) || fForceAccept)
-            {
+            if (((lstrcmpi(szTopic, c_szTopic) == 0) && (lstrcmpi(szService, c_szService) == 0)) || fForceAccept) {
                 TraceMsg(TF_DDE, "c.hdi: Init on [Progman,Progman] - needs forwarding.");
                 // Nope go find it.
                 // NB This will cause an echo on every DDE_INIT for Progman, Progman after booting.
@@ -3393,46 +3137,36 @@ LRESULT _HandleDDEInitiateAndAck(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
                 g_fInInit = FALSE;
                 TraceMsg(TF_DDE, "c.d_hdm: ...Done");
                 GlobalDeleteAtom(aProgman);
-            }
-            else
-            {
+            } else {
                 TraceMsg(TF_DDE, "c.hdi: Init on something other than [Progman,Progman] - Ignoring");
                 KillTimer(hwnd, IDT_DDETIMEOUT);
             }
-        }
-        else
-        {
+        } else {
             TraceMsg(TF_DDE, "c.hdi: Recursing - Init ignored.");
         }
         return 0;
-    }
-    else if (uMsg == WM_DDE_ACK)
-    {
+    } else if (uMsg == WM_DDE_ACK) {
         TraceMsg(TF_DDE, "c.hdi: Ack.");
         // Is this in response to the DDE_Init above?
-        if (g_fInInit)
-        {
+        if (g_fInInit) {
             // Yep, keep track of who we're talking too.
             GetClassName((HWND)wParam, szClass, ARRAYSIZE(szClass));
             TraceMsg(TF_DDE, "c.d_hdm: Init-Ack from %x (%s).", wParam, szClass);
             g_hwndDDEML = (HWND)wParam;
             // The forward it back (send it, don't post it - Breaks Prodogy).
             return _ForwardDDEMsgs(hwnd, g_hwndClient, uMsg, (WPARAM)hwnd, lParam, TRUE);
-        }
-        else
-        {
+        } else {
             // Nope, just forward it back.
 
             // Hack for WinFaxPro.
-            if (g_dwAppFlags & DDECONV_USING_SENDMSG)
-            {
+            if (g_dwAppFlags & DDECONV_USING_SENDMSG) {
                 // We copied the data before sending it on so we can free it here.
                 // WinFax ignores the reply so don't bother sending it.
                 UnpackDDElParam(uMsg, lParam, &uLow, &uHigh);
                 if (uHigh)
                     GlobalFree((HGLOBAL)uHigh);
                 return 0;
-            }
+    }
 
             return _ForwardDDEMsgs(hwnd, g_hwndClient, uMsg, (WPARAM)hwnd, lParam, FALSE);
         }
@@ -3458,8 +3192,7 @@ LRESULT _HandleDDETerminate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     TraceMsg(DM_TRACE, "c.hddet: Terminate.");
 
-    if ((HWND)wParam == g_hwndDDEML)
-    {
+    if ((HWND)wParam == g_hwndDDEML) {
         // This should be the last message (a terminate from ddeml to the client).
         // Cleanup now.
         KillTimer(hwnd, IDT_DDETIMEOUT);
@@ -3469,13 +3202,9 @@ LRESULT _HandleDDETerminate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         g_hwndDDEML = NULL;
         g_dwAppFlags = DDECONV_NONE;
         return _ForwardDDEMsgs(hwnd, hwndClient, uMsg, wParam, lParam, FALSE);
-    }
-    else if ((HWND)wParam == g_hwndClient)
-    {
+    } else if ((HWND)wParam == g_hwndClient) {
         return _ForwardDDEMsgs(hwnd, g_hwndDDEML, uMsg, wParam, lParam, FALSE);
-    }
-    else
-    {
+    } else {
         return 0;
     }
 }
@@ -3496,12 +3225,10 @@ LRESULT _HandleDDEExecute(HWND hwnd, HWND hwndForward, UINT uMsg, WPARAM wParam,
     // defect the 32bit side (and free it) so the next time they
     // send the 16bit handle through the thunk layer they get a
     // new 32bit version.
-    if (g_dwAppFlags & DDECONV_USING_SENDMSG)
-    {
+    if (g_dwAppFlags & DDECONV_USING_SENDMSG) {
         SIZE_T cb = GlobalSize((HGLOBAL)lParam);
         hNew = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, cb);
-        if (hNew)
-        {
+        if (hNew) {
             // Copy the old data.
             pNew = (LPTSTR)GlobalLock(hNew);
             pOld = (LPTSTR)GlobalLock((HGLOBAL)lParam);
@@ -3520,13 +3247,11 @@ LRESULT _HandleDDEExecute(HWND hwnd, HWND hwndForward, UINT uMsg, WPARAM wParam,
     // NB CA neglect to send a DDE_INIT, they just start
     // throwing DDE_EXEC's at us so we fake up an init
     // from them to DDEML to get things rolling.
-    if (!hwndForward)
-    {
+    if (!hwndForward) {
         if (!(g_dwAppFlags & DDECONV_NO_INIT))
-           g_dwAppFlags = GetDDEAppFlagsFromWindow((HWND)wParam);
+            g_dwAppFlags = GetDDEAppFlagsFromWindow((HWND)wParam);
 
-        if (g_dwAppFlags & DDECONV_NO_INIT)
-        {
+        if (g_dwAppFlags & DDECONV_NO_INIT) {
             aApp = GlobalAddAtom(c_szService);
             aTopic = GlobalAddAtom(c_szTopic);
             SendMessage(hwnd, WM_DDE_INITIATE, wParam, MAKELPARAM(aApp, aTopic));
@@ -3547,10 +3272,9 @@ STDAPI_(LRESULT) DDEHandleMsgs(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 {
     TraceMsg(TF_DDE, "c.fpwp: Forwarding DDE.");
 
-    SetTimer(hwnd, IDT_DDETIMEOUT, 30*1000, NULL);
+    SetTimer(hwnd, IDT_DDETIMEOUT, 30 * 1000, NULL);
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_DDE_INITIATE:
     case WM_DDE_ACK:
         return _HandleDDEInitiateAndAck(hwnd, uMsg, wParam, lParam);
@@ -3584,8 +3308,7 @@ STDAPI_(void) DDEHandleTimeout(HWND hwnd)
     KillTimer(hwnd, IDT_DDETIMEOUT);
 
     // Has everything gone away yet?
-    if (g_hwndDDEML && g_hwndClient)
-    {
+    if (g_hwndDDEML && g_hwndClient) {
         // Nope. Don't want to forward anymore.
         hwndClient = g_hwndClient;
         hwndDDEML = g_hwndDDEML;
@@ -3597,7 +3320,7 @@ STDAPI_(void) DDEHandleTimeout(HWND hwnd)
         // problem, ddeml will skip posting the reply but will still do the
         // disconnect callback.
         PostMessage(hwndDDEML, WM_DDE_TERMINATE, (WPARAM)hwnd, 0);
-    }
+        }
 }
 
 

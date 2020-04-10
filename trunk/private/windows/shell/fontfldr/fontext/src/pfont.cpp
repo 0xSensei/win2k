@@ -57,7 +57,7 @@
 
 #define ffupper(c) ( (TCHAR) CharUpper( MAKEINTRESOURCE( c ) ) )
 
-typedef  UINT (CALLBACK *HOOKER) (HWND, UINT, WPARAM, LPARAM);
+typedef  UINT(CALLBACK* HOOKER) (HWND, UINT, WPARAM, LPARAM);
 
 #ifdef WINNT
 
@@ -79,58 +79,62 @@ typedef  UINT (CALLBACK *HOOKER) (HWND, UINT, WPARAM, LPARAM);
 
 
 typedef struct
-{  union {  DWORD ItemData;
-      struct { WORD  nFileSlot;
+{
+    union {
+        DWORD ItemData;
+        struct {
+            WORD  nFileSlot;
             // BOOL  bTrueType; };   EMR: BOOL in win32 is 32 bits!
             // WORD  bTrueType; };   JSC: For NT, make it FontType for T1 support
-               WORD  wFontType; };
-   }; // end union
+            WORD  wFontType;
+        };
+    }; // end union
 } AddITEMDATA;
 
 
 //  WIN.INI sections
 
 
-static TCHAR szINISTrueType[] = TEXT( "TrueType" );
-static TCHAR szINISFonts[]    = TEXT( "fonts" );
+static TCHAR szINISTrueType[] = TEXT("TrueType");
+static TCHAR szINISFonts[] = TEXT("fonts");
 
 
 //  WIN.INI keywords
 
 
-static TCHAR szINIKEnable[] = TEXT( "TTEnable" );
-static TCHAR szINIKOnly[]   = TEXT( "TTOnly" );
+static TCHAR szINIKEnable[] = TEXT("TTEnable");
+static TCHAR szINIKOnly[] = TEXT("TTOnly");
 
 
 // Globals
 
 
-TCHAR szDot[]  = TEXT( "." );
+TCHAR szDot[] = TEXT(".");
 
-TCHAR szSetupDir[ PATHMAX ];  // For installing
-TCHAR szDirOfSrc[ PATHMAX ];  // For installing
+TCHAR szSetupDir[PATHMAX];  // For installing
+TCHAR szDirOfSrc[PATHMAX];  // For installing
 FullPathName_t s_szCurDir;    // Remember last directory for file open dialog.
 
 
-UINT_PTR CALLBACK FontHookProc( HWND, UINT, WPARAM, LPARAM );
+UINT_PTR CALLBACK FontHookProc(HWND, UINT, WPARAM, LPARAM);
 
 
-static VOID NEAR PASCAL ResetAtomInDescLB( HWND hLB );
+static VOID NEAR PASCAL ResetAtomInDescLB(HWND hLB);
 
-BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszDir, BOOL bNoCopyJob );
-BOOL NEAR PASCAL bFileFound( PTSTR  pszPath,  LPTSTR lpszFile );
-BOOL NEAR PASCAL bIsCompressed( LPTSTR szFile );
-BOOL NEAR PASCAL bFontInstalledNow( PTSTR  szLHS );
-BOOL NEAR PASCAL bInstallFont( HWND hwndParent, LPTSTR lpszSrcPath,
-                               BOOL bTrueType, PTSTR szLHS, int* iReply );
-BOOL bInstallOEMFile( LPTSTR lpszDir, LPTSTR lpszDstName, LPTSTR lpszDesc,
-                      WORD wFontType, WORD wCount );
+BOOL NEAR PASCAL bAddSelFonts(LPTSTR lpszDir, BOOL bNoCopyJob);
+BOOL NEAR PASCAL bFileFound(PTSTR  pszPath, LPTSTR lpszFile);
+BOOL NEAR PASCAL bIsCompressed(LPTSTR szFile);
+BOOL NEAR PASCAL bFontInstalledNow(PTSTR  szLHS);
+BOOL NEAR PASCAL bInstallFont(HWND hwndParent, LPTSTR lpszSrcPath,
+                              BOOL bTrueType, PTSTR szLHS, int* iReply);
+BOOL bInstallOEMFile(LPTSTR lpszDir, LPTSTR lpszDstName, LPTSTR lpszDesc,
+                     WORD wFontType, WORD wCount);
 
-BOOL NEAR PASCAL bTTEnabled( );
+BOOL NEAR PASCAL bTTEnabled();
 
-VOID NEAR PASCAL vEnsureInit( );
-VOID NEAR PASCAL vPathOnSharedDir( LPTSTR lpszFile, LPTSTR lpszPath );
-LPTSTR NEAR PASCAL lpNamePart( LPCTSTR lpszPath );
+VOID NEAR PASCAL vEnsureInit();
+VOID NEAR PASCAL vPathOnSharedDir(LPTSTR lpszFile, LPTSTR lpszPath);
+LPTSTR NEAR PASCAL lpNamePart(LPCTSTR lpszPath);
 
 extern HWND ghwndFontDlg;
 
@@ -148,7 +152,7 @@ const static DWORD rgHelpIDs[] =
 {
     ID_BTN_COPYFILES, IDH_FONTS_ADD_COPY_TO_FONT_DIR,
     ID_BTN_SELALL,    IDH_FONTS_ADD_SELECTALL,
-    ctlLast+1,        IDH_FONTS_ADD_FONTLIST,
+    ctlLast + 1,        IDH_FONTS_ADD_FONTLIST,
     IDC_LIST_OF_FONTS,IDH_FONTS_ADD_FONTLIST,
     0,0
 };
@@ -161,189 +165,239 @@ const static DWORD rgHelpIDs[] =
 
 class CWnd {
 protected:
-   CWnd( HWND hWnd = 0 ) : m_hWnd( hWnd ) {};
+    CWnd(HWND hWnd = 0) : m_hWnd(hWnd) {};
 
 public:
-   HWND  hWnd( ) { return m_hWnd; }
+    HWND  hWnd() { return m_hWnd; }
 
-   void UpdateWindow( )
-       { ::UpdateWindow( m_hWnd ); }
+    void UpdateWindow()
+    {
+        ::UpdateWindow(m_hWnd);
+    }
 
-   BOOL EnableWindow( BOOL bEnable )
-       { return ::EnableWindow( m_hWnd, bEnable ); }
+    BOOL EnableWindow(BOOL bEnable)
+    {
+        return ::EnableWindow(m_hWnd, bEnable);
+    }
 
-   void SetRedraw( BOOL bRedraw = TRUE )
-       { ::SendMessage( m_hWnd, WM_SETREDRAW, bRedraw, 0 ); }
+    void SetRedraw(BOOL bRedraw = TRUE)
+    {
+        ::SendMessage(m_hWnd, WM_SETREDRAW, bRedraw, 0);
+    }
 
-   void InvalidateRect( LPCRECT lpRect, BOOL bErase )
-       { ::InvalidateRect( m_hWnd, NULL, bErase ); }
+    void InvalidateRect(LPCRECT lpRect, BOOL bErase)
+    {
+        ::InvalidateRect(m_hWnd, NULL, bErase);
+    }
 
-   HWND GetDlgItem( int nID ) const
-       { return ::GetDlgItem( m_hWnd, nID ); }
+    HWND GetDlgItem(int nID) const
+    {
+        return ::GetDlgItem(m_hWnd, nID);
+    }
 
 
 protected:
-   HWND  m_hWnd;
+    HWND  m_hWnd;
 };
 
 class CListBox : public CWnd
 {
 public:
-   CListBox( UINT id, HWND hParent ) : CWnd( ), m_id( id )
-    {   m_hWnd = ::GetDlgItem( hParent, m_id );
+    CListBox(UINT id, HWND hParent) : CWnd(), m_id(id)
+    {
+        m_hWnd = ::GetDlgItem(hParent, m_id);
 
-        DEBUGMSG( (DM_TRACE1, TEXT( "CListBox: ctor" ) ) );
+        DEBUGMSG((DM_TRACE1, TEXT("CListBox: ctor")));
 
 #ifdef _DEBUG
-        if( !m_hWnd )
-        {
-            DEBUGMSG( (DM_ERROR, TEXT( "CListBox: No hWnd on id %d" ), id ) );
+        if (!m_hWnd) {
+            DEBUGMSG((DM_ERROR, TEXT("CListBox: No hWnd on id %d"), id));
             // DEBUGBREAK;
         }
 #endif
 
     }
 
-   int GetCount( ) const
-       { return (int)::SendMessage( m_hWnd, LB_GETCOUNT, 0, 0 ); }
+    int GetCount() const
+    {
+        return (int)::SendMessage(m_hWnd, LB_GETCOUNT, 0, 0);
+    }
 
-   int GetCurSel( ) const
-       { return (int)::SendMessage( m_hWnd, LB_GETCURSEL, 0, 0 ); }
+    int GetCurSel() const
+    {
+        return (int)::SendMessage(m_hWnd, LB_GETCURSEL, 0, 0);
+    }
 
-   int GetSelItems( int nMaxItems, LPINT rgIndex ) const
-       { return (int)::SendMessage( m_hWnd, LB_GETSELITEMS, nMaxItems, (LPARAM)rgIndex ); }
+    int GetSelItems(int nMaxItems, LPINT rgIndex) const
+    {
+        return (int)::SendMessage(m_hWnd, LB_GETSELITEMS, nMaxItems, (LPARAM)rgIndex);
+    }
 
-   int GetSelCount( ) const
-       { return (int)::SendMessage( m_hWnd, LB_GETSELCOUNT, 0, 0 ); }
+    int GetSelCount() const
+    {
+        return (int)::SendMessage(m_hWnd, LB_GETSELCOUNT, 0, 0);
+    }
 
-   int SetSel( int nIndex, BOOL bSelect = TRUE )
-       { return (int)::SendMessage( m_hWnd, LB_SETSEL, bSelect, nIndex ); }
+    int SetSel(int nIndex, BOOL bSelect = TRUE)
+    {
+        return (int)::SendMessage(m_hWnd, LB_SETSEL, bSelect, nIndex);
+    }
 
-   int GetText( int nIndex, TCHAR FAR * lpszBuffer ) const
-       { return (int)::SendMessage( m_hWnd, LB_GETTEXT, nIndex, (LPARAM)lpszBuffer ); }
+    int GetText(int nIndex, TCHAR FAR* lpszBuffer) const
+    {
+        return (int)::SendMessage(m_hWnd, LB_GETTEXT, nIndex, (LPARAM)lpszBuffer);
+    }
 
-   DWORD_PTR GetItemData( int nIndex ) const
-       { return ::SendMessage( m_hWnd, LB_GETITEMDATA, nIndex, 0 ); }
+    DWORD_PTR GetItemData(int nIndex) const
+    {
+        return ::SendMessage(m_hWnd, LB_GETITEMDATA, nIndex, 0);
+    }
 
-   INT_PTR SetItemData( int nIndex, DWORD dwItemData )
-       { return ::SendMessage( m_hWnd, LB_SETITEMDATA, nIndex, (LPARAM)dwItemData ); }
+    INT_PTR SetItemData(int nIndex, DWORD dwItemData)
+    {
+        return ::SendMessage(m_hWnd, LB_SETITEMDATA, nIndex, (LPARAM)dwItemData);
+    }
 
-   void ResetContent( void )
-       { ::SendMessage( m_hWnd, LB_RESETCONTENT, 0, 0 ); }
+    void ResetContent(void)
+    {
+        ::SendMessage(m_hWnd, LB_RESETCONTENT, 0, 0);
+    }
 
-   int  FindStringExact( int nIndexStart, LPCTSTR lpszFind ) const
-       { return (int)::SendMessage( m_hWnd, LB_FINDSTRINGEXACT, nIndexStart, (LPARAM)lpszFind ); }
+    int  FindStringExact(int nIndexStart, LPCTSTR lpszFind) const
+    {
+        return (int)::SendMessage(m_hWnd, LB_FINDSTRINGEXACT, nIndexStart, (LPARAM)lpszFind);
+    }
 
-   int  AddString( LPCTSTR lpszItem )
-       { return (int)::SendMessage( m_hWnd, LB_ADDSTRING, 0, (LPARAM)lpszItem ); }
+    int  AddString(LPCTSTR lpszItem)
+    {
+        return (int)::SendMessage(m_hWnd, LB_ADDSTRING, 0, (LPARAM)lpszItem);
+    }
 
 private:
-   UINT m_id;
+    UINT m_id;
 };
 
 
 class CComboBox : public CWnd
 {
 public:
-   CComboBox( UINT id, HWND hParent ) : CWnd( ), m_id( id )
-      { m_hWnd = ::GetDlgItem( hParent, m_id );
+    CComboBox(UINT id, HWND hParent) : CWnd(), m_id(id)
+    {
+        m_hWnd = ::GetDlgItem(hParent, m_id);
 
-        DEBUGMSG( (DM_TRACE1, TEXT( "CComboBox: ctor" ) ) );
+        DEBUGMSG((DM_TRACE1, TEXT("CComboBox: ctor")));
 
-        if( !m_hWnd )
-        {
-            DEBUGMSG( (DM_ERROR, TEXT( "CComboBox: No hWnd on id %d" ), id ) );
+        if (!m_hWnd) {
+            DEBUGMSG((DM_ERROR, TEXT("CComboBox: No hWnd on id %d"), id));
             // DEBUGBREAK;
         }
-      }
+    }
 
-   int GetCurSel( ) const
-       { return (int)::SendMessage( m_hWnd, CB_GETCURSEL, 0, 0 ); }
+    int GetCurSel() const
+    {
+        return (int)::SendMessage(m_hWnd, CB_GETCURSEL, 0, 0);
+    }
 
 private:
-   UINT     m_id;
+    UINT     m_id;
 };
 
 
 class AddFontsDialog : public CWnd // : public FastModalDialog
 {
-   public   :  // constructor only
-                  AddFontsDialog ( );
-                  ~AddFontsDialog( );
-            void  vAddSelFonts   ( );
-            void  vUpdatePctText ( );
+public:  // constructor only
+    AddFontsDialog();
+    ~AddFontsDialog();
+    void  vAddSelFonts();
+    void  vUpdatePctText();
 
-            BOOL  bInitialize(void);
+    BOOL  bInitialize(void);
 
-            BOOL  bAdded         ( ) {  return m_bAdded; };
+    BOOL  bAdded() { return m_bAdded; };
 
-            void  vStartFonts    ( ); //  {  m_nFontsToGo = -1; };
+    void  vStartFonts(); //  {  m_nFontsToGo = -1; };
 
-            BOOL  bStartState    ( ) {  return m_nFontsToGo == -1; };
+    BOOL  bStartState() { return m_nFontsToGo == -1; };
 
-            BOOL  bFontsDone     ( ) {  return m_nFontsToGo == 0;  };
+    BOOL  bFontsDone() { return m_nFontsToGo == 0; };
 
-            BOOL  bInitialFonts  ( ) { m_nFonts = pListBoxFiles()->GetCount();
-                                       m_nFontsToGo = m_nFonts;
-                                       return m_nFonts > 0; };
+    BOOL  bInitialFonts() {
+        m_nFonts = pListBoxFiles()->GetCount();
+        m_nFontsToGo = m_nFonts;
+        return m_nFonts > 0;
+    };
 
-            void  vHoldComboSel  ( ) { m_nSelCombo = pGetCombo()->GetCurSel(); };
+    void  vHoldComboSel() { m_nSelCombo = pGetCombo()->GetCurSel(); };
 
-            void  vNewComboSel   ( ) { if( m_nSelCombo == -1 ) vStartFonts( );};
+    void  vNewComboSel() { if (m_nSelCombo == -1) vStartFonts(); };
 
-            void  vCloseCombo    ( ) { if( m_nSelCombo != pGetCombo( )->GetCurSel( ) )
-                                           vStartFonts( );
-                                       m_nSelCombo = -1; };
+    void  vCloseCombo() {
+        if (m_nSelCombo != pGetCombo()->GetCurSel())
+            vStartFonts();
+        m_nSelCombo = -1;
+    };
 
-            CListBox * pListBoxDesc  ( )
-                                 { return m_poListBoxDesc;};
+    CListBox* pListBoxDesc()
+    {
+        return m_poListBoxDesc;
+    };
 
-            CListBox * pListBoxFiles( )
-                                 { return m_poListBoxFiles; };
-
-
-            //  These were added to make up for no MFC
-
-
-            void EndDialog( int nRet ) { ::EndDialog( m_hWnd, nRet ); }
-
-            void Attach( HWND hWnd )
-                           { m_hWnd = hWnd;
-                             m_poComboBox = new CComboBox( ID_CB_FONTDISK, hWnd );
-                             m_poListBoxDesc = new CListBox( ID_LB_ADD, hWnd );
-                             m_poListBoxFiles = new CListBox( ID_LB_FONTFILES, hWnd );}
-
-            void Detach( ) {m_hWnd = 0;
-                           if( m_poComboBox ) delete m_poComboBox;
-                           if( m_poListBoxDesc ) delete m_poListBoxDesc;
-                           if( m_poListBoxFiles ) delete m_poListBoxFiles; }
-
-            void CheckDlgButton( UINT id, BOOL bCheck )
-                                 { ::CheckDlgButton( m_hWnd, id, bCheck ); }
-
-            void EndThread(void)
-                { SetEvent(m_heventDestruction); }
-
-            LONG AddRef(void);
-            LONG Release(void);
+    CListBox* pListBoxFiles()
+    {
+        return m_poListBoxFiles;
+    };
 
 
-   private :
-            CComboBox * pGetCombo( ) { return m_poComboBox;};
+    //  These were added to make up for no MFC
 
-   public   :  // fields
-            CComboBox *    m_poComboBox;
-            CListBox *     m_poListBoxFiles;
-            CListBox *     m_poListBoxDesc;
-            LPOPENFILENAME m_pOpen;
-            BOOL           m_bAdded;
-            int            m_nSelCombo;
-            int            m_nFonts;
-            int            m_nFontsToGo;
-            HANDLE         m_hThread;
-            DWORD          m_dwThreadId;
-            HANDLE         m_heventDestruction; // Used to tell threads we're done.
-            LONG           m_cRef;              // Instance reference counter.
+
+    void EndDialog(int nRet) { ::EndDialog(m_hWnd, nRet); }
+
+    void Attach(HWND hWnd)
+    {
+        m_hWnd = hWnd;
+        m_poComboBox = new CComboBox(ID_CB_FONTDISK, hWnd);
+        m_poListBoxDesc = new CListBox(ID_LB_ADD, hWnd);
+        m_poListBoxFiles = new CListBox(ID_LB_FONTFILES, hWnd);
+    }
+
+    void Detach() {
+        m_hWnd = 0;
+        if (m_poComboBox) delete m_poComboBox;
+        if (m_poListBoxDesc) delete m_poListBoxDesc;
+        if (m_poListBoxFiles) delete m_poListBoxFiles;
+    }
+
+    void CheckDlgButton(UINT id, BOOL bCheck)
+    {
+        ::CheckDlgButton(m_hWnd, id, bCheck);
+    }
+
+    void EndThread(void)
+    {
+        SetEvent(m_heventDestruction);
+    }
+
+    LONG AddRef(void);
+    LONG Release(void);
+
+
+private:
+    CComboBox* pGetCombo() { return m_poComboBox; };
+
+public:  // fields
+    CComboBox* m_poComboBox;
+    CListBox* m_poListBoxFiles;
+    CListBox* m_poListBoxDesc;
+    LPOPENFILENAME m_pOpen;
+    BOOL           m_bAdded;
+    int            m_nSelCombo;
+    int            m_nFonts;
+    int            m_nFontsToGo;
+    HANDLE         m_hThread;
+    DWORD          m_dwThreadId;
+    HANDLE         m_heventDestruction; // Used to tell threads we're done.
+    LONG           m_cRef;              // Instance reference counter.
 };
 
 
@@ -356,15 +410,15 @@ class AddFontsDialog : public CWnd // : public FastModalDialog
 #define TRUETYPE_WITH_OEMINF  (WORD)0x8000
 #define MAXFILE   MAX_PATH_LEN
 
-static TCHAR szOEMSetup[] = TEXT( "oemsetup.inf" );
+static TCHAR szOEMSetup[] = TEXT("oemsetup.inf");
 
-TCHAR szSetupInfPath[ PATHMAX ];
+TCHAR szSetupInfPath[PATHMAX];
 
 typedef struct tagADDFNT {
-        CListBox * poListDesc;
-        int     nIndex;
-        int     which;
-} ADDFNT, far *LPADDFNT;
+    CListBox* poListDesc;
+    int     nIndex;
+    int     which;
+} ADDFNT, far* LPADDFNT;
 
 
 
@@ -377,32 +431,28 @@ typedef struct tagADDFNT {
 
  */
 
-VOID NEAR PASCAL CutOffWhite( LPTSTR lpLine )
+VOID NEAR PASCAL CutOffWhite(LPTSTR lpLine)
 {
-    TCHAR  szLineBuf[ 120 ];
+    TCHAR  szLineBuf[120];
     LPTSTR lpBuf = szLineBuf;
     LPTSTR lpch;
 
 
-    for( lpch = lpLine; *lpch; lpch = CharNext( lpch ) )
-    {
-        if( *lpch==TEXT( ' ' ) || *lpch == TEXT( '\t' ) )
-             continue;
-        else
-        {
-            if( IsDBCSLeadByte( *lpch ) )
-            {
+    for (lpch = lpLine; *lpch; lpch = CharNext(lpch)) {
+        if (*lpch == TEXT(' ') || *lpch == TEXT('\t'))
+            continue;
+        else {
+            if (IsDBCSLeadByte(*lpch)) {
                 *lpBuf++ = *lpch;
                 *lpBuf++ = *(lpch + 1);
-            }
-            else
+            } else
                 *lpBuf++ = *lpch;
         }
     }
 
-    *lpBuf = TEXT( '\0' );
+    *lpBuf = TEXT('\0');
 
-    lstrcpy( lpLine,szLineBuf );
+    lstrcpy(lpLine, szLineBuf);
 }
 
 
@@ -415,25 +465,25 @@ VOID NEAR PASCAL CutOffWhite( LPTSTR lpLine )
 
  */
 
-ATOM NEAR PASCAL StrNToAtom( LPTSTR lpStr, int n )
+ATOM NEAR PASCAL StrNToAtom(LPTSTR lpStr, int n)
 {
-    TCHAR szAtom[ 80 ];
+    TCHAR szAtom[80];
 
 
     //  Take space for NULL
 
 
-    lstrcpyn( szAtom, lpStr, n+1 );
+    lstrcpyn(szAtom, lpStr, n + 1);
 
 
     //  Null terminate the string
 
 
-    *(szAtom+n) = TEXT( '\0' );
+    *(szAtom + n) = TEXT('\0');
 
-    CutOffWhite( szAtom );
+    CutOffWhite(szAtom);
 
-    return AddAtom( szAtom );
+    return AddAtom(szAtom);
 }
 
 
@@ -446,26 +496,24 @@ ATOM NEAR PASCAL StrNToAtom( LPTSTR lpStr, int n )
 
  */
 
-VOID NEAR PASCAL ResetAtomInDescLB( HWND hLB )
+VOID NEAR PASCAL ResetAtomInDescLB(HWND hLB)
 {
     int   nCount;
     DWORD dwData;
 
 
-    if( nCount = (int) SendMessage( hLB, LB_GETCOUNT, 0, 0L ) )
-    {
-        while( nCount > 0 )
-        {
+    if (nCount = (int)SendMessage(hLB, LB_GETCOUNT, 0, 0L)) {
+        while (nCount > 0) {
             nCount--;
 
-            SendMessage( hLB, LB_GETITEMDATA, nCount, (LPARAM) (LPVOID) &dwData );
+            SendMessage(hLB, LB_GETITEMDATA, nCount, (LPARAM)(LPVOID)&dwData);
 
 
             //  Atom handle must be C000H through FFFFH
 
 
-            if( HIWORD( dwData ) >= 0xC000 )
-                DeleteAtom( HIWORD( dwData ) );
+            if (HIWORD(dwData) >= 0xC000)
+                DeleteAtom(HIWORD(dwData));
         }
     }
 }
@@ -486,15 +534,15 @@ VOID NEAR PASCAL ResetAtomInDescLB( HWND hLB )
 #define WHICH_FNT_TT    0
 #define WHICH_FNT_WIFE  1
 
-WORD FAR PASCAL GetNextFontFromInf( LPTSTR lpszLine, LPADDFNT lpFnt )
+WORD FAR PASCAL GetNextFontFromInf(LPTSTR lpszLine, LPADDFNT lpFnt)
 {
-    TCHAR   szDescName[ 80 ];
-    LPTSTR  lpch,lpDscStart;
+    TCHAR   szDescName[80];
+    LPTSTR  lpch, lpDscStart;
     WORD    wRet;
     int     nItem;
     ATOM    atmTagName;
 
-    CListBox *  poListDesc = lpFnt->poListDesc;
+    CListBox* poListDesc = lpFnt->poListDesc;
 
 
 
@@ -504,13 +552,12 @@ WORD FAR PASCAL GetNextFontFromInf( LPTSTR lpszLine, LPADDFNT lpFnt )
 
     wRet = (WORD)-1; /* Presume failure */
 
-    if( lpch = StrChr( lpszLine, TEXT( '=' ) ) )
-    {
+    if (lpch = StrChr(lpszLine, TEXT('='))) {
 
         //  Get tag string in 'WifeFont' section
 
 
-        atmTagName = StrNToAtom( lpszLine, (int)(lpch-lpszLine) );
+        atmTagName = StrNToAtom(lpszLine, (int)(lpch - lpszLine));
 
 
         //  Get description string from right side of '='.
@@ -522,36 +569,31 @@ WORD FAR PASCAL GetNextFontFromInf( LPTSTR lpszLine, LPADDFNT lpFnt )
         lpDscStart = lpch + 1;
         lstrcpyn(szDescName, lpDscStart, ARRAYSIZE(szDescName));
 
-        if( atmTagName && lpDscStart )
-        {
-           AddITEMDATA OurData;
+        if (atmTagName && lpDscStart) {
+            AddITEMDATA OurData;
 
 
-           OurData.nFileSlot = (WORD)lpFnt->nIndex;
-           OurData.wFontType = (lpFnt->which == WHICH_FNT_TT )
-                                    ? (atmTagName & ~TRUETYPE_WITH_OEMINF )
-                                    : atmTagName;
+            OurData.nFileSlot = (WORD)lpFnt->nIndex;
+            OurData.wFontType = (lpFnt->which == WHICH_FNT_TT)
+                ? (atmTagName & ~TRUETYPE_WITH_OEMINF)
+                : atmTagName;
 
-           if( poListDesc->FindStringExact( -1, szDescName ) == LB_ERR )
-           {
-                nItem = poListDesc->AddString( szDescName );
+            if (poListDesc->FindStringExact(-1, szDescName) == LB_ERR) {
+                nItem = poListDesc->AddString(szDescName);
 
-                if( nItem != LB_ERR )
-                    poListDesc->SetItemData( nItem, OurData.ItemData );
-                else
-                {
-                    DeleteAtom( atmTagName );
+                if (nItem != LB_ERR)
+                    poListDesc->SetItemData(nItem, OurData.ItemData);
+                else {
+                    DeleteAtom(atmTagName);
 
-                    DEBUGMSG( (DM_ERROR, TEXT( "FONTEXT: Error adding string %s" ),
-                              szDescName ) );
+                    DEBUGMSG((DM_ERROR, TEXT("FONTEXT: Error adding string %s"),
+                              szDescName));
                 }
-            }
-            else
-            {
-                DeleteAtom( atmTagName );
+            } else {
+                DeleteAtom(atmTagName);
 
-                DEBUGMSG( (DM_TRACE1,TEXT( "String %s already in list" ),
-                          szDescName) );
+                DEBUGMSG((DM_TRACE1, TEXT("String %s already in list"),
+                          szDescName));
             }
 
 
@@ -559,9 +601,8 @@ WORD FAR PASCAL GetNextFontFromInf( LPTSTR lpszLine, LPADDFNT lpFnt )
 
 
             wRet = NULL;
-        }
-        else if( atmTagName )
-            DeleteAtom( atmTagName );
+        } else if (atmTagName)
+            DeleteAtom(atmTagName);
     }
 
     return wRet;
@@ -578,25 +619,22 @@ WORD FAR PASCAL GetNextFontFromInf( LPTSTR lpszLine, LPADDFNT lpFnt )
 
  */
 
-BOOL NEAR PASCAL FindOemInList( CListBox * pListFiles,
-                                int nFiles,
-                                LPINT pIndex,
-                                LPTSTR szInfFileName )
+BOOL NEAR PASCAL FindOemInList(CListBox* pListFiles,
+                               int nFiles,
+                               LPINT pIndex,
+                               LPTSTR szInfFileName)
 {
     int   i;
-    TCHAR szFile[ MAXFILE ];
+    TCHAR szFile[MAXFILE];
 
 
-    DEBUGMSG( (DM_TRACE1,TEXT( "FONTEXT: FindOemInList" ) ) );
+    DEBUGMSG((DM_TRACE1, TEXT("FONTEXT: FindOemInList")));
 
-    for( i = 0; i < nFiles; i++ )
-    {
-        if( pListFiles->GetText( i, szFile ) != LB_ERR )
-        {
-            if( !lstrcmpi( szFile, szOEMSetup ) )
-            {
+    for (i = 0; i < nFiles; i++) {
+        if (pListFiles->GetText(i, szFile) != LB_ERR) {
+            if (!lstrcmpi(szFile, szOEMSetup)) {
                 *pIndex = i;
-                lstrcpy( szInfFileName, szFile );
+                lstrcpy(szInfFileName, szFile);
 
 
                 //  found oemsetup.inf ... return index
@@ -604,8 +642,7 @@ BOOL NEAR PASCAL FindOemInList( CListBox * pListFiles,
 
                 return TRUE;
             }
-        }
-        else
+        } else
 
             //  fail
 
@@ -624,7 +661,7 @@ BOOL NEAR PASCAL FindOemInList( CListBox * pListFiles,
    Module-global variables
 */
 
-static AddFontsDialog*  s_pDlgAddFonts = NULL;
+static AddFontsDialog* s_pDlgAddFonts = NULL;
 static UINT s_iLBSelChange = 0;
 
 
@@ -638,16 +675,16 @@ static UINT s_iLBSelChange = 0;
 
  */
 
-AddFontsDialog::AddFontsDialog( )
-   : CWnd( ),
-      m_bAdded( FALSE ),
-      m_poListBoxFiles( 0 ),
-      m_poListBoxDesc( 0 ),
-      m_hThread( NULL ),
-      m_heventDestruction(NULL),
-      m_cRef(0)
+AddFontsDialog::AddFontsDialog()
+    : CWnd(),
+    m_bAdded(FALSE),
+    m_poListBoxFiles(0),
+    m_poListBoxDesc(0),
+    m_hThread(NULL),
+    m_heventDestruction(NULL),
+    m_cRef(0)
 {
-   /* vSetHelpID( IDH_DLG_FONT2 ); */
+    /* vSetHelpID( IDH_DLG_FONT2 ); */
     AddRef();
 }
 
@@ -661,7 +698,7 @@ AddFontsDialog::AddFontsDialog( )
 
  */
 
-AddFontsDialog::~AddFontsDialog( )
+AddFontsDialog::~AddFontsDialog()
 {
     if (NULL != m_heventDestruction)
         CloseHandle(m_heventDestruction);
@@ -690,7 +727,7 @@ LONG AddFontsDialog::AddRef(void)
 
     InterlockedIncrement(&m_cRef);
 
-    DEBUGMSG((DM_TRACE1, TEXT("AddFontsDialog::AddRef %d -> %d"), lReturn-1, lReturn));
+    DEBUGMSG((DM_TRACE1, TEXT("AddFontsDialog::AddRef %d -> %d"), lReturn - 1, lReturn));
 
     return lReturn;
 }
@@ -700,9 +737,8 @@ LONG AddFontsDialog::Release(void)
 {
     LONG lReturn = m_cRef - 1;
 
-    DEBUGMSG((DM_TRACE1, TEXT("AddFontsDialog::Release %d -> %d"), lReturn+1, lReturn));
-    if (InterlockedDecrement(&m_cRef) == 0)
-    {
+    DEBUGMSG((DM_TRACE1, TEXT("AddFontsDialog::Release %d -> %d"), lReturn + 1, lReturn));
+    if (InterlockedDecrement(&m_cRef) == 0) {
         delete this;
         DEBUGMSG((DM_TRACE1, TEXT("AddFontsDialog: Object deleted.")));
         lReturn = 0;
@@ -729,8 +765,7 @@ BOOL AddFontsDialog::bInitialize(void)
     // This event object is used to tell the dialog's background thread
     // when to exit.
 
-    if (NULL == m_heventDestruction)
-    {
+    if (NULL == m_heventDestruction) {
         m_heventDestruction = CreateEvent(NULL,  // No security attrib.
                                           TRUE,  // Manual reset.
                                           FALSE, // Initially non-signaled.
@@ -750,28 +785,24 @@ BOOL AddFontsDialog::bInitialize(void)
 
  */
 
-DWORD dwThreadProc( AddFontsDialog * poFD )
+DWORD dwThreadProc(AddFontsDialog* poFD)
 {
-    DEBUGMSG( (DM_TRACE1, TEXT( "FONTEXT: BG thread running" ) ) );
+    DEBUGMSG((DM_TRACE1, TEXT("FONTEXT: BG thread running")));
 
-    if (NULL != poFD)
-    {
+    if (NULL != poFD) {
         poFD->AddRef();
 
-        if(NULL == poFD->hWnd())
-        {
-            DEBUGMSG( (DM_TRACE1, TEXT( "FONTEXT: BG thread window is null!!!" ) ) );
+        if (NULL == poFD->hWnd()) {
+            DEBUGMSG((DM_TRACE1, TEXT("FONTEXT: BG thread window is null!!!")));
             DEBUGBREAK;
         }
 
-        if (NULL != poFD->m_heventDestruction)
-        {
-            while( 1 )
-            {
+        if (NULL != poFD->m_heventDestruction) {
+            while (1) {
 
                 // Tell Dialog Proc to add more items to the dialog's font listbox.
 
-                PostMessage( poFD->hWnd(), WM_COMMAND, (WPARAM)IDM_IDLE, (LPARAM)0 );
+                PostMessage(poFD->hWnd(), WM_COMMAND, (WPARAM)IDM_IDLE, (LPARAM)0);
 
 
                 // Wait max of 2 seconds for event to signal.
@@ -784,7 +815,7 @@ DWORD dwThreadProc( AddFontsDialog * poFD )
         poFD->Release();
     }
 
-    DEBUGMSG( (DM_TRACE1, TEXT( "FONTEXT: BG thread completed." ) ) );
+    DEBUGMSG((DM_TRACE1, TEXT("FONTEXT: BG thread completed.")));
 
     return 0;
 }
@@ -799,14 +830,14 @@ DWORD dwThreadProc( AddFontsDialog * poFD )
 
  */
 
-void  AddFontsDialog::vStartFonts( )
+void  AddFontsDialog::vStartFonts()
 {
 
-    DEBUGMSG( (DM_TRACE1, TEXT( "FONTEXT:  ---------- vStartFonts-------" ) ) );
-//   DEBUGBREAK;
+    DEBUGMSG((DM_TRACE1, TEXT("FONTEXT:  ---------- vStartFonts-------")));
+    //   DEBUGBREAK;
 
 
-    //  Set the start state.
+        //  Set the start state.
 
 
     m_nFontsToGo = -1;
@@ -815,15 +846,13 @@ void  AddFontsDialog::vStartFonts( )
     //  Create the background thread
 
 
-    if( !m_hThread )
-    {
-        m_hThread = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE) dwThreadProc, (LPVOID) this, IDLE_PRIORITY_CLASS | CREATE_NO_WINDOW, &m_dwThreadId );
+    if (!m_hThread) {
+        m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)dwThreadProc, (LPVOID)this, IDLE_PRIORITY_CLASS | CREATE_NO_WINDOW, &m_dwThreadId);
     }
 
 #ifdef _DEBUG
-    if( !m_hThread )
-    {
-        DEBUGMSG( (DM_ERROR, TEXT( "BG Thread not created" ) ) );
+    if (!m_hThread) {
+        DEBUGMSG((DM_ERROR, TEXT("BG Thread not created")));
         DEBUGBREAK;
     }
 #endif
@@ -840,63 +869,60 @@ void  AddFontsDialog::vStartFonts( )
 
  */
 
-void  AddFontsDialog::vUpdatePctText( )
+void  AddFontsDialog::vUpdatePctText()
 {
     int    pct;
-    TCHAR  szFontsRead[ 80 ];
-    TCHAR  szTemp[ 80 ] = { TEXT( '\0' ) };
+    TCHAR  szFontsRead[80];
+    TCHAR  szTemp[80] = {TEXT('\0')};
 
 
-    if( m_nFontsToGo > 0 )
-    {
-       LoadString( g_hInst, IDSI_FMT_RETRIEVE, szFontsRead, 80 );
+    if (m_nFontsToGo > 0) {
+        LoadString(g_hInst, IDSI_FMT_RETRIEVE, szFontsRead, 80);
 
-       pct = (int) ((long) ( m_nFonts - m_nFontsToGo ) * 100 / m_nFonts );
+        pct = (int)((long)(m_nFonts - m_nFontsToGo) * 100 / m_nFonts);
 
-       wsprintf( szTemp, szFontsRead, pct );
+        wsprintf(szTemp, szFontsRead, pct);
     }
 
-    SetDlgItemText( m_hWnd, ID_SS_PCT, szTemp );
+    SetDlgItemText(m_hWnd, ID_SS_PCT, szTemp);
 }
 
 
-BOOL bRemoteDrive( LPCTSTR szDir )
+BOOL bRemoteDrive(LPCTSTR szDir)
 {
-    if( szDir[ 0 ] == TEXT( '\\' ) && szDir[ 1 ] == TEXT( '\\' ) )
-    {
+    if (szDir[0] == TEXT('\\') && szDir[1] == TEXT('\\')) {
 
         //  This is a UNC name
 
 
-        return( TRUE );
+        return(TRUE);
     }
 
-    if( IsDBCSLeadByte( szDir[ 0 ]) || szDir[ 1 ] != TEXT( ':' )
-            || szDir[ 2 ] != TEXT( '\\' ) )
-    {
-        return( FALSE );
+    if (IsDBCSLeadByte(szDir[0]) || szDir[1] != TEXT(':')
+        || szDir[2] != TEXT('\\')) {
+        return(FALSE);
     }
 
 #ifndef WIN32
-    switch( GetDriveType( (szCurDir[ 0 ]-TEXT( 'A' ) ) & 31 ) )
+    switch (GetDriveType((szCurDir[0] - TEXT('A')) & 31))
 #else
-    TCHAR szRoot[ 4 ];
+    TCHAR szRoot[4];
 
-    lstrcpyn( szRoot, szDir, 4 );
+    lstrcpyn(szRoot, szDir, 4);
 
-    switch( GetDriveType( szRoot ) )
+    switch (GetDriveType(szRoot))
 #endif
     {
     case DRIVE_REMOTE:
     case DRIVE_REMOVABLE:
     case DRIVE_CDROM:
-        return( TRUE );
+        return(TRUE);
 
     default:
         break;
     }
 
-    return( FALSE );
+    return(FALSE);
 }
 
 
@@ -909,30 +935,30 @@ BOOL bRemoteDrive( LPCTSTR szDir )
 
  */
 
-void AddFontsDialog :: vAddSelFonts( )
+void AddFontsDialog::vAddSelFonts()
 {
     FullPathName_t szCurDir;
 
-    BOOL  bAddFonts  = TRUE;
-    BOOL  bCopyFiles = IsDlgButtonChecked( m_hWnd, ID_BTN_COPYFILES );
+    BOOL  bAddFonts = TRUE;
+    BOOL  bCopyFiles = IsDlgButtonChecked(m_hWnd, ID_BTN_COPYFILES);
 
 #if 0
-    CWnd* pFontDlg = CWnd::FromHandle( m_pOpen->hwndOwner );
+    CWnd* pFontDlg = CWnd::FromHandle(m_pOpen->hwndOwner);
 
 
     // Let the main window live again, and give it focus
 
 
-    pFontDlg->EnableWindow( TRUE );
-    pFontDlg->SetFocus( );
-    ShowWindow( SW_HIDE );
-    pFontDlg->UpdateWindow( );  // forces repaint of hidden area
+    pFontDlg->EnableWindow(TRUE);
+    pFontDlg->SetFocus();
+    ShowWindow(SW_HIDE);
+    pFontDlg->UpdateWindow();  // forces repaint of hidden area
 #endif
 
 
-    GetCurrentDirectory( ARRAYSIZE( szCurDir ), szCurDir );
+    GetCurrentDirectory(ARRAYSIZE(szCurDir), szCurDir);
 
-    lpCPBackSlashTerm( szCurDir );
+    lpCPBackSlashTerm(szCurDir);
 
 
     //  If we're not going to copy the font files, but they live on a remote
@@ -940,11 +966,9 @@ void AddFontsDialog :: vAddSelFonts( )
     //  the implications
 
 
-    if( !bCopyFiles )
-    {
-        if( bRemoteDrive( szCurDir ) &&
-            iUIMsgYesNoExclaim(m_hWnd, IDSI_MSG_COPYCONFIRM ) != IDYES )
-        {
+    if (!bCopyFiles) {
+        if (bRemoteDrive(szCurDir) &&
+            iUIMsgYesNoExclaim(m_hWnd, IDSI_MSG_COPYCONFIRM) != IDYES) {
             goto done;
         }
     }
@@ -952,34 +976,32 @@ void AddFontsDialog :: vAddSelFonts( )
 
     //  Save off the current directory. bAddSelFonts( ) may change it.
 
-    TCHAR  szCWD[ MAXFILE ];
+    TCHAR  szCWD[MAXFILE];
 
-    GetCurrentDirectory( ARRAYSIZE( szCWD ), szCWD );
+    GetCurrentDirectory(ARRAYSIZE(szCWD), szCWD);
 
-    if( bAddSelFonts( szCurDir, !bCopyFiles ) )
+    if (bAddSelFonts(szCurDir, !bCopyFiles))
         m_bAdded = TRUE;
 
-    SetCurrentDirectory( szCWD );
+    SetCurrentDirectory(szCWD);
 
 
     //  From here, we dispose of the dialog appropriately
 
 
 done:
-    if( m_bAdded )
-    {
-        ResetAtomInDescLB( s_pDlgAddFonts->pListBoxDesc()->hWnd() );
+    if (m_bAdded) {
+        ResetAtomInDescLB(s_pDlgAddFonts->pListBoxDesc()->hWnd());
 
-        FORWARD_WM_COMMAND( m_hWnd, IDABORT, 0, 0, PostMessage );
-    }
-    else
-        ShowWindow( m_hWnd, SW_NORMAL );
+        FORWARD_WM_COMMAND(m_hWnd, IDABORT, 0, 0, PostMessage);
+    } else
+        ShowWindow(m_hWnd, SW_NORMAL);
 
     return;
 }
 
 
-extern BOOL bRegHasKey( const TCHAR * szKey, TCHAR * szVal = 0, int iValLen = 0 );
+extern BOOL bRegHasKey(const TCHAR* szKey, TCHAR* szVal = 0, int iValLen = 0);
 
 
 /*
@@ -991,9 +1013,9 @@ extern BOOL bRegHasKey( const TCHAR * szKey, TCHAR * szVal = 0, int iValLen = 0 
 
  */
 
-BOOL NEAR PASCAL bFontInstalledNow( PTSTR szLHS )
+BOOL NEAR PASCAL bFontInstalledNow(PTSTR szLHS)
 {
-    return  bRegHasKey( szLHS );
+    return  bRegHasKey(szLHS);
 }
 
 
@@ -1005,20 +1027,20 @@ BOOL NEAR PASCAL bFontInstalledNow( PTSTR szLHS )
  * RETURNS:  none
  ***/
 
-VOID NEAR PASCAL vEnsureInit( )
+VOID NEAR PASCAL vEnsureInit()
 {
     static BOOL s_bInited = FALSE;
 
 
-    if( s_bInited )
+    if (s_bInited)
         return;
 
 
-// [stevecat] This is done at vCPPanelInit( ) time now.
+    // [stevecat] This is done at vCPPanelInit( ) time now.
 
-//    ::GetFontsDirectory( s_szSharedDir, ARRAYSIZE( s_szSharedDir ) );
+    //    ::GetFontsDirectory( s_szSharedDir, ARRAYSIZE( s_szSharedDir ) );
 
-//    lpCPBackSlashTerm( s_szSharedDir );
+    //    lpCPBackSlashTerm( s_szSharedDir );
 
     s_bInited = TRUE;
 }
@@ -1032,16 +1054,16 @@ VOID NEAR PASCAL vEnsureInit( )
  * RETURNS:  Pointer to filename
  ***/
 
-LPTSTR NEAR PASCAL lpNamePart( LPCTSTR lpszPath )
+LPTSTR NEAR PASCAL lpNamePart(LPCTSTR lpszPath)
 {
-    LPCTSTR lpCh = StrRChr( lpszPath, NULL, TEXT( '\\' ) );
+    LPCTSTR lpCh = StrRChr(lpszPath, NULL, TEXT('\\'));
 
-    if( lpCh )
+    if (lpCh)
         lpCh++;
     else
         lpCh = lpszPath;
 
-    return (LPTSTR) lpCh;
+    return (LPTSTR)lpCh;
 }
 
 
@@ -1054,10 +1076,10 @@ LPTSTR NEAR PASCAL lpNamePart( LPCTSTR lpszPath )
  * RETURNS:  none
  ***/
 
-VOID NEAR PASCAL vPathOnSharedDir( LPTSTR lpszFileOnly, LPTSTR lpszPath )
+VOID NEAR PASCAL vPathOnSharedDir(LPTSTR lpszFileOnly, LPTSTR lpszPath)
 {
-    lstrcpy( lpszPath, s_szSharedDir );
-    lstrcat( lpszPath, lpszFileOnly );
+    lstrcpy(lpszPath, s_szSharedDir);
+    lstrcat(lpszPath, lpszFileOnly);
 }
 
 
@@ -1079,14 +1101,14 @@ VOID NEAR PASCAL vPathOnSharedDir( LPTSTR lpszFileOnly, LPTSTR lpszPath )
  * RETURNS:    BOOL - True if TrueType is enabled
  ***/
 
-BOOL NEAR PASCAL bTTEnabled( )
+BOOL NEAR PASCAL bTTEnabled()
 {
     RASTERIZER_STATUS info;
 
 
-    GetRasterizerCaps( &info, sizeof( info ) );
+    GetRasterizerCaps(&info, sizeof(info));
 
-    return( info.wFlags & TT_ENABLED ) && ( info.nSize == sizeof( info ) );
+    return(info.wFlags & TT_ENABLED) && (info.nSize == sizeof(info));
 }
 
 
@@ -1100,13 +1122,13 @@ BOOL NEAR PASCAL bTTEnabled( )
  * RETURNS:    none
  ***/
 
-VOID NEAR PASCAL vHashToNulls( LPTSTR lp )
+VOID NEAR PASCAL vHashToNulls(LPTSTR lp)
 {
-    while( *lp )
-        if( *lp == TEXT( '#' ) )
+    while (*lp)
+        if (*lp == TEXT('#'))
             *lp++ = NULL;
         else
-            lp = CharNext( lp );
+            lp = CharNext(lp);
 }
 
 
@@ -1121,28 +1143,28 @@ VOID NEAR PASCAL vHashToNulls( LPTSTR lp )
 
 
 
-BOOL bIsCompressed( LPTSTR szFile )
+BOOL bIsCompressed(LPTSTR szFile)
 {
     static CHAR szCmpHdr[] = "SZDD\x88\xf0'3";
 
     BOOL     bRet = FALSE;
     HANDLE   fh;
-    CHAR     buf[ ARRAYSIZE( szCmpHdr ) ];
+    CHAR     buf[ARRAYSIZE(szCmpHdr)];
 
 
-    if( ( fh = wCPOpenFileWithShare( szFile, NULL, OF_READ ) )
-              == (HANDLE) INVALID_HANDLE_VALUE )
+    if ((fh = wCPOpenFileWithShare(szFile, NULL, OF_READ))
+        == (HANDLE)INVALID_HANDLE_VALUE)
         return(FALSE);
 
-    buf[ ARRAYSIZE( buf ) - 1 ] = '\0';
+    buf[ARRAYSIZE(buf) - 1] = '\0';
 
-    if( MyByteReadFile( fh, buf, ARRAYSIZE( buf ) - 1 )
-           && !lstrcmpA( buf, szCmpHdr ) )
+    if (MyByteReadFile(fh, buf, ARRAYSIZE(buf) - 1)
+        && !lstrcmpA(buf, szCmpHdr))
         bRet = TRUE;
 
-    MyCloseFile( fh );
+    MyCloseFile(fh);
 
-    return( bRet );
+    return(bRet);
 }
 
 #else
@@ -1156,26 +1178,25 @@ BOOL bIsCompressed( LPTSTR szFile )
  * RETURNS:    BOOL - True if compressed
  ***/
 
-BOOL NEAR PASCAL bIsCompressed( LPTSTR szFile )
+BOOL NEAR PASCAL bIsCompressed(LPTSTR szFile)
 {
     static   char szMagic[] = "SZDD\x88\xf0'3";
-    const    int iLast      = sizeof( szMagic ) - 1;
-    char     buf[ sizeof( szMagic ) ];
+    const    int iLast = sizeof(szMagic) - 1;
+    char     buf[sizeof(szMagic)];
     int      fh;
     OFSTRUCT of;
     BOOL     bRet = FALSE;
 
-    if( ( fh = wCPOpenFileWithShare( szFile, &of, OF_READ ) ) != HFILE_ERROR )
-    {
-        buf[ iLast ] = '\0';
+    if ((fh = wCPOpenFileWithShare(szFile, &of, OF_READ)) != HFILE_ERROR) {
+        buf[iLast] = '\0';
 
-        if( _lread( fh, buf, iLast ) == iLast )
-            if( lstrcmp( buf, szMagic ) == 0 )
+        if (_lread(fh, buf, iLast) == iLast)
+            if (lstrcmp(buf, szMagic) == 0)
                 bRet = TRUE;
 
-        _lclose( fh );
+        _lclose(fh);
     }
-    return( bRet );
+    return(bRet);
 }
 
 #endif  //  WINNT
@@ -1190,7 +1211,7 @@ BOOL NEAR PASCAL bIsCompressed( LPTSTR szFile )
  * RETURNS:    none
  ***/
 
-VOID NEAR PASCAL vConvertExtension( LPTSTR lpszFile, LPTSTR lpszExt )
+VOID NEAR PASCAL vConvertExtension(LPTSTR lpszFile, LPTSTR lpszExt)
 {
     LPTSTR lpCh;
 
@@ -1198,14 +1219,14 @@ VOID NEAR PASCAL vConvertExtension( LPTSTR lpszFile, LPTSTR lpszExt )
     //  Remove any extension
 
 
-    if( lpCh = StrChr( lpNamePart( lpszFile ), TEXT( '.' ) ) )
-        *lpCh = TEXT( '\0' );
+    if (lpCh = StrChr(lpNamePart(lpszFile), TEXT('.')))
+        *lpCh = TEXT('\0');
 
 
     //  Old name updated now.
 
 
-    lstrcat( lpszFile, lpszExt );
+    lstrcat(lpszFile, lpszExt);
 }
 
 
@@ -1220,13 +1241,13 @@ VOID NEAR PASCAL vConvertExtension( LPTSTR lpszFile, LPTSTR lpszExt )
  * RETURNS:    BOOL - True if file exists
  ***/
 
-BOOL PASCAL bFileFound( LPTSTR pszFullPath, LPTSTR lpszFileOnly )
+BOOL PASCAL bFileFound(LPTSTR pszFullPath, LPTSTR lpszFileOnly)
 {
-    if( wCPOpenFileWithShare( pszFullPath, NULL, OF_EXIST )
-            != (HANDLE) INVALID_HANDLE_VALUE )
+    if (wCPOpenFileWithShare(pszFullPath, NULL, OF_EXIST)
+        != (HANDLE)INVALID_HANDLE_VALUE)
         return TRUE;
     else
-        return GetModuleHandle( lpszFileOnly ) != NULL;
+        return GetModuleHandle(lpszFileOnly) != NULL;
 }
 
 #else
@@ -1240,23 +1261,23 @@ BOOL PASCAL bFileFound( LPTSTR pszFullPath, LPTSTR lpszFileOnly )
  * RETURNS:    BOOL - True if file exists
  ***/
 
-BOOL NEAR PASCAL bFileFound( PTSTR pszFullPath, LPTSTR lpszFileOnly )
+BOOL NEAR PASCAL bFileFound(PTSTR pszFullPath, LPTSTR lpszFileOnly)
 {
     OFSTRUCT of;
 
 
-    if( wCPOpenFileWithShare( pszFullPath, &of, OF_EXIST ) != (WORD)HFILE_ERROR )
+    if (wCPOpenFileWithShare(pszFullPath, &of, OF_EXIST) != (WORD)HFILE_ERROR)
         return TRUE;
 
 #ifndef WIN32
 
     // EMR: The OFSTRUCT isn't being updated with the error code on OF_EXIST test.
 
-    else if( of.nErrCode != OF_ERR_FNF )
+    else if (of.nErrCode != OF_ERR_FNF)
         return TRUE;
 #endif
     else
-        return GetModuleHandle( lpszFileOnly ) != NULL;
+        return GetModuleHandle(lpszFileOnly) != NULL;
 }
 
 #endif  //  WINNT
@@ -1271,48 +1292,46 @@ BOOL NEAR PASCAL bFileFound( PTSTR pszFullPath, LPTSTR lpszFileOnly )
 
 
 
-BOOL bUniqueFilename( LPTSTR lpszDst, LPTSTR lpszSrc, LPTSTR lpszDir )
+BOOL bUniqueFilename(LPTSTR lpszDst, LPTSTR lpszSrc, LPTSTR lpszDir)
 {
     TCHAR   szFullPath[PATHMAX];
     LPTSTR  lpszFile, lpszSrcExt, lpszDstExt;
     WORD    digit = 0;
 
 
-    lstrcpy( szFullPath, lpszDir );
+    lstrcpy(szFullPath, lpszDir);
 
-    lstrcpy( lpszFile = lpCPBackSlashTerm( szFullPath ), lpszSrc );
+    lstrcpy(lpszFile = lpCPBackSlashTerm(szFullPath), lpszSrc);
 
-    if( !(lpszSrcExt = _tcschr( lpszSrc, TEXT( '.' ) ) ) )
+    if (!(lpszSrcExt = _tcschr(lpszSrc, TEXT('.'))))
         lpszSrcExt = szDot;
 
 
-    if( wCPOpenFileWithShare( szFullPath, NULL, OF_EXIST ) == INVALID_HANDLE_VALUE )
+    if (wCPOpenFileWithShare(szFullPath, NULL, OF_EXIST) == INVALID_HANDLE_VALUE)
         goto AllDone;
 
-    if( !(lpszDstExt = _tcschr( lpszFile, TEXT( '.' ) ) ) )
-        lpszDstExt = lpszFile + lstrlen( lpszFile );
+    if (!(lpszDstExt = _tcschr(lpszFile, TEXT('.'))))
+        lpszDstExt = lpszFile + lstrlen(lpszFile);
 
-    while( lpszDstExt - lpszFile < 7 )
-        *lpszDstExt++ = TEXT( '_' );
+    while (lpszDstExt - lpszFile < 7)
+        *lpszDstExt++ = TEXT('_');
 
-    do
-    {
-        TCHAR szTemp[ 8 ];
+    do {
+        TCHAR szTemp[8];
 
-        wsprintf( szTemp, TEXT( "%X" ), digit++ );
+        wsprintf(szTemp, TEXT("%X"), digit++);
 
-        if( digit++ > 0x4000 )
-            return( FALSE );
+        if (digit++ > 0x4000)
+            return(FALSE);
 
-        lstrcpy( lpszFile + 8 - lstrlen( szTemp ), szTemp );
-        lstrcat( lpszFile, lpszSrcExt );
-    }
-    while( wCPOpenFileWithShare( szFullPath, NULL, OF_EXIST ) != INVALID_HANDLE_VALUE );
+        lstrcpy(lpszFile + 8 - lstrlen(szTemp), szTemp);
+        lstrcat(lpszFile, lpszSrcExt);
+    } while (wCPOpenFileWithShare(szFullPath, NULL, OF_EXIST) != INVALID_HANDLE_VALUE);
 
 AllDone:
-    lstrcpy( lpszDst, lpszFile );
+    lstrcpy(lpszDst, lpszFile);
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -1326,9 +1345,9 @@ AllDone:
  * RETURNS:  BOOL - success of attempt
  ***/
 
-BOOL NEAR PASCAL bUniqueOnSharedDir( LPTSTR lpszUniq, LPTSTR lpszSrc )
+BOOL NEAR PASCAL bUniqueOnSharedDir(LPTSTR lpszUniq, LPTSTR lpszSrc)
 {
-    TCHAR           szOrigExt[ 5 ];     // Hold input file extension
+    TCHAR           szOrigExt[5];     // Hold input file extension
     FullPathName_t szFullPath;          // Working space for unique name
     LPTSTR          lpszFileOnly;       // Points withing szFullPath
     LPTSTR          lpCh;
@@ -1339,17 +1358,16 @@ BOOL NEAR PASCAL bUniqueOnSharedDir( LPTSTR lpszUniq, LPTSTR lpszSrc )
     //  Hold pointer to where file portion begins
 
 
-    vPathOnSharedDir( lpszSrc, szFullPath );
+    vPathOnSharedDir(lpszSrc, szFullPath);
 
-    lpszFileOnly = lpNamePart( szFullPath );
+    lpszFileOnly = lpNamePart(szFullPath);
 
 
     //  Check the full file for existance  - if we couldn't find it, good -
     //  that's what we were shooting for.  Otherwise, make a unique name
 
 
-    if( bFileFound( szFullPath, lpszFileOnly ) )
-    {
+    if (bFileFound(szFullPath, lpszFileOnly)) {
 
         //  Original file not unique
 
@@ -1363,21 +1381,19 @@ BOOL NEAR PASCAL bUniqueOnSharedDir( LPTSTR lpszUniq, LPTSTR lpszSrc )
         //  the name guesses.
 
 
-        if( lpCh = StrChr( lpszFileOnly, TEXT( '.' ) ) )
-        {
-            lstrcpy( szOrigExt, lpCh );
+        if (lpCh = StrChr(lpszFileOnly, TEXT('.'))) {
+            lstrcpy(szOrigExt, lpCh);
 
 
             //  Chop name at extension point.
 
 
             *lpCh = 0;
-        }
-        else
-            lstrcpy( szOrigExt, TEXT( "." ) );
+        } else
+            lstrcpy(szOrigExt, TEXT("."));
 
-        while( lstrlen( lpszFileOnly ) < 7 )
-            lstrcat( lpszFileOnly, TEXT( "_" ) );
+        while (lstrlen(lpszFileOnly) < 7)
+            lstrcat(lpszFileOnly, TEXT("_"));
 
 
         //  Now we're going to try to make the names.  We'll loop through
@@ -1386,25 +1402,24 @@ BOOL NEAR PASCAL bUniqueOnSharedDir( LPTSTR lpszUniq, LPTSTR lpszSrc )
 
 
         WORD digit = 0;
-        TCHAR szTemp[ 8 ];
+        TCHAR szTemp[8];
 
 
-        do
-        {
-            wsprintf( szTemp, TEXT( "%X" ), digit++ );
+        do {
+            wsprintf(szTemp, TEXT("%X"), digit++);
 
-            if( digit++ > 0x4000 )
+            if (digit++ > 0x4000)
 
                 //  Give up at some point
 
 
                 return FALSE;
 
-            lstrcpy( lpszFileOnly + 8 - lstrlen( szTemp ), szTemp );
+            lstrcpy(lpszFileOnly + 8 - lstrlen(szTemp), szTemp);
 
-            lstrcat( lpszFileOnly, szOrigExt );
+            lstrcat(lpszFileOnly, szOrigExt);
 
-        } while( bFileFound( szFullPath, lpszFileOnly ) );
+        } while (bFileFound(szFullPath, lpszFileOnly));
 
     }  // Original file not unique
 
@@ -1412,7 +1427,7 @@ BOOL NEAR PASCAL bUniqueOnSharedDir( LPTSTR lpszUniq, LPTSTR lpszSrc )
     //  We now have a unique name, copy it to the output space
 
 
-    lstrcpy( lpszUniq, lpszFileOnly );
+    lstrcpy(lpszUniq, lpszFileOnly);
 
     return TRUE;
 }
@@ -1431,23 +1446,22 @@ BOOL NEAR PASCAL bUniqueOnSharedDir( LPTSTR lpszUniq, LPTSTR lpszSrc )
  * RETURNS:  INT - same as LZ functions
  ***/
 
-TCHAR *c_aKnownExtensions[] = {
-    TEXT( "ttf" ),
-    TEXT( "fon" ),
+TCHAR* c_aKnownExtensions[] = {
+    TEXT("ttf"),
+    TEXT("fon"),
 };
 
 
-DWORD IGetExpandedName( LPTSTR lpszSrc, LPTSTR lpszDest, UINT cchDest )
+DWORD IGetExpandedName(LPTSTR lpszSrc, LPTSTR lpszDest, UINT cchDest)
 {
     LPTSTR lpszDestExt;
 
     CFontFile file;
     DWORD dwReturn = file.GetExpandedName(lpszSrc, lpszDest, cchDest);
 
-    lpszDestExt = PathFindExtension( lpszDest );
+    lpszDestExt = PathFindExtension(lpszDest);
 
-    if( lpszDestExt && *lpszDestExt )
-    {
+    if (lpszDestExt && *lpszDestExt) {
         lpszDestExt++;
 
 
@@ -1456,19 +1470,16 @@ DWORD IGetExpandedName( LPTSTR lpszSrc, LPTSTR lpszDest, UINT cchDest )
         //  it's missing one.
 
 
-        if( lstrlen( lpszDestExt ) == 2 )
-        {
+        if (lstrlen(lpszDestExt) == 2) {
             int i;
 
-            for( i = 0; i < ARRAYSIZE( c_aKnownExtensions ); i++ )
-            {
-                if( !StrCmpNI( lpszDestExt, c_aKnownExtensions[ i ], 2 ) )
-                {
+            for (i = 0; i < ARRAYSIZE(c_aKnownExtensions); i++) {
+                if (!StrCmpNI(lpszDestExt, c_aKnownExtensions[i], 2)) {
 
                     //  matches!  Take it the corresponding full extension
 
 
-                    lstrcpy( lpszDestExt, c_aKnownExtensions[ i ]);
+                    lstrcpy(lpszDestExt, c_aKnownExtensions[i]);
 
                     break;
                 }
@@ -1480,32 +1491,30 @@ DWORD IGetExpandedName( LPTSTR lpszSrc, LPTSTR lpszDest, UINT cchDest )
         //  getexpandedname always returns the short name
 
 
-        if( lstrlen( lpszDestExt ) <= 3 )
-        {
-            TCHAR szExt[ 4 ];
+        if (lstrlen(lpszDestExt) <= 3) {
+            TCHAR szExt[4];
 
 
             //  save away the extension
 
 
-            lstrcpy( szExt, lpszDestExt );
+            lstrcpy(szExt, lpszDestExt);
 
 
             //  restore the long name
 
 
-            lstrcpy( lpszDest, lpszSrc );
+            lstrcpy(lpszDest, lpszSrc);
 
-            lpszDest = PathFindExtension( lpszDest );
+            lpszDest = PathFindExtension(lpszDest);
 
 
             //  blast back the new extension
 
 
-            if( lpszDest && *lpszDest )
-            {
+            if (lpszDest && *lpszDest) {
                 lpszDest++;
-                lstrcpy( lpszDest, szExt );
+                lstrcpy(lpszDest, szExt);
             }
         }
     }
@@ -1525,8 +1534,8 @@ DWORD IGetExpandedName( LPTSTR lpszSrc, LPTSTR lpszDest, UINT cchDest )
  *             all that were requested
  ***/
 
-BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
-                               BOOL   bNoCopyJob )
+BOOL NEAR PASCAL bAddSelFonts(LPTSTR lpszInDir,
+                              BOOL   bNoCopyJob)
 {
     FontDesc_t     szLHS;
     FullPathName_t szTruePath;
@@ -1540,10 +1549,10 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
     int            nSelSlot;
     AddITEMDATA    OurData;
     int            iReply = 0;
-    BOOL           bOnSharedDir    = FALSE;
+    BOOL           bOnSharedDir = FALSE;
     BOOL           bFontsInstalled = FALSE;
-    CListBox *     pListFiles      = s_pDlgAddFonts->pListBoxFiles( );
-    CListBox *     pListDesc       = s_pDlgAddFonts->pListBoxDesc( );
+    CListBox* pListFiles = s_pDlgAddFonts->pListBoxFiles();
+    CListBox* pListDesc = s_pDlgAddFonts->pListBoxDesc();
     WaitCursor     cWaiter;          // Starts and stops busy cursor
     WORD           wCount = 0;
     int            iTotalFonts, i = 0;
@@ -1555,24 +1564,24 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
     // bOnSharedDir so that they are incorrect on subsequent calls to
     // InstallT1Font.
 
-    BOOL bNoCopyFileSaved  = FALSE;
+    BOOL bNoCopyFileSaved = FALSE;
     BOOL bOnSharedDirSaved = FALSE;
 
     BOOL bOwnInstallationMutex = FALSE;
     HWND hwndProgress = NULL;
-    CFontManager *poFontManager = NULL;
+    CFontManager* poFontManager = NULL;
 
 
     //  Determine if the files are already in the shared directory
     //  (which is where they're headed).
 
 
-    bOnSharedDirSaved = bOnSharedDir = (lstrcmpi( lpszInDir, s_szSharedDir ) == 0);
+    bOnSharedDirSaved = bOnSharedDir = (lstrcmpi(lpszInDir, s_szSharedDir) == 0);
 
     bNoCopyFileSaved = bNoCopyFile = (bNoCopyJob || bOnSharedDir);
 
 
-    iTotalFonts = pListDesc->GetSelCount( );
+    iTotalFonts = pListDesc->GetSelCount();
 
     if (!iTotalFonts)
         iTotalFonts = 1;
@@ -1581,34 +1590,30 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
     //  Init Type1 font installation and Progress dialog
 
 
-    InitPSInstall( );
-    hwndProgress = InitProgress( pListDesc->hWnd() );
+    InitPSInstall();
+    hwndProgress = InitProgress(pListDesc->hWnd());
 
 
     //  We're going to loop until we can't get any more fonts from the
     //  the selection list of the description list box
 
 
-    while(pListDesc->GetSelItems( 1, &nSelSlot ) )
-    {
+    while (pListDesc->GetSelItems(1, &nSelSlot)) {
         if (InstallCancelled())
             goto OperationCancelled;
 
-        if (SUCCEEDED(GetFontManager(&poFontManager)))
-        {
+        if (SUCCEEDED(GetFontManager(&poFontManager))) {
 
             // Must own installation mutex to install font.
 
-            INT iUserResponse  = IDRETRY;
+            INT iUserResponse = IDRETRY;
             DWORD dwWaitResult = CFontManager::MUTEXWAIT_SUCCESS;
 
-            while( IDRETRY == iUserResponse &&
-                   (dwWaitResult = poFontManager->dwWaitForInstallationMutex()) != CFontManager::MUTEXWAIT_SUCCESS )
-            {
-                if ( CFontManager::MUTEXWAIT_WMQUIT != dwWaitResult )
+            while (IDRETRY == iUserResponse &&
+                   (dwWaitResult = poFontManager->dwWaitForInstallationMutex()) != CFontManager::MUTEXWAIT_SUCCESS) {
+                if (CFontManager::MUTEXWAIT_WMQUIT != dwWaitResult)
                     iUserResponse = iUIMsgRetryCancelExclaim(hwndProgress, IDS_INSTALL_MUTEX_WAIT_FAILED, NULL);
-                else
-                {
+                else {
 
                     // Cancel if thread received WM_QUIT while waiting for mutex.
 
@@ -1620,7 +1625,7 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
 
             // If user chose to cancel or we got a WM_QUIT msg, cancel the installation.
 
-            if ( IDCANCEL == iUserResponse )
+            if (IDCANCEL == iUserResponse)
                 goto OperationCancelled;
 
             bOwnInstallationMutex = TRUE;
@@ -1641,11 +1646,11 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
         //  again), and get the font name string.
 
 
-        pListDesc->SetSel( nSelSlot, FALSE );
+        pListDesc->SetSel(nSelSlot, FALSE);
 
-        pListDesc->GetText( nSelSlot, szLHS );
+        pListDesc->GetText(nSelSlot, szLHS);
 
-        vUIPStatusShow( IDS_FMT_FONTINS, szLHS );
+        vUIPStatusShow(IDS_FMT_FONTINS, szLHS);
 
 
         //  If the current selected font is already installed, don't reinstall
@@ -1653,14 +1658,13 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
         //  decision handler.
 
 
-        if( bFontInstalledNow( szLHS ) )
-        {
-            UINT uMB = (pListDesc->GetSelCount( ) )
-                                ? (MB_OKCANCEL | MB_ICONEXCLAMATION )
-                                : MB_OK | MB_ICONEXCLAMATION;
+        if (bFontInstalledNow(szLHS)) {
+            UINT uMB = (pListDesc->GetSelCount())
+                ? (MB_OKCANCEL | MB_ICONEXCLAMATION)
+                : MB_OK | MB_ICONEXCLAMATION;
 
-            iReply = iUIMsgBox( hwndProgress, IDSI_FMT_ISINSTALLED, IDS_MSG_CAPTION,
-                                uMB, szLHS );
+            iReply = iUIMsgBox(hwndProgress, IDSI_FMT_ISINSTALLED, IDS_MSG_CAPTION,
+                               uMB, szLHS);
             goto ReplyPoint;
         }
 
@@ -1670,9 +1674,9 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
         //  safety.
 
 
-        OurData.ItemData = (DWORD)pListDesc->GetItemData( nSelSlot );
+        OurData.ItemData = (DWORD)pListDesc->GetItemData(nSelSlot);
 
-        pListFiles->GetText( OurData.nFileSlot, szSelFile );
+        pListFiles->GetText(OurData.nFileSlot, szSelFile);
 
         bTrueType = (OurData.wFontType == TRUETYPE_FONT);
 
@@ -1680,7 +1684,7 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
         //  Update the overall progress dialog
 
 
-        UpdateProgress (iTotalFonts, i + 1, i * 100 / iTotalFonts);
+        UpdateProgress(iTotalFonts, i + 1, i * 100 / iTotalFonts);
 
         i++;
 
@@ -1689,25 +1693,24 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
         //  the input directory string
 
 
-        lstrcpy( szSelPath, lpszInDir );
+        lstrcpy(szSelPath, lpszInDir);
 
-        lstrcat( szSelPath, szSelFile );
+        lstrcat(szSelPath, szSelFile);
 
 
         //  Save a copy of the input directory to be used from here on.
 
 
-        lstrcpy( szInDirCopy, lpszInDir );
+        lstrcpy(szInDirCopy, lpszInDir);
 
         BOOL    bUpdateWinIni;
         int     ifType;
 
 
-        if( (OurData.wFontType == TYPE1_FONT)
-           || (OurData.wFontType == TYPE1_FONT_NC) )
-        {
+        if ((OurData.wFontType == TYPE1_FONT)
+            || (OurData.wFontType == TYPE1_FONT_NC)) {
 
-            bNoCopyFile  = bNoCopyFileSaved;
+            bNoCopyFile = bNoCopyFileSaved;
             bOnSharedDir = bOnSharedDirSaved;
 
 
@@ -1721,13 +1724,13 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
             //         "szLHS"     is munged to contain "(TrueType)".
 
 
-            switch( ::InstallT1Font( hwndProgress,
-                                     !bNoCopyFile,      //  Copy TT file?
-                                     !bNoCopyFile,      //  Copy PFM/PFB files?
-                                     bOnSharedDir,      //  Files in Shared Dir?
-                                     szSelPath,         //  IN:  PFM File & Dir
-                                                        //  OUT: TTF File & Dir
-                                     szLHS ) )          //  IN & OUT: Font desc
+            switch (::InstallT1Font(hwndProgress,
+                                    !bNoCopyFile,      //  Copy TT file?
+                                    !bNoCopyFile,      //  Copy PFM/PFB files?
+                                    bOnSharedDir,      //  Files in Shared Dir?
+                                    szSelPath,         //  IN:  PFM File & Dir
+                                                       //  OUT: TTF File & Dir
+                                    szLHS))          //  IN & OUT: Font desc
             {
             case TYPE1_INSTALL_TT_AND_MPS:
 
@@ -1763,7 +1766,7 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
 
 
                 bUpdateWinIni =
-                bTrueType = TRUE;
+                    bTrueType = TRUE;
 
                 goto FinishTTInstall;
 
@@ -1826,32 +1829,31 @@ BOOL NEAR PASCAL bAddSelFonts( LPTSTR lpszInDir,
             //                  updated.
 
 
-FinishTTInstall:
+        FinishTTInstall:
 
 
             //  Determine if TTF file to install is in 'fonts' dir
 
 
-            lstrcpy( szFontPath, szSelPath );
+            lstrcpy(szFontPath, szSelPath);
 
 
-            LPTSTR lpCh = StrRChr( szFontPath, NULL, TEXT( '\\' ) );
+            LPTSTR lpCh = StrRChr(szFontPath, NULL, TEXT('\\'));
 
-            if( lpCh )
-            {
+            if (lpCh) {
                 lpCh++;
-                *lpCh = TEXT( '\0' );
+                *lpCh = TEXT('\0');
             }
 
-            bOnSharedDir = lstrcmpi( szFontPath, s_szSharedDir ) == 0;
+            bOnSharedDir = lstrcmpi(szFontPath, s_szSharedDir) == 0;
         }
 
 
         //  Start install progress for this font
 
 
-        ResetProgress( );
-        Progress2( 0, szLHS );
+        ResetProgress();
+        Progress2(0, szLHS);
 
 
         //  Reading OEMSETUP.INF for WIFE/DBCS TT.
@@ -1861,26 +1863,25 @@ FinishTTInstall:
         //  driver if necessary.
 
 
-        if( OurData.wFontType > (0xC000 & ~TRUETYPE_WITH_OEMINF ) )
-        {
+        if (OurData.wFontType > (0xC000 & ~TRUETYPE_WITH_OEMINF)) {
 
             //  Got a font with oemsetup.inf.
 
 
-            DEBUGMSG( (DM_TRACE1, TEXT( "Calling bInstallOEMFile %s" ),
-                       szSelPath ) );
+            DEBUGMSG((DM_TRACE1, TEXT("Calling bInstallOEMFile %s"),
+                      szSelPath));
 
             // DEBUGBREAK;
 
-            if( !bInstallOEMFile( szInDirCopy, szSelPath, szLHS,
-                                  OurData.wFontType, wCount++ ) )
+            if (!bInstallOEMFile(szInDirCopy, szSelPath, szLHS,
+                                 OurData.wFontType, wCount++))
                 goto NextSelection;
 
-            SetCurrentDirectory( lpszInDir );
+            SetCurrentDirectory(lpszInDir);
 
-            DEBUGMSG( (DM_TRACE1, TEXT( "--- After bInstallOEMFile() --- " ) ) );
-            DEBUGMSG( (DM_TRACE1, TEXT( "lpszInDir: %s" ) , szInDirCopy) );
-            DEBUGMSG( (DM_TRACE1, TEXT( "szSelPath: %s" ) , szSelPath) );
+            DEBUGMSG((DM_TRACE1, TEXT("--- After bInstallOEMFile() --- ")));
+            DEBUGMSG((DM_TRACE1, TEXT("lpszInDir: %s"), szInDirCopy));
+            DEBUGMSG((DM_TRACE1, TEXT("szSelPath: %s"), szSelPath));
             // DEBUGBREAK;
 
             bOnSharedDir = TRUE;
@@ -1889,11 +1890,11 @@ FinishTTInstall:
             //  Use the newly created file as the one to be installed.
 
 
-            lstrcpy( szSelFile, lpNamePart( szSelPath ) );
+            lstrcpy(szSelFile, lpNamePart(szSelPath));
 
-            lstrcpy( szInDirCopy, szSelPath );
+            lstrcpy(szInDirCopy, szSelPath);
 
-            *(StrRChr( szInDirCopy, NULL, TEXT( '\\' ) ) + 1 ) = 0;
+            *(StrRChr(szInDirCopy, NULL, TEXT('\\')) + 1) = 0;
 
         }
 
@@ -1902,8 +1903,7 @@ FinishTTInstall:
 
 
         DWORD dwStatus;
-        if( !::bCPValidFontFile( szSelPath, NULL, NULL, FALSE, &dwStatus ) )
-        {
+        if (!::bCPValidFontFile(szSelPath, NULL, NULL, FALSE, &dwStatus)) {
 
             // Display message box informing user about invalid font and why
             // it is invalid.  If user selects Cancel, font installation
@@ -1925,13 +1925,11 @@ FinishTTInstall:
 
         bNoCopyFile = bNoCopyJob || bOnSharedDir;
 
-        if( bNoCopyFile && bIsCompressed( szSelPath ) )
-        {
-            if( bNoCopyJob )
-            {
-                iReply = iUIMsgYesNoExclaim(hwndProgress, IDSI_FMT_COMPRFILE, szLHS );
+        if (bNoCopyFile && bIsCompressed(szSelPath)) {
+            if (bNoCopyJob) {
+                iReply = iUIMsgYesNoExclaim(hwndProgress, IDSI_FMT_COMPRFILE, szLHS);
 
-                if( iReply != IDYES )
+                if (iReply != IDYES)
                     goto ReplyPoint;
             }
             bNoCopyFile = FALSE;
@@ -1939,14 +1937,14 @@ FinishTTInstall:
 
 #ifdef WINNT
 
-        if( bNoCopyFile && (OurData.wFontType == NOT_TT_OR_T1)
-            && !bOnSharedDir )
+        if (bNoCopyFile && (OurData.wFontType == NOT_TT_OR_T1)
+            && !bOnSharedDir)
             bNoCopyFile = FALSE;
 
 #else
 
-        if( bNoCopyFile && !bTrueType && !bOnSharedDir
-             && ( GetModuleHandle( szSelFile ) != NULL ) )
+        if (bNoCopyFile && !bTrueType && !bOnSharedDir
+            && (GetModuleHandle(szSelFile) != NULL))
             bNoCopyFile = FALSE;
 
 #endif  //  WINNT
@@ -1957,12 +1955,9 @@ FinishTTInstall:
         //  in the call to bInstallFont( ).
 
 
-        if( bNoCopyFile )
-        {
+        if (bNoCopyFile) {
             lstrcpy(szFontPath, szSelPath);
-        }
-        else
-        {
+        } else {
 
             //  The file name might be from a compressed file, so we use LZ to
             //  get the true complete path. From this, we re-extract the name
@@ -1971,20 +1966,19 @@ FinishTTInstall:
             //  If GetExpandedName() fails, try to use the original path name.
 
 
-            if( ERROR_SUCCESS != IGetExpandedName( szSelPath, szTruePath, ARRAYSIZE(szSelPath)))
-                lstrcpy( szTruePath, szSelPath );
+            if (ERROR_SUCCESS != IGetExpandedName(szSelPath, szTruePath, ARRAYSIZE(szSelPath)))
+                lstrcpy(szTruePath, szSelPath);
 
-            lstrcpy( szDstFile, lpNamePart( szTruePath ) );
+            lstrcpy(szDstFile, lpNamePart(szTruePath));
 
 
             //  Use this true file name to make a unique path name on the
             //  shared directory
 
 
-            if( !(bUniqueOnSharedDir( szDstFile, szDstFile ) ) )
-            {
+            if (!(bUniqueOnSharedDir(szDstFile, szDstFile))) {
                 iReply = iUIMsgOkCancelExclaim(hwndProgress, IDSI_FMT_BADINSTALL,
-                                                IDSI_CAP_NOCREATE, szLHS );
+                                               IDSI_CAP_NOCREATE, szLHS);
                 goto ReplyPoint;
             }
 
@@ -1994,12 +1988,12 @@ FinishTTInstall:
             //  the one we've constructed, on the shared directory.
 
 
-            if( bCPInstallFile( hwndProgress, szInDirCopy, szSelFile, szDstFile ) )
-                vPathOnSharedDir( szDstFile, szFontPath );
+            if (bCPInstallFile(hwndProgress, szInDirCopy, szSelFile, szDstFile))
+                vPathOnSharedDir(szDstFile, szFontPath);
             else
                 goto ReplyPoint;
 
-            Progress2( 50, szLHS );
+            Progress2(50, szLHS);
         }
 
 
@@ -2008,37 +2002,36 @@ FinishTTInstall:
         //  we need to clean up whatever we did before this attempt - most
         //  notably installing above.
 
-        if( bInstallFont(hwndProgress, szFontPath, bTrueType, szLHS, &iReply ) )
+        if (bInstallFont(hwndProgress, szFontPath, bTrueType, szLHS, &iReply))
             bFontsInstalled = TRUE;
-        else if( !bNoCopyFile )
-            vCPDeleteFromSharedDir( szDstFile );
+        else if (!bNoCopyFile)
+            vCPDeleteFromSharedDir(szDstFile);
 
 
         //  If we copied a file that was in the fonts directory, then delete
         //  the source. This will happen in the case of multi-floppy installs.
 
 
-        if( !bNoCopyFile && bOnSharedDir )
-            vCPDeleteFromSharedDir( szSelPath );
+        if (!bNoCopyFile && bOnSharedDir)
+            vCPDeleteFromSharedDir(szSelPath);
 
-        Progress2( 100, szLHS );
+        Progress2(100, szLHS);
 
 
         //  Here's where we jump on any diagnostics.  If the user wanted us
         //  to cancel, we return immediately.
 
 
-ReplyPoint:
-        if( iReply == IDCANCEL )
+    ReplyPoint:
+        if (iReply == IDCANCEL)
             goto OperationCancelled;
 
 
-FinishType1Install:
+    FinishType1Install:
 
-NextSelection:
+    NextSelection:
 
-        if (SUCCEEDED(GetFontManager(&poFontManager)))
-        {
+        if (SUCCEEDED(GetFontManager(&poFontManager))) {
             poFontManager->bReleaseInstallationMutex();
             bOwnInstallationMutex = FALSE;
             ReleaseFontManager(&poFontManager);
@@ -2049,24 +2042,22 @@ NextSelection:
     //  Update the overall progress dialog - show a 100% message
 
 
-    UpdateProgress( iTotalFonts, iTotalFonts, 100 );
+    UpdateProgress(iTotalFonts, iTotalFonts, 100);
 
-    Sleep( 1000 );
+    Sleep(1000);
 
 
-// Don't update progress indicator if user cancelled out of operation.
+    // Don't update progress indicator if user cancelled out of operation.
 
 OperationCancelled:
 
-    TermProgress( );
-    TermPSInstall( );
+    TermProgress();
+    TermPSInstall();
 
-    if (SUCCEEDED(GetFontManager(&poFontManager)))
-    {
-        if (bOwnInstallationMutex)
-        {
+    if (SUCCEEDED(GetFontManager(&poFontManager))) {
+        if (bOwnInstallationMutex) {
             poFontManager->bReleaseInstallationMutex();
-        }
+                }
         ReleaseFontManager(&poFontManager);
     }
 
@@ -2084,11 +2075,11 @@ OperationCancelled:
  * RETURNS:    BOOL - success of attempt.
  ***/
 
-BOOL NEAR PASCAL bInstallFont( HWND hwndParent,
-                               LPTSTR lpszSrcPath,
-                               BOOL   bTrueType,
-                               PTSTR  szLHS,
-                               int*   iReply )
+BOOL NEAR PASCAL bInstallFont(HWND hwndParent,
+                              LPTSTR lpszSrcPath,
+                              BOOL   bTrueType,
+                              PTSTR  szLHS,
+                              int* iReply)
 {
     LPTSTR          lpszResource;
     FullPathName_t  szFullPath;
@@ -2102,23 +2093,19 @@ BOOL NEAR PASCAL bInstallFont( HWND hwndParent,
     //  Determine if this file is in the FONTS directory.
 
 
-    lstrcpy( szFullPath, lpszSrcPath );
+    lstrcpy(szFullPath, lpszSrcPath);
 
-    lpszName = lpNamePart( szFullPath );
+    lpszName = lpNamePart(szFullPath);
 
-    if( lpszName == szFullPath )
-    {
+    if (lpszName == szFullPath) {
         bInFontsDir = TRUE;
-    }
-    else
-    {
-        *(lpszName-1) = 0;
+    } else {
+        *(lpszName - 1) = 0;
 
-        GetFontsDirectory( szFontsDir, ARRAYSIZE( szFontsDir ) );
+        GetFontsDirectory(szFontsDir, ARRAYSIZE(szFontsDir));
 
-        if( !lstrcmpi( szFontsDir, szFullPath ) )
-        {
-           bInFontsDir = TRUE;
+        if (!lstrcmpi(szFontsDir, szFullPath)) {
+            bInFontsDir = TRUE;
         }
     }
 
@@ -2127,7 +2114,7 @@ BOOL NEAR PASCAL bInstallFont( HWND hwndParent,
     //  Generate the corresponding *.FOT file
 
 
-    if( bInFontsDir )
+    if (bInFontsDir)
         lpszResource = lpszName;
     else
         lpszResource = lpszSrcPath;
@@ -2138,32 +2125,27 @@ BOOL NEAR PASCAL bInstallFont( HWND hwndParent,
     //  If these both succeed, we've finally reached the ultimate return point.
 
 
-    if( AddFontResource( lpszResource ) )
-    {
-        CFontManager *poFontManager;
-        if (SUCCEEDED(GetFontManager(&poFontManager)))
-        {
-            if(poFontManager->poAddToList(szLHS, lpszResource, NULL) != NULL )
-            {
+    if (AddFontResource(lpszResource)) {
+        CFontManager* poFontManager;
+        if (SUCCEEDED(GetFontManager(&poFontManager))) {
+            if (poFontManager->poAddToList(szLHS, lpszResource, NULL) != NULL) {
                 // WriteProfileString( szINISFonts, szLHS, lpszResource );
-                WriteToRegistry( szLHS, lpszResource );
+                WriteToRegistry(szLHS, lpszResource);
                 bSuccess = TRUE;
             }
             ReleaseFontManager(&poFontManager);
             return bSuccess;
-        }
-        else
-        {
+        } else {
 
             //  Clear if we couldn't add
 
-            RemoveFontResource( lpszResource );
+            RemoveFontResource(lpszResource);
         }
     }
 #ifdef _DEBUG
     else
-        DEBUGMSG( (DM_ERROR, TEXT( "AddFontResource failed on %s" ),
-                   lpszResource ) );
+        DEBUGMSG((DM_ERROR, TEXT("AddFontResource failed on %s"),
+                  lpszResource));
 #endif
 
 
@@ -2171,11 +2153,11 @@ BOOL NEAR PASCAL bInstallFont( HWND hwndParent,
     //  need to clean up any file we've created.
 
 
-    if( bInFontsDir )
-        vCPDeleteFromSharedDir( lpszSrcPath );
+    if (bInFontsDir)
+        vCPDeleteFromSharedDir(lpszSrcPath);
 
     *iReply = iUIMsgOkCancelExclaim(hwndParent, IDSI_FMT_BADINSTALL, IDSI_CAP_NOINSTALL,
-                                     szLHS );
+                                    szLHS);
 
     return bSuccess;
 }
@@ -2183,7 +2165,7 @@ BOOL NEAR PASCAL bInstallFont( HWND hwndParent,
 
 BOOL HitTestDlgItem(int x, int y, HWND hwndItem)
 {
-    const POINT pt = { x, y };
+    const POINT pt = {x, y};
     RECT rc;
     GetWindowRect(hwndItem, &rc);
     return PtInRect(&rc, pt);
@@ -2198,50 +2180,45 @@ BOOL HitTestDlgItem(int x, int y, HWND hwndItem)
  * RETURNS:
 
  */
-UINT_PTR CALLBACK FontHookProc( HWND hWnd,
-                                UINT iMessage,
-                                WPARAM wParam,
-                                LPARAM lParam )
+UINT_PTR CALLBACK FontHookProc(HWND hWnd,
+                               UINT iMessage,
+                               WPARAM wParam,
+                               LPARAM lParam)
 {
-    switch( iMessage )
-    {
+    switch (iMessage) {
 
     case WM_INITDIALOG:
-        DEBUGMSG( (DM_TRACE1, TEXT( "FONTEXT: ------------ WM_INITDIALOG " ) ) );
+        DEBUGMSG((DM_TRACE1, TEXT("FONTEXT: ------------ WM_INITDIALOG ")));
 
-        s_pDlgAddFonts->Attach( hWnd );
+        s_pDlgAddFonts->Attach(hWnd);
 
-        s_pDlgAddFonts->m_pOpen = (LPOPENFILENAME) lParam;
+        s_pDlgAddFonts->m_pOpen = (LPOPENFILENAME)lParam;
 
-        s_pDlgAddFonts->CheckDlgButton( ID_BTN_COPYFILES, TRUE );
+        s_pDlgAddFonts->CheckDlgButton(ID_BTN_COPYFILES, TRUE);
 
-        s_pDlgAddFonts->vStartFonts( );
+        s_pDlgAddFonts->vStartFonts();
 
-        SetFocus( s_pDlgAddFonts->GetDlgItem( IDOK ) );
+        SetFocus(s_pDlgAddFonts->GetDlgItem(IDOK));
         break;
 
     case WM_DESTROY:
-        s_pDlgAddFonts->Detach( );
+        s_pDlgAddFonts->Detach();
         break;
 
     case WM_HELP:
-        if (IsWindowEnabled(hWnd))
-        {
+        if (IsWindowEnabled(hWnd)) {
             LPHELPINFO lphi = (LPHELPINFO)lParam;
-            if (HELPINFO_WINDOW == lphi->iContextType)
-            {
-                for (int i = 0; 0 != rgHelpIDs[i]; i += 2)
-                {
-                    if (lphi->iCtrlId == (int)rgHelpIDs[i])
-                    {
+            if (HELPINFO_WINDOW == lphi->iContextType) {
+                for (int i = 0; 0 != rgHelpIDs[i]; i += 2) {
+                    if (lphi->iCtrlId == (int)rgHelpIDs[i]) {
 
                         // Only display custom help when necessary.
                         // Otherwise, use standard "file open dlg" help.
 
-                        WinHelp( (HWND)lphi->hItemHandle,
-                                 NULL,
-                                 HELP_WM_HELP,
-                                 (DWORD_PTR)(LPVOID)rgHelpIDs);
+                        WinHelp((HWND)lphi->hItemHandle,
+                                NULL,
+                                HELP_WM_HELP,
+                                (DWORD_PTR)(LPVOID)rgHelpIDs);
 
                         return TRUE;
                     }
@@ -2251,66 +2228,63 @@ UINT_PTR CALLBACK FontHookProc( HWND hWnd,
         break;
 
     case WM_CONTEXTMENU:
-         {
-            const x = GET_X_LPARAM(lParam);
-            const y = GET_Y_LPARAM(lParam);
-            for (int i = 0; 0 != rgHelpIDs[i]; i += 2)
-            {
-                HWND hwndItem = GetDlgItem(hWnd, rgHelpIDs[i]);
+    {
+        const x = GET_X_LPARAM(lParam);
+        const y = GET_Y_LPARAM(lParam);
+        for (int i = 0; 0 != rgHelpIDs[i]; i += 2) {
+            HWND hwndItem = GetDlgItem(hWnd, rgHelpIDs[i]);
 
-                // This hit test shouldn't be required.  For some reason
-                // wParam is the HWND of the dialog whenever the user
-                // right-clicks on some of our template controls.  I can't
-                // figure it out but the hit test adjusts for the problem.
-                // [brianau - 6/8/99]
+            // This hit test shouldn't be required.  For some reason
+            // wParam is the HWND of the dialog whenever the user
+            // right-clicks on some of our template controls.  I can't
+            // figure it out but the hit test adjusts for the problem.
+            // [brianau - 6/8/99]
 
-                if ((HWND)wParam == hwndItem || HitTestDlgItem(x, y, hwndItem))
-                {
+            if ((HWND)wParam == hwndItem || HitTestDlgItem(x, y, hwndItem)) {
 
-                    // Only display custom help when necessary.
-                    // Otherwise, use standard "file open dlg" help.
+                // Only display custom help when necessary.
+                // Otherwise, use standard "file open dlg" help.
 
-                    WinHelp( (HWND)wParam,
-                              NULL,
-                              HELP_CONTEXTMENU,
-                              (DWORD_PTR)(LPVOID)rgHelpIDs);
+                WinHelp((HWND)wParam,
+                        NULL,
+                        HELP_CONTEXTMENU,
+                        (DWORD_PTR)(LPVOID)rgHelpIDs);
 
-                    return TRUE;
-                }
+                return TRUE;
             }
         }
-        break;
+    }
+    break;
 
     case WM_COMMAND:
-        switch( GET_WM_COMMAND_ID( wParam, lParam ) )
-        {
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
 
-        //  command switch
+            //  command switch
 
         case IDM_IDLE:
-            vCPFilesToDescs( );
+            vCPFilesToDescs();
             break;
 
         case ID_BTN_SELALL:
 
             //  select all
 
-            s_pDlgAddFonts->pListBoxDesc()->SetSel( -1, TRUE );
+            s_pDlgAddFonts->pListBoxDesc()->SetSel(-1, TRUE);
             break;
 
         case ID_BTN_HELP:
-            WinHelp( hWnd, TEXT( "WINDOWS.HLP>PROC4" ), HELP_CONTEXT,
-                     IDH_WINDOWS_FONTS_ADDNEW_31HELP );
+            WinHelp(hWnd, TEXT("WINDOWS.HLP>PROC4"), HELP_CONTEXT,
+                    IDH_WINDOWS_FONTS_ADDNEW_31HELP);
             break;
 
         case ID_LB_FONTDIRS:
-            if( GET_WM_COMMAND_CMD( wParam, lParam ) == LBN_DBLCLK )
-                s_pDlgAddFonts->vStartFonts( );
+            if (GET_WM_COMMAND_CMD(wParam, lParam) == LBN_DBLCLK)
+                s_pDlgAddFonts->vStartFonts();
             break;
 
         case IDOK:
-            if( s_pDlgAddFonts->pListBoxDesc()->GetSelCount() > 0 )
-                s_pDlgAddFonts->vAddSelFonts( );
+            if (s_pDlgAddFonts->pListBoxDesc()->GetSelCount() > 0)
+                s_pDlgAddFonts->vAddSelFonts();
             else
                 s_pDlgAddFonts->vStartFonts();
 
@@ -2318,22 +2292,21 @@ UINT_PTR CALLBACK FontHookProc( HWND hWnd,
 
         case IDCANCEL:
         case IDABORT:
-            ResetAtomInDescLB( s_pDlgAddFonts->pListBoxDesc()->hWnd() );
-            s_pDlgAddFonts->EndDialog( 0 );
+            ResetAtomInDescLB(s_pDlgAddFonts->pListBoxDesc()->hWnd());
+            s_pDlgAddFonts->EndDialog(0);
             break;
 
         case ID_LB_ADD:
             // if( HIWORD( lParam ) == LBN_DBLCLK )
 
-            if( GET_WM_COMMAND_CMD( wParam,lParam ) == LBN_DBLCLK )
-                s_pDlgAddFonts->vAddSelFonts( );
+            if (GET_WM_COMMAND_CMD(wParam, lParam) == LBN_DBLCLK)
+                s_pDlgAddFonts->vAddSelFonts();
             break;
 
         case ID_CB_FONTDISK:
-            switch( GET_WM_COMMAND_CMD( wParam, lParam ) )
-            {
+            switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
 
-            //  Switch on combo parameter
+                //  Switch on combo parameter
 
 
             case CBN_DROPDOWN:
@@ -2341,26 +2314,23 @@ UINT_PTR CALLBACK FontHookProc( HWND hWnd,
                 break;
 
             case CBN_CLOSEUP:
-                s_pDlgAddFonts->vCloseCombo( );
+                s_pDlgAddFonts->vCloseCombo();
                 break;
 
             case CBN_SELCHANGE:
-                s_pDlgAddFonts->vNewComboSel( );
+                s_pDlgAddFonts->vNewComboSel();
                 break;
-           }  // Switch on combo parameter
-           break;
+            }  // Switch on combo parameter
+            break;
 
         } // command switch
         break;
 
     default:
-        if( iMessage == s_iLBSelChange )
-        {
-            switch( wParam )
-            {
+        if (iMessage == s_iLBSelChange) {
+            switch (wParam) {
             case ID_CB_FONTDISK:
-                switch( HIWORD( lParam ) )
-                {
+                switch (HIWORD(lParam)) {
                 case CD_LBSELCHANGE:
 
                     //  This catches the DriveNotReady case
@@ -2370,7 +2340,7 @@ UINT_PTR CALLBACK FontHookProc( HWND hWnd,
 
 
                     if (NULL != s_pDlgAddFonts->hWnd())
-                        s_pDlgAddFonts->vStartFonts( );
+                        s_pDlgAddFonts->vStartFonts();
                     break;
                 }
 #ifdef WINNT
@@ -2380,75 +2350,69 @@ UINT_PTR CALLBACK FontHookProc( HWND hWnd,
                 // if either directory or drive changes.
 
             case ID_LB_FONTDIRS:
-               if (HIWORD(lParam) == CD_LBSELCHANGE)
-               {
-                  int cch     = 0;            // Index into s_szCurDir.
-                  int iDirNew = 0;            // Id of directory item open in listbox.
-                  BOOL bBufOverflow = FALSE;  // Buffer overflow indicator.
+                if (HIWORD(lParam) == CD_LBSELCHANGE) {
+                    int cch = 0;            // Index into s_szCurDir.
+                    int iDirNew = 0;            // Id of directory item open in listbox.
+                    BOOL bBufOverflow = FALSE;  // Buffer overflow indicator.
 
 
-                  // Build current path selected in directory list box.
-                  // We save this path in s_szCurDir so that if the FileOpen dialog is closed and
-                  // re-opened, it will start navigating where it last left off.
-                  // This path-building code was taken from the common dialog module fileopen.c
-                  // The buffer overflow protection was added.
+                    // Build current path selected in directory list box.
+                    // We save this path in s_szCurDir so that if the FileOpen dialog is closed and
+                    // re-opened, it will start navigating where it last left off.
+                    // This path-building code was taken from the common dialog module fileopen.c
+                    // The buffer overflow protection was added.
 
-                  iDirNew = (DWORD)SendMessage( GetDlgItem(hWnd, ID_LB_FONTDIRS), LB_GETCURSEL, 0, 0L );
-                  cch = (int)SendMessage(GetDlgItem(hWnd, ID_LB_FONTDIRS), LB_GETTEXT, 0, (LPARAM)(LPTSTR)s_szCurDir);
+                    iDirNew = (DWORD)SendMessage(GetDlgItem(hWnd, ID_LB_FONTDIRS), LB_GETCURSEL, 0, 0L);
+                    cch = (int)SendMessage(GetDlgItem(hWnd, ID_LB_FONTDIRS), LB_GETTEXT, 0, (LPARAM)(LPTSTR)s_szCurDir);
 
-                  if (DBL_BSLASH(s_szCurDir))
-                  {
-                      lstrcat(s_szCurDir, TEXT("\\"));
-                      cch++;
-                  }
+                    if (DBL_BSLASH(s_szCurDir)) {
+                        lstrcat(s_szCurDir, TEXT("\\"));
+                        cch++;
+                    }
 
-                  for (int idir = 1; !bBufOverflow && idir <= iDirNew; ++idir)
-                  {
-                      TCHAR szTemp[MAX_PATH + 1]; // Temp buf for directory name.
-                      int n = 0;                  // Chars in directory name.
+                    for (int idir = 1; !bBufOverflow && idir <= iDirNew; ++idir) {
+                        TCHAR szTemp[MAX_PATH + 1]; // Temp buf for directory name.
+                        int n = 0;                  // Chars in directory name.
 
-                      n = (int)SendDlgItemMessage(
-                                    hWnd,
-                                    ID_LB_FONTDIRS,
-                                    LB_GETTEXT,
-                                    (WPARAM)idir,
-                                    (LPARAM)szTemp );
+                        n = (int)SendDlgItemMessage(
+                            hWnd,
+                            ID_LB_FONTDIRS,
+                            LB_GETTEXT,
+                            (WPARAM)idir,
+                            (LPARAM)szTemp);
 
 
-                      // Check if this directory name will overflow s_szCurDir.
+                        // Check if this directory name will overflow s_szCurDir.
 
-                      if (cch + n < ARRAYSIZE(s_szCurDir))
-                      {
+                        if (cch + n < ARRAYSIZE(s_szCurDir)) {
 
-                          // We have enough space for this directory name.
-                          // Append it to s_szCurDir, advance the buffer index and
-                          // append a backslash.
+                            // We have enough space for this directory name.
+                            // Append it to s_szCurDir, advance the buffer index and
+                            // append a backslash.
 
-                          lstrcpy(&s_szCurDir[cch], szTemp);
-                          cch += n;
-                          s_szCurDir[cch++] = CHAR_BSLASH;
-                      }
-                      else
-                          bBufOverflow = TRUE;  // This will terminate the loop.
-                                                // s_szCurDir will still contain
-                                                // a valid path.  It will just
-                                                // be shy 1 or more directories.
-                  }
+                            lstrcpy(&s_szCurDir[cch], szTemp);
+                            cch += n;
+                            s_szCurDir[cch++] = CHAR_BSLASH;
+                        } else
+                            bBufOverflow = TRUE;  // This will terminate the loop.
+                                                  // s_szCurDir will still contain
+                                                  // a valid path.  It will just
+                                                  // be shy 1 or more directories.
+                    }
 
 
-                  // All done.  Terminate it.
-                  // Note that this wipes out the final trailing backslash.
+                    // All done.  Terminate it.
+                    // Note that this wipes out the final trailing backslash.
 
-                  if (iDirNew)
-                  {
-                      s_szCurDir[cch - 1] = CHAR_NULL;
-                  }
-               }
+                    if (iDirNew) {
+                        s_szCurDir[cch - 1] = CHAR_NULL;
+                    }
+                }
 #endif
-               break;
+                break;
             }
-         }
-         break;
+        }
+        break;
     } // message switch
 
 
@@ -2468,14 +2432,14 @@ UINT_PTR CALLBACK FontHookProc( HWND hWnd,
  * RETURNS:    None
  ***/
 
-VOID FAR PASCAL vCPDeleteFromSharedDir( LPTSTR lpszFileOnly )
+VOID FAR PASCAL vCPDeleteFromSharedDir(LPTSTR lpszFileOnly)
 {
     FullPathName_t szTempPath;
 
 
-    vPathOnSharedDir( lpNamePart( lpszFileOnly ), szTempPath );
+    vPathOnSharedDir(lpNamePart(lpszFileOnly), szTempPath);
 
-    DeleteFile( szTempPath );
+    DeleteFile(szTempPath);
 }
 
 
@@ -2489,139 +2453,131 @@ VOID FAR PASCAL vCPDeleteFromSharedDir( LPTSTR lpszFileOnly )
  * RETURNS:    None
  ***/
 
-VOID FAR PASCAL vCPFilesToDescs( )
+VOID FAR PASCAL vCPFilesToDescs()
 {
-    TCHAR          szNoFonts[ 80 ];
+    TCHAR          szNoFonts[80];
     BOOL           bSomeDesc;
     int            nDescSlot;
     AddITEMDATA    OurData;
     FullPathName_t szFilePath;
     FontDesc_t     szDesc;
-    CListBox*      pListDesc;
-    CListBox*      pListFiles;
+    CListBox* pListDesc;
+    CListBox* pListFiles;
     MSG            msg;
 
 
-    if( !s_pDlgAddFonts || !s_pDlgAddFonts->m_nFontsToGo )
+    if (!s_pDlgAddFonts || !s_pDlgAddFonts->m_nFontsToGo)
         return;
 
-    pListFiles = s_pDlgAddFonts->pListBoxFiles( );
-    pListDesc  = s_pDlgAddFonts->pListBoxDesc( );
+    pListFiles = s_pDlgAddFonts->pListBoxFiles();
+    pListDesc = s_pDlgAddFonts->pListBoxDesc();
 
-    if( s_pDlgAddFonts->bStartState( ) )
-    {
+    if (s_pDlgAddFonts->bStartState()) {
 
         //  Reset the atoms that are in here.
 
 
-        ResetAtomInDescLB( pListDesc->hWnd( ) );
+        ResetAtomInDescLB(pListDesc->hWnd());
 
 
         //  Make sure our focus isn't off in some weird place - force it
         //  to our directory list
 
 
-        HWND hFocus = ::GetFocus( );
+        HWND hFocus = ::GetFocus();
 
         int iFocusID;
 
 
-        if( hFocus != NULL )
-            iFocusID = ::GetDlgCtrlID( hFocus );
+        if (hFocus != NULL)
+            iFocusID = ::GetDlgCtrlID(hFocus);
         else
             iFocusID = ID_LB_ADD;
 
-        if( ( iFocusID == (ID_LB_ADD) ) || (iFocusID == (ID_SS_PCT) ) )
-        {
-            ::SendMessage( s_pDlgAddFonts->hWnd( ), WM_NEXTDLGCTL,
-            (WPARAM)GetDlgItem( s_pDlgAddFonts->hWnd( ), ID_LB_FONTDIRS ), 1L );
+        if ((iFocusID == (ID_LB_ADD)) || (iFocusID == (ID_SS_PCT))) {
+            ::SendMessage(s_pDlgAddFonts->hWnd(), WM_NEXTDLGCTL,
+                          (WPARAM)GetDlgItem(s_pDlgAddFonts->hWnd(), ID_LB_FONTDIRS), 1L);
         }
 
-        pListDesc->ResetContent( );
-        pListDesc->UpdateWindow( );
+        pListDesc->ResetContent();
+        pListDesc->UpdateWindow();
 
-        s_pDlgAddFonts->vUpdatePctText( );
+        s_pDlgAddFonts->vUpdatePctText();
 
-        if( !s_pDlgAddFonts->bInitialFonts( ) )
-        {
+        if (!s_pDlgAddFonts->bInitialFonts()) {
             bSomeDesc = FALSE;
             goto Done;
         }
 
-        pListDesc->SetRedraw( FALSE );
+        pListDesc->SetRedraw(FALSE);
 
 
         //  DBCS. The first time through, look for oemsetup.inf
 
 
         {
-        int        nFileIndex;
-        WORD       wRet;
-        ADDFNT     stData;
-        TCHAR      szInfFile[ MAXFILE ];
-        FontDesc_t szTemp;
+            int        nFileIndex;
+            WORD       wRet;
+            ADDFNT     stData;
+            TCHAR      szInfFile[MAXFILE];
+            FontDesc_t szTemp;
 
-        if( FindOemInList( pListFiles, s_pDlgAddFonts->m_nFontsToGo,
-                           &nFileIndex, szInfFile ) )
-        {
+            if (FindOemInList(pListFiles, s_pDlgAddFonts->m_nFontsToGo,
+                              &nFileIndex, szInfFile)) {
 
-            //  save original path to setup.inf
-
-
-            lstrcpy( szTemp, szSetupInfPath );
+                //  save original path to setup.inf
 
 
-            //  get dir of oemsetup.inf
+                lstrcpy(szTemp, szSetupInfPath);
 
 
-            GetCurrentDirectory( ARRAYSIZE( szSetupInfPath ), szSetupInfPath );
-
-            lpCPBackSlashTerm( szSetupInfPath );
-            lstrcat( szSetupInfPath, szInfFile );
-
-            stData.poListDesc = pListDesc;
-            stData.nIndex     = nFileIndex;
-            stData.which      = WHICH_FNT_WIFE;
-
-            if( ( wRet = ReadSetupInfCB( szSetupInfPath, WIFEFONT_SECTION,
-                    (LPSETUPINFPROC) GetNextFontFromInf, &stData ) ) != NULL )
-            {
-
-                //  didn't reach to the end of section
+                //  get dir of oemsetup.inf
 
 
-                if( wRet == INSTALL+14 )
+                GetCurrentDirectory(ARRAYSIZE(szSetupInfPath), szSetupInfPath);
 
-                    //  didn't find the section
+                lpCPBackSlashTerm(szSetupInfPath);
+                lstrcat(szSetupInfPath, szInfFile);
 
-                    goto ScanTTInf;
+                stData.poListDesc = pListDesc;
+                stData.nIndex = nFileIndex;
+                stData.which = WHICH_FNT_WIFE;
+
+                if ((wRet = ReadSetupInfCB(szSetupInfPath, WIFEFONT_SECTION,
+                                           (LPSETUPINFPROC)GetNextFontFromInf, &stData)) != NULL) {
+
+                    //  didn't reach to the end of section
+
+
+                    if (wRet == INSTALL + 14)
+
+                        //  didn't find the section
+
+                        goto ScanTTInf;
+                } else {
+                ScanTTInf:
+                    stData.which = WHICH_FNT_TT;
+
+                    wRet = ReadSetupInfCB(szSetupInfPath, TRUETYPE_SECTION,
+                                          (LPSETUPINFPROC)GetNextFontFromInf,
+                                          &stData);
+                }
+
+
+                //  reset setupinf path global
+
+
+                lstrcpy(szSetupInfPath, szTemp);
+
+                if (wRet && wRet != INSTALL + 14) {
+
+                    //  Found the section, but invalid format
+
+
+                    bSomeDesc = FALSE;
+                    goto Done;
+                }
             }
-            else
-            {
-ScanTTInf:
-                stData.which = WHICH_FNT_TT;
-
-                wRet = ReadSetupInfCB( szSetupInfPath, TRUETYPE_SECTION,
-                                       (LPSETUPINFPROC) GetNextFontFromInf,
-                                       &stData );
-            }
-
-
-            //  reset setupinf path global
-
-
-            lstrcpy( szSetupInfPath,szTemp );
-
-            if( wRet && wRet != INSTALL+14 )
-            {
-
-                //  Found the section, but invalid format
-
-
-                bSomeDesc = FALSE;
-                goto Done;
-            }
-        }
         } // End of DBCS section.
     }
 
@@ -2631,32 +2587,30 @@ ScanTTInf:
 
     goto ReadNext;
 
-    for(  ; s_pDlgAddFonts->m_nFontsToGo; )
-    {
-        if( PeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE ) )
+    for (; s_pDlgAddFonts->m_nFontsToGo; ) {
+        if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
             return;
 
-ReadNext:
+    ReadNext:
 
         s_pDlgAddFonts->m_nFontsToGo--;
-        s_pDlgAddFonts->vUpdatePctText( );
+        s_pDlgAddFonts->vUpdatePctText();
 
         OurData.nFileSlot = (WORD)s_pDlgAddFonts->m_nFontsToGo;
 
-        if( pListFiles->GetText( OurData.nFileSlot, szFilePath ) == LB_ERR )
+        if (pListFiles->GetText(OurData.nFileSlot, szFilePath) == LB_ERR)
             continue;
 
         WORD  wType;
 
-        DEBUGMSG( (DM_TRACE1, TEXT( "Checking file: %s" ), szFilePath ) );
+        DEBUGMSG((DM_TRACE1, TEXT("Checking file: %s"), szFilePath));
 
-        if( !::bCPValidFontFile( szFilePath, szDesc, &wType ) )
-        {
-            DEBUGMSG( (DM_TRACE1, TEXT( "......Invalid" ) ) );
+        if (!::bCPValidFontFile(szFilePath, szDesc, &wType)) {
+            DEBUGMSG((DM_TRACE1, TEXT("......Invalid")));
             continue;
         }
 
-        DEBUGMSG( (DM_TRACE1, TEXT( "......Valid.   Desc: %s" ), szDesc) );
+        DEBUGMSG((DM_TRACE1, TEXT("......Valid.   Desc: %s"), szDesc));
 
         OurData.wFontType = wType;
 
@@ -2666,42 +2620,38 @@ ReadNext:
         //  item data block.
 
 
-        if( pListDesc->FindStringExact( -1, szDesc ) == LB_ERR )
-        {
-            nDescSlot = pListDesc->AddString( szDesc );
+        if (pListDesc->FindStringExact(-1, szDesc) == LB_ERR) {
+            nDescSlot = pListDesc->AddString(szDesc);
 
-            if( nDescSlot != LB_ERR )
-                pListDesc->SetItemData( nDescSlot, OurData.ItemData );
-            else
-            {
-                DEBUGMSG( (DM_ERROR, TEXT( "FONTEXT: Error adding string %s" ),
-                           szDesc ) );
+            if (nDescSlot != LB_ERR)
+                pListDesc->SetItemData(nDescSlot, OurData.ItemData);
+            else {
+                DEBUGMSG((DM_ERROR, TEXT("FONTEXT: Error adding string %s"),
+                          szDesc));
                 // DEBUGBREAK;
             }
-        }
-        else
-            DEBUGMSG( (DM_TRACE1,TEXT( "String %s already in list" ), szDesc ) );
+        } else
+            DEBUGMSG((DM_TRACE1, TEXT("String %s already in list"), szDesc));
 
     }
 
-    s_pDlgAddFonts->vUpdatePctText( );
+    s_pDlgAddFonts->vUpdatePctText();
 
-    bSomeDesc = (pListDesc->GetCount( ) > 0 );
+    bSomeDesc = (pListDesc->GetCount() > 0);
 
-    DEBUGMSG( (DM_TRACE1,TEXT( "Count in ListDesc: %d" ), pListDesc->GetCount( ) ) );
-//  DEBUGBREAK;
+    DEBUGMSG((DM_TRACE1, TEXT("Count in ListDesc: %d"), pListDesc->GetCount()));
+    //  DEBUGBREAK;
 
 Done:
 
-    if( !bSomeDesc )
-    {
+    if (!bSomeDesc) {
 
         //  cszNoFonts.LoadString( IDSI_MSG_NOFONTS );
 
 
-        LoadString( g_hInst, IDSI_MSG_NOFONTS, szNoFonts, ARRAYSIZE( szNoFonts ) );
+        LoadString(g_hInst, IDSI_MSG_NOFONTS, szNoFonts, ARRAYSIZE(szNoFonts));
 
-        pListDesc->AddString( szNoFonts );
+        pListDesc->AddString(szNoFonts);
     }
 
 
@@ -2713,15 +2663,15 @@ Done:
 
     // s_pDlgAddFonts->GetDlgItem( ID_BTN_SELALL )->EnableWindow( bSomeDesc );
 
-    ::EnableWindow( s_pDlgAddFonts->GetDlgItem( ID_BTN_SELALL ), bSomeDesc );
+    ::EnableWindow(s_pDlgAddFonts->GetDlgItem(ID_BTN_SELALL), bSomeDesc);
 
-    pListDesc->EnableWindow( bSomeDesc );
+    pListDesc->EnableWindow(bSomeDesc);
 
-    pListDesc->SetRedraw( TRUE );
+    pListDesc->SetRedraw(TRUE);
 
-    pListDesc->InvalidateRect( NULL, TRUE );
+    pListDesc->InvalidateRect(NULL, TRUE);
 
-    pListDesc->UpdateWindow( );
+    pListDesc->UpdateWindow();
 }
 
 
@@ -2736,11 +2686,11 @@ Done:
 
  */
 
-int FAR PASCAL CPDropInstall( HWND hwndParent,
-                              LPTSTR lpszInPath,
-                              DWORD  dwEffect ,
-                              LPTSTR lpszDestName,
-                              int    iCount )
+int FAR PASCAL CPDropInstall(HWND hwndParent,
+                             LPTSTR lpszInPath,
+                             DWORD  dwEffect,
+                             LPTSTR lpszDestName,
+                             int    iCount)
 {
     FullPathName_t szTruePath;
     FullPathName_t szFontPath;
@@ -2754,8 +2704,8 @@ int FAR PASCAL CPDropInstall( HWND hwndParent,
     BOOL           bTrueType;
     int            iReturn = CPDI_FAIL;
     BOOL           bNoCopyFile;
-    UINT           uMB = ( (iCount > 0) ? (MB_OKCANCEL | MB_ICONEXCLAMATION)
-                                      : MB_OK | MB_ICONEXCLAMATION );
+    UINT           uMB = ((iCount > 0) ? (MB_OKCANCEL | MB_ICONEXCLAMATION)
+                          : MB_OK | MB_ICONEXCLAMATION);
     DWORD          dwStatus = FVS_MAKE_CODE(FVS_INVALID_STATUS, FVS_FILE_UNK);
 
     static BOOL s_bInit = FALSE;
@@ -2763,20 +2713,19 @@ int FAR PASCAL CPDropInstall( HWND hwndParent,
 
     BOOL bOwnInstallationMutex = FALSE;
     HWND hwndProgress = NULL;
-    CFontManager *poFontManager = NULL;
+    CFontManager* poFontManager = NULL;
 
-    vEnsureInit( );
+    vEnsureInit();
 
 
     //  Init Type1 font installation and Progress dialog
 
 
-    if( !s_bInit )
-    {
-        InitPSInstall( );
-        hwndProgress = InitProgress( hwndParent );
+    if (!s_bInit) {
+        InitPSInstall();
+        hwndProgress = InitProgress(hwndParent);
 
-        s_iTotal = ( iCount > 0 ) ? ( iCount + 1 ) : 1;
+        s_iTotal = (iCount > 0) ? (iCount + 1) : 1;
 
         s_bInit = TRUE;
 
@@ -2788,18 +2737,15 @@ int FAR PASCAL CPDropInstall( HWND hwndParent,
 
     // Must own installation mutex to install font.
 
-    if ( NULL != poFontManager )
-    {
-        INT iUserResponse  = IDRETRY;
+    if (NULL != poFontManager) {
+        INT iUserResponse = IDRETRY;
         DWORD dwWaitResult = CFontManager::MUTEXWAIT_SUCCESS;
 
-        while( IDRETRY == iUserResponse &&
-               (dwWaitResult = poFontManager->dwWaitForInstallationMutex()) != CFontManager::MUTEXWAIT_SUCCESS )
-        {
-            if ( CFontManager::MUTEXWAIT_WMQUIT != dwWaitResult )
+        while (IDRETRY == iUserResponse &&
+               (dwWaitResult = poFontManager->dwWaitForInstallationMutex()) != CFontManager::MUTEXWAIT_SUCCESS) {
+            if (CFontManager::MUTEXWAIT_WMQUIT != dwWaitResult)
                 iUserResponse = iUIMsgRetryCancelExclaim(hwndProgress, IDS_INSTALL_MUTEX_WAIT_FAILED, NULL);
-            else
-            {
+            else {
 
                 // Cancel if thread received a WM_QUIT message while waiting.
 
@@ -2810,8 +2756,7 @@ int FAR PASCAL CPDropInstall( HWND hwndParent,
 
         // If user chose to cancel or we got a WM_QUIT msg, cancel the installation.
 
-        if ( IDCANCEL == iUserResponse )
-        {
+        if (IDCANCEL == iUserResponse) {
             iReturn = CPDI_CANCEL;
             goto done;
         }
@@ -2824,8 +2769,8 @@ int FAR PASCAL CPDropInstall( HWND hwndParent,
     // Update the font number in the progress dialog.
     // Leave the % complete unchanged.
 
-    UpdateProgress( s_iTotal, s_iTotal - iCount,
-                  (s_iTotal - iCount - 1) * 100 / s_iTotal );
+    UpdateProgress(s_iTotal, s_iTotal - iCount,
+                   (s_iTotal - iCount - 1) * 100 / s_iTotal);
 
 
 
@@ -2835,39 +2780,32 @@ int FAR PASCAL CPDropInstall( HWND hwndParent,
 
     // BGK - Add copy/nocopy w/compress here
 
-    bNoCopyFile = (dwEffect == DROPEFFECT_LINK );
+    bNoCopyFile = (dwEffect == DROPEFFECT_LINK);
 
-    if( !::bCPValidFontFile( lpszInPath, szLHS, &wType, FALSE, &dwStatus ) )
-    {
+    if (!::bCPValidFontFile(lpszInPath, szLHS, &wType, FALSE, &dwStatus)) {
 
         // Display message informing user that font file is invalid and why.
         // Abort the installation of this font if user pressed Cancel.
 
-        lstrcpy( szFontPath, lpszInPath );
+        lstrcpy(szFontPath, lpszInPath);
         if (iUIMsgBoxInvalidFont(hwndProgress, szFontPath, szLHS, dwStatus) == IDCANCEL)
             iReturn = CPDI_CANCEL;
-    }
-    else if( bFontInstalledNow( szLHS ) )
-    {
-        if( iUIMsgBox(hwndProgress, IDSI_FMT_ISINSTALLED, IDS_MSG_CAPTION, uMB, szLHS )
-                     == IDCANCEL )
-        {
+    } else if (bFontInstalledNow(szLHS)) {
+        if (iUIMsgBox(hwndProgress, IDSI_FMT_ISINSTALLED, IDS_MSG_CAPTION, uMB, szLHS)
+            == IDCANCEL) {
             iReturn = CPDI_CANCEL;
         }
 
-    }
-    else
-    {
+    } else {
         bTrueType = (wType == TRUETYPE_FONT);
 
-        vUIPStatusShow( IDS_FMT_FONTINS, szLHS );
+        vUIPStatusShow(IDS_FMT_FONTINS, szLHS);
 
         BOOL    bUpdateWinIni;
         int     ifType;
 
 
-        if( (wType == TYPE1_FONT) || (wType == TYPE1_FONT_NC) )
-        {
+        if ((wType == TYPE1_FONT) || (wType == TYPE1_FONT_NC)) {
 
             //  For installations involving the conversion of the Type1
             //  font to TrueType:
@@ -2877,13 +2815,13 @@ int FAR PASCAL CPDropInstall( HWND hwndParent,
             //         "szLHS"      is munged to contain "(TrueType)".
 
 
-            switch( ::InstallT1Font( hwndProgress,
-                                     !bNoCopyFile,    //  Copy TT file?
-                                     TRUE,            //  Copy PFM/PFB files?
-                                     FALSE,           //  Files in Shared Dir?
-                                     lpszInPath,      //  IN:  PFM File & Dir
-                                                      //  OUT: TTF File & Dir
-                                     szLHS ) )        //  IN & OUT: Font desc
+            switch (::InstallT1Font(hwndProgress,
+                                    !bNoCopyFile,    //  Copy TT file?
+                                    TRUE,            //  Copy PFM/PFB files?
+                                    FALSE,           //  Files in Shared Dir?
+                                    lpszInPath,      //  IN:  PFM File & Dir
+                                                     //  OUT: TTF File & Dir
+                                    szLHS))        //  IN & OUT: Font desc
             {
             case TYPE1_INSTALL_TT_AND_MPS:
 
@@ -2919,7 +2857,7 @@ int FAR PASCAL CPDropInstall( HWND hwndParent,
 
 
                 bUpdateWinIni =
-                bTrueType = TRUE;
+                    bTrueType = TRUE;
 
                 iReturn = CPDI_SUCCESS;
 
@@ -2984,54 +2922,49 @@ int FAR PASCAL CPDropInstall( HWND hwndParent,
             //  bTrueType     - TRUE if Type1 file converted to TT
 
 
-FinishTTInstall:
+        FinishTTInstall:
 
 
             //  Determine if TTF file to install is in 'fonts' dir
 
 
-            lstrcpy( szFontPath, lpszInPath );
+            lstrcpy(szFontPath, lpszInPath);
 
 
-            LPTSTR lpCh = StrRChr( szFontPath, NULL, TEXT( '\\' ) );
+            LPTSTR lpCh = StrRChr(szFontPath, NULL, TEXT('\\'));
 
-            if( lpCh )
-            {
+            if (lpCh) {
                 lpCh++;
-                *lpCh = TEXT( '\0' );
+                *lpCh = TEXT('\0');
             }
 
-            bNoCopyFile = lstrcmpi( szFontPath, s_szSharedDir ) == 0;
+            bNoCopyFile = lstrcmpi(szFontPath, s_szSharedDir) == 0;
         }
 
 
         //  Start install progress for this font
 
 
-        ResetProgress( );
-        Progress2( 0, szLHS );
+        ResetProgress();
+        Progress2(0, szLHS);
 
 
         //  If the file is compressed, then do a copy.
 
 
-        if( bIsCompressed( lpszInPath ) )
-        {
+        if (bIsCompressed(lpszInPath)) {
             dwEffect = DROPEFFECT_COPY;
             bNoCopyFile = FALSE;
         }
 
-        if( bNoCopyFile )
-        {
+        if (bNoCopyFile) {
 
             //  If we're not copying the file, just make sure the font
             //  file path is copied to szFontPath so the font can be installed
             //  in the call to bInstallFont( ).
 
             lstrcpy(szFontPath, lpszInPath);
-        }
-        else
-        {
+        } else {
 
             //  Before monkeying around with the name strings, grab the source
             //  directory, including the terminating slash.  Also hold the file
@@ -3042,15 +2975,15 @@ FinishTTInstall:
             //  Copy in name only
 
 
-            lstrcpy( szInFile, lpNamePart( lpszInPath ) );
+            lstrcpy(szInFile, lpNamePart(lpszInPath));
 
-            lstrcpy( szSourceDir, lpszInPath );
+            lstrcpy(szSourceDir, lpszInPath);
 
 
             //  Get past any path
 
 
-            lpCh  = StrRChr( szSourceDir, NULL, TEXT( '\\' ) );
+            lpCh = StrRChr(szSourceDir, NULL, TEXT('\\'));
 
             lpCh++;
             *lpCh = 0;
@@ -3059,15 +2992,14 @@ FinishTTInstall:
             //  Let LZ tell us what the name should have been
 
 
-            if( ERROR_SUCCESS != IGetExpandedName( lpszInPath, szTruePath, PATHMAX ))
-            {
+            if (ERROR_SUCCESS != IGetExpandedName(lpszInPath, szTruePath, PATHMAX)) {
 
                 //  GetExpanded failed. This usually means we can't get at
                 //  the file for some reason.
 
 
                 iUIMsgOkCancelExclaim(hwndProgress, IDSI_FMT_BADINSTALL,
-                                       IDSI_CAP_NOCREATE, szLHS );
+                                      IDSI_CAP_NOCREATE, szLHS);
                 goto done;
             }
 
@@ -3076,23 +3008,19 @@ FinishTTInstall:
             //  file only, and we'll tweak for uniqueness
 
 
-            if( lpszDestName && *lpszDestName )
-            {
-                lstrcpy( szDstFile, lpszDestName );
-            }
-            else
-            {
+            if (lpszDestName && *lpszDestName) {
+                lstrcpy(szDstFile, lpszDestName);
+            } else {
 
                 //  Copy in name only
 
 
-                lstrcpy( szDstFile, lpNamePart( szTruePath ) );
+                lstrcpy(szDstFile, lpNamePart(szTruePath));
             }
 
-            if( !(bUniqueOnSharedDir( szDstFile, szDstFile ) ) )
-            {
+            if (!(bUniqueOnSharedDir(szDstFile, szDstFile))) {
                 iUIMsgOkCancelExclaim(hwndProgress, IDSI_FMT_BADINSTALL,
-                                       IDSI_CAP_NOCREATE, szLHS );
+                                      IDSI_CAP_NOCREATE, szLHS);
                 goto done;
             }
 
@@ -3100,19 +3028,16 @@ FinishTTInstall:
             //  Ready to install the file
 
 
-            if( iReturn = (bCPInstallFile( hwndProgress, szSourceDir, szInFile, szDstFile )
-                                        ? CPDI_SUCCESS : CPDI_FAIL ) )
-            {
-                vPathOnSharedDir( szDstFile, szFontPath );
-            }
-            else
+            if (iReturn = (bCPInstallFile(hwndProgress, szSourceDir, szInFile, szDstFile)
+                           ? CPDI_SUCCESS : CPDI_FAIL)) {
+                vPathOnSharedDir(szDstFile, szFontPath);
+            } else
                 goto done;
 
-            Progress2( 50, szLHS );
+            Progress2(50, szLHS);
         }
 
-        if( bInstallFont( hwndProgress, szFontPath, bTrueType, szLHS, &iReply ) )
-        {
+        if (bInstallFont(hwndProgress, szFontPath, bTrueType, szLHS, &iReply)) {
             iReturn = CPDI_SUCCESS;
 
             //  Attempt to remove the source file, if the operation was
@@ -3120,26 +3045,24 @@ FinishTTInstall:
 
             //  EXCEPTION: If we're doing a Type1 font installation, the name
             //  in lpszInPath buffer is the path to the matching TrueType font file created. If this is the case, do not delete it.
-            if( (wType != TYPE1_FONT) && (wType != TYPE1_FONT_NC) && (dwEffect == DROPEFFECT_MOVE) )
-            {
+            if ((wType != TYPE1_FONT) && (wType != TYPE1_FONT_NC) && (dwEffect == DROPEFFECT_MOVE)) {
                 *(lpszInPath + lstrlen(lpszInPath) + 1) = TEXT('\0');// SHFileOperation requires that file list be double-nul terminated.
 
-                SHFILEOPSTRUCT sFileOp = { NULL,
+                SHFILEOPSTRUCT sFileOp = {NULL,
                                            FO_DELETE,
                                            lpszInPath,
                                            NULL,
                                            FOF_SILENT | FOF_NOCONFIRMATION,
                                            0,
                                            0
-                                          };
+                };
 
-                SHFileOperation( &sFileOp );
+                SHFileOperation(&sFileOp);
             }
 
-            Progress2( 100, szLHS );
-        }
-        else if( !bNoCopyFile )
-            vCPDeleteFromSharedDir( szDstFile );
+            Progress2(100, szLHS);
+        } else if (!bNoCopyFile)
+            vCPDeleteFromSharedDir(szDstFile);
     }
 
 done:
@@ -3148,10 +3071,9 @@ done:
     //  Update the overall progress dialog
     //  Only update if user didn't cancel the operation.
 
-    if (CPDI_CANCEL != iReturn)
-    {
-        UpdateProgress( s_iTotal, s_iTotal - iCount,
-                        (s_iTotal - iCount) * 100 / s_iTotal );
+    if (CPDI_CANCEL != iReturn) {
+        UpdateProgress(s_iTotal, s_iTotal - iCount,
+                       (s_iTotal - iCount) * 100 / s_iTotal);
     }
 
 
@@ -3162,21 +3084,19 @@ done:
     if (InstallCancelled())
         iReturn = CPDI_CANCEL;
 
-    if( s_bInit && (iCount == 0 || iReturn == CPDI_CANCEL) )
-    {
-        Sleep( 1000 );
+    if (s_bInit && (iCount == 0 || iReturn == CPDI_CANCEL)) {
+        Sleep(1000);
 
-        TermProgress( );
-        TermPSInstall( );
+        TermProgress();
+        TermPSInstall();
 
-        s_iTotal =  1;
+        s_iTotal = 1;
 
         s_bInit = FALSE;
     }
 
     // Release the installation mutex if we own it.
-    if ( NULL != poFontManager)
-    {
+    if (NULL != poFontManager) {
         if (bOwnInstallationMutex)
             poFontManager->bReleaseInstallationMutex();
 
@@ -3187,12 +3107,12 @@ done:
 }
 
 
-BOOL FAR PASCAL bCPAddFonts( HWND ma )
+BOOL FAR PASCAL bCPAddFonts(HWND ma)
 {
     FullPathName_t  szWinDir;
-    FullPathName_t  szFileTemp = { TEXT( '\0' ) };
-    TCHAR           cFilter[ 80 ];
-    TCHAR           szFilter[ 80 ];
+    FullPathName_t  szFileTemp = {TEXT('\0')};
+    TCHAR           cFilter[80];
+    TCHAR           szFilter[80];
 
 
     //  Current directory we're using
@@ -3208,22 +3128,21 @@ BOOL FAR PASCAL bCPAddFonts( HWND ma )
     //  Make sure we don't.
 
 
-    if( s_pDlgAddFonts )
+    if (s_pDlgAddFonts)
         return FALSE;
 
     // DEBUGBREAK;
 
-    vEnsureInit( );
+    vEnsureInit();
 
 
     //  We start the current directory to be the windows directory - it will
     //  later remain as where the user last set it.
 
 
-    if( s_bFirst )
-    {
+    if (s_bFirst) {
         s_bFirst = FALSE;
-        GetWindowsDirectory( s_szCurDir, ARRAYSIZE( s_szCurDir ) );
+        GetWindowsDirectory(s_szCurDir, ARRAYSIZE(s_szCurDir));
     }
 
 
@@ -3239,18 +3158,18 @@ BOOL FAR PASCAL bCPAddFonts( HWND ma )
     //  resource file as hashes
 
 
-    if( GetProfileInt( szINISTrueType, szINIKEnable,1 ) )
+    if (GetProfileInt(szINISTrueType, szINIKEnable, 1))
 
-       LoadString( g_hInst, IDS_MSG_ALLFILTER, cFilter, ARRAYSIZE( cFilter ) );
+        LoadString(g_hInst, IDS_MSG_ALLFILTER, cFilter, ARRAYSIZE(cFilter));
 
     else
 
-       LoadString( g_hInst, IDS_MSG_NORMALFILTER, cFilter, ARRAYSIZE( cFilter ) );
+        LoadString(g_hInst, IDS_MSG_NORMALFILTER, cFilter, ARRAYSIZE(cFilter));
 
 
-    lstrcpy( szFilter, cFilter );
+    lstrcpy(szFilter, cFilter);
 
-    vHashToNulls( szFilter );
+    vHashToNulls(szFilter);
 
 
     //  Now we'll use the common open-file dialog to present the user with
@@ -3259,21 +3178,21 @@ BOOL FAR PASCAL bCPAddFonts( HWND ma )
 
     static OPENFILENAME OpenFileName;
 
-    memset( &OpenFileName, 0, sizeof( OpenFileName ) );
+    memset(&OpenFileName, 0, sizeof(OpenFileName));
 
-    OpenFileName.lStructSize    = sizeof( OPENFILENAME );
-    OpenFileName.hwndOwner      = ma;
-    OpenFileName.hInstance      = g_hInst;
-    OpenFileName.lpstrFilter    = szFilter;
-    OpenFileName.nFilterIndex   = 1;
-    OpenFileName.lpstrFile      = szFileTemp;
-    OpenFileName.nMaxFile       = ARRAYSIZE( szFileTemp );
-    OpenFileName.lpstrInitialDir= s_szCurDir;
+    OpenFileName.lStructSize = sizeof(OPENFILENAME);
+    OpenFileName.hwndOwner = ma;
+    OpenFileName.hInstance = g_hInst;
+    OpenFileName.lpstrFilter = szFilter;
+    OpenFileName.nFilterIndex = 1;
+    OpenFileName.lpstrFile = szFileTemp;
+    OpenFileName.nMaxFile = ARRAYSIZE(szFileTemp);
+    OpenFileName.lpstrInitialDir = s_szCurDir;
 
-    OpenFileName.Flags          = OFN_HIDEREADONLY   | OFN_ENABLEHOOK |
-                                  OFN_ENABLETEMPLATE;
-    OpenFileName.lpTemplateName = MAKEINTRESOURCE( ID_DLG_FONT2 );
-    OpenFileName.lpfnHook       = FontHookProc;
+    OpenFileName.Flags = OFN_HIDEREADONLY | OFN_ENABLEHOOK |
+        OFN_ENABLETEMPLATE;
+    OpenFileName.lpTemplateName = MAKEINTRESOURCE(ID_DLG_FONT2);
+    OpenFileName.lpfnHook = FontHookProc;
 
 
     //  This is our companion struture, which we handle independently
@@ -3281,40 +3200,38 @@ BOOL FAR PASCAL bCPAddFonts( HWND ma )
 
     s_pDlgAddFonts = new AddFontsDialog;
 
-    if(NULL == s_pDlgAddFonts)
-    {
-        DEBUGMSG( (DM_ERROR, TEXT( "AddFontsDialog not created." ) ) );
+    if (NULL == s_pDlgAddFonts) {
+        DEBUGMSG((DM_ERROR, TEXT("AddFontsDialog not created.")));
 
         // DEBUGBREAK;
         // BUGBUG: Way low on memory. MessageBox?
         return FALSE;
     }
 
-    if (!s_pDlgAddFonts->bInitialize())
-    {
-        DEBUGMSG( (DM_ERROR, TEXT( "AddFontsDialog initialization failed." ) ) );
+    if (!s_pDlgAddFonts->bInitialize()) {
+        DEBUGMSG((DM_ERROR, TEXT("AddFontsDialog initialization failed.")));
         s_pDlgAddFonts->Release();
         s_pDlgAddFonts = NULL;
 
         return FALSE;
     }
 
-    s_iLBSelChange = RegisterWindowMessage( LBSELCHSTRING );
+    s_iLBSelChange = RegisterWindowMessage(LBSELCHSTRING);
 
 
-//  Suspension of the file system notify thread is no longer required.
-//  It has been superceded by the installation mutex in CFontManager.
-//  See comment in header of CFontManager::iSuspendNotify() for details.
+    //  Suspension of the file system notify thread is no longer required.
+    //  It has been superceded by the installation mutex in CFontManager.
+    //  See comment in header of CFontManager::iSuspendNotify() for details.
 
-//    if( poFontMan )
-//        poFontMan->iSuspendNotify( );
+    //    if( poFontMan )
+    //        poFontMan->iSuspendNotify( );
 
-    GetOpenFileName( &OpenFileName );
+    GetOpenFileName(&OpenFileName);
 
-//    if( poFontMan )
-//        poFontMan->iResumeNotify( );
+    //    if( poFontMan )
+    //        poFontMan->iResumeNotify( );
 
-    bFontsAdded = s_pDlgAddFonts->bAdded( );
+    bFontsAdded = s_pDlgAddFonts->bAdded();
 
     s_pDlgAddFonts->EndThread(); // Stop the IDM_IDLE thread.
     s_pDlgAddFonts->Release();   // Decr ref count.
@@ -3330,36 +3247,36 @@ BOOL FAR PASCAL bCPAddFonts( HWND ma )
     //  set the current dir back to windows so we don't hit the floppy
 
 
-    GetWindowsDirectory( szWinDir, ARRAYSIZE( szWinDir ) );
+    GetWindowsDirectory(szWinDir, ARRAYSIZE(szWinDir));
 
-    SetCurrentDirectory( szWinDir );
+    SetCurrentDirectory(szWinDir);
 
     return bFontsAdded > 0;
 }
 
 
-BOOL NEAR PASCAL CopyTTOutlineWithInf( HWND hwndFontDlg,
-                                       LPTSTR pszInfSection,
-                                       LPTSTR szDesc,
-                                       LPTSTR szSrc,
-                                       LPTSTR szDst )
+BOOL NEAR PASCAL CopyTTOutlineWithInf(HWND hwndFontDlg,
+                                      LPTSTR pszInfSection,
+                                      LPTSTR szDesc,
+                                      LPTSTR szSrc,
+                                      LPTSTR szDst)
 {
-    TCHAR szTemp[ PATHMAX ];
-    TCHAR szDstName[ PATHMAX ];
+    TCHAR szTemp[PATHMAX];
+    TCHAR szDstName[PATHMAX];
     BOOL bInstalled = FALSE;
-    LPTSTR lpTemp ;
-    LPTSTR pszFiles[ 30 ];
+    LPTSTR lpTemp;
+    LPTSTR pszFiles[30];
     UINT   nFiles;
     DWORD  dwInstallFilesResult = 0;
 
 #ifdef PROGRESS
-    TCHAR szStatus[ 64 ];
+    TCHAR szStatus[64];
 #endif
 
-    DEBUGMSG( (DM_TRACE1, TEXT( "CopyTTOutlineWithInf()" ) ) );
-    DEBUGMSG( (DM_TRACE1, TEXT( "\tszDesc: %s" ), szDesc) );
-    DEBUGMSG( (DM_TRACE1, TEXT( "\tszSrc: %s" ), szSrc) );
-    DEBUGMSG( (DM_TRACE1, TEXT( "\tszDst: %s" ), szDst) );
+    DEBUGMSG((DM_TRACE1, TEXT("CopyTTOutlineWithInf()")));
+    DEBUGMSG((DM_TRACE1, TEXT("\tszDesc: %s"), szDesc));
+    DEBUGMSG((DM_TRACE1, TEXT("\tszSrc: %s"), szSrc));
+    DEBUGMSG((DM_TRACE1, TEXT("\tszDst: %s"), szDst));
     // DEBUGBREAK;
 
 
@@ -3373,29 +3290,26 @@ BOOL NEAR PASCAL CopyTTOutlineWithInf( HWND hwndFontDlg,
     //  Get destination filename from line .
 
 
-    if( lpTemp = StrChr( pszInfSection, TEXT( '=' ) ) )
-    {
-        *lpTemp = TEXT( '\0' );
+    if (lpTemp = StrChr(pszInfSection, TEXT('='))) {
+        *lpTemp = TEXT('\0');
 
 
         //  Got left of TEXT( '=' ).
 
 
-        lstrcpy( szSrc, pszInfSection );
+        lstrcpy(szSrc, pszInfSection);
 
-        CutOffWhite( szSrc );
+        CutOffWhite(szSrc);
 
-        DEBUGMSG( (DM_TRACE1, TEXT( "szSrc after CutOffWhite %s" ), szSrc) );
+        DEBUGMSG((DM_TRACE1, TEXT("szSrc after CutOffWhite %s"), szSrc));
 
         pszInfSection = lpTemp + 1;
-    }
-    else
-    {
+    } else {
 
         //  Bad format inf file.
 
 
-        DEBUGMSG( (DM_TRACE1, TEXT( "Bad Format inf file: %s" ), pszInfSection) );
+        DEBUGMSG((DM_TRACE1, TEXT("Bad Format inf file: %s"), pszInfSection));
 
         bInstalled = FALSE;
 
@@ -3410,101 +3324,86 @@ BOOL NEAR PASCAL CopyTTOutlineWithInf( HWND hwndFontDlg,
     //  Right side of TEXT( '=' ) can be shirink without any space.
 
 
-    CutOffWhite( pszInfSection );
+    CutOffWhite(pszInfSection);
 
-    DEBUGMSG( (DM_TRACE1, TEXT( "pSection after CutOffWhite: %s" ), pszInfSection) );
+    DEBUGMSG((DM_TRACE1, TEXT("pSection after CutOffWhite: %s"), pszInfSection));
 
 
     //  Build up params for InstallFiles. Now we have pLine as x:name,y:name..
 
 
-    for(  nFiles = 0, lpTemp = pszInfSection; nFiles < 30; )
-    {
-        pszFiles[ nFiles ] = lpTemp;
+    for (nFiles = 0, lpTemp = pszInfSection; nFiles < 30; ) {
+        pszFiles[nFiles] = lpTemp;
 
-        DEBUGMSG( (DM_TRACE1, TEXT( "File %d: %s" ), nFiles, lpTemp) );
+        DEBUGMSG((DM_TRACE1, TEXT("File %d: %s"), nFiles, lpTemp));
         // DEBUGBREAK;
 
         nFiles++;
 
 
         //  Null terminate each file name string
-
-
-        if( lpTemp = StrChr( lpTemp+1,TEXT( ',' ) ) )
-        {
-            *lpTemp ++ = TEXT( '\0' );
-        }
-        else
-
+        if (lpTemp = StrChr(lpTemp + 1, TEXT(','))) {
+            *lpTemp++ = TEXT('\0');
+        } else
             //  Reach end of line.
-
-
             break;
     }
 
 #ifdef PROGRESS
-    if( hSetup && nFiles )
-    {
-        ProClear( NULL );
+    if (hSetup && nFiles) {
+        ProClear(NULL);
 
-        LoadString( hInst, IDS_WAITCOPYFONT, szStatus, ARRAYSIZE( szStatus ) );
+        LoadString(hInst, IDS_WAITCOPYFONT, szStatus, ARRAYSIZE(szStatus));
 
-        ProSetText( ID_STATUS1, szStatus );
+        ProSetText(ID_STATUS1, szStatus);
 
-        LoadString( hInst, IDS_COPYING, szStatus, ARRAYSIZE( szStatus ) );
+        LoadString(hInst, IDS_COPYING, szStatus, ARRAYSIZE(szStatus));
 
-        ProPrintf( ID_STATUS2, szStatus, (LPTSTR) szDesc );
+        ProPrintf(ID_STATUS2, szStatus, (LPTSTR)szDesc);
 
-        LoadString( hInst, IDS_FILE, szStatus, ARRAYSIZE( szStatus ) );
+        LoadString(hInst, IDS_FILE, szStatus, ARRAYSIZE(szStatus));
 
-        ProPrintf( ID_STATUS3, szStatus, (LPTSTR) szSrc );
+        ProPrintf(ID_STATUS3, szStatus, (LPTSTR)szSrc);
 
-        ProSetBarRange( nFiles );
+        ProSetBarRange(nFiles);
 
-        ProSetBarPos( 0 );
+        ProSetBarPos(0);
 
         if ((dwInstallFilesResult = InstallFiles(hwndFontDlg, pszFiles, nFiles,
-                                        SuFontCopyStatus, IFF_CHECKINI)) != nFiles)
-        {
+                                                 SuFontCopyStatus, IFF_CHECKINI)) != nFiles) {
+            goto NoMoreFiles;
+        } else {
+            ProSetBarPos(100);
+        }
+    } else
+#endif
+        if ((dwInstallFilesResult = InstallFiles(hwndFontDlg, pszFiles, nFiles,
+                                                 NULL, IFF_CHECKINI)) != nFiles) {
             goto NoMoreFiles;
         }
-        else
-        {
-            ProSetBarPos( 100 );
-        }
-    }
-    else
-#endif
-    if ((dwInstallFilesResult = InstallFiles(hwndFontDlg, pszFiles, nFiles,
-                                             NULL, IFF_CHECKINI)) != nFiles)
-    {
-        goto NoMoreFiles;
-    }
 
-    lstrcpy( szDstName, s_szSharedDir );
+    lstrcpy(szDstName, s_szSharedDir);
 
-    lpCPBackSlashTerm( szDstName );
+    lpCPBackSlashTerm(szDstName);
 
-    lstrcat( szDstName, szSrc );
+    lstrcat(szDstName, szSrc);
 
 
 
     //  On success, return the place we installed the file.
 
 
-    lstrcpy( szDst, szDstName );
+    lstrcpy(szDst, szDstName);
 
 
     //  If source file was splited into multiple files, then we build up
     //  single destination file.
 
 
-    if(  nFiles  )
-    {
+    if (nFiles) {
         short nDisk;
 
-        GetDiskAndFile( pszFiles[ 0 ], &nDisk, szTemp, ARRAYSIZE( szTemp ) );
+        GetDiskAndFile(pszFiles[0], &nDisk, szTemp, ARRAYSIZE(szTemp));
 
 
         //  Even when nFiles == 1, if the a source file name (we just copied)
@@ -3512,19 +3411,18 @@ BOOL NEAR PASCAL CopyTTOutlineWithInf( HWND hwndFontDlg,
         //  actual destination file.
 
 
-        if(  lstrcmpi( szSrc, szTemp )  )
+        if (lstrcmpi(szSrc, szTemp))
 
 #ifdef PROGRESS
         {
-            if( hSetup )
-            {
-                LoadString( hInst, IDS_CAT, szStatus, ARRAYSIZE( szStatus ) );
-                ProSetText( ID_STATUS3, szStatus );
+            if (hSetup) {
+                LoadString(hInst, IDS_CAT, szStatus, ARRAYSIZE(szStatus));
+                ProSetText(ID_STATUS3, szStatus);
             }
-            bInstalled = fnAppendSplitFiles( pszFiles, szDstName, nFiles );
+            bInstalled = fnAppendSplitFiles(pszFiles, szDstName, nFiles);
         }
 #else
-        bInstalled = fnAppendSplitFiles( pszFiles, szDstName, nFiles );
+            bInstalled = fnAppendSplitFiles(pszFiles, szDstName, nFiles);
 #endif
 
     }
@@ -3542,9 +3440,8 @@ NoMoreFiles:
     //  If we didn't create the final dest file, make sure it is deleted.
 
 
-    if( !bInstalled )
-    {
-        vCPDeleteFromSharedDir( szDstName );
+    if (!bInstalled) {
+        vCPDeleteFromSharedDir(szDstName);
     }
 
     ghwndFontDlg = NULL;
@@ -3552,71 +3449,54 @@ NoMoreFiles:
     return bInstalled;
 }
 
-/*
- * FUNCTION: CopyTTFontWithInf
 
- * PURPOSE:
-
- * RETURNS:
-
- */
-
-BOOL NEAR PASCAL CopyTTFontWithInf( HWND hwndFontDlg,
-                                    LPTSTR szProfile,
-                                    LPTSTR szDesc,
-                                    LPTSTR szSrc,
-                                    LPTSTR szDst )
+BOOL NEAR PASCAL CopyTTFontWithInf(HWND hwndFontDlg,
+                                   LPTSTR szProfile,
+                                   LPTSTR szDesc,
+                                   LPTSTR szSrc,
+                                   LPTSTR szDst)
 {
-    TCHAR   szSect[ MAX_FF_PROFILE_LEN+14 ];
+    TCHAR   szSect[MAX_FF_PROFILE_LEN + 14];
     LPTSTR  pszInfSection = NULL;
     LPTSTR  lpch;
     BOOL    bRet = FALSE;
 
-    lstrcpy( szSect, szProfile );
+    lstrcpy(szSect, szProfile);
 
 
     //  'outline' section
 
 
-    lstrcpy( (lpch = szSect + lstrlen( szProfile ) ),
-              TEXT( ".outline" ) /* szTTInfOutline */);
+    lstrcpy((lpch = szSect + lstrlen(szProfile)),
+            TEXT(".outline") /* szTTInfOutline */);
 
-    DEBUGMSG( (DM_TRACE1,TEXT( "CopyTTFontWithInf" ) ) );
+    DEBUGMSG((DM_TRACE1, TEXT("CopyTTFontWithInf")));
 
-    DEBUGMSG( (DM_TRACE1,TEXT( "\tszProfile: %s" ), szProfile ) );
+    DEBUGMSG((DM_TRACE1, TEXT("\tszProfile: %s"), szProfile));
 
-    DEBUGMSG( (DM_TRACE1,TEXT( "\tszSect: %s" ), szSect ) );
+    DEBUGMSG((DM_TRACE1, TEXT("\tszSect: %s"), szSect));
     // DEBUGBREAK;
 
     ReadSetupInfSection(szSetupInfPath, szSect, &pszInfSection);
 
-    if (NULL != pszInfSection)
-    {
-        if ((bRet = CopyTTOutlineWithInf(hwndFontDlg, pszInfSection, szDesc, szSrc, szDst)))
-        {
-            if (~01 == bRet)
-            {
+    if (NULL != pszInfSection) {
+        if ((bRet = CopyTTOutlineWithInf(hwndFontDlg, pszInfSection, szDesc, szSrc, szDst))) {
+            if (~01 == bRet) {
 
                 // User abort.
 
-                DEBUGMSG( (DM_ERROR, TEXT( "CopyTTFontWithInf: Return UserAbort!" ) ) );
+                DEBUGMSG((DM_ERROR, TEXT("CopyTTFontWithInf: Return UserAbort!")));
             }
-        }
-        else
-        {
+        } else {
 
             //  Fail at installing outline font.
 
-            DEBUGMSG( (DM_ERROR, TEXT( "CopyTTFontWithInf: Error CopyTTOutlineWithInf" ) ) );
+            DEBUGMSG((DM_ERROR, TEXT("CopyTTFontWithInf: Error CopyTTOutlineWithInf")));
         }
         LocalFree(pszInfSection);
-    }
-    else
-    {
-
+    } else {
         //  Maybe .inf error.
-
-        DEBUGMSG( (DM_ERROR, TEXT( "CopyTTFontWithInf: Error ReadSetUpInf" ) ) );
+        DEBUGMSG((DM_ERROR, TEXT("CopyTTFontWithInf: Error ReadSetUpInf")));
     }
 
     return bRet;
@@ -3630,168 +3510,116 @@ BOOL NEAR PASCAL CopyTTFontWithInf( HWND hwndFontDlg,
  *   LPTSTR lpszDesc,     // Description of font.
  *   WORD   wFontType,
  *   WORD  wCount )
-
- * PURPOSE:
-
- * RETURNS:
-
  */
-BOOL bInstallOEMFile( LPTSTR lpszDir,
-                      LPTSTR lpszDstName,
-                      LPTSTR lpszDesc,
-                      WORD   wFontType,
-                      WORD  wCount )
+BOOL bInstallOEMFile(LPTSTR lpszDir,
+                     LPTSTR lpszDstName,
+                     LPTSTR lpszDesc,
+                     WORD   wFontType,
+                     WORD  wCount)
 {
     FullPathName_t szSrcName;
-    TCHAR          szTag[ 80 ];
+    TCHAR          szTag[80];
 
     static FullPathName_t  szOemInfPath;
 
-    TCHAR   szTemp[ PATHMAX ];
+    TCHAR   szTemp[PATHMAX];
     HANDLE  hSection = NULL;
 
 
-    DEBUGMSG( (DM_TRACE1, TEXT( "bInstallOEMFile( %s, %s )" ), lpszDstName,
-                                                               lpszDesc) );
+    DEBUGMSG((DM_TRACE1, TEXT("bInstallOEMFile( %s, %s )"), lpszDstName,
+              lpszDesc));
 
     //  DEBUGBREAK;
     //  copy .inf file into fonts directory
 
     // Remember the source directory.
-
-
-    lstrcpy( szSrcName, lpszDstName );
-
-    if(  wCount == 0 )
-    {
-
+    lstrcpy(szSrcName, lpszDstName);
+    if (wCount == 0) {
         //  Assume all of description are from same .inf when first one is.
-
-
-        if( !CopyNewOEMInfFile( lpszDstName ) )
-        {
-
+        if (!CopyNewOEMInfFile(lpszDstName)) {
             //  TODO. ui message of some sort.
-
             return FALSE;
         }
 
 
         //  lpszDestName now has the new location of the oemsetup.inf file.
+        lstrcpy(szOemInfPath, lpszDstName);
 
-
-        lstrcpy( szOemInfPath, lpszDstName );
-
-        DEBUGMSG( (DM_TRACE1,TEXT( "szOemInfPath: %s " ), szOemInfPath ) );
-
+        DEBUGMSG((DM_TRACE1, TEXT("szOemInfPath: %s "), szOemInfPath));
 
         //  Let InstallFiles() to prompt correct directory.
-
-
-        lstrcpy( szSetupDir, lpszDir );
+        lstrcpy(szSetupDir, lpszDir);
     }
 
 
     //  Build oemsetup.inf path..
-
-
-    lstrcpy( szTemp, szSetupInfPath );
-
-    lstrcpy( szSetupInfPath,szOemInfPath );
-
-    if( wFontType > 0xC000 )
-    {
-        DEBUGMSG( (DM_TRACE1,TEXT( "Can't do a WIFE font, yet" ) ) );
+    lstrcpy(szTemp, szSetupInfPath);
+    lstrcpy(szSetupInfPath, szOemInfPath);
+    if (wFontType > 0xC000) {
+        DEBUGMSG((DM_TRACE1, TEXT("Can't do a WIFE font, yet")));
         return FALSE;
 
-
         // In this case, bTrueType is atom for tag string of wifefont.
-
-
-        if( GetAtomName( wFontType, szTag, ARRAYSIZE( szTag ) - 1 ) )
-        {
+        if (GetAtomName(wFontType, szTag, ARRAYSIZE(szTag) - 1)) {
 #if 0 // EMR. We don't do WIFE, yet.
 
-
             //  Build driver section string..
-
-
-            lstrcpy( FdDesc,szTag );
-
-            lstrcat( FdDesc,szWifeInfDrivers );
-
-            if( !(hSection = ReadSetupInf( FdDesc ) ) )
-            {
-               goto InfError;
+            lstrcpy(FdDesc, szTag);
+            lstrcat(FdDesc, szWifeInfDrivers);
+            if (!(hSection = ReadSetupInf(FdDesc))) {
+                goto InfError;
             }
 
-            if( !AddFontDrvFromInf( hwndFontDlg,hSection ) )
-                  goto InfError;
+            if (!AddFontDrvFromInf(hwndFontDlg, hSection))
+                goto InfError;
 
-            hSection = LocalFree( hSection );
+            hSection = LocalFree(hSection);
 
 
             //  Build fonts section string..
-
-
-            lstrcpy( FfDesc,szTag );
-
-            lstrcat( FfDesc,szWifeInfFonts );
-
-            if( !(hSection = ReadSetupInf( FfDesc ) ) )
-            {
-                  goto InfError;
+            lstrcpy(FfDesc, szTag);
+            lstrcat(FfDesc, szWifeInfFonts);
+            if (!(hSection = ReadSetupInf(FfDesc))) {
+                goto InfError;
             }
 
-            if( !CopyWifeFontWithInf( hwndFontDlg, hSection,
-                                      NULL, szSrcName, szDstName ) )
-                  goto InfError;
+            if (!CopyWifeFontWithInf(hwndFontDlg, hSection,
+                                     NULL, szSrcName, szDstName))
+                goto InfError;
 
-            hSection = LocalFree( hSection );
+            hSection = LocalFree(hSection);
 
 
             //  We have already this in system directory.
-
-
             bInShared = TRUE;
 
 
             //  Actually this is not TrueType.
-
-
             bTrueType = FALSE;
 #endif
-        }
-        else
-        {
-
+        } else {
             // Bad condition..maybe mem error or something like that
-
-InfError:
-            if( hSection )
-               LocalFree( hSection );
+        InfError:
+            if (hSection)
+                LocalFree(hSection);
 
 
             //  Restore setup.inf path.
+            lstrcpy(szSetupInfPath, szTemp);
 
-
-            lstrcpy( szSetupInfPath, szTemp );
-
-            DEBUGMSG( (DM_TRACE1, TEXT( "Error in OEM install" ) ) );
+            DEBUGMSG((DM_TRACE1, TEXT("Error in OEM install")));
             // DEBUGBREAK;
 
 #if 0
             - TODO: Need an error message here.
 
-            MyMessageBox( hwndFontDlg, INSTALL+14, INITS+1,
-                          MB_OK|MB_ICONEXCLAMATION ) ;
+                MyMessageBox(hwndFontDlg, INSTALL + 14, INITS + 1,
+                             MB_OK | MB_ICONEXCLAMATION);
 #endif
             return FALSE;
         }
-    }
-    else if( GetAtomName( wFontType | TRUETYPE_WITH_OEMINF,
-                          szTag, ARRAYSIZE( szTag ) - 1 ) )
-    {
+    } else if (GetAtomName(wFontType | TRUETYPE_WITH_OEMINF,
+                           szTag, ARRAYSIZE(szTag) - 1)) {
         BOOL bRet;
 
 
@@ -3800,32 +3628,25 @@ InfError:
         // Treat this case as TRUETYPE.
 
 
-        lstrcpy( szDirOfSrc, lpszDir );
+        lstrcpy(szDirOfSrc, lpszDir);
 
-        DEBUGMSG( (DM_TRACE1, TEXT( "Calling CopyTTFontWithInf()." ) ) );
+        DEBUGMSG((DM_TRACE1, TEXT("Calling CopyTTFontWithInf().")));
         // DEBUGBREAK;
 
-        if( !(bRet = CopyTTFontWithInf( s_pDlgAddFonts->hWnd(), szTag,
-                                        lpszDesc, szSrcName, lpszDstName ) ) )
-             goto InfError;
+        if (!(bRet = CopyTTFontWithInf(s_pDlgAddFonts->hWnd(), szTag,
+                                       lpszDesc, szSrcName, lpszDstName)))
+            goto InfError;
 
 
         //  Check User Abort.
-
-
-        if( bRet == ~01 )
+        if (bRet == ~01)
             return FALSE;
 
         // lstrcpy( lpszDir,lpszDstName );
-
     }
 
-
     //  Restore setup.inf path.
-
-
-    lstrcpy( szSetupInfPath,szTemp );
-
+    lstrcpy(szSetupInfPath, szTemp);
 
     return TRUE;
 }

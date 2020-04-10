@@ -1,31 +1,28 @@
 #include "stdafx.h"
 #pragma hdrstop
 
-HRESULT CFolder_Create2(HWND hwnd, LPCITEMIDLIST pidl, IShellFolder *psf, CFolder **ppsdf)
+HRESULT CFolder_Create2(HWND hwnd, LPCITEMIDLIST pidl, IShellFolder* psf, CFolder** ppsdf)
 {
     HRESULT hr;
-    CFolder *psdf = new CFolder();
-    if (psdf)
-    {
+    CFolder* psdf = new CFolder();
+    if (psdf) {
         hr = psdf->Init(hwnd, pidl, psf);
         if (SUCCEEDED(hr))
             *ppsdf = psdf;
         else
             psdf->Release();
-    }
-    else
+    } else
         hr = E_OUTOFMEMORY;
     return hr;
 }
 
-HRESULT CFolder_Create(HWND hwnd, LPCITEMIDLIST pidl, IShellFolder *psf, REFIID riid, void **ppv)
+HRESULT CFolder_Create(HWND hwnd, LPCITEMIDLIST pidl, IShellFolder* psf, REFIID riid, void** ppv)
 {
     *ppv = NULL;
 
-    CFolder *psdf;
+    CFolder* psdf;
     HRESULT hr = CFolder_Create2(hwnd, pidl, psf, &psdf);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         hr = psdf->QueryInterface(riid, ppv);
         psdf->Release();
     }
@@ -35,20 +32,18 @@ HRESULT CFolder_Create(HWND hwnd, LPCITEMIDLIST pidl, IShellFolder *psf, REFIID 
 // HRESULT CFolder_Create(HWND hwnd, LPITEMIDLIST pidl, IShellFolder *psf, CFolder **ppsdf)
 
 CFolder::CFolder() :
-    m_cRef (1), m_pidl(NULL), m_psf(NULL), m_psf2(NULL),
+    m_cRef(1), m_pidl(NULL), m_psf(NULL), m_psf2(NULL),
     CImpIDispatch(&LIBID_Shell32, 1, 0, &IID_Folder2)
 {
     DWORD dwExStyle;
 
     _fmt = 0;
     // Be sure that the OS is supporting the flags DATE_LTRREADING and DATE_RTLREADING
-    if (g_bBiDiPlatform)
-    {
+    if (g_bBiDiPlatform) {
         // Get the date format reading order
         LCID locale = GetUserDefaultLCID();
-        if (   (PRIMARYLANGID(LANGIDFROMLCID(locale)) == LANG_ARABIC)
-            || (PRIMARYLANGID(LANGIDFROMLCID(locale)) == LANG_HEBREW))
-        {
+        if ((PRIMARYLANGID(LANGIDFROMLCID(locale)) == LANG_ARABIC)
+            || (PRIMARYLANGID(LANGIDFROMLCID(locale)) == LANG_HEBREW)) {
             //Get the real list view windows ExStyle.
             // [msadek]; we shouldn't check for either WS_EX_RTLREADING OR RTL_MIRRORED_WINDOW
             // on localized builds we have both of them to display dirve letters,..etc correctly
@@ -75,8 +70,7 @@ CFolder::~CFolder(void)
         ILFree(m_pidl);
 
     // If we created an Application object release its site object...
-    if (m_pidApp)
-    {
+    if (m_pidApp) {
         IUnknown_SetSite(SAFECAST(m_pidApp, IUnknown*), NULL);
         ATOMICRELEASE(m_pidApp);
     }
@@ -84,31 +78,30 @@ CFolder::~CFolder(void)
     DllRelease();
 }
 
-STDMETHODIMP CFolder::SetSite(IUnknown *punkSite)
+STDMETHODIMP CFolder::SetSite(IUnknown* punkSite)
 {
     IUnknown_SetSite(SAFECAST(m_pidApp, IUnknown*), punkSite);
     return CObjectWithSite::SetSite(punkSite);
 }
 
-HRESULT CFolder::Init(HWND hwnd, LPCITEMIDLIST pidl, IShellFolder *psf)
+HRESULT CFolder::Init(HWND hwnd, LPCITEMIDLIST pidl, IShellFolder* psf)
 {
     m_hwnd = hwnd;
 
     HRESULT hr = SHILClone(pidl, &m_pidl);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         m_psf = psf;
         if (m_psf)
             m_psf->AddRef();
         else
             hr = SHBindToObject(NULL, IID_IShellFolder, m_pidl, (void**)&m_psf);
         if (m_psf)
-            m_psf->QueryInterface(IID_IShellFolder2, (void **)&m_psf2);
+            m_psf->QueryInterface(IID_IShellFolder2, (void**)&m_psf2);
     }
     return hr;
 }
 
-STDMETHODIMP CFolder::QueryInterface(REFIID riid, void **ppv)
+STDMETHODIMP CFolder::QueryInterface(REFIID riid, void** ppv)
 {
     static const QITAB qit[] = {
         QITABENT(CFolder, Folder2),
@@ -139,21 +132,20 @@ STDMETHODIMP_(ULONG) CFolder::Release(void)
 }
 
 //The Folder implementation
-STDMETHODIMP CFolder::get_Application(IDispatch **ppid)
+STDMETHODIMP CFolder::get_Application(IDispatch** ppid)
 {
     // The Get application object takes care of security...
     HRESULT hres = S_OK;
     if (!m_pidApp)
         hres = ::GetApplicationObject(_dwSafetyOptions, _punkSite, &m_pidApp);
-    if (m_pidApp)
-    {
+    if (m_pidApp) {
         *ppid = m_pidApp;
         m_pidApp->AddRef();
     }
     return hres;
 }
 
-STDMETHODIMP CFolder::get_Parent(IDispatch **ppid)
+STDMETHODIMP CFolder::get_Parent(IDispatch** ppid)
 {
     *ppid = NULL;
     return E_NOTIMPL;
@@ -163,7 +155,7 @@ STDMETHODIMP CFolder::get_Parent(IDispatch **ppid)
 //      S_OK    - success
 //      S_FALSE - failure, but not a script error
 
-STDMETHODIMP CFolder::_ParentFolder(Folder **ppdf)
+STDMETHODIMP CFolder::_ParentFolder(Folder** ppdf)
 {
     *ppdf = NULL;   // assume error
 
@@ -172,16 +164,15 @@ STDMETHODIMP CFolder::_ParentFolder(Folder **ppdf)
 
     LPITEMIDLIST pidl;
     HRESULT hres = SHILClone(m_pidl, &pidl);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         ILRemoveLastID(pidl);
-        hres = CFolder_Create(m_hwnd, pidl, NULL, IID_Folder, (void **)ppdf);
+        hres = CFolder_Create(m_hwnd, pidl, NULL, IID_Folder, (void**)ppdf);
         ILFree(pidl);
     }
     return hres;
 }
 
-STDMETHODIMP CFolder::get_ParentFolder(Folder **ppdf)
+STDMETHODIMP CFolder::get_ParentFolder(Folder** ppdf)
 {
     *ppdf = NULL;   // assume error
 
@@ -191,7 +182,7 @@ STDMETHODIMP CFolder::get_ParentFolder(Folder **ppdf)
     return _ParentFolder(ppdf);
 }
 
-STDMETHODIMP CFolder::get_Title(BSTR *pbs)
+STDMETHODIMP CFolder::get_Title(BSTR* pbs)
 {
     *pbs = NULL;
 
@@ -201,17 +192,16 @@ STDMETHODIMP CFolder::get_Title(BSTR *pbs)
     return NOERROR;
 }
 
-IShellDetails * CFolder::_GetShellDetails(void)
+IShellDetails* CFolder::_GetShellDetails(void)
 {
-    if (!m_psd)
-    {
+    if (!m_psd) {
         if (m_psf)
-            m_psf->CreateViewObject(m_hwnd, IID_IShellDetails, (void **)&m_psd);
+            m_psf->CreateViewObject(m_hwnd, IID_IShellDetails, (void**)&m_psd);
     }
     return m_psd;
 }
 
-STDMETHODIMP CFolder::Items(FolderItems **ppid)
+STDMETHODIMP CFolder::Items(FolderItems** ppid)
 {
     HRESULT hres;
 
@@ -223,7 +213,7 @@ STDMETHODIMP CFolder::Items(FolderItems **ppid)
     return hres;
 }
 
-STDMETHODIMP CFolder::ParseName(BSTR bName, FolderItem **ppfi)
+STDMETHODIMP CFolder::ParseName(BSTR bName, FolderItem** ppfi)
 {
     *ppfi = NULL;
     HRESULT hres = E_FAIL;
@@ -235,22 +225,16 @@ STDMETHODIMP CFolder::ParseName(BSTR bName, FolderItem **ppfi)
     ULONG chEaten;
     LPITEMIDLIST pidl;
     hres = m_psf->ParseDisplayName(m_hwnd, NULL, bName, &chEaten, &pidl, NULL);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         LPITEMIDLIST pidlLast = ILFindLastID(pidl);
-        if (pidlLast == pidl)
-        {
+        if (pidlLast == pidl) {
             hres = CFolderItem_Create(this, pidl, ppfi);
-        }
-        else
-        {
+        } else {
             LPITEMIDLIST pidlFull = ILCombine(m_pidl, pidl);
-            if (pidlFull)
-            {
+            if (pidlFull) {
                 CFolderItem_CreateFromIDList(m_hwnd, pidlFull, ppfi);
                 ILFree(pidlFull);
-            }
-            else
+            } else
                 hres = E_OUTOFMEMORY;
         }
         ILFree(pidl);
@@ -277,7 +261,7 @@ STDMETHODIMP CFolder::CopyHere(VARIANT vItem, VARIANT vOptions)
 // get the IDList for an item from a VARIANT that is a FolderItem dispatch object
 
 
-STDMETHODIMP CFolder::GetDetailsOf(VARIANT vItem, int iColumn, BSTR *pbs)
+STDMETHODIMP CFolder::GetDetailsOf(VARIANT vItem, int iColumn, BSTR* pbs)
 {
     TCHAR szBuf[INFOTIPSIZE];
 
@@ -289,9 +273,7 @@ STDMETHODIMP CFolder::GetDetailsOf(VARIANT vItem, int iColumn, BSTR *pbs)
     {
         if (pidl)
             GetInfoTip(m_psf, pidl, szBuf, ARRAYSIZE(szBuf));
-    }
-    else
-    {
+    } else {
         BOOL bUseDetails;
         SHELLDETAILS sd;
 
@@ -304,8 +286,7 @@ STDMETHODIMP CFolder::GetDetailsOf(VARIANT vItem, int iColumn, BSTR *pbs)
         else
             bUseDetails = TRUE;
 
-        if (bUseDetails)
-        {
+        if (bUseDetails) {
             IShellDetails* psd = _GetShellDetails();
             if (psd)
                 psd->GetDetailsOf(pidl, iColumn, &sd);
@@ -318,47 +299,39 @@ STDMETHODIMP CFolder::GetDetailsOf(VARIANT vItem, int iColumn, BSTR *pbs)
     return *pbs ? NOERROR : E_OUTOFMEMORY;
 }
 
-HRESULT CFolder::get_Self(FolderItem **ppfi)
+HRESULT CFolder::get_Self(FolderItem** ppfi)
 {
-    Folder *psdf;
+    Folder* psdf;
     HRESULT hres;
 
-    if (ILIsEmpty(m_pidl))
-    {
+    if (ILIsEmpty(m_pidl)) {
         psdf = this;
         psdf->AddRef();
         hres = S_OK;
-    }
-    else
+    } else
         hres = _ParentFolder(&psdf);
 
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         hres = CFolderItem_Create((CFolder*)psdf, ILFindLastID(m_pidl), ppfi);
         if (SUCCEEDED(hres) && _dwSafetyOptions)
             hres = MakeSafeForScripting((IUnknown**)ppfi);
         psdf->Release();
-    }
-    else
+    } else
         *ppfi = NULL;
     return hres;
 }
 
 BOOL _VerifyUNC(LPTSTR psz, ULONG cch)
 {
-    if (PathIsUNC(psz))
-    {
+    if (PathIsUNC(psz)) {
         return TRUE;
-    }
-    else if (psz[1] == TEXT(':'))
-    {
-        TCHAR szLocalName[3] = { psz[0], psz[1], TEXT('\0') };
+    } else if (psz[1] == TEXT(':')) {
+        TCHAR szLocalName[3] = {psz[0], psz[1], TEXT('\0')};
 
         // Call GetDriveType before WNetGetConnection, to avoid loading
         // MPR.DLL unless absolutely necessary.
         if (DRIVE_REMOTE == GetDriveType(szLocalName) &&
-            NOERROR == WNetGetConnection(szLocalName, psz, &cch))
-        {
+            NOERROR == WNetGetConnection(szLocalName, psz, &cch)) {
             return TRUE;
         }
     }
@@ -369,21 +342,17 @@ HRESULT GetSharePath(LPCITEMIDLIST pidl, LPTSTR psz, ULONG cch)
 {
     HRESULT hres = E_FAIL;
 
-    if (SHGetPathFromIDList(pidl, psz))
-    {
+    if (SHGetPathFromIDList(pidl, psz)) {
         if (_VerifyUNC(psz, cch))
             hres = S_OK;
-        else
-        {
+        else {
             //  check for folder shortcuts.
-            IShellFolder *psf;
-            if (SUCCEEDED(SHBindToObject(NULL, IID_IShellFolder, pidl, (void **)&psf)))
-            {
-                IShellLink *psl;
-                if (SUCCEEDED(psf->QueryInterface(IID_IShellLink, (void **)&psl)))
-                {
+            IShellFolder* psf;
+            if (SUCCEEDED(SHBindToObject(NULL, IID_IShellFolder, pidl, (void**)&psf))) {
+                IShellLink* psl;
+                if (SUCCEEDED(psf->QueryInterface(IID_IShellLink, (void**)&psl))) {
                     if (SUCCEEDED(psl->GetPath(psz, cch, NULL, 0))
-                    &&  _VerifyUNC(psz, cch))
+                        && _VerifyUNC(psz, cch))
                         hres = S_OK;
                     psl->Release();
                 }
@@ -399,7 +368,7 @@ HRESULT GetSharePath(LPCITEMIDLIST pidl, LPTSTR psz, ULONG cch)
 
 #include <cscuiext.h>
 
-STDMETHODIMP CFolder::get_OfflineStatus(LONG *pul)
+STDMETHODIMP CFolder::get_OfflineStatus(LONG* pul)
 {
     TCHAR szShare[MAX_PATH];
 
@@ -408,8 +377,7 @@ STDMETHODIMP CFolder::get_OfflineStatus(LONG *pul)
     // Make sure we have a UNC \\server\share path.  Do this before
     // checking whether CSC is enabled, to avoid loading CSCDLL.DLL
     // unless absolutely necessary.
-    if (SUCCEEDED(GetSharePath(m_pidl, szShare, ARRAYSIZE(szShare))))
-    {
+    if (SUCCEEDED(GetSharePath(m_pidl, szShare, ARRAYSIZE(szShare)))) {
         *pul = GetOfflineShareStatus(szShare);
     }
     return S_OK;
@@ -427,26 +395,22 @@ struct
 {
     int csidlFolder;
     BOOL bHaveToShowWebViewBarricade;
-} g_WebViewBarricadeFolderStatus[] = {  {CSIDL_WINDOWS, true},
+} g_WebViewBarricadeFolderStatus[] = {{CSIDL_WINDOWS, true},
                                         {CSIDL_SYSTEM, true},
                                         {CSIDL_SYSTEMX86, true},
                                         {CSIDL_PROGRAM_FILES, true},
                                         {CSIDL_PROGRAM_FILESX86, true}
-                                     };
+};
 
-STDMETHODIMP CFolder::get_HaveToShowWebViewBarricade(VARIANT_BOOL *pbHaveToShowWebViewBarricade)
+STDMETHODIMP CFolder::get_HaveToShowWebViewBarricade(VARIANT_BOOL* pbHaveToShowWebViewBarricade)
 {
-    if (pbHaveToShowWebViewBarricade)
-    {
+    if (pbHaveToShowWebViewBarricade) {
         *pbHaveToShowWebViewBarricade = VARIANT_FALSE;
         BOOL bExitLoop = false;
-        for (int i = 0; (i < ARRAYSIZE(g_WebViewBarricadeFolderStatus)) && !bExitLoop; i++)
-        {
+        for (int i = 0; (i < ARRAYSIZE(g_WebViewBarricadeFolderStatus)) && !bExitLoop; i++) {
             LPITEMIDLIST pidlTemp = NULL;
-            if (SUCCEEDED(SHGetFolderLocation(NULL, g_WebViewBarricadeFolderStatus[i].csidlFolder, NULL, 0, &pidlTemp)))
-            {
-                if (ILIsEqual(m_pidl, pidlTemp))
-                {
+            if (SUCCEEDED(SHGetFolderLocation(NULL, g_WebViewBarricadeFolderStatus[i].csidlFolder, NULL, 0, &pidlTemp))) {
+                if (ILIsEqual(m_pidl, pidlTemp)) {
                     // Careful!  VARIANT_TRUE != TRUE
                     *pbHaveToShowWebViewBarricade = g_WebViewBarricadeFolderStatus[i].bHaveToShowWebViewBarricade ? VARIANT_TRUE : VARIANT_FALSE;
                     bExitLoop = true;
@@ -461,13 +425,10 @@ STDMETHODIMP CFolder::get_HaveToShowWebViewBarricade(VARIANT_BOOL *pbHaveToShowW
 STDMETHODIMP CFolder::DismissedWebViewBarricade()
 {
     BOOL bExitLoop = false;
-    for (int i = 0; (i < ARRAYSIZE(g_WebViewBarricadeFolderStatus)) && !bExitLoop; i++)
-    {
+    for (int i = 0; (i < ARRAYSIZE(g_WebViewBarricadeFolderStatus)) && !bExitLoop; i++) {
         LPITEMIDLIST pidlTemp = NULL;
-        if (SUCCEEDED(SHGetFolderLocation(NULL, g_WebViewBarricadeFolderStatus[i].csidlFolder, NULL, 0, &pidlTemp)))
-        {
-            if (ILIsEqual(m_pidl, pidlTemp))
-            {
+        if (SUCCEEDED(SHGetFolderLocation(NULL, g_WebViewBarricadeFolderStatus[i].csidlFolder, NULL, 0, &pidlTemp))) {
+            if (ILIsEqual(m_pidl, pidlTemp)) {
                 g_WebViewBarricadeFolderStatus[i].bHaveToShowWebViewBarricade = false;
                 bExitLoop = true;
             }
@@ -481,7 +442,7 @@ STDMETHODIMP CFolder::DismissedWebViewBarricade()
 HRESULT CFolder::_FileOperation(UINT wFunc, VARIANT vItem, VARIANT vOptions)
 {
     // If in Safe mode we fail this one...
-    if (_dwSafetyOptions  && IsSafePage(_punkSite) != S_OK)
+    if (_dwSafetyOptions && IsSafePage(_punkSite) != S_OK)
         return E_ACCESSDENIED;
 
     // BUGBUG:: Not using options yet...
@@ -489,82 +450,73 @@ HRESULT CFolder::_FileOperation(UINT wFunc, VARIANT vItem, VARIANT vOptions)
     int cch;
 
     if (vItem.vt == (VT_BYREF | VT_VARIANT) && vItem.pvarVal)
-         vItem = *vItem.pvarVal;
+        vItem = *vItem.pvarVal;
 
-     // We need to get the source files out of the variant.
-     // Currently support string, or IDispatch (Either FolderItem or FolderItems)
-    switch (vItem.vt)
-    {
+    // We need to get the source files out of the variant.
+    // Currently support string, or IDispatch (Either FolderItem or FolderItems)
+    switch (vItem.vt) {
     case VT_BSTR:
-        fileop.pFrom = (LPTSTR)LocalAlloc(LPTR, cch = (lstrlenW(vItem.bstrVal)+2) * sizeof(TCHAR));   // +2 for double null
+        fileop.pFrom = (LPTSTR)LocalAlloc(LPTR, cch = (lstrlenW(vItem.bstrVal) + 2) * sizeof(TCHAR));   // +2 for double null
         if (fileop.pFrom)
             SHUnicodeToTChar(vItem.bstrVal, (LPTSTR)fileop.pFrom, cch);
         break;
     case VT_DISPATCH:
-        {
-            BSTR bs;
-            FolderItem *pfi;
-            FolderItems *pfis;
+    {
+        BSTR bs;
+        FolderItem* pfi;
+        FolderItems* pfis;
 
-            if (!vItem.pdispVal)
-                break;
+        if (!vItem.pdispVal)
+            break;
 
-            if (SUCCEEDED(vItem.pdispVal->QueryInterface(IID_FolderItems, (void **)&pfis)))
-            {
-                // This is gross, but allocate N times MAX_PATH for buffer as to keep from
-                // looping through the items twice.
-                long cItems;
+        if (SUCCEEDED(vItem.pdispVal->QueryInterface(IID_FolderItems, (void**)&pfis))) {
+            // This is gross, but allocate N times MAX_PATH for buffer as to keep from
+            // looping through the items twice.
+            long cItems;
 
-                pfis->get_Count(&cItems);
-                fileop.pFrom = (LPTSTR)LocalAlloc(LPTR, ((cItems * MAX_PATH) + 1) * sizeof(TCHAR));
-                if (fileop.pFrom)
-                {
-                    long i;
-                    VARIANT v = {VT_I4};
-                    LPTSTR pszT = (LPTSTR)fileop.pFrom;
-                    for (i = 0; i < cItems; i++)
-                    {
-                        v.lVal = i;
-                        if (SUCCEEDED(pfis->Item(v, &pfi)))
-                        {
-                            if (SUCCEEDED(pfi->get_Path(&bs)))
-                            {
-                                cch = lstrlenW(bs);
-                                SHUnicodeToTChar(bs, pszT, MAX_PATH);
-                                SysFreeString(bs);
-                                pszT += cch + 1;
-                            }
-
-                            pfi->Release();
+            pfis->get_Count(&cItems);
+            fileop.pFrom = (LPTSTR)LocalAlloc(LPTR, ((cItems * MAX_PATH) + 1) * sizeof(TCHAR));
+            if (fileop.pFrom) {
+                long i;
+                VARIANT v = {VT_I4};
+                LPTSTR pszT = (LPTSTR)fileop.pFrom;
+                for (i = 0; i < cItems; i++) {
+                    v.lVal = i;
+                    if (SUCCEEDED(pfis->Item(v, &pfi))) {
+                        if (SUCCEEDED(pfi->get_Path(&bs))) {
+                            cch = lstrlenW(bs);
+                            SHUnicodeToTChar(bs, pszT, MAX_PATH);
+                            SysFreeString(bs);
+                            pszT += cch + 1;
                         }
+
+                        pfi->Release();
                     }
                 }
-
-                pfis->Release();
-
-                break;
             }
-            else if (SUCCEEDED(vItem.pdispVal->QueryInterface(IID_FolderItem, (void **)&pfi)))
-            {
-                if (SUCCEEDED(pfi->get_Path(&bs)))
-                {
-                    fileop.pFrom = (LPTSTR)LocalAlloc(LPTR, cch = (lstrlenW(bs)+2) * sizeof(TCHAR));
-                    if (fileop.pFrom)
-                        SHUnicodeToTChar(bs, (LPTSTR)fileop.pFrom, cch);
-                    SysFreeString(bs);
-                }
 
-                pfi->Release();
-                break;
+            pfis->Release();
+
+            break;
+        } else if (SUCCEEDED(vItem.pdispVal->QueryInterface(IID_FolderItem, (void**)&pfi))) {
+            if (SUCCEEDED(pfi->get_Path(&bs))) {
+                fileop.pFrom = (LPTSTR)LocalAlloc(LPTR, cch = (lstrlenW(bs) + 2) * sizeof(TCHAR));
+                if (fileop.pFrom)
+                    SHUnicodeToTChar(bs, (LPTSTR)fileop.pFrom, cch);
+                SysFreeString(bs);
             }
+
+            pfi->Release();
+            break;
         }
-        break;
+    }
+    break;
     default:
         return E_INVALIDARG;   // don't support that type of variable.
     }
 
     if (!fileop.pFrom)
-         return E_OUTOFMEMORY;
+        return E_OUTOFMEMORY;
 
     // Now setup the Destination...
     TCHAR szDest[MAX_PATH];
@@ -574,12 +526,11 @@ HRESULT CFolder::_FileOperation(UINT wFunc, VARIANT vItem, VARIANT vOptions)
     // Allow flags to pass through...
 
     if (vOptions.vt == (VT_BYREF | VT_VARIANT) && vOptions.pvarVal)
-         vOptions = *vOptions.pvarVal;
+        vOptions = *vOptions.pvarVal;
 
-     // We need to get the source files out of the variant.
-     // Currently support string, or IDispatch (Either FolderItem or FolderItems)
-    switch (vOptions.vt)
-    {
+    // We need to get the source files out of the variant.
+    // Currently support string, or IDispatch (Either FolderItem or FolderItems)
+    switch (vOptions.vt) {
     case VT_I2:
         fileop.fFlags = (FILEOP_FLAGS)vOptions.iVal;
         break;
@@ -597,7 +548,7 @@ HRESULT CFolder::_FileOperation(UINT wFunc, VARIANT vItem, VARIANT vOptions)
     return ret ? HRESULT_FROM_WIN32(ret) : NOERROR;
 }
 
-STDMETHODIMP CFolder::GetClassID(CLSID *pClassID)
+STDMETHODIMP CFolder::GetClassID(CLSID* pClassID)
 {
     return E_NOTIMPL;
 }
@@ -607,8 +558,7 @@ STDMETHODIMP CFolder::Initialize(LPCITEMIDLIST pidl)
     return E_NOTIMPL;
 }
 
-STDMETHODIMP CFolder::GetCurFolder(LPITEMIDLIST *ppidl)
+STDMETHODIMP CFolder::GetCurFolder(LPITEMIDLIST* ppidl)
 {
     return SHILClone(m_pidl, ppidl);
 }
-

@@ -3,12 +3,11 @@
 
 #include "idlcomm.h"
 
-STDAPI DataObj_SetBlob(IDataObject *pdtobj, UINT cf, LPCVOID pvBlob, UINT cbBlob)
+STDAPI DataObj_SetBlob(IDataObject* pdtobj, UINT cf, LPCVOID pvBlob, UINT cbBlob)
 {
     HRESULT hres = E_OUTOFMEMORY;
     LPVOID pv = GlobalAlloc(GPTR, cbBlob);
-    if (pv)
-    {
+    if (pv) {
         CopyMemory(pv, pvBlob, cbBlob);
         hres = DataObj_SetGlobal(pdtobj, cf, pv);
 
@@ -18,21 +17,17 @@ STDAPI DataObj_SetBlob(IDataObject *pdtobj, UINT cf, LPCVOID pvBlob, UINT cbBlob
     return hres;
 }
 
-STDAPI DataObj_GetBlob(IDataObject *pdtobj, UINT cf, LPVOID pvBlob, UINT cbBlob)
+STDAPI DataObj_GetBlob(IDataObject* pdtobj, UINT cf, LPVOID pvBlob, UINT cbBlob)
 {
     STGMEDIUM medium = {0};
-    FORMATETC fmte = {(CLIPFORMAT) cf, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+    FORMATETC fmte = {(CLIPFORMAT)cf, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
     HRESULT hres = pdtobj->GetData(&fmte, &medium);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         LPVOID pv = GlobalLock(medium.hGlobal);
-        if (pv)
-        {
+        if (pv) {
             CopyMemory(pvBlob, pv, cbBlob);
             GlobalUnlock(medium.hGlobal);
-        }
-        else
-        {
+        } else {
             hres = E_UNEXPECTED;
         }
         ReleaseStgMedium(&medium);
@@ -40,12 +35,12 @@ STDAPI DataObj_GetBlob(IDataObject *pdtobj, UINT cf, LPVOID pvBlob, UINT cbBlob)
     return hres;
 }
 
-STDAPI DataObj_SetDWORD(IDataObject *pdtobj, UINT cf, DWORD dw)
+STDAPI DataObj_SetDWORD(IDataObject* pdtobj, UINT cf, DWORD dw)
 {
     return DataObj_SetBlob(pdtobj, cf, &dw, sizeof(DWORD));
 }
 
-STDAPI_(DWORD) DataObj_GetDWORD(IDataObject *pdtobj, UINT cf, DWORD dwDefault)
+STDAPI_(DWORD) DataObj_GetDWORD(IDataObject* pdtobj, UINT cf, DWORD dwDefault)
 {
     DWORD dwRet;
     if (FAILED(DataObj_GetBlob(pdtobj, cf, &dwRet, sizeof(DWORD))))
@@ -54,9 +49,9 @@ STDAPI_(DWORD) DataObj_GetDWORD(IDataObject *pdtobj, UINT cf, DWORD dwDefault)
 }
 
 
-STDAPI DataObj_SetGlobal(IDataObject *pdtobj, UINT cf, HGLOBAL hGlobal)
+STDAPI DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal)
 {
-    FORMATETC fmte = {(CLIPFORMAT) cf, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+    FORMATETC fmte = {(CLIPFORMAT)cf, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
     STGMEDIUM medium = {0};
 
     medium.tymed = TYMED_HGLOBAL;
@@ -67,34 +62,31 @@ STDAPI DataObj_SetGlobal(IDataObject *pdtobj, UINT cf, HGLOBAL hGlobal)
     return pdtobj->SetData(&fmte, &medium, TRUE);
 }
 
-STDAPI DataObj_SetDropTarget(IDataObject *pdtobj, const CLSID *pclsid)
+STDAPI DataObj_SetDropTarget(IDataObject* pdtobj, const CLSID* pclsid)
 {
     return DataObj_SetBlob(pdtobj, g_cfTargetCLSID, pclsid, sizeof(CLSID));
 }
 
-STDAPI DataObj_GetDropTarget(IDataObject *pdtobj, CLSID *pclsid)
+STDAPI DataObj_GetDropTarget(IDataObject* pdtobj, CLSID* pclsid)
 {
     return DataObj_GetBlob(pdtobj, g_cfTargetCLSID, pclsid, sizeof(CLSID));
 }
 
-STDAPI DataObj_SetPoints(IDataObject *pdtobj, LPFNCIDLPOINTS pfnPts, LPARAM lParam, SCALEINFO *psi)
+STDAPI DataObj_SetPoints(IDataObject* pdtobj, LPFNCIDLPOINTS pfnPts, LPARAM lParam, SCALEINFO* psi)
 {
     HRESULT hres = E_OUTOFMEMORY;
     STGMEDIUM medium = {0};
     LPIDA pida = DataObj_GetHIDA(pdtobj, &medium);
-    if (pida)
-    {
-        POINT *ppt = (POINT *)GlobalAlloc(GPTR, SIZEOF(POINT) * (1 + pida->cidl));
-        if (ppt)
-        {
+    if (pida) {
+        POINT* ppt = (POINT*)GlobalAlloc(GPTR, SIZEOF(POINT) * (1 + pida->cidl));
+        if (ppt) {
             UINT i;
             POINT ptOrigin;
             // Grab the anchor point
             pfnPts(NULL, &ptOrigin, lParam);
             ppt[0] = ptOrigin;
 
-            for (i = 1; i <= pida->cidl; i++)
-            {
+            for (i = 1; i <= pida->cidl; i++) {
                 LPCITEMIDLIST pidl = IDA_GetIDListPtr(pida, i - 1);
 
                 pfnPts(pidl, &ppt[i], lParam);
@@ -114,26 +106,21 @@ STDAPI DataObj_SetPoints(IDataObject *pdtobj, LPFNCIDLPOINTS pfnPts, LPARAM lPar
 }
 
 
-
-STDAPI_(LPIDA) DataObj_GetHIDA(IDataObject *pdtobj, STGMEDIUM *pmedium)
+STDAPI_(LPIDA) DataObj_GetHIDA(IDataObject* pdtobj, STGMEDIUM* pmedium)
 {
     FORMATETC fmte = {g_cfHIDA, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 
-    if (pmedium)
-    {
+    if (pmedium) {
         pmedium->pUnkForRelease = NULL;
         pmedium->hGlobal = NULL;
     }
 
-    if (!pmedium)
-    {
+    if (!pmedium) {
         if (SUCCEEDED(pdtobj->QueryGetData(&fmte)))
             return (LPIDA)TRUE;
         else
             return (LPIDA)FALSE;
-    }
-    else if (SUCCEEDED(pdtobj->GetData(&fmte, pmedium)))
-    {
+    } else if (SUCCEEDED(pdtobj->GetData(&fmte, pmedium))) {
         return (LPIDA)GlobalLock(pmedium->hGlobal);
     }
 
@@ -141,39 +128,34 @@ STDAPI_(LPIDA) DataObj_GetHIDA(IDataObject *pdtobj, STGMEDIUM *pmedium)
 }
 
 
-STDAPI_(void) ReleaseStgMediumHGLOBAL(void *pv, STGMEDIUM *pmedium)
+STDAPI_(void) ReleaseStgMediumHGLOBAL(void* pv, STGMEDIUM* pmedium)
 {
-    if (pmedium->hGlobal && (pmedium->tymed == TYMED_HGLOBAL))
-    {
+    if (pmedium->hGlobal && (pmedium->tymed == TYMED_HGLOBAL)) {
 #ifdef DEBUG
-        if (pv)
-        {
-            void *pvT = (void *)GlobalLock(pmedium->hGlobal);
+        if (pv) {
+            void* pvT = (void*)GlobalLock(pmedium->hGlobal);
             ASSERT(pvT == pv);
             GlobalUnlock(pmedium->hGlobal);
         }
 #endif
         GlobalUnlock(pmedium->hGlobal);
-    }
-    else
-    {
+    } else {
         ASSERT(0);
     }
 
     ReleaseStgMedium(pmedium);
 }
 
-STDAPI_(void) HIDA_ReleaseStgMedium(LPIDA pida, STGMEDIUM * pmedium)
+STDAPI_(void) HIDA_ReleaseStgMedium(LPIDA pida, STGMEDIUM* pmedium)
 {
-    ReleaseStgMediumHGLOBAL((void *)pida, pmedium);
+    ReleaseStgMediumHGLOBAL((void*)pida, pmedium);
 }
 
-STDAPI_(UINT) DataObj_GetHIDACount(IDataObject *pdtobj)
+STDAPI_(UINT) DataObj_GetHIDACount(IDataObject* pdtobj)
 {
     STGMEDIUM medium = {0};
     LPIDA pida = DataObj_GetHIDA(pdtobj, &medium);
-    if (pida)
-    {
+    if (pida) {
         UINT count = pida->cidl;
 
         ASSERT(pida->cidl == HIDA_GetCount(medium.hGlobal));
@@ -191,7 +173,7 @@ STDAPI_(UINT) DataObj_GetHIDACount(IDataObject *pdtobj)
 #define STREAM_COPY_BUF_SIZE        16384
 #define STREAM_PROGRESS_INTERVAL    (100*1024/STREAM_COPY_BUF_SIZE) // display progress after this many blocks
 
-HRESULT StreamCopyWithProgress(IStream *pstmFrom, IStream *pstmTo, ULARGE_INTEGER cb, PROGRESSINFO * ppi)
+HRESULT StreamCopyWithProgress(IStream* pstmFrom, IStream* pstmTo, ULARGE_INTEGER cb, PROGRESSINFO* ppi)
 {
     BYTE buf[STREAM_COPY_BUF_SIZE];
     ULONG cbRead;
@@ -199,21 +181,16 @@ HRESULT StreamCopyWithProgress(IStream *pstmFrom, IStream *pstmTo, ULARGE_INTEGE
     int nSection = 0;         // How many buffer sizes have we copied?
     ULARGE_INTEGER uliNewCompleted;
 
-    if (ppi)
-    {
+    if (ppi) {
         uliNewCompleted.QuadPart = ppi->uliBytesCompleted.QuadPart;
     }
 
-    while (cb.QuadPart)
-    {
-        if (ppi && ppi->ppd)
-        {
-            if (0 == (nSection % STREAM_PROGRESS_INTERVAL))
-            {
+    while (cb.QuadPart) {
+        if (ppi && ppi->ppd) {
+            if (0 == (nSection % STREAM_PROGRESS_INTERVAL)) {
                 EVAL(SUCCEEDED(ppi->ppd->SetProgress64(uliNewCompleted.QuadPart, ppi->uliBytesTotal.QuadPart)));
 
-                if (ppi->ppd->HasUserCancelled())
-                {
+                if (ppi->ppd->HasUserCancelled()) {
                     hres = HRESULT_FROM_WIN32(ERROR_CANCELLED);
                     break;
                 }
@@ -221,18 +198,15 @@ HRESULT StreamCopyWithProgress(IStream *pstmFrom, IStream *pstmTo, ULARGE_INTEGE
         }
 
         hres = pstmFrom->Read(buf, min(cb.LowPart, SIZEOF(buf)), &cbRead);
-        if (FAILED(hres) || (cbRead == 0))
-        {
+        if (FAILED(hres) || (cbRead == 0)) {
             //  sometimes we are just done.
             if (SUCCEEDED(hres))
                 hres = S_OK;
             break;
         }
 
-
-        if (ppi)
-        {
-            uliNewCompleted.QuadPart += (ULONGLONG) cbRead;
+        if (ppi) {
+            uliNewCompleted.QuadPart += (ULONGLONG)cbRead;
         }
 
         cb.QuadPart -= cbRead;
@@ -248,31 +222,29 @@ HRESULT StreamCopyWithProgress(IStream *pstmFrom, IStream *pstmTo, ULARGE_INTEGE
 }
 
 
-STDAPI DataObj_SaveToFile(IDataObject *pdtobj, UINT cf, LONG lindex, LPCTSTR pszFile, DWORD dwFileSize, PROGRESSINFO * ppi)
+STDAPI DataObj_SaveToFile(IDataObject* pdtobj, UINT cf, LONG lindex, LPCTSTR pszFile, DWORD dwFileSize, PROGRESSINFO* ppi)
 {
     STGMEDIUM medium = {0};
     FORMATETC fmte;
     HRESULT hres;
 
-    fmte.cfFormat = (CLIPFORMAT) cf;
+    fmte.cfFormat = (CLIPFORMAT)cf;
     fmte.ptd = NULL;
     fmte.dwAspect = DVASPECT_CONTENT;
     fmte.lindex = lindex;
     fmte.tymed = TYMED_HGLOBAL | TYMED_ISTREAM | TYMED_ISTORAGE;
 
     hres = pdtobj->GetData(&fmte, &medium);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         switch (medium.tymed) {
         case TYMED_HGLOBAL:
         {
             HANDLE hfile = CreateFile(pszFile, GENERIC_READ | GENERIC_WRITE,
-                 FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, 0, NULL);
-            if (hfile != INVALID_HANDLE_VALUE)
-            {
+                                      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, 0, NULL);
+            if (hfile != INVALID_HANDLE_VALUE) {
                 DWORD dwWrite;
                 // BUGBUG raymondc: what about writes greater than 4 GB?
-                if (!WriteFile(hfile, GlobalLock(medium.hGlobal), dwFileSize ? dwFileSize : (DWORD) GlobalSize(medium.hGlobal), &dwWrite, NULL))
+                if (!WriteFile(hfile, GlobalLock(medium.hGlobal), dwFileSize ? dwFileSize : (DWORD)GlobalSize(medium.hGlobal), &dwWrite, NULL))
                     hres = HRESULT_FROM_WIN32(GetLastError());
 
                 GlobalUnlock(medium.hGlobal);
@@ -280,20 +252,16 @@ STDAPI DataObj_SaveToFile(IDataObject *pdtobj, UINT cf, LONG lindex, LPCTSTR psz
 
                 if (FAILED(hres))
                     EVAL(DeleteFile(pszFile));
-            }
-            else
-            {
+            } else {
                 hres = HRESULT_FROM_WIN32(GetLastError());
             }
             break;
         }
-
         case TYMED_ISTREAM:
         {
-            IStream *pstm;
+            IStream* pstm;
             hres = SHCreateStreamOnFile(pszFile, OF_CREATE | OF_WRITE | OF_SHARE_DENY_WRITE, &pstm);
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
                 const ULARGE_INTEGER ul = {(UINT)-1, (UINT)-1};    // the whole thing
 
                 hres = StreamCopyWithProgress(medium.pstm, pstm, ul, ppi);
@@ -306,20 +274,18 @@ STDAPI DataObj_SaveToFile(IDataObject *pdtobj, UINT cf, LONG lindex, LPCTSTR psz
             }
             break;
         }
-
         case TYMED_ISTORAGE:
         {
             WCHAR wszNewFile[MAX_PATH];
-            IStorage *pstg;
+            IStorage* pstg;
 
             DebugMsg(TF_FSTREE, TEXT("got IStorage"));
 
             SHTCharToUnicode(pszFile, wszNewFile, ARRAYSIZE(wszNewFile));
             hres = StgCreateDocfile(wszNewFile,
-                            STGM_DIRECT | STGM_READWRITE | STGM_CREATE | STGM_SHARE_EXCLUSIVE,
-                            0, &pstg);
-            if (SUCCEEDED(hres))
-            {
+                                    STGM_DIRECT | STGM_READWRITE | STGM_CREATE | STGM_SHARE_EXCLUSIVE,
+                                    0, &pstg);
+            if (SUCCEEDED(hres)) {
                 hres = medium.pstg->CopyTo(0, NULL, NULL, pstg);
 
                 DebugMsg(TF_FSTREE, TEXT("IStorage::CopyTo() -> %x"), hres);
@@ -331,14 +297,12 @@ STDAPI DataObj_SaveToFile(IDataObject *pdtobj, UINT cf, LONG lindex, LPCTSTR psz
                     EVAL(DeleteFile(pszFile));
             }
         }
-            break;
-
+        break;
         default:
             AssertMsg(FALSE, TEXT("got typed that I didn't ask for %d"), medium.tymed);
         }
 
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             SHChangeNotify(SHCNE_CREATE, SHCNF_PATH, pszFile, NULL);
             SHChangeNotify(SHCNE_FREESPACE, SHCNF_PATH, pszFile, NULL);
         }
@@ -348,25 +312,23 @@ STDAPI DataObj_SaveToFile(IDataObject *pdtobj, UINT cf, LONG lindex, LPCTSTR psz
     return hres;
 }
 
-STDAPI DataObj_GetShellURL(IDataObject *pdtobj, STGMEDIUM *pmedium, LPCSTR *ppszURL)
+STDAPI DataObj_GetShellURL(IDataObject* pdtobj, STGMEDIUM* pmedium, LPCSTR* ppszURL)
 {
     FORMATETC fmte = {g_cfShellURL, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
     HRESULT hres;
 
-    if (pmedium)
-    {
+    if (pmedium) {
         hres = pdtobj->GetData(&fmte, pmedium);
         if (SUCCEEDED(hres))
             *ppszURL = (LPCSTR)GlobalLock(pmedium->hGlobal);
-    }
-    else
+    } else
         hres = pdtobj->QueryGetData(&fmte); // query only
 
     return hres;
 }
 
 
-STDAPI DataObj_GetOFFSETs(IDataObject *pdtobj, POINT *ppt)
+STDAPI DataObj_GetOFFSETs(IDataObject* pdtobj, POINT* ppt)
 {
     STGMEDIUM medium = {0};
     FORMATETC fmt = {g_cfOFFSETS, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
@@ -374,15 +336,12 @@ STDAPI DataObj_GetOFFSETs(IDataObject *pdtobj, POINT *ppt)
     ASSERT(ppt);
     ppt->x = ppt->y = 0;
     HRESULT hres = pdtobj->GetData(&fmt, &medium);
-    if (SUCCEEDED(hres))
-    {
-        POINT * pptTemp = (POINT *)GlobalLock(medium.hGlobal);
-        if (pptTemp)
-        {
+    if (SUCCEEDED(hres)) {
+        POINT* pptTemp = (POINT*)GlobalLock(medium.hGlobal);
+        if (pptTemp) {
             *ppt = *pptTemp;
             GlobalUnlock(medium.hGlobal);
-        }
-        else
+        } else
             hres = E_UNEXPECTED;
         ReleaseStgMedium(&medium);
     }
@@ -390,16 +349,14 @@ STDAPI DataObj_GetOFFSETs(IDataObject *pdtobj, POINT *ppt)
 }
 
 
-STDAPI_(BOOL) DataObj_CanGoAsync(IDataObject *pdtobj)
+STDAPI_(BOOL) DataObj_CanGoAsync(IDataObject* pdtobj)
 {
     BOOL fDoOpAsynch = FALSE;
-    IAsyncOperation * pao;
+    IAsyncOperation* pao;
 
-    if (SUCCEEDED(pdtobj->QueryInterface(IID_IAsyncOperation, (void **)&pao)))
-    {
+    if (SUCCEEDED(pdtobj->QueryInterface(IID_IAsyncOperation, (void**)&pao))) {
         BOOL fIsOpAsync;
-        if (SUCCEEDED(pao->GetAsyncMode(&fIsOpAsync)) && (TRUE == fIsOpAsync))
-        {
+        if (SUCCEEDED(pao->GetAsyncMode(&fIsOpAsync)) && (TRUE == fIsOpAsync)) {
             fDoOpAsynch = SUCCEEDED(pao->StartOperation(NULL));
         }
         pao->Release();
@@ -408,31 +365,26 @@ STDAPI_(BOOL) DataObj_CanGoAsync(IDataObject *pdtobj)
 }
 
 
-
 // HACKHACK: (reinerf) - We used to always do async drag/drop operations on NT4 by cloning the
 // dataobject. Some apps (WS_FTP 6.0) rely on the async nature in order for drag/drop to work since
 // they stash the return value from DoDragDrop and look at it later when their copy hook is invoked
 // by SHFileOperation(). So, we sniff the HDROP and if it has one path that contains "WS_FTPE\Notify"
 // in it, then we do the operation async.
-
-STDAPI_(BOOL) DataObj_GoAsyncForCompat(IDataObject *pdtobj)
+STDAPI_(BOOL) DataObj_GoAsyncForCompat(IDataObject* pdtobj)
 {
     BOOL bRet = FALSE;
     STGMEDIUM medium;
     FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 
-    if (SUCCEEDED(pdtobj->GetData(&fmte, &medium)))
-    {
+    if (SUCCEEDED(pdtobj->GetData(&fmte, &medium))) {
         // is there only one path in the hdrop?
-        if (DragQueryFile((HDROP)medium.hGlobal, (UINT)-1, NULL, 0) == 1)
-        {
+        if (DragQueryFile((HDROP)medium.hGlobal, (UINT)-1, NULL, 0) == 1) {
             TCHAR szPath[MAX_PATH];
 
             // is it the magical WS_FTP path ("%temp%\WS_FTPE\Notify") that WS_FTP sniffs
             // for in their copy hook?
             if (DragQueryFile((HDROP)medium.hGlobal, 0, szPath, ARRAYSIZE(szPath)) &&
-                StrStrI(szPath, TEXT("WS_FTPE\\Notify")))
-            {
+                StrStrI(szPath, TEXT("WS_FTPE\\Notify"))) {
                 // yes, we have to do an async operation for app compat
                 TraceMsg(TF_WARNING, "DataObj_GoAsyncForCompat: found WS_FTP HDROP, doing async drag-drop");
                 bRet = TRUE;

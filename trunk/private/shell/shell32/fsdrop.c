@@ -861,7 +861,7 @@ DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget* this, DWORD grfKeyState,
         ASSERT(dwDefEffect);
     } else {
         BOOL fContents = ((this->dwData & (DTID_CONTENTS | DTID_FDESCA)) == (DTID_CONTENTS | DTID_FDESCA) ||
-            (this->dwData & (DTID_CONTENTS | DTID_FDESCW)) == (DTID_CONTENTS | DTID_FDESCW));
+                          (this->dwData & (DTID_CONTENTS | DTID_FDESCW)) == (DTID_CONTENTS | DTID_FDESCW));
 
         if (fContents || (this->dwData & DTID_HIDA)) {
             if (this->dwData & DTID_HIDA) {
@@ -985,8 +985,7 @@ BOOL IsInsideBriefcase(LPCITEMIDLIST pidlIn)
     if (pidl) {
         do {
             CLSID clsid;
-            if (SUCCEEDED(GetCLSIDFromIDList(pidl, &clsid)) &&
-                IsEqualCLSID(&clsid, &CLSID_Briefcase)) {
+            if (SUCCEEDED(GetCLSIDFromIDList(pidl, &clsid)) && IsEqualCLSID(&clsid, &CLSID_Briefcase)) {
                 bRet = TRUE;    // it is a briefcase
                 break;
             }
@@ -1039,7 +1038,7 @@ BOOL HandleSneakernetDrop(FSTHREADPARAM* pfsthp, LPCITEMIDLIST pidlParent, LPCTS
             // (Even if AddObject fails, return TRUE to prevent caller
             // from handling this)
             bRet = (S_FALSE != pbrfstg->lpVtbl->AddObject(pbrfstg, pfsthp->pDataObj, pszTarget,
-                (DDIDM_SYNCCOPYTYPE == pfsthp->idCmd) ? AOF_FILTERPROMPT : AOF_DEFAULT,
+                                                          (DDIDM_SYNCCOPYTYPE == pfsthp->idCmd) ? AOF_FILTERPROMPT : AOF_DEFAULT,
                                                           pfsthp->hwndOwner));
             pbrfstg->lpVtbl->Release(pbrfstg);
         }
@@ -1139,7 +1138,6 @@ BOOL ExtractImageURLFromCFHTML(IN LPSTR pszHTML, IN SIZE_T cbHTMLSize, OUT LPSTR
             szTemp++;
         } else
             szTemp = pszCopiedHTML;
-
 
         //Pull out the Img Src
         szImgSrc = StrStrIA(szTemp, "IMG");

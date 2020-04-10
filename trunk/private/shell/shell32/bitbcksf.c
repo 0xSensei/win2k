@@ -13,16 +13,16 @@
 STDAPI_(LPITEMIDLIST) ILResize(LPITEMIDLIST pidl, UINT cbRequired, UINT cbExtra);
 
 // mulprsht.c
-void SetDateTimeText(HWND hdlg, int id, const FILETIME *pftUTC);
+void SetDateTimeText(HWND hdlg, int id, const FILETIME* pftUTC);
 
 // defext.c
-STDMETHODIMP CCommonShellPropSheetExt_ReplacePage(IShellPropSheetExt * pspx, UINT uPageID, LPFNADDPROPSHEETPAGE lpfnReplaceWith, LPARAM lParam);
+STDMETHODIMP CCommonShellPropSheetExt_ReplacePage(IShellPropSheetExt* pspx, UINT uPageID, LPFNADDPROPSHEETPAGE lpfnReplaceWith, LPARAM lParam);
 
 // fstreex.c
-int  FS_CreateMoveCopyList(IDataObject *pdtobj, void *hNameMappings, LPITEMIDLIST **pppidl);
-void FS_PositionItems(HWND hwndOwner, UINT cidl, const LPITEMIDLIST *ppidl, IDataObject *pdtobj, POINT *pptOrigin, BOOL fMove);
-void FS_FreeMoveCopyList(LPITEMIDLIST *ppidl, UINT cidl);
-HRESULT CFSIDLData_QueryGetData(IDataObject * pdtobj, FORMATETC * pformatetc); // subclass member function to support CF_HDROP and CF_NETRESOURCE
+int  FS_CreateMoveCopyList(IDataObject* pdtobj, void* hNameMappings, LPITEMIDLIST** pppidl);
+void FS_PositionItems(HWND hwndOwner, UINT cidl, const LPITEMIDLIST* ppidl, IDataObject* pdtobj, POINT* pptOrigin, BOOL fMove);
+void FS_FreeMoveCopyList(LPITEMIDLIST* ppidl, UINT cidl);
+HRESULT CFSIDLData_QueryGetData(IDataObject* pdtobj, FORMATETC* pformatetc); // subclass member function to support CF_HDROP and CF_NETRESOURCE
 
 
 
@@ -30,7 +30,7 @@ HRESULT CFSIDLData_QueryGetData(IDataObject * pdtobj, FORMATETC * pformatetc); /
 
 void BBGetDisplayName(LPCIDFOLDER pidf, LPTSTR pszPath);
 void BBGetItemPath(LPCIDFOLDER pidf, LPTSTR pszPath);
-STDMETHODIMP CBitBucket_PS_AddPages(IShellPropSheetExt * pspx, LPFNADDPROPSHEETPAGE pfnAddPage, LPARAM lParam);
+STDMETHODIMP CBitBucket_PS_AddPages(IShellPropSheetExt* pspx, LPFNADDPROPSHEETPAGE pfnAddPage, LPARAM lParam);
 LPITEMIDLIST DeletedFilePathToBBPidl(LPTSTR lpszPath);
 
 
@@ -58,7 +58,7 @@ typedef struct _bbpropsheetinfo
     // from the other tabs
     struct _bbpropsheetinfo* pGlobal;
 
-} BBPROPSHEETINFO, *LPBBPROPSHEETINFO;
+} BBPROPSHEETINFO, * LPBBPROPSHEETINFO;
 
 
 const static DWORD aBitBucketPropHelpIDs[] = {  // Context Help IDs
@@ -122,37 +122,26 @@ const COL_DATA c_bb_cols[] = {
 
 // CBitBucket members
 
-STDMETHODIMP CBitBucket_SF_QueryInterface(IShellFolder2 *psf, REFIID riid, void **ppvObj)
+STDMETHODIMP CBitBucket_SF_QueryInterface(IShellFolder2* psf, REFIID riid, void** ppvObj)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
 
 
-    if (IsEqualIID(riid, &IID_IShellFolder)  ||
+    if (IsEqualIID(riid, &IID_IShellFolder) ||
         IsEqualIID(riid, &IID_IShellFolder2) ||
-        IsEqualIID(riid, &IID_IUnknown))
-    {
+        IsEqualIID(riid, &IID_IUnknown)) {
         *ppvObj = &this->isf;
-    }
-    else if (IsEqualIID(riid, &IID_IPersistFolder) ||
-             IsEqualIID(riid, &IID_IPersistFolder2) ||
-             IsEqualIID(riid, &IID_IPersist))
-    {
+    } else if (IsEqualIID(riid, &IID_IPersistFolder) ||
+               IsEqualIID(riid, &IID_IPersistFolder2) ||
+               IsEqualIID(riid, &IID_IPersist)) {
         *ppvObj = &this->ipf;
-    }
-    else if (IsEqualIID(riid, &IID_IContextMenu) )
-    {
+    } else if (IsEqualIID(riid, &IID_IContextMenu)) {
         *ppvObj = &this->icm;
-    }
-    else if (IsEqualIID(riid, &IID_IShellPropSheetExt))
-    {
+    } else if (IsEqualIID(riid, &IID_IShellPropSheetExt)) {
         *ppvObj = &this->ips;
-    }
-    else if (IsEqualIID(riid, &IID_IShellExtInit))
-    {
+    } else if (IsEqualIID(riid, &IID_IShellExtInit)) {
         *ppvObj = &this->isei;
-    }
-    else
-    {
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -162,9 +151,9 @@ STDMETHODIMP CBitBucket_SF_QueryInterface(IShellFolder2 *psf, REFIID riid, void 
 }
 
 
-STDMETHODIMP_(ULONG) CBitBucket_SF_Release(IShellFolder2 *psf)
+STDMETHODIMP_(ULONG) CBitBucket_SF_Release(IShellFolder2* psf)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
     if (InterlockedDecrement(&this->cRef))
         return this->cRef;
 
@@ -174,18 +163,17 @@ STDMETHODIMP_(ULONG) CBitBucket_SF_Release(IShellFolder2 *psf)
 }
 
 
-STDMETHODIMP_(ULONG) CBitBucket_SF_AddRef(IShellFolder2 *psf)
+STDMETHODIMP_(ULONG) CBitBucket_SF_AddRef(IShellFolder2* psf)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
     return InterlockedIncrement(&this->cRef);
 }
 
 
-BOOL BBGetOriginalPath(LPBBDATAENTRYIDA pbbidl, TCHAR *pszOrig, UINT cch)
+BOOL BBGetOriginalPath(LPBBDATAENTRYIDA pbbidl, TCHAR* pszOrig, UINT cch)
 {
 #ifdef UNICODE
-    if (pbbidl->cb == SIZEOF(BBDATAENTRYIDW))
-    {
+    if (pbbidl->cb == SIZEOF(BBDATAENTRYIDW)) {
         LPBBDATAENTRYIDW pbbidlw = DATAENTRYIDATOW(pbbidl);
         ualstrcpyn(pszOrig, pbbidlw->wszOriginal, cch);
         return (BOOL)*pszOrig;
@@ -200,7 +188,7 @@ BOOL BBGetOriginalPath(LPBBDATAENTRYIDA pbbidl, TCHAR *pszOrig, UINT cch)
 // We need to be able to compare the names of two bbpidls.  Since either of
 // them could be a unicode name, we might have to convert both to unicode.
 
-int _BBCompareOriginal(LPBBDATAENTRYIDA lpbbidl1, LPBBDATAENTRYIDA lpbbidl2 )
+int _BBCompareOriginal(LPBBDATAENTRYIDA lpbbidl1, LPBBDATAENTRYIDA lpbbidl2)
 {
     TCHAR szOrig1[MAX_PATH];
     TCHAR szOrig2[MAX_PATH];
@@ -209,11 +197,11 @@ int _BBCompareOriginal(LPBBDATAENTRYIDA lpbbidl1, LPBBDATAENTRYIDA lpbbidl2 )
 
     PathRemoveFileSpec(szOrig1);
     PathRemoveFileSpec(szOrig2);
-    return lstrcmpi(szOrig1,szOrig2);
+    return lstrcmpi(szOrig1, szOrig2);
 }
 
 
-STDMETHODIMP CBitBucket_SF_CompareIDs(IShellFolder2 *psf, LPARAM lParam, LPCITEMIDLIST pidl1, LPCITEMIDLIST pidl2)
+STDMETHODIMP CBitBucket_SF_CompareIDs(IShellFolder2* psf, LPARAM lParam, LPCITEMIDLIST pidl1, LPCITEMIDLIST pidl2)
 {
     HRESULT hres = ResultFromShort(-1);
     LPBBDATAENTRYIDA pbbidl1, pbbidl2;
@@ -221,8 +209,7 @@ STDMETHODIMP CBitBucket_SF_CompareIDs(IShellFolder2 *psf, LPARAM lParam, LPCITEM
     LPCIDFOLDER pidf2 = FS_IsValidID(pidl2);
     short nCmp;
 
-    if (!pidf1 || !pidf2)
-    {
+    if (!pidf1 || !pidf2) {
         ASSERT(0);
         return E_INVALIDARG;
     }
@@ -231,130 +218,105 @@ STDMETHODIMP CBitBucket_SF_CompareIDs(IShellFolder2 *psf, LPARAM lParam, LPCITEM
     pbbidl2 = PIDLTODATAENTRYID(pidl2);
 
     // don't worry about recursing down because we don't have children.
-    switch (lParam)
+    switch (lParam) {
+    case ICOL_TYPE:
+        nCmp = _CompareFileTypes((IShellFolder*)psf, pidf1, pidf2);
+        if (nCmp) {
+            return ResultFromShort(nCmp);
+        } else {
+            goto CompareNames;
+        }
+        break;
+
+    case ICOL_SIZE:
     {
-        case ICOL_TYPE:
-            nCmp = _CompareFileTypes((IShellFolder *)psf, pidf1, pidf2);
-            if (nCmp)
-            {
-                return ResultFromShort(nCmp);
-            }
-            else
-            {
-                goto CompareNames;
-            }
-            break;
+        ULONGLONG qw1, qw2;
 
-        case ICOL_SIZE:
-        {
-            ULONGLONG qw1, qw2;
+        // BUGBUG (reinerf) - directories are not dealt with properly
+        // when sorting by size.
 
-            // BUGBUG (reinerf) - directories are not dealt with properly
-            // when sorting by size.
+        FS_GetSize(NULL, pidf1, &qw1);
+        FS_GetSize(NULL, pidf2, &qw2);
 
-            FS_GetSize(NULL, pidf1, &qw1);
-            FS_GetSize(NULL, pidf2, &qw2);
-
-            if (qw1 < qw2)
-            {
-                return ResultFromShort(-1);
-            }
-            if (qw1 > qw2)
-            {
-                return ResultFromShort(1);
-            }
-        } // else fall through
+        if (qw1 < qw2) {
+            return ResultFromShort(-1);
+        }
+        if (qw1 > qw2) {
+            return ResultFromShort(1);
+        }
+    } // else fall through
 
 CompareNames:
-        case ICOL_NAME:
-            hres = FS_CompareNamesCase(pidf1, pidf2);
-            // compare the real filenames first, if they are different,
-            // try comparing the display name
-            if ((hres != ResultFromShort(0)) && (BB_IsRealID(pidl1) && BB_IsRealID(pidl2)))
-            {
-                HRESULT hresOld = hres;
-                TCHAR szName1[MAX_PATH], szName2[MAX_PATH];
+    case ICOL_NAME:
+        hres = FS_CompareNamesCase(pidf1, pidf2);
+        // compare the real filenames first, if they are different,
+        // try comparing the display name
+        if ((hres != ResultFromShort(0)) && (BB_IsRealID(pidl1) && BB_IsRealID(pidl2))) {
+            HRESULT hresOld = hres;
+            TCHAR szName1[MAX_PATH], szName2[MAX_PATH];
 
-                BBGetDisplayName(pidf1, szName1);
-                BBGetDisplayName(pidf2, szName2);
+            BBGetDisplayName(pidf1, szName1);
+            BBGetDisplayName(pidf2, szName2);
 
-                hres = ResultFromShort(lstrcmpi(szName1, szName2));
-                // if they are from the same location, sort them by delete times
-                if (hres == ResultFromShort(0))
-                {
-                    // if the items are same in title, sort by drive
-                    hres = ResultFromShort(pbbidl1->bbde.idDrive - pbbidl2->bbde.idDrive);
+            hres = ResultFromShort(lstrcmpi(szName1, szName2));
+            // if they are from the same location, sort them by delete times
+            if (hres == ResultFromShort(0)) {
+                // if the items are same in title, sort by drive
+                hres = ResultFromShort(pbbidl1->bbde.idDrive - pbbidl2->bbde.idDrive);
 
-                    if (hres == ResultFromShort(0))
-                    {
-                        // if the items are still the same, sort by index
-                        hres = ResultFromShort(pbbidl1->bbde.iIndex - pbbidl2->bbde.iIndex);
+                if (hres == ResultFromShort(0)) {
+                    // if the items are still the same, sort by index
+                    hres = ResultFromShort(pbbidl1->bbde.iIndex - pbbidl2->bbde.iIndex);
 
-                        // once we're not equal, we can never be equal again
-                        ASSERT(hres != ResultFromShort(0));
-                        if (hres == ResultFromShort(0))
-                        {
-                            hres = hresOld;
-                        }
+                    // once we're not equal, we can never be equal again
+                    ASSERT(hres != ResultFromShort(0));
+                    if (hres == ResultFromShort(0)) {
+                        hres = hresOld;
                     }
                 }
             }
-            break;
+        }
+        break;
 
-        case ICOL_ORIGINAL:
-            hres = ResultFromShort(_BBCompareOriginal(pbbidl1, pbbidl2));
-            break;
+    case ICOL_ORIGINAL:
+        hres = ResultFromShort(_BBCompareOriginal(pbbidl1, pbbidl2));
+        break;
 
-        case ICOL_MODIFIED:
-            if (pbbidl1->bbde.ft.dwHighDateTime < pbbidl2->bbde.ft.dwHighDateTime)
-            {
+    case ICOL_MODIFIED:
+        if (pbbidl1->bbde.ft.dwHighDateTime < pbbidl2->bbde.ft.dwHighDateTime) {
+            hres = ResultFromShort(-1);
+        } else if (pbbidl1->bbde.ft.dwHighDateTime > pbbidl2->bbde.ft.dwHighDateTime) {
+            hres = ResultFromShort(1);
+        } else {
+            if (pbbidl1->bbde.ft.dwLowDateTime < pbbidl2->bbde.ft.dwLowDateTime) {
                 hres = ResultFromShort(-1);
-            }
-            else if (pbbidl1->bbde.ft.dwHighDateTime > pbbidl2->bbde.ft.dwHighDateTime)
-            {
+            } else if (pbbidl1->bbde.ft.dwLowDateTime > pbbidl2->bbde.ft.dwLowDateTime) {
                 hres = ResultFromShort(1);
+            } else {
+                return 0;
             }
-            else
-            {
-                if (pbbidl1->bbde.ft.dwLowDateTime < pbbidl2->bbde.ft.dwLowDateTime)
-                {
-                    hres = ResultFromShort(-1);
-                }
-                else if (pbbidl1->bbde.ft.dwLowDateTime > pbbidl2->bbde.ft.dwLowDateTime)
-                {
-                    hres = ResultFromShort(1);
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            break;
+        }
+        break;
     }
     return hres;
 }
 
 
-STDMETHODIMP CBitBucket_SF_GetAttributesOf(IShellFolder2 *psf, UINT cidl, LPCITEMIDLIST * apidl, ULONG * rgfOut)
+STDMETHODIMP CBitBucket_SF_GetAttributesOf(IShellFolder2* psf, UINT cidl, LPCITEMIDLIST* apidl, ULONG* rgfOut)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
     ULONG gfOut = *rgfOut;
 
     // asking about the root itself
-    if (cidl == 0)
-    {
+    if (cidl == 0) {
         gfOut = SFGAO_HASPROPSHEET;
-    }
-    else
-    {
+    } else {
         LPCIDFOLDER pidf = FS_IsValidID(apidl[0]);
 
         gfOut &= (SFGAO_CANMOVE | SFGAO_CANDELETE | SFGAO_HASPROPSHEET | SFGAO_FILESYSANCESTOR | SFGAO_FILESYSTEM);
 
-        if (*rgfOut & SFGAO_LINK)
-        {
-            if (SHGetClassFlags(pidf) & SHCF_IS_LINK)
-            {
+        if (*rgfOut & SFGAO_LINK) {
+            if (SHGetClassFlags(pidf) & SHCF_IS_LINK) {
                 gfOut |= SFGAO_LINK;
             }
         }
@@ -366,14 +328,13 @@ STDMETHODIMP CBitBucket_SF_GetAttributesOf(IShellFolder2 *psf, UINT cidl, LPCITE
 }
 
 
-int DataObjToFileOpString(IDataObject * pdtobj, LPTSTR * ppszSrc, LPTSTR * ppszDest)
+int DataObjToFileOpString(IDataObject* pdtobj, LPTSTR* ppszSrc, LPTSTR* ppszDest)
 {
     int cItems = 0;
     STGMEDIUM medium;
     LPIDA pida = DataObj_GetHIDA(pdtobj, &medium);
 
-    if (pida)
-    {
+    if (pida) {
         LPTSTR lpszSrc, lpszDest;
         int i, cchSrc, cchDest;
 
@@ -388,13 +349,11 @@ int DataObjToFileOpString(IDataObject * pdtobj, LPTSTR * ppszSrc, LPTSTR * ppszD
         if (ppszDest)
             lpszDest = (void*)LocalAlloc(LPTR, cchDest * SIZEOF(TCHAR));
 
-        for (i = 0 ; i < cItems ; i++)
-        {
+        for (i = 0; i < cItems; i++) {
             LPCITEMIDLIST pidl = IDA_GetIDListPtr(pida, i);
             LPBBDATAENTRYIDA pbbidl = PIDLTODATAENTRYID(pidl);
 
-            if (ppszSrc)
-            {
+            if (ppszSrc) {
                 TCHAR szSrc[MAX_PATH];
                 int cchSrcFile;
                 LPTSTR psz;
@@ -403,8 +362,7 @@ int DataObjToFileOpString(IDataObject * pdtobj, LPTSTR * ppszSrc, LPTSTR * ppszD
 
                 cchSrcFile = lstrlen(szSrc) + 1;
                 psz = (LPTSTR)LocalReAlloc((HLOCAL)lpszSrc, (cchSrc + cchSrcFile) * SIZEOF(TCHAR), LMEM_MOVEABLE | LMEM_ZEROINIT);
-                if (!psz)
-                {
+                if (!psz) {
                     // out of memory!
                     // bugbug: do something real
                     LocalFree((HLOCAL)lpszSrc);
@@ -418,8 +376,7 @@ int DataObjToFileOpString(IDataObject * pdtobj, LPTSTR * ppszSrc, LPTSTR * ppszD
                 cchSrc += cchSrcFile;
             }
 
-            if (ppszDest)
-            {
+            if (ppszDest) {
                 TCHAR szOrig[MAX_PATH];
                 int cchDestFile;
                 LPTSTR psz;
@@ -429,8 +386,7 @@ int DataObjToFileOpString(IDataObject * pdtobj, LPTSTR * ppszSrc, LPTSTR * ppszD
                 cchDestFile = lstrlen(szOrig) + 1;
 
                 psz = (LPTSTR)LocalReAlloc((HLOCAL)lpszDest, (cchDest + cchDestFile) * SIZEOF(TCHAR), LMEM_MOVEABLE | LMEM_ZEROINIT);
-                if (!psz)
-                {
+                if (!psz) {
                     // out of memory!
                     LocalFree((HLOCAL)lpszDest);
                     if (ppszSrc)
@@ -450,7 +406,7 @@ int DataObjToFileOpString(IDataObject * pdtobj, LPTSTR * ppszSrc, LPTSTR * ppszD
         if (ppszDest)
             *ppszDest = lpszDest;
 
-Bail:
+    Bail:
         HIDA_ReleaseStgMedium(pida, &medium);
     }
     return cItems;
@@ -460,12 +416,11 @@ Bail:
 
 // restores the list of files in the IDataObject
 
-void BBRestoreFileList(CBitBucket *this, HWND hwndOwner, IDataObject * pdtobj)
+void BBRestoreFileList(CBitBucket* this, HWND hwndOwner, IDataObject* pdtobj)
 {
     LPTSTR pszSrc, pszDest;
 
-    if (DataObjToFileOpString(pdtobj, &pszSrc, &pszDest))
-    {
+    if (DataObjToFileOpString(pdtobj, &pszSrc, &pszDest)) {
         // now do the actual restore.
         SHFILEOPSTRUCT sFileOp = {hwndOwner,
                                   FO_MOVE,
@@ -480,8 +435,7 @@ void BBRestoreFileList(CBitBucket *this, HWND hwndOwner, IDataObject * pdtobj)
 
         SetWaitCursor();
 
-        if (SHFileOperation(&sFileOp) == ERROR_SUCCESS)
-        {
+        if (SHFileOperation(&sFileOp) == ERROR_SUCCESS) {
             // success!;
             SHChangeNotifyHandleEvents();
 
@@ -499,18 +453,17 @@ void BBRestoreFileList(CBitBucket *this, HWND hwndOwner, IDataObject * pdtobj)
 
 // nukes the list of files in the IDataObject
 
-void BBNukeFileList(CBitBucket *this, HWND hwndOwner, IDataObject * pdtobj)
+void BBNukeFileList(CBitBucket* this, HWND hwndOwner, IDataObject* pdtobj)
 {
     LPTSTR lpszSrc, lpszDest;
     int nFiles = DataObjToFileOpString(pdtobj, &lpszSrc, &lpszDest);
 
-    if (nFiles)
-    {
+    if (nFiles) {
         // now do the actual nuke.
         int iItems;
         WIN32_FIND_DATA fd;
         CONFIRM_DATA cd = {CONFIRM_DELETE_FILE | CONFIRM_DELETE_FOLDER | CONFIRM_PROGRAM_FILE | CONFIRM_MULTIPLE, 0};
-        SHFILEOPSTRUCT sFileOp ={hwndOwner,
+        SHFILEOPSTRUCT sFileOp = {hwndOwner,
                                  FO_DELETE,
                                  lpszSrc,
                                  NULL,
@@ -524,14 +477,13 @@ void BBNukeFileList(CBitBucket *this, HWND hwndOwner, IDataObject * pdtobj)
         SetWaitCursor();
 
         fd.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-        if (ConfirmFileOp(hwndOwner, NULL, &cd, nFiles, 0, CONFIRM_DELETE_FILE | CONFIRM_WASTEBASKET_PURGE, lpszDest, &fd, NULL, &fd, NULL) == IDYES)
-        {
+        if (ConfirmFileOp(hwndOwner, NULL, &cd, nFiles, 0, CONFIRM_DELETE_FILE | CONFIRM_WASTEBASKET_PURGE, lpszDest, &fd, NULL, &fd, NULL) == IDYES) {
             SHFileOperation(&sFileOp);
 
             SHChangeNotifyHandleEvents();
 
             // update the icon if there are objects left in the list
-            iItems = (int) ShellFolderView_GetObjectCount(hwndOwner);
+            iItems = (int)ShellFolderView_GetObjectCount(hwndOwner);
             UpdateIcon(iItems);
         }
 
@@ -556,35 +508,33 @@ void BBGlobalPropOnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
     LPBBPROPSHEETINFO ppsi = (LPBBPROPSHEETINFO)GetWindowLongPtr(hDlg, DWLP_USER);
     BOOL fNukeOnDelete;
 
-    switch (id)
-    {
-        case IDC_GLOBAL:
-        case IDC_INDEPENDENT:
-            fNukeOnDelete = IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE);
+    switch (id) {
+    case IDC_GLOBAL:
+    case IDC_INDEPENDENT:
+        fNukeOnDelete = IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE);
 
-            ppsi->fUseGlobalSettings = (IsDlgButtonChecked(hDlg, IDC_GLOBAL) == BST_CHECKED) ? TRUE : FALSE;
-            EnableWindow(GetDlgItem(hDlg, IDC_NUKEONDELETE), ppsi->fUseGlobalSettings);
-            EnableTrackbarAndFamily(hDlg, ppsi->fUseGlobalSettings && !fNukeOnDelete);
+        ppsi->fUseGlobalSettings = (IsDlgButtonChecked(hDlg, IDC_GLOBAL) == BST_CHECKED) ? TRUE : FALSE;
+        EnableWindow(GetDlgItem(hDlg, IDC_NUKEONDELETE), ppsi->fUseGlobalSettings);
+        EnableTrackbarAndFamily(hDlg, ppsi->fUseGlobalSettings && !fNukeOnDelete);
 
-            SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0);
-            break;
+        SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0);
+        break;
 
-        case IDC_NUKEONDELETE:
-            fNukeOnDelete = IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE);
+    case IDC_NUKEONDELETE:
+        fNukeOnDelete = IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE);
 
-        if (fNukeOnDelete)
-            {
+        if (fNukeOnDelete) {
             // In order to help protect users, when they turn on "Remove files immedately" we also
             // check the "show delete confimation" box automatically for them. Thus, they will have
             // to explicitly uncheck it if they do not want confimation that their files will be nuked.
-        CheckDlgButton(hDlg, IDC_CONFIRMDELETE, BST_CHECKED);
-            }
+            CheckDlgButton(hDlg, IDC_CONFIRMDELETE, BST_CHECKED);
+        }
 
-            EnableTrackbarAndFamily(hDlg, !fNukeOnDelete);
-            // fall through
-        case IDC_CONFIRMDELETE:
-            SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0L);
-            break;
+        EnableTrackbarAndFamily(hDlg, !fNukeOnDelete);
+        // fall through
+    case IDC_CONFIRMDELETE:
+        SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0L);
+        break;
 
     }
 }
@@ -594,8 +544,7 @@ void  RelayMessageToChildren(HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lPa
 {
     HWND hwndChild;
 
-    for (hwndChild = GetWindow(hwnd, GW_CHILD); hwndChild != NULL; hwndChild = GetWindow(hwndChild, GW_HWNDNEXT))
-    {
+    for (hwndChild = GetWindow(hwnd, GW_CHILD); hwndChild != NULL; hwndChild = GetWindow(hwndChild, GW_HWNDNEXT)) {
         SendMessage(hwndChild, uMessage, wParam, lParam);
     }
 }
@@ -608,17 +557,16 @@ BOOL_PTR CALLBACK BBGlobalPropDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 {
     LPBBPROPSHEETINFO ppsi = (LPBBPROPSHEETINFO)GetWindowLongPtr(hDlg, DWLP_USER);
 
-    switch (uMsg)
-    {
-    HANDLE_MSG(hDlg, WM_COMMAND, BBGlobalPropOnCommand);
+    switch (uMsg) {
+        HANDLE_MSG(hDlg, WM_COMMAND, BBGlobalPropOnCommand);
 
     case WM_INITDIALOG:
     {
         HWND  hwndTrack = GetDlgItem(hDlg, IDC_BBSIZE);
-    SHELLSTATE ss;
+        SHELLSTATE ss;
 
-    // make sure the info we have is current
-    RefreshAllBBDriveSettings();
+        // make sure the info we have is current
+        RefreshAllBBDriveSettings();
 
         ppsi = (LPBBPROPSHEETINFO)lParam;
         SetWindowLongPtr(hDlg, DWLP_USER, lParam);
@@ -641,34 +589,32 @@ BOOL_PTR CALLBACK BBGlobalPropDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
         TCHAR szPercent[20];
         HWND hwndTrack = GetDlgItem(hDlg, IDC_BBSIZE);
 
-        ppsi->iPercent = (int) SendMessage(hwndTrack, TBM_GETPOS, 0, 0);
+        ppsi->iPercent = (int)SendMessage(hwndTrack, TBM_GETPOS, 0, 0);
         wsprintf(szPercent, TEXT("%d%%"), ppsi->iPercent);
         SetDlgItemText(hDlg, IDC_BBSIZETEXT, szPercent);
 
-        if (ppsi->iPercent != ppsi->iOriginalPercent)
-        {
+        if (ppsi->iPercent != ppsi->iOriginalPercent) {
             SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0L);
 
-        if (ppsi->iPercent == 0)
-            {
-            // In order to help protect users, when they set the % slider to zero we also
-            // check the "show delete confimation" box automatically for them. Thus, they will have
-            // to explicitly uncheck it if they do not want confimation that their files will be nuked.
-        CheckDlgButton(hDlg, IDC_CONFIRMDELETE, BST_CHECKED);
+            if (ppsi->iPercent == 0) {
+                // In order to help protect users, when they set the % slider to zero we also
+                // check the "show delete confimation" box automatically for them. Thus, they will have
+                // to explicitly uncheck it if they do not want confimation that their files will be nuked.
+                CheckDlgButton(hDlg, IDC_CONFIRMDELETE, BST_CHECKED);
             }
-    }
+        }
 
         return TRUE;
     }
 
     case WM_HELP:
-        WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL,
-            HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aBitBucketPropHelpIDs);
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, NULL,
+                HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aBitBucketPropHelpIDs);
         return TRUE;
 
     case WM_CONTEXTMENU:
-        WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU,
-            (ULONG_PTR)(LPVOID) aBitBucketPropHelpIDs);
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU,
+                (ULONG_PTR)(LPVOID)aBitBucketPropHelpIDs);
         return TRUE;
 
     case WM_WININICHANGE:
@@ -683,61 +629,56 @@ BOOL_PTR CALLBACK BBGlobalPropDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
         break;
 
     case WM_NOTIFY:
-        switch (((NMHDR *)lParam)->code)
+        switch (((NMHDR*)lParam)->code) {
+        case PSN_APPLY:
         {
-            case PSN_APPLY:
-            {
-                SHELLSTATE ss;
+            SHELLSTATE ss;
 
-                ss.fNoConfirmRecycle = !IsDlgButtonChecked(hDlg, IDC_CONFIRMDELETE);
-                SHGetSetSettings(&ss, SSF_NOCONFIRMRECYCLE, TRUE);
+            ss.fNoConfirmRecycle = !IsDlgButtonChecked(hDlg, IDC_CONFIRMDELETE);
+            SHGetSetSettings(&ss, SSF_NOCONFIRMRECYCLE, TRUE);
 
-                ppsi->fNukeOnDelete = (IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE) == BST_CHECKED) ? TRUE : FALSE;
-                ppsi->fUseGlobalSettings = (IsDlgButtonChecked(hDlg, IDC_INDEPENDENT) == BST_CHECKED) ? FALSE : TRUE;
+            ppsi->fNukeOnDelete = (IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE) == BST_CHECKED) ? TRUE : FALSE;
+            ppsi->fUseGlobalSettings = (IsDlgButtonChecked(hDlg, IDC_INDEPENDENT) == BST_CHECKED) ? FALSE : TRUE;
 
-        // if anything on the global tab changed, update all the drives
-        if (ppsi->fUseGlobalSettings != ppsi->fOriginalUseGlobalSettings    ||
-                    ppsi->fNukeOnDelete != ppsi->fOriginalNukeOnDelete              ||
-                    ppsi->iPercent != ppsi->iOriginalPercent)
-                {
-                    int i;
+            // if anything on the global tab changed, update all the drives
+            if (ppsi->fUseGlobalSettings != ppsi->fOriginalUseGlobalSettings ||
+                ppsi->fNukeOnDelete != ppsi->fOriginalNukeOnDelete ||
+                ppsi->iPercent != ppsi->iOriginalPercent) {
+                int i;
 
-                    // NOTE: We get a PSN_APPLY after all the drive tabs. This has to be this way so that
-                    // if global settings change, then the global tab will re-apply all the most current settings
-                    // bassed on the global variables that get set above.
+                // NOTE: We get a PSN_APPLY after all the drive tabs. This has to be this way so that
+                // if global settings change, then the global tab will re-apply all the most current settings
+                // bassed on the global variables that get set above.
 
-                    // this sets the new global settings in the registry
-                    if (!PersistGlobalSettings(ppsi->fUseGlobalSettings, ppsi->fNukeOnDelete, ppsi->iPercent))
-                    {
-                        // we failed, so show the error dialog and bail
-                        ShellMessageBox(HINST_THISDLL,
-                                        hDlg,
-                                        MAKEINTRESOURCE(IDS_BB_CANNOTCHANGESETTINGS),
-                                        MAKEINTRESOURCE(IDS_WASTEBASKET),
-                                        MB_OK | MB_ICONEXCLAMATION);
+                // this sets the new global settings in the registry
+                if (!PersistGlobalSettings(ppsi->fUseGlobalSettings, ppsi->fNukeOnDelete, ppsi->iPercent)) {
+                    // we failed, so show the error dialog and bail
+                    ShellMessageBox(HINST_THISDLL,
+                                    hDlg,
+                                    MAKEINTRESOURCE(IDS_BB_CANNOTCHANGESETTINGS),
+                                    MAKEINTRESOURCE(IDS_WASTEBASKET),
+                                    MB_OK | MB_ICONEXCLAMATION);
 
-                        SetDlgMsgResult(hDlg, WM_NOTIFY, PSNRET_INVALID_NOCHANGEPAGE);
-                        return TRUE;
-                    }
-
-                    for (i = 0; i < MAX_BITBUCKETS ; i++)
-                    {
-                        if (MakeBitBucket(i))
-                        {
-                            BOOL bPurge = TRUE;
-
-                            // we need to purge all the drives in this case
-                            RegSetValueEx(g_pBitBucket[i]->hkeyPerUser, TEXT("NeedToPurge"), 0, REG_DWORD, (LPBYTE)&bPurge, SIZEOF(bPurge));
-
-                            RefreshBBDriveSettings(i);
-                        }
-                    }
-
-                    ppsi->fOriginalUseGlobalSettings = ppsi->fUseGlobalSettings;
-                    ppsi->fOriginalNukeOnDelete = ppsi->fNukeOnDelete;
-                    ppsi->iOriginalPercent = ppsi->iPercent;
+                    SetDlgMsgResult(hDlg, WM_NOTIFY, PSNRET_INVALID_NOCHANGEPAGE);
+                    return TRUE;
                 }
+
+                for (i = 0; i < MAX_BITBUCKETS; i++) {
+                    if (MakeBitBucket(i)) {
+                        BOOL bPurge = TRUE;
+
+                        // we need to purge all the drives in this case
+                        RegSetValueEx(g_pBitBucket[i]->hkeyPerUser, TEXT("NeedToPurge"), 0, REG_DWORD, (LPBYTE)&bPurge, SIZEOF(bPurge));
+
+                        RefreshBBDriveSettings(i);
+                    }
+                }
+
+                ppsi->fOriginalUseGlobalSettings = ppsi->fUseGlobalSettings;
+                ppsi->fOriginalNukeOnDelete = ppsi->fNukeOnDelete;
+                ppsi->iOriginalPercent = ppsi->iPercent;
             }
+        }
         }
         break;
 
@@ -754,132 +695,126 @@ BOOL_PTR CALLBACK BBDriveDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
     TCHAR szDiskSpace[40];
     HWND hwndTrack;
 
-    switch (uMsg)
+    switch (uMsg) {
+
+    case WM_INITDIALOG:
     {
+        hwndTrack = GetDlgItem(hDlg, IDC_BBSIZE);
 
-        case WM_INITDIALOG:
-        {
-            hwndTrack = GetDlgItem(hDlg, IDC_BBSIZE);
+        ppsi = (LPBBPROPSHEETINFO)lParam;
+        SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 
-            ppsi = (LPBBPROPSHEETINFO)lParam;
-            SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+        SendMessage(hwndTrack, TBM_SETTICFREQ, 10, 0);
+        SendMessage(hwndTrack, TBM_SETRANGE, FALSE, MAKELONG(0, 100));
+        SendMessage(hwndTrack, TBM_SETPOS, TRUE, ppsi->iPercent);
+        CheckDlgButton(hDlg, IDC_NUKEONDELETE, ppsi->fNukeOnDelete);
 
-            SendMessage(hwndTrack, TBM_SETTICFREQ, 10, 0);
-            SendMessage(hwndTrack, TBM_SETRANGE, FALSE, MAKELONG(0, 100));
-            SendMessage(hwndTrack, TBM_SETPOS, TRUE, ppsi->iPercent);
-            CheckDlgButton(hDlg, IDC_NUKEONDELETE, ppsi->fNukeOnDelete);
+        // set the disk space info
+        StrFormatByteSize64(g_pBitBucket[ppsi->idDrive]->qwDiskSize, szDiskSpace, ARRAYSIZE(szDiskSpace));
+        SetDlgItemText(hDlg, IDC_DISKSIZEDATA, szDiskSpace);
+        wParam = 0;
+    }
+    // fall through
 
-            // set the disk space info
-            StrFormatByteSize64(g_pBitBucket[ppsi->idDrive]->qwDiskSize, szDiskSpace, ARRAYSIZE(szDiskSpace));
-            SetDlgItemText(hDlg, IDC_DISKSIZEDATA, szDiskSpace);
-            wParam = 0;
-        }
-        // fall through
+    case WM_HSCROLL:
+    {
+        ULARGE_INTEGER ulBucketSize;
+        HWND hwndTrack = GetDlgItem(hDlg, IDC_BBSIZE);
+        ppsi->iPercent = (int)SendMessage(hwndTrack, TBM_GETPOS, 0, 0);
 
-        case WM_HSCROLL:
-        {
-            ULARGE_INTEGER ulBucketSize;
-            HWND hwndTrack = GetDlgItem(hDlg, IDC_BBSIZE);
-            ppsi->iPercent = (int)SendMessage(hwndTrack, TBM_GETPOS, 0, 0);
+        wsprintf(szDiskSpace, TEXT("%d%%"), ppsi->iPercent);
+        SetDlgItemText(hDlg, IDC_BBSIZETEXT, szDiskSpace);
 
-            wsprintf(szDiskSpace, TEXT("%d%%"), ppsi->iPercent);
-            SetDlgItemText(hDlg, IDC_BBSIZETEXT, szDiskSpace);
-
-            if (ppsi->iPercent != ppsi->iOriginalPercent)
-            {
-                SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0);
-            }
-
-            // we peg the max size of the recycle bin to 4 gig
-            ulBucketSize.QuadPart = (ppsi->pGlobal->fUseGlobalSettings ? ppsi->pGlobal->iPercent : ppsi->iPercent) * (g_pBitBucket[ppsi->idDrive]->qwDiskSize / 100);
-            StrFormatByteSize64(ulBucketSize.HighPart ? (DWORD)-1 : ulBucketSize.LowPart, szDiskSpace, ARRAYSIZE(szDiskSpace));
-            SetDlgItemText(hDlg, IDC_BYTESIZEDATA, szDiskSpace);
-            return TRUE;
+        if (ppsi->iPercent != ppsi->iOriginalPercent) {
+            SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0);
         }
 
-        case WM_HELP:
-            WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL,
-                HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aBitBucketPropHelpIDs);
-            return TRUE;
+        // we peg the max size of the recycle bin to 4 gig
+        ulBucketSize.QuadPart = (ppsi->pGlobal->fUseGlobalSettings ? ppsi->pGlobal->iPercent : ppsi->iPercent) * (g_pBitBucket[ppsi->idDrive]->qwDiskSize / 100);
+        StrFormatByteSize64(ulBucketSize.HighPart ? (DWORD)-1 : ulBucketSize.LowPart, szDiskSpace, ARRAYSIZE(szDiskSpace));
+        SetDlgItemText(hDlg, IDC_BYTESIZEDATA, szDiskSpace);
+        return TRUE;
+    }
 
-        case WM_CONTEXTMENU:
-            WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU,
-                (ULONG_PTR)(LPVOID) aBitBucketPropHelpIDs);
-            return TRUE;
+    case WM_HELP:
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, NULL,
+                HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aBitBucketPropHelpIDs);
+        return TRUE;
 
-        case WM_COMMAND:
+    case WM_CONTEXTMENU:
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU,
+                (ULONG_PTR)(LPVOID)aBitBucketPropHelpIDs);
+        return TRUE;
+
+    case WM_COMMAND:
+    {
+        WORD wCommandID = GET_WM_COMMAND_ID(wParam, lParam);
+
+        if (wCommandID == IDC_NUKEONDELETE) {
+            SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0L);
+            EnableTrackbarAndFamily(hDlg, !IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE));
+            EnableWindow(GetDlgItem(hDlg, IDC_BYTESIZE), !IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE));
+            EnableWindow(GetDlgItem(hDlg, IDC_BYTESIZEDATA), !IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE));
+        }
+        break;
+    }
+
+    case WM_NOTIFY:
+        switch (((NMHDR*)lParam)->code) {
+        case PSN_APPLY:
         {
-            WORD wCommandID = GET_WM_COMMAND_ID(wParam, lParam);
+            ppsi->fNukeOnDelete = (IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE) == BST_CHECKED) ? TRUE : FALSE;
 
-            if (wCommandID == IDC_NUKEONDELETE)
-            {
-                SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0L);
-                EnableTrackbarAndFamily(hDlg, !IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE));
-                EnableWindow(GetDlgItem(hDlg, IDC_BYTESIZE), !IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE));
-                EnableWindow(GetDlgItem(hDlg, IDC_BYTESIZEDATA), !IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE));
+            // update the info in the registry
+            if (!PersistBBDriveSettings(ppsi->idDrive, ppsi->iPercent, ppsi->fNukeOnDelete)) {
+                // we failed, so show the error dialog and bail
+                ShellMessageBox(HINST_THISDLL,
+                                hDlg,
+                                MAKEINTRESOURCE(IDS_BB_CANNOTCHANGESETTINGS),
+                                MAKEINTRESOURCE(IDS_WASTEBASKET),
+                                MB_OK | MB_ICONEXCLAMATION);
+
+                SetDlgMsgResult(hDlg, WM_NOTIFY, PSNRET_INVALID_NOCHANGEPAGE);
+                return TRUE;
             }
-            break;
+
+            // only purge this drive if the user set the slider to a smaller value
+            if (ppsi->iPercent < ppsi->iOriginalPercent) {
+                BOOL bPurge = TRUE;
+
+                // since this drive just shrunk, we need to purge the files in it
+                RegSetValueEx(g_pBitBucket[ppsi->idDrive]->hkeyPerUser, TEXT("NeedToPurge"), 0, REG_DWORD, (LPBYTE)&bPurge, SIZEOF(bPurge));
+            }
+
+            ppsi->iOriginalPercent = ppsi->iPercent;
+            ppsi->fOriginalNukeOnDelete = ppsi->fNukeOnDelete;
+
+            // update the g_pBitBucket[] for this drive
+
+            // NOTE: We get a PSN_APPLY before the global tab does. This has to be this way so that
+            // if global settings change, then the global tab will re-apply all the most current settings
+            // bassed on the global variables that get set in his tab.
+            RefreshBBDriveSettings(ppsi->idDrive);
+        }
+        break;
+
+        case PSN_SETACTIVE:
+        {
+            BOOL fNukeOnDelete = IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE);
+
+            EnableWindow(GetDlgItem(hDlg, IDC_NUKEONDELETE), !ppsi->pGlobal->fUseGlobalSettings);
+            EnableTrackbarAndFamily(hDlg, !ppsi->pGlobal->fUseGlobalSettings && !fNukeOnDelete);
+            EnableWindow(GetDlgItem(hDlg, IDC_BYTESIZE), !fNukeOnDelete);
+            EnableWindow(GetDlgItem(hDlg, IDC_BYTESIZEDATA), !fNukeOnDelete);
+
+            // send this to make sure that the "space reserved" field is accurate when using global settings
+            SendMessage(hDlg, WM_HSCROLL, 0, 0);
+        }
+        break;
         }
 
-        case WM_NOTIFY:
-            switch (((NMHDR *)lParam)->code)
-            {
-                case PSN_APPLY:
-                {
-                    ppsi->fNukeOnDelete = (IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE) == BST_CHECKED) ? TRUE : FALSE;
-
-                    // update the info in the registry
-                    if (!PersistBBDriveSettings(ppsi->idDrive, ppsi->iPercent, ppsi->fNukeOnDelete))
-                    {
-                        // we failed, so show the error dialog and bail
-                        ShellMessageBox(HINST_THISDLL,
-                                        hDlg,
-                                        MAKEINTRESOURCE(IDS_BB_CANNOTCHANGESETTINGS),
-                                        MAKEINTRESOURCE(IDS_WASTEBASKET),
-                                        MB_OK | MB_ICONEXCLAMATION);
-
-                        SetDlgMsgResult(hDlg, WM_NOTIFY, PSNRET_INVALID_NOCHANGEPAGE);
-                        return TRUE;
-                    }
-
-                    // only purge this drive if the user set the slider to a smaller value
-                    if (ppsi->iPercent < ppsi->iOriginalPercent)
-                    {
-                        BOOL bPurge = TRUE;
-
-                        // since this drive just shrunk, we need to purge the files in it
-                        RegSetValueEx(g_pBitBucket[ppsi->idDrive]->hkeyPerUser, TEXT("NeedToPurge"), 0, REG_DWORD, (LPBYTE)&bPurge, SIZEOF(bPurge));
-                    }
-
-                    ppsi->iOriginalPercent = ppsi->iPercent;
-                    ppsi->fOriginalNukeOnDelete = ppsi->fNukeOnDelete;
-
-                    // update the g_pBitBucket[] for this drive
-
-                    // NOTE: We get a PSN_APPLY before the global tab does. This has to be this way so that
-                    // if global settings change, then the global tab will re-apply all the most current settings
-                    // bassed on the global variables that get set in his tab.
-                    RefreshBBDriveSettings(ppsi->idDrive);
-                }
-                break;
-
-                case PSN_SETACTIVE:
-                {
-                    BOOL fNukeOnDelete = IsDlgButtonChecked(hDlg, IDC_NUKEONDELETE);
-
-                    EnableWindow(GetDlgItem(hDlg, IDC_NUKEONDELETE), !ppsi->pGlobal->fUseGlobalSettings);
-                    EnableTrackbarAndFamily(hDlg, !ppsi->pGlobal->fUseGlobalSettings && !fNukeOnDelete);
-                    EnableWindow(GetDlgItem(hDlg, IDC_BYTESIZE), !fNukeOnDelete);
-                    EnableWindow(GetDlgItem(hDlg, IDC_BYTESIZEDATA), !fNukeOnDelete);
-
-                    // send this to make sure that the "space reserved" field is accurate when using global settings
-                    SendMessage(hDlg, WM_HSCROLL, 0, 0);
-                }
-                break;
-            }
-
-            SetDlgMsgResult(hDlg, WM_NOTIFY, 0);
-            return TRUE;
+        SetDlgMsgResult(hDlg, WM_NOTIFY, 0);
+        return TRUE;
     }
 
     return FALSE;
@@ -891,173 +826,163 @@ BOOL_PTR CALLBACK BBDriveDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 BOOL_PTR CALLBACK BBFilePropDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    BBFILEPROPINFO * pbbfpi = (BBFILEPROPINFO *)GetWindowLongPtr(hDlg, DWLP_USER);
+    BBFILEPROPINFO* pbbfpi = (BBFILEPROPINFO*)GetWindowLongPtr(hDlg, DWLP_USER);
     TCHAR szTemp[MAX_PATH];
 
-    switch (uMsg)
+    switch (uMsg) {
+
+    case WM_INITDIALOG:
     {
+        LPCITEMIDLIST pidl;
+        LPBBDATAENTRYIDA pbbidl;
+        HICON hIcon;
+        ULONGLONG cbSize;
 
-        case WM_INITDIALOG:
-        {
-            LPCITEMIDLIST pidl;
-            LPBBDATAENTRYIDA pbbidl;
-            HICON hIcon;
-            ULONGLONG cbSize;
+        pbbfpi = (BBFILEPROPINFO*)lParam;
+        SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 
-            pbbfpi = (BBFILEPROPINFO *)lParam;
-            SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+        pidl = pbbfpi->pidl;
+        pbbidl = PIDLTODATAENTRYID(pidl);
 
-            pidl = pbbfpi->pidl;
-            pbbidl = PIDLTODATAENTRYID(pidl);
-
-            BBGetOriginalPath(pbbidl, szTemp, ARRAYSIZE(szTemp));
+        BBGetOriginalPath(pbbidl, szTemp, ARRAYSIZE(szTemp));
 
 #ifdef WINNT
 
-            // We don't allow user to change compression attribute on a deleted file
-            // but we do show the current compressed state
+        // We don't allow user to change compression attribute on a deleted file
+        // but we do show the current compressed state
 
-            {
-               TCHAR szRoot[_MAX_PATH + 1];
-               DWORD dwVolumeFlags = 0;
-               DWORD dwFileAttributes;
-               TCHAR szFSName[12];
+        {
+            TCHAR szRoot[_MAX_PATH + 1];
+            DWORD dwVolumeFlags = 0;
+            DWORD dwFileAttributes;
+            TCHAR szFSName[12];
 
 
-               // If file's volume doesn't support compression, don't show
-               // "Compressed" checkbox.
-               // If compression is supported, show the checkbox and check/uncheck
-               // it to indicate compression state of the file.
-               // Perform this operation while szTemp contains complete path name.
+            // If file's volume doesn't support compression, don't show
+            // "Compressed" checkbox.
+            // If compression is supported, show the checkbox and check/uncheck
+            // it to indicate compression state of the file.
+            // Perform this operation while szTemp contains complete path name.
 
-               lstrcpy(szRoot, szTemp);
-               PathQualify(szRoot);
-               PathStripToRoot(szRoot);
+            lstrcpy(szRoot, szTemp);
+            PathQualify(szRoot);
+            PathStripToRoot(szRoot);
 
-               dwFileAttributes = GetFileAttributes(szTemp);
+            dwFileAttributes = GetFileAttributes(szTemp);
 
-               if (GetVolumeInformation(szRoot, NULL, 0, NULL, NULL, &dwVolumeFlags, szFSName, ARRAYSIZE(szFSName)) &&
-                   (dwFileAttributes != (DWORD)-1))
-               {
-                    if (dwVolumeFlags & FS_FILE_COMPRESSION)
-                    {
-                        if (dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)
-                        {
-                            CheckDlgButton(hDlg, IDD_COMPRESS, 1);
-                        }
-                        ShowWindow(GetDlgItem(hDlg, IDD_COMPRESS), SW_SHOW);
+            if (GetVolumeInformation(szRoot, NULL, 0, NULL, NULL, &dwVolumeFlags, szFSName, ARRAYSIZE(szFSName)) &&
+                (dwFileAttributes != (DWORD)-1)) {
+                if (dwVolumeFlags & FS_FILE_COMPRESSION) {
+                    if (dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) {
+                        CheckDlgButton(hDlg, IDD_COMPRESS, 1);
                     }
+                    ShowWindow(GetDlgItem(hDlg, IDD_COMPRESS), SW_SHOW);
+                }
 
-                    if (g_bRunOnNT5)
-                    {
-                     // BUGBUG (ccteng) - HACK
-                     // Before NTFS implements FS_FILE_ENCRYPTION, we check the compression
-                     // flag instead, which works as long as we also check for g_bRunOnNT5.
-                     // After we switch to FS_FILE_ENCRYPTION,
-                     // we can also remove if (g_bRunOnNT5).
+                if (g_bRunOnNT5) {
+                    // BUGBUG (ccteng) - HACK
+                    // Before NTFS implements FS_FILE_ENCRYPTION, we check the compression
+                    // flag instead, which works as long as we also check for g_bRunOnNT5.
+                    // After we switch to FS_FILE_ENCRYPTION,
+                    // we can also remove if (g_bRunOnNT5).
 
-                        // if (dwVolumeFlags & FS_FILE_ENCRYPTION)
-                        if (dwVolumeFlags & FS_FILE_COMPRESSION)
-                        {
-                            if (dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED)
-                            {
-                                CheckDlgButton(hDlg, IDD_ENCRYPT, 1);
-                            }
-                            ShowWindow(GetDlgItem(hDlg, IDD_ENCRYPT), SW_SHOW);
+                       // if (dwVolumeFlags & FS_FILE_ENCRYPTION)
+                    if (dwVolumeFlags & FS_FILE_COMPRESSION) {
+                        if (dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED) {
+                            CheckDlgButton(hDlg, IDD_ENCRYPT, 1);
                         }
+                        ShowWindow(GetDlgItem(hDlg, IDD_ENCRYPT), SW_SHOW);
                     }
-               }
+                }
             }
+        }
 #else
 
-            // Win95 doesn't support compression/encryption
+        // Win95 doesn't support compression/encryption
 
 #endif
 
-            PathRemoveExtension(szTemp);
-            SetDlgItemText(hDlg, IDD_NAME, PathFindFileName(szTemp));
+        PathRemoveExtension(szTemp);
+        SetDlgItemText(hDlg, IDD_NAME, PathFindFileName(szTemp));
 
-            // origin
-            PathRemoveFileSpec(szTemp);
-            SetDlgItemText(hDlg, IDD_LOCATION, PathFindFileName(szTemp));
+        // origin
+        PathRemoveFileSpec(szTemp);
+        SetDlgItemText(hDlg, IDD_LOCATION, PathFindFileName(szTemp));
 
-            // Type
-            FS_GetTypeName((LPIDFOLDER)pidl, szTemp, ARRAYSIZE(szTemp));
-            SetDlgItemText(hDlg, IDD_FILETYPE, szTemp);
+        // Type
+        FS_GetTypeName((LPIDFOLDER)pidl, szTemp, ARRAYSIZE(szTemp));
+        SetDlgItemText(hDlg, IDD_FILETYPE, szTemp);
 
-            // Size
-            if (FS_IsFolder((LPIDFOLDER)pidl))
-                cbSize = pbbidl->bbde.dwSize;
-            else
-                FS_GetSize(NULL, (LPIDFOLDER)pidl, &cbSize);
+        // Size
+        if (FS_IsFolder((LPIDFOLDER)pidl))
+            cbSize = pbbidl->bbde.dwSize;
+        else
+            FS_GetSize(NULL, (LPIDFOLDER)pidl, &cbSize);
 
-            StrFormatByteSize64(cbSize, szTemp, ARRAYSIZE(szTemp));
-            SetDlgItemText(hDlg, IDD_FILESIZE, szTemp);
+        StrFormatByteSize64(cbSize, szTemp, ARRAYSIZE(szTemp));
+        SetDlgItemText(hDlg, IDD_FILESIZE, szTemp);
 
-            // deleted time
-            {
-                FILETIME ft = pbbidl->bbde.ft;
-                SetDateTimeText(hDlg, IDD_DELETED, &ft);
-            }
-
-            {
-                HANDLE hfind;
-                WIN32_FIND_DATA fd;
-
-                BBGetItemPath((LPIDFOLDER)pidl, szTemp);
-
-                hfind = FindFirstFile(szTemp, &fd);
-                if (hfind != INVALID_HANDLE_VALUE)
-                {
-                    SetDateTimeText(hDlg, IDD_CREATED, &fd.ftCreationTime);
-                    FindClose(hfind);
-                }
-
-                // file attributes
-                if (fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-                    CheckDlgButton(hDlg, IDD_READONLY, 1);
-                if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
-                    CheckDlgButton(hDlg, IDD_ARCHIVE, 1);
-                if (fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
-                    CheckDlgButton(hDlg, IDD_HIDDEN, 1);
-
-                // icon
-                hIcon = SHGetFileIcon(NULL, szTemp, fd.dwFileAttributes, SHGFI_LARGEICON|SHGFI_USEFILEATTRIBUTES);
-                if (hIcon)
-                {
-                    hIcon = (HICON)SendDlgItemMessage(hDlg, IDD_ITEMICON, STM_SETICON, (WPARAM)hIcon, 0L);
-                    if (hIcon)
-                        DestroyIcon(hIcon);
-                }
-            }
-            break;
+        // deleted time
+        {
+            FILETIME ft = pbbidl->bbde.ft;
+            SetDateTimeText(hDlg, IDD_DELETED, &ft);
         }
 
-        case WM_WININICHANGE:
-        case WM_SYSCOLORCHANGE:
-        case WM_DISPLAYCHANGE:
-            RelayMessageToChildren(hDlg, uMsg, wParam, lParam);
-            break;
+        {
+            HANDLE hfind;
+            WIN32_FIND_DATA fd;
 
-        case WM_NOTIFY:
-            switch (((NMHDR *)lParam)->code)
-            {
-                case PSN_APPLY:
-                case PSN_SETACTIVE:
-                case PSN_KILLACTIVE:
-                    return TRUE;
+            BBGetItemPath((LPIDFOLDER)pidl, szTemp);
+
+            hfind = FindFirstFile(szTemp, &fd);
+            if (hfind != INVALID_HANDLE_VALUE) {
+                SetDateTimeText(hDlg, IDD_CREATED, &fd.ftCreationTime);
+                FindClose(hfind);
             }
-            break;
 
-        case WM_HELP:
-            WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL,
-                HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aBitBucketHelpIDs);
-            return TRUE;
+            // file attributes
+            if (fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+                CheckDlgButton(hDlg, IDD_READONLY, 1);
+            if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+                CheckDlgButton(hDlg, IDD_ARCHIVE, 1);
+            if (fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
+                CheckDlgButton(hDlg, IDD_HIDDEN, 1);
 
-        case WM_CONTEXTMENU:
-            WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU,
-                (ULONG_PTR)(LPVOID) aBitBucketHelpIDs);
+            // icon
+            hIcon = SHGetFileIcon(NULL, szTemp, fd.dwFileAttributes, SHGFI_LARGEICON | SHGFI_USEFILEATTRIBUTES);
+            if (hIcon) {
+                hIcon = (HICON)SendDlgItemMessage(hDlg, IDD_ITEMICON, STM_SETICON, (WPARAM)hIcon, 0L);
+                if (hIcon)
+                    DestroyIcon(hIcon);
+            }
+        }
+        break;
+    }
+
+    case WM_WININICHANGE:
+    case WM_SYSCOLORCHANGE:
+    case WM_DISPLAYCHANGE:
+        RelayMessageToChildren(hDlg, uMsg, wParam, lParam);
+        break;
+
+    case WM_NOTIFY:
+        switch (((NMHDR*)lParam)->code) {
+        case PSN_APPLY:
+        case PSN_SETACTIVE:
+        case PSN_KILLACTIVE:
             return TRUE;
+        }
+        break;
+
+    case WM_HELP:
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, NULL,
+                HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aBitBucketHelpIDs);
+        return TRUE;
+
+    case WM_CONTEXTMENU:
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU,
+                (ULONG_PTR)(LPVOID)aBitBucketHelpIDs);
+        return TRUE;
     }
 
     return FALSE;
@@ -1072,15 +997,13 @@ void BBGetDriveDisplayName(int idDrive, LPTSTR pszName, UINT cchSize)
 
     DriveIDToBBRoot(idDrive, szDrive);
 
-    if (SHGetFileInfo(szDrive, 0, &sfi, SIZEOF(sfi), SHGFI_DISPLAYNAME))
-    {
+    if (SHGetFileInfo(szDrive, 0, &sfi, SIZEOF(sfi), SHGFI_DISPLAYNAME)) {
         lstrcpyn(pszName, sfi.szDisplayName, cchSize);
     }
 
     // If SERVERDRIVE, attempt to overwrite the default display name with the display
     // name for the mydocs folder on the desktop, since SERVERDRIVE==mydocs for now
-    if (idDrive == SERVERDRIVE)
-    {
+    if (idDrive == SERVERDRIVE) {
         GetMyDocumentsDisplayName(pszName, cchSize);
     }
 }
@@ -1095,7 +1018,7 @@ BOOL CALLBACK _BB_AddPage(HPROPSHEETPAGE psp, LPARAM lParam)
 }
 
 
-DWORD CALLBACK _BB_PropertiesThread(IDataObject * pdtobj)
+DWORD CALLBACK _BB_PropertiesThread(IDataObject* pdtobj)
 {
     HPROPSHEETPAGE ahpage[MAXPROPPAGES];
     TCHAR szTitle[80];
@@ -1107,13 +1030,12 @@ DWORD CALLBACK _BB_PropertiesThread(IDataObject * pdtobj)
     psh.dwSize = SIZEOF(psh);
     psh.dwFlags = PSH_PROPTITLE;
     psh.hInstance = HINST_THISDLL;
-//  psh.hwndParent = NULL;      // will be filled in later
+    //  psh.hwndParent = NULL;      // will be filled in later
     psh.nStartPage = 0;
     psh.phpage = ahpage;
     psh.nPages = 0;
 
-    if (pdtobj)
-    {
+    if (pdtobj) {
         // this is the recycled file properties case,
         // we only show the proeprties for the first file if
         // there is a multiple selection
@@ -1155,9 +1077,7 @@ DWORD CALLBACK _BB_PropertiesThread(IDataObject * pdtobj)
 
         psh.nPages = 1;
         psh.pszCaption = szTitle;
-    }
-    else
-    {
+    } else {
         // this is the recycle bin property sheet case
         fUnique = EnsureUniqueStub(pidlBitBucket, STUBCLASS_PROPSHEET, NULL, &usi);
 
@@ -1185,29 +1105,27 @@ Cleanup:
 typedef struct _bb_threaddata {
     CBitBucket* pbb;
     HWND hwndOwner;
-    IDataObject * pdtobj;
-    IStream *pstmDataObj;
+    IDataObject* pdtobj;
+    IStream* pstmDataObj;
     ULONG_PTR idCmd;
     POINT ptDrop;
     BOOL fSameHwnd;
     BOOL fDragDrop;
 } BBTHREADDATA;
 
-DWORD WINAPI BB_DropThreadInit(BBTHREADDATA *pbbtd)
+DWORD WINAPI BB_DropThreadInit(BBTHREADDATA* pbbtd)
 {
     STGMEDIUM medium;
     FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 
-    if (SUCCEEDED(pbbtd->pdtobj->lpVtbl->GetData(pbbtd->pdtobj, &fmte, &medium)))
-    {
+    if (SUCCEEDED(pbbtd->pdtobj->lpVtbl->GetData(pbbtd->pdtobj, &fmte, &medium))) {
         // call delete here so that files will be moved in
         // their respective bins, not necessarily this one.
         DRAGINFO di;
 
         di.uSize = SIZEOF(DRAGINFO);
 
-        if (DragQueryInfo(medium.hGlobal, &di))
-        {
+        if (DragQueryInfo(medium.hGlobal, &di)) {
             // Since BBWillRecycle() can return true even when the file will NOT be
             // recycled (eg the file will be nuked), we want to warn the user when we
             // are going to nuke something that they initiall thought that it would
@@ -1215,22 +1133,18 @@ DWORD WINAPI BB_DropThreadInit(BBTHREADDATA *pbbtd)
             UINT fOptions = SD_WARNONNUKE;
 
             if (!BBWillRecycle(di.lpFileList, NULL) ||
-                (di.lpFileList && (di.lpFileList[lstrlen(di.lpFileList)+1] == 0)
+                (di.lpFileList && (di.lpFileList[lstrlen(di.lpFileList) + 1] == 0)
                  && PathIsShortcutToProgram(di.lpFileList)))
                 fOptions = SD_USERCONFIRMATION;
 
-            if (IsFileInBitBucket(di.lpFileList))
-            {
-                LPITEMIDLIST *ppidl = NULL;
+            if (IsFileInBitBucket(di.lpFileList)) {
+                LPITEMIDLIST* ppidl = NULL;
                 int cidl = FS_CreateMoveCopyList(pbbtd->pdtobj, NULL, &ppidl);
-                if (ppidl)
-                {
+                if (ppidl) {
                     FS_PositionItems(pbbtd->hwndOwner, cidl, ppidl, pbbtd->pdtobj, &pbbtd->ptDrop, pbbtd->fDragDrop);
                     FS_FreeMoveCopyList(ppidl, cidl);
                 }
-            }
-            else
-            {
+            } else {
                 TransferDelete(pbbtd->hwndOwner, medium.hGlobal, fOptions);
             }
 
@@ -1243,18 +1157,16 @@ DWORD WINAPI BB_DropThreadInit(BBTHREADDATA *pbbtd)
 }
 
 
-DWORD CALLBACK _BB_DispatchThreadProc(void *pv)
+DWORD CALLBACK _BB_DispatchThreadProc(void* pv)
 {
-    BBTHREADDATA *pbbtd = (BBTHREADDATA *)pv;
+    BBTHREADDATA* pbbtd = (BBTHREADDATA*)pv;
 
-    if (pbbtd->pstmDataObj)
-    {
-        CoGetInterfaceAndReleaseStream(pbbtd->pstmDataObj, &IID_IDataObject, (void **)&pbbtd->pdtobj);
+    if (pbbtd->pstmDataObj) {
+        CoGetInterfaceAndReleaseStream(pbbtd->pstmDataObj, &IID_IDataObject, (void**)&pbbtd->pdtobj);
         pbbtd->pstmDataObj = NULL;  // this is dead
     }
 
-    switch(pbbtd->idCmd)
-    {
+    switch (pbbtd->idCmd) {
     case DFM_CMD_MOVE:
         if (pbbtd->pdtobj)
             BB_DropThreadInit(pbbtd);
@@ -1289,33 +1201,28 @@ DWORD CALLBACK _BB_DispatchThreadProc(void *pv)
 }
 
 
-HRESULT BB_LaunchThread(CBitBucket *this, HWND hwndOwner, IDataObject * pdtobj, WPARAM idCmd)
+HRESULT BB_LaunchThread(CBitBucket* this, HWND hwndOwner, IDataObject* pdtobj, WPARAM idCmd)
 {
     HRESULT hr = E_OUTOFMEMORY;
-    BBTHREADDATA *pbbtd = (BBTHREADDATA *)LocalAlloc(LPTR, SIZEOF(*pbbtd));
-    if (pbbtd)
-    {
+    BBTHREADDATA* pbbtd = (BBTHREADDATA*)LocalAlloc(LPTR, SIZEOF(*pbbtd));
+    if (pbbtd) {
         pbbtd->pbb = this;
         pbbtd->hwndOwner = hwndOwner;
         pbbtd->idCmd = idCmd;
 
-        if (idCmd == DFM_CMD_MOVE)
-        {
-            pbbtd->fDragDrop = (BOOL) ShellFolderView_GetDropPoint(hwndOwner, &pbbtd->ptDrop);
+        if (idCmd == DFM_CMD_MOVE) {
+            pbbtd->fDragDrop = (BOOL)ShellFolderView_GetDropPoint(hwndOwner, &pbbtd->ptDrop);
         }
 
         if (this)
             this->isf.lpVtbl->AddRef(&this->isf);
 
         if (pdtobj)
-            CoMarshalInterThreadInterfaceInStream(&IID_IDataObject, (IUnknown *)pdtobj, &pbbtd->pstmDataObj);
+            CoMarshalInterThreadInterfaceInStream(&IID_IDataObject, (IUnknown*)pdtobj, &pbbtd->pstmDataObj);
 
-        if (SHCreateThread(_BB_DispatchThreadProc, pbbtd, CTF_COINIT, NULL))
-        {
+        if (SHCreateThread(_BB_DispatchThreadProc, pbbtd, CTF_COINIT, NULL)) {
             hr = NOERROR;
-        }
-        else
-        {
+        } else {
             if (pbbtd->pstmDataObj)
                 pbbtd->pstmDataObj->lpVtbl->Release(pbbtd->pstmDataObj);
 
@@ -1336,16 +1243,15 @@ HRESULT GetVerb(UINT_PTR idCmd, LPSTR pszName, UINT cchMax, BOOL bUnicode)
     HRESULT hres;
     LPCTSTR pszNameT;
 
-    switch (idCmd)
-    {
-        case FSIDM_RESTORE:
-            pszNameT = c_szUnDelete;
-            break;
-        case FSIDM_PURGEALL:
-            pszNameT = c_szPurgeAll;
-            break;
-        default:
-            return E_NOTIMPL;
+    switch (idCmd) {
+    case FSIDM_RESTORE:
+        pszNameT = c_szUnDelete;
+        break;
+    case FSIDM_PURGEALL:
+        pszNameT = c_szPurgeAll;
+        break;
+    default:
+        return E_NOTIMPL;
     }
 
     if (bUnicode)
@@ -1359,62 +1265,57 @@ HRESULT GetVerb(UINT_PTR idCmd, LPSTR pszName, UINT cchMax, BOOL bUnicode)
 
 // Callback from DefCM
 
-HRESULT CALLBACK CBitBucket_DFMCallBack(IShellFolder *psf, HWND hwndOwner,
-                IDataObject * pdtobj, UINT uMsg, WPARAM wParam, LPARAM lParam)
+HRESULT CALLBACK CBitBucket_DFMCallBack(IShellFolder* psf, HWND hwndOwner,
+                                        IDataObject* pdtobj, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
     HRESULT hres = NOERROR;     // assume no error
 
-    switch(uMsg)
-    {
-        case DFM_MERGECONTEXTMENU:
-            CDefFolderMenu_MergeMenu(HINST_THISDLL, POPUP_BITBUCKET_ITEM, 0, (LPQCMINFO)lParam);
-            hres = ResultFromShort(-1); // return 1 so default reg commands won't be added
-            break;
+    switch (uMsg) {
+    case DFM_MERGECONTEXTMENU:
+        CDefFolderMenu_MergeMenu(HINST_THISDLL, POPUP_BITBUCKET_ITEM, 0, (LPQCMINFO)lParam);
+        hres = ResultFromShort(-1); // return 1 so default reg commands won't be added
+        break;
 
-        case DFM_MAPCOMMANDNAME:
-            if (lstrcmpi((LPCTSTR)lParam, c_szUnDelete) == 0)
-            {
-                *(int *)wParam = FSIDM_RESTORE;
-            }
-            else
-            {
-                // command not found
-                hres = E_FAIL;
-            }
-            break;
+    case DFM_MAPCOMMANDNAME:
+        if (lstrcmpi((LPCTSTR)lParam, c_szUnDelete) == 0) {
+            *(int*)wParam = FSIDM_RESTORE;
+        } else {
+            // command not found
+            hres = E_FAIL;
+        }
+        break;
 
-        case DFM_INVOKECOMMAND:
-            switch (wParam)
-            {
-                case FSIDM_RESTORE:
-                case DFM_CMD_DELETE:
-                case DFM_CMD_PROPERTIES:
-                    hres = BB_LaunchThread(this, hwndOwner, pdtobj, wParam);
-                    break;
-
-                default:
-                    hres = S_FALSE;
-                    break;
-            }
-            break;
-
-        case DFM_GETHELPTEXT:
-            LoadStringA(HINST_THISDLL, LOWORD(wParam) + IDS_MH_FSIDM_FIRST, (LPSTR)lParam, HIWORD(wParam));;
-            break;
-
-        case DFM_GETHELPTEXTW:
-            LoadStringW(HINST_THISDLL, LOWORD(wParam) + IDS_MH_FSIDM_FIRST, (LPWSTR)lParam, HIWORD(wParam));;
-            break;
-
-        case DFM_GETVERBA:
-        case DFM_GETVERBW:
-            hres = GetVerb((UINT_PTR)(LOWORD(wParam)), (LPSTR)lParam, (UINT)(HIWORD(wParam)), uMsg == DFM_GETVERBW);
+    case DFM_INVOKECOMMAND:
+        switch (wParam) {
+        case FSIDM_RESTORE:
+        case DFM_CMD_DELETE:
+        case DFM_CMD_PROPERTIES:
+            hres = BB_LaunchThread(this, hwndOwner, pdtobj, wParam);
             break;
 
         default:
-            hres = E_NOTIMPL;
+            hres = S_FALSE;
             break;
+        }
+        break;
+
+    case DFM_GETHELPTEXT:
+        LoadStringA(HINST_THISDLL, LOWORD(wParam) + IDS_MH_FSIDM_FIRST, (LPSTR)lParam, HIWORD(wParam));;
+        break;
+
+    case DFM_GETHELPTEXTW:
+        LoadStringW(HINST_THISDLL, LOWORD(wParam) + IDS_MH_FSIDM_FIRST, (LPWSTR)lParam, HIWORD(wParam));;
+        break;
+
+    case DFM_GETVERBA:
+    case DFM_GETVERBW:
+        hres = GetVerb((UINT_PTR)(LOWORD(wParam)), (LPSTR)lParam, (UINT)(HIWORD(wParam)), uMsg == DFM_GETVERBW);
+        break;
+
+    default:
+        hres = E_NOTIMPL;
+        break;
     }
 
     return hres;
@@ -1428,9 +1329,9 @@ HRESULT CALLBACK CBitBucket_DFMCallBack(IShellFolder *psf, HWND hwndOwner,
 //  This function puts DROPEFFECT_LINK in *pdwEffect, only if the data object
 //  contains one or more net resource.
 
-STDMETHODIMP CBitBucketIDLDropTarget_DragEnter(IDropTarget *pdropt, IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+STDMETHODIMP CBitBucketIDLDropTarget_DragEnter(IDropTarget* pdropt, IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-    CIDLDropTarget *this = IToClass(CIDLDropTarget, dropt, pdropt);
+    CIDLDropTarget* this = IToClass(CIDLDropTarget, dropt, pdropt);
 
     TraceMsg(TF_BITBUCKET, "Bitbucket: CBitBucketIDLDropTarget::DragEnter");
 
@@ -1454,9 +1355,9 @@ STDMETHODIMP CBitBucketIDLDropTarget_DragEnter(IDropTarget *pdropt, IDataObject 
 
 //  This function creates a connection to a dropped net resource object.
 
-STDMETHODIMP CBitBucketIDLDropTarget_Drop(IDropTarget * pdropt, IDataObject * pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
+STDMETHODIMP CBitBucketIDLDropTarget_Drop(IDropTarget* pdropt, IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-    CIDLDropTarget *this = IToClass(CIDLDropTarget, dropt, pdropt);
+    CIDLDropTarget* this = IToClass(CIDLDropTarget, dropt, pdropt);
     HRESULT hres;
     BOOL fWebFoldersHack;
 
@@ -1464,25 +1365,21 @@ STDMETHODIMP CBitBucketIDLDropTarget_Drop(IDropTarget * pdropt, IDataObject * pD
     *pdwEffect &= DROPEFFECT_MOVE;
     fWebFoldersHack = FALSE;
 
-    if (*pdwEffect)
-    {
+    if (*pdwEffect) {
         hres = CIDLDropTarget_DragDropMenu(this, DROPEFFECT_MOVE, pDataObj,
-                pt, pdwEffect, NULL, NULL, POPUP_NONDEFAULTDD, grfKeyState);
+                                           pt, pdwEffect, NULL, NULL, POPUP_NONDEFAULTDD, grfKeyState);
 
-        if (hres == S_FALSE)
-        {
+        if (hres == S_FALSE) {
             // let callers know where this is about to go
             // Defview cares where it went so it can handle non-filesys items
             // SHScrap cares because it needs to close the file so we can delete it
             DataObj_SetDropTarget(pDataObj, &CLSID_RecycleBin);
 
-            if (DataObj_GetDWORD(pDataObj, g_cfNotRecyclable, 0))
-            {
+            if (DataObj_GetDWORD(pDataObj, g_cfNotRecyclable, 0)) {
                 if (ShellMessageBox(HINST_THISDLL, NULL,
                                     MAKEINTRESOURCE(IDS_CONFIRMNOTRECYCLABLE),
                                     MAKEINTRESOURCE(IDS_RECCLEAN_NAMETEXT),
-                                    MB_SETFOREGROUND | MB_ICONQUESTION | MB_YESNO) == IDNO)
-                {
+                                    MB_SETFOREGROUND | MB_ICONQUESTION | MB_YESNO) == IDNO) {
                     *pdwEffect = DROPEFFECT_NONE;
                     goto lCancel;
                 }
@@ -1496,9 +1393,7 @@ STDMETHODIMP CBitBucketIDLDropTarget_Drop(IDropTarget * pdropt, IDataObject * pD
                 // we return zero here. this is per the OLE spec
 
                 *pdwEffect = DROPEFFECT_NONE;
-            }
-            else
-            {
+            } else {
                 // if it was not files, we just say we moved the data, letting the
                 // source deleted it. lets hope they support undo...
 
@@ -1508,65 +1403,53 @@ STDMETHODIMP CBitBucketIDLDropTarget_Drop(IDropTarget * pdropt, IDataObject * pD
                 {
                     LPIDA pida;
                     STGMEDIUM stgmed;
-                    pida = DataObj_GetHIDA (pDataObj, &stgmed);
-                    if (pida)
-                    {
+                    pida = DataObj_GetHIDA(pDataObj, &stgmed);
+                    if (pida) {
                         CLSID clsidSource;
-                        IPersist *pPers;
+                        IPersist* pPers;
                         LPCITEMIDLIST pidl;
 
-                        pidl = IDA_GetIDListPtr (pida, -1);
-                        if (pidl)
-                        {
-                            hres = SHBindToIDListParent (pidl, &IID_IPersist, (void **) &pPers, NULL);
-                            if (FAILED(hres))
-                            {
-                                IShellFolder *psf;
-                                hres = SHBindToObject(NULL, &IID_IShellFolder, pidl, (void **) &psf);
-                                if (SUCCEEDED(hres))
-                                {
-                                    hres = psf->lpVtbl->QueryInterface (psf, &IID_IPersist, (void **) &pPers);
+                        pidl = IDA_GetIDListPtr(pida, -1);
+                        if (pidl) {
+                            hres = SHBindToIDListParent(pidl, &IID_IPersist, (void**)&pPers, NULL);
+                            if (FAILED(hres)) {
+                                IShellFolder* psf;
+                                hres = SHBindToObject(NULL, &IID_IShellFolder, pidl, (void**)&psf);
+                                if (SUCCEEDED(hres)) {
+                                    hres = psf->lpVtbl->QueryInterface(psf, &IID_IPersist, (void**)&pPers);
                                     psf->lpVtbl->Release(psf);
                                 }
                             }
-                            if (SUCCEEDED(hres))
-                            {
-                                hres = pPers->lpVtbl->GetClassID (pPers, &clsidSource);
+                            if (SUCCEEDED(hres)) {
+                                hres = pPers->lpVtbl->GetClassID(pPers, &clsidSource);
                                 if (SUCCEEDED(hres) &&
-                                    IsEqualGUID (&clsidSource, &CLSID_WebFolders))
-                                {
+                                    IsEqualGUID(&clsidSource, &CLSID_WebFolders)) {
                                     if (ShellMessageBox(HINST_THISDLL, NULL,
                                                         MAKEINTRESOURCE(IDS_CONFIRMNOTRECYCLABLE),
                                                         MAKEINTRESOURCE(IDS_RECCLEAN_NAMETEXT),
-                                                        MB_SETFOREGROUND | MB_ICONQUESTION | MB_YESNO) == IDNO)
-                                    {
+                                                        MB_SETFOREGROUND | MB_ICONQUESTION | MB_YESNO) == IDNO) {
                                         *pdwEffect = DROPEFFECT_NONE;
                                         pPers->lpVtbl->Release(pPers);
-                                        HIDA_ReleaseStgMedium (pida, &stgmed);
+                                        HIDA_ReleaseStgMedium(pida, &stgmed);
                                         goto lCancel;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         fWebFoldersHack = TRUE;
                                     }
                                 }
                                 pPers->lpVtbl->Release(pPers);
                             }
                         }
-                        HIDA_ReleaseStgMedium (pida, &stgmed);
+                        HIDA_ReleaseStgMedium(pida, &stgmed);
                     }
                 }
             }
-lCancel:
-            if (!fWebFoldersHack)
-            {
+        lCancel:
+            if (!fWebFoldersHack) {
                 DataObj_SetDWORD(pDataObj, g_cfPerformedDropEffect, *pdwEffect);
                 DataObj_SetDWORD(pDataObj, g_cfLogicalPerformedDropEffect, DROPEFFECT_MOVE);
-            }
-            else
-            {
+            } else {
                 // Make web folders really delete its source file.
-                DataObj_SetDWORD (pDataObj, g_cfPerformedDropEffect, 0);
+                DataObj_SetDWORD(pDataObj, g_cfPerformedDropEffect, 0);
             }
         }
     }
@@ -1591,15 +1474,13 @@ void BBInitializeViewWindow(HWND hwndView)
 {
     int i;
 
-    for (i = 0 ; i < MAX_BITBUCKETS; i++)
-    {
+    for (i = 0; i < MAX_BITBUCKETS; i++) {
         SHChangeNotifyEntry fsne;
 
         fsne.fRecursive = FALSE;
 
         // make it if it's there so that we'll get any events
-        if (MakeBitBucket(i))
-        {
+        if (MakeBitBucket(i)) {
             UINT u;
             fsne.pidl = g_pBitBucket[i]->pidl;
 
@@ -1610,7 +1491,7 @@ void BBInitializeViewWindow(HWND hwndView)
                 TCHAR szTemp[MAX_PATH];
 
                 SHGetPathFromIDList(fsne.pidl, szTemp);
-                TraceMsg(TF_BITBUCKET, "Bitbucket: SHChangeNotifyRegister returned %d on path %s", u ,szTemp);
+                TraceMsg(TF_BITBUCKET, "Bitbucket: SHChangeNotifyRegister returned %d on path %s", u, szTemp);
             }
 #endif
         }
@@ -1628,8 +1509,7 @@ HRESULT BBHandleFSNotify(HWND hwnd, LONG lEvent, LPCITEMIDLIST pidl1, LPCITEMIDL
     // (actually only drives work for right now)
     // that way we won't get duplicate events
     if ((!ILIsParent((LPCITEMIDLIST)&c_idlDrives, pidl1, FALSE) && !ILIsParent((LPCITEMIDLIST)&c_idlNet, pidl1, FALSE)) ||
-        (pidl2 && !ILIsParent((LPCITEMIDLIST)&c_idlDrives, pidl2, FALSE) && !ILIsParent((LPCITEMIDLIST)&c_idlNet, pidl2, FALSE)))
-    {
+        (pidl2 && !ILIsParent((LPCITEMIDLIST)&c_idlDrives, pidl2, FALSE) && !ILIsParent((LPCITEMIDLIST)&c_idlNet, pidl2, FALSE))) {
         return S_FALSE;
     }
 
@@ -1638,8 +1518,7 @@ HRESULT BBHandleFSNotify(HWND hwnd, LONG lEvent, LPCITEMIDLIST pidl1, LPCITEMIDL
 
     if (!lstrcmpi(pszFileName, c_szInfo2) ||
         !lstrcmpi(pszFileName, c_szInfo) ||
-        !lstrcmpi(pszFileName, c_szDesktopIni))
-    {
+        !lstrcmpi(pszFileName, c_szDesktopIni)) {
         // we ignore changes to these files because they mean we were simply doing bookeeping
         // (eg updating the info file, re-creating the desktop.ini, etc)
         return S_FALSE;
@@ -1648,70 +1527,64 @@ HRESULT BBHandleFSNotify(HWND hwnd, LONG lEvent, LPCITEMIDLIST pidl1, LPCITEMIDL
     TraceMsg(TF_BITBUCKET, "Bitbucket: BBHandleFSNotify event %x on path %s", lEvent, szPath);
 
 
-    switch (lEvent)
+    switch (lEvent) {
+    case SHCNE_RENAMEFOLDER:
+    case SHCNE_RENAMEITEM:
     {
-        case SHCNE_RENAMEFOLDER:
-        case SHCNE_RENAMEITEM:
-        {
-            int idDrive;
+        int idDrive;
 
-            // if the rename's target is in a bitbucket, then do a create.
-            // otherwise, return NOERROR..
+        // if the rename's target is in a bitbucket, then do a create.
+        // otherwise, return NOERROR..
 
-            idDrive = DriveIDFromBBPath(szPath);
+        idDrive = DriveIDFromBBPath(szPath);
 
-            if (MakeBitBucket(idDrive) && ILIsParent(g_pBitBucket[idDrive]->pidl, pidl1, TRUE))
-            {
-                hres = BBHandleFSNotify(hwnd, (lEvent == SHCNE_RENAMEITEM) ? SHCNE_DELETE : SHCNE_RMDIR, pidl1, NULL);
-            }
+        if (MakeBitBucket(idDrive) && ILIsParent(g_pBitBucket[idDrive]->pidl, pidl1, TRUE)) {
+            hres = BBHandleFSNotify(hwnd, (lEvent == SHCNE_RENAMEITEM) ? SHCNE_DELETE : SHCNE_RMDIR, pidl1, NULL);
         }
-        break;
+    }
+    break;
 
-        case SHCNE_CREATE:
-        case SHCNE_MKDIR:
-        {
-            LPITEMIDLIST pidl;
+    case SHCNE_CREATE:
+    case SHCNE_MKDIR:
+    {
+        LPITEMIDLIST pidl;
 
-            pidl = DeletedFilePathToBBPidl(szPath);
+        pidl = DeletedFilePathToBBPidl(szPath);
 
-            if (pidl)
-            {
-                ShellFolderView_AddObject(hwnd, pidl);
-                hres = S_FALSE;
-            }
-        }
-        break;
-
-        case SHCNE_DELETE:
-        case SHCNE_RMDIR:
-        {
-            // if this was a delete into the recycle bin, pidl2 will exist
-            if (pidl2)
-            {
-                hres = BBHandleFSNotify(hwnd, (lEvent == SHCNE_DELETE) ? SHCNE_CREATE : SHCNE_MKDIR, pidl2, NULL);
-            }
-            else
-            {
-                ShellFolderView_RemoveObject(hwnd, ILFindLastID(pidl1));
-                hres = S_FALSE;
-            }
-        }
-        break;
-
-        case SHCNE_UPDATEDIR:
-        {
-            // we recieved an updatedir, which means we probably had more than 10 fsnotify events come in,
-            // so we just refresh our brains out.
-            ShellFolderView_RefreshAll(hwnd);
-        }
-        break;
-
-        default:
-        {
-            // didn't handle this message
+        if (pidl) {
+            ShellFolderView_AddObject(hwnd, pidl);
             hres = S_FALSE;
         }
-        break;
+    }
+    break;
+
+    case SHCNE_DELETE:
+    case SHCNE_RMDIR:
+    {
+        // if this was a delete into the recycle bin, pidl2 will exist
+        if (pidl2) {
+            hres = BBHandleFSNotify(hwnd, (lEvent == SHCNE_DELETE) ? SHCNE_CREATE : SHCNE_MKDIR, pidl2, NULL);
+        } else {
+            ShellFolderView_RemoveObject(hwnd, ILFindLastID(pidl1));
+            hres = S_FALSE;
+        }
+    }
+    break;
+
+    case SHCNE_UPDATEDIR:
+    {
+        // we recieved an updatedir, which means we probably had more than 10 fsnotify events come in,
+        // so we just refresh our brains out.
+        ShellFolderView_RefreshAll(hwnd);
+    }
+    break;
+
+    default:
+    {
+        // didn't handle this message
+        hres = S_FALSE;
+    }
+    break;
     }
 
     return hres;
@@ -1720,124 +1593,114 @@ HRESULT BBHandleFSNotify(HWND hwnd, LONG lEvent, LPCITEMIDLIST pidl1, LPCITEMIDL
 
 void BBSort(HWND hwndOwner, int id)
 {
-    switch(id)
-    {
-        case FSIDM_SORTBYNAME:
-            ShellFolderView_ReArrange(hwndOwner, 0);
-            break;
+    switch (id) {
+    case FSIDM_SORTBYNAME:
+        ShellFolderView_ReArrange(hwndOwner, 0);
+        break;
 
-        case FSIDM_SORTBYORIGIN:
-            ShellFolderView_ReArrange(hwndOwner, 1);
-            break;
+    case FSIDM_SORTBYORIGIN:
+        ShellFolderView_ReArrange(hwndOwner, 1);
+        break;
 
-        case FSIDM_SORTBYDELETEDDATE:
-            ShellFolderView_ReArrange(hwndOwner, 2);
-            break;
+    case FSIDM_SORTBYDELETEDDATE:
+        ShellFolderView_ReArrange(hwndOwner, 2);
+        break;
 
-        case FSIDM_SORTBYTYPE:
-            ShellFolderView_ReArrange(hwndOwner, 3);
-            break;
+    case FSIDM_SORTBYTYPE:
+        ShellFolderView_ReArrange(hwndOwner, 3);
+        break;
 
-        case FSIDM_SORTBYSIZE:
-            ShellFolderView_ReArrange(hwndOwner, 4);
-            break;
+    case FSIDM_SORTBYSIZE:
+        ShellFolderView_ReArrange(hwndOwner, 4);
+        break;
     }
 }
 
 
-HRESULT CALLBACK CBitBucket_DFMCallBackBG(IShellFolder *psf, HWND hwndOwner,
-                IDataObject * pdtobj, UINT uMsg, WPARAM wParam, LPARAM lParam)
+HRESULT CALLBACK CBitBucket_DFMCallBackBG(IShellFolder* psf, HWND hwndOwner,
+                                          IDataObject* pdtobj, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
     HRESULT hres = NOERROR;
 
-    switch(uMsg)
-    {
-        case DFM_MERGECONTEXTMENU:
-            if (!(wParam & CMF_DVFILE)) //In the case of the file menu
-                CDefFolderMenu_MergeMenu(HINST_THISDLL, POPUP_BITBUCKET_BACKGROUND, POPUP_BITBUCKET_POPUPMERGE, (LPQCMINFO)lParam);
+    switch (uMsg) {
+    case DFM_MERGECONTEXTMENU:
+        if (!(wParam & CMF_DVFILE)) //In the case of the file menu
+            CDefFolderMenu_MergeMenu(HINST_THISDLL, POPUP_BITBUCKET_BACKGROUND, POPUP_BITBUCKET_POPUPMERGE, (LPQCMINFO)lParam);
+        break;
+
+    case DFM_GETHELPTEXT:
+        LoadStringA(HINST_THISDLL, LOWORD(wParam) + IDS_MH_FSIDM_FIRST, (LPSTR)lParam, HIWORD(wParam));
+        break;
+
+    case DFM_GETHELPTEXTW:
+        LoadStringW(HINST_THISDLL, LOWORD(wParam) + IDS_MH_FSIDM_FIRST, (LPWSTR)lParam, HIWORD(wParam));
+        break;
+
+    case DFM_INVOKECOMMAND:
+        switch (wParam) {
+        case FSIDM_SORTBYNAME:
+        case FSIDM_SORTBYORIGIN:
+        case FSIDM_SORTBYDELETEDDATE:
+        case FSIDM_SORTBYTYPE:
+        case FSIDM_SORTBYSIZE:
+            BBSort(hwndOwner, (int)wParam);
             break;
 
-        case DFM_GETHELPTEXT:
-            LoadStringA(HINST_THISDLL, LOWORD(wParam) + IDS_MH_FSIDM_FIRST, (LPSTR)lParam, HIWORD(wParam));
+        case FSIDM_PROPERTIESBG:
+            hres = BB_LaunchThread(NULL, hwndOwner, NULL, FSIDM_PROPERTIESBG);
             break;
 
-        case DFM_GETHELPTEXTW:
-            LoadStringW(HINST_THISDLL, LOWORD(wParam) + IDS_MH_FSIDM_FIRST, (LPWSTR)lParam, HIWORD(wParam));
+        case DFM_CMD_PASTE:
+        case DFM_CMD_PROPERTIES:
+            // GetAttributesOf cidl==0 has SFGAO_HASPROPSHEET,
+            // let defcm handle this
+            hres = S_FALSE;
             break;
 
-        case DFM_INVOKECOMMAND:
-            switch(wParam)
-            {
-                case FSIDM_SORTBYNAME:
-                case FSIDM_SORTBYORIGIN:
-                case FSIDM_SORTBYDELETEDDATE:
-                case FSIDM_SORTBYTYPE:
-                case FSIDM_SORTBYSIZE:
-                    BBSort(hwndOwner, (int) wParam);
-                    break;
-
-                case FSIDM_PROPERTIESBG:
-                    hres = BB_LaunchThread(NULL, hwndOwner, NULL, FSIDM_PROPERTIESBG);
-                    break;
-
-                case DFM_CMD_PASTE:
-                case DFM_CMD_PROPERTIES:
-                    // GetAttributesOf cidl==0 has SFGAO_HASPROPSHEET,
-                    // let defcm handle this
-                    hres = S_FALSE;
-                    break;
-
-
-                default:
-                    // GetAttributesOf cidl==0 does not set _CANMOVE, _CANDELETE, etc,
-                    // BUT accelerator keys will get these unavailable menu items...
-                    // so we need to return failure here
-                    hres = E_NOTIMPL;
-                    break;
-            }
-            break;
 
         default:
+            // GetAttributesOf cidl==0 does not set _CANMOVE, _CANDELETE, etc,
+            // BUT accelerator keys will get these unavailable menu items...
+            // so we need to return failure here
             hres = E_NOTIMPL;
             break;
+        }
+        break;
+
+    default:
+        hres = E_NOTIMPL;
+        break;
     }
 
     return hres;
 }
 
 
-STDMETHODIMP CBitBucket_SF_CreateViewObject(IShellFolder2 *psf, HWND hwnd, REFIID riid, void **ppvOut)
+STDMETHODIMP CBitBucket_SF_CreateViewObject(IShellFolder2* psf, HWND hwnd, REFIID riid, void** ppvOut)
 {
     HRESULT hres;
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
 
-    if (IsEqualIID(riid, &IID_IShellView))
-    {
+    if (IsEqualIID(riid, &IID_IShellView)) {
         SFV_CREATE sSFV;
 
-        sSFV.cbSize   = sizeof(sSFV);
-        sSFV.pshf     = (IShellFolder *)psf;
+        sSFV.cbSize = sizeof(sSFV);
+        sSFV.pshf = (IShellFolder*)psf;
         sSFV.psvOuter = NULL;
-        sSFV.psfvcb   = BitBucket_CreateSFVCB((IShellFolder *)psf, this);
+        sSFV.psfvcb = BitBucket_CreateSFVCB((IShellFolder*)psf, this);
 
         hres = SHCreateShellFolderView(&sSFV, (IShellView**)ppvOut);
 
         if (sSFV.psfvcb)
             sSFV.psfvcb->lpVtbl->Release(sSFV.psfvcb);
 
-    }
-    else if (IsEqualIID(riid, &IID_IDropTarget))
-    {
-        hres = CIDLDropTarget_Create(hwnd, &c_CBBDropTargetVtbl, this->pidl, (IDropTarget **)ppvOut);
-    }
-    else if (IsEqualIID(riid, &IID_IContextMenu))
-    {
-        hres = CDefFolderMenu_Create(NULL, hwnd, 0, NULL, (IShellFolder *)psf, CBitBucket_DFMCallBackBG,
-                                     NULL, NULL, (IContextMenu **)ppvOut);
-    }
-    else
-    {
+    } else if (IsEqualIID(riid, &IID_IDropTarget)) {
+        hres = CIDLDropTarget_Create(hwnd, &c_CBBDropTargetVtbl, this->pidl, (IDropTarget**)ppvOut);
+    } else if (IsEqualIID(riid, &IID_IContextMenu)) {
+        hres = CDefFolderMenu_Create(NULL, hwnd, 0, NULL, (IShellFolder*)psf, CBitBucket_DFMCallBackBG,
+                                     NULL, NULL, (IContextMenu**)ppvOut);
+    } else {
         *ppvOut = NULL;
         hres = E_NOINTERFACE;
     }
@@ -1846,20 +1709,19 @@ STDMETHODIMP CBitBucket_SF_CreateViewObject(IShellFolder2 *psf, HWND hwnd, REFII
 }
 
 
-STDMETHODIMP CBitBucket_SF_ParseDisplayName(IShellFolder2 *psf, HWND hwnd, LPBC pbc,
-                                            LPOLESTR pwszDisplayName, ULONG *pchEaten, LPITEMIDLIST *ppidl, ULONG * pdwAttributes)
+STDMETHODIMP CBitBucket_SF_ParseDisplayName(IShellFolder2* psf, HWND hwnd, LPBC pbc,
+                                            LPOLESTR pwszDisplayName, ULONG* pchEaten, LPITEMIDLIST* ppidl, ULONG* pdwAttributes)
 {
     *ppidl = NULL;
     return E_NOTIMPL;
 }
 
 
-STDMETHODIMP CBBIDLData_QueryGetData(IDataObject * pdtobj, FORMATETC * pformatetc)
+STDMETHODIMP CBBIDLData_QueryGetData(IDataObject* pdtobj, FORMATETC* pformatetc)
 {
     ASSERT(g_cfFileNameMap);
 
-    if (pformatetc->cfFormat == g_cfFileNameMap && (pformatetc->tymed & TYMED_HGLOBAL))
-    {
+    if (pformatetc->cfFormat == g_cfFileNameMap && (pformatetc->tymed & TYMED_HGLOBAL)) {
         return NOERROR; // same as S_OK
     }
     return CFSIDLData_QueryGetData(pdtobj, pformatetc);
@@ -1881,8 +1743,7 @@ HGLOBAL BuildDestSpecs(LPIDA pida)
     TCHAR szTemp[MAX_PATH];
     UINT i, cbAlloc = SIZEOF(TCHAR);    // for double NULL termination
 
-    for (i = 0; pidl = IDA_GetIDListPtr(pida, i); i++)
-    {
+    for (i = 0; pidl = IDA_GetIDListPtr(pida, i); i++) {
         pbbidl = PIDLTODATAENTRYID(pidl);
 
         BBGetOriginalPath(pbbidl, szTemp, ARRAYSIZE(szTemp));
@@ -1890,11 +1751,9 @@ HGLOBAL BuildDestSpecs(LPIDA pida)
         cbAlloc += lstrlen(PathFindFileName(szTemp)) * SIZEOF(TCHAR) + SIZEOF(TCHAR);
     }
     pszRet = LocalAlloc(LPTR, cbAlloc);
-    if (pszRet)
-    {
+    if (pszRet) {
         LPTSTR pszDest = pszRet;
-        for (i = 0; pidl = IDA_GetIDListPtr(pida, i); i++)
-        {
+        for (i = 0; pidl = IDA_GetIDListPtr(pida, i); i++) {
             pbbidl = PIDLTODATAENTRYID(pidl);
             BBGetOriginalPath(pbbidl, szTemp, ARRAYSIZE(szTemp));
             lstrcpy(pszDest, PathFindFileName(szTemp));
@@ -1909,21 +1768,19 @@ HGLOBAL BuildDestSpecs(LPIDA pida)
     return pszRet;
 }
 
-extern HRESULT CFSIDLData_GetData(IDataObject * pdtobj, FORMATETC * pformatetcIn, STGMEDIUM * pmedium);
+extern HRESULT CFSIDLData_GetData(IDataObject* pdtobj, FORMATETC* pformatetcIn, STGMEDIUM* pmedium);
 
-STDMETHODIMP CBBIDLData_GetData(IDataObject * pdtobj, FORMATETC * pformatetcIn, STGMEDIUM * pmedium)
+STDMETHODIMP CBBIDLData_GetData(IDataObject* pdtobj, FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
 {
     HRESULT hres = E_INVALIDARG;
 
     ASSERT(g_cfFileNameMap);
 
-    if (pformatetcIn->cfFormat == g_cfFileNameMap && (pformatetcIn->tymed & TYMED_HGLOBAL))
-    {
+    if (pformatetcIn->cfFormat == g_cfFileNameMap && (pformatetcIn->tymed & TYMED_HGLOBAL)) {
         STGMEDIUM medium;
 
         LPIDA pida = DataObj_GetHIDA(pdtobj, &medium);
-        if (medium.hGlobal)
-        {
+        if (medium.hGlobal) {
             pmedium->hGlobal = BuildDestSpecs(pida);
             pmedium->tymed = TYMED_HGLOBAL;
             pmedium->pUnkForRelease = NULL;
@@ -1932,9 +1789,7 @@ STDMETHODIMP CBBIDLData_GetData(IDataObject * pdtobj, FORMATETC * pformatetcIn, 
 
             hres = pmedium->hGlobal ? NOERROR : E_OUTOFMEMORY;
         }
-    }
-    else
-    {
+    } else {
         hres = CFSIDLData_GetData(pdtobj, pformatetcIn, pmedium);
     }
 
@@ -1956,48 +1811,36 @@ const IDataObjectVtbl c_CBBIDLDataVtbl = {
 };
 
 
-HRESULT _CreateDefExtIcon(LPCIDFOLDER pidf, REFIID riid, void **ppxicon)
+HRESULT _CreateDefExtIcon(LPCIDFOLDER pidf, REFIID riid, void** ppxicon)
 {
     HRESULT hres = E_OUTOFMEMORY;
 
-    if (FS_IsFileFolder(pidf))
-    {
+    if (FS_IsFileFolder(pidf)) {
         return SHCreateDefExtIcon(NULL, II_FOLDER, II_FOLDEROPEN, GIL_PERCLASS, riid, ppxicon);
-    }
-    else
-    {
+    } else {
         DWORD dwFlags = SHGetClassFlags(pidf);
-        if (dwFlags & SHCF_ICON_PERINSTANCE)
-        {
+        if (dwFlags & SHCF_ICON_PERINSTANCE) {
             TCHAR szPath[MAX_PATH];
 
             BBGetItemPath(pidf, szPath);
 
-            if (dwFlags & SHCF_HAS_ICONHANDLER)
-            {
+            if (dwFlags & SHCF_HAS_ICONHANDLER) {
                 LPITEMIDLIST pidlFull = SHSimpleIDListFromPath(szPath);
-                if (pidlFull)
-                {
+                if (pidlFull) {
                     // We hit this case for .lnk files in the recycle bin. We used to call FSLoadHandler
                     // but guz decided he only wanted the fstree code using that function (and it takes a fs psf
                     // nowdays anyway). So we just bind our brains out.
                     hres = SHGetUIObjectFromFullPIDL(pidlFull, NULL, riid, ppxicon);
                     ILFree(pidlFull);
-                }
-                else
-                {
+                } else {
                     hres = E_OUTOFMEMORY;
                 }
-            }
-            else
-            {
+            } else {
                 DWORD uid = FS_GetUID(pidf);
 
                 hres = SHCreateDefExtIcon(szPath, uid, uid, GIL_PERINSTANCE | GIL_NOTFILENAME, riid, ppxicon);
             }
-        }
-        else
-        {
+        } else {
             UINT iIcon = (dwFlags & SHCF_ICON_INDEX);
             hres = SHCreateDefExtIcon(c_szStar, iIcon, iIcon, GIL_PERCLASS | GIL_NOTFILENAME, riid, ppxicon);
         }
@@ -2006,36 +1849,29 @@ HRESULT _CreateDefExtIcon(LPCIDFOLDER pidf, REFIID riid, void **ppxicon)
 }
 
 
-STDMETHODIMP CBitBucket_GetUIObjectOf(IShellFolder2 *psf, HWND hwnd, UINT cidl, LPCITEMIDLIST *apidl,
-                                      REFIID riid, UINT *prgfInOut, void **ppvOut)
+STDMETHODIMP CBitBucket_GetUIObjectOf(IShellFolder2* psf, HWND hwnd, UINT cidl, LPCITEMIDLIST* apidl,
+                                      REFIID riid, UINT* prgfInOut, void** ppvOut)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
     HRESULT hres;
 
     *ppvOut = NULL;
 
-    if (cidl && IsEqualIID(riid, &IID_IDataObject))
-    {
-        hres = CIDLData_CreateFromIDArray2(&c_CBBIDLDataVtbl, this->pidl, cidl, apidl, (IDataObject **)ppvOut);
-    }
-    else if ((cidl == 1) &&
-        (IsEqualIID(riid, &IID_IExtractIconA) || IsEqualIID(riid, &IID_IExtractIconW)))
-    {
+    if (cidl && IsEqualIID(riid, &IID_IDataObject)) {
+        hres = CIDLData_CreateFromIDArray2(&c_CBBIDLDataVtbl, this->pidl, cidl, apidl, (IDataObject**)ppvOut);
+    } else if ((cidl == 1) &&
+               (IsEqualIID(riid, &IID_IExtractIconA) || IsEqualIID(riid, &IID_IExtractIconW))) {
         hres = _CreateDefExtIcon(FS_IsValidID(apidl[0]), riid, ppvOut);
-    }
-    else if (IsEqualIID(riid, &IID_IContextMenu))
-    {
+    } else if (IsEqualIID(riid, &IID_IContextMenu)) {
         hres = CDefFolderMenu_Create(this->pidl, hwnd, cidl, apidl,
-            (IShellFolder *)psf, CBitBucket_DFMCallBack, NULL, NULL, (IContextMenu**)ppvOut);
-    }
-    else
-    {
+                                     (IShellFolder*)psf, CBitBucket_DFMCallBack, NULL, NULL, (IContextMenu**)ppvOut);
+    } else {
         hres = E_NOTIMPL;
     }
     return hres;
 }
 
-HRESULT FindDataFromBBPidl(LPCITEMIDLIST bbpidl, WIN32_FIND_DATAW *pfd)
+HRESULT FindDataFromBBPidl(LPCITEMIDLIST bbpidl, WIN32_FIND_DATAW* pfd)
 {
     LPBBDATAENTRYIDA pbbdei = PIDLTODATAENTRYID(bbpidl);
     LPIDFOLDER pidf = (LPIDFOLDER)bbpidl;
@@ -2047,12 +1883,9 @@ HRESULT FindDataFromBBPidl(LPCITEMIDLIST bbpidl, WIN32_FIND_DATAW *pfd)
         return E_INVALIDARG;
 
     // this code copied from the size column in details view, so webview will match that
-    if (FS_IsFolder(pidf))
-    {
+    if (FS_IsFolder(pidf)) {
         cbSize = pbbdei->bbde.dwSize;       // we cache the size of the folder, rounded to cluster
-    }
-    else
-    {
+    } else {
         FS_GetSize(NULL, pidf, &cbSize);
     }
 
@@ -2075,30 +1908,26 @@ LPITEMIDLIST BBDataEntryToPidl(int idDrive, LPBBDATAENTRYW pbbde)
     LPITEMIDLIST pidl = NULL;
     LPITEMIDLIST pidlRet = NULL;
     BBDATAENTRYIDW bbpidl;
-    void *lpv;
+    void* lpv;
 
-    if (g_pBitBucket[idDrive]->fIsUnicode)
-    {
+    if (g_pBitBucket[idDrive]->fIsUnicode) {
         WCHAR szTemp[MAX_PATH];
 
         // save off the original filename so we have the extension (needed to construct the delete file name)
         SHUnicodeToTChar(pbbde->szOriginal, szOriginalFileName, ARRAYSIZE(szOriginalFileName));
 
-        bbpidl.bbde.iIndex  = pbbde->iIndex;
+        bbpidl.bbde.iIndex = pbbde->iIndex;
         bbpidl.bbde.idDrive = pbbde->idDrive;
-        bbpidl.bbde.ft      = pbbde->ft;
-        bbpidl.bbde.dwSize  = pbbde->dwSize;
+        bbpidl.bbde.ft = pbbde->ft;
+        bbpidl.bbde.dwSize = pbbde->dwSize;
 
         SHAnsiToUnicode(pbbde->szShortName, szTemp, ARRAYSIZE(szTemp));
 
-        if (StrCmpW(pbbde->szOriginal, szTemp) == 0)
-        {
+        if (StrCmpW(pbbde->szOriginal, szTemp) == 0) {
             // The short and long names match, so we can use an ansi pidl
             bbpidl.cb = SIZEOF(BBDATAENTRYIDA);
             lpv = &bbpidl.cb;
-        }
-        else
-        {
+        } else {
             // The short and long names DO NOT match, so create a full
             // blown unicode pidl (both ansi and unicode names)
             bbpidl.cb = SIZEOF(BBDATAENTRYIDW);
@@ -2107,9 +1936,7 @@ LPITEMIDLIST BBDataEntryToPidl(int idDrive, LPBBDATAENTRYW pbbde)
         }
 
         bbpidl.bbde = *((LPBBDATAENTRYA)pbbde);
-    }
-    else
-    {
+    } else {
         LPBBDATAENTRYA pbbdea = (LPBBDATAENTRYA)pbbde;
 
         // save off the original filename so we have the extension (needed to construct the delete file name)
@@ -2123,8 +1950,7 @@ LPITEMIDLIST BBDataEntryToPidl(int idDrive, LPBBDATAENTRYW pbbde)
 
     chDrive = TEXT('a') + pbbde->idDrive;
 
-    if (chDrive == (TEXT('a') + SERVERDRIVE))
-    {
+    if (chDrive == (TEXT('a') + SERVERDRIVE)) {
         chDrive = TEXT('@');
     }
 
@@ -2136,8 +1962,7 @@ LPITEMIDLIST BBDataEntryToPidl(int idDrive, LPBBDATAENTRYW pbbde)
 
     fd.dwFileAttributes = GetFileAttributes(szDeletedPath);
 
-    if (fd.dwFileAttributes == -1)
-    {
+    if (fd.dwFileAttributes == -1) {
         TraceMsg(TF_BITBUCKET, "Bitbucket: unable to get file attributes for path %s , cannot create pidl!!", szDeletedPath);
         return NULL;
     }
@@ -2154,14 +1979,12 @@ LPITEMIDLIST BBDataEntryToPidl(int idDrive, LPBBDATAENTRYW pbbde)
 
     SHCreateFSIDList(szPath, &fd, &pidl);
 
-    if (pidl)
-    {
+    if (pidl) {
         UINT cbSize = ILGetSize(pidl);
-        pidlRet = ILResize(pidl, cbSize + bbpidl.cb,0);
-        if (pidlRet)
-        {
+        pidlRet = ILResize(pidl, cbSize + bbpidl.cb, 0);
+        if (pidlRet) {
             // Append this BBDATAENTRYID (A or W) onto the end
-            memcpy(_ILSkip(pidlRet,cbSize - SIZEOF(pidl->mkid.cb)), lpv, bbpidl.cb);
+            memcpy(_ILSkip(pidlRet, cbSize - SIZEOF(pidl->mkid.cb)), lpv, bbpidl.cb);
             // And 0 terminate the thing
             _ILSkip(pidlRet, cbSize + bbpidl.cb - SIZEOF(pidl->mkid.cb))->mkid.cb = 0;
             // Now edit it into one larger id
@@ -2173,13 +1996,13 @@ LPITEMIDLIST BBDataEntryToPidl(int idDrive, LPBBDATAENTRYW pbbde)
 }
 
 
-__inline int CALLBACK BBFDCompare(void *p1, void *p2, LPARAM lParam)
+__inline int CALLBACK BBFDCompare(void* p1, void* p2, LPARAM lParam)
 {
     return ((LPBBFINDDATA)p1)->iIndex - ((LPBBFINDDATA)p2)->iIndex;
 }
 
 
-__inline int CALLBACK BBFDIndexCompare(void *iIndex, void *p2, LPARAM lParam)
+__inline int CALLBACK BBFDIndexCompare(void* iIndex, void* p2, LPARAM lParam)
 {
     return (int)((INT_PTR)iIndex - ((LPBBFINDDATA)p2)->iIndex);
 }
@@ -2195,18 +2018,14 @@ LPITEMIDLIST BBEnum_GetNextPidl(LPENUMDELETED ped)
     LPITEMIDLIST pidlRet = FALSE;
 
     ASSERT(NULL != ped);
-    if (NULL == ped->hdpa)
-    {
+    if (NULL == ped->hdpa) {
         // This is the first Next() call - so snapshot the info files:
-        if (NULL != (ped->hdpa = DPA_CreateEx(0, NULL)))
-        {
+        if (NULL != (ped->hdpa = DPA_CreateEx(0, NULL))) {
             int iBitBucket;
             int nItem = 0;
             // loop through the bitbucket drives to find an info file
-            for (iBitBucket = 0; iBitBucket < MAX_BITBUCKETS; iBitBucket++)
-            {
-                if (MakeBitBucket(iBitBucket))
-                {
+            for (iBitBucket = 0; iBitBucket < MAX_BITBUCKETS; iBitBucket++) {
+                if (MakeBitBucket(iBitBucket)) {
                     HANDLE hFile;
                     int cDeleted = 0;
                     // since we are going to start reading this bitbucket, we take the mrsw
@@ -2215,32 +2034,25 @@ LPITEMIDLIST BBEnum_GetNextPidl(LPENUMDELETED ped)
 #endif // BB_USE_MRSW
                     hFile = OpenBBInfoFile(iBitBucket, OPENBBINFO_WRITE, 0);
 
-                    if (INVALID_HANDLE_VALUE != hFile)
-                    {
+                    if (INVALID_HANDLE_VALUE != hFile) {
                         BBDATAENTRYW bbdew;
                         DWORD dwDataEntrySize = g_pBitBucket[iBitBucket]->fIsUnicode ? SIZEOF(BBDATAENTRYW) : SIZEOF(BBDATAENTRYA);
 
-                        while (ReadNextDataEntry(hFile, &bbdew, FALSE, dwDataEntrySize, iBitBucket))
-                        {
+                        while (ReadNextDataEntry(hFile, &bbdew, FALSE, dwDataEntrySize, iBitBucket)) {
                             LPITEMIDLIST pidl = NULL;
 
-                            if (IsDeletedEntry(&bbdew))
-                            {
+                            if (IsDeletedEntry(&bbdew)) {
                                 cDeleted++;
-                            }
-                            else
-                            {
+                            } else {
                                 pidl = BBDataEntryToPidl(iBitBucket, &bbdew);
                             }
 
-                            if (pidl)
-                            {
+                            if (pidl) {
                                 DPA_SetPtr(ped->hdpa, nItem++, pidl);
                             }
                         }
 
-                        if (cDeleted > BB_DELETED_ENTRY_MAX)
-                        {
+                        if (cDeleted > BB_DELETED_ENTRY_MAX) {
                             BOOL bTrue = TRUE;
 
                             // set the registry key so that we will compact the info file after the next delete operation
@@ -2256,17 +2068,13 @@ LPITEMIDLIST BBEnum_GetNextPidl(LPENUMDELETED ped)
         }
     }
 
-    if (NULL != ped->hdpa)
-    {
+    if (NULL != ped->hdpa) {
         pidlRet = DPA_GetPtr(ped->hdpa, ped->nItem);
-        if (NULL != pidlRet)
-        {
+        if (NULL != pidlRet) {
             // We're returning an allocated pidl, so replace the pointer
             // in the DPA with NULL so that we don't free it later:
             DPA_SetPtr(ped->hdpa, ped->nItem, NULL);
-        }
-        else
-        {
+        } else {
             // We've reached the end, so destroy our snapshot:
             DPA_DestroyCallback(ped->hdpa, BBEnumDPADestroyCallback, NULL);
             ped->hdpa = NULL;
@@ -2280,67 +2088,60 @@ LPITEMIDLIST BBEnum_GetNextPidl(LPENUMDELETED ped)
 
 // To be called back from within SHCreateEnumObjects
 
-HRESULT CALLBACK CBitBucket_EnumCallBack(LPARAM lParam, void *pvData, UINT ecid, UINT index)
+HRESULT CALLBACK CBitBucket_EnumCallBack(LPARAM lParam, void* pvData, UINT ecid, UINT index)
 {
     HRESULT hres = NOERROR;
-    ENUMDELETED * ped = (ENUMDELETED *)pvData;
+    ENUMDELETED* ped = (ENUMDELETED*)pvData;
 
-    switch (ecid)
+    switch (ecid) {
+    case ECID_SETNEXTID:
     {
-        case ECID_SETNEXTID:
-        {
-            LPITEMIDLIST pidl;
+        LPITEMIDLIST pidl;
 
-            if (!(ped->grfFlags & SHCONTF_NONFOLDERS))
-                return S_FALSE; //  "no more element"
+        if (!(ped->grfFlags & SHCONTF_NONFOLDERS))
+            return S_FALSE; //  "no more element"
 
-            pidl = BBEnum_GetNextPidl(ped);
+        pidl = BBEnum_GetNextPidl(ped);
 
-            if (!pidl)
-            {
-                hres = S_FALSE; //  "no more element"
-            }
-            else
-            {
-                CDefEnum_SetReturn(lParam, pidl);
+        if (!pidl) {
+            hres = S_FALSE; //  "no more element"
+        } else {
+            CDefEnum_SetReturn(lParam, pidl);
 
-                TraceMsg(TF_BITBUCKET, "Bitbucket: EnumCallBack,  returns %S", PIDLTODATAENTRYID(pidl)->bbde.szOriginal);
+            TraceMsg(TF_BITBUCKET, "Bitbucket: EnumCallBack,  returns %S", PIDLTODATAENTRYID(pidl)->bbde.szOriginal);
 
-                //hres = NOERROR; // in success
-            }
-            break;
+            //hres = NOERROR; // in success
+        }
+        break;
+    }
+
+    case ECID_RESET:
+        if (NULL != ped->hdpa) {
+            DPA_DestroyCallback(ped->hdpa, BBEnumDPADestroyCallback, NULL);
+            ped->hdpa = NULL;
+        }
+        ped->nItem = 0;
+        break;
+
+    case ECID_RELEASE:
+        if (NULL != ped->hdpa) {
+            DPA_DestroyCallback(ped->hdpa, BBEnumDPADestroyCallback, NULL);
         }
 
-        case ECID_RESET:
-            if (NULL != ped->hdpa)
-            {
-                DPA_DestroyCallback(ped->hdpa, BBEnumDPADestroyCallback, NULL);
-                ped->hdpa = NULL;
-            }
-            ped->nItem = 0;
-            break;
-
-        case ECID_RELEASE:
-            if (NULL != ped->hdpa)
-            {
-                DPA_DestroyCallback(ped->hdpa, BBEnumDPADestroyCallback, NULL);
-            }
-
-            LocalFree((HLOCAL)ped);
-            break;
+        LocalFree((HLOCAL)ped);
+        break;
     }
 
     return hres;
 }
 
 
-STDMETHODIMP CBitBucket_SF_EnumObjects(IShellFolder2 *psf, HWND hwndOwner,
-            DWORD grfFlags, LPENUMIDLIST * ppenumUnknown)
+STDMETHODIMP CBitBucket_SF_EnumObjects(IShellFolder2* psf, HWND hwndOwner,
+                                       DWORD grfFlags, LPENUMIDLIST* ppenumUnknown)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
-    ENUMDELETED * ped = (void*)LocalAlloc(LPTR, SIZEOF(ENUMDELETED));
-    if (ped)
-    {
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
+    ENUMDELETED* ped = (void*)LocalAlloc(LPTR, SIZEOF(ENUMDELETED));
+    if (ped) {
         ped->grfFlags = grfFlags;
         ped->pbb = this;
         return SHCreateEnumObjects(hwndOwner, ped, CBitBucket_EnumCallBack, ppenumUnknown);
@@ -2349,14 +2150,14 @@ STDMETHODIMP CBitBucket_SF_EnumObjects(IShellFolder2 *psf, HWND hwndOwner,
 }
 
 
-STDMETHODIMP CBitBucket_BindToObject(IShellFolder2 *psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void **ppvOut)
+STDMETHODIMP CBitBucket_BindToObject(IShellFolder2* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void** ppvOut)
 {
     *ppvOut = NULL;
     return E_NOTIMPL;
 }
 
 
-STDMETHODIMP CBitBucket_BindToStorage(IShellFolder2 *psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void **ppvOut)
+STDMETHODIMP CBitBucket_BindToStorage(IShellFolder2* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void** ppvOut)
 {
     *ppvOut = NULL;
     return E_NOTIMPL;
@@ -2388,7 +2189,7 @@ void BBGetDisplayName(LPCIDFOLDER pidf, LPTSTR pszName)
 }
 
 
-STDMETHODIMP CBitBucket_SF_GetDisplayNameOf(IShellFolder2 *psf, LPCITEMIDLIST pidl, DWORD uFlags, LPSTRRET pStrRet)
+STDMETHODIMP CBitBucket_SF_GetDisplayNameOf(IShellFolder2* psf, LPCITEMIDLIST pidl, DWORD uFlags, LPSTRRET pStrRet)
 {
     LPCIDFOLDER pidf;
 
@@ -2396,8 +2197,7 @@ STDMETHODIMP CBitBucket_SF_GetDisplayNameOf(IShellFolder2 *psf, LPCITEMIDLIST pi
     pStrRet->cStr[0] = 0;
 
     pidf = FS_IsValidID(pidl);
-    if (pidf)
-    {
+    if (pidf) {
         TCHAR szName[MAX_PATH];
 
         if (uFlags & SHGDN_FORPARSING)
@@ -2411,43 +2211,41 @@ STDMETHODIMP CBitBucket_SF_GetDisplayNameOf(IShellFolder2 *psf, LPCITEMIDLIST pi
 }
 
 
-STDMETHODIMP CBitBucket_SetNameOf(IShellFolder2 *psf, HWND hwnd,
-        LPCITEMIDLIST pidl, LPCOLESTR lpszName, DWORD dwReserved, LPITEMIDLIST * ppidlOut)
+STDMETHODIMP CBitBucket_SetNameOf(IShellFolder2* psf, HWND hwnd,
+                                  LPCITEMIDLIST pidl, LPCOLESTR lpszName, DWORD dwReserved, LPITEMIDLIST* ppidlOut)
 {
     return E_FAIL;
 }
 
 
-STDMETHODIMP CBitBucket_EnumSearches(IShellFolder2 *psf, LPENUMEXTRASEARCH *ppenum)
+STDMETHODIMP CBitBucket_EnumSearches(IShellFolder2* psf, LPENUMEXTRASEARCH* ppenum)
 {
     *ppenum = NULL;
     return E_NOTIMPL;
 }
 
 
-STDMETHODIMP CBitBucket_GetDefaultColumn(IShellFolder2 *psf, DWORD dwRes, ULONG *pSort, ULONG *pDisplay)
+STDMETHODIMP CBitBucket_GetDefaultColumn(IShellFolder2* psf, DWORD dwRes, ULONG* pSort, ULONG* pDisplay)
 {
     return E_NOTIMPL;
 }
 
 
-STDMETHODIMP CBitBucket_GetDefaultColumnState(IShellFolder2 *psf, UINT iColumn, DWORD *pbState)
+STDMETHODIMP CBitBucket_GetDefaultColumnState(IShellFolder2* psf, UINT iColumn, DWORD* pbState)
 {
     return E_NOTIMPL;
 }
 
 
-STDMETHODIMP CBitBucket_GetDetailsEx(IShellFolder2 *psf, LPCITEMIDLIST pidl, const SHCOLUMNID *pscid, VARIANT *pv)
+STDMETHODIMP CBitBucket_GetDetailsEx(IShellFolder2* psf, LPCITEMIDLIST pidl, const SHCOLUMNID* pscid, VARIANT* pv)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
     HRESULT hres = E_NOTIMPL;
-    if (IsEqualSCID(*pscid, SCID_FINDDATA))
-    {
+    if (IsEqualSCID(*pscid, SCID_FINDDATA)) {
         WIN32_FIND_DATAW wfd;
         hres = FindDataFromBBPidl(pidl, &wfd);
 
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             hres = InitVariantFromBuffer(pv, (PVOID)&wfd, sizeof(wfd));
         }
     }
@@ -2455,9 +2253,9 @@ STDMETHODIMP CBitBucket_GetDetailsEx(IShellFolder2 *psf, LPCITEMIDLIST pidl, con
 }
 
 
-STDMETHODIMP CBitBucket_GetDetailsOf(IShellFolder2 *psf, LPCITEMIDLIST pidl, UINT iColumn, SHELLDETAILS *pDetails)
+STDMETHODIMP CBitBucket_GetDetailsOf(IShellFolder2* psf, LPCITEMIDLIST pidl, UINT iColumn, SHELLDETAILS* pDetails)
 {
-    CBitBucket *this = IToClass(CBitBucket, isf, psf);
+    CBitBucket* this = IToClass(CBitBucket, isf, psf);
     HRESULT hres = NOERROR;
 
     if (iColumn >= ARRAYSIZE(c_bb_cols))
@@ -2466,18 +2264,15 @@ STDMETHODIMP CBitBucket_GetDetailsOf(IShellFolder2 *psf, LPCITEMIDLIST pidl, UIN
     pDetails->str.uType = STRRET_CSTR;
     pDetails->str.cStr[0] = 0;
 
-    if (!pidl)
-    {
+    if (!pidl) {
         // getting the headers
         hres = ResToStrRet(c_bb_cols[iColumn].ids, &pDetails->str);
         pDetails->fmt = c_bb_cols[iColumn].iFmt;
         pDetails->cxChar = c_bb_cols[iColumn].cchCol;
-    }
-    else
-    {
+    } else {
         TCHAR  szTemp[MAX_PATH];
         LPCIDFOLDER pidf = FS_IsValidID(pidl);
-        UNALIGNED BBDATAENTRYIDA * pbbidl = PIDLTODATAENTRYID(pidl);
+        UNALIGNED BBDATAENTRYIDA* pbbidl = PIDLTODATAENTRYID(pidl);
 
         switch (iColumn) {
         case ICOL_NAME:
@@ -2486,18 +2281,18 @@ STDMETHODIMP CBitBucket_GetDetailsOf(IShellFolder2 *psf, LPCITEMIDLIST pidl, UIN
             break;
 
         case ICOL_SIZE:
-            {
-                ULONGLONG cbSize;
+        {
+            ULONGLONG cbSize;
 
-                if (FS_IsFolder(pidf))
-                    cbSize = pbbidl->bbde.dwSize;
-                else
-                    FS_GetSize(NULL, pidf, &cbSize);
+            if (FS_IsFolder(pidf))
+                cbSize = pbbidl->bbde.dwSize;
+            else
+                FS_GetSize(NULL, pidf, &cbSize);
 
-                StrFormatKBSize(cbSize, szTemp, ARRAYSIZE(szTemp));
-                hres = StringToStrRet(szTemp, &pDetails->str);
-            }
-            break;
+            StrFormatKBSize(cbSize, szTemp, ARRAYSIZE(szTemp));
+            hres = StringToStrRet(szTemp, &pDetails->str);
+        }
+        break;
 
         case ICOL_ORIGINAL:
             BBGetOriginalPath(pbbidl, szTemp, ARRAYSIZE(szTemp));
@@ -2511,33 +2306,32 @@ STDMETHODIMP CBitBucket_GetDetailsOf(IShellFolder2 *psf, LPCITEMIDLIST pidl, UIN
             break;
 
         case ICOL_MODIFIED:
-            {
+        {
             // need stack ft since pbbidl is UNALIGNED
             FILETIME ft = pbbidl->bbde.ft;
             DWORD dwFlags = FDTF_DEFAULT;
 
-            switch (pDetails->fmt)
-            {
-                case LVCFMT_LEFT_TO_RIGHT :
-                    dwFlags |= FDTF_LTRDATE;
+            switch (pDetails->fmt) {
+            case LVCFMT_LEFT_TO_RIGHT:
+                dwFlags |= FDTF_LTRDATE;
                 break;
 
-                case LVCFMT_RIGHT_TO_LEFT :
-                    dwFlags |= FDTF_RTLDATE;
+            case LVCFMT_RIGHT_TO_LEFT:
+                dwFlags |= FDTF_RTLDATE;
                 break;
             }
 
             SHFormatDateTime(&ft, &dwFlags, szTemp, ARRAYSIZE(szTemp));
             hres = StringToStrRet(szTemp, &pDetails->str);
             break;
-            }
+        }
         }
     }
     return hres;
 }
 
 
-STDMETHODIMP CBitBucket_MapColumnToSCID(IShellFolder2 *psf, UINT iColumn, SHCOLUMNID *pscid)
+STDMETHODIMP CBitBucket_MapColumnToSCID(IShellFolder2* psf, UINT iColumn, SHCOLUMNID* pscid)
 {
     return MapColumnToSCIDImpl(c_bb_cols, ARRAYSIZE(c_bb_cols), iColumn, pscid);
 }
@@ -2569,41 +2363,41 @@ IShellFolder2Vtbl c_CBitBucketSFVtbl =
 // CBitBucket's PersistFile  members
 
 
-STDMETHODIMP CBitBucket_PF_QueryInterface(IPersistFolder2 *ppf, REFIID riid, void **ppvObj)
+STDMETHODIMP CBitBucket_PF_QueryInterface(IPersistFolder2* ppf, REFIID riid, void** ppvObj)
 {
-    CBitBucket *this = IToClass(CBitBucket, ipf, ppf);
+    CBitBucket* this = IToClass(CBitBucket, ipf, ppf);
     return CBitBucket_SF_QueryInterface(&this->isf, riid, ppvObj);
 }
 
-STDMETHODIMP_(ULONG) CBitBucket_PF_Release(IPersistFolder2 *ppf)
+STDMETHODIMP_(ULONG) CBitBucket_PF_Release(IPersistFolder2* ppf)
 {
-    CBitBucket *this = IToClass(CBitBucket, ipf, ppf);
+    CBitBucket* this = IToClass(CBitBucket, ipf, ppf);
     return CBitBucket_SF_Release(&this->isf);
 }
 
-STDMETHODIMP_(ULONG) CBitBucket_PF_AddRef(IPersistFolder2 *ppf)
+STDMETHODIMP_(ULONG) CBitBucket_PF_AddRef(IPersistFolder2* ppf)
 {
-    CBitBucket *this = IToClass(CBitBucket, ipf, ppf);
+    CBitBucket* this = IToClass(CBitBucket, ipf, ppf);
     return CBitBucket_SF_AddRef(&this->isf);
 }
 
-STDMETHODIMP CBitBucket_PF_GetClassID(IPersistFolder2 *ppf, LPCLSID lpClassID)
+STDMETHODIMP CBitBucket_PF_GetClassID(IPersistFolder2* ppf, LPCLSID lpClassID)
 {
     *lpClassID = CLSID_RecycleBin;
     return NOERROR;
 }
 
-STDMETHODIMP CBitBucket_PF_Initialize(IPersistFolder2 *ppf, LPCITEMIDLIST pidl)
+STDMETHODIMP CBitBucket_PF_Initialize(IPersistFolder2* ppf, LPCITEMIDLIST pidl)
 {
-    CBitBucket *this = IToClass(CBitBucket, ipf, ppf);
+    CBitBucket* this = IToClass(CBitBucket, ipf, ppf);
     ASSERT(this->pidl == NULL);
     this->pidl = ILClone(pidl);
     return this->pidl ? S_OK : E_OUTOFMEMORY;
 }
 
-STDMETHODIMP CBitBucket_PF_GetCurFolder(IPersistFolder2 *ppf, LPITEMIDLIST *ppidl)
+STDMETHODIMP CBitBucket_PF_GetCurFolder(IPersistFolder2* ppf, LPITEMIDLIST* ppidl)
 {
-    CBitBucket *this = IToClass(CBitBucket, ipf, ppf);
+    CBitBucket* this = IToClass(CBitBucket, ipf, ppf);
     return GetCurFolderImpl(this->pidl, ppidl);
 }
 
@@ -2616,65 +2410,63 @@ IPersistFolder2Vtbl c_CBitBucketPFVtbl =
 };
 
 
-STDMETHODIMP CBitBucket_SEI_QueryInterface(IShellExtInit* psei, REFIID riid, void **ppvObj)
+STDMETHODIMP CBitBucket_SEI_QueryInterface(IShellExtInit* psei, REFIID riid, void** ppvObj)
 {
-    CBitBucket *this = IToClass(CBitBucket, isei, psei);
+    CBitBucket* this = IToClass(CBitBucket, isei, psei);
     return CBitBucket_SF_QueryInterface(&this->isf, riid, ppvObj);
 }
 
 STDMETHODIMP_(ULONG) CBitBucket_SEI_Release(IShellExtInit* psei)
 {
-    CBitBucket *this = IToClass(CBitBucket, isei, psei);
+    CBitBucket* this = IToClass(CBitBucket, isei, psei);
     return CBitBucket_SF_Release(&this->isf);
 }
 
 STDMETHODIMP_(ULONG) CBitBucket_SEI_AddRef(IShellExtInit* psei)
 {
-    CBitBucket *this = IToClass(CBitBucket, isei, psei);
+    CBitBucket* this = IToClass(CBitBucket, isei, psei);
     return CBitBucket_SF_AddRef(&this->isf);
 }
 
 STDMETHODIMP_(ULONG) CBitBucket_SEI_Initialize(IShellExtInit* psei,
-                                                    LPCITEMIDLIST pidlFolder,
-                                                    IDataObject * pdtobj, HKEY hkeyProgID)
+                                               LPCITEMIDLIST pidlFolder,
+                                               IDataObject* pdtobj, HKEY hkeyProgID)
 {
     return NOERROR;
 }
 
 
 
-STDMETHODIMP CBitBucket_CM_QueryInterface(IContextMenu* pcm, REFIID riid, void **ppvObj)
+STDMETHODIMP CBitBucket_CM_QueryInterface(IContextMenu* pcm, REFIID riid, void** ppvObj)
 {
-    CBitBucket *this = IToClass(CBitBucket, icm, pcm);
+    CBitBucket* this = IToClass(CBitBucket, icm, pcm);
     return CBitBucket_SF_QueryInterface(&this->isf, riid, ppvObj);
 }
 
 STDMETHODIMP_(ULONG) CBitBucket_CM_Release(IContextMenu* pcm)
 {
-    CBitBucket *this = IToClass(CBitBucket, icm, pcm);
+    CBitBucket* this = IToClass(CBitBucket, icm, pcm);
     return CBitBucket_SF_Release(&this->isf);
 }
 
 STDMETHODIMP_(ULONG) CBitBucket_CM_AddRef(IContextMenu* pcm)
 {
-    CBitBucket *this = IToClass(CBitBucket, icm, pcm);
+    CBitBucket* this = IToClass(CBitBucket, icm, pcm);
     return CBitBucket_SF_AddRef(&this->isf);
 }
 
 
-STDMETHODIMP CBitBucket_QueryContextMenu(IContextMenu * pcm,
-        HMENU hmenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast,
-        UINT uFlags)
+STDMETHODIMP CBitBucket_QueryContextMenu(IContextMenu* pcm,
+                                         HMENU hmenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast,
+                                         UINT uFlags)
 {
     int idMax = idCmdFirst;
     HMENU hmMerge = SHLoadPopupMenu(HINST_THISDLL, POPUP_BITBUCKET_POPUPMERGE);
 
-    if (hmMerge)
-    {
+    if (hmMerge) {
         idMax = Shell_MergeMenus(hmenu, hmMerge, indexMenu, idCmdFirst, idCmdLast, 0);
 
-        if (IsRecycleBinEmpty())
-        {
+        if (IsRecycleBinEmpty()) {
             EnableMenuItem(hmenu, idCmdFirst + FSIDM_PURGEALL, MF_GRAYED | MF_BYCOMMAND);
         }
 
@@ -2685,14 +2477,13 @@ STDMETHODIMP CBitBucket_QueryContextMenu(IContextMenu * pcm,
 }
 
 STDMETHODIMP CBitBucket_InvokeCommand(IContextMenu* pcm,
-                                           LPCMINVOKECOMMANDINFO pici)
+                                      LPCMINVOKECOMMANDINFO pici)
 {
-    CBitBucket *this = IToClass(CBitBucket, icm, pcm);
+    CBitBucket* this = IToClass(CBitBucket, icm, pcm);
 
     TraceMsg(TF_BITBUCKET, "Bitbucket: BitBucket_invokeCommand %d %d", pici->lpVerb, FSIDM_PURGEALL);
 
-    switch ((ULONG_PTR)pici->lpVerb)
-    {
+    switch ((ULONG_PTR)pici->lpVerb) {
     case FSIDM_PURGEALL:
         BBPurgeAll(this, pici->hwnd, 0);
         break;
@@ -2700,46 +2491,45 @@ STDMETHODIMP CBitBucket_InvokeCommand(IContextMenu* pcm,
     return NOERROR;
 }
 
-STDMETHODIMP CBitBucket_GetCommandString(IContextMenu *pcm,
-        UINT_PTR idCmd, UINT  wFlags, UINT * pwReserved, LPSTR pszName, UINT cchMax)
+STDMETHODIMP CBitBucket_GetCommandString(IContextMenu* pcm,
+                                         UINT_PTR idCmd, UINT  wFlags, UINT* pwReserved, LPSTR pszName, UINT cchMax)
 {
     TraceMsg(TF_BITBUCKET, "Bitbucket: GetCommandString, idCmd = %d", idCmd);
 
-    switch(wFlags)
-    {
-        case GCS_VERBA:
-        case GCS_VERBW:
-            return GetVerb(idCmd, pszName, cchMax, wFlags == GCS_VERBW);
+    switch (wFlags) {
+    case GCS_VERBA:
+    case GCS_VERBW:
+        return GetVerb(idCmd, pszName, cchMax, wFlags == GCS_VERBW);
 
-        case GCS_HELPTEXTA:
-            return LoadStringA(HINST_THISDLL,
-                              (UINT)(idCmd + IDS_MH_FSIDM_FIRST),
-                              pszName, cchMax) ? NOERROR : E_OUTOFMEMORY;
-        case GCS_HELPTEXTW:
-            return LoadStringW(HINST_THISDLL,
-                              (UINT)(idCmd + IDS_MH_FSIDM_FIRST),
-                              (LPWSTR)pszName, cchMax) ? NOERROR : E_OUTOFMEMORY;
-        default:
-            return E_NOTIMPL;
+    case GCS_HELPTEXTA:
+        return LoadStringA(HINST_THISDLL,
+                           (UINT)(idCmd + IDS_MH_FSIDM_FIRST),
+                           pszName, cchMax) ? NOERROR : E_OUTOFMEMORY;
+    case GCS_HELPTEXTW:
+        return LoadStringW(HINST_THISDLL,
+                           (UINT)(idCmd + IDS_MH_FSIDM_FIRST),
+                           (LPWSTR)pszName, cchMax) ? NOERROR : E_OUTOFMEMORY;
+    default:
+        return E_NOTIMPL;
     }
 }
 
 STDMETHODIMP CBitBucket_PS_QueryInterface(LPSHELLPROPSHEETEXT pps, REFIID riid,
-                                        void **ppvObj)
+                                          void** ppvObj)
 {
-    CBitBucket *this = IToClass(CBitBucket, ips, pps);
+    CBitBucket* this = IToClass(CBitBucket, ips, pps);
     return CBitBucket_SF_QueryInterface(&this->isf, riid, ppvObj);
 }
 
 STDMETHODIMP_(ULONG) CBitBucket_PS_Release(LPSHELLPROPSHEETEXT pps)
 {
-    CBitBucket *this = IToClass(CBitBucket, ips, pps);
+    CBitBucket* this = IToClass(CBitBucket, ips, pps);
     return CBitBucket_SF_Release(&this->isf);
 }
 
 STDMETHODIMP_(ULONG) CBitBucket_PS_AddRef(LPSHELLPROPSHEETEXT pps)
 {
-    CBitBucket *this = IToClass(CBitBucket, ips, pps);
+    CBitBucket* this = IToClass(CBitBucket, ips, pps);
     return CBitBucket_SF_AddRef(&this->isf);
 }
 
@@ -2752,24 +2542,23 @@ UINT CALLBACK BBGlobalSettingsCalback(HWND hwnd, UINT uMsg, LPPROPSHEETPAGE ppsp
     LPBBPROPSHEETINFO ppsiTemplate;
     LPBBPROPSHEETINFO ppsiGlobal;
 
-    switch (uMsg)
-    {
-        case PSPCB_ADDREF:
-            // we save off the address of the "real" ppsi in the pGlobal param of the
-            // the template, so that the other drives can get to the global page information
-            ppsiGlobal = (LPBBPROPSHEETINFO)ppsp;
-            ppsiTemplate = (LPBBPROPSHEETINFO)ppsp->lParam;
-            ppsiTemplate->pGlobal = ppsiGlobal;
-            ppsiGlobal->pGlobal = ppsiGlobal;
-            break;
+    switch (uMsg) {
+    case PSPCB_ADDREF:
+        // we save off the address of the "real" ppsi in the pGlobal param of the
+        // the template, so that the other drives can get to the global page information
+        ppsiGlobal = (LPBBPROPSHEETINFO)ppsp;
+        ppsiTemplate = (LPBBPROPSHEETINFO)ppsp->lParam;
+        ppsiTemplate->pGlobal = ppsiGlobal;
+        ppsiGlobal->pGlobal = ppsiGlobal;
+        break;
 
-        case PSPCB_CREATE:
-            return TRUE;                    // Yes, please create me
+    case PSPCB_CREATE:
+        return TRUE;                    // Yes, please create me
     }
     return 0;
 }
 
-STDMETHODIMP CBitBucket_PS_AddPages(IShellPropSheetExt * pspx,
+STDMETHODIMP CBitBucket_PS_AddPages(IShellPropSheetExt* pspx,
                                     LPFNADDPROPSHEETPAGE lpfnAddPage,
                                     LPARAM lParam)
 {
@@ -2786,8 +2575,7 @@ STDMETHODIMP CBitBucket_PS_AddPages(IShellPropSheetExt * pspx,
     dwSize3 = SIZEOF(bbpsp.fOriginalNukeOnDelete);
     if (RegQueryValueEx(g_hkBitBucket, TEXT("UseGlobalSettings"), NULL, NULL, (LPBYTE)&bbpsp.fOriginalUseGlobalSettings, &dwSize1) != ERROR_SUCCESS ||
         RegQueryValueEx(g_hkBitBucket, TEXT("Percent"), NULL, NULL, (LPBYTE)&bbpsp.iOriginalPercent, &dwSize2) != ERROR_SUCCESS ||
-        RegQueryValueEx(g_hkBitBucket, TEXT("NukeOnDelete"), NULL, NULL, (LPBYTE)&bbpsp.fOriginalNukeOnDelete, &dwSize3) != ERROR_SUCCESS)
-    {
+        RegQueryValueEx(g_hkBitBucket, TEXT("NukeOnDelete"), NULL, NULL, (LPBYTE)&bbpsp.fOriginalNukeOnDelete, &dwSize3) != ERROR_SUCCESS) {
         ASSERTMSG(FALSE, "Bitbucket: could not read global settings from the registry, re-regsvr32 shell32.dll!!");
         bbpsp.fUseGlobalSettings = TRUE;
         bbpsp.iOriginalPercent = 10;
@@ -2829,15 +2617,12 @@ STDMETHODIMP CBitBucket_PS_AddPages(IShellPropSheetExt * pspx,
     bbpsp.psp.pfnDlgProc = BBDriveDlgProc;
     bbpsp.psp.pszTitle = szTitle;
 
-    for (idDrive = 0, iPage = 1; (idDrive < MAX_BITBUCKETS) && (iPage < MAXPROPPAGES); idDrive++)
-    {
-        if (MakeBitBucket(idDrive))
-        {
+    for (idDrive = 0, iPage = 1; (idDrive < MAX_BITBUCKETS) && (iPage < MAXPROPPAGES); idDrive++) {
+        if (MakeBitBucket(idDrive)) {
             dwSize1 = SIZEOF(bbpsp.iOriginalPercent);
             dwSize2 = SIZEOF(bbpsp.fOriginalNukeOnDelete);
             if (RegQueryValueEx(g_pBitBucket[idDrive]->hkey, TEXT("Percent"), NULL, NULL, (LPBYTE)&bbpsp.iOriginalPercent, &dwSize1) != ERROR_SUCCESS ||
-                RegQueryValueEx(g_pBitBucket[idDrive]->hkey, TEXT("NukeOnDelete"), NULL, NULL, (LPBYTE)&bbpsp.fOriginalNukeOnDelete, &dwSize2) != ERROR_SUCCESS)
-            {
+                RegQueryValueEx(g_pBitBucket[idDrive]->hkey, TEXT("NukeOnDelete"), NULL, NULL, (LPBYTE)&bbpsp.fOriginalNukeOnDelete, &dwSize2) != ERROR_SUCCESS) {
                 TraceMsg(TF_BITBUCKET, "Bitbucket: could not read settings from the registry for drive %d, using lame defaults", idDrive);
                 bbpsp.iOriginalPercent = 10;
                 bbpsp.fNukeOnDelete = FALSE;
@@ -2885,23 +2670,20 @@ IShellExtInitVtbl c_CBitBucketSEIVtbl =
     CBitBucket_SEI_Initialize
 };
 
-HRESULT CBitBucket_CreateInstance(IUnknown* punkOuter, REFIID riid, void **ppvOut)
+HRESULT CBitBucket_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppvOut)
 {
     HRESULT hres;
-    CBitBucket *pbb = (void*)LocalAlloc(LPTR, SIZEOF(CBitBucket));
-    if (pbb && InitBBGlobals())
-    {
-        pbb->isf.lpVtbl  = &c_CBitBucketSFVtbl;
-        pbb->ipf.lpVtbl  = &c_CBitBucketPFVtbl;
-        pbb->icm.lpVtbl  = &c_CBitBucketCMVtbl;
+    CBitBucket* pbb = (void*)LocalAlloc(LPTR, SIZEOF(CBitBucket));
+    if (pbb && InitBBGlobals()) {
+        pbb->isf.lpVtbl = &c_CBitBucketSFVtbl;
+        pbb->ipf.lpVtbl = &c_CBitBucketPFVtbl;
+        pbb->icm.lpVtbl = &c_CBitBucketCMVtbl;
         pbb->isei.lpVtbl = &c_CBitBucketSEIVtbl;
-        pbb->ips.lpVtbl  = &c_CBitBucketPSVtbl;
+        pbb->ips.lpVtbl = &c_CBitBucketPSVtbl;
         pbb->cRef = 1;
         hres = CBitBucket_SF_QueryInterface(&pbb->isf, riid, ppvOut);
         CBitBucket_SF_Release(&pbb->isf);
-    }
-    else
-    {
+    } else {
         *ppvOut = NULL;
         hres = E_OUTOFMEMORY;
     }
@@ -2936,14 +2718,11 @@ LPITEMIDLIST DeletedFilePathToBBPidl(LPTSTR pszPath)
 #endif // BB_USE_MRSW
 
     hFile = OpenBBInfoFile(idDrive, OPENBBINFO_WRITE, 0);
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
+    if (hFile != INVALID_HANDLE_VALUE) {
         // read records (skipping deleted)
         // until we find an index match
-        while(ReadNextDataEntry(hFile, &bbdew, TRUE, dwDataEntrySize, idDrive))
-        {
-            if (bbdew.iIndex == iIndex)
-            {
+        while (ReadNextDataEntry(hFile, &bbdew, TRUE, dwDataEntrySize, idDrive)) {
+            if (bbdew.iIndex == iIndex) {
                 pidl = BBDataEntryToPidl(idDrive, &bbdew);
                 break;
             }
@@ -2994,41 +2773,33 @@ BOOL_PTR CALLBACK NewDiskFullDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM
 void WINAPI HandleDiskFull(HWND hwnd, int idDrive)
 {
     INT_PTR ret;
-    if ((idDrive >= 0) && (idDrive < MAX_DRIVES))
-    {
-       if (IsBitBucketableDrive(idDrive))
-       {
-          ret = DialogBoxParam(HINST_THISDLL, MAKEINTRESOURCE(DLG_DISKFULL_NEW),
-                            hwnd, NewDiskFullDlgProc, (LPARAM)idDrive);
-          switch(ret)
-          {
-             case IDC_DISKFULL_CLEANUP:
+    if ((idDrive >= 0) && (idDrive < MAX_DRIVES)) {
+        if (IsBitBucketableDrive(idDrive)) {
+            ret = DialogBoxParam(HINST_THISDLL, MAKEINTRESOURCE(DLG_DISKFULL_NEW),
+                                 hwnd, NewDiskFullDlgProc, (LPARAM)idDrive);
+            switch (ret) {
+            case IDC_DISKFULL_CLEANUP:
                 LaunchDiskCleanup(hwnd, idDrive);
                 break;
 
 
-             default:
+            default:
                 break;
-           }
-       }
+            }
+        }
     }
 }
 
 
 STDAPI_(void) SHHandleDiskFull(HWND hwnd, int idDrive)
 {
-
     // We will only do anything if noone has created the following named event
     HANDLE hDisable = OpenEvent(EVENT_ALL_ACCESS, FALSE, TEXT("DisableLowDiskWarning"));
-    if (!hDisable)
-    {
-        if (GetDiskCleanupPath(NULL, 0) && IsBitBucketableDrive(idDrive))
-        {
+    if (!hDisable) {
+        if (GetDiskCleanupPath(NULL, 0) && IsBitBucketableDrive(idDrive)) {
             HandleDiskFull(hwnd, idDrive);
         }
-    }
-    else
-    {
-       CloseHandle(hDisable);
+    } else {
+        CloseHandle(hDisable);
     }
 }

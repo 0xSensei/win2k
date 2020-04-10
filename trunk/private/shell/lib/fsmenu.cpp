@@ -32,8 +32,8 @@ STDAPI_(LPITEMIDLIST) SafeILClone(LPCITEMIDLIST pidl);
 
 typedef enum
 {
-    FMII_DEFAULT =      0x0000,
-    FMII_BREAK =        0x0001
+    FMII_DEFAULT = 0x0000,
+    FMII_BREAK = 0x0001
 } FMIIFLAGS;
 
 
@@ -62,8 +62,8 @@ typedef enum
 // One of these per file menu.
 typedef struct
 {
-    IShellFolder *  psf;                // Shell Folder.
-    IStream *       pstm;               // Optional stream
+    IShellFolder* psf;                // Shell Folder.
+    IStream* pstm;               // Optional stream
     HMENU           hmenu;              // Menu.
     LPITEMIDLIST    pidlFolder;         // Pidl for the folder.
     HDPA            hdpa;               // List of items (see below).
@@ -78,7 +78,7 @@ typedef struct
     COLORREF        clrBkg;             // Background color.
     UINT            cySel;              // Prefered height of selection.
     PFNFMCALLBACK   pfncb;              // Callback function.
-    IShellFolder *  psfAlt;             // Alternate Shell Folder.
+    IShellFolder* psfAlt;             // Alternate Shell Folder.
     LPITEMIDLIST    pidlAltFolder;      // Pidl for the alternate folder.
     HDPA            hdpaAlt;            // Alternate dpa
     int             cyMenuSizeSinceLastBreak;  // Size of menu (cy)
@@ -86,7 +86,7 @@ typedef struct
     UINT            cxMax;              // Max allowable width in pixels
     UINT            cySpacing;          // Spacing b/t menu items in pixels
     LPTSTR          pszFilterTypes;     // Multi-string list of extensions (e.g., "doc\0xls\0")
-} FILEMENUHEADER, *PFILEMENUHEADER;
+} FILEMENUHEADER, * PFILEMENUHEADER;
 
 
 // One of these for each file menu item.
@@ -112,7 +112,7 @@ typedef struct
     LPARAM          lParam;             // Application data
     int             nOrder;             // Ordinal indicating user preference
     DWORD           dwEffect;           // Acceptable drop effects
-} FILEMENUITEM, *PFILEMENUITEM;
+} FILEMENUITEM, * PFILEMENUITEM;
 
 
 #define X_TIPOFFSET         130      // an arbitrary number of pixels
@@ -162,7 +162,7 @@ public:
     BOOL    ProcessCommand(HWND hwnd, HMENU hmenuBar, UINT idMenu, HMENU hmenu, UINT idCmd);
 
     friend  LRESULT CALLBACK CFSMenuAgent_MsgHook(int nCode, WPARAM wParam, LPARAM lParam);
-    friend  LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi);
+    friend  LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT* pdi);
 };
 
 
@@ -242,10 +242,10 @@ void FileList_Reorder(PFILEMENUHEADER pfmh);
 BOOL FileMenuHeader_InsertItem(PFILEMENUHEADER pfmh, UINT iItem, FMIIFLAGS fFlags);
 BOOL FileMenuItem_Destroy(PFILEMENUITEM pfmi);
 BOOL FileMenuItem_Move(HWND hwnd, PFILEMENUITEM pfmiFrom, PFILEMENUHEADER pfmhTo, int iPosTo);
-BOOL Tooltip_Create(HWND *phwndTip);
+BOOL Tooltip_Create(HWND* phwndTip);
 
 
-__inline static BOOL LAlloc(UINT cb, PVOID *ppv)
+__inline static BOOL LAlloc(UINT cb, PVOID* ppv)
 {
     ASSERT(ppv);
 
@@ -263,7 +263,7 @@ __inline static BOOL LFree(PVOID pv)
 /*
 Purpose: Allocate a multi-string (double-null terminated)
 */
-BOOL MultiSz_AllocCopy(IN  LPCTSTR  pszSrc, OUT LPTSTR * ppszDst)
+BOOL MultiSz_AllocCopy(IN  LPCTSTR  pszSrc, OUT LPTSTR* ppszDst)
 {
     BOOL fRet = FALSE;
     UINT cch;
@@ -274,20 +274,17 @@ BOOL MultiSz_AllocCopy(IN  LPCTSTR  pszSrc, OUT LPTSTR * ppszDst)
     ASSERT(pszSrc && ppszDst);
 
     psz = pszSrc;
-    while (*psz)
-    {
+    while (*psz) {
         cch = lstrlen(psz) + 1;
         cchMac += cch;
         psz += cch;
     }
     cchMac++;       // extra null
 
-    if (LAlloc(CbFromCch(cchMac), (PVOID *)ppszDst))
-    {
+    if (LAlloc(CbFromCch(cchMac), (PVOID*)ppszDst)) {
         psz = pszSrc;
         pszDst = *ppszDst;
-        while (*psz)
-        {
+        while (*psz) {
             lstrcpy(pszDst, psz);
             cch = lstrlen(psz) + 1;
             psz += cch;
@@ -306,7 +303,7 @@ Purpose: Allocate a string
 BOOL
 Sz_AllocCopyA(
     IN  LPCSTR  pszSrc,
-    OUT LPTSTR *ppszDst)
+    OUT LPTSTR* ppszDst)
 {
     BOOL fRet = FALSE;
     UINT cch;
@@ -315,8 +312,7 @@ Sz_AllocCopyA(
 
     // NB We allocate an extra char in case we need to add an '&'.
     cch = lstrlenA(pszSrc) + 2;
-    if (LAlloc(CbFromCchA(cch), (PVOID *)ppszDst))
-    {
+    if (LAlloc(CbFromCchA(cch), (PVOID*)ppszDst)) {
 #ifdef UNICODE
         MultiByteToWideChar(CP_ACP, 0, pszSrc, -1, *ppszDst, cch);
 #else
@@ -335,7 +331,7 @@ Purpose: Allocate a string
 BOOL
 Sz_AllocCopyW(
     IN  LPCWSTR pszSrc,
-    OUT LPTSTR *ppszDst)
+    OUT LPTSTR* ppszDst)
 {
     BOOL fRet = FALSE;
     UINT cch;
@@ -344,8 +340,7 @@ Sz_AllocCopyW(
 
     // NB We allocate an extra char in case we need to add an '&'.
     cch = lstrlenW(pszSrc) + 2;
-    if (LAlloc(CbFromCchW(cch), (PVOID *)ppszDst))
-    {
+    if (LAlloc(CbFromCchW(cch), (PVOID*)ppszDst)) {
 #ifdef UNICODE
         lstrcpy(*ppszDst, pszSrc);
 #else
@@ -380,12 +375,11 @@ HCURSOR LoadMenuCursor(UINT idCur)
 
 
 #ifdef DEBUG
-static void DumpMsg(MSG * pmsg)
+static void DumpMsg(MSG* pmsg)
 {
     ASSERT(pmsg);
 
-    switch (pmsg->message)
-    {
+    switch (pmsg->message) {
     case WM_LBUTTONDOWN:
         TraceMsg(TF_ALWAYS, "MsgHook: msg = WM_LBUTTONDOWN hwnd = %#08lx  x = %d  y = %d",
                  pmsg->hwnd, pmsg->pt.x, pmsg->pt.y);
@@ -429,23 +423,20 @@ Purpose: Message hook used to track drag and drop within the menu.
 LRESULT CALLBACK CFSMenuAgent_MsgHook(int nCode, WPARAM wParam, LPARAM lParam)
 {
     LRESULT lRet = 0;
-    MSG * pmsg = (MSG *)lParam;
+    MSG* pmsg = (MSG*)lParam;
 
-    switch (nCode)
-    {
+    switch (nCode) {
     case MSGF_MENU:
 #ifdef DEBUG
         if (IsFlagSet(g_dwDumpFlags, DF_HOOK))
             DumpMsg(pmsg);
 #endif
 
-        switch (pmsg->message)
-        {
+        switch (pmsg->message) {
         case WM_LBUTTONUP:
             // We record the mouse up IFF it happened in the menu
             // and we had previously recorded the mouse down.
-            if (IsFlagSet(g_fsmenuagent._dwState, MAS_EDITMODE | MAS_LBUTTONDOWN))
-            {
+            if (IsFlagSet(g_fsmenuagent._dwState, MAS_EDITMODE | MAS_LBUTTONDOWN)) {
                 POINT pt;
 
                 TraceMsg(TF_MENU, "MenuDD: getting mouse up");
@@ -453,8 +444,7 @@ LRESULT CALLBACK CFSMenuAgent_MsgHook(int nCode, WPARAM wParam, LPARAM lParam)
                 pt.x = LOWORD(pmsg->lParam);
                 pt.y = HIWORD(pmsg->lParam);
 
-                if (PtInRect(&g_fsmenuagent._rcMenu, pt))
-                {
+                if (PtInRect(&g_fsmenuagent._rcMenu, pt)) {
                     SetFlag(g_fsmenuagent._dwState, MAS_LBUTTONUP);
                     g_fsmenuagent.EndMenu();
                 }
@@ -464,8 +454,7 @@ LRESULT CALLBACK CFSMenuAgent_MsgHook(int nCode, WPARAM wParam, LPARAM lParam)
 
         case WM_LBUTTONDOWN:
             if (g_fsmenuagent._pfmiCur &&
-                (g_fsmenuagent._pfmiCur->dwEffect & DROPEFFECT_MOVE))
-            {
+                (g_fsmenuagent._pfmiCur->dwEffect & DROPEFFECT_MOVE)) {
                 TraceMsg(TF_MENU, "MenuDD: getting mouse down");
 
                 SetFlag(g_fsmenuagent._dwState, MAS_LBUTTONDOWN);
@@ -474,8 +463,7 @@ LRESULT CALLBACK CFSMenuAgent_MsgHook(int nCode, WPARAM wParam, LPARAM lParam)
             break;
 
         case WM_MOUSEMOVE:
-            if (g_fsmenuagent._dwState & MAS_EDITMODE)
-            {
+            if (g_fsmenuagent._dwState & MAS_EDITMODE) {
                 POINT pt;
                 BOOL bInMenu;
 
@@ -493,7 +481,7 @@ LRESULT CALLBACK CFSMenuAgent_MsgHook(int nCode, WPARAM wParam, LPARAM lParam)
 #endif
 
                 // Determine which cursor to show
-                if ( !bInMenu )
+                if (!bInMenu)
                     g_fsmenuagent.SetItem(NULL);
 
                 g_fsmenuagent.SetCursor(g_fsmenuagent.GetDragEffect());
@@ -507,8 +495,7 @@ LRESULT CALLBACK CFSMenuAgent_MsgHook(int nCode, WPARAM wParam, LPARAM lParam)
                 HMENU hmenu = GET_WM_MENUSELECT_HMENU(pmsg->wParam, pmsg->lParam);
 
                 // Is the menu going away?
-                if (0 == uItem && NULL == hmenu)
-                {
+                if (0 == uItem && NULL == hmenu) {
                     // Yes; release menu drag/drop
                     TraceMsg(TF_MENU, "MenuDD: menu being cancelled");
 
@@ -517,8 +504,7 @@ LRESULT CALLBACK CFSMenuAgent_MsgHook(int nCode, WPARAM wParam, LPARAM lParam)
                     lRet = CallNextHookEx(g_fsmenuagent._hhookMsg, nCode, wParam, lParam);
 
                     // Was an item dropped?
-                    if (g_fsmenuagent._dwState & MAS_LBUTTONUP)
-                    {
+                    if (g_fsmenuagent._dwState & MAS_LBUTTONUP) {
                         // Yes; remember it
                         g_fsmenuagent.SetDropItem();
                     }
@@ -582,13 +568,11 @@ void CFSMenuAgent::Init(void)
     _pfmiDrop = NULL;
     _dwStateSav = 0;
 
-    if (NULL == _hhookMsg)
-    {
+    if (NULL == _hhookMsg) {
         _hhookMsg = SetWindowsHookEx(WH_MSGFILTER, CFSMenuAgent_MsgHook, HINST_THISDLL, 0);
     }
 
-    if (NULL == _hbr)
-    {
+    if (NULL == _hbr) {
         // Don't need to release this
         _hbr = GetSysColorBrush(COLOR_3DFACE);
     }
@@ -615,21 +599,16 @@ void CFSMenuAgent::SetCaretPos(LPPOINT ppt)
 {
     ASSERT(ppt);
 
-    if (ppt->y < _yCenter)
-    {
+    if (ppt->y < _yCenter) {
         // Change the caret position?
-        if (IsFlagClear(_dwState, MAS_INSERTABOVE))
-        {
+        if (IsFlagClear(_dwState, MAS_INSERTABOVE)) {
             // Yes
             SetFlag(_dwState, MAS_INSERTABOVE);
             UpdateInsertionCaret();
         }
-    }
-    else
-    {
+    } else {
         // Change the caret position?
-        if (IsFlagSet(_dwState, MAS_INSERTABOVE))
-        {
+        if (IsFlagSet(_dwState, MAS_INSERTABOVE)) {
             // Yes
             ClearFlag(_dwState, MAS_INSERTABOVE);
             UpdateInsertionCaret();
@@ -640,8 +619,7 @@ void CFSMenuAgent::SetCaretPos(LPPOINT ppt)
 
 void CFSMenuAgent::UpdateInsertionCaret(void)
 {
-    if (_dwState & MAS_EDITMODE)
-    {
+    if (_dwState & MAS_EDITMODE) {
         InvalidateRect(_hwndMenu, &_rcCur, FALSE);
         UpdateWindow(_hwndMenu);
     }
@@ -671,8 +649,7 @@ HCURSOR CFSMenuAgent::SetCursor(DWORD dwEffect)
     ASSERT(_dwState & MAS_EDITMODE);
 
     // Does this item support the requested drop effect?
-    if (_pfmiCur && (dwEffect & _pfmiCur->dwEffect))
-    {
+    if (_pfmiCur && (dwEffect & _pfmiCur->dwEffect)) {
         // Yes
         UINT idCur;
 
@@ -680,16 +657,13 @@ HCURSOR CFSMenuAgent::SetCursor(DWORD dwEffect)
             idCur = IDC_MENUMOVE;
         else if (dwEffect & DROPEFFECT_COPY)
             idCur = IDC_MENUCOPY;
-        else
-        {
+        else {
             ASSERT_MSG(0, "Unknown drop effect!");
             idCur = IDC_MENUDENY;
         }
 
         hcur = ::SetCursor(LoadMenuCursor(idCur));
-    }
-    else
-    {
+    } else {
         // No
         hcur = ::SetCursor(LoadMenuCursor(IDC_MENUDENY));
     }
@@ -710,24 +684,20 @@ DWORD CFSMenuAgent::GetDragEffect(void)
 void CFSMenuAgent::SetEditMode(BOOL bEdit, DWORD dwEffect)
 {
     // Only update if the state has changed
-    if (bEdit && IsFlagClear(_dwState, MAS_EDITMODE))
-    {
+    if (bEdit && IsFlagClear(_dwState, MAS_EDITMODE)) {
         TraceMsg(TF_MENU, "MenuDD: entering edit mode");
 
         SetFlag(_dwState, MAS_EDITMODE);
 
         _hcurSav = SetCursor(dwEffect);
-    }
-    else if (!bEdit && IsFlagSet(_dwState, MAS_EDITMODE))
-    {
+    } else if (!bEdit && IsFlagSet(_dwState, MAS_EDITMODE)) {
         TraceMsg(TF_MENU, "MenuDD: leaving edit mode");
 
         ClearFlag(_dwState, MAS_EDITMODE);
 
         ASSERT(_hcurSav);
 
-        if (_hcurSav)
-        {
+        if (_hcurSav) {
             ::SetCursor(_hcurSav);
             _hcurSav = NULL;
         }
@@ -772,8 +742,7 @@ void CFSMenuAgent::Reset(void)
 
     TraceMsg(TF_MENU, "MenuDD: Hook removed for menu drag/drop");
 
-    if (_hhookMsg)
-    {
+    if (_hhookMsg) {
         UnhookWindowsHookEx(_hhookMsg);
         _hhookMsg = NULL;
     }
@@ -799,13 +768,11 @@ BOOL CFSMenuAgent::ProcessCommand(HWND hwnd, HMENU hmenuBar, UINT idMenu, HMENU 
 {
     BOOL bRet = FALSE;
 
-    if (hmenu && _pfmiDrag && (_dwStateSav & MAS_EDITMODE))
-    {
+    if (hmenu && _pfmiDrag && (_dwStateSav & MAS_EDITMODE)) {
         ASSERT(IS_VALID_STRUCT_PTR(_pfmiDrag, FILEMENUITEM));
 
         // Did the user move an item within the menu?
-        if (_pfmiDrop)
-        {
+        if (_pfmiDrop) {
             // Yes
             ASSERT(IS_VALID_STRUCT_PTR(_pfmiDrop, FILEMENUITEM));
 
@@ -827,8 +794,7 @@ BOOL CFSMenuAgent::ProcessCommand(HWND hwnd, HMENU hmenuBar, UINT idMenu, HMENU 
 
 #if 0
         // Did we successfully handle this?
-        if (bRet)
-        {
+        if (bRet) {
             // Yes; bring the menu back up so the user can continue
             // editting.
             HiliteMenuItem(hwnd, hmenuBar, idMenu, MF_BYCOMMAND | MF_HILITE);
@@ -853,13 +819,11 @@ BOOL CFSMenuAgent::ProcessCommand(HWND hwnd, HMENU hmenuBar, UINT idMenu, HMENU 
 
 void DeleteGlobalMemDCAndFont(void)
 {
-    if (g_hdcMem)
-    {
+    if (g_hdcMem) {
         DeleteDC(g_hdcMem);
         g_hdcMem = NULL;
     }
-    if (g_hfont)
-    {
+    if (g_hfont) {
         DeleteObject(g_hfont);
         g_hfont = NULL;
     }
@@ -892,7 +856,7 @@ Cond:    --
 */
 BOOL
 IsValidFMItem(
-    IN  FMITEM const * pfmitem,
+    IN  FMITEM const* pfmitem,
     OUT PFMITEM        pfmitemOut)
 {
     BOOL bRet = FALSE;
@@ -901,8 +865,7 @@ IsValidFMItem(
     ASSERT(pfmitemOut);
 
     if (IS_VALID_READ_PTR(pfmitem, FMITEM) &&
-        SIZEOF(*pfmitem) == pfmitem->cbSize)
-    {
+        SIZEOF(*pfmitem) == pfmitem->cbSize) {
         ZeroInit(pfmitemOut, SIZEOF(*pfmitemOut));
 
         pfmitemOut->cbSize = SIZEOF(*pfmitemOut);
@@ -936,11 +899,9 @@ IsValidFMItem(
 
         // The FMIT_STRING and FMIT_SEPARATOR are exclusive
         if (IsFlagSet(pfmitemOut->dwType, FMIT_STRING) &&
-            IsFlagSet(pfmitemOut->dwType, FMIT_SEPARATOR))
-        {
+            IsFlagSet(pfmitemOut->dwType, FMIT_SEPARATOR)) {
             bRet = FALSE;
-        }
-        else
+        } else
             bRet = TRUE;
     }
     return bRet;
@@ -959,13 +920,10 @@ FileMenuItem_GetDisplayName(
     ASSERT(IS_VALID_WRITE_BUFFER(pszName, TCHAR, cchName));
 
     // Is this a special empty item?
-    if (pfmi->Flags & FMI_EMPTY)
-    {
+    if (pfmi->Flags & FMI_EMPTY) {
         // Yep, load the string from a resource.
         LoadString(HINST_THISDLL, IDS_NONE, pszName, cchName);
-    }
-    else
-    {
+    } else {
         // Nope, ask the folder for the name of the item.
         PFILEMENUHEADER pfmh = pfmi->pfmh;
         LPSHELLFOLDER psfTemp;
@@ -980,19 +938,13 @@ FileMenuItem_GetDisplayName(
 
         // If it's got a pidl use that, else just use the normal menu string.
         if (psfTemp && pfmi->pidl &&
-            IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL))
-        {
-            if (SUCCEEDED(psfTemp->GetDisplayNameOf(pfmi->pidl, SHGDN_NORMAL, &str)))
-            {
+            IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL)) {
+            if (SUCCEEDED(psfTemp->GetDisplayNameOf(pfmi->pidl, SHGDN_NORMAL, &str))) {
                 StrRetToStrN(pszName, cchName, &str, pfmi->pidl);
             }
-        }
-        else if (pfmi->psz)
-        {
+        } else if (pfmi->psz) {
             lstrcpyn(pszName, pfmi->psz, cchName);
-        }
-        else
-        {
+        } else {
             *pszName = TEXT('\0');
         }
     }
@@ -1010,10 +962,10 @@ Cond:    --
 BOOL
 FileMenuItem_Create(
     IN  PFILEMENUHEADER pfmh,
-    IN  LPCITEMIDLIST   pidl,       OPTIONAL
+    IN  LPCITEMIDLIST   pidl, OPTIONAL
     IN  int             iImage,
     IN  DWORD           dwFlags,    // FMI_*
-    OUT PFILEMENUITEM * ppfmi)
+    OUT PFILEMENUITEM* ppfmi)
 {
     PFILEMENUITEM pfmi = (PFILEMENUITEM)LocalAlloc(LPTR, SIZEOF(FILEMENUITEM));
 
@@ -1021,10 +973,9 @@ FileMenuItem_Create(
     ASSERT(ppfmi);
     ASSERT(NULL == pidl || IS_VALID_PIDL(pidl));
 
-    if (pfmi)
-    {
+    if (pfmi) {
         DWORD dwAttribs = SFGAO_FOLDER | SFGAO_FILESYSTEM;
-        IShellFolder * psfTemp;
+        IShellFolder* psfTemp;
         BOOL bUseAlt = IsFlagSet(dwFlags, FMI_ALTITEM);
 
         pfmi->pfmh = pfmh;
@@ -1039,8 +990,7 @@ FileMenuItem_Create(
             psfTemp = pfmh->psf;
 
         if (pidl &&
-            SUCCEEDED(psfTemp->GetAttributesOf(1, &pidl, &dwAttribs)))
-        {
+            SUCCEEDED(psfTemp->GetAttributesOf(1, &pidl, &dwAttribs))) {
             if (dwAttribs & SFGAO_FOLDER)
                 pfmi->Flags |= FMI_FOLDER;
 
@@ -1078,24 +1028,20 @@ BOOL FileMenuItem_Move(
     ASSERT(IsFlagSet(pfmhFrom->fmf, FMF_CANORDER));
 
     // Is this item being moved within the same menu?
-    if (bSameMenu)
-    {
+    if (bSameMenu) {
         // Yes; simply change the order of the menu below
         bRet = TRUE;
-    }
-    else
-    {
+    } else {
         // No; need to move the actual file to the menu's associated
         // folder.  Also note the placement of the item in the menu.
         TCHAR szTo[MAX_PATH + 1];       // +1 for double null
-        IShellFolder * psf = pfmhFrom->psf;
+        IShellFolder* psf = pfmhFrom->psf;
         STRRET str;
 
         SHGetPathFromIDList(pfmhTo->pidlFolder, szTo);
         szTo[lstrlen(szTo) + 1] = 0;   // double null
 
-        if (SUCCEEDED(psf->GetDisplayNameOf(pfmiFrom->pidl, SHGDN_FORPARSING, &str)))
-        {
+        if (SUCCEEDED(psf->GetDisplayNameOf(pfmiFrom->pidl, SHGDN_FORPARSING, &str))) {
             StrRetToStrN(szFrom, SIZECHARS(szFrom), &str, pfmiFrom->pidl);
             szFrom[lstrlen(szFrom) + 1] = 0;   // double null
 
@@ -1103,11 +1049,10 @@ BOOL FileMenuItem_Move(
             // collision, be sure to update the pfmiFrom contents to
             // reflect that name change!
 
-            SHFILEOPSTRUCT shop = {hwnd, FO_MOVE, szFrom, szTo, 0, };
+            SHFILEOPSTRUCT shop = {hwnd, FO_MOVE, szFrom, szTo, 0,};
             bRet = (NO_ERROR == SHFileOperation(&shop));
 
-            if (bRet)
-            {
+            if (bRet) {
                 // Flush the notification so the menu is updated immediately.
                 SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH | SHCNF_FLUSH, szFrom, NULL);
             }
@@ -1121,8 +1066,7 @@ BOOL FileMenuItem_Move(
         }
     }
 
-    if (bRet)
-    {
+    if (bRet) {
         // Change the order of the menu
         int iPosFrom = DPA_GetPtrIndex(hdpaFrom, pfmiFrom);
 
@@ -1135,8 +1079,7 @@ BOOL FileMenuItem_Move(
 
         DPA_DeletePtr(hdpaFrom, iPosFrom);
         iPosTo = DPA_InsertPtr(hdpaTo, iPosTo, pfmiFrom);
-        if (-1 != iPosTo)
-        {
+        if (-1 != iPosTo) {
             // Update the header of the item
             pfmiFrom->pfmh = pfmhTo;
 
@@ -1146,28 +1089,22 @@ BOOL FileMenuItem_Move(
             mii.cbSize = SIZEOF(mii);
             mii.fMask = MIIM_DATA | MIIM_ID | MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
 
-            if (GetMenuItemInfo(pfmhFrom->hmenu, iPosFrom, TRUE, &mii))
-            {
+            if (GetMenuItemInfo(pfmhFrom->hmenu, iPosFrom, TRUE, &mii)) {
                 // Remove a submenu first so it doesn't get nuked
                 if (GetSubMenu(pfmhFrom->hmenu, iPosFrom))
                     RemoveMenu(pfmhFrom->hmenu, iPosFrom, MF_BYPOSITION);
 
                 DeleteMenu(pfmhFrom->hmenu, iPosFrom, MF_BYPOSITION);
-                if ( !InsertMenuItem(pfmhTo->hmenu, iPosTo, TRUE, &mii) )
-                {
+                if (!InsertMenuItem(pfmhTo->hmenu, iPosTo, TRUE, &mii)) {
                     TraceMsg(TF_ERROR, "Failed to move menu item");
                     DPA_DeletePtr(hdpaTo, iPosTo);
-                }
-                else
-                {
+                } else {
                     SetFlag(pfmhFrom->fmf, FMF_DIRTY);
                     SetFlag(pfmhTo->fmf, FMF_DIRTY);
                     bRet = TRUE;
                 }
             }
-        }
-        else
-        {
+        } else {
             // Punt
             TraceMsg(TF_ERROR, "Menu: could not insert moved item in the DPA");
         }
@@ -1186,7 +1123,7 @@ FileList_Build(
     IN PFILEMENUHEADER pfmh,
     IN int             cItems,
     IN BOOL            bUseAlt)
-    {
+{
 #ifdef DEBUG
     TCHAR szName[MAX_PATH];
 #endif
@@ -1207,27 +1144,24 @@ FileList_Build(
     }
 
 
-    if (hdpaTemp && pfmh->psf)
-    {
+    if (hdpaTemp && pfmh->psf) {
         LPENUMIDLIST penum;
         LPSHELLFOLDER psfTemp;
 
         // Take care with Programs folder.
         // If this is the parent of the programs folder set pidlSkip to
         // the last bit of the programs pidl.
-        if (pfmh->fmf & FMF_NOPROGRAMS)
-            {
+        if (pfmh->fmf & FMF_NOPROGRAMS) {
             pidlProgs = SHCloneSpecialIDList(NULL,
-                                            (bUseAlt ? CSIDL_COMMON_PROGRAMS : CSIDL_PROGRAMS),
+                                             (bUseAlt ? CSIDL_COMMON_PROGRAMS : CSIDL_PROGRAMS),
                                              TRUE);
 
             if (ILIsParent((bUseAlt ? pfmh->pidlAltFolder : pfmh->pidlFolder),
-                           pidlProgs, TRUE))
-                {
+                           pidlProgs, TRUE)) {
                 TraceMsg(TF_MENU, "FileList_Build: Programs parent.");
                 pidlSkip = ILFindLastID(pidlProgs);
-                }
             }
+        }
 
         // Decide which shell folder to enumerate.
 
@@ -1239,32 +1173,28 @@ FileList_Build(
 
         // We now need to iterate over the children under this guy...
         hres = psfTemp->EnumObjects(NULL, pfmh->fFSFilter, &penum);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             ULONG celt;
             LPITEMIDLIST pidl = NULL;
 
             // The pidl is stored away into the pfmi structure, so
             // don't free it here
-            while (penum->Next(1, &pidl, &celt) == S_OK && celt == 1)
-            {
+            while (penum->Next(1, &pidl, &celt) == S_OK && celt == 1) {
                 PFILEMENUITEM pfmi;
 
                 // Abort.
                 if (FileMenuHeader_AllowAbort(pfmh) && g_fAbortInitMenu)
                     break;
 
-                if (pidlSkip && psfTemp->CompareIDs(0, pidlSkip, pidl) == 0)
-                {
-                   ILFree(pidl);    // Don't leak this one...
-                   TraceMsg(DM_TRACE, "FileList_Build: Skipping Programs.");
-                   continue;
+                if (pidlSkip && psfTemp->CompareIDs(0, pidlSkip, pidl) == 0) {
+                    ILFree(pidl);    // Don't leak this one...
+                    TraceMsg(DM_TRACE, "FileList_Build: Skipping Programs.");
+                    continue;
                 }
 
                 // Is there a list of extensions on which we need to
                 // filter?
-                if (pfmh->pszFilterTypes)
-                {
+                if (pfmh->pszFilterTypes) {
                     STRRET str;
                     DWORD dwAttribs = SFGAO_FOLDER | SFGAO_FILESYSTEM;
 
@@ -1273,21 +1203,18 @@ FileList_Build(
                     // only apply the filter to file system objects
 
                     if ((dwAttribs & SFGAO_FILESYSTEM) &&
-                        SUCCEEDED(psfTemp->GetDisplayNameOf(pidl, SHGDN_FORPARSING, &str)))
-                    {
+                        SUCCEEDED(psfTemp->GetDisplayNameOf(pidl, SHGDN_FORPARSING, &str))) {
                         TCHAR szFile[MAX_PATH];
                         StrRetToStrN(szFile, SIZECHARS(szFile), &str, pidl);
 
-                        if (!(dwAttribs & SFGAO_FOLDER))
-                        {
+                        if (!(dwAttribs & SFGAO_FOLDER)) {
                             LPTSTR psz = pfmh->pszFilterTypes;
                             LPTSTR pszExt = PathFindExtension(szFile);
 
                             if (TEXT('.') == *pszExt)
                                 pszExt++;
 
-                            while (*psz)
-                            {
+                            while (*psz) {
                                 // Skip this file?
                                 if (0 == lstrcmpi(pszExt, psz))
                                     break;          // No
@@ -1295,8 +1222,7 @@ FileList_Build(
                                 psz += lstrlen(psz) + 1;
                             }
 
-                            if ( !*psz )
-                            {
+                            if (!*psz) {
                                 ILFree(pidl);       // don't leak this
                                 continue;
                             }
@@ -1304,12 +1230,10 @@ FileList_Build(
                     }
                 }
 
-                if (FileMenuItem_Create(pfmh, pidl, -1, bUseAlt ? FMI_ALTITEM : 0, &pfmi))
-                {
+                if (FileMenuItem_Create(pfmh, pidl, -1, bUseAlt ? FMI_ALTITEM : 0, &pfmi)) {
                     int idpa;
 
-                    if (!bUseAlt)
-                    {
+                    if (!bUseAlt) {
                         // Set the allowable drop effects (as a target).
                         // We don't allow common user items to be moved.
                         pfmi->dwEffect = DROPEFFECT_MOVE | DROPEFFECT_COPY;
@@ -1323,8 +1247,7 @@ FileList_Build(
                     // this callback is used to set hotkeys, and that tries
                     // to load the PIDL passed back as a file, and that doesn't
                     // work for non FS pidls
-                    if (pfmh->pfncb && (pfmi->Flags & FMI_FILESYSTEM))
-                    {
+                    if (pfmh->pfncb && (pfmi->Flags & FMI_FILESYSTEM)) {
                         FMCBDATA fmcbdata;
 
                         fmcbdata.hmenu = pfmh->hmenu;
@@ -1353,9 +1276,7 @@ FileList_Build(
                 }
             }
             penum->Release();
-        }
-        else
-        {
+        } else {
             TraceMsg(TF_ERROR, "FileList_Build: Enumeration failed - leaving folder empty.");
         }
 
@@ -1364,18 +1285,16 @@ FileList_Build(
 
     // Insert a special Empty item (unless the header flag says
     // not to).
-    if (!cItems && hdpaTemp && !(pfmh->fmf & FMF_NOEMPTYITEM) && !bUseAlt)
-    {
+    if (!cItems && hdpaTemp && !(pfmh->fmf & FMF_NOEMPTYITEM) && !bUseAlt) {
         PFILEMENUITEM pfmi;
 
-        if (FileMenuItem_Create(pfmh, NULL, -1, FMI_EMPTY, &pfmi))
-            {
+        if (FileMenuItem_Create(pfmh, NULL, -1, FMI_EMPTY, &pfmi)) {
             DPA_SetPtr(hdpaTemp, cItems, pfmi);
             cItems++;
-            }
         }
-    return cItems;
     }
+    return cItems;
+}
 
 
 #define FS_SORTBYNAME       0
@@ -1391,8 +1310,7 @@ int CALLBACK FileMenuItem_Compare(LPVOID pv1, LPVOID pv2, LPARAM lParam)
     TCHAR szName1[MAX_PATH];
     TCHAR szName2[MAX_PATH];
 
-    switch (lParam)
-    {
+    switch (lParam) {
     case FS_SORTBYNAME:
         // Directories come first, then files
         if ((pfmi1->Flags & FMI_FOLDER) > (pfmi2->Flags & FMI_FOLDER))
@@ -1427,8 +1345,7 @@ LPVOID CALLBACK FileMenuItem_Merge(UINT uMsg, LPVOID pvDest, LPVOID pvSrc, LPARA
     PFILEMENUITEM pfmiSrc = (PFILEMENUITEM)pvSrc;
     LPVOID pvRet = pfmiDest;
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case DPAMM_MERGE:
         // We just care about the order field
         pfmiDest->nOrder = pfmiSrc->nOrder;
@@ -1465,14 +1382,13 @@ typedef struct tagFMSTREAMITEM
 
 HRESULT
 CALLBACK
-FileMenuItem_SaveStream(DPASTREAMINFO * pinfo, IStream * pstm, LPVOID pvData)
+FileMenuItem_SaveStream(DPASTREAMINFO* pinfo, IStream* pstm, LPVOID pvData)
 {
     // We only write menu items with pidls
     PFILEMENUITEM pfmi = (PFILEMENUITEM)pinfo->pvItem;
     HRESULT hres = S_FALSE;
 
-    if (pfmi->pidl)
-    {
+    if (pfmi->pidl) {
         FMSTREAMITEM fmsi;
         ULONG cbWrite;
         ULONG cbWritePidl;
@@ -1482,8 +1398,7 @@ FileMenuItem_SaveStream(DPASTREAMINFO * pinfo, IStream * pstm, LPVOID pvData)
         fmsi.nOrder = pfmi->nOrder;
 
         hres = pstm->Write(&fmsi, CB_FMSTREAMITEM, &cbWrite);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             hres = pstm->Write(pfmi->pidl, pfmi->pidl->mkid.cb + sizeof(USHORT), &cbWritePidl);
             ASSERT(fmsi.cbSize == cbWrite + cbWritePidl);
         }
@@ -1493,7 +1408,7 @@ FileMenuItem_SaveStream(DPASTREAMINFO * pinfo, IStream * pstm, LPVOID pvData)
 }
 
 
-HRESULT CALLBACK FileMenuItem_LoadStream(DPASTREAMINFO * pinfo, IStream * pstm, LPVOID pvData)
+HRESULT CALLBACK FileMenuItem_LoadStream(DPASTREAMINFO* pinfo, IStream* pstm, LPVOID pvData)
 {
     HRESULT hres;
     FMSTREAMITEM fmsi;
@@ -1503,45 +1418,36 @@ HRESULT CALLBACK FileMenuItem_LoadStream(DPASTREAMINFO * pinfo, IStream * pstm, 
     ASSERT(pfmh);
 
     hres = pstm->Read(&fmsi, CB_FMSTREAMITEM, &cbRead);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         if (CB_FMSTREAMITEM != cbRead)
             hres = E_FAIL;
-        else
-        {
+        else {
             ASSERT(CB_FMSTREAMITEM < fmsi.cbSize);
-            if (CB_FMSTREAMITEM < fmsi.cbSize)
-            {
+            if (CB_FMSTREAMITEM < fmsi.cbSize) {
                 UINT cb = fmsi.cbSize - CB_FMSTREAMITEM;
                 LPITEMIDLIST pidl = _ILCreate(cb);
-                if ( !pidl )
+                if (!pidl)
                     hres = E_OUTOFMEMORY;
-                else
-                {
+                else {
                     hres = pstm->Read(pidl, cb, &cbRead);
                     if (SUCCEEDED(hres) && cb == cbRead &&
-                        IS_VALID_PIDL(pidl))
-                    {
+                        IS_VALID_PIDL(pidl)) {
                         PFILEMENUITEM pfmi;
 
-                        if (FileMenuItem_Create(pfmh, pidl, -1, 0, &pfmi))
-                        {
+                        if (FileMenuItem_Create(pfmh, pidl, -1, 0, &pfmi)) {
                             pfmi->nOrder = fmsi.nOrder;
                             pinfo->pvItem = pfmi;
                             hres = S_OK;
-                        }
-                        else
+                        } else
                             hres = E_OUTOFMEMORY;
-                    }
-                    else
+                    } else
                         hres = E_FAIL;
 
                     // Cleanup
                     if (FAILED(hres))
                         ILFree(pidl);
                 }
-            }
-            else
+            } else
                 hres = E_FAIL;
         }
     }
@@ -1562,8 +1468,8 @@ FileMenuItem_DestroyCB(LPVOID pv, LPVOID pvData)
 BOOL
 FileList_Load(
     IN  PFILEMENUHEADER pfmh,
-    OUT HDPA *    phdpa,
-    IN  IStream * pstm)
+    OUT HDPA* phdpa,
+    IN  IStream* pstm)
 {
     HDPA hdpa = NULL;
     FMSTREAMHEADER fmsh;
@@ -1575,8 +1481,7 @@ FileList_Load(
     // Read the header for more info
     if (SUCCEEDED(pstm->Read(&fmsh, sizeof(fmsh), NULL)) &&
         sizeof(fmsh) == fmsh.cbSize &&
-        FMSTREAMHEADER_VERSION == fmsh.dwVersion)
-    {
+        FMSTREAMHEADER_VERSION == fmsh.dwVersion) {
         // Load the stream.  (Should be ordered by name.)
         DPA_LoadStream(&hdpa, FileMenuItem_LoadStream, pstm, pfmh);
     }
@@ -1590,7 +1495,7 @@ FileList_Load(
 HRESULT
 FileList_Save(
     IN  PFILEMENUHEADER pfmh,
-    IN  IStream * pstm)
+    IN  IStream* pstm)
 {
     HRESULT hres = E_OUTOFMEMORY;
     FMSTREAMHEADER fmsh;
@@ -1601,8 +1506,7 @@ FileList_Save(
 
     // Clone the array and sort by name for the purpose of persisting it
     hdpa = DPA_Clone(pfmh->hdpa, NULL);
-    if (hdpa)
-    {
+    if (hdpa) {
         DPA_Sort(hdpa, FileMenuItem_Compare, FS_SORTBYNAME);
 
         // Save the header
@@ -1610,8 +1514,7 @@ FileList_Save(
         fmsh.dwVersion = FMSTREAMHEADER_VERSION;
 
         hres = pstm->Write(&fmsh, sizeof(fmsh), NULL);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             hres = DPA_SaveStream(hdpa, FileMenuItem_SaveStream, pstm, pfmh);
         }
 
@@ -1636,8 +1539,7 @@ void FileList_Reorder(PFILEMENUHEADER pfmh)
     // ordered based on the stream (no stream means no reorder).
 
     cel = DPA_GetPtrCount(pfmh->hdpa);
-    for (i = 0; i < cel; i++)
-    {
+    for (i = 0; i < cel; i++) {
         PFILEMENUITEM pfmi = (PFILEMENUITEM)DPA_FastGetPtr(pfmh->hdpa, i);
         pfmi->nOrder = i;
 
@@ -1648,13 +1550,11 @@ void FileList_Reorder(PFILEMENUHEADER pfmh)
 
 
 // Caller should release the stream after using it
-BOOL FileList_GetStream(PFILEMENUHEADER pfmh, IStream ** ppstm)
+BOOL FileList_GetStream(PFILEMENUHEADER pfmh, IStream** ppstm)
 {
-    if (NULL == pfmh->pstm)
-    {
-        if (pfmh->pfncb)
-        {
-            FMGETSTREAM fmgs = { 0 };
+    if (NULL == pfmh->pstm) {
+        if (pfmh->pfncb) {
+            FMGETSTREAM fmgs = {0};
             FMCBDATA fmcbdata;
 
             fmcbdata.hmenu = pfmh->hmenu;
@@ -1666,17 +1566,14 @@ BOOL FileList_GetStream(PFILEMENUHEADER pfmh, IStream ** ppstm)
             fmcbdata.pvHeader = pfmh;
 
             if (S_OK == pfmh->pfncb(FMM_GETSTREAM, &fmcbdata, (LPARAM)&fmgs) &&
-                fmgs.pstm)
-            {
+                fmgs.pstm) {
                 // Cache this stream away
                 pfmh->pstm = fmgs.pstm;
             }
         }
-    }
-    else
-    {
+    } else {
         // Reset the seek pointer to beginning
-        LARGE_INTEGER dlibMove = { 0 };
+        LARGE_INTEGER dlibMove = {0};
         pfmh->pstm->Seek(dlibMove, STREAM_SEEK_SET, NULL);
     }
 
@@ -1693,7 +1590,7 @@ void
 FileList_Sort(
     PFILEMENUHEADER pfmh)
 {
-    IStream * pstm;
+    IStream* pstm;
 
     ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
@@ -1701,14 +1598,12 @@ FileList_Sort(
     DPA_Sort(pfmh->hdpa, FileMenuItem_Compare, FS_SORTBYNAME);
 
     // Can this menu be sorted by the user?
-    if ((pfmh->fmf & FMF_CANORDER) && FileList_GetStream(pfmh, &pstm))
-    {
+    if ((pfmh->fmf & FMF_CANORDER) && FileList_GetStream(pfmh, &pstm)) {
         // Yes; get the stream and try to load the order info
         HDPA hdpaOrder;
 
         // Read the order from the stream
-        if (FileList_Load(pfmh, &hdpaOrder, pstm))
-        {
+        if (FileList_Load(pfmh, &hdpaOrder, pstm)) {
             // Sort the menu according to this stream's order.
 
             // The persisted order is by name.  This reduces the number of
@@ -1755,8 +1650,7 @@ GetItemExtent(
     ASSERT(pfmh);
 
     // Limit the width of the text?
-    if (0 < pfmh->cxMax)
-    {
+    if (0 < pfmh->cxMax) {
         // Yes
         PathCompactPath(hdc, szName, pfmh->cxMax);
     }
@@ -1766,15 +1660,12 @@ GetItemExtent(
     wHeight = HIWORD(dwExtent);
 
     // If no custom height - calc it.
-    if (!pfmi->cyItem)
-    {
+    if (!pfmi->cyItem) {
         if (pfmh->fmf & FMF_LARGEICONS)
             wHeight = max(wHeight, ((WORD)g_cyIcon)) + 2;
         else
             wHeight = max(wHeight, ((WORD)g_cySmIcon)) + pfmh->cySpacing;
-    }
-    else
-    {
+    } else {
         wHeight = max(wHeight, pfmi->cyItem);
     }
 
@@ -1786,15 +1677,14 @@ GetItemExtent(
     wWidth = LOWORD(dwExtent) + GetSystemMetrics(SM_CXMENUCHECK);
 
     // Keep track of the width and height of the bitmap.
-    if (pfmh->hbmp && !pfmh->cxBmp && !pfmh->cyBmp)
-    {
+    if (pfmh->hbmp && !pfmh->cxBmp && !pfmh->cyBmp) {
         GetObject(pfmh->hbmp, SIZEOF(bmp), &bmp);
         pfmh->cxBmp = bmp.bmWidth;
         pfmh->cyBmp = bmp.bmHeight;
     }
 
     // Gap for bitmap.
-    wWidth += (WORD) pfmh->cxBmpGap;
+    wWidth += (WORD)pfmh->cxBmpGap;
 
     // Space for image if there is one.
     // NB We currently always allow room for the image even if there
@@ -1839,8 +1729,7 @@ PFILEMENUHEADER FileMenu_GetHeader(HMENU hmenu)
 
     if (pfmi &&
         EVAL(IS_VALID_STRUCT_PTR(pfmi, FILEMENUITEM)) &&
-        EVAL(IS_VALID_STRUCT_PTR(pfmi->pfmh, FILEMENUHEADER)))
-    {
+        EVAL(IS_VALID_STRUCT_PTR(pfmi->pfmh, FILEMENUHEADER))) {
         return pfmi->pfmh;
     }
 
@@ -1865,35 +1754,28 @@ FileMenuHeader_Create(
     IN int          cxBmpGap,
     IN COLORREF     clrBkg,
     IN int          cySel,
-    IN const FMCOMPOSE * pfmc)      OPTIONAL
+    IN const FMCOMPOSE* pfmc)      OPTIONAL
 {
     PFILEMENUITEM pfmi = FileMenu_GetItemData(hmenu, 0, TRUE);
     PFILEMENUHEADER pfmh;
 
     // Does this guy already have a header?
-    if (pfmi)
-    {
+    if (pfmi) {
         // Yes; use it
         pfmh = pfmi->pfmh;
         ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
-    }
-    else
-    {
+    } else {
         // Nope, create one now.
         pfmh = (PFILEMENUHEADER)LocalAlloc(LPTR, SIZEOF(FILEMENUHEADER));
-        if (pfmh)
-        {
+        if (pfmh) {
             // Keep track of the header.
             TraceMsg(TF_MENU, "Creating filemenu header for %#08x (%x)", hmenu, pfmh);
 
             pfmh->hdpa = DPA_Create(0);
-            if (pfmh->hdpa == NULL)
-            {
+            if (pfmh->hdpa == NULL) {
                 LocalFree((HLOCAL)pfmh);
                 pfmh = NULL;
-            }
-            else
-            {
+            } else {
                 pfmh->hmenu = hmenu;
                 pfmh->hbmp = hbmp;
                 pfmh->cxBmpGap = cxBmpGap;
@@ -1904,8 +1786,7 @@ FileMenuHeader_Create(
         }
     }
 
-    if (pfmc && pfmh)
-    {
+    if (pfmc && pfmh) {
         // Set additional values
         if (IsFlagSet(pfmc->dwMask, FMC_CALLBACK))
             pfmh->pfncb = pfmc->pfnCallback;
@@ -1919,8 +1800,7 @@ FileMenuHeader_Create(
         if (IsFlagSet(pfmc->dwMask, FMC_CYSPACING))
             pfmh->cySpacing = pfmc->cySpacing;
 
-        if (IsFlagSet(pfmc->dwMask, FMC_FILTERTYPES))
-        {
+        if (IsFlagSet(pfmc->dwMask, FMC_FILTERTYPES)) {
             // This is a double-null terminated string
             MultiSz_AllocCopy(pfmc->pszFilterTypes, &pfmh->pszFilterTypes);
         }
@@ -1939,7 +1819,7 @@ Cond:    --
 BOOL
 FileMenuHeader_SetFolderInfo(
     IN PFILEMENUHEADER pfmh,
-    IN const FMCOMPOSE * pfmc)
+    IN const FMCOMPOSE* pfmc)
 {
     ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
     ASSERT(pfmc);
@@ -1962,17 +1842,13 @@ FileMenuHeader_SetFolderInfo(
     if (IsFlagSet(pfmc->dwMask, FMC_FILTERTYPES))
         MultiSz_AllocCopy(pfmc->pszFilterTypes, &pfmh->pszFilterTypes);
 
-    if (pfmc->pidlFolder)
-    {
+    if (pfmc->pidlFolder) {
         pfmh->pidlFolder = ILClone(pfmc->pidlFolder);
-        if (pfmh->pidlFolder)
-        {
+        if (pfmh->pidlFolder) {
             LPSHELLFOLDER psfDesktop;
-            if (SUCCEEDED(SHGetDesktopFolder(&psfDesktop)))
-            {
+            if (SUCCEEDED(SHGetDesktopFolder(&psfDesktop))) {
                 if (SUCCEEDED(psfDesktop->BindToObject(pfmh->pidlFolder,
-                    NULL, IID_IShellFolder, (PVOID *)&pfmh->psf)))
-                {
+                                                       NULL, IID_IShellFolder, (PVOID*)&pfmh->psf))) {
                     return TRUE;
                 }
             }
@@ -1992,20 +1868,17 @@ Cond:    --
 BOOL
 FileMenuHeader_CreateTooltipWindow(
     IN  PFILEMENUHEADER pfmh)
-    {
+{
     ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
     // Check if we need to create the main tooltip window
-    if (g_hwndTip)
-    {
-        if (IsWindow(g_hwndTip))
-        {
+    if (g_hwndTip) {
+        if (IsWindow(g_hwndTip)) {
             TCHAR szClass[MAX_PATH];
             GetClassName(g_hwndTip, szClass, ARRAYSIZE(szClass));
             if (lstrcmpi(szClass, TOOLTIPS_CLASS) != 0)
                 g_hwndTip = NULL;
-        }
-        else
+        } else
             g_hwndTip = NULL;
     }
 
@@ -2015,7 +1888,7 @@ FileMenuHeader_CreateTooltipWindow(
     ASSERT(IS_VALID_HANDLE(g_hwndTip, WND));
 
     return NULL != g_hwndTip;
-    }
+}
 
 
 
@@ -2027,8 +1900,7 @@ BOOL FileMenuHeader_InsertMarkerItem(PFILEMENUHEADER pfmh)
 
     ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
-    if (FileMenuItem_Create(pfmh, NULL, -1, FMI_MARKER | FMI_EXPAND, &pfmi))
-    {
+    if (FileMenuItem_Create(pfmh, NULL, -1, FMI_MARKER | FMI_EXPAND, &pfmi)) {
         DPA_SetPtr(pfmh->hdpa, 0, pfmi);
         FileMenuHeader_InsertItem(pfmh, 0, FMII_DEFAULT);
         return TRUE;
@@ -2067,22 +1939,19 @@ FileMenuHeader_InsertItem(
         pfmi->Flags |= FMI_ON_MENU;
 
     // The normal stuff.
-    fMenu = MF_BYPOSITION|MF_OWNERDRAW;
+    fMenu = MF_BYPOSITION | MF_OWNERDRAW;
     // Keep track of where it's going in the menu.
 
     // The special stuff...
-    if (fFlags & FMII_BREAK)
-    {
+    if (fFlags & FMII_BREAK) {
         fMenu |= MF_MENUBARBREAK;
     }
 
     // Is it a folder (that's not open yet)?
-    if (pfmi->Flags & FMI_FOLDER)
-    {
+    if (pfmi->Flags & FMI_FOLDER) {
         // Yep. Create a submenu item.
         HMENU hmenuSub = CreatePopupMenu();
-        if (hmenuSub)
-        {
+        if (hmenuSub) {
             MENUITEMINFO mii;
             LPITEMIDLIST pidlSub;
             PFILEMENUHEADER pfmhSub;
@@ -2104,20 +1973,18 @@ FileMenuHeader_InsertItem(
             pidlSub = ILCombine((pfmi->Flags & FMI_ALTITEM) ? pfmh->pidlAltFolder : pfmh->pidlFolder, pfmi->pidl);
             pfmhSub = FileMenuHeader_Create(hmenuSub, NULL, 0, (COLORREF)-1, 0, &fmc);
             ASSERT(pfmh);
-            if (pfmh)
-            {
+            if (pfmh) {
                 // Inherit settings from the parent filemenu
-                fmc.dwMask     = FMC_PIDL | FMC_FILTER | FMC_CYMAX |
-                                 FMC_CXMAX | FMC_CYSPACING;
-                fmc.id         = pfmh->idCmd;
+                fmc.dwMask = FMC_PIDL | FMC_FILTER | FMC_CYMAX |
+                    FMC_CXMAX | FMC_CYSPACING;
+                fmc.id = pfmh->idCmd;
                 fmc.pidlFolder = pidlSub;
                 fmc.dwFSFilter = pfmh->fFSFilter;
-                fmc.cyMax      = pfmh->cyMax;
-                fmc.cxMax      = pfmh->cxMax;
-                fmc.cySpacing  = pfmh->cySpacing;
+                fmc.cyMax = pfmh->cyMax;
+                fmc.cxMax = pfmh->cxMax;
+                fmc.cySpacing = pfmh->cySpacing;
 
-                if (pfmh->pszFilterTypes)
-                {
+                if (pfmh->pszFilterTypes) {
                     fmc.dwMask |= FMC_FILTERTYPES;
                     fmc.pszFilterTypes = pfmh->pszFilterTypes;
                 }
@@ -2133,9 +2000,7 @@ FileMenuHeader_InsertItem(
             }
             ILFree(pidlSub);
         }
-    }
-    else
-    {
+    } else {
         // Nope.
         if (pfmi->Flags & FMI_EMPTY)
             fMenu |= MF_DISABLED | MF_GRAYED;
@@ -2169,27 +2034,21 @@ FileList_StripLeftOvers(
 
     // Do this backwards to stop things moving around as
     // we delete them.
-    for (i = cItems - 1; i >= idpaStart; i--)
-    {
+    for (i = cItems - 1; i >= idpaStart; i--) {
         PFILEMENUITEM pfmi = (PFILEMENUITEM)DPA_GetPtr(pfmh->hdpa, i);
-        if (pfmi)
-        {
+        if (pfmi) {
             // Tell the callback we're removing this
             if (pfmh->pfncb && pfmi->pidl &&
-                IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL))
-            {
+                IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL)) {
                 FMCBDATA fmcbdata;
 
                 fmcbdata.hmenu = pfmh->hmenu;
                 fmcbdata.iPos = i;
                 fmcbdata.idCmd = GetMenuItemID(pfmh->hmenu, i);
-                if (bUseAlt)
-                {
+                if (bUseAlt) {
                     fmcbdata.pidlFolder = pfmh->pidlAltFolder;
                     fmcbdata.psf = pfmh->psfAlt;
-                }
-                else
-                {
+                } else {
                     fmcbdata.pidlFolder = pfmh->pidlFolder;
                     fmcbdata.psf = pfmh->psf;
                 }
@@ -2228,16 +2087,13 @@ FileMenuHeader_AddMoreItemsItem(
 
     ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
-    if (NULL == pfmh->pfncb)
-    {
+    if (NULL == pfmh->pfncb) {
         // BUGBUG (scotth): this shouldn't be required, but we don't
         // have a default resource ID for this right now.
 
         TraceMsg(TF_ERROR, "Need a callback in order to add a More item.");
         ASSERT(0);
-    }
-    else if (FileMenuItem_Create(pfmh, NULL, -1, 0, &pfmi))
-    {
+    } else if (FileMenuItem_Create(pfmh, NULL, -1, 0, &pfmi)) {
         FMCBDATA fmcbdata;
         FMMORESTRING fmms = {0};
 
@@ -2255,19 +2111,17 @@ FileMenuHeader_AddMoreItemsItem(
         fmcbdata.psf = pfmh->psf;
 
         // Was a string set?
-        if (S_OK == pfmh->pfncb(FMM_GETMORESTRING, &fmcbdata, (LPARAM)&fmms))
-        {
+        if (S_OK == pfmh->pfncb(FMM_GETMORESTRING, &fmcbdata, (LPARAM)&fmms)) {
             Sz_AllocCopy(fmms.szMoreString, &(pfmi->psz));
 
-            if (DPA_SetPtr(pfmh->hdpa, iPos, pfmi))
-            {
+            if (DPA_SetPtr(pfmh->hdpa, iPos, pfmi)) {
                 MENUITEMINFO mii;
 
                 // Set the command ID
                 mii.cbSize = SIZEOF(mii);
-                mii.fMask  = MIIM_ID | MIIM_TYPE | MIIM_DATA;
-                mii.wID    = fmms.uID;
-                mii.fType  = MFT_OWNERDRAW;
+                mii.fMask = MIIM_ID | MIIM_TYPE | MIIM_DATA;
+                mii.wID = fmms.uID;
+                mii.fType = MFT_OWNERDRAW;
                 mii.dwItemData = (DWORD_PTR)pfmi;
 
                 EVAL(InsertMenuItem(pfmh->hmenu, iPos, TRUE, &mii));
@@ -2320,14 +2174,11 @@ FileList_AddToMenu(
     // Get the rough height of an item so we can work out when to break the
     // menu. User should really do this for us but that would be useful.
     hdc = GetDC(NULL);
-    if (hdc)
-    {
+    if (hdc) {
         ncm.cbSize = SIZEOF(NONCLIENTMETRICS);
-        if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SIZEOF(ncm), &ncm, FALSE))
-        {
+        if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SIZEOF(ncm), &ncm, FALSE)) {
             hfont = CreateFontIndirect(&ncm.lfMenuFont);
-            if (hfont)
-            {
+            if (hfont) {
                 hfontOld = SelectFont(hdc, hfont);
                 cyItem = HIWORD(GetItemExtent(hdc, (PFILEMENUITEM)DPA_GetPtr(hdpaT, 0)));
                 SelectObject(hdc, hfontOld);
@@ -2346,8 +2197,7 @@ FileList_AddToMenu(
 
     cItems = DPA_GetPtrCount(hdpaT);
 
-    for (i = 0; i < cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         if (bUseAlt) {
             // Move the items from the alternate list to the main
             // list and use the new index.
@@ -2363,18 +2213,15 @@ FileList_AddToMenu(
 
         // Keep a rough count of the height of the menu.
         cyMenu += cyItem;
-        if (cyMenu > cyMenuMax)
-        {
+        if (cyMenu > cyMenuMax) {
             // Add a vertical break?
-            if ( !(pfmh->fmf & (FMF_NOBREAK | FMF_RESTRICTHEIGHT)) )
-            {
+            if (!(pfmh->fmf & (FMF_NOBREAK | FMF_RESTRICTHEIGHT))) {
                 // Yes
                 FileMenuHeader_InsertItem(pfmh, idpa, FMII_BREAK);
                 cyMenu = cyItem;
             }
             // Restrict height?
-            else if (IsFlagSet(pfmh->fmf, FMF_RESTRICTHEIGHT))
-            {
+            else if (IsFlagSet(pfmh->fmf, FMF_RESTRICTHEIGHT)) {
                 // Yes; remove the remaining items from the list
                 FileList_StripLeftOvers(pfmh, idpa, bUseAlt);
 
@@ -2382,8 +2229,7 @@ FileList_AddToMenu(
                 cyMenu -= cyItem;
 
                 // Add a "more..." item at the end?
-                if (pfmh->fmf & FMF_MOREITEMS)
-                {
+                if (pfmh->fmf & FMF_MOREITEMS) {
                     // Yes
                     FileMenuHeader_AddMoreItemsItem(pfmh, idpa);
                 }
@@ -2391,9 +2237,7 @@ FileList_AddToMenu(
                 // We won't go any further
                 break;
             }
-        }
-        else
-        {
+        } else {
             FileMenuHeader_InsertItem(pfmh, idpa, FMII_DEFAULT);
             cItemMac++;
         }
@@ -2426,21 +2270,18 @@ FileList_AddImages(
     }
 
     cItems = DPA_GetPtrCount(hdpaTemp);
-    for (i = 0; i < cItems; i++)
-    {
-        if (FileMenuHeader_AllowAbort(pfmh) && g_fAbortInitMenu)
-        {
+    for (i = 0; i < cItems; i++) {
+        if (FileMenuHeader_AllowAbort(pfmh) && g_fAbortInitMenu) {
             TraceMsg(TF_MENU, "FileList_AddImages: Abort: Defering images till later.");
             break;
         }
 
         pfmi = (PFILEMENUITEM)DPA_GetPtr(hdpaTemp, i);
         if (pfmi && pfmi->pidl && (pfmi->iImage == -1) &&
-            IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL))
-        {
+            IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL)) {
             pfmi->iImage = SHMapPIDLToSystemImageListIndex(
-                                (bUseAlt ? pfmh->psfAlt : pfmh->psf),
-                                pfmi->pidl, NULL);
+                (bUseAlt ? pfmh->psfAlt : pfmh->psf),
+                pfmi->pidl, NULL);
         }
     }
     return TRUE;
@@ -2454,8 +2295,7 @@ BOOL FileMenuItem_Destroy(PFILEMENUITEM pfmi)
 
     ASSERT(NULL == pfmi || IS_VALID_STRUCT_PTR(pfmi, FILEMENUITEM));
 
-    if (pfmi)
-    {
+    if (pfmi) {
         if (pfmi->pidl)
             ILFree(pfmi->pidl);
         if (pfmi->psz)
@@ -2479,8 +2319,7 @@ void FileList_UnBuild(PFILEMENUHEADER pfmh)
     ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
     cItems = DPA_GetPtrCount(pfmh->hdpa);
-    for (i=cItems-1; i>=0; i--)
-    {
+    for (i = cItems - 1; i >= 0; i--) {
         PFILEMENUITEM pfmi = (PFILEMENUITEM)DPA_GetPtr(pfmh->hdpa, i);
         if (FileMenuItem_Destroy(pfmi))
             DPA_DeletePtr(pfmh->hdpa, i);
@@ -2518,7 +2357,7 @@ FileMenuHeader_AddFiles(
     IN  PFILEMENUHEADER pfmh,
     IN  int             iPos,
     IN  UINT            uFlags,                 // FMHAF_*
-    OUT int *           pcItems)
+    OUT int* pcItems)
 {
     HRESULT hres;
     BOOL bUseAlt = IsFlagSet(uFlags, FMHAF_USEALT);
@@ -2528,26 +2367,21 @@ FileMenuHeader_AddFiles(
     int cItems = FileList_Build(pfmh, iPos, bUseAlt);
 
     // If the build was aborted cleanup and early out.
-    if (FileMenuHeader_AllowAbort(pfmh) && g_fAbortInitMenu)
-    {
+    if (FileMenuHeader_AllowAbort(pfmh) && g_fAbortInitMenu) {
         // Cleanup.
         TraceMsg(TF_MENU, "FileList_Build aborted.");
         FileList_UnBuild(pfmh);
         hres = E_ABORT;
         *pcItems = -1;
-    }
-    else
-    {
+    } else {
         *pcItems = cItems;
 
         if (cItems > 1)
             FileList_Sort(pfmh);
 
-        if (cItems != 0)
-        {
+        if (cItems != 0) {
             BOOL bSeparator = IsFlagSet(uFlags, FMHAF_SEPARATOR);
-            if (bSeparator)
-            {
+            if (bSeparator) {
                 // insert a line
                 FileMenu_AppendItem(pfmh->hmenu, (LPTSTR)FMAI_SEPARATOR, 0, -1, NULL, 0);
             }
@@ -2580,35 +2414,29 @@ void FileMenuHeader_Destroy(PFILEMENUHEADER pfmh)
 
     // Clean up the header.
     DPA_Destroy(pfmh->hdpa);
-    if (pfmh->pidlFolder)
-    {
+    if (pfmh->pidlFolder) {
         ILFree(pfmh->pidlFolder);
         pfmh->pidlFolder = NULL;
     }
-    if (pfmh->psf)
-    {
+    if (pfmh->psf) {
         pfmh->psf->Release();
         pfmh->psf = NULL;
     }
 
-    if (pfmh->pstm)
-    {
+    if (pfmh->pstm) {
         pfmh->pstm->Release();
         pfmh->pstm = NULL;
     }
 
-    if (pfmh->pidlAltFolder)
-    {
+    if (pfmh->pidlAltFolder) {
         ILFree(pfmh->pidlAltFolder);
         pfmh->pidlAltFolder = NULL;
     }
-    if (pfmh->psfAlt)
-    {
+    if (pfmh->psfAlt) {
         pfmh->psfAlt->Release();
         pfmh->psfAlt = NULL;
     }
-    if (pfmh->pszFilterTypes)
-    {
+    if (pfmh->pszFilterTypes) {
         LFree(pfmh->pszFilterTypes);
         pfmh->pszFilterTypes = NULL;
     }
@@ -2624,15 +2452,12 @@ BOOL FileMenuHeader_DeleteMarkerItem(PFILEMENUHEADER pfmh)
     ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
     // It should just be the only one in the menu.
-    if (GetMenuItemCount(pfmh->hmenu) == 1)
-    {
+    if (GetMenuItemCount(pfmh->hmenu) == 1) {
         // It should have the right id.
-        if (GetMenuItemID(pfmh->hmenu, 0) == pfmh->idCmd)
-        {
+        if (GetMenuItemID(pfmh->hmenu, 0) == pfmh->idCmd) {
             // With item data and the marker flag set.
             PFILEMENUITEM pfmi = FileMenu_GetItemData(pfmh->hmenu, 0, TRUE);
-            if (pfmi && (pfmi->Flags & FMI_MARKER))
-            {
+            if (pfmi && (pfmi->Flags & FMI_MARKER)) {
                 // Delete it.
                 ASSERT(pfmh->hdpa);
                 ASSERT(DPA_GetPtrCount(pfmh->hdpa) == 1);
@@ -2664,7 +2489,7 @@ HRESULT
 FileMenu_AddFiles(
     IN     HMENU       hmenu,
     IN     UINT        iPos,
-    IN OUT FMCOMPOSE * pfmc)
+    IN OUT FMCOMPOSE* pfmc)
 {
     HRESULT hres = E_OUTOFMEMORY;
     BOOL fMarker = FALSE;
@@ -2683,14 +2508,11 @@ FileMenu_AddFiles(
 
     // (FileMenuHeader_Create might return an existing header)
     pfmh = FileMenuHeader_Create(hmenu, NULL, 0, (COLORREF)-1, 0, pfmc);
-    if (pfmh)
-    {
+    if (pfmh) {
         PFILEMENUITEM pfmi = FileMenu_GetItemData(hmenu, 0, TRUE);
-        if (pfmi)
-        {
+        if (pfmi) {
             // Clean up marker item if there is one.
-            if ((pfmi->Flags & FMI_MARKER) && (pfmi->Flags & FMI_EXPAND))
-            {
+            if ((pfmi->Flags & FMI_MARKER) && (pfmi->Flags & FMI_EXPAND)) {
                 // Nope, do it now.
                 TraceMsg(TF_MENU, "Removing marker item.");
                 FileMenuHeader_DeleteMarkerItem(pfmh);
@@ -2710,8 +2532,7 @@ FileMenu_AddFiles(
         hres = FileMenuHeader_AddFiles(pfmh, iPos, 0, &pfmc->cItems);
         ClearFlag(pfmh->fmf, FMF_NOABORT);
 
-        if ((E_ABORT == hres || 0 == pfmc->cItems) && fMarker)
-        {
+        if ((E_ABORT == hres || 0 == pfmc->cItems) && fMarker) {
             // Aborted or no items. Put the marker back (if there used
             // to be one).
             FileMenuHeader_InsertMarkerItem(pfmh);
@@ -2748,11 +2569,9 @@ FileMenu_AppendFilesForPidl(
     pfmh = pfmi->pfmh;
 
 
-    if (pfmh)
-    {
+    if (pfmh) {
         // Clean up marker item if there is one.
-        if ((pfmi->Flags & FMI_MARKER) && (pfmi->Flags & FMI_EXPAND))
-        {
+        if ((pfmi->Flags & FMI_MARKER) && (pfmi->Flags & FMI_EXPAND)) {
             // Nope, do it now.
             // TraceMsg(DM_TRACE, "t.fm_ii: Removing marker item.");
             FileMenuHeader_DeleteMarkerItem(pfmh);
@@ -2760,11 +2579,9 @@ FileMenu_AppendFilesForPidl(
         }
 
         // Add the new stuff.
-        if (pidl)
-        {
+        if (pidl) {
             LPSHELLFOLDER psfDesktop;
-            if (SUCCEEDED(SHGetDesktopFolder(&psfDesktop)))
-            {
+            if (SUCCEEDED(SHGetDesktopFolder(&psfDesktop))) {
                 pfmh->pidlAltFolder = ILClone(pidl);
 
                 if (pfmh->pidlAltFolder) {
@@ -2774,8 +2591,7 @@ FileMenu_AppendFilesForPidl(
                     if (pfmh->hdpaAlt) {
 
                         if (SUCCEEDED(psfDesktop->BindToObject(pfmh->pidlAltFolder,
-                            NULL, IID_IShellFolder, (LPVOID *)&pfmh->psfAlt)))
-                        {
+                                                               NULL, IID_IShellFolder, (LPVOID*)&pfmh->psfAlt))) {
                             UINT uFlags = FMHAF_USEALT;
 
                             if (bInsertSeparator)
@@ -2786,7 +2602,7 @@ FileMenu_AppendFilesForPidl(
                             pfmh->fmf = pfmh->fmf & ~FMF_NOABORT;
                         }
 
-                        DPA_Destroy (pfmh->hdpaAlt);
+                        DPA_Destroy(pfmh->hdpaAlt);
                         pfmh->hdpaAlt = NULL;
                     }
                 }
@@ -2795,8 +2611,7 @@ FileMenu_AppendFilesForPidl(
             }
         }
 
-        if (cItems <= 0 && fMarker)
-        {
+        if (cItems <= 0 && fMarker) {
             // Aborted or no item  s. Put the marker back (if there used
             // to be one).
             FileMenuHeader_InsertMarkerItem(pfmh);
@@ -2818,11 +2633,9 @@ FileMenuHeader_DeleteAllItems(
 
     ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
-    if (IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER))
-    {
+    if (IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER)) {
         // Notify.
-        if (pfmh->pfncb)
-            {
+        if (pfmh->pfncb) {
             FMCBDATA fmcbdata;
 
             fmcbdata.hmenu = pfmh->hmenu;
@@ -2834,20 +2647,17 @@ FileMenuHeader_DeleteAllItems(
             fmcbdata.pvHeader = pfmh;
 
             pfmh->pfncb(FMM_DELETEALL, &fmcbdata, 0);
-            }
+        }
 
         // Clean up the items.
         cItems = DPA_GetPtrCount(pfmh->hdpa);
         // Do this backwards to stop things moving around as
         // we delete them.
-        for (i = cItems - 1; i >= 0; i--)
-        {
+        for (i = cItems - 1; i >= 0; i--) {
             PFILEMENUITEM pfmi = (PFILEMENUITEM)DPA_GetPtr(pfmh->hdpa, i);
-            if (pfmi)
-            {
+            if (pfmi) {
                 // Does this item have a subfolder?
-                if (pfmi->Flags & FMI_FOLDER)
-                {
+                if (pfmi->Flags & FMI_FOLDER) {
                     // Yep.
                     // Get the submenu for this item.
                     // Delete all it's items.
@@ -2876,13 +2686,11 @@ UINT  FileMenu_DeleteAllItems(HMENU hmenu)
         return 0;
 
     pfmh = FileMenu_GetHeader(hmenu);
-    if (pfmh)
-    {
+    if (pfmh) {
         ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
         // Save the order if necessary
-        if (IsFlagSet(pfmh->fmf, FMF_DIRTY | FMF_CANORDER))
-        {
+        if (IsFlagSet(pfmh->fmf, FMF_DIRTY | FMF_CANORDER)) {
             FileMenu_SaveOrder(pfmh->hmenu);
             ClearFlag(pfmh->fmf, FMF_DIRTY);
         }
@@ -2927,17 +2735,13 @@ FileMenu_Invalidate(HMENU hmenu)
     // Is this a filemenu?
     // NB First menu item must be a FileMenuItem.
     PFILEMENUITEM pfmi = FileMenu_GetItemData(hmenu, 0, TRUE);
-    if (pfmi)
-    {
+    if (pfmi) {
         ASSERT(IS_VALID_STRUCT_PTR(pfmi, FILEMENUITEM));
 
         // Yep, Is there already a marker here?
-        if ((pfmi->Flags & FMI_MARKER) && (pfmi->Flags & FMI_EXPAND))
-        {
+        if ((pfmi->Flags & FMI_MARKER) && (pfmi->Flags & FMI_EXPAND)) {
             TraceMsg(TF_MENU, "Menu is already invalid.");
-        }
-        else if (pfmi->pfmh)
-        {
+        } else if (pfmi->pfmh) {
             PFILEMENUHEADER pfmhSave = pfmi->pfmh;
 
             FileMenuHeader_DeleteAllItems(pfmi->pfmh);
@@ -2987,19 +2791,17 @@ STDAPI
 FileMenu_ComposeA(
     IN HMENU        hmenu,
     IN UINT         nMethod,
-    IN FMCOMPOSEA * pfmc)
+    IN FMCOMPOSEA* pfmc)
 {
     HRESULT hres = E_INVALIDARG;
 
     if (IS_VALID_WRITE_PTR(pfmc, FMCOMPOSEA) &&
-        SIZEOF(*pfmc) == pfmc->cbSize)
-    {
+        SIZEOF(*pfmc) == pfmc->cbSize) {
         FMCOMPOSEA fmc;
 
         fmc = *pfmc;
 
-        if (IsFlagSet(fmc.dwMask, FMC_STRING))
-        {
+        if (IsFlagSet(fmc.dwMask, FMC_STRING)) {
             // Convert string to pidl
             TCHAR szFolder[MAX_PATH];
 
@@ -3010,33 +2812,29 @@ FileMenu_ComposeA(
             lstrcpy(szFolder, fmc.pszFolder);
 #endif
             fmc.pidlFolder = ILCreateFromPath(szFolder);
-            if (NULL == fmc.pidlFolder)
-            {
+            if (NULL == fmc.pidlFolder) {
                 hres = E_OUTOFMEMORY;
                 goto Bail;
             }
-        }
-        else if (IsFlagClear(fmc.dwMask, FMC_PIDL))
-        {
+        } else if (IsFlagClear(fmc.dwMask, FMC_PIDL)) {
             // Either FMC_PIDL or FMC_STRING must be set
             hres = E_INVALIDARG;
             goto Bail;
         }
 
-        switch (nMethod)
-        {
+        switch (nMethod) {
         case FMCM_INSERT:
-            hres = FileMenu_AddFiles(hmenu, 0, (FMCOMPOSE *)&fmc);
+            hres = FileMenu_AddFiles(hmenu, 0, (FMCOMPOSE*)&fmc);
             break;
 
         case FMCM_APPEND:
             hres = FileMenu_AddFiles(hmenu, GetMenuItemCount(hmenu),
-                                     (FMCOMPOSE *)&fmc);
+                                     (FMCOMPOSE*)&fmc);
             break;
 
         case FMCM_REPLACE:
             FileMenu_DeleteAllItems(hmenu);
-            hres = FileMenu_AddFiles(hmenu, 0, (FMCOMPOSE *)&fmc);
+            hres = FileMenu_AddFiles(hmenu, 0, (FMCOMPOSE*)&fmc);
             break;
 
         default:
@@ -3046,7 +2844,7 @@ FileMenu_ComposeA(
 
         pfmc->cItems = fmc.cItems;
 
-Bail:
+    Bail:
         // Cleanup
         if (IsFlagSet(fmc.dwMask, FMC_STRING) && fmc.pidlFolder)
             ILFree(fmc.pidlFolder);
@@ -3068,19 +2866,17 @@ STDAPI
 FileMenu_ComposeW(
     IN HMENU        hmenu,
     IN UINT         nMethod,
-    IN FMCOMPOSEW * pfmc)
+    IN FMCOMPOSEW* pfmc)
 {
     HRESULT hres = E_INVALIDARG;
 
     if (IS_VALID_WRITE_PTR(pfmc, FMCOMPOSEW) &&
-        SIZEOF(*pfmc) == pfmc->cbSize)
-    {
+        SIZEOF(*pfmc) == pfmc->cbSize) {
         FMCOMPOSEW fmc;
 
         fmc = *pfmc;
 
-        if (IsFlagSet(fmc.dwMask, FMC_STRING))
-        {
+        if (IsFlagSet(fmc.dwMask, FMC_STRING)) {
             // Convert string to pidl
             TCHAR szFolder[MAX_PATH];
 
@@ -3091,33 +2887,29 @@ FileMenu_ComposeW(
                                 SIZECHARS(szFolder), NULL, NULL);
 #endif
             fmc.pidlFolder = ILCreateFromPath(szFolder);
-            if (NULL == fmc.pidlFolder)
-            {
+            if (NULL == fmc.pidlFolder) {
                 hres = E_OUTOFMEMORY;
                 goto Bail;
             }
-        }
-        else if (IsFlagClear(fmc.dwMask, FMC_PIDL))
-        {
+        } else if (IsFlagClear(fmc.dwMask, FMC_PIDL)) {
             // Either FMC_PIDL or FMC_STRING must be set
             hres = E_INVALIDARG;
             goto Bail;
         }
 
-        switch (nMethod)
-        {
+        switch (nMethod) {
         case FMCM_INSERT:
-            hres = FileMenu_AddFiles(hmenu, 0, (FMCOMPOSE *)&fmc);
+            hres = FileMenu_AddFiles(hmenu, 0, (FMCOMPOSE*)&fmc);
             break;
 
         case FMCM_APPEND:
             hres = FileMenu_AddFiles(hmenu, GetMenuItemCount(hmenu),
-                                     (FMCOMPOSE *)&fmc);
+                                     (FMCOMPOSE*)&fmc);
             break;
 
         case FMCM_REPLACE:
             FileMenu_DeleteAllItems(hmenu);
-            hres = FileMenu_AddFiles(hmenu, 0, (FMCOMPOSE *)&fmc);
+            hres = FileMenu_AddFiles(hmenu, 0, (FMCOMPOSE*)&fmc);
             break;
 
         default:
@@ -3127,7 +2919,7 @@ FileMenu_ComposeW(
 
         pfmc->cItems = fmc.cItems;
 
-Bail:
+    Bail:
         // Cleanup
         if (IsFlagSet(fmc.dwMask, FMC_STRING) && fmc.pidlFolder)
             ILFree(fmc.pidlFolder);
@@ -3137,7 +2929,7 @@ Bail:
 }
 
 
-LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
+LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT* pdi)
 {
     int y, x;
     TCHAR szName[MAX_PATH];
@@ -3149,18 +2941,16 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
     HIMAGELIST himl;
     RECT rcClip;
 
-    if ((pdi->itemAction & ODA_SELECT) || (pdi->itemAction & ODA_DRAWENTIRE))
-    {
+    if ((pdi->itemAction & ODA_SELECT) || (pdi->itemAction & ODA_DRAWENTIRE)) {
         PFILEMENUHEADER pfmh;
         PFILEMENUITEM pfmi = (PFILEMENUITEM)pdi->itemData;
-        IShellFolder * psf;
+        IShellFolder* psf;
 
 #ifndef UNIX
         ASSERT(IS_VALID_STRUCT_PTR(pfmi, FILEMENUITEM));
 #endif
 
-        if (!pfmi)
-        {
+        if (!pfmi) {
             TraceMsg(TF_ERROR, "FileMenu_DrawItem: Filemenu is invalid (no item data).");
             return FALSE;
         }
@@ -3174,29 +2964,23 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
             psf = pfmh->psf;
 
         // Adjust for large/small icons.
-        if (pfmh->fmf & FMF_LARGEICONS)
-        {
+        if (pfmh->fmf & FMF_LARGEICONS) {
             cxIcon = g_cxIcon;
             cyIcon = g_cyIcon;
-        }
-        else
-        {
+        } else {
             cxIcon = g_cxSmIcon;
             cyIcon = g_cxSmIcon;
         }
 
         // Is the menu just starting to get drawn?
-        if (pdi->itemAction & ODA_DRAWENTIRE)
-        {
-            if (pfmi == DPA_GetPtr(pfmh->hdpa, 0))
-            {
+        if (pdi->itemAction & ODA_DRAWENTIRE) {
+            if (pfmi == DPA_GetPtr(pfmh->hdpa, 0)) {
                 // Yes; reset the last selection item
                 g_pfmiLastSelNonFolder = NULL;
                 g_pfmiLastSel = NULL;
 
                 // Initialize to handle drag and drop?
-                if (pfmh->fmf & FMF_CANORDER)
-                {
+                if (pfmh->fmf & FMF_CANORDER) {
                     // Yes
                     g_fsmenuagent.Init();
                 }
@@ -3204,10 +2988,8 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
         }
 
 
-        if (pdi->itemState & ODS_SELECTED)
-        {
-            if (pfmh->fmf & FMF_CANORDER)
-            {
+        if (pdi->itemState & ODS_SELECTED) {
+            if (pfmh->fmf & FMF_CANORDER) {
                 // Pass on the current hDC and selection rect so the
                 // drag/drop hook can actively draw
 
@@ -3224,8 +3006,7 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
                 g_fsmenuagent.SetItem(pfmi);
 
                 // Are we in edit mode?
-                if (MenuDD_IsButtonDown())
-                {
+                if (MenuDD_IsButtonDown()) {
                     // Yes
                     g_fsmenuagent.SetEditMode(TRUE, DROPEFFECT_MOVE);
                 }
@@ -3246,14 +3027,11 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
             // Is the user dragging and dropping and we're not over
             // a cascaded menu item?
             if ((pfmh->fmf & FMF_CANORDER) && MenuDD_InEditMode() &&
-                !(pfmi->Flags & FMI_FOLDER))
-            {
+                !(pfmi->Flags & FMI_FOLDER)) {
                 // Yes; show the item in the unselected colors
                 // (dwRop = SRCAND)
                 hbrOld = SelectBrush(pdi->hDC, GetSysColorBrush(COLOR_MENUTEXT));
-            }
-            else
-            {
+            } else {
                 // No
                 SetBkColor(pdi->hDC, GetSysColor(COLOR_HIGHLIGHT));
                 SetTextColor(pdi->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
@@ -3269,39 +3047,32 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
             // Get the rect of the item in screen coords.
             g_rcItem = pdi->rcItem;
             MapWindowPoints(WindowFromDC(pdi->hDC), NULL, (LPPOINT)&g_rcItem, 2);
-        }
-        else
-        {
+        } else {
             // dwRop = SRCAND;
             hbrOld = SelectBrush(pdi->hDC, GetSysColorBrush(COLOR_MENUTEXT));
         }
 
         // Initial start pos.
-        x = pdi->rcItem.left+CXIMAGEGAP;
+        x = pdi->rcItem.left + CXIMAGEGAP;
 
         // Draw the background image.
-        if (pfmh->hbmp)
-        {
+        if (pfmh->hbmp) {
             // Draw it the first time the first item paints.
             if (pfmi == DPA_GetPtr(pfmh->hdpa, 0) &&
-                (pdi->itemAction & ODA_DRAWENTIRE))
-            {
-                if (!g_hdcMem)
-                {
+                (pdi->itemAction & ODA_DRAWENTIRE)) {
+                if (!g_hdcMem) {
                     g_hdcMem = CreateCompatibleDC(pdi->hDC);
                     ASSERT(g_hdcMem);
                 }
-                if (g_hdcMem)
-                {
+                if (g_hdcMem) {
                     HBITMAP hbmOld;
 
-                    if (!pfmh->yBmp)
-                    {
+                    if (!pfmh->yBmp) {
                         GetClipBox(pdi->hDC, &rcClip);
                         pfmh->yBmp = rcClip.bottom;
                     }
                     hbmOld = SelectBitmap(g_hdcMem, pfmh->hbmp);
-                    BitBlt(pdi->hDC, 0, pfmh->yBmp-pfmh->cyBmp, pfmh->cxBmp, pfmh->cyBmp, g_hdcMem, 0, 0, SRCCOPY);
+                    BitBlt(pdi->hDC, 0, pfmh->yBmp - pfmh->cyBmp, pfmh->cxBmp, pfmh->cyBmp, g_hdcMem, 0, 0, SRCCOPY);
                     SelectBitmap(g_hdcMem, hbmOld);
                 }
             }
@@ -3311,12 +3082,10 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
         // Background color for when the bitmap runs out.
         if ((pfmh->clrBkg != (COLORREF)-1) &&
             (pfmi == DPA_GetPtr(pfmh->hdpa, 0)) &&
-            (pdi->itemAction & ODA_DRAWENTIRE))
-        {
+            (pdi->itemAction & ODA_DRAWENTIRE)) {
             HBRUSH hbr;
 
-            if (!pfmh->yBmp)
-            {
+            if (!pfmh->yBmp) {
                 GetClipBox(pdi->hDC, &rcClip);
                 pfmh->yBmp = rcClip.bottom;
             }
@@ -3330,13 +3099,12 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
         }
 
         // Special case the separator.
-        if (pfmi->Flags & FMI_SEPARATOR)
-        {
+        if (pfmi->Flags & FMI_SEPARATOR) {
             // With no background image it goes all the way across otherwise
             // it stops in line with the bitmap.
             if (pfmh->hbmp)
                 pdi->rcItem.left += pfmh->cxBmpGap;
-            pdi->rcItem.bottom = (pdi->rcItem.top+pdi->rcItem.bottom)/2;
+            pdi->rcItem.bottom = (pdi->rcItem.top + pdi->rcItem.bottom) / 2;
             DrawEdge(pdi->hDC, &pdi->rcItem, EDGE_ETCHED, BF_BOTTOM);
             // Early out.
             goto ExitProc;
@@ -3350,8 +3118,7 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
         FileMenuItem_GetDisplayName(pfmi, szName, ARRAYSIZE(szName));
 
         // Limit the width of the text?
-        if (0 < pfmh->cxMax)
-        {
+        if (0 < pfmh->cxMax) {
             // Yes
             PathCompactPath(pdi->hDC, szName, pfmh->cxMax);
         }
@@ -3361,21 +3128,17 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
             Sz_AllocCopy(szName, &(pfmi->psz));
 
         dwExtent = GetItemTextExtent(pdi->hDC, szName);
-        y = (pdi->rcItem.bottom+pdi->rcItem.top-HIWORD(dwExtent))/2;
+        y = (pdi->rcItem.bottom + pdi->rcItem.top - HIWORD(dwExtent)) / 2;
         // Support custom heights for the selection rectangle.
-        if (pfmh->cySel)
-        {
-            cyItem = pdi->rcItem.bottom-pdi->rcItem.top;
+        if (pfmh->cySel) {
+            cyItem = pdi->rcItem.bottom - pdi->rcItem.top;
             // Is there room?
-            if ((cyItem > pfmh->cySel) && (pfmh->cySel > HIWORD(dwExtent)))
-            {
-                dyItem = (cyItem-pfmh->cySel)/2;
-                pdi->rcItem.top += dyItem ;
+            if ((cyItem > pfmh->cySel) && (pfmh->cySel > HIWORD(dwExtent))) {
+                dyItem = (cyItem - pfmh->cySel) / 2;
+                pdi->rcItem.top += dyItem;
                 pdi->rcItem.bottom -= dyItem;
             }
-        }
-        else if(!(pfmh->fmf & FMF_LARGEICONS))
-        {
+        } else if (!(pfmh->fmf & FMF_LARGEICONS)) {
             // Shrink the selection rect for small icons a bit.
             pdi->rcItem.top += 1;
             pdi->rcItem.bottom -= 1;
@@ -3386,25 +3149,20 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
 
         int fDSFlags;
 
-        if (pfmi->Flags & FMI_IGNORE_PIDL)
-        {
+        if (pfmi->Flags & FMI_IGNORE_PIDL) {
 
             // If the string is not coming from a pidl,
             // we can format the menu text.
 
             fDSFlags = DST_PREFIXTEXT;
-        }
-        else if ((pfmi->Flags & FMI_ON_MENU) == 0)
-        {
+        } else if ((pfmi->Flags & FMI_ON_MENU) == 0) {
 
             // Norton Desktop Navigator 95 replaces the Start->&Run
             // menu item with a &Run pidl.  Even though the text is
             // from a pidl, we still want to format the "&R" correctly.
 
             fDSFlags = DST_PREFIXTEXT;
-        }
-        else
-        {
+        } else {
 
             // All other strings coming from pidls are displayed
             // as is to preserve any & in their display name.
@@ -3412,69 +3170,54 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
             fDSFlags = DST_TEXT;
         }
 
-        if ((pfmi->Flags & FMI_EMPTY) || (pfmi->Flags & FMI_DISABLED))
-        {
-            if (pdi->itemState & ODS_SELECTED)
-            {
-                if (GetSysColor(COLOR_GRAYTEXT) == GetSysColor(COLOR_HIGHLIGHTTEXT))
-                {
+        if ((pfmi->Flags & FMI_EMPTY) || (pfmi->Flags & FMI_DISABLED)) {
+            if (pdi->itemState & ODS_SELECTED) {
+                if (GetSysColor(COLOR_GRAYTEXT) == GetSysColor(COLOR_HIGHLIGHTTEXT)) {
                     fDSFlags |= DSS_UNION;
-                }
-                else
-                {
+                } else {
                     SetTextColor(pdi->hDC, GetSysColor(COLOR_GRAYTEXT));
                 }
-            }
-            else
-            {
+            } else {
                 fDSFlags |= DSS_DISABLED;
             }
 
             ExtTextOut(pdi->hDC, 0, 0, ETO_OPAQUE, &pdi->rcItem, NULL, 0, NULL);
-            DrawState(pdi->hDC, NULL, NULL, (LONG_PTR)szName, lstrlen(szName), x+cxIcon+CXIMAGEGAP,
-                y, 0, 0, fDSFlags);
-        }
-        else
-        {
-            ExtTextOut(pdi->hDC, x+cxIcon+CXIMAGEGAP, y, ETO_OPAQUE, &pdi->rcItem, NULL,
-                0, NULL);
-            DrawState(pdi->hDC, NULL, NULL, (LONG_PTR)szName, lstrlen(szName), x+cxIcon+CXIMAGEGAP,
-                y, 0, 0, fDSFlags);
+            DrawState(pdi->hDC, NULL, NULL, (LONG_PTR)szName, lstrlen(szName), x + cxIcon + CXIMAGEGAP,
+                      y, 0, 0, fDSFlags);
+        } else {
+            ExtTextOut(pdi->hDC, x + cxIcon + CXIMAGEGAP, y, ETO_OPAQUE, &pdi->rcItem, NULL,
+                       0, NULL);
+            DrawState(pdi->hDC, NULL, NULL, (LONG_PTR)szName, lstrlen(szName), x + cxIcon + CXIMAGEGAP,
+                      y, 0, 0, fDSFlags);
         }
 
         // Get the image if it needs it,
         if ((pfmi->iImage == -1) && pfmi->pidl && psf &&
-            IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL))
-        {
+            IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL)) {
             pfmi->iImage = SHMapPIDLToSystemImageListIndex(psf, pfmi->pidl, NULL);
         }
 
         // Draw the image (if there is one).
-        if (pfmi->iImage != -1)
-        {
+        if (pfmi->iImage != -1) {
             int nDC = 0;
 
             // Try to center image.
-            y = (pdi->rcItem.bottom+pdi->rcItem.top-cyIcon)/2;
+            y = (pdi->rcItem.bottom + pdi->rcItem.top - cyIcon) / 2;
 
-            if (pfmh->fmf & FMF_LARGEICONS)
-            {
+            if (pfmh->fmf & FMF_LARGEICONS) {
                 himl = g_himlIcons;
                 // Handle minor drawing glitches that can occur with large icons.
-                if ((pdi->itemState & ODS_SELECTED) && (y < pdi->rcItem.top))
-                {
+                if ((pdi->itemState & ODS_SELECTED) && (y < pdi->rcItem.top)) {
                     nDC = SaveDC(pdi->hDC);
                     IntersectClipRect(pdi->hDC, pdi->rcItem.left, pdi->rcItem.top,
-                        pdi->rcItem.right, pdi->rcItem.bottom);
+                                      pdi->rcItem.right, pdi->rcItem.bottom);
                 }
-            }
-            else
-            {
+            } else {
                 himl = g_himlIconsSmall;
             }
 
             ImageList_DrawEx(himl, pfmi->iImage, pdi->hDC, x, y, 0, 0,
-                GetBkColor(pdi->hDC), CLR_NONE, ILD_NORMAL);
+                             GetBkColor(pdi->hDC), CLR_NONE, ILD_NORMAL);
 
             // Restore the clip rect if we were doing custom clipping.
             if (nDC)
@@ -3486,8 +3229,7 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
         if ((pfmh->fmf & FMF_CANORDER) &&
             (pdi->itemState & ODS_SELECTED) &&
             MenuDD_InEditMode() &&
-            (pfmi->dwEffect & g_fsmenuagent.GetDragEffect()))
-        {
+            (pfmi->dwEffect & g_fsmenuagent.GetDragEffect())) {
             // Yes; draw the insertion caret
             RECT rc = pdi->rcItem;
             POINT pt;
@@ -3505,8 +3247,7 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
 
             TraceMsg(TF_MENU, "MenuDD:  showing caret %s", MenuDD_InsertAbove() ? TEXT("above") : TEXT("below"));
 
-            if (MenuDD_InsertAbove())
-            {
+            if (MenuDD_InsertAbove()) {
                 // Hide any existing caret
                 HBRUSH hbrSav = SelectBrush(pdi->hDC, MenuDD_GetBrush());
                 PatBlt(pdi->hDC, rc.left, pdi->rcItem.bottom - 2, (rc.right - rc.left), 2, PATCOPY);
@@ -3514,9 +3255,7 @@ LRESULT FileMenu_DrawItem(HWND hwnd, DRAWITEMSTRUCT *pdi)
 
                 // Show caret in new position
                 PatBlt(pdi->hDC, rc.left, pdi->rcItem.top, (rc.right - rc.left), 2, BLACKNESS);
-            }
-            else
-            {
+            } else {
                 // Hide any existing caret
                 HBRUSH hbrSav = SelectBrush(pdi->hDC, MenuDD_GetBrush());
                 PatBlt(pdi->hDC, rc.left, pdi->rcItem.top, (rc.right - rc.left), 2, PATCOPY);
@@ -3541,40 +3280,31 @@ DWORD FileMenuItem_GetExtent(PFILEMENUITEM pfmi)
 {
     DWORD dwExtent = 0;
 
-    if (pfmi)
-    {
-        if (pfmi->Flags & FMI_SEPARATOR)
-        {
-            dwExtent = MAKELONG(0, GetSystemMetrics(SM_CYMENUSIZE)/2);
-        }
-        else
-        {
+    if (pfmi) {
+        if (pfmi->Flags & FMI_SEPARATOR) {
+            dwExtent = MAKELONG(0, GetSystemMetrics(SM_CYMENUSIZE) / 2);
+        } else {
             PFILEMENUHEADER pfmh = pfmi->pfmh;
 
             ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
-            if (!g_hdcMem)
-            {
+            if (!g_hdcMem) {
                 g_hdcMem = CreateCompatibleDC(NULL);
                 ASSERT(g_hdcMem);
             }
-            if (g_hdcMem)
-            {
+            if (g_hdcMem) {
                 // Get the rough height of an item so we can work out when to break the
                 // menu. User should really do this for us but that would be useful.
-                if (!g_hfont)
-                {
+                if (!g_hfont) {
                     NONCLIENTMETRICS ncm;
                     ncm.cbSize = SIZEOF(ncm);
-                    if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SIZEOF(ncm), &ncm, FALSE))
-                    {
+                    if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SIZEOF(ncm), &ncm, FALSE)) {
                         g_hfont = CreateFontIndirect(&ncm.lfMenuFont);
                         ASSERT(g_hfont);
                     }
                 }
 
-                if (g_hfont)
-                {
+                if (g_hfont) {
                     HFONT hfontOld = SelectFont(g_hdcMem, g_hfont);
                     dwExtent = GetItemExtent(g_hdcMem, pfmi);
                     SelectFont(g_hdcMem, hfontOld);
@@ -3584,9 +3314,7 @@ DWORD FileMenuItem_GetExtent(PFILEMENUITEM pfmi)
                 // NB We hang on to the DC, it'll get stomped by FM_TPME on the way out.
             }
         }
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_ERROR, "FileMenu_GetExtent: Filemenu is invalid.");
     }
 
@@ -3594,7 +3322,7 @@ DWORD FileMenuItem_GetExtent(PFILEMENUITEM pfmi)
 }
 
 
-LRESULT FileMenu_MeasureItem(HWND hwnd, MEASUREITEMSTRUCT *lpmi)
+LRESULT FileMenu_MeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpmi)
 {
     DWORD dwExtent = FileMenuItem_GetExtent((PFILEMENUITEM)lpmi->itemData);
     lpmi->itemHeight = HIWORD(dwExtent);
@@ -3625,8 +3353,7 @@ FileMenu_FindSubMenuByPidl(HMENU hmenu, LPITEMIDLIST pidlFS)
     PFILEMENUHEADER pfmh;
     int i;
 
-    if (!pidlFS)
-    {
+    if (!pidlFS) {
         ASSERT(0);
         return NULL;
     }
@@ -3634,29 +3361,23 @@ FileMenu_FindSubMenuByPidl(HMENU hmenu, LPITEMIDLIST pidlFS)
         return hmenu;
 
     pfmh = FileMenu_GetHeader(hmenu);
-    if (pfmh)
-    {
+    if (pfmh) {
         int cItems = DPA_GetPtrCount(pfmh->hdpa);
-        for (i = cItems - 1 ; i >= 0; i--)
-        {
+        for (i = cItems - 1; i >= 0; i--) {
             // HACK: We directly call this FS function to compare two pidls.
             // For all items, see if it's the one we're looking for.
             PFILEMENUITEM pfmi = (PFILEMENUITEM)DPA_GetPtr(pfmh->hdpa, i);
 
             if (pfmi && pfmi->pidl && IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL) &&
-                0 == pfmh->psf->CompareIDs(0, pidlFS, pfmi->pidl))
-            {
+                0 == pfmh->psf->CompareIDs(0, pidlFS, pfmi->pidl)) {
                 HMENU hmenuSub;
 
                 if ((pfmi->Flags & FMI_FOLDER) &&
-                    (NULL != (hmenuSub = GetSubMenu(hmenu, i))))
-                {
+                    (NULL != (hmenuSub = GetSubMenu(hmenu, i)))) {
                     // recurse to find the next sub menu
                     return FileMenu_FindSubMenuByPidl(hmenuSub, (LPITEMIDLIST)ILGetNext(pidlFS));
 
-                }
-                else
-                {
+                } else {
                     ASSERT(0); // we're screwed.
                     break;
                 }
@@ -3688,24 +3409,20 @@ FileMenu_InitMenuPopupEx(
     ASSERT(IS_VALID_HANDLE(hmenu, MENU));
 
     if (IS_VALID_WRITE_PTR(pfmdata, FMDATA) &&
-        SIZEOF(*pfmdata) == pfmdata->cbSize)
-    {
+        SIZEOF(*pfmdata) == pfmdata->cbSize) {
         hres = E_FAIL;      // assume error
 
         g_fAbortInitMenu = FALSE;
 
         // Is this a filemenu?
         pfmi = FileMenu_GetItemData(hmenu, 0, TRUE);
-        if (pfmi)
-        {
+        if (pfmi) {
             ASSERT(IS_VALID_STRUCT_PTR(pfmi, FILEMENUITEM));
 
             pfmh = pfmi->pfmh;
-            if (pfmh)
-            {
+            if (pfmh) {
                 // Yes
-                if (IsFlagSet(pfmh->fmf, FMF_DELAY_INVALID))
-                {
+                if (IsFlagSet(pfmh->fmf, FMF_DELAY_INVALID)) {
                     FileMenu_Invalidate(hmenu);
                     ClearFlag(pfmh->fmf, FMF_DELAY_INVALID);
                 }
@@ -3717,35 +3434,29 @@ FileMenu_InitMenuPopupEx(
                 hres = S_OK;
 
                 // Have we already filled this thing out?
-                if (IsFlagSet(pfmi->Flags, FMI_MARKER | FMI_EXPAND))
-                {
+                if (IsFlagSet(pfmi->Flags, FMI_MARKER | FMI_EXPAND)) {
                     // No, do it now.  Get the previously init'ed header.
                     FileMenuHeader_DeleteMarkerItem(pfmh);
 
                     // Fill it full of stuff.
                     hres = FileMenuHeader_AddFiles(pfmh, 0, 0, &pfmdata->cItems);
-                    if (E_ABORT == hres)
-                    {
+                    if (E_ABORT == hres) {
                         // Aborted - put the marker back.
                         FileMenuHeader_InsertMarkerItem(pfmh);
-                    }
-                    else if (pfmh->pidlAltFolder)
-                    {
+                    } else if (pfmh->pidlAltFolder) {
                         pfmh->hdpaAlt = DPA_Create(0);
 
-                        if (pfmh->hdpaAlt)
-                        {
+                        if (pfmh->hdpaAlt) {
                             int cItems;
 
                             if (E_ABORT == FileMenuHeader_AddFiles(pfmh, 0,
-                                           FMHAF_SEPARATOR | FMHAF_USEALT,
-                                           &cItems))
-                            {
-                               // Aborted - put the marker back.
-                               FileMenuHeader_InsertMarkerItem(pfmh);
+                                                                   FMHAF_SEPARATOR | FMHAF_USEALT,
+                                                                   &cItems)) {
+                                // Aborted - put the marker back.
+                                FileMenuHeader_InsertMarkerItem(pfmh);
                             }
 
-                            DPA_Destroy (pfmh->hdpaAlt);
+                            DPA_Destroy(pfmh->hdpaAlt);
                             pfmh->hdpaAlt = NULL;
                         }
                     }
@@ -3782,8 +3493,7 @@ BOOL FileMenu_IsUnexpanded(HMENU hmenu)
 
     ASSERT(IS_VALID_STRUCT_PTR(pfmi, FILEMENUITEM));
 
-    if (pfmi)
-    {
+    if (pfmi) {
         if ((pfmi->Flags & FMI_MARKER) && (pfmi->Flags & FMI_EXPAND))
             fRet = TRUE;
     }
@@ -3811,27 +3521,24 @@ Cond:    --
 STDAPI_(BOOL)
 FileMenu_GetLastSelectedItemPidls(
     IN  HMENU          hmenu,
-    OUT LPITEMIDLIST * ppidlFolder,         OPTIONAL
-    OUT LPITEMIDLIST * ppidlItem)           OPTIONAL
+    OUT LPITEMIDLIST* ppidlFolder, OPTIONAL
+    OUT LPITEMIDLIST* ppidlItem)           OPTIONAL
 {
-    BOOL bRet    = FALSE;
+    BOOL bRet = FALSE;
     LPITEMIDLIST pidlFolder = NULL;
     LPITEMIDLIST pidlItem = NULL;
 
     // BUGBUG (scotth): this global should be moved into the
     //  instance data of the header.
-    if (g_pfmiLastSelNonFolder)
-    {
+    if (g_pfmiLastSelNonFolder) {
         // Get to the header.
         PFILEMENUHEADER pfmh = g_pfmiLastSelNonFolder->pfmh;
-        if (pfmh)
-        {
+        if (pfmh) {
             ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
             bRet = TRUE;
 
-            if (ppidlFolder)
-            {
+            if (ppidlFolder) {
                 if (g_pfmiLastSelNonFolder->Flags & FMI_ALTITEM)
                     pidlFolder = ILClone(pfmh->pidlAltFolder);
                 else
@@ -3839,21 +3546,16 @@ FileMenu_GetLastSelectedItemPidls(
                 bRet = (NULL != pidlFolder);
             }
 
-            if (bRet && ppidlItem)
-            {
-                if (g_pfmiLastSelNonFolder->pidl)
-                {
+            if (bRet && ppidlItem) {
+                if (g_pfmiLastSelNonFolder->pidl) {
                     pidlItem = ILClone(g_pfmiLastSelNonFolder->pidl);
                     bRet = (NULL != pidlItem);
-                }
-                else
+                } else
                     bRet = FALSE;
             }
 
-            if (!bRet)
-            {
-                if (pidlFolder)
-                {
+            if (!bRet) {
+                if (pidlFolder) {
                     // Failed; free the pidl we just allocated
                     ILFree(pidlFolder);
                     pidlFolder = NULL;
@@ -3888,8 +3590,8 @@ Cond:    --
 STDAPI
 FileMenu_GetLastSelectedItem(
     IN  HMENU   hmenu,
-    OUT HMENU * phmenu,         OPTIONAL
-    OUT UINT *  puItem)         OPTIONAL
+    OUT HMENU* phmenu, OPTIONAL
+    OUT UINT* puItem)         OPTIONAL
 {
     HRESULT hres = S_FALSE;
 
@@ -3898,19 +3600,16 @@ FileMenu_GetLastSelectedItem(
     if (puItem)
         *puItem = 0;
 
-    if (g_pfmiLastSelNonFolder)
-    {
+    if (g_pfmiLastSelNonFolder) {
         // Get to the header.
         PFILEMENUHEADER pfmh = g_pfmiLastSelNonFolder->pfmh;
-        if (pfmh)
-        {
+        if (pfmh) {
             ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
             if (phmenu)
                 *phmenu = pfmh->hmenu;
 
-            if (puItem)
-            {
+            if (puItem) {
                 // BUGBUG (scotth): this isn't stored right now
                 ASSERT(0);
             }
@@ -3930,8 +3629,7 @@ int FileMenuHeader_LastSelIndex(PFILEMENUHEADER pfmh)
     int i;
     PFILEMENUITEM pfmi;
 
-    for (i = GetMenuItemCount(pfmh->hmenu)-1;i >= 0; i--)
-    {
+    for (i = GetMenuItemCount(pfmh->hmenu) - 1; i >= 0; i--) {
         pfmi = FileMenu_GetItemData(pfmh->hmenu, i, TRUE);
         if (pfmi && (pfmi == g_pfmiLastSel))
             return i;
@@ -3948,17 +3646,13 @@ BOOL _MenuCharMatch(LPCTSTR lpsz, TCHAR ch, BOOL fIgnoreAmpersand)
 
     // Find the first ampersand.
     pchAS = StrChr(lpsz, TEXT('&'));
-    if (pchAS && !fIgnoreAmpersand)
-    {
+    if (pchAS && !fIgnoreAmpersand) {
         // Yep, is the next char the one we want.
-        if (AnsiUpperChar(*CharNext(pchAS)) == AnsiUpperChar(ch))
-        {
+        if (AnsiUpperChar(*CharNext(pchAS)) == AnsiUpperChar(ch)) {
             // Yep.
             return TRUE;
         }
-    }
-    else if (AnsiUpperChar(*lpsz) == AnsiUpperChar(ch))
-    {
+    } else if (AnsiUpperChar(*lpsz) == AnsiUpperChar(ch)) {
         return TRUE;
     }
 
@@ -3982,31 +3676,24 @@ FileMenu_HandleMenuChar(HMENU hmenu, TCHAR ch)
 
     // Start from the last place we looked from.
     pfmh = FileMenu_GetHeader(hmenu);
-    if (pfmh)
-    {
+    if (pfmh) {
         iItem = FileMenuHeader_LastSelIndex(pfmh) + 1;
         if (iItem >= cItems)
             iItem = 0;
     }
 
-    while (iStep < cItems)
-    {
+    while (iStep < cItems) {
         pfmi = FileMenu_GetItemData(hmenu, iItem, TRUE);
-        if (pfmi)
-        {
+        if (pfmi) {
             BOOL bIgnoreAmpersand = (pfmi->pidl && IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL));
 
             FileMenuItem_GetDisplayName(pfmi, szName, ARRAYSIZE(szName));
-            if (_MenuCharMatch(szName, ch, bIgnoreAmpersand))
-            {
+            if (_MenuCharMatch(szName, ch, bIgnoreAmpersand)) {
                 // Found (another) match.
-                if (iFoundOne != -1)
-                {
+                if (iFoundOne != -1) {
                     // More than one, select the first.
                     return MAKELRESULT(iFoundOne, MNC_SELECT);
-                }
-                else
-                {
+                } else {
                     // Found at least one.
                     iFoundOne = iItem;
                 }
@@ -4021,17 +3708,14 @@ FileMenu_HandleMenuChar(HMENU hmenu, TCHAR ch)
     }
 
     // Did we find one?
-    if (iFoundOne != -1)
-    {
+    if (iFoundOne != -1) {
         // Just in case the user types ahead without the selection being drawn.
         pfmi = FileMenu_GetItemData(hmenu, iFoundOne, TRUE);
         if (!(pfmi->Flags & FMI_FOLDER))
             g_pfmiLastSelNonFolder = pfmi;
 
         return MAKELRESULT(iFoundOne, MNC_EXECUTE);
-    }
-    else
-    {
+    } else {
         // Didn't find it.
         return MAKELRESULT(0, MNC_IGNORE);
     }
@@ -4055,21 +3739,18 @@ FileMenu_CreateFromMenu(
 {
     BOOL fRet = FALSE;
 
-    if (hmenu)
-    {
+    if (hmenu) {
         PFILEMENUHEADER pfmh = FileMenuHeader_Create(hmenu, hbmp, cxBmpGap, clr, cySel, NULL);
 
         if (!g_himlIcons || !g_himlIconsSmall)
             Shell_GetImageLists(&g_himlIcons, &g_himlIconsSmall);
 
-        if (pfmh)
-        {
+        if (pfmh) {
             // Default flags.
             pfmh->fmf = fmf;
             if (FileMenuHeader_InsertMarkerItem(pfmh))
                 fRet = TRUE;
-            else
-            {
+            else {
                 // BUGBUG (scotth): FileMenuHeader_Create can return a pointer
                 //  that is already stored in a filemenu item, in which case this
                 //  destroy will stomp a data structure.
@@ -4077,9 +3758,7 @@ FileMenu_CreateFromMenu(
                 FileMenuHeader_Destroy(pfmh);
             }
         }
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_ERROR, "Menu is null.");
     }
 
@@ -4091,8 +3770,7 @@ HMENU  FileMenu_Create(COLORREF clr, int cxBmpGap, HBITMAP hbmp, int cySel, DWOR
 {
     HMENU hmenuRet = NULL;
     HMENU hmenu = CreatePopupMenu();
-    if (hmenu)
-    {
+    if (hmenu) {
         if (FileMenu_CreateFromMenu(hmenu, clr, cxBmpGap, hbmp, cySel, fmf))
             hmenuRet = hmenu;
         else
@@ -4113,7 +3791,7 @@ STDAPI
 FileMenu_InsertItemEx(
     IN HMENU          hmenu,
     IN UINT           iPos,
-    IN FMITEM const * pfmitem)
+    IN FMITEM const* pfmitem)
 {
     HRESULT hres = E_INVALIDARG;
     PFILEMENUITEM pfmi;
@@ -4122,16 +3800,14 @@ FileMenu_InsertItemEx(
     // Is this a filemenu?
     pfmi = FileMenu_GetItemData(hmenu, 0, TRUE);
 
-    if (IsValidFMItem(pfmitem, &fmitem) && pfmi)
-    {
+    if (IsValidFMItem(pfmitem, &fmitem) && pfmi) {
         // Yes
         PFILEMENUHEADER pfmh = pfmi->pfmh;
 
         ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
         // Have we cleaned up the marker item?
-        if ((pfmi->Flags & FMI_MARKER) && (pfmi->Flags & FMI_EXPAND))
-        {
+        if ((pfmi->Flags & FMI_MARKER) && (pfmi->Flags & FMI_EXPAND)) {
             // Nope, do it now.
             FileMenuHeader_DeleteMarkerItem(pfmh);
         }
@@ -4139,10 +3815,8 @@ FileMenu_InsertItemEx(
         hres = E_OUTOFMEMORY;
 
         // Add the new item.
-        if (FileMenuItem_Create(pfmh, NULL, fmitem.iImage, 0, &pfmi))
-        {
-            if (fmitem.pvData && IsFlagSet(fmitem.dwType, FMIT_STRING))
-            {
+        if (FileMenuItem_Create(pfmh, NULL, fmitem.iImage, 0, &pfmi)) {
+            if (fmitem.pvData && IsFlagSet(fmitem.dwType, FMIT_STRING)) {
                 if (!Sz_AllocCopy((LPTSTR)fmitem.pvData, &(pfmi->psz)))
                     TraceMsg(TF_ERROR, "Unable to allocate menu item text.");
                 pfmi->Flags |= FMI_IGNORE_PIDL;
@@ -4151,23 +3825,20 @@ FileMenu_InsertItemEx(
             pfmi->lParam = fmitem.lParam;
             DPA_InsertPtr(pfmh->hdpa, iPos, pfmi);
 
-            if (IsFlagSet(fmitem.dwType, FMIT_SEPARATOR))
-            {
+            if (IsFlagSet(fmitem.dwType, FMIT_SEPARATOR)) {
                 // Override the setting made above, since separator and
                 // text are mutually exclusive
                 pfmi->Flags = FMI_SEPARATOR;
-                InsertMenu(hmenu, iPos, MF_BYPOSITION|MF_OWNERDRAW|MF_DISABLED|MF_SEPARATOR,
+                InsertMenu(hmenu, iPos, MF_BYPOSITION | MF_OWNERDRAW | MF_DISABLED | MF_SEPARATOR,
                            fmitem.uID, (LPTSTR)pfmi);
-            }
-            else if (fmitem.hmenuSub)
-            {
+            } else if (fmitem.hmenuSub) {
                 MENUITEMINFO mii;
 
                 pfmi->Flags |= FMI_FOLDER;
                 if ((iPos == 0xffff) || (iPos == 0xffffffff))
                     iPos = GetMenuItemCount(pfmh->hmenu);
 
-                InsertMenu(pfmh->hmenu, iPos, MF_BYPOSITION|MF_OWNERDRAW|MF_POPUP,
+                InsertMenu(pfmh->hmenu, iPos, MF_BYPOSITION | MF_OWNERDRAW | MF_POPUP,
                            (UINT_PTR)fmitem.hmenuSub, (LPTSTR)pfmi);
                 // Set it's ID.
                 mii.cbSize = SIZEOF(mii);
@@ -4175,10 +3846,8 @@ FileMenu_InsertItemEx(
                 // mii.wID = pfmh->idCmd;
                 mii.wID = fmitem.uID;
                 SetMenuItemInfo(pfmh->hmenu, iPos, TRUE, &mii);
-            }
-            else
-            {
-                InsertMenu(hmenu, iPos, MF_BYPOSITION|MF_OWNERDRAW,
+            } else {
+                InsertMenu(hmenu, iPos, MF_BYPOSITION | MF_OWNERDRAW,
                            fmitem.uID, (LPTSTR)pfmi);
             }
 
@@ -4210,18 +3879,13 @@ FileMenu_InsertItem(
 
     fmitem.cbSize = SIZEOF(fmitem);
     fmitem.dwMask = FMI_TYPE | FMI_ID | FMI_IMAGE | FMI_HMENU |
-                    FMI_METRICS;
+        FMI_METRICS;
 
-    if ((LPTSTR)FMAI_SEPARATOR == psz)
-    {
+    if ((LPTSTR)FMAI_SEPARATOR == psz) {
         fmitem.dwType = FMIT_SEPARATOR;
-    }
-    else if (NULL == psz)
-    {
+    } else if (NULL == psz) {
         fmitem.dwType = 0;
-    }
-    else
-    {
+    } else {
         fmitem.dwType = FMIT_STRING;
 #ifdef UNICODE
         fmitem.dwType |= FMIT_UNICODE;
@@ -4254,15 +3918,13 @@ FileMenu_GetItemInfo(
     HRESULT hres = E_INVALIDARG;
 
     if (IS_VALID_WRITE_PTR(pfmitem, FMITEM) &&
-        SIZEOF(*pfmitem) == pfmitem->cbSize)
-    {
+        SIZEOF(*pfmitem) == pfmitem->cbSize) {
         PFILEMENUITEM pfmi;
 
         hres = E_FAIL;
 
         pfmi = FileMenu_GetItemData(hmenu, uItem, bByPos);
-        if (pfmi)
-        {
+        if (pfmi) {
             // BUGBUG (scotth): we don't fill in all the fields
 
             if (IsFlagSet(pfmitem->dwMask, FMI_LPARAM))
@@ -4285,11 +3947,10 @@ FileMenu_SaveOrder(HMENU hmenu)
 {
     HRESULT hres = E_FAIL;
     PFILEMENUITEM pfmi;
-    IStream * pstm;
+    IStream* pstm;
 
     pfmi = FileMenu_GetItemData(hmenu, 0, TRUE);
-    if (pfmi && FileList_GetStream(pfmi->pfmh, &pstm))
-    {
+    if (pfmi && FileList_GetStream(pfmi->pfmh, &pstm)) {
         hres = FileList_Save(pfmi->pfmh, pstm);
         pstm->Release();
     }
@@ -4300,7 +3961,7 @@ FileMenu_SaveOrder(HMENU hmenu)
 
 STDAPI_(BOOL)
 FileMenu_AppendItem(HMENU hmenu, LPTSTR psz, UINT id, int iImage,
-    HMENU hmenuSub, UINT cyItem)
+                    HMENU hmenuSub, UINT cyItem)
 {
     return FileMenu_InsertItem(hmenu, psz, id, iImage, hmenuSub, cyItem, 0xffff);
 }
@@ -4308,7 +3969,7 @@ FileMenu_AppendItem(HMENU hmenu, LPTSTR psz, UINT id, int iImage,
 
 STDAPI_(BOOL)
 FileMenu_TrackPopupMenuEx(HMENU hmenu, UINT Flags, int x, int y,
-    HWND hwndOwner, LPTPMPARAMS lpTpm)
+                          HWND hwndOwner, LPTPMPARAMS lpTpm)
 {
     BOOL fRet = TrackPopupMenuEx(hmenu, Flags, x, y, hwndOwner, lpTpm);
     // Cleanup.
@@ -4337,22 +3998,18 @@ UINT FileMenu_GetMenuItemID(HMENU hmenu, UINT iItem)
 }
 
 
-PFILEMENUITEM  _FindItemByCmd(PFILEMENUHEADER pfmh, UINT id, int *piPos)
+PFILEMENUITEM  _FindItemByCmd(PFILEMENUHEADER pfmh, UINT id, int* piPos)
 {
-    if (pfmh)
-    {
+    if (pfmh) {
         int cItems, i;
 
         cItems = DPA_GetPtrCount(pfmh->hdpa);
-        for (i = 0; i < cItems; i++)
-        {
+        for (i = 0; i < cItems; i++) {
             PFILEMENUITEM pfmi = (PFILEMENUITEM)DPA_GetPtr(pfmh->hdpa, i);
-            if (pfmi)
-            {
+            if (pfmi) {
                 // Is this the right item?
                 // NB This ignores menu items.
-                if (id == GetMenuItemID(pfmh->hmenu, i))
-                {
+                if (id == GetMenuItemID(pfmh->hmenu, i)) {
                     // Yep.
                     if (piPos)
                         *piPos = i;
@@ -4365,22 +4022,18 @@ PFILEMENUITEM  _FindItemByCmd(PFILEMENUHEADER pfmh, UINT id, int *piPos)
 }
 
 
-PFILEMENUITEM  _FindMenuOrItemByCmd(PFILEMENUHEADER pfmh, UINT id, int *piPos)
+PFILEMENUITEM  _FindMenuOrItemByCmd(PFILEMENUHEADER pfmh, UINT id, int* piPos)
 {
-    if (pfmh)
-    {
+    if (pfmh) {
         int cItems, i;
 
         cItems = DPA_GetPtrCount(pfmh->hdpa);
-        for (i = 0; i < cItems; i++)
-        {
+        for (i = 0; i < cItems; i++) {
             PFILEMENUITEM pfmi = (PFILEMENUITEM)DPA_GetPtr(pfmh->hdpa, i);
-            if (pfmi)
-            {
+            if (pfmi) {
                 // Is this the right item?
                 // NB This includes menu items.
-                if (id == FileMenu_GetMenuItemID(pfmh->hmenu, i))
-                {
+                if (id == FileMenu_GetMenuItemID(pfmh->hmenu, i)) {
                     // Yep.
                     if (piPos)
                         *piPos = i;
@@ -4407,12 +4060,10 @@ FileMenu_DeleteItemByCmd(HMENU hmenu, UINT id)
         return FALSE;
 
     pfmh = FileMenu_GetHeader(hmenu);
-    if (pfmh)
-    {
+    if (pfmh) {
         int i;
         PFILEMENUITEM pfmi = _FindMenuOrItemByCmd(pfmh, id, &i);
-        if (pfmi)
-        {
+        if (pfmi) {
             // If it's a submenu, delete it's items first.
             HMENU hmenuSub = GetSubMenu(pfmh->hmenu, i);
             if (hmenuSub)
@@ -4437,11 +4088,9 @@ FileMenu_DeleteItemByIndex(HMENU hmenu, UINT iItem)
         return FALSE;
 
     pfmh = FileMenu_GetHeader(hmenu);
-    if (pfmh)
-    {
+    if (pfmh) {
         PFILEMENUITEM pfmi = (PFILEMENUITEM)DPA_GetPtr(pfmh->hdpa, iItem);
-        if (pfmi)
-        {
+        if (pfmi) {
             // Delete the item itself.
             DeleteMenu(pfmh->hmenu, iItem, MF_BYPOSITION);
             FileMenuItem_Destroy(pfmi);
@@ -4456,7 +4105,7 @@ FileMenu_DeleteItemByIndex(HMENU hmenu, UINT iItem)
 
 // Search for the first sub menu of the given menu, who's first item's ID
 // is id. Returns NULL, if nothing is found.
-HMENU _FindMenuItemByFirstID(HMENU hmenu, UINT id, int *pi)
+HMENU _FindMenuItemByFirstID(HMENU hmenu, UINT id, int* pi)
 {
     int cMax, c;
     MENUITEMINFO mii;
@@ -4469,14 +4118,11 @@ HMENU _FindMenuItemByFirstID(HMENU hmenu, UINT id, int *pi)
     mii.cch = 0;     // just in case
 
     cMax = GetMenuItemCount(hmenu);
-    for (c=0; c<cMax; c++)
-    {
+    for (c = 0; c < cMax; c++) {
         // Is this item a submenu?
         HMENU hmenuSub = GetSubMenu(hmenu, c);
-        if (hmenuSub && GetMenuItemInfo(hmenuSub, 0, TRUE, &mii))
-        {
-            if (mii.wID == id)
-            {
+        if (hmenuSub && GetMenuItemInfo(hmenuSub, 0, TRUE, &mii)) {
+            if (mii.wID == id) {
                 // Found it!
                 if (pi)
                     *pi = c;
@@ -4504,11 +4150,9 @@ FileMenu_DeleteMenuItemByFirstID(HMENU hmenu, UINT id)
         return FALSE;
 
     pfmh = FileMenu_GetHeader(hmenu);
-    if (pfmh)
-    {
+    if (pfmh) {
         hmenuSub = _FindMenuItemByFirstID(hmenu, id, &i);
-        if (hmenuSub && i)
-        {
+        if (hmenuSub && i) {
             // Delete the submenu.
             FileMenu_DeleteAllItems(hmenuSub);
             // Delete the item itself.
@@ -4533,11 +4177,9 @@ FileMenu_DeleteSeparator(HMENU hmenu)
         return FALSE;
 
     pfmh = FileMenu_GetHeader(hmenu);
-    if (pfmh)
-    {
+    if (pfmh) {
         PFILEMENUITEM pfmi = _FindItemByCmd(pfmh, 0, &i);
-        if (pfmi)
-        {
+        if (pfmi) {
             // Yep.
             DeleteMenu(pfmh->hmenu, i, MF_BYPOSITION);
             if (pfmi->pidl)
@@ -4577,26 +4219,19 @@ FileMenu_EnableItemByCmd(HMENU hmenu, UINT id, BOOL fEnable)
         return FALSE;
 
     pfmh = FileMenu_GetHeader(hmenu);
-    if (pfmh)
-    {
+    if (pfmh) {
         PFILEMENUITEM pfmi = _FindItemByCmd(pfmh, id, NULL);
-        if (pfmi)
-        {
-            if (fEnable)
-            {
+        if (pfmi) {
+            if (fEnable) {
                 pfmi->Flags &= ~FMI_DISABLED;
                 EnableMenuItem(pfmh->hmenu, id, MF_BYCOMMAND | MF_ENABLED);
-            }
-            else
-            {
+            } else {
                 pfmi->Flags |= FMI_DISABLED;
                 EnableMenuItem(pfmh->hmenu, id, MF_BYCOMMAND | MF_GRAYED);
             }
             return TRUE;
         }
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_ERROR, "Menu is not a filemenu.");
     }
 
@@ -4605,18 +4240,15 @@ FileMenu_EnableItemByCmd(HMENU hmenu, UINT id, BOOL fEnable)
 
 
 STDAPI_(BOOL)
-FileMenu_GetPidl(HMENU hmenu, UINT iPos, LPITEMIDLIST *ppidl)
+FileMenu_GetPidl(HMENU hmenu, UINT iPos, LPITEMIDLIST* ppidl)
 {
     BOOL fRet = FALSE;
     PFILEMENUHEADER pfmh = FileMenu_GetHeader(hmenu);
-    if (pfmh)
-    {
+    if (pfmh) {
         PFILEMENUITEM pfmi = (PFILEMENUITEM)DPA_GetPtr(pfmh->hdpa, iPos);
-        if (pfmi)
-        {
+        if (pfmi) {
             if (pfmh->pidlFolder && pfmi->pidl &&
-                IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL))
-            {
+                IsFlagClear(pfmi->Flags, FMI_IGNORE_PIDL)) {
                 *ppidl = ILCombine(pfmh->pidlFolder, pfmi->pidl);
                 fRet = TRUE;
             }
@@ -4627,14 +4259,13 @@ FileMenu_GetPidl(HMENU hmenu, UINT iPos, LPITEMIDLIST *ppidl)
 }
 
 
-BOOL Tooltip_Create(HWND *phwndTip)
+BOOL Tooltip_Create(HWND* phwndTip)
 {
     BOOL fRet = FALSE;
 
     *phwndTip = CreateWindow(TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, HINST_THISDLL, NULL);
-    if (*phwndTip)
-    {
+                             CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, HINST_THISDLL, NULL);
+    if (*phwndTip) {
         TOOLINFO ti;
 
         ti.cbSize = SIZEOF(ti);
@@ -4654,8 +4285,7 @@ BOOL Tooltip_Create(HWND *phwndTip)
 
 void Tooltip_SetText(HWND hwndTip, LPCTSTR pszText)
 {
-    if (hwndTip)
-    {
+    if (hwndTip) {
         TOOLINFO ti;
         ti.cbSize = SIZEOF(ti);
         ti.uFlags = 0;
@@ -4670,8 +4300,7 @@ void Tooltip_SetText(HWND hwndTip, LPCTSTR pszText)
 
 void Tooltip_Hide(HWND hwndTip)
 {
-    if (hwndTip)
-    {
+    if (hwndTip) {
         TOOLINFO ti;
         ti.cbSize = SIZEOF(ti);
         ti.hwnd = NULL;
@@ -4683,14 +4312,13 @@ void Tooltip_Hide(HWND hwndTip)
 
 void Tooltip_Show(HWND hwndTip)
 {
-    if (hwndTip)
-    {
+    if (hwndTip) {
         TOOLINFO ti;
         ti.cbSize = SIZEOF(ti);
         ti.hwnd = NULL;
         ti.uId = 0;
         SendMessage(hwndTip, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
-        SetWindowPos(hwndTip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
+        SetWindowPos(hwndTip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     }
 }
 
@@ -4717,13 +4345,11 @@ FileMenuItem_GetTooltip(
 
     PFILEMENUHEADER pfmh = pfmi->pfmh;
 
-    if (pfmh->pfncb)
-    {
+    if (pfmh->pfncb) {
         FMCBDATA fmcbdata;
         FMTOOLTIP fmtt = {0};
 
-        if (pfmi->pszTooltip)
-        {
+        if (pfmi->pszTooltip) {
             // Free the previous tooltip
             LocalFree(pfmi->pszTooltip);
             pfmi->pszTooltip = NULL;
@@ -4739,34 +4365,28 @@ FileMenuItem_GetTooltip(
         fmcbdata.psf = pfmh->psf;
 
         // Was a tooltip set?
-        if (S_OK == pfmh->pfncb(FMM_GETTOOLTIP, &fmcbdata, (LPARAM)&fmtt))
-        {
+        if (S_OK == pfmh->pfncb(FMM_GETTOOLTIP, &fmcbdata, (LPARAM)&fmtt)) {
             Sz_AllocCopyW(fmtt.pszTip, &(pfmi->pszTooltip));
             SHFree(fmtt.pszTip);
 
-            if (pfmi->pszTooltip)
-            {
+            if (pfmi->pszTooltip) {
                 // Set the other settings
-                if (IsFlagSet(fmtt.dwMask, FMTT_MARGIN))
-                {
+                if (IsFlagSet(fmtt.dwMask, FMTT_MARGIN)) {
                     pfmi->rcMargin = fmtt.rcMargin;
                     SetFlag(pfmi->Flags, FMI_MARGIN);
                 }
 
-                if (IsFlagSet(fmtt.dwMask, FMTT_MAXWIDTH))
-                {
+                if (IsFlagSet(fmtt.dwMask, FMTT_MAXWIDTH)) {
                     pfmi->dwMaxTipWidth = fmtt.dwMaxWidth;
                     SetFlag(pfmi->Flags, FMI_MAXTIPWIDTH);
                 }
 
-                if (IsFlagSet(fmtt.dwMask, FMTT_DRAWFLAGS))
-                {
+                if (IsFlagSet(fmtt.dwMask, FMTT_DRAWFLAGS)) {
                     pfmi->uDrawFlags = fmtt.uDrawFlags;
                     SetFlag(pfmi->Flags, FMI_DRAWFLAGS);
                 }
 
-                if (IsFlagSet(fmtt.dwMask, FMTT_TABSTOP))
-                {
+                if (IsFlagSet(fmtt.dwMask, FMTT_TABSTOP)) {
                     pfmi->dwTabstop = fmtt.dwTabstop;
                     SetFlag(pfmi->Flags, FMI_TABSTOP);
                 }
@@ -4790,18 +4410,15 @@ FileMenu_HandleMenuSelect(
     BOOL fRet = FALSE;
     PFILEMENUITEM pfmi = g_pfmiLastSelNonFolder;
 
-    if (hmenu && pfmi)
-    {
+    if (hmenu && pfmi) {
         ASSERT(IS_VALID_STRUCT_PTR(pfmi, FILEMENUITEM));
 
         PFILEMENUHEADER pfmh = pfmi->pfmh;
 
         if (pfmh && IsFlagSet(pfmh->fmf, FMF_TOOLTIPS) &&
-            FileMenuHeader_CreateTooltipWindow(pfmh))
-        {
+            FileMenuHeader_CreateTooltipWindow(pfmh)) {
             // Have we asked for the tooltip?
-            if (IsFlagClear(pfmi->Flags, FMI_ASKEDFORTOOLTIP))
-            {
+            if (IsFlagClear(pfmi->Flags, FMI_ASKEDFORTOOLTIP)) {
                 // No; do it now
                 FileMenuItem_GetTooltip(pfmi);
 
@@ -4809,8 +4426,7 @@ FileMenu_HandleMenuSelect(
             }
 
             // Does this have a tooltip?
-            if (pfmi->pszTooltip && FileMenu_GetHeader(hmenu) == pfmh)
-            {
+            if (pfmi->pszTooltip && FileMenu_GetHeader(hmenu) == pfmh) {
                 // Yes
                 Tooltip_Hide(g_hwndTip);
                 Tooltip_SetPos(g_hwndTip, g_rcItem.left + X_TIPOFFSET, g_rcItem.bottom);
@@ -4864,23 +4480,19 @@ void FileMenuHeader_HandleUpdateImage(PFILEMENUHEADER pfmh, int iImage)
 
     // Look for any image indexes that are being changed
 
-    for (i = GetMenuItemCount(pfmh->hmenu) - 1; i >= 0; i--)
-    {
+    for (i = GetMenuItemCount(pfmh->hmenu) - 1; i >= 0; i--) {
         pfmi = FileMenu_GetItemData(pfmh->hmenu, i, TRUE);
-        if (pfmi)
-        {
+        if (pfmi) {
             ASSERT(IS_VALID_STRUCT_PTR(pfmi, FILEMENUITEM));
 
-            if (pfmi->iImage == iImage)
-            {
+            if (pfmi->iImage == iImage) {
                 // Invalidate this image.  It will be recalculated when
                 // the menu item is redrawn.
                 pfmi->iImage = -1;
             }
 
             HMENU hmenuSub = GetSubMenu(pfmh->hmenu, i);
-            if (hmenuSub)
-            {
+            if (hmenuSub) {
                 PFILEMENUHEADER pfmhT = FileMenu_GetHeader(hmenuSub);
                 if (pfmhT)
                     FileMenuHeader_HandleUpdateImage(pfmhT, iImage);
@@ -4890,19 +4502,17 @@ void FileMenuHeader_HandleUpdateImage(PFILEMENUHEADER pfmh, int iImage)
 }
 
 
-BOOL FileMenuHeader_HandleNotify(PFILEMENUHEADER pfmh, LPCITEMIDLIST * ppidl, LONG lEvent)
+BOOL FileMenuHeader_HandleNotify(PFILEMENUHEADER pfmh, LPCITEMIDLIST* ppidl, LONG lEvent)
 {
     BOOL bRet;
     int iImage;
 
     ASSERT(IS_VALID_STRUCT_PTR(pfmh, FILEMENUHEADER));
 
-    switch (lEvent)
-    {
+    switch (lEvent) {
     case SHCNE_UPDATEIMAGE:
-        if (EVAL(ppidl && ppidl[0]))
-        {
-            iImage = *(int UNALIGNED *)((BYTE *)ppidl[0] + 2);
+        if (EVAL(ppidl && ppidl[0])) {
+            iImage = *(int UNALIGNED*)((BYTE*)ppidl[0] + 2);
 
             if (-1 != iImage)
                 FileMenuHeader_HandleUpdateImage(pfmh, iImage);
@@ -4919,13 +4529,12 @@ BOOL FileMenuHeader_HandleNotify(PFILEMENUHEADER pfmh, LPCITEMIDLIST * ppidl, LO
 }
 
 
-STDAPI_(BOOL) FileMenu_HandleNotify(HMENU hmenu, LPCITEMIDLIST * ppidl, LONG lEvent)
+STDAPI_(BOOL) FileMenu_HandleNotify(HMENU hmenu, LPCITEMIDLIST* ppidl, LONG lEvent)
 {
     BOOL bRet = FALSE;
     PFILEMENUHEADER pfmh = FileMenu_GetHeader(hmenu);
 
-    if (hmenu && pfmh)
-    {
+    if (hmenu && pfmh) {
         bRet = FileMenuHeader_HandleNotify(pfmh, ppidl, lEvent);
     }
 

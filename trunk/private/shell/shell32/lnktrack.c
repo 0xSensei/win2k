@@ -12,7 +12,7 @@
 
 DWORD CALLBACK LinkFindThreadProc(LPVOID pv)
 {
-    RESOLVE_SEARCH_DATA *prs = pv;
+    RESOLVE_SEARCH_DATA* prs = pv;
     TCHAR szPath[MAX_PATH];
 
 #ifdef WINNT
@@ -23,36 +23,30 @@ DWORD CALLBACK LinkFindThreadProc(LPVOID pv)
     // object (which uses NTFS object IDs and persisted information
     // about link-source moves).
 
-    if (prs->ptracker)
-    {
-        hr = Tracker_Search( prs->ptracker,     // Explicit this pointer
-                             prs->dwTimeLimit,  // GetTickCount()-relative timeout
-                             prs->pfd,          // Original WIN32_FIND_DATA
-                             &prs->fdFound,     // WIN32_FIND_DATA of new location
-                             prs->uFlags,       // SLR_ flags
-                                                // TrkMendRestriction flags
-                             prs->TrackerRestrictions
-                           );
+    if (prs->ptracker) {
+        hr = Tracker_Search(prs->ptracker,     // Explicit this pointer
+                            prs->dwTimeLimit,  // GetTickCount()-relative timeout
+                            prs->pfd,          // Original WIN32_FIND_DATA
+                            &prs->fdFound,     // WIN32_FIND_DATA of new location
+                            prs->uFlags,       // SLR_ flags
+                                               // TrkMendRestriction flags
+                            prs->TrackerRestrictions
+        );
 
-        if( SUCCEEDED(hr) )
-        {
-           // We've found the link source, and we're certain it's correct.
-           // So set the score to the highest possible value, and
-           // return.
+        if (SUCCEEDED(hr)) {
+            // We've found the link source, and we're certain it's correct.
+            // So set the score to the highest possible value, and
+            // return.
 
-           prs->iScore = MIN_NO_UI_SCORE;
-           prs->bContinue = FALSE;
-        }
-        else if( HRESULT_FROM_WIN32(ERROR_POTENTIAL_FILE_FOUND) == hr )
-        {
+            prs->iScore = MIN_NO_UI_SCORE;
+            prs->bContinue = FALSE;
+        } else if (HRESULT_FROM_WIN32(ERROR_POTENTIAL_FILE_FOUND) == hr) {
             // We've found "a" link source, but we're not certain it's correct.
             // Allow the search algorithm below to run and see if it finds
             // a better match.
 
             prs->iScore = MIN_NO_UI_SCORE - 1;
-        }
-        else if( HRESULT_FROM_WIN32(ERROR_SERVICE_REQUEST_TIMEOUT) == hr )
-        {
+        } else if (HRESULT_FROM_WIN32(ERROR_SERVICE_REQUEST_TIMEOUT) == hr) {
             // The CTracker search stopped because we've timed out.
             prs->bContinue = FALSE;
         }
@@ -66,7 +60,7 @@ DWORD CALLBACK LinkFindThreadProc(LPVOID pv)
 
 #else // #ifdef WINNT
 
-        DoDownLevelSearch(prs, szPath, MIN_NO_UI_SCORE);
+    DoDownLevelSearch(prs, szPath, MIN_NO_UI_SCORE);
 
 #endif // #ifdef WINNT ... #else
 
@@ -79,7 +73,7 @@ DWORD CALLBACK LinkFindThreadProc(LPVOID pv)
 
 #define IDT_SHOWME      1
 
-void LinkFindInit(HWND hDlg, RESOLVE_SEARCH_DATA *prs)
+void LinkFindInit(HWND hDlg, RESOLVE_SEARCH_DATA* prs)
 {
     DWORD idThread;
     TCHAR szFmt[128];
@@ -92,13 +86,10 @@ void LinkFindInit(HWND hDlg, RESOLVE_SEARCH_DATA *prs)
     prs->hDlg = hDlg;
 
     prs->hThread = CreateThread(NULL, 0, LinkFindThreadProc, prs, 0, &idThread);
-    if (!prs->hThread)
-    {
+    if (!prs->hThread) {
         DebugMsg(DM_TRACE, TEXT("Failed to create search thread"));
         EndDialog(hDlg, IDCANCEL);
-    }
-    else
-    {
+    } else {
         HWND hwndAni = GetDlgItem(hDlg, IDD_STATUS);
 
         Animate_Open(hwndAni, MAKEINTRESOURCE(IDA_SEARCH)); // open the resource
@@ -125,12 +116,12 @@ void LinkFindInit(HWND hDlg, RESOLVE_SEARCH_DATA *prs)
 
 BOOL_PTR CALLBACK LinkFindDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)
 {
-    RESOLVE_SEARCH_DATA *prs = (RESOLVE_SEARCH_DATA *)GetWindowLongPtr(hDlg, DWLP_USER);
+    RESOLVE_SEARCH_DATA* prs = (RESOLVE_SEARCH_DATA*)GetWindowLongPtr(hDlg, DWLP_USER);
 
     switch (wMsg) {
     case WM_INITDIALOG:
         SetWindowLongPtr(hDlg, DWLP_USER, lParam);
-        LinkFindInit(hDlg, (RESOLVE_SEARCH_DATA *)lParam);
+        LinkFindInit(hDlg, (RESOLVE_SEARCH_DATA*)lParam);
         break;
 
     case WM_COMMAND:
@@ -142,8 +133,7 @@ BOOL_PTR CALLBACK LinkFindDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lP
 
             Animate_Stop(GetDlgItem(hDlg, IDD_STATUS));
 
-            if (GetFileNameFromBrowse(hDlg, prs->fd.cFileName, ARRAYSIZE(prs->fd.cFileName), prs->pszSearchOriginFirst, prs->pfd->cFileName, NULL, NULL))
-            {
+            if (GetFileNameFromBrowse(hDlg, prs->fd.cFileName, ARRAYSIZE(prs->fd.cFileName), prs->pszSearchOriginFirst, prs->pfd->cFileName, NULL, NULL)) {
                 HANDLE hfind = FindFirstFile(prs->fd.cFileName, &prs->fdFound);
                 ASSERT(hfind != INVALID_HANDLE_VALUE);
                 FindClose(hfind);
@@ -151,9 +141,7 @@ BOOL_PTR CALLBACK LinkFindDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lP
 
                 prs->iScore = MIN_NO_UI_SCORE;
                 wParam = IDOK;
-            }
-            else
-            {
+            } else {
                 wParam = IDCANCEL;
             }
             // Fall through...
@@ -165,8 +153,8 @@ BOOL_PTR CALLBACK LinkFindDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lP
 #ifdef WINNT
             // if the searching thread is currently in the tracker
             // waiting for results, wake it up and tell it to abort
-            if( prs->ptracker )
-                Tracker_CancelSearch( prs->ptracker );
+            if (prs->ptracker)
+                Tracker_CancelSearch(prs->ptracker);
 #endif
 
             // Fall through...
@@ -177,8 +165,7 @@ BOOL_PTR CALLBACK LinkFindDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lP
             ASSERT(prs->hThread);
 
             // We will attempt to wait up to 5 seconds for the thread to terminate
-            if (WaitForSingleObject(prs->hThread, 5000) == WAIT_TIMEOUT)
-            {
+            if (WaitForSingleObject(prs->hThread, 5000) == WAIT_TIMEOUT) {
                 // BUGBUG: if this timed out we potentially leaked the list
                 // of paths that we are searching (PATH_NODE list)
 
@@ -194,8 +181,7 @@ BOOL_PTR CALLBACK LinkFindDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lP
 
 #ifdef WINNT
     case WM_TIMER:
-        if (wParam == prs->idtDelayedShow)
-        {
+        if (wParam == prs->idtDelayedShow) {
             prs->idtDelayedShow = 0;
             KillTimer(hDlg, wParam);
             ShowWindow(hDlg, SW_SHOW);
@@ -223,21 +209,20 @@ GetTimeOut(DWORD uFlags)
     if (dwTimeOut == 0)
         dwTimeOut = NOUI_SEARCH_TIMEOUT;
     else
-    if (dwTimeOut == 0xFFFF)
-    {
-       TCHAR tszTimeOut[10];
-       LONG cbTimeOut = SIZEOF(tszTimeOut);
+        if (dwTimeOut == 0xFFFF) {
+            TCHAR tszTimeOut[10];
+            LONG cbTimeOut = SIZEOF(tszTimeOut);
 
-       tszTimeOut[0] = 0;
+            tszTimeOut[0] = 0;
 
-       if (ERROR_SUCCESS == SHRegQueryValue(HKEY_LOCAL_MACHINE,
-                     TEXT("Software\\Microsoft\\Tracking\\TimeOut"),
-                     tszTimeOut,
-                     &cbTimeOut))
-          dwTimeOut = StrToInt(tszTimeOut);
-       else
-          dwTimeOut = NOUI_SEARCH_TIMEOUT;
-    }
+            if (ERROR_SUCCESS == SHRegQueryValue(HKEY_LOCAL_MACHINE,
+                                                 TEXT("Software\\Microsoft\\Tracking\\TimeOut"),
+                                                 tszTimeOut,
+                                                 &cbTimeOut))
+                dwTimeOut = StrToInt(tszTimeOut);
+            else
+                dwTimeOut = NOUI_SEARCH_TIMEOUT;
+        }
     return(dwTimeOut);
 }
 
@@ -251,36 +236,34 @@ BOOL_PTR DeadLinkProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     DEADLINKDATA* pdld = GetWindowPtr(hwnd, DWLP_USER);
 
-    switch (uMsg)
+    switch (uMsg) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
-        {
-            HWND hwndT;
+        HWND hwndT;
 
-            pdld = (DEADLINKDATA*)lParam;
-            SetWindowPtr(hwnd, DWLP_USER, pdld);
+        pdld = (DEADLINKDATA*)lParam;
+        SetWindowPtr(hwnd, DWLP_USER, pdld);
 
-            HWNDWSPrintf(GetDlgItem(hwnd, IDC_DEADTEXT1), PathFindFileName(pdld->pszLinkName), TRUE);
+        HWNDWSPrintf(GetDlgItem(hwnd, IDC_DEADTEXT1), PathFindFileName(pdld->pszLinkName), TRUE);
 
-            hwndT = GetDlgItem(hwnd, IDC_DEADTEXT2);
-            if (hwndT)
-                HWNDWSPrintf(hwndT, pdld->pszNewTarget, TRUE);
+        hwndT = GetDlgItem(hwnd, IDC_DEADTEXT2);
+        if (hwndT)
+            HWNDWSPrintf(hwndT, pdld->pszNewTarget, TRUE);
 
+        return TRUE;
+    }
+
+    case WM_COMMAND:
+    {
+        int id = GET_WM_COMMAND_ID(wParam, lParam);
+        HWND hwndCtrl = GetDlgItem(hwnd, id);
+        if ((id != IDHELP) &&
+            SendMessage(hwndCtrl, WM_GETDLGCODE, 0, 0) & (DLGC_DEFPUSHBUTTON | DLGC_UNDEFPUSHBUTTON)) {
+            EndDialog(hwnd, id);
             return TRUE;
         }
-
-        case WM_COMMAND:
-        {
-            int id = GET_WM_COMMAND_ID(wParam, lParam);
-            HWND hwndCtrl = GetDlgItem(hwnd, id);
-            if ((id != IDHELP) &&
-                SendMessage(hwndCtrl, WM_GETDLGCODE, 0, 0) & (DLGC_DEFPUSHBUTTON | DLGC_UNDEFPUSHBUTTON))
-            {
-                EndDialog(hwnd, id);
-                return TRUE;
-            }
-            break;
-        }
+        break;
+    }
     }
 
     return FALSE;
@@ -302,10 +285,10 @@ BOOL_PTR DeadLinkProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //      IDCANCEL        user canceled the operation
 
 
-int FindInFolder(HWND hwnd, UINT uFlags, LPCTSTR pszPath, WIN32_FIND_DATA *pfd, LPCTSTR pszCurFile
+int FindInFolder(HWND hwnd, UINT uFlags, LPCTSTR pszPath, WIN32_FIND_DATA* pfd, LPCTSTR pszCurFile
 #ifdef WINNT
-                 , struct CTracker *ptracker, DWORD TrackerRestrictions,
-                   UINT fifFlags
+                 , struct CTracker* ptracker, DWORD TrackerRestrictions,
+                 UINT fifFlags
 #endif
 )
 {
@@ -333,14 +316,11 @@ int FindInFolder(HWND hwnd, UINT uFlags, LPCTSTR pszPath, WIN32_FIND_DATA *pfd, 
     rs.fifFlags = fifFlags;
 #endif
 
-    if (uFlags & SLR_NO_UI)
-    {
+    if (uFlags & SLR_NO_UI) {
         rs.dwTimeLimit = GetTickCount() + GetTimeOut(uFlags);
 
         LinkFindThreadProc(&rs);
-    }
-    else
-    {
+    } else {
         switch (DialogBoxParam(HINST_THISDLL, MAKEINTRESOURCE(DLG_LINK_SEARCH), hwnd, LinkFindDlgProc, (LPARAM)&rs)) {
         case IDOK:
             break;
@@ -350,8 +330,7 @@ int FindInFolder(HWND hwnd, UINT uFlags, LPCTSTR pszPath, WIN32_FIND_DATA *pfd, 
         }
     }
 
-    if (rs.iScore < MIN_NO_UI_SCORE)
-    {
+    if (rs.iScore < MIN_NO_UI_SCORE) {
         int idDlg;
         int idReturn;
         DEADLINKDATA dld;
@@ -382,20 +361,17 @@ int FindInFolder(HWND hwnd, UINT uFlags, LPCTSTR pszPath, WIN32_FIND_DATA *pfd, 
         } else
             idDlg = DLG_DEADSHORTCUT_MATCH;
 
-        if (pszCurFile)
-        {
+        if (pszCurFile) {
             idReturn = (int)DialogBoxParam(HINST_THISDLL, MAKEINTRESOURCE(idDlg), hwnd,
-                DeadLinkProc, (LPARAM)&dld);
-        }
-        else
-        {
+                                           DeadLinkProc, (LPARAM)&dld);
+        } else {
             if (idDlg == DLG_DEADSHORTCUT) {
                 ShellMessageBox(HINST_THISDLL, hwnd, MAKEINTRESOURCE(IDS_LINKNOTFOUND), MAKEINTRESOURCE(IDS_LINKERROR),
                                 MB_OK | MB_ICONEXCLAMATION, PathFindFileName(pszPath));
                 idReturn = IDCANCEL;
             } else {
                 idReturn = ShellMessageBox(HINST_THISDLL, hwnd, MAKEINTRESOURCE(IDS_LINKCHANGED), MAKEINTRESOURCE(IDS_LINKERROR),
-                                    MB_YESNO | MB_ICONEXCLAMATION, PathFindFileName(pszPath), rs.fdFound.cFileName);
+                                           MB_YESNO | MB_ICONEXCLAMATION, PathFindFileName(pszPath), rs.fdFound.cFileName);
                 if (idReturn == IDNO)
                     idReturn = IDCANCEL;
             }
