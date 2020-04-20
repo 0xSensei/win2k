@@ -1,18 +1,13 @@
-
 //  File:       dllreg.cxx
-
 //  Synopsis:
-
-
-
 
 // Includes -------------------------------------------------------------------
 #include <core.hxx>
 
 
 // Prototypes -----------------------------------------------------------------
-static const TCHAR * DeleteSubkeys(HKEY hkeyParent, const TCHAR * pszKey);
-static const TCHAR * RegisterKey(HKEY hkeyParent, const TCHAR * pszKey);
+static const TCHAR* DeleteSubkeys(HKEY hkeyParent, const TCHAR* pszKey);
+static const TCHAR* RegisterKey(HKEY hkeyParent, const TCHAR* pszKey);
 
 
 
@@ -24,8 +19,8 @@ static const TCHAR * RegisterKey(HKEY hkeyParent, const TCHAR * pszKey);
 STDAPI
 DllRegisterServer()
 {
-    const TCHAR **  ppszKey;
-    const TCHAR *   pszKey;
+    const TCHAR** ppszKey;
+    const TCHAR* pszKey;
     HKEY            hkey;
     LONG            lError;
     HRESULT         hr;
@@ -34,13 +29,11 @@ DllRegisterServer()
     if (hr)
         goto Cleanup;
 
-    for (ppszKey=g_aszKeys; *ppszKey; ppszKey++)
-    {
+    for (ppszKey = g_aszKeys; *ppszKey; ppszKey++) {
         pszKey = *ppszKey;
 
         lError = ::RegOpenKeyEx(HKEY_CLASSES_ROOT, pszKey, 0, KEY_ALL_ACCESS, &hkey);
-        if (lError != ERROR_SUCCESS)
-        {
+        if (lError != ERROR_SUCCESS) {
             hr = E_FAIL;
             break;
         }
@@ -48,8 +41,7 @@ DllRegisterServer()
         pszKey += _tcslen(pszKey) + 1;
         Assert(*pszKey);
 
-        if (!RegisterKey(hkey, pszKey))
-        {
+        if (!RegisterKey(hkey, pszKey)) {
             hr = E_FAIL;
             break;
         }
@@ -75,8 +67,8 @@ Cleanup:
 STDAPI
 DllUnregisterServer()
 {
-    const TCHAR **  ppszKey;
-    const TCHAR *   pszKey;
+    const TCHAR** ppszKey;
+    const TCHAR* pszKey;
     HKEY            hkey;
     LONG            lError;
     HRESULT         hr;
@@ -85,13 +77,11 @@ DllUnregisterServer()
     if (hr)
         goto Cleanup;
 
-    for (ppszKey=g_aszKeys; *ppszKey; ppszKey++)
-    {
+    for (ppszKey = g_aszKeys; *ppszKey; ppszKey++) {
         pszKey = *ppszKey;
 
         lError = ::RegOpenKeyEx(HKEY_CLASSES_ROOT, pszKey, 0, KEY_ALL_ACCESS, &hkey);
-        if (lError != ERROR_SUCCESS)
-        {
+        if (lError != ERROR_SUCCESS) {
             hr = E_FAIL;
             break;
         }
@@ -100,8 +90,7 @@ DllUnregisterServer()
         Assert(*pszKey);
 
         if (!DeleteSubkeys(hkey, pszKey) ||
-            ::RegDeleteKey(hkey, pszKey) != ERROR_SUCCESS)
-        {
+            ::RegDeleteKey(hkey, pszKey) != ERROR_SUCCESS) {
             hr = E_FAIL;
         }
 #ifdef _DEBUG
@@ -115,7 +104,7 @@ DllUnregisterServer()
 
 Cleanup:
     return hr;
-}
+    }
 
 
 
@@ -124,12 +113,12 @@ Cleanup:
 //  Synopsis:
 
 
-const TCHAR *
+const TCHAR*
 DeleteSubkeys(
     HKEY            hkeyParent,
-    const TCHAR *   pszKey)
+    const TCHAR* pszKey)
 {
-    const TCHAR *   psz;
+    const TCHAR* psz;
     HKEY            hkey = NULL;
     LONG            lError;
 
@@ -139,10 +128,8 @@ DeleteSubkeys(
 
     pszKey += _tcslen(pszKey) + 1;
 
-    while (*pszKey)
-    {
-        switch (*pszKey)
-        {
+    while (*pszKey) {
+        switch (*pszKey) {
         case chDEFAULT_SECTION:
             pszKey++;
             pszKey += _tcslen(pszKey) + 1;
@@ -150,8 +137,7 @@ DeleteSubkeys(
 
         case chVALUES_SECTION:
             pszKey++;
-            while (*pszKey)
-            {
+            while (*pszKey) {
                 pszKey += _tcslen(pszKey) + 1;
                 pszKey += _tcslen(pszKey) + 1;
             }
@@ -179,8 +165,7 @@ DeleteSubkeys(
     pszKey++;
 
 Cleanup:
-    if (hkey)
-    {
+    if (hkey) {
 #ifdef _DEBUG
         Verify(::RegCloseKey(hkey) == ERROR_SUCCESS);
 #else
@@ -201,12 +186,12 @@ Error:
 //  Synopsis:
 
 
-const TCHAR *
+const TCHAR*
 RegisterKey(
     HKEY            hkeyParent,
-    const TCHAR *   pszKey)
+    const TCHAR* pszKey)
 {
-    const TCHAR *   psz;
+    const TCHAR* psz;
     HKEY            hkey = NULL;
     DWORD           dwDisposition;
     LONG            lError;
@@ -217,22 +202,17 @@ RegisterKey(
 
     pszKey += _tcslen(pszKey) + 1;
 
-    while (*pszKey)
-    {
-        switch (*pszKey)
-        {
+    while (*pszKey) {
+        switch (*pszKey) {
         case chDEFAULT_SECTION:
             pszKey++;
-            if (!::lstrcmpi(pszKey, szMODULE_PATH))
-            {
-                TCHAR   szModule[MAX_PATH+1];
+            if (!::lstrcmpi(pszKey, szMODULE_PATH)) {
+                TCHAR   szModule[MAX_PATH + 1];
 
                 Verify(::GetModuleFileName((HMODULE)g_hinst, szModule, ARRAY_SIZE(szModule)));
-                lError = ::RegSetValueEx(hkey, NULL, 0, REG_SZ, (const BYTE *)szModule, sizeof(TCHAR) * (_tcslen(szModule) + 1));
-            }
-            else
-            {
-                lError = ::RegSetValueEx(hkey, NULL, 0, REG_SZ, (const BYTE *)pszKey, sizeof(TCHAR) * (_tcslen(pszKey) + 1));
+                lError = ::RegSetValueEx(hkey, NULL, 0, REG_SZ, (const BYTE*)szModule, sizeof(TCHAR) * (_tcslen(szModule) + 1));
+            } else {
+                lError = ::RegSetValueEx(hkey, NULL, 0, REG_SZ, (const BYTE*)pszKey, sizeof(TCHAR) * (_tcslen(pszKey) + 1));
             }
             if (lError != ERROR_SUCCESS)
                 goto Error;
@@ -241,12 +221,11 @@ RegisterKey(
 
         case chVALUES_SECTION:
             pszKey++;
-            while (*pszKey)
-            {
+            while (*pszKey) {
                 psz = pszKey;
                 pszKey += _tcslen(pszKey) + 1;
 
-                lError = ::RegSetValueEx(hkey, psz, 0, REG_SZ, (const BYTE *)pszKey, sizeof(TCHAR) * (_tcslen(pszKey) + 1));
+                lError = ::RegSetValueEx(hkey, psz, 0, REG_SZ, (const BYTE*)pszKey, sizeof(TCHAR) * (_tcslen(pszKey) + 1));
                 if (lError != ERROR_SUCCESS)
                     goto Error;
 
@@ -272,8 +251,7 @@ RegisterKey(
     pszKey++;
 
 Cleanup:
-    if (hkey)
-    {
+    if (hkey) {
 #ifdef _DEBUG
         Verify(::RegCloseKey(hkey) == ERROR_SUCCESS);
 #else

@@ -9,14 +9,14 @@
 //  Method:     CDestination::GetClassID
 //  Arguments:  [pClassID] --
 //  History:    1-15-1997   JohannP (Johann Posch)   Created
-STDMETHODIMP CDestination::GetClassID (CLSID *pClassID)
+STDMETHODIMP CDestination::GetClassID(CLSID* pClassID)
 {
     NotfDebugOut((DEB_DEST, "%p _IN CDestination::\n", this));
     HRESULT hr = NOERROR;
 
     *pClassID = CLSID_StdNotificationMgr;
 
-    NotfDebugOut((DEB_DEST, "%p OUT CDestination:: (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_DEST, "%p OUT CDestination:: (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -29,7 +29,7 @@ STDMETHODIMP CDestination::IsDirty(void)
     NotfDebugOut((DEB_DEST, "%p _IN CDestination::IsDirty\n", this));
     HRESULT hr = S_FALSE;
 
-    NotfDebugOut((DEB_DEST, "%p OUT CDestination::IsDirty (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_DEST, "%p OUT CDestination::IsDirty (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -37,40 +37,37 @@ STDMETHODIMP CDestination::IsDirty(void)
 //  Method:     CDestination::Load
 //  Arguments:  [pStm] --
 //  History:    1-15-1997   JohannP (Johann Posch)   Created
-STDMETHODIMP CDestination::Load(IStream *pStm)
+STDMETHODIMP CDestination::Load(IStream* pStm)
 {
     NotfDebugOut((DEB_DEST, "%p _IN CDestination::Load\n", this));
     HRESULT hr = NOERROR;
     NotfAssert((pStm));
 
-    PNOTIFICATIONTYPE pNotfTypes  = 0;
+    PNOTIFICATIONTYPE pNotfTypes = 0;
     DESTINATIONDATA       destdata;
     DWORD cbSaved;
 
-    do
-    {
+    do {
         destdata.cbSize = sizeof(DESTINATIONDATA);
 
-        hr =  pStm->Read(&destdata, sizeof(DESTINATIONDATA), &cbSaved);
+        hr = pStm->Read(&destdata, sizeof(DESTINATIONDATA), &cbSaved);
         BREAK_ONERROR(hr);
-        NotfAssert(( sizeof(DESTINATIONDATA) == cbSaved));
+        NotfAssert((sizeof(DESTINATIONDATA) == cbSaved));
 
-        NotfAssert(( destdata.cNotifications ));
-        pNotfTypes = new NOTIFICATIONTYPE [destdata.cNotifications];
+        NotfAssert((destdata.cNotifications));
+        pNotfTypes = new NOTIFICATIONTYPE[destdata.cNotifications];
 
-        if (!pNotfTypes)
-        {
+        if (!pNotfTypes) {
             hr = E_OUTOFMEMORY;
             break;
         }
 
         // read the notification types
-        hr =  pStm->Read(pNotfTypes, destdata.cNotifications * sizeof(NOTIFICATIONTYPE)  , &cbSaved);
+        hr = pStm->Read(pNotfTypes, destdata.cNotifications * sizeof(NOTIFICATIONTYPE), &cbSaved);
         BREAK_ONERROR(hr);
-        NotfAssert(( (destdata.cNotifications * sizeof(NOTIFICATIONTYPE) ) == cbSaved));
+        NotfAssert(((destdata.cNotifications * sizeof(NOTIFICATIONTYPE)) == cbSaved));
 
-        if ((destdata.cNotifications * sizeof(NOTIFICATIONTYPE) ) != cbSaved)
-        {
+        if ((destdata.cNotifications * sizeof(NOTIFICATIONTYPE)) != cbSaved) {
             // stop - the size did not match; old or invalid entry
             hr = E_FAIL;
             break;
@@ -78,7 +75,7 @@ STDMETHODIMP CDestination::Load(IStream *pStm)
 
         CPkgCookie ccookie = destdata.RegisterCookie;
 
-        hr = InitDestination(0,&destdata.NotificationDest,destdata.NotfctnSinkMode,ccookie,destdata.cNotifications,pNotfTypes,destdata.dwReserved);
+        hr = InitDestination(0, &destdata.NotificationDest, destdata.NotfctnSinkMode, ccookie, destdata.cNotifications, pNotfTypes, destdata.dwReserved);
         BREAK_ONERROR(hr);
 
         BREAK_ONERROR(hr);
@@ -89,12 +86,11 @@ STDMETHODIMP CDestination::Load(IStream *pStm)
         break;
     } while (TRUE);
 
-    if (pNotfTypes)
-    {
+    if (pNotfTypes) {
         delete pNotfTypes;
     }
 
-    NotfDebugOut((DEB_DEST, "%p OUT CDestination::Load (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_DEST, "%p OUT CDestination::Load (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -103,7 +99,7 @@ STDMETHODIMP CDestination::Load(IStream *pStm)
 //  Arguments:  [BOOL] --
 //              [fClearDirty] --
 //  History:    1-15-1997   JohannP (Johann Posch)   Created
-STDMETHODIMP CDestination::Save(IStream *pStm,BOOL fClearDirty)
+STDMETHODIMP CDestination::Save(IStream* pStm, BOOL fClearDirty)
 {
     NotfDebugOut((DEB_DEST, "%p _IN CDestination::Save\n", this));
     NotfAssert((pStm));
@@ -112,25 +108,24 @@ STDMETHODIMP CDestination::Save(IStream *pStm,BOOL fClearDirty)
     DESTINATIONDATA       destdata;
     DWORD cbSaved;
 
-    do
-    {
+    do {
         destdata.cbSize = sizeof(DESTINATIONDATA);
         // get and write the notification item
         hr = GetDestinationData(&destdata);
         BREAK_ONERROR(hr);
-        hr =  pStm->Write(&destdata, sizeof(DESTINATIONDATA), &cbSaved);
+        hr = pStm->Write(&destdata, sizeof(DESTINATIONDATA), &cbSaved);
         BREAK_ONERROR(hr);
-        NotfAssert(( sizeof(DESTINATIONDATA) == cbSaved));
+        NotfAssert((sizeof(DESTINATIONDATA) == cbSaved));
 
         // get and write the notification types
-        NotfAssert(( GetNotfTypes() ));
-        hr =  pStm->Write(GetNotfTypes(), destdata.cNotifications * sizeof(NOTIFICATIONTYPE)  , &cbSaved);
-        NotfAssert(( (destdata.cNotifications * sizeof(NOTIFICATIONTYPE) ) == cbSaved));
+        NotfAssert((GetNotfTypes()));
+        hr = pStm->Write(GetNotfTypes(), destdata.cNotifications * sizeof(NOTIFICATIONTYPE), &cbSaved);
+        NotfAssert(((destdata.cNotifications * sizeof(NOTIFICATIONTYPE)) == cbSaved));
 
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_DEST, "%p OUT CDestination::Save (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_DEST, "%p OUT CDestination::Save (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -138,7 +133,7 @@ STDMETHODIMP CDestination::Save(IStream *pStm,BOOL fClearDirty)
 //  Method:     CDestination::GetSizeMax
 //  Arguments:  [pcbSize] --
 //  History:    1-15-1997   JohannP (Johann Posch)   Created
-STDMETHODIMP CDestination::GetSizeMax(ULARGE_INTEGER *pcbSize)
+STDMETHODIMP CDestination::GetSizeMax(ULARGE_INTEGER* pcbSize)
 {
     NotfDebugOut((DEB_DEST, "%p _IN CDestination::GetSizeMax\n", this));
     HRESULT hr = NOERROR;
@@ -146,7 +141,7 @@ STDMETHODIMP CDestination::GetSizeMax(ULARGE_INTEGER *pcbSize)
     pcbSize->LowPart += sizeof(DESTINATIONDATA) + (GetNotfTypeCount() * sizeof(NOTIFICATIONTYPE));
     pcbSize->HighPart = 0;
 
-    NotfDebugOut((DEB_DEST, "%p OUT CDestination::GetSizeMax (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_DEST, "%p OUT CDestination::GetSizeMax (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -166,19 +161,16 @@ HRESULT CDestination::RemovePersist(LPCSTR pszWhere, DWORD dwMode)
     LPSTR       pszRegKey = 0;
     LPSTR       pszSubKey = 0;
 
-    do
-    {
-        if (!pszWhere)
-        {
+    do {
+        if (!pszWhere) {
             hr = E_INVALIDARG;
             break;
         }
 
         //pszSubKey = StringAFromCLSID( &(GetNotificationCookie()) );
-        pszSubKey = StringAFromCLSID( _RegisterCookie );
+        pszSubKey = StringAFromCLSID(_RegisterCookie);
 
-        if (!pszSubKey)
-        {
+        if (!pszSubKey) {
             hr = E_OUTOFMEMORY;
             break;
         }
@@ -191,36 +183,31 @@ HRESULT CDestination::RemovePersist(LPCSTR pszWhere, DWORD dwMode)
 
             strcpy(szKeyToDelete, pszWhere);
 
-            lRes = RegCreateKeyEx(HKEY_CURRENT_USER,szKeyToDelete,0,NULL,0,HKEY_READ_WRITE_ACCESS, NULL,&hKey,&dwDisposition);
-            if(lRes == ERROR_SUCCESS)
-            {
+            lRes = RegCreateKeyEx(HKEY_CURRENT_USER, szKeyToDelete, 0, NULL, 0, HKEY_READ_WRITE_ACCESS, NULL, &hKey, &dwDisposition);
+            if (lRes == ERROR_SUCCESS) {
                 strcpy(szKeyToDelete, pszSubKey);
                 lRes = RegDeleteValue(hKey, szKeyToDelete);
             }
 
-            if (lRes != ERROR_SUCCESS)
-            {
+            if (lRes != ERROR_SUCCESS) {
                 hr = E_FAIL;
             }
-            if (hKey)
-            {
+            if (hKey) {
                 RegCloseKey(hKey);
             }
         }
 
-        if (pszRegKey)
-        {
+        if (pszRegKey) {
             delete pszRegKey;
         }
-        if (pszSubKey)
-        {
+        if (pszSubKey) {
             delete pszSubKey;
         }
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_PACKAGE, "%p OUT CDestination::RemovePersist (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_PACKAGE, "%p OUT CDestination::RemovePersist (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -237,41 +224,35 @@ HRESULT CDestination::SaveToPersist(LPCSTR pszWhere, DWORD dwMode)
     NotfAssert((pszWhere));
     // save the package
 
-    CRegStream *pRegStm = 0;
+    CRegStream* pRegStm = 0;
     LPSTR       pszRegKey = 0;
     LPSTR       pszSubKey = 0;
 
-    do
-    {
+    do {
         // BUBUG: need to save the clsid of the current process
         //CLSID clsid = CLSID_StdNotificationMgr;
         //pszRegKey = StringAFromCLSID( &clsid );
-        pszSubKey = StringAFromCLSID(  _RegisterCookie );
+        pszSubKey = StringAFromCLSID(_RegisterCookie);
 
-        if (pszSubKey)
-        {
-            pRegStm = new CRegStream(HKEY_CURRENT_USER, pszWhere,pszSubKey, TRUE);
+        if (pszSubKey) {
+            pRegStm = new CRegStream(HKEY_CURRENT_USER, pszWhere, pszSubKey, TRUE);
         }
 
-        if (pszRegKey)
-        {
+        if (pszRegKey) {
             delete pszRegKey;
         }
-        if (pszSubKey)
-        {
+        if (pszSubKey) {
             delete pszSubKey;
         }
 
-        if (!pRegStm)
-        {
-           hr = E_OUTOFMEMORY;
-           break;
+        if (!pRegStm) {
+            hr = E_OUTOFMEMORY;
+            break;
         }
 
-        IStream *pStm = 0;
+        IStream* pStm = 0;
         hr = pRegStm->GetStream(&pStm);
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
 
             delete pRegStm;
             break;
@@ -281,21 +262,19 @@ HRESULT CDestination::SaveToPersist(LPCSTR pszWhere, DWORD dwMode)
         hr = Save(pStm, TRUE);
         BREAK_ONERROR(hr);
 
-        if (pStm)
-        {
+        if (pStm) {
             pStm->Release();
         }
 
-        if (pRegStm)
-        {
+        if (pRegStm) {
             pRegStm->SetDirty();
             delete pRegStm;
         }
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_PACKAGE, "%p OUT CDestination::SaveToPersist (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_PACKAGE, "%p OUT CDestination::SaveToPersist (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -305,41 +284,36 @@ HRESULT CDestination::SaveToPersist(LPCSTR pszWhere, DWORD dwMode)
 //  Arguments:  [pszWhere] --
 //              [dwMode] --
 //  History:    1-15-1997   JohannP (Johann Posch)   Created
-HRESULT CDestination::LoadFromPersist(LPCSTR pszWhere, LPSTR pszSubKey, DWORD dwMode, CDestination **ppCDestination)
+HRESULT CDestination::LoadFromPersist(LPCSTR pszWhere, LPSTR pszSubKey, DWORD dwMode, CDestination** ppCDestination)
 {
     NotfDebugOut((DEB_PACKAGE, "%p _IN CDestination::LoadFromPersist\n", NULL));
     HRESULT hr = E_INVALIDARG;
     NotfAssert((pszWhere));
     // save the package
 
-    CRegStream *pRegStm = 0;
-    CDestination *pCDest = 0;
+    CRegStream* pRegStm = 0;
+    CDestination* pCDest = 0;
 
-    do
-    {
-        if (   !pszWhere || !pszSubKey || !ppCDestination )
-        {
+    do {
+        if (!pszWhere || !pszSubKey || !ppCDestination) {
             break;
         }
 
         pCDest = new CDestination();
-        if (!pCDest)
-        {
+        if (!pCDest) {
             hr = E_OUTOFMEMORY;
             break;
         }
 
-        pRegStm = new CRegStream(HKEY_CURRENT_USER, pszWhere,pszSubKey, FALSE);
-        if (!pRegStm)
-        {
-           hr = E_OUTOFMEMORY;
-           break;
+        pRegStm = new CRegStream(HKEY_CURRENT_USER, pszWhere, pszSubKey, FALSE);
+        if (!pRegStm) {
+            hr = E_OUTOFMEMORY;
+            break;
         }
 
-        IStream *pStm = 0;
+        IStream* pStm = 0;
         hr = pRegStm->GetStream(&pStm);
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
             delete pRegStm;
             break;
         }
@@ -348,21 +322,19 @@ HRESULT CDestination::LoadFromPersist(LPCSTR pszWhere, LPSTR pszSubKey, DWORD dw
         hr = pCDest->Load(pStm);
         BREAK_ONERROR(hr);
 
-        if (pStm)
-        {
+        if (pStm) {
             pStm->Release();
         }
 
-        if (pRegStm)
-        {
+        if (pRegStm) {
             delete pRegStm;
         }
 
         *ppCDestination = pCDest;
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_PACKAGE, "%p OUT CDestination::LoadFromPersist (hr:%lx)\n",pCDest, hr));
+    NotfDebugOut((DEB_PACKAGE, "%p OUT CDestination::LoadFromPersist (hr:%lx)\n", pCDest, hr));
     return hr;
 }

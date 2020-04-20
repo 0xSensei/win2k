@@ -27,7 +27,7 @@
 #ifdef UNICODE
 error.
 This dll needs to be built with ANSI, not UNICODE because it must run on
-Win95, Win98 and on Windows 2000
+Win95, Win98and on Windows 2000
 #endif
 
 
@@ -38,42 +38,42 @@ Win95, Win98 and on Windows 2000
 typedef struct tagMANUMODELIDS {
     DWORD dwManuID;
     DWORD dwModelID;
-} MANUMODELIDS, *PMANUMODELIDS;
+} MANUMODELIDS, * PMANUMODELIDS;
 
 typedef struct tagREGDATA {
     DWORD dwRefCount;
     DWORD dwManuID;
     DWORD dwModelID;
-} REGDATA, *PREGDATA;
+} REGDATA, * PREGDATA;
 
-typedef BOOL (WINAPI *PFNINSTALLCOLORPROFILEA)(PSTR, PSTR);
-typedef BOOL (WINAPI *PFNINSTALLCOLORPROFILE)(LPCTSTR, LPCTSTR);
-typedef BOOL (WINAPI *PFNENUMCOLORPROFILES)(PCTSTR, PENUMTYPE, PBYTE, PDWORD, PDWORD);
+typedef BOOL(WINAPI* PFNINSTALLCOLORPROFILEA)(PSTR, PSTR);
+typedef BOOL(WINAPI* PFNINSTALLCOLORPROFILE)(LPCTSTR, LPCTSTR);
+typedef BOOL(WINAPI* PFNENUMCOLORPROFILES)(PCTSTR, PENUMTYPE, PBYTE, PDWORD, PDWORD);
 
 typedef struct {
     CHAR CompanyName[256];
     CHAR SupportNumber[256];
     CHAR SupportUrl[256];
     CHAR InstructionsToUser[1024];
-} VENDORINFO, *PVENDORINFO;
+} VENDORINFO, * PVENDORINFO;
 
 
 
 // Global variables
 
 
-TCHAR  const gszICMRegPath[]     = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ICM";
-TCHAR  const gszProfile[]        = "profile";
-TCHAR  const gszMSCMSdll[]       = "mscms.dll";
+TCHAR  const gszICMRegPath[] = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ICM";
+TCHAR  const gszProfile[] = "profile";
+TCHAR  const gszMSCMSdll[] = "mscms.dll";
 
-char   const gszProductID[]      = "Microsoft Color Management System";
+char   const gszProductID[] = "Microsoft Color Management System";
 
 char   const gszInstallColorProfile[] = "InstallColorProfileA";
-char   const gszGetColorDirectory[]   = "GetColorDirectoryA";
-char   const gszEnumColorProfiles[]   = "EnumColorProfilesA";
+char   const gszGetColorDirectory[] = "GetColorDirectoryA";
+char   const gszEnumColorProfiles[] = "EnumColorProfilesA";
 VENDORINFO   gVendorInfo;
 char         gszMigInf[MAX_PATH];
-char   const gszFullICMRegPath[]      = "\"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ICM\"";
+char   const gszFullICMRegPath[] = "\"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ICM\"";
 
 char   const gszInstallColorProfileA[] = "InstallColorProfileA";
 
@@ -108,10 +108,10 @@ HINSTANCE hinstMigDll;
 
 BOOL WINAPI
 DllEntryPoint(HINSTANCE hinstDll, DWORD dwReason, LPVOID lpReserved) {
-  if(dwReason==DLL_PROCESS_ATTACH) {
-    hinstMigDll = hinstDll;
-  }
-  return TRUE;
+    if (dwReason == DLL_PROCESS_ATTACH) {
+        hinstMigDll = hinstDll;
+    }
+    return TRUE;
 }
 
 
@@ -137,16 +137,16 @@ DllEntryPoint(HINSTANCE hinstDll, DWORD dwReason, LPVOID lpReserved) {
 LONG
 CALLBACK
 QueryVersion(
-    OUT LPCSTR  *pszProductID,
+    OUT LPCSTR* pszProductID,
     OUT LPUINT  puDllVersion,
-    OUT LPINT   *pCodePageArray,    OPTIONAL
-    OUT LPCSTR  *ppszExeNamesBuf,    OPTIONAL
-    OUT PVENDORINFO  *ppVendorInfo
-    )
+    OUT LPINT* pCodePageArray, OPTIONAL
+    OUT LPCSTR* ppszExeNamesBuf, OPTIONAL
+    OUT PVENDORINFO* ppVendorInfo
+)
 {
     *pszProductID = gszProductID;
     *puDllVersion = 1;
-    *ppszExeNamesBuf    = NULL;
+    *ppszExeNamesBuf = NULL;
     *pCodePageArray = NULL;
     *ppVendorInfo = &gVendorInfo;
     memset(&gVendorInfo, 0, sizeof(VENDORINFO));
@@ -181,29 +181,29 @@ Initialize9x(
     IN  LPCSTR   pszWorkingDir,
     IN  LPCSTR   pszSourceDir,
     IN  LPVOID   pvReserved
-    )
+)
 {
 
-  // Lets figure out if we're on a Win98 or Win95 system
-  // We don't migrate Win95 because Win95 doesn't have a
-  // profile database to migrate.
+    // Lets figure out if we're on a Win98 or Win95 system
+    // We don't migrate Win95 because Win95 doesn't have a
+    // profile database to migrate.
 
 
-/*  OSVERSIONINFO osVer;
+  /*  OSVERSIONINFO osVer;
 
-  osVer.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-  GetVersionEx(&osVer);
-  gbWin98 =
-    (osVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) &&
-    ( (osVer.dwMajorVersion > 4) ||
-    ( (osVer.dwMajorVersion == 4) && (osVer.dwMinorVersion > 0) ) );
-*/
-  WARNING((__TEXT("Initialize9x called\n")));
+    osVer.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osVer);
+    gbWin98 =
+      (osVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) &&
+      ( (osVer.dwMajorVersion > 4) ||
+      ( (osVer.dwMajorVersion == 4) && (osVer.dwMinorVersion > 0) ) );
+  */
+    WARNING((__TEXT("Initialize9x called\n")));
 
-  lstrcpyA(gszMigInf, pszWorkingDir);
-  lstrcatA(gszMigInf, "\\migrate.inf");
+    lstrcpyA(gszMigInf, pszWorkingDir);
+    lstrcatA(gszMigInf, "\\migrate.inf");
 
-  return ERROR_SUCCESS;
+    return ERROR_SUCCESS;
 }
 
 
@@ -230,7 +230,7 @@ MigrateUser9x(
     IN  HKEY     hUserRegKey,
     IN  LPCSTR   pszUserName,
     LPVOID       pvReserved
-    )
+)
 {
 
     // Nothing to do
@@ -262,7 +262,7 @@ MigrateSystem9x(
     IN  HWND    hwndParent,
     IN  LPCSTR  pszUnattendFile,
     LPVOID      pvReserved
-    )
+)
 {
     DWORD            nProfiles;
     DWORD            dwSize;
@@ -270,7 +270,7 @@ MigrateSystem9x(
     char             szNewColorDir[MAX_PATH];
     char             szDrive[2];
     HMODULE          hModule;
-    ENUMTYPE         et = {sizeof (ENUMTYPE), ENUM_TYPE_VERSION, 0, NULL};
+    ENUMTYPE         et = {sizeof(ENUMTYPE), ENUM_TYPE_VERSION, 0, NULL};
     PBYTE            pBuffer;
     PSTR             pstrBuffer;
     PSTR             pstrTraversal;
@@ -282,16 +282,14 @@ MigrateSystem9x(
 
 
     GetWindowsDirectoryA(szColorDir, MAX_PATH);
-    if (szColorDir[lstrlenA(szColorDir)-1] != '\\')
-    {
-        lstrcatA(szColorDir,"\\");
+    if (szColorDir[lstrlenA(szColorDir) - 1] != '\\') {
+        lstrcatA(szColorDir, "\\");
     }
     lstrcatA(szColorDir, "system\\color\\");
 
     GetWindowsDirectoryA(szNewColorDir, MAX_PATH);
-    if (szNewColorDir[lstrlenA(szNewColorDir)-1] != '\\')
-    {
-        lstrcatA(szNewColorDir,"\\");
+    if (szNewColorDir[lstrlenA(szNewColorDir) - 1] != '\\') {
+        lstrcatA(szNewColorDir, "\\");
     }
     lstrcatA(szNewColorDir, "system32\\spool\\drivers\\color\\");
 
@@ -309,108 +307,105 @@ MigrateSystem9x(
 
     hModule = LoadLibrary(gszMSCMSdll);
     if (hModule) {
-      #ifdef ICM_MIG_DEBUG
-      WritePrivateProfileStringA("ICM Debug", "hModule", "not NULL", gszMigInf);
-      WritePrivateProfileStringA("ICM Debug", "gbWin98", "TRUE", gszMigInf);
-      #endif
+#ifdef ICM_MIG_DEBUG
+        WritePrivateProfileStringA("ICM Debug", "hModule", "not NULL", gszMigInf);
+        WritePrivateProfileStringA("ICM Debug", "gbWin98", "TRUE", gszMigInf);
+#endif
 
-      pEnumColorProfiles = (PFNENUMCOLORPROFILES)GetProcAddress(hModule, gszEnumColorProfiles);
-      if (pEnumColorProfiles) {
+        pEnumColorProfiles = (PFNENUMCOLORPROFILES)GetProcAddress(hModule, gszEnumColorProfiles);
+        if (pEnumColorProfiles) {
 
-        #ifdef ICM_MIG_DEBUG
-        WritePrivateProfileStringA("ICM Debug", "pEnumColorProfiles", "not NULL", gszMigInf);
-        #endif
-
-
-        // Compute the size of the EnumColorProfiles buffer.
+#ifdef ICM_MIG_DEBUG
+            WritePrivateProfileStringA("ICM Debug", "pEnumColorProfiles", "not NULL", gszMigInf);
+#endif
 
 
-        dwSize = 0;
-        pEnumColorProfiles(NULL, &et, NULL, &dwSize, &nProfiles);
-
-        if(dwSize==0)
-        {
-          #ifdef ICM_MIG_DEBUG
-          WritePrivateProfileStringA("ICM Debug", "dwSize", "0", gszMigInf);
-          #endif
-
-          // Need to exit - nothing to do if there are no profiles installed,
-          // except to move the directory and registry settings.
-
-          WARNING((__TEXT("No profiles installed\n")));
-          goto EndMigrateSystem9x;
-        }
+            // Compute the size of the EnumColorProfiles buffer.
 
 
+            dwSize = 0;
+            pEnumColorProfiles(NULL, &et, NULL, &dwSize, &nProfiles);
 
-        // Enumerate all the currently installed color profiles.
+            if (dwSize == 0) {
+#ifdef ICM_MIG_DEBUG
+                WritePrivateProfileStringA("ICM Debug", "dwSize", "0", gszMigInf);
+#endif
 
+                // Need to exit - nothing to do if there are no profiles installed,
+                // except to move the directory and registry settings.
 
-        #ifdef ICM_MIG_DEBUG
-        WritePrivateProfileStringA("ICM Debug", "Enumerate", "Start", gszMigInf);
-        #endif
-
-        pBuffer = (BYTE *)malloc(dwSize);
-        pstrBuffer = (PSTR)pBuffer;
-
-        #ifdef ICM_MIG_DEBUG
-        WritePrivateProfileStringA("ICM Debug", "Enumerate", "TRUE", gszMigInf);
-        #endif
-
-        if(pEnumColorProfiles(NULL, &et, pBuffer, &dwSize, &nProfiles))
-        {
-            #ifdef ICM_MIG_DEBUG
-            WritePrivateProfileStringA("ICM Debug", "Enumerate", "for", gszMigInf);
-            #endif
-
-            for(pstrTraversal = pstrBuffer;
-                nProfiles--;
-                pstrTraversal += 1 + lstrlenA(pstrTraversal)) {
-
-
-                // Write the fact into the Migration Information file.
-
-
-                WritePrivateProfileStringA("Installed ICM Profiles", pstrTraversal, "1", gszMigInf);
+                WARNING((__TEXT("No profiles installed\n")));
+                goto EndMigrateSystem9x;
             }
+
+
+
+            // Enumerate all the currently installed color profiles.
+
+
+#ifdef ICM_MIG_DEBUG
+            WritePrivateProfileStringA("ICM Debug", "Enumerate", "Start", gszMigInf);
+#endif
+
+            pBuffer = (BYTE*)malloc(dwSize);
+            pstrBuffer = (PSTR)pBuffer;
+
+#ifdef ICM_MIG_DEBUG
+            WritePrivateProfileStringA("ICM Debug", "Enumerate", "TRUE", gszMigInf);
+#endif
+
+            if (pEnumColorProfiles(NULL, &et, pBuffer, &dwSize, &nProfiles)) {
+#ifdef ICM_MIG_DEBUG
+                WritePrivateProfileStringA("ICM Debug", "Enumerate", "for", gszMigInf);
+#endif
+
+                for (pstrTraversal = pstrBuffer;
+                     nProfiles--;
+                     pstrTraversal += 1 + lstrlenA(pstrTraversal)) {
+
+
+                    // Write the fact into the Migration Information file.
+
+
+                    WritePrivateProfileStringA("Installed ICM Profiles", pstrTraversal, "1", gszMigInf);
+                }
+            }
+            free(pBuffer);
         }
-        free(pBuffer);
-      }
-      #ifdef ICM_MIG_DEBUG
+#ifdef ICM_MIG_DEBUG
         else {
-        WritePrivateProfileStringA("ICM Debug", "pEnumColorProfiles", "NULL", gszMigInf);
-      }
-      #endif
+            WritePrivateProfileStringA("ICM Debug", "pEnumColorProfiles", "NULL", gszMigInf);
+        }
+#endif
 
 
-      EndMigrateSystem9x:
-      if (hModule)
-      {
-          FreeLibrary(hModule);
-      }
-  }
-  #ifdef ICM_MIG_DEBUG
+    EndMigrateSystem9x:
+        if (hModule) {
+            FreeLibrary(hModule);
+        }
+    }
+#ifdef ICM_MIG_DEBUG
     else {
-    WritePrivateProfileStringA("ICM Debug", "hModule", "NULL", gszMigInf);
-    WritePrivateProfileStringA("ICM Debug", "gbWin98", "FALSE", gszMigInf);
-  }
-  #endif
+        WritePrivateProfileStringA("ICM Debug", "hModule", "NULL", gszMigInf);
+        WritePrivateProfileStringA("ICM Debug", "gbWin98", "FALSE", gszMigInf);
+    }
+#endif
 
 
-  // We'll handle the ICM branch of the registry
+    // We'll handle the ICM branch of the registry
 
 
-  WritePrivateProfileStringA("Handled", gszFullICMRegPath, "Registry", gszMigInf);
+    WritePrivateProfileStringA("Handled", gszFullICMRegPath, "Registry", gszMigInf);
 
 
 
-  // We'll be moving the entire subdirectory.
+    // We'll be moving the entire subdirectory.
 
 
-  WritePrivateProfileStringA("Moved", szColorDir, szNewColorDir, gszMigInf);
+    WritePrivateProfileStringA("Moved", szColorDir, szNewColorDir, gszMigInf);
 
 
-  return  ERROR_SUCCESS;
+    return  ERROR_SUCCESS;
 }
 
 
@@ -436,7 +431,7 @@ InitializeNT(
     IN  LPCWSTR pszWorkingDir,
     IN  LPCWSTR pszSourceDir,
     LPVOID      pvReserved
-    )
+)
 {
     SetupOpenLog(FALSE);
     SetupLogError("ICM Migration: InitializeNT called\r\n", LogSevInformation);
@@ -466,7 +461,7 @@ MigrateUserNT(
     IN  HKEY      hUserRegKey,
     IN  LPCWSTR   pszUserName,
     LPVOID        pvReserved
-    )
+)
 {
     SetupLogError("ICM Migration: MigrateUserNT called\r\n", LogSevInformation);
 
@@ -499,7 +494,7 @@ CALLBACK
 MigrateSystemNT(
     IN  HANDLE  hUnattendInf,
     LPVOID      pvReserved
-    )
+)
 {
     HINSTANCE hModule;
     LONG      rc = ERROR_FILE_NOT_FOUND;
@@ -513,8 +508,7 @@ MigrateSystemNT(
 
 
     hModule = LoadLibrary(gszMSCMSdll);
-    if (!hModule)
-    {
+    if (!hModule) {
         sprintf(szMessage, "ICM Migration: Fatal Error, cannot load mscms.dll. Error %d\r\n", GetLastError());
         SetupLogError(szMessage, LogSevFatalError);
         return rc;
@@ -523,8 +517,7 @@ MigrateSystemNT(
     pInstallColorProfileA = (PFNINSTALLCOLORPROFILEA)GetProcAddress(hModule, gszInstallColorProfileA);
     pInstallColorProfile = (PFNINSTALLCOLORPROFILE)GetProcAddress(hModule, gszInstallColorProfile);
 
-    if (!pInstallColorProfile || !pInstallColorProfileA)
-    {
+    if (!pInstallColorProfile || !pInstallColorProfileA) {
         SetupLogError("ICM Migration: Fatal Error, cannot find mscms functions. \r\n", LogSevFatalError);
         goto EndMigrateSystemNT;
     }
@@ -537,8 +530,7 @@ MigrateSystemNT(
 
 EndMigrateSystemNT:
 
-    if (hModule)
-    {
+    if (hModule) {
         FreeLibrary(hModule);
     }
 
@@ -572,15 +564,13 @@ DeleteOldICMKey()
     // Open the registry path where profiles used to be kept
 
 
-    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, gszICMRegPath, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkICM, NULL) != ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, gszICMRegPath, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkICM, NULL) != ERROR_SUCCESS) {
         SetupLogError("ICM Migration: Cannot open ICM branch of registry\r\n", LogSevError);
         return;
     }
 
     if (RegQueryInfoKey(hkICM, NULL, NULL, 0, &nSubkeys, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
-    {
+                        NULL, NULL, NULL, NULL, NULL) != ERROR_SUCCESS) {
         SetupLogError("ICM Migration: Cannot enumerate ICM branch of registry\r\n", LogSevError);
         goto EndDeleteOldICMKey;
     }
@@ -590,15 +580,13 @@ DeleteOldICMKey()
     // only be one level deep
 
 
-    for (i=nSubkeys; i>0; i--)
-    {
-        RegEnumKey(hkICM, i-1, szKeyName, sizeof(szKeyName));
+    for (i = nSubkeys; i > 0; i--) {
+        RegEnumKey(hkICM, i - 1, szKeyName, sizeof(szKeyName));
         RegDeleteKey(hkICM, szKeyName);
     }
 
 EndDeleteOldICMKey:
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
     RegDeleteKey(HKEY_LOCAL_MACHINE, gszICMRegPath);
@@ -624,45 +612,45 @@ EndDeleteOldICMKey:
 // s and d should have the trailing slash.
 
 
-void MyMoveDir(char *s, char *d) {
-  WIN32_FIND_DATA rf;
-  HANDLE hf;
-  char s2[MAX_PATH];
-  char s_[MAX_PATH];
-  char d_[MAX_PATH];
-  char err[MAX_PATH];
+void MyMoveDir(char* s, char* d) {
+    WIN32_FIND_DATA rf;
+    HANDLE hf;
+    char s2[MAX_PATH];
+    char s_[MAX_PATH];
+    char d_[MAX_PATH];
+    char err[MAX_PATH];
 
 
-  // If MoveFileEx succeeds, we're done.
+    // If MoveFileEx succeeds, we're done.
 
 
-  if(!MoveFileEx(s, d, MOVEFILE_REPLACE_EXISTING)) {
-    sprintf(s2, "%s*", s);
-    hf = FindFirstFile(s2, &rf);
-    do {
-      // don't move . and ..
-      if(!(strcmp(".", rf.cFileName)==0 ||
-           strcmp("..", rf.cFileName)==0) ) {
-        sprintf(s_, "%s%s", s, rf.cFileName);
-        sprintf(d_, "%s%s", d, rf.cFileName);
-        if(!MoveFileEx(s_, d_, MOVEFILE_REPLACE_EXISTING)) {
-          int e = GetLastError();
-          sprintf(err, "ICM Migration: Failed the move of %s with %d\r\n", s_, e);
-          SetupLogError(err, LogSevError);
-        } else {
-          sprintf(err, "ICM Migration: Moved %s to %s\n", s_, d_);
-          SetupLogError(err, LogSevInformation);
-        }
-      }
-    } while(FindNextFile(hf, &rf));
+    if (!MoveFileEx(s, d, MOVEFILE_REPLACE_EXISTING)) {
+        sprintf(s2, "%s*", s);
+        hf = FindFirstFile(s2, &rf);
+        do {
+            // don't move . and ..
+            if (!(strcmp(".", rf.cFileName) == 0 ||
+                  strcmp("..", rf.cFileName) == 0)) {
+                sprintf(s_, "%s%s", s, rf.cFileName);
+                sprintf(d_, "%s%s", d, rf.cFileName);
+                if (!MoveFileEx(s_, d_, MOVEFILE_REPLACE_EXISTING)) {
+                    int e = GetLastError();
+                    sprintf(err, "ICM Migration: Failed the move of %s with %d\r\n", s_, e);
+                    SetupLogError(err, LogSevError);
+                } else {
+                    sprintf(err, "ICM Migration: Moved %s to %s\n", s_, d_);
+                    SetupLogError(err, LogSevInformation);
+                }
+            }
+        } while (FindNextFile(hf, &rf));
 
-    FindClose(hf);
-  }
+        FindClose(hf);
+    }
 
 
-  // source directory should theoretically be empty at this point
-  // If there are errors, we'll leave files behind and report this in
-  // the setup log as a LogSevError.
+    // source directory should theoretically be empty at this point
+    // If there are errors, we'll leave files behind and report this in
+    // the setup log as a LogSevError.
 
 }
 
@@ -694,17 +682,16 @@ InstallProfiles()
     CHAR             szNewColorDir[MAX_PATH];
     CHAR             szReturnString[2];
     CHAR             szDefaultString[2];
-    CHAR             szMessage[2*MAX_PATH+100];
+    CHAR             szMessage[2 * MAX_PATH + 100];
 
     GetWindowsDirectoryA(szOldColorDir, MAX_PATH);
-    if (szOldColorDir[lstrlenA(szOldColorDir)-1] != '\\')
+    if (szOldColorDir[lstrlenA(szOldColorDir) - 1] != '\\')
         lstrcatA(szOldColorDir, "\\");
     lstrcatA(szOldColorDir, "system\\color\\");
 
 
     GetWindowsDirectoryA(szNewColorDir, MAX_PATH);
-    if (szNewColorDir[lstrlenA(szNewColorDir)-1] != '\\')
-    {
+    if (szNewColorDir[lstrlenA(szNewColorDir) - 1] != '\\') {
         lstrcatA(szNewColorDir, "\\");
     }
     lstrcatA(szNewColorDir, "system32\\spool\\drivers\\color\\");
@@ -730,15 +717,13 @@ InstallProfiles()
 
 
 
-    szDefaultString[0]='0';
-    szDefaultString[1]=0;
+    szDefaultString[0] = '0';
+    szDefaultString[1] = 0;
     hFindFile = FindFirstFileA(szNewColorDir, &wfd);
 
 
-    if (hFindFile != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
+    if (hFindFile != INVALID_HANDLE_VALUE) {
+        do {
             lstrcpyA(pNewColorDirEnd, wfd.cFileName);
 
 
@@ -751,14 +736,11 @@ InstallProfiles()
             // If it was installed, attempt to install it on NT
 
 
-            if(szReturnString[0]=='1') {
-                if (!(*pInstallColorProfileA)(NULL, szNewColorDir))
-                {
+            if (szReturnString[0] == '1') {
+                if (!(*pInstallColorProfileA)(NULL, szNewColorDir)) {
                     sprintf(szMessage, "ICM Migration: Error %d installing profile %s\r\n", GetLastError(), szNewColorDir);
                     SetupLogError(szMessage, LogSevError);
-                }
-                else
-                {
+                } else {
                     sprintf(szMessage, "ICM Migration: Installed profile %s\r\n", szNewColorDir);
                     SetupLogError(szMessage, LogSevInformation);
                 }
@@ -767,9 +749,7 @@ InstallProfiles()
         } while (FindNextFileA(hFindFile, &wfd));
 
         FindClose(hFindFile);
-    }
-    else
-    {
+    } else {
         SetupLogError("ICM Migration: FindFirstFile returned an invalid handle\r\n", LogSevFatalError);
     }
 }
@@ -797,7 +777,7 @@ InternalUpgradeICM()
     HKEY      hkICM = NULL;         // key to ICM branch in registry
     HKEY      hkDevice = NULL;      // key to ICM device branch in registry
     int       i;                    // counter variable
-    TCHAR    *pszClasses[] = {      // different profile classes
+    TCHAR* pszClasses[] = {      // different profile classes
         __TEXT("mntr"),
         __TEXT("prtr"),
         __TEXT("scnr"),
@@ -813,8 +793,7 @@ InternalUpgradeICM()
     // Open the registry path where profiles are kept
 
 
-    if (errcode = RegCreateKeyEx(HKEY_LOCAL_MACHINE, gszICMRegPath, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkICM, NULL) != ERROR_SUCCESS)
-    {
+    if (errcode = RegCreateKeyEx(HKEY_LOCAL_MACHINE, gszICMRegPath, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkICM, NULL) != ERROR_SUCCESS) {
         sprintf(szMessage, "ICM Migration: Fatal Error, cannot open registry entry (%s) code:%d\r\n", gszICMRegPath, errcode);
         SetupLogError(szMessage, LogSevFatalError);
         return;
@@ -824,10 +803,8 @@ InternalUpgradeICM()
     // Go through all the device classes and install the profiles
 
 
-    for (i=0; i<sizeof(pszClasses)/sizeof(PTSTR); i++)
-    {
-        if (RegOpenKeyEx(hkICM, pszClasses[i], 0, KEY_ALL_ACCESS, &hkDevice) != ERROR_SUCCESS)
-        {
+    for (i = 0; i < sizeof(pszClasses) / sizeof(PTSTR); i++) {
+        if (RegOpenKeyEx(hkICM, pszClasses[i], 0, KEY_ALL_ACCESS, &hkDevice) != ERROR_SUCCESS) {
             continue;           // go to next key
         }
 
@@ -846,8 +823,7 @@ InternalUpgradeICM()
     // If Pnp moves everything from Win9x PnP S/W section to NT 5.0 PnP S/W
     // section, then we don't need this for NT either
 
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
 
@@ -874,7 +850,7 @@ InternalUpgradeICM()
 VOID
 UpgradeClass(
     HKEY  hKey
-    )
+)
 {
     HKEY  hSubkey;
     DWORD nSubkeys, nValues, i, cbName, cbValue;
@@ -886,58 +862,44 @@ UpgradeClass(
 
 
     if (RegQueryInfoKey(hKey, NULL, NULL, 0, &nSubkeys, NULL, NULL,
-        &nValues, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
-    {
+                        &nValues, NULL, NULL, NULL, NULL) != ERROR_SUCCESS) {
         return;
     }
 
-    if (nSubkeys > 0)
-    {
+    if (nSubkeys > 0) {
 
         // This is not the leaf node, recurse
 
 
-        for (i=nSubkeys; i>0; i--)
-        {
-            RegEnumKey(hKey, i-1, szKeyName, sizeof(szKeyName));
-            if (RegOpenKeyEx(hKey, szKeyName, 0, KEY_ALL_ACCESS, &hSubkey) == ERROR_SUCCESS)
-            {
+        for (i = nSubkeys; i > 0; i--) {
+            RegEnumKey(hKey, i - 1, szKeyName, sizeof(szKeyName));
+            if (RegOpenKeyEx(hKey, szKeyName, 0, KEY_ALL_ACCESS, &hSubkey) == ERROR_SUCCESS) {
                 UpgradeClass(hSubkey);
                 RegCloseKey(hSubkey);
                 RegDeleteKey(hKey, szKeyName);
             }
         }
-    }
-    else
-    {
+    } else {
 
         // This is the leaf node - install all the profiles registered
 
 
         ASSERT(pInstallColorProfile != NULL);
 
-        for (i=nValues; i>0; i--)
-        {
+        for (i = nValues; i > 0; i--) {
             cbName = MAX_PATH;
             cbValue = MAX_PATH;
-            if (RegEnumValue(hKey, i-1, szName, &cbName, 0, NULL, (LPBYTE)szValue,
-                &cbValue) == ERROR_SUCCESS)
-            {
-                if (! lstrcmpn(szName, (PTSTR)gszProfile, lstrlen(gszProfile)))
-                {
-                    if (! (*pInstallColorProfile)(NULL, szValue))
-                    {
+            if (RegEnumValue(hKey, i - 1, szName, &cbName, 0, NULL, (LPBYTE)szValue,
+                             &cbValue) == ERROR_SUCCESS) {
+                if (!lstrcmpn(szName, (PTSTR)gszProfile, lstrlen(gszProfile))) {
+                    if (!(*pInstallColorProfile)(NULL, szValue)) {
                         sprintf(szMessage, "ICM Migration: Error installing profile %s\r\n", szValue);
                         SetupLogError(szMessage, LogSevError);
-                    }
-                    else
-                    {
+                    } else {
                         sprintf(szMessage, "ICM Migration: Installed profile %s\r\n", szValue);
                         SetupLogError(szMessage, LogSevInformation);
                     }
-                }
-                else
-                {
+                } else {
                     PTSTR pProfile;
 
 
@@ -946,32 +908,26 @@ UpgradeClass(
                     // "profilexx" "value" in Win95 & OSR2
 
 
-                    if (szName[1] == ':')
-                    {
+                    if (szName[1] == ':') {
 
                         // Assume full path name
 
 
                         pProfile = szName;
 
-                    }
-                    else
-                    {
+                    } else {
                         GetWindowsDirectory(szValue, MAX_PATH);
-                        if (szValue[lstrlen(szValue)-1] != '\\')
+                        if (szValue[lstrlen(szValue) - 1] != '\\')
                             lstrcat(szValue, __TEXT("\\"));
                         lstrcat(szValue, __TEXT("system\\color\\"));
                         lstrcat(szValue, szName);
                         pProfile = szValue;
                     }
 
-                    if (! (*pInstallColorProfile)(NULL, pProfile))
-                    {
+                    if (!(*pInstallColorProfile)(NULL, pProfile)) {
                         sprintf(szMessage, "ICM Migration: Error installing profile %s\r\n", pProfile);
                         SetupLogError(szMessage, LogSevError);
-                    }
-                    else
-                    {
+                    } else {
                         sprintf(szMessage, "ICM Migration: Installed Profile %s\r\n", pProfile);
                         SetupLogError(szMessage, LogSevInformation);
                     }
@@ -1008,14 +964,13 @@ lstrcmpn(
     PTSTR pStr1,
     PTSTR pStr2,
     DWORD dwLen
-    )
+)
 {
 
     // Assume no NULL strings
 
 
-    while (*pStr1 && *pStr2 && --dwLen)
-    {
+    while (*pStr1 && *pStr2 && --dwLen) {
         if (*pStr1 != *pStr2)
             break;
 
@@ -1089,8 +1044,7 @@ PSTR StripDirPrefixA(PSTR pszPathName)
 
     pszPathName += dwLen - 1;       // go to the end
 
-    while (*pszPathName != '\\' && dwLen--)
-    {
+    while (*pszPathName != '\\' && dwLen--) {
         pszPathName--;
     }
 

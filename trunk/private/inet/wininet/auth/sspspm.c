@@ -56,7 +56,7 @@
 
 // Global variable where all the SSPI Pkgs data is collected
 
-SspData  *g_pSspData;
+SspData* g_pSspData;
 HINSTANCE g_hSecLib;
 
 /*
@@ -76,51 +76,44 @@ HINSTANCE g_hSecLib;
 
 **---------------------------------------------------------------------------*/
 UCHAR
-SpmAddSSPIPkg (
-    SspData *pData,
+SpmAddSSPIPkg(
+    SspData* pData,
     LPTSTR   pPkgName
-    )
+)
 {
-    if ( !(pData->PkgList[pData->PkgCnt] =
-                        LocalAlloc(0, sizeof(SSPAuthPkg))))
-    {
+    if (!(pData->PkgList[pData->PkgCnt] =
+          LocalAlloc(0, sizeof(SSPAuthPkg)))) {
         return SSPPKG_ERROR;
     }
 
-    if ( !(pData->PkgList[pData->PkgCnt]->pName =
-                        LocalAlloc(0, lstrlen(pPkgName)+1)))
-    {
+    if (!(pData->PkgList[pData->PkgCnt]->pName =
+          LocalAlloc(0, lstrlen(pPkgName) + 1))) {
         LocalFree(pData->PkgList[pData->PkgCnt]);
         return SSPPKG_ERROR;
     }
 
-    lstrcpy (pData->PkgList[pData->PkgCnt]->pName, pPkgName);
-    pData->PkgList[ pData->PkgCnt ]->Capabilities = 0 ;
+    lstrcpy(pData->PkgList[pData->PkgCnt]->pName, pPkgName);
+    pData->PkgList[pData->PkgCnt]->Capabilities = 0;
 
 
     // Determine if this package supports anything of interest to
     // us.
 
 
-    if ( lstrcmpi( pPkgName, NTLMSP_NAME_A ) == 0 )
-    {
+    if (lstrcmpi(pPkgName, NTLMSP_NAME_A) == 0) {
 
         // NTLM supports the standard credential structure
 
 
-        pData->PkgList[ pData->PkgCnt ]->Capabilities |= SSPAUTHPKG_SUPPORT_NTLM_CREDS ;
-    }
-    else if ( lstrcmpi( pPkgName, "Negotiate" ) == 0 )
-    {
+        pData->PkgList[pData->PkgCnt]->Capabilities |= SSPAUTHPKG_SUPPORT_NTLM_CREDS;
+    } else if (lstrcmpi(pPkgName, "Negotiate") == 0) {
 
         // Negotiate supports that cred structure too
 
 
-        pData->PkgList[ pData->PkgCnt ]->Capabilities |= SSPAUTHPKG_SUPPORT_NTLM_CREDS ;
+        pData->PkgList[pData->PkgCnt]->Capabilities |= SSPAUTHPKG_SUPPORT_NTLM_CREDS;
 
-    }
-    else
-    {
+    } else {
 
         // Add more comparisons here, eventually.
 
@@ -147,14 +140,13 @@ SpmAddSSPIPkg (
 
 **---------------------------------------------------------------------------*/
 VOID
-SpmFreePkgList (
-    SspData *pData
-    )
+SpmFreePkgList(
+    SspData* pData
+)
 {
     int ii;
 
-    for (ii = 0; ii < pData->PkgCnt; ii++)
-    {
+    for (ii = 0; ii < pData->PkgCnt; ii++) {
         LocalFree(pData->PkgList[ii]->pName);
 
         LocalFree(pData->PkgList[ii]);
@@ -183,16 +175,14 @@ SpmFreePkgList (
 **---------------------------------------------------------------------------*/
 DWORD SSPI_Unload()
 {
-    if (g_pSspData != NULL)
-    {
+    if (g_pSspData != NULL) {
         SpmFreePkgList(g_pSspData);
         LocalFree(g_pSspData);
         g_pSspData = NULL;
     }
 
-    if (g_hSecLib)
-    {
-        FreeLibrary (g_hSecLib);
+    if (g_hSecLib) {
+        FreeLibrary(g_hSecLib);
         g_hSecLib = NULL;
     }
 
@@ -223,20 +213,18 @@ VOID MSNSetupSspiReg(VOID)
     char    szSspcName[] = TEXT("msnsspc.dll");
     char    szSspsName[] = TEXT("msnssps.dll");
     char    szRegValue[80];
-    char    *pEndStr, *pBegStr;
+    char* pEndStr, * pBegStr;
     LONG    dwErr;
     DWORD   dwDis;
     DWORD   dwValType, dwBufSize, dwValueLen;
     int     ii;
 
-    dwErr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, szSspRegKey, 0, KEY_ALL_ACCESS, &hConfigKey);
-    if (dwErr != ERROR_SUCCESS)
-    {
-        dwErr = RegCreateKeyEx (HKEY_LOCAL_MACHINE, szSspRegKey, 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hConfigKey, &dwDis);
-        if (dwErr != ERROR_SUCCESS)
-        {
+    dwErr = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szSspRegKey, 0, KEY_ALL_ACCESS, &hConfigKey);
+    if (dwErr != ERROR_SUCCESS) {
+        dwErr = RegCreateKeyEx(HKEY_LOCAL_MACHINE, szSspRegKey, 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hConfigKey, &dwDis);
+        if (dwErr != ERROR_SUCCESS) {
 #ifdef DEBUGRPC_DETAIL
-            SspPrint(( SSP_API, "MSNSetupSspiReg: RegCreateKeyEx Failed\n" ));
+            SspPrint((SSP_API, "MSNSetupSspiReg: RegCreateKeyEx Failed\n"));
 #endif
             return;
         }
@@ -245,40 +233,37 @@ VOID MSNSetupSspiReg(VOID)
 
     //  Check if the registry is already setup for msnsspc.dll
 
-    dwBufSize = sizeof (szRegValue);
+    dwBufSize = sizeof(szRegValue);
     dwValType = REG_SZ;
 
-    dwErr = RegQueryValueEx (hConfigKey,
+    dwErr = RegQueryValueEx(hConfigKey,
                             szSecurityProv,
                             NULL,
                             &dwValType,
-                            (LPBYTE) szRegValue,
+                            (LPBYTE)szRegValue,
                             &dwBufSize);
 
     //  If the registry does not exist yet, simply add one for msnsspc.dll
 
     if (dwErr != ERROR_SUCCESS)
-        strcpy (szRegValue, szSspcName);
-    else
-    {
+        strcpy(szRegValue, szSspcName);
+    else {
 
         //  If there's already an registry entry for security providers
         //  Scan registry value data for "msnsspc.dll" or "msnssps.dll"
 
 
-        dwValueLen = strlen (szSspcName);
+        dwValueLen = strlen(szSspcName);
         pBegStr = szRegValue;
-        do
-        {
+        do {
             //  Strip leading blanks
             while (*pBegStr == ' ') ++pBegStr;
 
 
             //  If it already has msnsspc.dll in the registry, we're done
 
-            if (_strnicmp (pBegStr, szSspcName, dwValueLen) == 0)
-            {
-                RegCloseKey (hConfigKey);
+            if (_strnicmp(pBegStr, szSspcName, dwValueLen) == 0) {
+                RegCloseKey(hConfigKey);
                 return;
             }
 
@@ -286,20 +271,18 @@ VOID MSNSetupSspiReg(VOID)
             //  If it already has msnssps.dll in the registry, we don't
             //  want to add msnsspc.dll to the registry then.
 
-            if (_strnicmp (pBegStr, szSspsName, strlen(szSspsName)) == 0)
-            {
-                RegCloseKey (hConfigKey);
+            if (_strnicmp(pBegStr, szSspsName, strlen(szSspsName)) == 0) {
+                RegCloseKey(hConfigKey);
                 return;
             }
 
 
             //  Find next SSPI dll name in the registry
 
-            pEndStr = strchr (pBegStr, ',');
+            pEndStr = strchr(pBegStr, ',');
             if (pEndStr)
                 pBegStr = pEndStr + 1;
-        }
-        while (pEndStr);
+        } while (pEndStr);
 
 
         //  So the existing registry does not include msnsspc.dll
@@ -307,26 +290,25 @@ VOID MSNSetupSspiReg(VOID)
 
         //  Remove trailing blanks from the existing value data, if any
 
-        for (ii = strlen(szRegValue); ii > 0 && szRegValue[ii-1] == ' '; ii--);
+        for (ii = strlen(szRegValue); ii > 0 && szRegValue[ii - 1] == ' '; ii--);
 
         if (ii > 0)
-            sprintf ((char *)(szRegValue + ii), ", %s", szSspcName);
+            sprintf((char*)(szRegValue + ii), ", %s", szSspcName);
         else
-            strcpy (szRegValue, szSspcName);
+            strcpy(szRegValue, szSspcName);
     }
 
     //  Setup the registry for msnsspc.dll
-    dwValueLen = strlen (szRegValue) + 1;
+    dwValueLen = strlen(szRegValue) + 1;
     dwValType = REG_SZ;
-    dwErr = RegSetValueEx (hConfigKey, szSecurityProv, 0, dwValType, (CONST BYTE *) szRegValue, dwValueLen);
-    if (dwErr != ERROR_SUCCESS)
-    {
+    dwErr = RegSetValueEx(hConfigKey, szSecurityProv, 0, dwValType, (CONST BYTE*) szRegValue, dwValueLen);
+    if (dwErr != ERROR_SUCCESS) {
 #ifdef DEBUGRPC_DETAIL
-        SspPrint(( SSP_API, "MSNSetupSspiReg: RegSetValueEx Failed\n" ));
+        SspPrint((SSP_API, "MSNSetupSspiReg: RegSetValueEx Failed\n"));
 #endif
     }
 
-    RegCloseKey (hConfigKey);
+    RegCloseKey(hConfigKey);
 }
 #endif 0
 
@@ -347,7 +329,7 @@ VOID MSNSetupSspiReg(VOID)
 **---------------------------------------------------------------------------*/
 LPVOID SSPI_InitGlobals(void)
 {
-    SspData *pData = NULL;
+    SspData* pData = NULL;
     OSVERSIONINFO   VerInfo;
     UCHAR lpszDLL[SSP_SPM_DLL_NAME_SIZE];
     INIT_SECURITY_INTERFACE addrProcISI = NULL;
@@ -373,30 +355,23 @@ LPVOID SSPI_InitGlobals(void)
     //  Find out which security DLL to use, depending on
     //  whether we are on NT or Win95
 
-    VerInfo.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-    if (!GetVersionEx (&VerInfo))   // If this fails, something has gone wrong
+    VerInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    if (!GetVersionEx(&VerInfo))   // If this fails, something has gone wrong
     {
         return (NULL);
     }
 
-    if (VerInfo.dwPlatformId == VER_PLATFORM_WIN32_NT)
-    {
-        lstrcpy (lpszDLL, SSP_SPM_NT_DLL);
-    }
-    else if (VerInfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
-    {
-        lstrcpy (lpszDLL, SSP_SPM_WIN95_DLL);
-    }
-    else if (VerInfo.dwPlatformId == VER_PLATFORM_WIN32_UNIX)
-    {
-        lstrcpy (lpszDLL, SSP_SPM_UNIX_DLL);
-    }
-    else
-    {
+    if (VerInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+        lstrcpy(lpszDLL, SSP_SPM_NT_DLL);
+    } else if (VerInfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) {
+        lstrcpy(lpszDLL, SSP_SPM_WIN95_DLL);
+    } else if (VerInfo.dwPlatformId == VER_PLATFORM_WIN32_UNIX) {
+        lstrcpy(lpszDLL, SSP_SPM_UNIX_DLL);
+    } else {
         return (NULL);
     }
 
-    if (!(pData = (SspData *) LocalAlloc(0, sizeof(SspData))))  {
+    if (!(pData = (SspData*)LocalAlloc(0, sizeof(SspData)))) {
 
         return(NULL);
 
@@ -405,15 +380,14 @@ LPVOID SSPI_InitGlobals(void)
 
     //  Keep these information in global SPM
 
-    ZeroMemory (pData, sizeof(SspData));
+    ZeroMemory(pData, sizeof(SspData));
     pData->MsnPkg = SSPPKG_NO_PKG;
 
 
     //  Load Security DLL
 
-    g_hSecLib = LoadLibrary (lpszDLL);
-    if (g_hSecLib == NULL)
-    {
+    g_hSecLib = LoadLibrary(lpszDLL);
+    if (g_hSecLib == NULL) {
 
 #ifndef MSNONLY
         return NULL;
@@ -422,24 +396,21 @@ LPVOID SSPI_InitGlobals(void)
 
         // Failed to load the system DLL. Try loading just MSN dll
 
-        g_hSecLib = LoadLibrary (SSP_SPM_SSPC_DLL);
-        if (g_hSecLib == NULL)
-        {
+        g_hSecLib = LoadLibrary(SSP_SPM_SSPC_DLL);
+        if (g_hSecLib == NULL) {
             return NULL;
         }
 
 
         //  Create PkgList for MSN package only.
 
-        if ( !(pData->PkgList = (PSSPAuthPkg *)LocalAlloc(0,
-                                                    sizeof(PSSPAuthPkg))) )
-        {
+        if (!(pData->PkgList = (PSSPAuthPkg*)LocalAlloc(0,
+                                                        sizeof(PSSPAuthPkg)))) {
             return NULL;
         }
 
         pData->MsnPkg = SpmAddSSPIPkg(pData, MSNSP_NAME);
-        if (pData->MsnPkg == SSPPKG_ERROR)
-        {
+        if (pData->MsnPkg == SSPPKG_ERROR) {
             SpmFreePkgList(pData);
             return NULL;
         }
@@ -448,22 +419,21 @@ LPVOID SSPI_InitGlobals(void)
 
 #ifdef UNIX
 
-//  A hack to undo the mistake in the sspi.h file. The change should be made
-//  to sspi.h
+    //  A hack to undo the mistake in the sspi.h file. The change should be made
+    //  to sspi.h
 
 #if !defined(_UNICODE)
 #undef SECURITY_ENTRYPOINT_ANSI
 #define SECURITY_ENTRYPOINT_ANSI  "InitSecurityInterfaceA"
 #endif
 
-    addrProcISI = (INIT_SECURITY_INTERFACE) GetProcAddress( g_hSecLib,
-                    SECURITY_ENTRYPOINT_ANSI);
+    addrProcISI = (INIT_SECURITY_INTERFACE)GetProcAddress(g_hSecLib,
+                                                          SECURITY_ENTRYPOINT_ANSI);
 #else
-    addrProcISI = (INIT_SECURITY_INTERFACE) GetProcAddress( g_hSecLib,
-                    SECURITY_ENTRYPOINT);
+    addrProcISI = (INIT_SECURITY_INTERFACE)GetProcAddress(g_hSecLib,
+                                                          SECURITY_ENTRYPOINT);
 #endif /* UNIX */
-    if (addrProcISI == NULL)
-    {
+    if (addrProcISI == NULL) {
         return NULL;
     }
 
@@ -481,14 +451,12 @@ LPVOID SSPI_InitGlobals(void)
     //  get the list of SSPI packages which we support from
     //  EnumerateSecurityPackages.
 
-    if (pData->PkgCnt == 0)
-    {
+    if (pData->PkgCnt == 0) {
 
         //  Get list of packages supported
 
         sstat = (*(pFuncTbl->EnumerateSecurityPackages))(&cntPkg, &pPkgInfo);
-        if (sstat != SEC_E_OK || pPkgInfo == NULL)
-        {
+        if (sstat != SEC_E_OK || pPkgInfo == NULL) {
 
             // ??? Should we give up here ???
             // EnumerateSecurityPackage() failed
@@ -496,39 +464,31 @@ LPVOID SSPI_InitGlobals(void)
             return NULL;
         }
 
-        if (cntPkg)
-        {
+        if (cntPkg) {
 
             //  Create the package list
 
-            if (!(pData->PkgList = (PSSPAuthPkg *)LocalAlloc(0,
-                                                cntPkg*sizeof(PSSPAuthPkg))))
-            {
+            if (!(pData->PkgList = (PSSPAuthPkg*)LocalAlloc(0,
+                                                            cntPkg * sizeof(PSSPAuthPkg)))) {
                 return NULL;
             }
         }
 
-        for (ii = 0; ii < cntPkg; ii++)
-        {
-            if (lstrcmp (pPkgInfo[ii].Name, MSNSP_NAME) == 0)
-            {
+        for (ii = 0; ii < cntPkg; ii++) {
+            if (lstrcmp(pPkgInfo[ii].Name, MSNSP_NAME) == 0) {
                 //DebugTrace(SSPSPMID, "Found MSN SSPI package\n");
-                pData->MsnPkg = SpmAddSSPIPkg (pData, MSNSP_NAME);
-                if (pData->MsnPkg == SSPPKG_ERROR)
-                {
+                pData->MsnPkg = SpmAddSSPIPkg(pData, MSNSP_NAME);
+                if (pData->MsnPkg == SSPPKG_ERROR) {
                     SpmFreePkgList(pData);
                     return NULL;
                 }
-            }
-            else
-            {
+            } else {
                 //DebugTrace(SSPSPMID, "Found %s SSPI package\n",
                 //                     pPkgInfo[ii].Name);
 
-                if (SpmAddSSPIPkg (pData,
-                                   pPkgInfo[ii].Name) == SSPPKG_ERROR)
-                {
-                    SpmFreePkgList (pData);
+                if (SpmAddSSPIPkg(pData,
+                                  pPkgInfo[ii].Name) == SSPPKG_ERROR) {
+                    SpmFreePkgList(pData);
                     return NULL;
                 }
             }
@@ -543,9 +503,8 @@ LPVOID SSPI_InitGlobals(void)
     pData->pFuncTbl = pFuncTbl;
     pData->bKeepList = TRUE;    // By default, keep a list of non-MSN servers
 
-    if (pData->PkgCnt == 0)
-    {
-        SpmFreePkgList (pData);
+    if (pData->PkgCnt == 0) {
+        SpmFreePkgList(pData);
         return (NULL);
     }
 
@@ -560,8 +519,7 @@ GetPkgId(LPTSTR  lpszPkgName)
 
     int ii;
 
-    for (ii = 0; ii < g_pSspData->PkgCnt; ii++)
-    {
+    for (ii = 0; ii < g_pSspData->PkgCnt; ii++) {
 #ifdef UNIX
         if (!lstrcmpi(g_pSspData->PkgList[ii]->pName, lpszPkgName))
 #else
@@ -578,21 +536,19 @@ GetPkgId(LPTSTR  lpszPkgName)
 DWORD
 GetPkgCapabilities(
     INT Package
-    )
+)
 {
-    if ( Package < g_pSspData->PkgCnt )
-    {
-        return g_pSspData->PkgList[ Package ]->Capabilities ;
-    }
-    else
-        return 0 ;
+    if (Package < g_pSspData->PkgCnt) {
+        return g_pSspData->PkgList[Package]->Capabilities;
+    } else
+        return 0;
 }
 
 
 //  Calls to this function are serialized
 
 
-DWORD_PTR SSPI_InitScheme (LPCSTR lpszScheme)
+DWORD_PTR SSPI_InitScheme(LPCSTR lpszScheme)
 {
     int ii;
 
@@ -602,13 +558,12 @@ DWORD_PTR SSPI_InitScheme (LPCSTR lpszScheme)
     //  Once initialized, check to see if this scheme is installed
     for (ii = 0; ii < g_pSspData->PkgCnt &&
 #ifdef UNIX
-        lstrcmpi (g_pSspData->PkgList[ii]->pName, lpszScheme); ii++);
+         lstrcmpi(g_pSspData->PkgList[ii]->pName, lpszScheme); ii++);
 #else
-        lstrcmp (g_pSspData->PkgList[ii]->pName, lpszScheme); ii++);
+        lstrcmp(g_pSspData->PkgList[ii]->pName, lpszScheme); ii++);
 #endif /* UNIX */
 
-    if (ii >= g_pSspData->PkgCnt)
-    {
+    if (ii >= g_pSspData->PkgCnt) {
         // This scheme is not installed on this machine
         return (0);
     }

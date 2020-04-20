@@ -16,8 +16,8 @@
 #include "Globals.H"
 #include "Util.H"
 
-void * _cdecl operator new(size_t size);
-void  _cdecl operator delete(void *ptr);
+void* _cdecl operator new(size_t size);
+void  _cdecl operator delete(void* ptr);
 
 
 // for ASSERT and FAIL
@@ -39,10 +39,10 @@ SZTHISFILE
 
 // Notes:
 
-void * _cdecl operator new
+void* _cdecl operator new
 (
     size_t    size
-)
+    )
 {
     return HeapAlloc(g_hHeap, 0, size);
 }
@@ -54,7 +54,7 @@ void * _cdecl operator new
 
 // Parameters:
 //    void *        - [in] free me!
-void _cdecl operator delete ( void *ptr)
+void _cdecl operator delete (void* ptr)
 {
     HeapFree(g_hHeap, 0, ptr);
 }
@@ -80,19 +80,19 @@ LPWSTR MakeWideStrFromAnsi(LPSTR psz, BYTE  bType)
         return NULL;
 
     // compute the length of the required BSTR
-    i =  MultiByteToWideChar(CP_ACP, 0, psz, -1, NULL, 0);
+    i = MultiByteToWideChar(CP_ACP, 0, psz, -1, NULL, 0);
     if (i <= 0) return NULL;
 
     // allocate the widestr
     switch (bType) {
-      case STR_BSTR:
+    case STR_BSTR:
         // -1 since it'll add it's own space for a NULL terminator
-        pwsz = (LPWSTR) SysAllocStringLen(NULL, i - 1);
+        pwsz = (LPWSTR)SysAllocStringLen(NULL, i - 1);
         break;
-      case STR_OLESTR:
-        pwsz = (LPWSTR) CoTaskMemAlloc(i * sizeof(WCHAR));
+    case STR_OLESTR:
+        pwsz = (LPWSTR)CoTaskMemAlloc(i * sizeof(WCHAR));
         break;
-      default:
+    default:
         FAIL("Bogus String Type.");
     }
 
@@ -148,14 +148,14 @@ LPWSTR MakeWideStrFromWide(LPWSTR pwsz, BYTE   bType)
     // just copy the string, depending on what type they want.
 
     switch (bType) {
-      case STR_OLESTR:
+    case STR_OLESTR:
         i = lstrlenW(pwsz);
         pwszTmp = (LPWSTR)CoTaskMemAlloc((i * sizeof(WCHAR)) + sizeof(WCHAR));
         if (!pwszTmp) return NULL;
         memcpy(pwszTmp, pwsz, (sizeof(WCHAR) * i) + sizeof(WCHAR));
         break;
 
-      case STR_BSTR:
+    case STR_BSTR:
         pwszTmp = (LPWSTR)SysAllocString(pwsz);
         break;
     }
@@ -176,9 +176,9 @@ LPWSTR MakeWideStrFromWide(LPWSTR pwsz, BYTE   bType)
 //    int                  - number of chars written out.
 int StringFromGuidA(REFIID   riid, LPSTR    pszBuf)
 {
-    return wsprintf((char *)pszBuf, "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}", riid.Data1,
-            riid.Data2, riid.Data3, riid.Data4[0], riid.Data4[1], riid.Data4[2],
-            riid.Data4[3], riid.Data4[4], riid.Data4[5], riid.Data4[6], riid.Data4[7]);
+    return wsprintf((char*)pszBuf, "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}", riid.Data1,
+                    riid.Data2, riid.Data3, riid.Data4[0], riid.Data4[1], riid.Data4[2],
+                    riid.Data4[3], riid.Data4[4], riid.Data4[5], riid.Data4[6], riid.Data4[7]);
 }
 
 //=-------=
@@ -218,7 +218,7 @@ BOOL RegisterUnknownObject(LPCSTR   pszObjectName, REFCLSID riidObject)
     CLEANUP_ON_ERROR(l);
 
     wsprintf(szScratch, "%s Object", pszObjectName);
-    l = RegSetValueEx(hk, NULL, 0, REG_SZ, (BYTE *)szScratch, lstrlen(szScratch) + 1);
+    l = RegSetValueEx(hk, NULL, 0, REG_SZ, (BYTE*)szScratch, lstrlen(szScratch) + 1);
     CLEANUP_ON_ERROR(l);
 
     l = RegCreateKeyEx(hk, "InprocServer32", 0, "", REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkSub, &dwDummy);
@@ -227,10 +227,10 @@ BOOL RegisterUnknownObject(LPCSTR   pszObjectName, REFCLSID riidObject)
     dwPathLen = GetModuleFileName(g_hInstance, szScratch, sizeof(szScratch));
     if (!dwPathLen) goto CleanUp;
 
-    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE *)szScratch, dwPathLen + 1);
+    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE*)szScratch, dwPathLen + 1);
     CLEANUP_ON_ERROR(l);
 
-    l = RegSetValueEx(hkSub, "ThreadingModel", 0, REG_SZ, (BYTE *)"Apartment", sizeof("Apartment"));
+    l = RegSetValueEx(hkSub, "ThreadingModel", 0, REG_SZ, (BYTE*)"Apartment", sizeof("Apartment"));
     CLEANUP_ON_ERROR(l);
 
     RegCloseKey(hkSub);
@@ -240,7 +240,7 @@ BOOL RegisterUnknownObject(LPCSTR   pszObjectName, REFCLSID riidObject)
 
     // we are not very happy!
 
-  CleanUp:
+CleanUp:
     if (hk) RegCloseKey(hk);
     if (hkSub) RegCloseKey(hkSub);
     return FALSE;
@@ -306,7 +306,7 @@ BOOL RegisterAutomationObject(
     CLEANUP_ON_ERROR(l);
 
     wsprintf(szScratch, "%s Object", pszObjectName);
-    l = RegSetValueEx(hk, NULL, 0L, REG_SZ, (BYTE *)szScratch, lstrlen(szScratch)+1);
+    l = RegSetValueEx(hk, NULL, 0L, REG_SZ, (BYTE*)szScratch, lstrlen(szScratch) + 1);
     CLEANUP_ON_ERROR(l);
 
     l = RegCreateKeyEx(hk, "CLSID", 0L, "", REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkSub, &dwDummy);
@@ -315,7 +315,7 @@ BOOL RegisterAutomationObject(
     if (!StringFromGuidA(riidObject, szGuidStr))
         goto CleanUp;
 
-    l = RegSetValueEx(hkSub, NULL, 0L, REG_SZ, (BYTE *)szGuidStr, lstrlen(szGuidStr) + 1);
+    l = RegSetValueEx(hkSub, NULL, 0L, REG_SZ, (BYTE*)szGuidStr, lstrlen(szGuidStr) + 1);
     CLEANUP_ON_ERROR(l);
 
     RegCloseKey(hkSub);
@@ -323,7 +323,7 @@ BOOL RegisterAutomationObject(
     CLEANUP_ON_ERROR(l);
 
     wsprintf(szScratch, "%s.%s.%ld", pszLibName, pszObjectName, lVersion);
-    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE *)szScratch, lstrlen(szScratch) + 1);
+    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE*)szScratch, lstrlen(szScratch) + 1);
     CLEANUP_ON_ERROR(l);
 
     RegCloseKey(hkSub);
@@ -336,13 +336,13 @@ BOOL RegisterAutomationObject(
     CLEANUP_ON_ERROR(l);
 
     wsprintf(szScratch, "%s Object", pszObjectName);
-    l = RegSetValueEx(hk, NULL, 0, REG_SZ, (BYTE *)szScratch, lstrlen(szScratch) + 1);
+    l = RegSetValueEx(hk, NULL, 0, REG_SZ, (BYTE*)szScratch, lstrlen(szScratch) + 1);
     CLEANUP_ON_ERROR(l);
 
     l = RegCreateKeyEx(hk, "CLSID", 0, "", REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkSub, &dwDummy);
     CLEANUP_ON_ERROR(l);
 
-    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE *)szGuidStr, lstrlen(szGuidStr) + 1);
+    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE*)szGuidStr, lstrlen(szGuidStr) + 1);
     CLEANUP_ON_ERROR(l);
 
     RegCloseKey(hkSub);
@@ -355,14 +355,14 @@ BOOL RegisterAutomationObject(
     if (!StringFromGuidA(riidObject, szGuidStr)) goto CleanUp;
     wsprintf(szScratch, "CLSID\\%s", szGuidStr);
 
-    l = RegCreateKeyEx(HKEY_CLASSES_ROOT, szScratch, 0, "", REG_OPTION_NON_VOLATILE, KEY_READ|KEY_WRITE, NULL, &hk, &dwDummy);
+    l = RegCreateKeyEx(HKEY_CLASSES_ROOT, szScratch, 0, "", REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hk, &dwDummy);
     CLEANUP_ON_ERROR(l);
 
     l = RegCreateKeyEx(hk, "VersionIndependentProgID", 0, "", REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkSub, &dwDummy);
     CLEANUP_ON_ERROR(l);
 
     wsprintf(szScratch, "%s.%s", pszLibName, pszObjectName);
-    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE *)szScratch, lstrlen(szScratch) + 1);
+    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE*)szScratch, lstrlen(szScratch) + 1);
     CLEANUP_ON_ERROR(l);
 
     RegCloseKey(hkSub);
@@ -371,7 +371,7 @@ BOOL RegisterAutomationObject(
     CLEANUP_ON_ERROR(l);
 
     wsprintf(szScratch, "%s.%s.%ld", pszLibName, pszObjectName, lVersion);
-    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE *)szScratch, lstrlen(szScratch) + 1);
+    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE*)szScratch, lstrlen(szScratch) + 1);
     CLEANUP_ON_ERROR(l);
 
     RegCloseKey(hkSub);
@@ -379,14 +379,14 @@ BOOL RegisterAutomationObject(
 
     if (!StringFromGuidA(riidLibrary, szGuidStr)) goto CleanUp;
 
-    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE *)szGuidStr, lstrlen(szGuidStr) + 1);
+    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE*)szGuidStr, lstrlen(szGuidStr) + 1);
     CLEANUP_ON_ERROR(l);
 
     RegCloseKey(hkSub);
     RegCloseKey(hk);
     return TRUE;
 
-  CleanUp:
+CleanUp:
     if (hk) RegCloseKey(hkSub);
     if (hk) RegCloseKey(hk);
     return FALSE;
@@ -461,14 +461,14 @@ BOOL RegisterControlObject
 
     szTmp[0] = '0';
     szTmp[1] = '\0';
-    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE *)szTmp, 2);
+    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE*)szTmp, 2);
     CLEANUP_ON_ERROR(l);
 
     l = RegCreateKeyEx(hkSub, "1", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkSub2, &dwDummy);
     CLEANUP_ON_ERROR(l);
 
     wsprintf(szTmp, "%d", dwMiscStatus);
-    l = RegSetValueEx(hkSub2, NULL, 0, REG_SZ, (BYTE *)szTmp, lstrlen(szTmp) + 1);
+    l = RegSetValueEx(hkSub2, NULL, 0, REG_SZ, (BYTE*)szTmp, lstrlen(szTmp) + 1);
     RegCloseKey(hkSub2);
     CLEANUP_ON_ERROR(l);
 
@@ -483,7 +483,7 @@ BOOL RegisterControlObject
     l = RegCreateKeyEx(hk, "ToolboxBitmap32", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkSub, &dwDummy);
     CLEANUP_ON_ERROR(l);
 
-    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE *)szTmp, lstrlen(szTmp) + 1);
+    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE*)szTmp, lstrlen(szTmp) + 1);
     CLEANUP_ON_ERROR(l);
 
     // now set up the version information
@@ -493,9 +493,9 @@ BOOL RegisterControlObject
     CLEANUP_ON_ERROR(l);
 
     wsprintf(szTmp, "%ld.0", lVersion);
-    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE *)szTmp, lstrlen(szTmp) + 1);
+    l = RegSetValueEx(hkSub, NULL, 0, REG_SZ, (BYTE*)szTmp, lstrlen(szTmp) + 1);
 
-  CleanUp:
+CleanUp:
     if (hk)
         RegCloseKey(hk);
     if (hkSub)
@@ -664,8 +664,7 @@ BOOL DeleteKeyAndSubKeys
 
     // Open the subkey so we can enumerate any children
     dwRet = RegOpenKeyEx(hkIn, pszSubKey, 0, KEY_ALL_ACCESS, &hkSubKey);
-    if (dwRet == ERROR_SUCCESS)
-    {
+    if (dwRet == ERROR_SUCCESS) {
         DWORD   dwIndex;
         CHAR    szSubKeyName[MAX_PATH + 1];
         DWORD   cchSubKeyName = sizeof(szSubKeyName);
@@ -691,16 +690,14 @@ BOOL DeleteKeyAndSubKeys
                                 NULL,
                                 NULL);
 
-        if (dwRet == NO_ERROR)
-        {
+        if (dwRet == NO_ERROR) {
             // dwIndex is now the count of subkeys, but it needs to be
             // zero-based for RegEnumKey, so I'll pre-decrement, rather
             // than post-decrement.
-            while (RegEnumKey(  hkSubKey,
-                                --dwIndex,
-                                szSubKeyName,
-                                cchSubKeyName) == ERROR_SUCCESS)
-            {
+            while (RegEnumKey(hkSubKey,
+                              --dwIndex,
+                              szSubKeyName,
+                              cchSubKeyName) == ERROR_SUCCESS) {
                 DeleteKeyAndSubKeys(hkSubKey, szSubKeyName);
             }
         }
@@ -762,7 +759,7 @@ static void GetScreenMetrics
 
     // we're done with our critical seciton.  clean it up
 
-  Done:
+Done:
     LeaveCriticalSection(&g_CriticalSection);
 }
 
@@ -777,7 +774,7 @@ static void GetScreenMetrics
 
 // Notes:
 
-void HiMetricToPixel(const SIZEL * lpSizeInHiMetric, LPSIZEL lpSizeInPix)
+void HiMetricToPixel(const SIZEL* lpSizeInHiMetric, LPSIZEL lpSizeInPix)
 {
     GetScreenMetrics();
 
@@ -798,7 +795,7 @@ void HiMetricToPixel(const SIZEL * lpSizeInHiMetric, LPSIZEL lpSizeInPix)
 
 // Notes:
 
-void PixelToHiMetric(const SIZEL * lpSizeInPix, LPSIZEL lpSizeInHiMetric)
+void PixelToHiMetric(const SIZEL* lpSizeInPix, LPSIZEL lpSizeInHiMetric)
 {
     GetScreenMetrics();
 
@@ -820,7 +817,7 @@ void PixelToHiMetric(const SIZEL * lpSizeInPix, LPSIZEL lpSizeInHiMetric)
 void _MakePath
 (
     LPSTR pszFull,
-    const char * pszName,
+    const char* pszName,
     LPSTR pszOut
 )
 {
@@ -921,7 +918,7 @@ HINSTANCE GetResourceHandle
         g_hInstResources = LoadLibrary(szFinalName);
     }
 
-  CleanUp:
+CleanUp:
     // if we couldn't load the DLL for some reason, then just return the
     // current resource handle, which is good enough.
 

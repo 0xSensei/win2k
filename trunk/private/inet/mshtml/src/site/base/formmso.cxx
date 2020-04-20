@@ -1,5 +1,3 @@
-
-
 //  Microsoft Windows
 //  Copyright (C) Microsoft Corporation, 1993 - 1994.
 
@@ -171,11 +169,11 @@ extern int g_SelectedFontSize;
 #endif
 
 #ifndef NO_MULTILANG
-extern IMultiLanguage2 *g_pMultiLanguage2; // JIT langpack
+extern IMultiLanguage2* g_pMultiLanguage2; // JIT langpack
 #endif
 
 #ifndef NO_SCRIPT_DEBUGGER
-extern interface IDebugApplication *g_pDebugApp;
+extern interface IDebugApplication* g_pDebugApp;
 #endif
 
 ULONG ConvertSBCMDID(ULONG localIDM)
@@ -197,10 +195,8 @@ ULONG ConvertSBCMDID(ULONG localIDM)
     ULONG SBCmdID = IDM_UNKNOWN;
     int   i;
 
-    for (i = 0; SBIDMConvertTable[i].localIDM; i ++)
-    {
-        if (SBIDMConvertTable[i].localIDM == localIDM)
-        {
+    for (i = 0; SBIDMConvertTable[i].localIDM; i++) {
+        if (SBIDMConvertTable[i].localIDM == localIDM) {
             SBCmdID = SBIDMConvertTable[i].SBCMDID;
             break;
         }
@@ -216,7 +212,7 @@ ULONG ConvertSBCMDID(ULONG localIDM)
 BSTR                g_bstrFindText = NULL;
 
 HRESULT
-GetFindText(BSTR *pbstr)
+GetFindText(BSTR* pbstr)
 {
     LOCK_GLOBALS;
 
@@ -234,75 +230,64 @@ GetFindText(BSTR *pbstr)
 
 
 HRESULT
-CDoc::RouteCTElement(CElement *pElement, CTArg *parg)
+CDoc::RouteCTElement(CElement* pElement, CTArg* parg)
 {
     HRESULT     hr = OLECMDERR_E_NOTSUPPORTED;
-    CTreeNode * pNodeParent;
+    CTreeNode* pNodeParent;
     AAINDEX     aaindex;
-    IUnknown *  pUnk = NULL;
-    CDoc *      pDocSec = NULL;
+    IUnknown* pUnk = NULL;
+    CDoc* pDocSec = NULL;
 
-    if (TestLock(FORMLOCK_QSEXECCMD))
-    {
+    if (TestLock(FORMLOCK_QSEXECCMD)) {
         pDocSec = this;
-    }
-    else if (_pDocParent && _pDocParent->TestLock(FORMLOCK_QSEXECCMD))
-    {
+    } else if (_pDocParent && _pDocParent->TestLock(FORMLOCK_QSEXECCMD)) {
         pDocSec = _pDocParent;
     }
 
-    if (pDocSec)
-    {
+    if (pDocSec) {
         aaindex = pDocSec->FindAAIndex(
             DISPID_INTERNAL_INVOKECONTEXT, CAttrValue::AA_Internal);
-        if (aaindex != AA_IDX_UNKNOWN)
-        {
+        if (aaindex != AA_IDX_UNKNOWN) {
             hr = THR(pDocSec->GetUnknownObjectAt(aaindex, &pUnk));
             if (hr)
                 goto Cleanup;
         }
     }
 
-    while (pElement)
-    {
+    while (pElement) {
         Assert(pElement->Tag() != ETAG_ROOT ||
                pElement == _pPrimaryMarkup->Root());
 
         if (pElement == _pPrimaryMarkup->Root())
             break;
 
-        if (pUnk)
-        {
+        if (pUnk) {
             pElement->AddUnknownObject(
                 DISPID_INTERNAL_INVOKECONTEXT, pUnk, CAttrValue::AA_Internal);
         }
 
-        if (parg->fQueryStatus)
-        {
+        if (parg->fQueryStatus) {
             Assert(parg->pqsArg->cCmds == 1);
 
             hr = THR_NOTRACE(pElement->QueryStatus(
-                    parg->pguidCmdGroup,
-                    parg->pqsArg->cCmds,
-                    parg->pqsArg->rgCmds,
-                    parg->pqsArg->pcmdtext));
+                parg->pguidCmdGroup,
+                parg->pqsArg->cCmds,
+                parg->pqsArg->rgCmds,
+                parg->pqsArg->pcmdtext));
             if (parg->pqsArg->rgCmds[0].cmdf)
                 break;  // Element handled it.
-        }
-        else
-        {
+        } else {
             hr = THR_NOTRACE(pElement->Exec(
-                    parg->pguidCmdGroup,
-                    parg->pexecArg->nCmdID,
-                    parg->pexecArg->nCmdexecopt,
-                    parg->pexecArg->pvarargIn,
-                    parg->pexecArg->pvarargOut));
+                parg->pguidCmdGroup,
+                parg->pexecArg->nCmdID,
+                parg->pexecArg->nCmdexecopt,
+                parg->pexecArg->pvarargIn,
+                parg->pexecArg->pvarargOut));
             if (hr != OLECMDERR_E_NOTSUPPORTED)
                 break;
         }
 
-        if (pUnk)
-        {
+        if (pUnk) {
             pElement->FindAAIndexAndDelete(
                 DISPID_INTERNAL_INVOKECONTEXT, CAttrValue::AA_Internal);
         }
@@ -320,8 +305,7 @@ CDoc::RouteCTElement(CElement *pElement, CTArg *parg)
     }
 
 Cleanup:
-    if (pUnk && pElement)
-    {
+    if (pUnk && pElement) {
         pElement->FindAAIndexAndDelete(
             DISPID_INTERNAL_INVOKECONTEXT, CAttrValue::AA_Internal);
     }
@@ -341,10 +325,10 @@ Cleanup:
 
 HRESULT
 CDoc::QueryStatus(
-        GUID * pguidCmdGroup,
-        ULONG cCmds,
-        MSOCMD rgCmds[],
-        MSOCMDTEXT * pcmdtext)
+    GUID* pguidCmdGroup,
+    ULONG cCmds,
+    MSOCMD rgCmds[],
+    MSOCMDTEXT* pcmdtext)
 {
     TraceTag((tagMsoCommandTarget, "CDoc::QueryStatus"));
 
@@ -352,7 +336,7 @@ CDoc::QueryStatus(
     if (!IsCmdGroupSupported(pguidCmdGroup))
         RRETURN(OLECMDERR_E_UNKNOWNGROUP);
 
-    MSOCMD *    pCmd;
+    MSOCMD* pCmd;
     INT         c;
     UINT        idm;
     HRESULT     hr = S_OK;
@@ -361,27 +345,24 @@ CDoc::QueryStatus(
     CTQueryStatusArg    qsarg;
 
     // Loop through each command in the ary, setting the status of each.
-    for (pCmd = rgCmds, c = cCmds; --c >= 0; pCmd++)
-    {
+    for (pCmd = rgCmds, c = cCmds; --c >= 0; pCmd++) {
         // By default command status is NOT SUPPORTED.
         pCmd->cmdf = 0;
 
         idm = IDMFromCmdID(pguidCmdGroup, pCmd->cmdID);
-        if (pcmdtext && pcmdtext->cmdtextf == MSOCMDTEXTF_STATUS)
-        {
+        if (pcmdtext && pcmdtext->cmdtextf == MSOCMDTEXTF_STATUS) {
             pcmdtext[c].cwActual = LoadString(
-                    GetResourceHInst(),
-                    IDS_MENUHELP(idm),
-                    pcmdtext[c].rgwz,
-                    pcmdtext[c].cwBuf);
+                GetResourceHInst(),
+                IDS_MENUHELP(idm),
+                pcmdtext[c].rgwz,
+                pcmdtext[c].cwBuf);
         }
 
-        if (    !_fDesignMode
-            &&  idm >= IDM_MENUEXT_FIRST__
-            &&  idm <= IDM_MENUEXT_LAST__
-            &&  _pOptionSettings)
-        {
-            CONTEXTMENUEXT *    pCME;
+        if (!_fDesignMode
+            && idm >= IDM_MENUEXT_FIRST__
+            && idm <= IDM_MENUEXT_LAST__
+            && _pOptionSettings) {
+            CONTEXTMENUEXT* pCME;
             int                 nExts, nExtCur;
 
             // not supported unless the next test succeeds
@@ -390,25 +371,23 @@ CDoc::QueryStatus(
             nExts = _pOptionSettings->aryContextMenuExts.Size();
             nExtCur = idm - IDM_MENUEXT_FIRST__;
 
-            if(nExtCur < nExts)
-            {
+            if (nExtCur < nExts) {
                 // if we have it, it is enabled
                 pCmd->cmdf = MSOCMDSTATE_UP;
 
                 // the menu name is the text returned
                 pCME = _pOptionSettings->
-                            aryContextMenuExts[idm - IDM_MENUEXT_FIRST__];
+                    aryContextMenuExts[idm - IDM_MENUEXT_FIRST__];
                 pCmd->cmdf = MSOCMDSTATE_UP;
 
                 Assert(pCME);
 
-                if (pcmdtext && pcmdtext->cmdtextf == MSOCMDTEXTF_NAME)
-                {
+                if (pcmdtext && pcmdtext->cmdtextf == MSOCMDTEXTF_NAME) {
                     hr = Format(
-                            0,
-                            pcmdtext->rgwz,
-                            pcmdtext->cwBuf,
-                            pCME->cstrMenuValue);
+                        0,
+                        pcmdtext->rgwz,
+                        pcmdtext->cwBuf,
+                        pCME->cstrMenuValue);
                     if (!hr)
                         pcmdtext->cwActual = _tcslen(pcmdtext->rgwz);
 
@@ -418,15 +397,14 @@ CDoc::QueryStatus(
             }
         }
 
-        switch (idm)
-        {
+        switch (idm) {
         case IDM_REPLACE:
         case IDM_FONT:
         case IDM_GOTO:
         case IDM_HYPERLINK:
         case IDM_BOOKMARK:
         case IDM_IMAGE:
-            if(_fInHTMLDlg)
+            if (_fInHTMLDlg)
                 pCmd->cmdf = MSOCMDSTATE_DISABLED;
             break;
 
@@ -452,8 +430,7 @@ CDoc::QueryStatus(
             break;
 
         case IDM_SAVE:
-            if (!_fDesignMode)
-            {
+            if (!_fDesignMode) {
                 // Disable Save Command if in BROWSE mode.
 
                 pCmd->cmdf = MSOCMDSTATE_DISABLED;
@@ -465,9 +442,9 @@ CDoc::QueryStatus(
         case IDM_OPEN:
             //  Bubble it out to the DocFrame
 
-            msocmd.cmdf  = 0;
+            msocmd.cmdf = 0;
             msocmd.cmdID = (idm == IDM_NEW) ? (OLECMDID_NEW) :
-                   ((idm == IDM_OPEN) ? (OLECMDID_OPEN) : (OLECMDID_SAVE));
+                ((idm == IDM_OPEN) ? (OLECMDID_OPEN) : (OLECMDID_SAVE));
             hr = THR(CTQueryStatus(_pInPlace->_pInPlaceSite, NULL, 1, &msocmd, NULL));
             if (!hr)
                 pCmd->cmdf = msocmd.cmdf;
@@ -479,7 +456,7 @@ CDoc::QueryStatus(
             break;
 
         case IDM_ISTRUSTEDDLG:
-            if(_fInTrustedHTMLDlg)
+            if (_fInTrustedHTMLDlg)
                 pCmd->cmdf = MSOCMDSTATE_DOWN;
             else
                 pCmd->cmdf = MSOCMDSTATE_DISABLED;
@@ -495,22 +472,20 @@ CDoc::QueryStatus(
             pCmd->cmdf = MSOCMDSTATE_DISABLED;
 
             SBCmdId = ConvertSBCMDID(idm);
-            varIn.vt   = VT_I4;
+            varIn.vt = VT_I4;
             varIn.lVal = MAKELONG(
-                    (idm == IDM_TOOLBARS) ? (FCW_INTERNETBAR) : (FCW_STATUS),
-                    SBSC_QUERY);
+                (idm == IDM_TOOLBARS) ? (FCW_INTERNETBAR) : (FCW_STATUS),
+                SBSC_QUERY);
 
             hr = THR(CTExec(
-                    _pInPlace->_pInPlaceSite,
-                    &CGID_Explorer,
-                    SBCmdId,
-                    0,
-                    &varIn,
-                    &varOut));
-            if (!hr && varOut.vt == VT_I4)
-            {
-                switch (varOut.lVal)
-                {
+                _pInPlace->_pInPlaceSite,
+                &CGID_Explorer,
+                SBCmdId,
+                0,
+                &varIn,
+                &varOut));
+            if (!hr && varOut.vt == VT_I4) {
+                switch (varOut.lVal) {
                 case SBSC_HIDE:
                     pCmd->cmdf = MSOCMDSTATE_UP;
                     break;
@@ -528,18 +503,17 @@ CDoc::QueryStatus(
         case IDM_OPTIONS:
         case IDM_ADDFAVORITES:
         case IDM_CREATESHORTCUT:
-            msocmd.cmdf  = 0;
+            msocmd.cmdf = 0;
             msocmd.cmdID = ConvertSBCMDID(idm);
             hr = THR(CTQueryStatus(
-                    _pInPlace->_pInPlaceSite,
-                    &CGID_Explorer,
-                    1,
-                    &msocmd,
-                    NULL));
-            if (!hr)
-            {
+                _pInPlace->_pInPlaceSite,
+                &CGID_Explorer,
+                1,
+                &msocmd,
+                NULL));
+            if (!hr) {
                 pCmd->cmdf = (msocmd.cmdf & MSOCMDF_ENABLED) ?
-                        (MSOCMDSTATE_UP) : (MSOCMDSTATE_DISABLED);
+                    (MSOCMDSTATE_UP) : (MSOCMDSTATE_DISABLED);
             }
             break;
 #endif // !WIN16 && !WINCE
@@ -601,7 +575,7 @@ CDoc::QueryStatus(
         case IDM_LAUNCHDEBUGGER:
             pCmd->cmdf = (PrimaryMarkup()->HasScriptContext() &&
                           PrimaryMarkup()->ScriptContext()->_pScriptDebugDocument) ?
-                            MSOCMDSTATE_UP : MSOCMDSTATE_DISABLED;
+                MSOCMDSTATE_UP : MSOCMDSTATE_DISABLED;
             break;
 #endif // ndef NO_SCRIPT_DEBUGGER
 
@@ -630,38 +604,38 @@ CDoc::QueryStatus(
 
         case IDM_GOBACKWARD:
         case IDM_GOFORWARD:
-            {
-                // default this to disabled since we're not
-                // hosted in shdocvw when we're on the desktop
-                pCmd->cmdf = MSOCMDSTATE_DISABLED;
-                LPOLECLIENTSITE lpClientSite;
-                hr = GetRootDoc()->GetClientSite(&lpClientSite);
-                if (!OK(hr) || !lpClientSite)
-                    goto Cleanup;
+        {
+            // default this to disabled since we're not
+            // hosted in shdocvw when we're on the desktop
+            pCmd->cmdf = MSOCMDSTATE_DISABLED;
+            LPOLECLIENTSITE lpClientSite;
+            hr = GetRootDoc()->GetClientSite(&lpClientSite);
+            if (!OK(hr) || !lpClientSite)
+                goto Cleanup;
 
-                IOleCommandTarget *pCommandTarget;
-                hr = lpClientSite->QueryInterface(IID_IOleCommandTarget,
-                                                  (void**)&pCommandTarget);
-                if (!OK(hr) || !pCommandTarget)
-                    goto Cleanup;
+            IOleCommandTarget* pCommandTarget;
+            hr = lpClientSite->QueryInterface(IID_IOleCommandTarget,
+                                              (void**)&pCommandTarget);
+            if (!OK(hr) || !pCommandTarget)
+                goto Cleanup;
 
-                MSOCMD rgCmds1[1];
-                rgCmds1[0].cmdID = (idm == IDM_GOBACKWARD)
-                    ? SHDVID_CANGOBACK
-                    : SHDVID_CANGOFORWARD;
-                rgCmds1[0].cmdf  = 0;
-                hr = pCommandTarget->QueryStatus(&CGID_ShellDocView,
-                                                 1,
-                                                 rgCmds1,
-                                                 NULL);
-                if (OK(hr))
-                    pCmd->cmdf = rgCmds1[0].cmdf ? MSOCMDSTATE_UP : MSOCMDSTATE_DISABLED;
+            MSOCMD rgCmds1[1];
+            rgCmds1[0].cmdID = (idm == IDM_GOBACKWARD)
+                ? SHDVID_CANGOBACK
+                : SHDVID_CANGOFORWARD;
+            rgCmds1[0].cmdf = 0;
+            hr = pCommandTarget->QueryStatus(&CGID_ShellDocView,
+                                             1,
+                                             rgCmds1,
+                                             NULL);
+            if (OK(hr))
+                pCmd->cmdf = rgCmds1[0].cmdf ? MSOCMDSTATE_UP : MSOCMDSTATE_DISABLED;
 
-                ReleaseInterface(pCommandTarget);
-           Cleanup:
-                ReleaseInterface(lpClientSite);
-           }
-           break;
+            ReleaseInterface(pCommandTarget);
+        Cleanup:
+            ReleaseInterface(lpClientSite);
+        }
+        break;
 
         case IDM_BASELINEFONT1:
         case IDM_BASELINEFONT2:
@@ -673,18 +647,15 @@ CDoc::QueryStatus(
             // IDM_BASELINEFONT3, IDM_BASELINEFONT4, IDM_BASELINEFONT5 to be
             // consecutive integers.
 
-            {
-                if (GetBaselineFont() ==
-                    (short)(idm - IDM_BASELINEFONT1 + BASELINEFONTMIN))
-                {
-                    pCmd->cmdf = MSOCMDSTATE_DOWN;
-                }
-                else
-                {
-                    pCmd->cmdf = MSOCMDSTATE_UP;
-                }
+        {
+            if (GetBaselineFont() ==
+                (short)(idm - IDM_BASELINEFONT1 + BASELINEFONTMIN)) {
+                pCmd->cmdf = MSOCMDSTATE_DOWN;
+            } else {
+                pCmd->cmdf = MSOCMDSTATE_UP;
             }
-            break;
+        }
+        break;
 
         case IDM_SHDV_MIMECSETMENUOPEN:
         case IDM_SHDV_FONTMENUOPEN:
@@ -696,20 +667,17 @@ CDoc::QueryStatus(
 
         case IDM_DIRLTR:
         case IDM_DIRRTL:
-            {
-                BOOL fDocRTL;
+        {
+            BOOL fDocRTL;
 
-                hr = THR(GetDocDirection(&fDocRTL));
-                if (hr == S_OK && ((!fDocRTL) ^ (idm == IDM_DIRRTL)))
-                {
-                    pCmd->cmdf = MSOCMDSTATE_DOWN;
-                }
-                else
-                {
-                    pCmd->cmdf = MSOCMDSTATE_UP;
-                }
+            hr = THR(GetDocDirection(&fDocRTL));
+            if (hr == S_OK && ((!fDocRTL) ^ (idm == IDM_DIRRTL))) {
+                pCmd->cmdf = MSOCMDSTATE_DOWN;
+            } else {
+                pCmd->cmdf = MSOCMDSTATE_UP;
             }
-            break;
+        }
+        break;
 
         case IDM_SHDV_DEACTIVATEMENOW:
         case IDM_SHDV_NODEACTIVATENOW:
@@ -738,10 +706,10 @@ CDoc::QueryStatus(
             break;
 
 #ifdef IDM_SHDV_ONCOLORSCHANGE
-                        // Let the shell know we support the new palette notification
-                case IDM_SHDV_ONCOLORSCHANGE:
-                        pCmd->cmdf = MSOCMDF_SUPPORTED;
-                        break;
+            // Let the shell know we support the new palette notification
+        case IDM_SHDV_ONCOLORSCHANGE:
+            pCmd->cmdf = MSOCMDF_SUPPORTED;
+            break;
 #endif
         case IDM_HTMLEDITMODE:
             pCmd->cmdf = _fInHTMLEditMode ? MSOCMDSTATE_DOWN : MSOCMDSTATE_UP;
@@ -749,14 +717,14 @@ CDoc::QueryStatus(
 
         case IDM_SHOWALLTAGS:
             pCmd->cmdf = _fShowAlignedSiteTags &&
-                         _fShowMiscTags &&
-                         _fShowScriptTags &&
-                         _fShowStyleTags &&
-                         _fShowCommentTags &&
-                         _fShowAreaTags &&
-                         _fShowUnknownTags &&
-                         _fShowMiscTags ?
-                         MSOCMDSTATE_UP : MSOCMDSTATE_DOWN;
+                _fShowMiscTags &&
+                _fShowScriptTags &&
+                _fShowStyleTags &&
+                _fShowCommentTags &&
+                _fShowAreaTags &&
+                _fShowUnknownTags &&
+                _fShowMiscTags ?
+                MSOCMDSTATE_UP : MSOCMDSTATE_DOWN;
             break;
 
         case IDM_SHOWALIGNEDSITETAGS:
@@ -821,26 +789,22 @@ CDoc::QueryStatus(
 
         }
 
-//#ifndef NO_IME
-        // Enables the languages in the browse context menu
-        if( !_fDesignMode && idm >= IDM_MIMECSET__FIRST__ &&
-                             idm <= IDM_MIMECSET__LAST__)
-        {
+        //#ifndef NO_IME
+                // Enables the languages in the browse context menu
+        if (!_fDesignMode && idm >= IDM_MIMECSET__FIRST__ &&
+            idm <= IDM_MIMECSET__LAST__) {
             CODEPAGE cp = GetCodePageFromMenuID(idm);
 
-            if (cp == GetCodePage() || cp == CP_UNDEFINED)
-            {
+            if (cp == GetCodePage() || cp == CP_UNDEFINED) {
                 pCmd->cmdf = MSOCMDSTATE_DOWN;
-            }
-            else
-            {
+            } else {
                 pCmd->cmdf = MSOCMDSTATE_UP;
             }
         }
-//#endif // !NO_IME
+        //#endif // !NO_IME
 
 
-        // If still not handled then try menu object.
+                // If still not handled then try menu object.
 
 
         ctarg.pguidCmdGroup = pguidCmdGroup;
@@ -850,8 +814,7 @@ CDoc::QueryStatus(
         qsarg.rgCmds = pCmd;
         qsarg.pcmdtext = pcmdtext;
 
-        if (!pCmd->cmdf && _pMenuObject)
-        {
+        if (!pCmd->cmdf && _pMenuObject) {
             hr = THR_NOTRACE(RouteCTElement(_pMenuObject, &ctarg));
         }
 
@@ -859,8 +822,7 @@ CDoc::QueryStatus(
         // Next try the current element;
 
 
-        if (!pCmd->cmdf && _pElemCurrent)
-        {
+        if (!pCmd->cmdf && _pElemCurrent) {
             hr = THR_NOTRACE(RouteCTElement(_pElemCurrent, &ctarg));
         }
 
@@ -868,20 +830,18 @@ CDoc::QueryStatus(
         // Finally try edit router
 
 
-        if (!pCmd->cmdf)
-        {
-            hr = THR_NOTRACE( _EditRouter.QueryStatusEditCommand(
-                    pguidCmdGroup,
-                    1,
-                    pCmd,
-                    pcmdtext,
-                    (IUnknown *)(IPrivateUnknown *)this,
-                    this ));
+        if (!pCmd->cmdf) {
+            hr = THR_NOTRACE(_EditRouter.QueryStatusEditCommand(
+                pguidCmdGroup,
+                1,
+                pCmd,
+                pcmdtext,
+                (IUnknown*)(IPrivateUnknown*)this,
+                this));
             if (hr == S_OK
-                &&  (pCmd->cmdf & MSOCMDF_ENABLED)
-                &&  _pElemEditContext
-                &&  _pElemEditContext != _pElemCurrent)
-            {
+                && (pCmd->cmdf & MSOCMDF_ENABLED)
+                && _pElemEditContext
+                && _pElemEditContext != _pElemCurrent) {
                 DWORD cmdfSave = pCmd->cmdf;
 
                 // Check if the edit context wants to disallow the command (fix for 46807)
@@ -891,8 +851,7 @@ CDoc::QueryStatus(
                     1,
                     pCmd,
                     pcmdtext));
-                if (pCmd->cmdf != MSOCMDSTATE_DISABLED)
-                {
+                if (pCmd->cmdf != MSOCMDSTATE_DISABLED) {
                     pCmd->cmdf = cmdfSave;
                 }
             }
@@ -909,14 +868,14 @@ CDoc::QueryStatus(
 
 extern HRESULT DisplaySource(LPCTSTR tszSourceName);
 
-HRESULT CDoc::InvokeEditor( LPCTSTR tszSourceName )
+HRESULT CDoc::InvokeEditor(LPCTSTR tszSourceName)
 {
     return DisplaySource(tszSourceName);
 }
 
 #else // !UNIX
 
-HRESULT CDoc::InvokeEditor( LPCTSTR lptszPath )
+HRESULT CDoc::InvokeEditor(LPCTSTR lptszPath)
 {
     HRESULT         hr = S_OK;
 
@@ -926,7 +885,7 @@ HRESULT CDoc::InvokeEditor( LPCTSTR lptszPath )
     int             i;
     HKEY    hkey;
     DWORD   dw;
-    TCHAR *pchPos;
+    TCHAR* pchPos;
     BOOL bMailed;
     STARTUPINFO stInfo;
 
@@ -936,23 +895,19 @@ HRESULT CDoc::InvokeEditor( LPCTSTR lptszPath )
 
     dw = pdlUrlLen;
     hr = RegQueryValueEx(hkey, REGSTR_PATH_CURRENT, NULL, NULL, (LPBYTE)tszCommand, &dw);
-    if (hr != ERROR_SUCCESS)
-    {
+    if (hr != ERROR_SUCCESS) {
         RegCloseKey(hkey);
         goto Cleanup;
     }
 
     dw = ExpandEnvironmentStrings(tszCommand, tszExpandedCommand, pdlUrlLen);
-    if (!dw)
-    {
+    if (!dw) {
         _tcscpy(tszExpandedCommand, tszCommand);
     }
     _tcscat(tszCommand, tszExpandedCommand);
 
-    for (i = _tcslen(tszCommand); i > 0; i--)
-    {
-        if (tszCommand[i] == '/')
-        {
+    for (i = _tcslen(tszCommand); i > 0; i--) {
+        if (tszCommand[i] == '/') {
             tszCommand[i] = '\0';
             break;
         }
@@ -963,7 +918,7 @@ HRESULT CDoc::InvokeEditor( LPCTSTR lptszPath )
 
     memset(&stInfo, 0, sizeof(stInfo));
     stInfo.cb = sizeof(stInfo);
-    stInfo.wShowWindow= SW_SHOWNORMAL;
+    stInfo.wShowWindow = SW_SHOWNORMAL;
     bMailed = CreateProcess(tszExpandedCommand, tszCommand, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &stInfo, NULL);
 
 Cleanup:
@@ -986,11 +941,11 @@ Cleanup:
 
 HRESULT
 CDoc::Exec(
-        GUID * pguidCmdGroup,
-        DWORD nCmdID,
-        DWORD nCmdexecopt,
-        VARIANTARG * pvarargIn,
-        VARIANTARG * pvarargOut)
+    GUID* pguidCmdGroup,
+    DWORD nCmdID,
+    DWORD nCmdexecopt,
+    VARIANTARG* pvarargIn,
+    VARIANTARG* pvarargOut)
 {
     TraceTag((tagMsoCommandTarget, "CDoc::Exec"));
 
@@ -1003,7 +958,7 @@ CDoc::Exec(
     {
         UINT    idm;
         UINT    idsUndoText;
-        TCHAR * szidr;
+        TCHAR* szidr;
     };
 
     // BUGBUG (cthrash) We should define and use better undo text.  Furthermore,
@@ -1031,7 +986,7 @@ CDoc::Exec(
 
     CDoc::CLock         Lock(this);
 #ifndef NO_EDIT
-    CParentUndoUnit *   pCPUU = NULL;
+    CParentUndoUnit* pCPUU = NULL;
 #endif // NO_EDIT
     UINT                idm;
     HRESULT             hr = OLECMDERR_E_NOTSUPPORTED;
@@ -1040,8 +995,7 @@ CDoc::Exec(
     CTExecArg           execarg;
 
     //  artakka showhelp is not implemented (v2?)
-    if(nCmdexecopt == MSOCMDEXECOPT_SHOWHELP)
-    {
+    if (nCmdexecopt == MSOCMDEXECOPT_SHOWHELP) {
         return E_NOTIMPL;
     }
 
@@ -1056,19 +1010,17 @@ CDoc::Exec(
     // (mwagner)
 
 
-    CDoc *              pDocTarget = GetRootDoc();
+    CDoc* pDocTarget = GetRootDoc();
 
     idm = IDMFromCmdID(pguidCmdGroup, nCmdID);
 
     // Handle context menu extensions - always eat the command here
-    if( idm >= IDM_MENUEXT_FIRST__ && idm <= IDM_MENUEXT_LAST__)
-    {
+    if (idm >= IDM_MENUEXT_FIRST__ && idm <= IDM_MENUEXT_LAST__) {
         hr = OnContextMenuExt(idm, pvarargIn);
         goto Cleanup;
     }
 
-    switch (idm)
-    {
+    switch (idm) {
         int             result;
 
 #if DBG==1
@@ -1103,23 +1055,23 @@ CDoc::Exec(
         break;
 
     case IDM_DEBUG_VIEW:
-        DbgExOpenViewObjectMonitor(_pInPlace->_hwnd, (IUnknown *)(IViewObject *) this, TRUE);
+        DbgExOpenViewObjectMonitor(_pInPlace->_hwnd, (IUnknown*)(IViewObject*)this, TRUE);
         hr = S_OK;
         break;
 
     case IDM_DEBUG_DUMPTREE:
-        {
-            if(_pElemCurrent->GetMarkup())
-                _pElemCurrent->GetMarkup()->DumpTree();
-            break;
-        }
+    {
+        if (_pElemCurrent->GetMarkup())
+            _pElemCurrent->GetMarkup()->DumpTree();
+        break;
+    }
     case IDM_DEBUG_DUMPLINES:
-        {
-            CFlowLayout * pFlowLayout = _pElemCurrent->GetFirstBranch()->GetFlowLayout();
-            if(pFlowLayout)
-                pFlowLayout->DumpLines();
-            break;
-        }
+    {
+        CFlowLayout* pFlowLayout = _pElemCurrent->GetFirstBranch()->GetFlowLayout();
+        if (pFlowLayout)
+            pFlowLayout->DumpLines();
+        break;
+    }
     case IDM_DEBUG_DUMPDISPLAYTREE:
         GetView()->DumpDisplayTree();
         break;
@@ -1130,93 +1082,84 @@ CDoc::Exec(
 #endif
 
     case IDM_ADDFAVORITES:
-        if (_pMenuObject)
-        {
+        if (_pMenuObject) {
             hr = THR_NOTRACE(_pMenuObject->Exec(
                 pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut));
         }
 
-        if (_pElemCurrent && hr == OLECMDERR_E_NOTSUPPORTED)
-        {
+        if (_pElemCurrent && hr == OLECMDERR_E_NOTSUPPORTED) {
             hr = THR_NOTRACE(_pElemCurrent->Exec(
                 pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut));
         }
 
-        if (hr == OLECMDERR_E_NOTSUPPORTED)
-        {
+        if (hr == OLECMDERR_E_NOTSUPPORTED) {
             // Add the current document to the favorite folder ...
 
-            TCHAR * pszURL;
-            TCHAR * pszTitle;
-            CMarkup * pMarkup = PrimaryMarkup();
+            TCHAR* pszURL;
+            TCHAR* pszTitle;
+            CMarkup* pMarkup = PrimaryMarkup();
 
-            pszURL   = _cstrUrl;
+            pszURL = _cstrUrl;
             pszTitle = (pMarkup->GetTitleElement() && pMarkup->GetTitleElement()->Length())
-                     ? (pMarkup->GetTitleElement()->GetTitle())
-                     : (NULL);
+                ? (pMarkup->GetTitleElement()->GetTitle())
+                : (NULL);
             hr = AddToFavorites(pszURL, pszTitle);
         }
         break;
 
 #ifndef NO_HTML_DIALOG
-    // provide the options object to the dialog code
+        // provide the options object to the dialog code
     case IDM_FIND:
     case IDM_REPLACE:
         // we should not invoke the dialogs out of the dialog...
-        if (!_fInHTMLDlg && nCmdexecopt != MSOCMDEXECOPT_DONTPROMPTUSER)
-        {
+        if (!_fInHTMLDlg && nCmdexecopt != MSOCMDEXECOPT_DONTPROMPTUSER) {
             CVariant            cVarNull(VT_NULL);
-            IDispatch      *    pDispOptions = NULL;
-            CParentUndoUnit*    pCPUU = NULL;
+            IDispatch* pDispOptions = NULL;
+            CParentUndoUnit* pCPUU = NULL;
             BSTR                bstrText = NULL;
             TCHAR               achOverrideFindUrl[pdlUrlLen];
-            COptionsHolder *    pcoh = NULL;
-            CDoc *              pDoc = this;
+            COptionsHolder* pcoh = NULL;
+            CDoc* pDoc = this;
             int                 i;
 
             // The find dialog needs to search the active frame, if there is one
-            if (idm == IDM_FIND)
-            {
-                CDoc *  pActiveFrameDoc = NULL;
+            if (idm == IDM_FIND) {
+                CDoc* pActiveFrameDoc = NULL;
 
                 hr = THR(pDoc->GetActiveFrame(achOverrideFindUrl,
-                    ARRAY_SIZE(achOverrideFindUrl),
-                    &pActiveFrameDoc, NULL));
+                                              ARRAY_SIZE(achOverrideFindUrl),
+                                              &pActiveFrameDoc, NULL));
                 if (FAILED(hr))
                     goto Cleanup_FindReplace;
 
                 Assert((hr == S_FALSE && pActiveFrameDoc == 0) || (hr == S_OK && pActiveFrameDoc != 0));
 
                 // If the active frame doc is null, just use what we've got.
-                if (pActiveFrameDoc && pActiveFrameDoc != pDoc)
-                {
+                if (pActiveFrameDoc && pActiveFrameDoc != pDoc) {
                     pDoc = pActiveFrameDoc;
                 }
             }
             pcoh = new COptionsHolder(pDoc);
 
-            if (pcoh == NULL)
-            {
+            if (pcoh == NULL) {
                 hr = E_OUTOFMEMORY;
                 goto Cleanup_FindReplace;
             }
 
             // find RID string
-            for (i = 0; i < ARRAY_SIZE(dlgInfo); ++i)
-            {
+            for (i = 0; i < ARRAY_SIZE(dlgInfo); ++i) {
                 if (idm == dlgInfo[i].idm)
                     break;
             }
             Assert(i < ARRAY_SIZE(dlgInfo));
 
-            if (dlgInfo[i].idsUndoText)
-            {
+            if (dlgInfo[i].idsUndoText) {
                 pCPUU = OpenParentUnit(this, dlgInfo[i].idsUndoText);
             }
 
             // get dispatch from stack variable
             hr = THR_NOTRACE(pcoh->QueryInterface(IID_IHTMLOptionsHolder,
-                                     (void**)&pDispOptions));
+                                                  (void**)&pDispOptions));
             if (hr)
                 goto Cleanup_FindReplace;
 
@@ -1224,11 +1167,11 @@ CDoc::Exec(
             // to them
 
 #ifdef _MAC     // casting so bad I left in the #ifdef
-            pcoh->put_execArg(pvarargIn ? (VARIANT) * pvarargIn
-                                        : *((VARIANT *) ((void *)&cVarNull)));
+            pcoh->put_execArg(pvarargIn ? (VARIANT)*pvarargIn
+                              : *((VARIANT*)((void*)&cVarNull)));
 #else
-            pcoh->put_execArg(pvarargIn ? (VARIANT) * pvarargIn
-                                        : (VARIANT)   cVarNull);
+            pcoh->put_execArg(pvarargIn ? (VARIANT)*pvarargIn
+                              : (VARIANT)cVarNull);
 #endif
 
             hr = THR(GetFindText(&bstrText));
@@ -1240,13 +1183,12 @@ CDoc::Exec(
             FormsFreeString(bstrText);
             bstrText = NULL;
 
-            if (idm == IDM_REPLACE)
-            {
+            if (idm == IDM_REPLACE) {
                 hr = THR(ShowModalDialogHelper(
-                        pDoc,
-                        dlgInfo[i].szidr,
-                        pDispOptions,
-                        pcoh));
+                    pDoc,
+                    dlgInfo[i].szidr,
+                    pDispOptions,
+                    pcoh));
                 goto UIHandled;
             }
 
@@ -1265,8 +1207,7 @@ CDoc::Exec(
 
             // The HTMLView object in Outlook 98 returns S_OK for all exec
             // calls, even those for which it should return OLECMD_E_NOTSUPPORTED.
-            if (pDoc->_pHostUICommandHandler && !pDoc->_fOutlook98)
-            {
+            if (pDoc->_pHostUICommandHandler && !pDoc->_fOutlook98) {
                 hr = pDoc->_pHostUICommandHandler->Exec(
                     &CGID_DocHostCommandHandler,
                     OLECMDID_SHOWFIND,
@@ -1280,11 +1221,10 @@ CDoc::Exec(
 
             // Let backup show find dialog
             pDoc->EnsureBackupUIHandler();
-            if (pDoc->_pBackupHostUIHandler)
-            {
-                IOleCommandTarget * pBackupHostUICommandHandler;
+            if (pDoc->_pBackupHostUIHandler) {
+                IOleCommandTarget* pBackupHostUICommandHandler;
                 hr = pDoc->_pBackupHostUIHandler->QueryInterface(IID_IOleCommandTarget,
-                    (void **) &pBackupHostUICommandHandler);
+                                                                 (void**)&pBackupHostUICommandHandler);
                 if (hr)
                     goto Cleanup_FindReplace;
 
@@ -1297,15 +1237,14 @@ CDoc::Exec(
                 ReleaseInterface(pBackupHostUICommandHandler);
             }
 
-UIHandled:
-Cleanup_FindReplace:
+        UIHandled:
+        Cleanup_FindReplace:
             // release dispatch, et al.
             ReleaseInterface(pcoh);
             ReleaseInterface(pDispOptions);
 
-            if ( pCPUU )
-            {
-                IGNORE_HR(CloseParentUnit( pCPUU, hr ) );
+            if (pCPUU) {
+                IGNORE_HR(CloseParentUnit(pCPUU, hr));
             }
         }
 
@@ -1313,16 +1252,11 @@ Cleanup_FindReplace:
 
 
     case IDM_PROPERTIES:
-        if (_pMenuObject && _pMenuObject->HasPages())
-        {
+        if (_pMenuObject && _pMenuObject->HasPages()) {
             THR(ShowPropertyDialog(1, &_pMenuObject));
-        }
-        else if (!_pMenuObject && _pElemCurrent && _pElemCurrent->HasPages())
-        {
+        } else if (!_pMenuObject && _pElemCurrent && _pElemCurrent->HasPages()) {
             THR(ShowPropertyDialog(1, &_pElemCurrent));
-        }
-        else
-        {
+        } else {
             THR(ShowPropertyDialog(0, NULL));
         }
         hr = S_OK;
@@ -1330,16 +1264,11 @@ Cleanup_FindReplace:
 #endif // NO_HTML_DIALOG
 
     case IDM_MENUEXT_COUNT:
-        if(!pvarargOut)
-        {
+        if (!pvarargOut) {
             hr = E_INVALIDARG;
-        }
-        else if(!_pOptionSettings)
-        {
+        } else if (!_pOptionSettings) {
             hr = OLECMDERR_E_DISABLED;
-        }
-        else
-        {
+        } else {
             hr = S_OK;
             V_VT(pvarargOut) = VT_I4;
             V_I4(pvarargOut) =
@@ -1356,32 +1285,26 @@ Cleanup_FindReplace:
         break;
 
     case IDM_SHDV_CANDOCOLORSCHANGE:
-        {
-            hr = S_OK;
-            break;
-        }
+    {
+        hr = S_OK;
+        break;
+    }
 
     case IDM_SHDV_CANSUPPORTPICS:
-        if (!pvarargIn || (pvarargIn->vt != VT_UNKNOWN))
-        {
+        if (!pvarargIn || (pvarargIn->vt != VT_UNKNOWN)) {
             Assert(pvarargIn);
             hr = E_INVALIDARG;
-        }
-        else
-        {
-            SetPicsCommandTarget((IOleCommandTarget *)pvarargIn->punkVal);
+        } else {
+            SetPicsCommandTarget((IOleCommandTarget*)pvarargIn->punkVal);
             hr = S_OK;
         }
         break;
 
     case IDM_SHDV_ISDRAGSOURCE:
-        if (!pvarargOut)
-        {
+        if (!pvarargOut) {
             Assert(pvarargOut);
             hr = E_INVALIDARG;
-        }
-        else
-        {
+        } else {
             pvarargOut->vt = VT_I4;
             V_I4(pvarargOut) = _fIsDragDropSrc;
             hr = S_OK;
@@ -1394,42 +1317,38 @@ Cleanup_FindReplace:
     case IDM_OPTIONS:
     case IDM_CREATESHORTCUT:
         DWORD        CmdOptions;
-        VARIANTARG * pVarIn;
+        VARIANTARG* pVarIn;
         VARIANTARG   var;
-        CDoc       * pDoc;
+        CDoc* pDoc;
 
 
         nCommandID = ConvertSBCMDID(idm);
         CmdOptions = 0;
-        pDoc       = pDocTarget;
-        if (idm == IDM_OPTIONS)
-        {
+        pDoc = pDocTarget;
+        if (idm == IDM_OPTIONS) {
             V_VT(&var) = VT_I4;
             V_I4(&var) = SBO_NOBROWSERPAGES;
-            pVarIn   = &var;
-        }
-        else if (idm == IDM_CREATESHORTCUT)
-        {
-            pDoc       = this;
-            pVarIn     = NULL;
+            pVarIn = &var;
+        } else if (idm == IDM_CREATESHORTCUT) {
+            pDoc = this;
+            pVarIn = NULL;
             CmdOptions = MSOCMDEXECOPT_PROMPTUSER;
-        }
-        else // IDM_TOOLBARS and IDM_STATUSBAR
+        } else // IDM_TOOLBARS and IDM_STATUSBAR
         {
             V_VT(&var) = VT_I4;
             V_I4(&var) = MAKELONG(
-                    (idm == IDM_TOOLBARS) ? (FCW_INTERNETBAR) : (FCW_STATUS),
-                    SBSC_TOGGLE);
-            pVarIn   = &var;
+                (idm == IDM_TOOLBARS) ? (FCW_INTERNETBAR) : (FCW_STATUS),
+                SBSC_TOGGLE);
+            pVarIn = &var;
         }
 
         hr = THR(CTExec(
-                pDoc->_pInPlace->_pInPlaceSite,
-                &CGID_Explorer,
-                nCommandID,
-                CmdOptions,
-                pVarIn,
-                0));
+            pDoc->_pInPlace->_pInPlaceSite,
+            &CGID_Explorer,
+            nCommandID,
+            CmdOptions,
+            pVarIn,
+            0));
         break;
 #endif // !WIN16 && !WINCE
 
@@ -1438,8 +1357,7 @@ Cleanup_FindReplace:
     case IDM_SAVE:
         //  Bubble it out to the DocFrame
 
-        switch(idm)
-        {
+        switch (idm) {
         case IDM_NEW:
             nCommandID = OLECMDID_NEW;
             break;
@@ -1451,92 +1369,81 @@ Cleanup_FindReplace:
             break;
         }
         hr = THR(CTExec(
-            (IUnknown *)(pDocTarget->_pInPlace ?
-                (IUnknown *)pDocTarget->_pInPlace->_pInPlaceSite : (IUnknown *)pDocTarget->_pClientSite),
+            (IUnknown*)(pDocTarget->_pInPlace ?
+                        (IUnknown*)pDocTarget->_pInPlace->_pInPlaceSite : (IUnknown*)pDocTarget->_pClientSite),
             NULL, nCommandID, 0, 0, 0));
         break;
 
     case IDM_SAVEAS:
-        {
-            // if _pElemCurrent is IFrame or Frame, Send saveas command it,
-            if (_pElemCurrent->Tag() == ETAG_IFRAME ||
-                _pElemCurrent->Tag() == ETAG_FRAME)
-            {
-                hr = THR_NOTRACE(_pElemCurrent->Exec(
-                        pguidCmdGroup,
-                        nCmdID,
-                        nCmdexecopt,
-                        pvarargIn,
-                        pvarargOut));
-            }
+    {
+        // if _pElemCurrent is IFrame or Frame, Send saveas command it,
+        if (_pElemCurrent->Tag() == ETAG_IFRAME ||
+            _pElemCurrent->Tag() == ETAG_FRAME) {
+            hr = THR_NOTRACE(_pElemCurrent->Exec(
+                pguidCmdGroup,
+                nCmdID,
+                nCmdexecopt,
+                pvarargIn,
+                pvarargOut));
+        }
 
-            // If frame does not handle the command or _pElemCurrent is not a frame
-            // Save current document
-            if (hr == OLECMDERR_E_NOTSUPPORTED)
-            {
-                // Pass it up to the host
-                // If we don't have a _pHostUICommandHandler, then hr will remain OLECMDERR_E_NOTSUPPORTED
-                if (    _pHostUICommandHandler
+        // If frame does not handle the command or _pElemCurrent is not a frame
+        // Save current document
+        if (hr == OLECMDERR_E_NOTSUPPORTED) {
+            // Pass it up to the host
+            // If we don't have a _pHostUICommandHandler, then hr will remain OLECMDERR_E_NOTSUPPORTED
+            if (_pHostUICommandHandler
                 && !(nCmdexecopt & OLECMDEXECOPT_DONTPROMPTUSER)
-                )
-                {
-                    hr = THR_NOTRACE(_pHostUICommandHandler->Exec(&CGID_DocHostCommandHandler, nCmdID, nCmdexecopt, pvarargIn, pvarargOut));
-                }
-
-                // Only do it ourselves if the host doesn't understand the CGID or the CMDid
-
-                if (FAILED(hr))
-                {
-                    TCHAR * pchPathName = NULL;
-                    BOOL fShowUI = TRUE;
-
-                    if (pvarargIn && V_VT(pvarargIn) == VT_BSTR)
-                    {
-                        pchPathName = V_BSTR(pvarargIn);
-                    }
-
-                    if (nCmdexecopt & OLECMDEXECOPT_DONTPROMPTUSER)
-                    {
-                        MSOCMD msocmd;
-
-                        msocmd.cmdf  = 0;
-                        msocmd.cmdID = OLECMDID_ALLOWUILESSSAVEAS;
-                        if (!THR(CTQueryStatus(_pInPlace->_pInPlaceSite, NULL, 1, &msocmd, NULL)))
-                            fShowUI = !(msocmd.cmdf == MSOCMDSTATE_UP);
-                    }
-
-                    if (!fShowUI && !pchPathName)
-                        hr = E_INVALIDARG;
-                    else
-                        hr = pDocTarget->PromptSave(TRUE, fShowUI, pchPathName);
-                }
+                ) {
+                hr = THR_NOTRACE(_pHostUICommandHandler->Exec(&CGID_DocHostCommandHandler, nCmdID, nCmdexecopt, pvarargIn, pvarargOut));
             }
 
-            if ( hr == S_FALSE )
-            {
-                hr = OLECMDERR_E_CANCELED;
+            // Only do it ourselves if the host doesn't understand the CGID or the CMDid
+
+            if (FAILED(hr)) {
+                TCHAR* pchPathName = NULL;
+                BOOL fShowUI = TRUE;
+
+                if (pvarargIn && V_VT(pvarargIn) == VT_BSTR) {
+                    pchPathName = V_BSTR(pvarargIn);
+                }
+
+                if (nCmdexecopt & OLECMDEXECOPT_DONTPROMPTUSER) {
+                    MSOCMD msocmd;
+
+                    msocmd.cmdf = 0;
+                    msocmd.cmdID = OLECMDID_ALLOWUILESSSAVEAS;
+                    if (!THR(CTQueryStatus(_pInPlace->_pInPlaceSite, NULL, 1, &msocmd, NULL)))
+                        fShowUI = !(msocmd.cmdf == MSOCMDSTATE_UP);
+                }
+
+                if (!fShowUI && !pchPathName)
+                    hr = E_INVALIDARG;
+                else
+                    hr = pDocTarget->PromptSave(TRUE, fShowUI, pchPathName);
             }
         }
-        break;
+
+        if (hr == S_FALSE) {
+            hr = OLECMDERR_E_CANCELED;
+        }
+    }
+    break;
 
     case IDM_SAVEASTHICKET:
-        {
-            if (!pvarargIn)
-            {
-                hr = E_INVALIDARG;
-            }
-            else
-            {
-                CVariant cvarDocument;
+    {
+        if (!pvarargIn) {
+            hr = E_INVALIDARG;
+        } else {
+            CVariant cvarDocument;
 
-                hr = THR(cvarDocument.CoerceVariantArg(pvarargIn, VT_UNKNOWN));
-                if (SUCCEEDED(hr))
-                {
-                    hr = THR(SaveSnapshotHelper( V_UNKNOWN(&cvarDocument), true ));
-                }
+            hr = THR(cvarDocument.CoerceVariantArg(pvarargIn, VT_UNKNOWN));
+            if (SUCCEEDED(hr)) {
+                hr = THR(SaveSnapshotHelper(V_UNKNOWN(&cvarDocument), true));
             }
         }
-        break;
+    }
+    break;
 
 #ifndef NO_PRINT
     case IDM_PAGESETUP:
@@ -1546,85 +1453,78 @@ Cleanup_FindReplace:
         if (_pHostUICommandHandler
             && !(nCmdexecopt & OLECMDEXECOPT_DONTPROMPTUSER)
             && !_fOutlook98
-            )
-        {
+            ) {
             hr = THR_NOTRACE(_pHostUICommandHandler->Exec(&CGID_DocHostCommandHandler, nCmdID, nCmdexecopt, pvarargIn, pvarargOut));
         }
 
         // Only do it ourselves if the host doesn't understand the CGID or the CMDid
 
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)) {
             hr = pDocTarget->PageSetup();
-            if ( hr == S_FALSE )
-            {
+            if (hr == S_FALSE) {
                 hr = OLECMDERR_E_CANCELED;
             }
         }
         break;
 
-    case IDM_EXECPRINT :  // comes from script ExecCommand
+    case IDM_EXECPRINT:  // comes from script ExecCommand
     case IDM_PRINT:       // comes from IOleCommandTarget
-        {
-            DWORD dwUILess = 0;
-            BOOL  fOutlook98 = _fOutlook98;
+    {
+        DWORD dwUILess = 0;
+        BOOL  fOutlook98 = _fOutlook98;
 
-            dwUILess = (pvarargIn) ?
-                            (((V_VT(pvarargIn) == VT_I2) ? pvarargIn->iVal:0) |
-                                    ((nCmdexecopt&MSOCMDEXECOPT_DONTPROMPTUSER) ?
-                                            PRINT_DONTBOTHERUSER : 0))
-                           : (nCmdexecopt & OLECMDEXECOPT_DONTPROMPTUSER)? PRINT_DONTBOTHERUSER : 0;
+        dwUILess = (pvarargIn) ?
+            (((V_VT(pvarargIn) == VT_I2) ? pvarargIn->iVal : 0) |
+             ((nCmdexecopt & MSOCMDEXECOPT_DONTPROMPTUSER) ?
+              PRINT_DONTBOTHERUSER : 0))
+            : (nCmdexecopt & OLECMDEXECOPT_DONTPROMPTUSER) ? PRINT_DONTBOTHERUSER : 0;
 
-            // if no-UI is requested from execCommand, then we better be a trusted Dialog, or an HTA.
-            // HTA's also use this trusted bit
-            // window.print doesn't make this request
-            if (dwUILess && nCmdID==IDM_EXECPRINT && !_fInTrustedHTMLDlg )
-            {
-                nCmdexecopt ^= OLECMDEXECOPT_DONTPROMPTUSER;
-                dwUILess = 0;
-                if (pvarargIn && (V_VT(pvarargIn)== VT_I2) )
-                {
-                    pvarargIn->iVal ^= PRINT_DONTBOTHERUSER;
-                }
+        // if no-UI is requested from execCommand, then we better be a trusted Dialog, or an HTA.
+        // HTA's also use this trusted bit
+        // window.print doesn't make this request
+        if (dwUILess && nCmdID == IDM_EXECPRINT && !_fInTrustedHTMLDlg) {
+            nCmdexecopt ^= OLECMDEXECOPT_DONTPROMPTUSER;
+            dwUILess = 0;
+            if (pvarargIn && (V_VT(pvarargIn) == VT_I2)) {
+                pvarargIn->iVal ^= PRINT_DONTBOTHERUSER;
             }
-
-            // BUGBUG: 68038 - _fOutlook98 is not set when we are printing the Outlook98 Today page.
-            // So we use the "outday://" url to identify that we are in Outlook.  Even if somebody
-            // else invents an "outday" protocol, they would still not run into this since no address
-            // is specified after "outday://".
-            if (!_fOutlook98 && _cstrUrl.Length() && !_tcscmp(_cstrUrl, _T("outday://")))
-                _fOutlook98 = TRUE;
-
-            // If we have a HostUICommandHandler, and the caller did NOT request no-UI, pass it up to the host
-            // If we don't have a _pHostUICommandHandler, then hr will remain OLECMDERR_E_NOTSUPPORTED
-            if (_pHostUICommandHandler
-                && !(nCmdexecopt & OLECMDEXECOPT_DONTPROMPTUSER)
-                && !_fOutlook98
-                )
-            {
-                hr = THR_NOTRACE(_pHostUICommandHandler->Exec(&CGID_DocHostCommandHandler,
-                                                      nCmdID,
-                                                      nCmdexecopt,
-                                                      pvarargIn,
-                                                      pvarargOut));
-            }
-
-            // Only do it ourselves if the host doesn't understand the CGID or the CMDid
-            if (FAILED(hr))
-            {
-                hr = pDocTarget->DoPrint(0, 0, dwUILess,
-                                        (pvarargIn && V_ISARRAY(pvarargIn) && V_ISBYREF(pvarargIn)) ?
-                                            V_ARRAY(pvarargIn) :
-                                            0);
-            }
-
-            _fOutlook98 = fOutlook98;
-
-            if ( hr == S_FALSE )
-                hr = OLECMDERR_E_CANCELED;
         }
 
-        break;
+        // BUGBUG: 68038 - _fOutlook98 is not set when we are printing the Outlook98 Today page.
+        // So we use the "outday://" url to identify that we are in Outlook.  Even if somebody
+        // else invents an "outday" protocol, they would still not run into this since no address
+        // is specified after "outday://".
+        if (!_fOutlook98 && _cstrUrl.Length() && !_tcscmp(_cstrUrl, _T("outday://")))
+            _fOutlook98 = TRUE;
+
+        // If we have a HostUICommandHandler, and the caller did NOT request no-UI, pass it up to the host
+        // If we don't have a _pHostUICommandHandler, then hr will remain OLECMDERR_E_NOTSUPPORTED
+        if (_pHostUICommandHandler
+            && !(nCmdexecopt & OLECMDEXECOPT_DONTPROMPTUSER)
+            && !_fOutlook98
+            ) {
+            hr = THR_NOTRACE(_pHostUICommandHandler->Exec(&CGID_DocHostCommandHandler,
+                                                          nCmdID,
+                                                          nCmdexecopt,
+                                                          pvarargIn,
+                                                          pvarargOut));
+        }
+
+        // Only do it ourselves if the host doesn't understand the CGID or the CMDid
+        if (FAILED(hr)) {
+            hr = pDocTarget->DoPrint(0, 0, dwUILess,
+                                     (pvarargIn && V_ISARRAY(pvarargIn) && V_ISBYREF(pvarargIn)) ?
+                                     V_ARRAY(pvarargIn) :
+                                     0);
+        }
+
+        _fOutlook98 = fOutlook98;
+
+        if (hr == S_FALSE)
+            hr = OLECMDERR_E_CANCELED;
+    }
+
+    break;
 #endif // NO_PRINT
 
     case IDM_HELP_CONTENT:
@@ -1634,17 +1534,17 @@ Cleanup_FindReplace:
     case IDM_HELP_ABOUT:
 
         ShowMessage(
-                &result,
-                MB_APPLMODAL | MB_OK,
-                0,
-                IDS_HELPABOUT_STRING,
-                VER_PRODUCTVERSION,
+            &result,
+            MB_APPLMODAL | MB_OK,
+            0,
+            IDS_HELPABOUT_STRING,
+            VER_PRODUCTVERSION,
 #if DBG==1
-                _T("\r\n"), g_achDLLCore
+            _T("\r\n"), g_achDLLCore
 #else
-                _T(""), _T("")
+            _T(""), _T("")
 #endif
-                );
+        );
 
         hr = S_OK;
         break;
@@ -1666,12 +1566,9 @@ Cleanup_FindReplace:
         break;
 
     case IDM_LAUNCHDEBUGGER:
-        if (_pScriptCollection)
-        {
+        if (_pScriptCollection) {
             hr = THR(_pScriptCollection->ViewSourceInDebugger());
-        }
-        else
-        {
+        } else {
             hr = E_UNEXPECTED;
         }
         break;
@@ -1684,8 +1581,8 @@ Cleanup_FindReplace:
         // is not overridable by the aggregator via IOleCommandTarget. So the XML Mime viewer has to
         // go inside out and send VIEWPRETRANSFORMSOURCE.
         if (IsAggregatedByXMLMime()) {
-            IOleCommandTarget *pIOCT = NULL;
-            HRESULT hr = THR(PunkOuter()->QueryInterface(IID_IOleCommandTarget, (void **)&pIOCT));
+            IOleCommandTarget* pIOCT = NULL;
+            HRESULT hr = THR(PunkOuter()->QueryInterface(IID_IOleCommandTarget, (void**)&pIOCT));
             if (hr)
                 break;
             if (!pIOCT) {
@@ -1700,8 +1597,7 @@ Cleanup_FindReplace:
 
     case IDM_VIEWPRETRANSFORMSOURCE:
         // Do nothing for non-HTML files
-        if (_fImageFile)
-        {
+        if (_fImageFile) {
             hr = S_OK;
             break;
         }
@@ -1709,22 +1605,20 @@ Cleanup_FindReplace:
 #ifndef UNIX
         // If there's a frameset in the body, launch the
         // analyzer dialog.
-        if (_fFramesetInBody)
-        {
-            COptionsHolder *    pcoh            = NULL;
-            IDispatch      *    pDispOptions    = NULL;
+        if (_fFramesetInBody) {
+            COptionsHolder* pcoh = NULL;
+            IDispatch* pDispOptions = NULL;
             TCHAR               achAnalyzeDlg[] = _T("analyze.dlg");
 
             pcoh = new COptionsHolder(this);
-            if (!pcoh)
-            {
+            if (!pcoh) {
                 hr = E_OUTOFMEMORY;
                 goto Cleanup_ViewSource;
             }
 
             // get dispatch from stack variable
             hr = THR_NOTRACE(pcoh->QueryInterface(IID_IHTMLOptionsHolder,
-                                 (void**)&pDispOptions));
+                                                  (void**)&pDispOptions));
             if (hr)
                 goto Cleanup_ViewSource;
 
@@ -1735,7 +1629,7 @@ Cleanup_FindReplace:
             if (hr)
                 goto Cleanup_ViewSource;
 
-Cleanup_ViewSource:
+        Cleanup_ViewSource:
             // release dispatch, et al.
             ReleaseInterface(pcoh);
             ReleaseInterface(pDispOptions);
@@ -1750,7 +1644,7 @@ Cleanup_ViewSource:
             if (hr)
                 break;
 
-            InvokeEditor( tszPath );
+            InvokeEditor(tszPath);
         }
 
         break;
@@ -1762,27 +1656,25 @@ Cleanup_ViewSource:
         LONG  lr, lLength;
 
         lr = RegOpenKey(
-                HKEY_CLASSES_ROOT,
-                TEXT("CLSID\\{25336920-03F9-11CF-8FD0-00AA00686F13}"),
-                &hkey);
+            HKEY_CLASSES_ROOT,
+            TEXT("CLSID\\{25336920-03F9-11CF-8FD0-00AA00686F13}"),
+            &hkey);
 
-        if (lr == ERROR_SUCCESS)
-        {
+        if (lr == ERROR_SUCCESS) {
             TCHAR   szPathW[MAX_PATH];
 
             lLength = sizeof(szPathW);
             lr = RegQueryValue(
-                    hkey,
-                    TEXT("InprocServer32"),
-                    szPathW,
-                    &lLength);
+                hkey,
+                TEXT("InprocServer32"),
+                szPathW,
+                &lLength);
             RegCloseKey(hkey);
-            if (lr == ERROR_SUCCESS)
-            {
+            if (lr == ERROR_SUCCESS) {
                 // Right now szPath contains the full path of fm30pad.exe
                 // need to replace fm30pad.exe with m3readme.htm
 
-                TCHAR *pch;
+                TCHAR* pch;
 
                 pch = _tcsrchr(szPathW, _T('\\'));
                 if (pch)
@@ -1795,15 +1687,14 @@ Cleanup_ViewSource:
                 HANDLE hFileReadme;
 
                 hFileReadme = CreateFile(
-                        szPathW,
-                        GENERIC_READ,
-                        FILE_SHARE_READ,
-                        NULL,
-                        OPEN_EXISTING,
-                        FILE_ATTRIBUTE_NORMAL,
-                        NULL);
-                if (hFileReadme != INVALID_HANDLE_VALUE)
-                {
+                    szPathW,
+                    GENERIC_READ,
+                    FILE_SHARE_READ,
+                    NULL,
+                    OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL,
+                    NULL);
+                if (hFileReadme != INVALID_HANDLE_VALUE) {
                     CloseHandle(hFileReadme);
                     hr = THR(FollowHyperlink(szPathW));
                     if (!hr)
@@ -1819,39 +1710,34 @@ Cleanup_ViewSource:
         break;
 
     case IDM_ENABLE_INTERACTION:
-        if (!pvarargIn || (pvarargIn->vt != VT_I4))
-        {
+        if (!pvarargIn || (pvarargIn->vt != VT_I4)) {
             Assert(pvarargIn);
             hr = E_INVALIDARG;
-        }
-        else
-        {
+        } else {
             BOOL fEnableInteraction = pvarargIn->lVal;
 
-            if (!!_fEnableInteraction != !!fEnableInteraction)
-            {
+            if (!!_fEnableInteraction != !!fEnableInteraction) {
                 CNotification   nf;
 
                 _fEnableInteraction = fEnableInteraction;
-                if ( _pUpdateIntSink )
+                if (_pUpdateIntSink)
                     // don't bother drawing accumulated inval rgn if minimized
-                    _pUpdateIntSink->_pTimer->Freeze( !fEnableInteraction );
+                    _pUpdateIntSink->_pTimer->Freeze(!fEnableInteraction);
 
-                if (_fBroadcastInteraction)
-                {
+                if (_fBroadcastInteraction) {
                     BOOL dirtyBefore = !!_lDirtyVersion;
                     nf.EnableInteraction1(PrimaryRoot());
                     BroadcastNotify(&nf);
 
                     // BUGBUG ( marka ) - reset erroneous dirtying the document.
 
-                    if ( ( ! dirtyBefore ) && ( _lDirtyVersion ) )
+                    if ((!dirtyBefore) && (_lDirtyVersion))
                         _lDirtyVersion = 0;
                 }
 
                 if (TLS(pImgAnim) && !_pDocParent)
                     TLS(pImgAnim)->SetAnimState(
-                        (DWORD_PTR) this,
+                        (DWORD_PTR)this,
                         fEnableInteraction ? ANIMSTATE_PLAY : ANIMSTATE_PAUSE);
             }
             hr = S_OK;
@@ -1859,54 +1745,51 @@ Cleanup_ViewSource:
         break;
 
     case IDM_ONPERSISTSHORTCUT:
-        {
-            INamedPropertyBag  *    pINPB = NULL;
-            FAVORITES_NOTIFY_INFO   sni;
-            CNotification           nf;
+    {
+        INamedPropertyBag* pINPB = NULL;
+        FAVORITES_NOTIFY_INFO   sni;
+        CNotification           nf;
 
-            // first put my information into the defualt structure
-            // if this is the first call (top level document) then we want to
-            // set the base url. for normal pages we are nearly done.  For
-            // frameset pages, we need to compare domains for security purposes
-            // and establish subdomains if necessary
-            if (!pvarargIn ||
-                (pvarargIn->vt != VT_UNKNOWN) ||
-                !V_UNKNOWN(pvarargIn) )
-            {
-                hr = E_INVALIDARG;
-                break;
-            }
-
-            hr = THR_NOTRACE(V_UNKNOWN(pvarargIn)->QueryInterface(IID_INamedPropertyBag,
-                                                                  (void **)&pINPB));
-            if (hr)
-                break;
-
-            hr = THR(PersistFavoritesData(pINPB, (LPCWSTR)_T("DEFAULT")));
-            if (hr)
-            {
-                ReleaseInterface((IUnknown*) pINPB);
-                break;
-            }
-
-            // initialize the info strucuture
-            sni.pINPB = pINPB;
-            sni.bstrNameDomain = SysAllocString(_T("DOC"));
-            if (sni.bstrNameDomain == NULL)
-            {
-                ReleaseInterface((IUnknown*) pINPB);
-                hr = E_OUTOFMEMORY;
-                break;
-            }
-
-            // then propogate the event to my children
-            nf.FavoritesSave(PrimaryRoot(), &sni);
-            BroadcastNotify(&nf);
-
-            ClearInterface(&sni.pINPB);
-            SysFreeString(sni.bstrNameDomain);
+        // first put my information into the defualt structure
+        // if this is the first call (top level document) then we want to
+        // set the base url. for normal pages we are nearly done.  For
+        // frameset pages, we need to compare domains for security purposes
+        // and establish subdomains if necessary
+        if (!pvarargIn ||
+            (pvarargIn->vt != VT_UNKNOWN) ||
+            !V_UNKNOWN(pvarargIn)) {
+            hr = E_INVALIDARG;
+            break;
         }
-        break;
+
+        hr = THR_NOTRACE(V_UNKNOWN(pvarargIn)->QueryInterface(IID_INamedPropertyBag,
+                                                              (void**)&pINPB));
+        if (hr)
+            break;
+
+        hr = THR(PersistFavoritesData(pINPB, (LPCWSTR)_T("DEFAULT")));
+        if (hr) {
+            ReleaseInterface((IUnknown*)pINPB);
+            break;
+        }
+
+        // initialize the info strucuture
+        sni.pINPB = pINPB;
+        sni.bstrNameDomain = SysAllocString(_T("DOC"));
+        if (sni.bstrNameDomain == NULL) {
+            ReleaseInterface((IUnknown*)pINPB);
+            hr = E_OUTOFMEMORY;
+            break;
+        }
+
+        // then propogate the event to my children
+        nf.FavoritesSave(PrimaryRoot(), &sni);
+        BroadcastNotify(&nf);
+
+        ClearInterface(&sni.pINPB);
+        SysFreeString(sni.bstrNameDomain);
+    }
+    break;
 
     case IDM_REFRESH:
     case IDM_REFRESH_TOP:
@@ -1920,42 +1803,31 @@ Cleanup_ViewSource:
         // Give the container a chance to handle the refresh.
 
 
-        if (_pHostUICommandHandler)
-        {
+        if (_pHostUICommandHandler) {
             hr = THR_NOTRACE(_pHostUICommandHandler->Exec(&CGID_DocHostCommandHandler, idm, nCmdexecopt, pvarargIn, pvarargOut));
         }
 
-        if (FAILED(hr))
-        {
-            if (idm != IDM_REFRESH_TOP && idm != IDM_REFRESH_TOP_FULL)
-            {
+        if (FAILED(hr)) {
+            if (idm != IDM_REFRESH_TOP && idm != IDM_REFRESH_TOP_FULL) {
                 pDocTarget = this;
             }
 
-            if (idm == IDM_REFRESH)
-            {
+            if (idm == IDM_REFRESH) {
                 if (pvarargIn && pvarargIn->vt == VT_I4)
                     lOleCmdidf = pvarargIn->lVal;
                 else
                     lOleCmdidf = OLECMDIDF_REFRESH_NORMAL;
-            }
-            else if (idm == IDM_REFRESH_TOP_FULL || idm == IDM_REFRESH_THIS_FULL)
-            {
-                lOleCmdidf = OLECMDIDF_REFRESH_COMPLETELY|OLECMDIDF_REFRESH_PROMPTIFOFFLINE;
-            }
-            else
-            {
-                lOleCmdidf = OLECMDIDF_REFRESH_NO_CACHE|OLECMDIDF_REFRESH_PROMPTIFOFFLINE;
+            } else if (idm == IDM_REFRESH_TOP_FULL || idm == IDM_REFRESH_THIS_FULL) {
+                lOleCmdidf = OLECMDIDF_REFRESH_COMPLETELY | OLECMDIDF_REFRESH_PROMPTIFOFFLINE;
+            } else {
+                lOleCmdidf = OLECMDIDF_REFRESH_NO_CACHE | OLECMDIDF_REFRESH_PROMPTIFOFFLINE;
             }
 
-            if (pDocTarget->_pPrimaryMarkup)
-            {
+            if (pDocTarget->_pPrimaryMarkup) {
                 hr = GWPostMethodCall(pDocTarget,
                                       ONCALL_METHOD(CDoc, ExecRefreshCallback, execrefreshcallback),
                                       lOleCmdidf, FALSE, "CDoc::ExecRefreshCallback");
-            }
-            else
-            {
+            } else {
                 hr = S_OK;
             }
         }
@@ -1964,30 +1836,27 @@ Cleanup_ViewSource:
     }
 
     case IDM_CONTEXTMENU:
-        {
-            CMessage Message(
-                    InPlace()->_hwnd,
-                    WM_CONTEXTMENU,
-                    (WPARAM) InPlace()->_hwnd,
-                    MAKELPARAM(0xFFFF, 0xFFFF));
-            Message.SetNodeHit(_pElemCurrent->GetFirstBranch());
-            hr = THR(PumpMessage(&Message, _pElemCurrent->GetFirstBranch()));
-        }
-        break;
+    {
+        CMessage Message(
+            InPlace()->_hwnd,
+            WM_CONTEXTMENU,
+            (WPARAM)InPlace()->_hwnd,
+            MAKELPARAM(0xFFFF, 0xFFFF));
+        Message.SetNodeHit(_pElemCurrent->GetFirstBranch());
+        hr = THR(PumpMessage(&Message, _pElemCurrent->GetFirstBranch()));
+    }
+    break;
 
     case IDM_GOBACKWARD:
     case IDM_GOFORWARD:
-        hr = THR(pDocTarget->FollowHistory(idm==IDM_GOFORWARD));
+        hr = THR(pDocTarget->FollowHistory(idm == IDM_GOFORWARD));
         break;
 
     case IDM_SHDV_SETPENDINGURL:
-        if (!pvarargIn || (pvarargIn->vt != VT_BSTR) || (pvarargIn->bstrVal == NULL))
-        {
+        if (!pvarargIn || (pvarargIn->vt != VT_BSTR) || (pvarargIn->bstrVal == NULL)) {
             Assert(pvarargIn);
             hr = E_INVALIDARG;
-        }
-        else
-        {
+        } else {
             hr = SetUrl(pvarargIn->bstrVal);
         }
         break;
@@ -1995,44 +1864,39 @@ Cleanup_ViewSource:
 #ifdef IE5_ZOOM
 
     case IDM_ZOOMPERCENT:
-        if (pvarargIn && (VT_I4 == V_VT(pvarargIn)))
-        {
+        if (pvarargIn && (VT_I4 == V_VT(pvarargIn))) {
             int iZoomPercent = V_I4(pvarargIn);
 
             V_I4(pvarargIn) = MAKELONG(iZoomPercent, 100);
 
-            hr = Exec((GUID *)&CGID_MSHTML,
-                    IDM_ZOOMRATIO,
-                    MSOCMDEXECOPT_DONTPROMPTUSER,
-                    pvarargIn,
-                    pvarargOut);
+            hr = Exec((GUID*)&CGID_MSHTML,
+                      IDM_ZOOMRATIO,
+                      MSOCMDEXECOPT_DONTPROMPTUSER,
+                      pvarargIn,
+                      pvarargOut);
         }
         break;
 
     case IDM_ZOOMRATIO:
 
-        if (pvarargIn && (VT_I4 == V_VT(pvarargIn)))
-        {
-            if (_fFrameSet)
-            {
+        if (pvarargIn && (VT_I4 == V_VT(pvarargIn))) {
+            if (_fFrameSet) {
                 CNotification           nf;
                 COnCommandExecParams    param;
 
                 param.pguidCmdGroup = pguidCmdGroup;
-                param.nCmdID        = nCmdID;
-                param.nCmdexecopt   = nCmdexecopt;
-                param.pvarargIn     = pvarargIn;
-                param.pvarargOut    = pvarargOut;
+                param.nCmdID = nCmdID;
+                param.nCmdexecopt = nCmdexecopt;
+                param.pvarargIn = pvarargIn;
+                param.pvarargOut = pvarargOut;
 
-                nf.Command(PrimaryRoot(), (void *)&param);
+                nf.Command(PrimaryRoot(), (void*)&param);
                 BroadcastNotify(&nf);
 
                 //  REVIEW (olego 09/15/98)
                 //  When zoom will be WYSIWYG we won't need to Relayout
                 hr = ForceRelayout();
-            }
-            else
-            {
+            } else {
                 int     iZoomRatio;
                 long    Numer;
                 long    Denom;
@@ -2059,30 +1923,30 @@ Cleanup_ViewSource:
         break;
 
     case IDM_GETZOOMNUMERATOR:
-        {
-            long Numer;
+    {
+        long Numer;
 
-            get_zoomNumerator(&Numer);
+        get_zoomNumerator(&Numer);
 
-            V_VT(pvarargOut) = VT_I4;
-            V_I4(pvarargOut) = Numer;
+        V_VT(pvarargOut) = VT_I4;
+        V_I4(pvarargOut) = Numer;
 
-            hr = S_OK;
-        }
-        break;
+        hr = S_OK;
+    }
+    break;
 
     case IDM_GETZOOMDENOMINATOR:
-        {
-            long Denom;
+    {
+        long Denom;
 
-            get_zoomDenominator(&Denom);
+        get_zoomDenominator(&Denom);
 
-            V_VT(pvarargOut) = VT_I4;
-            V_I4(pvarargOut) = Denom;
+        V_VT(pvarargOut) = VT_I4;
+        V_I4(pvarargOut) = Denom;
 
-            hr = S_OK;
-        }
-        break;
+        hr = S_OK;
+    }
+    break;
 
 #endif  // IE5_ZOOM
 
@@ -2090,31 +1954,28 @@ Cleanup_ViewSource:
     // For details, please see bug 45627
     case IDM_INFOVIEW_ZOOM:
 
-        if (pvarargIn && (VT_I4 == V_VT(pvarargIn)))
-        {
+        if (pvarargIn && (VT_I4 == V_VT(pvarargIn))) {
             int iZoom;
 
             iZoom = V_I4(pvarargIn);
 
-            if (iZoom < (long) BASELINEFONTMIN || iZoom > (long) BASELINEFONTMAX)
-            {
+            if (iZoom < (long)BASELINEFONTMIN || iZoom >(long) BASELINEFONTMAX) {
                 hr = E_INVALIDARG;
                 break;
             }
 
-            hr = Exec((GUID *)&CGID_MSHTML,
-                    iZoom + IDM_BASELINEFONT1,
-                    MSOCMDEXECOPT_DONTPROMPTUSER,
-                    NULL,
-                    NULL);
+            hr = Exec((GUID*)&CGID_MSHTML,
+                      iZoom + IDM_BASELINEFONT1,
+                      MSOCMDEXECOPT_DONTPROMPTUSER,
+                      NULL,
+                      NULL);
             if (hr)
                 break;
         }
 
-        if (pvarargOut)
-        {
+        if (pvarargOut) {
             V_VT(pvarargOut) = VT_I4;
-            V_I4(pvarargOut) = (long) _sBaselineFont;
+            V_I4(pvarargOut) = (long)_sBaselineFont;
         }
 
         hr = S_OK;
@@ -2127,7 +1988,7 @@ Cleanup_ViewSource:
 
         hr = S_OK;
         break;
-    // End of hack for InfoViewer's "Font Size" toolbar button
+        // End of hack for InfoViewer's "Font Size" toolbar button
 
     case IDM_BASELINEFONT1:
     case IDM_BASELINEFONT2:
@@ -2139,47 +2000,45 @@ Cleanup_ViewSource:
         // IDM_BASELINEFONT3, IDM_BASELINEFONT4, IDM_BASELINEFONT5 to be
         // consecutive integers.
 
-        if (_sBaselineFont != (short)(idm - IDM_BASELINEFONT1 + BASELINEFONTMIN))
-        {
+        if (_sBaselineFont != (short)(idm - IDM_BASELINEFONT1 + BASELINEFONTMIN)) {
             // {keyroot}\International\Scripts\{script-id}\IEFontSize
 
-            static TCHAR * s_szScripts = TEXT("\\Scripts");
-            const TCHAR * szSubKey = _pOptionSettings->fUseCodePageBasedFontLinking
-                                     ? L""
-                                     : s_szScripts;
+            static TCHAR* s_szScripts = TEXT("\\Scripts");
+            const TCHAR* szSubKey = _pOptionSettings->fUseCodePageBasedFontLinking
+                ? L""
+                : s_szScripts;
 
             DWORD dwFontSize = (idm - IDM_BASELINEFONT1 + BASELINEFONTMIN);
-            TCHAR *pchPath, *pch;
+            TCHAR* pchPath, * pch;
             int cch0 = _tcslen(_pOptionSettings->achKeyPath);
             int cch1 = _tcslen(s_szPathInternational);
             int cch2 = _tcslen(szSubKey);
 
             pchPath = pch = new TCHAR[cch0 + cch1 + cch2 + 1 + 10 + 1];
 
-            if (pchPath)
-            {
+            if (pchPath) {
                 ULONG ulArg = _pOptionSettings->fUseCodePageBasedFontLinking
-                              ? ULONG(_pCodepageSettings->uiFamilyCodePage)
-                              : ULONG(RegistryAppropriateSidFromSid(DefaultSidForCodePage(_pCodepageSettings->uiFamilyCodePage)));
+                    ? ULONG(_pCodepageSettings->uiFamilyCodePage)
+                    : ULONG(RegistryAppropriateSidFromSid(DefaultSidForCodePage(_pCodepageSettings->uiFamilyCodePage)));
 
-                StrCpy( pch, _pOptionSettings->achKeyPath );
+                StrCpy(pch, _pOptionSettings->achKeyPath);
                 pch += cch0;
-                StrCpy( pch, s_szPathInternational );
+                StrCpy(pch, s_szPathInternational);
                 pch += cch1;
-                StrCpy( pch, szSubKey );
+                StrCpy(pch, szSubKey);
                 pch += cch2;
                 *pch++ = _T('\\');
                 _ultot(ulArg, pch, 10);
 
-                IGNORE_HR( SHSetValue(HKEY_CURRENT_USER, pchPath, TEXT("IEFontSize"),
-                                      REG_BINARY, (void *)&dwFontSize, sizeof(dwFontSize)) );
+                IGNORE_HR(SHSetValue(HKEY_CURRENT_USER, pchPath, TEXT("IEFontSize"),
+                                     REG_BINARY, (void*)&dwFontSize, sizeof(dwFontSize)));
 
-                delete [] pchPath;
+                delete[] pchPath;
             }
         }
 
         _sBaselineFont = _pCodepageSettings->sBaselineFontDefault =
-                    (short)(idm - IDM_BASELINEFONT1 + BASELINEFONTMIN);
+            (short)(idm - IDM_BASELINEFONT1 + BASELINEFONTMIN);
 
 #ifdef UNIX
         g_SelectedFontSize = _sBaselineFont; // save the selected font size for new CDoc.
@@ -2190,7 +2049,7 @@ Cleanup_ViewSource:
         ForceRelayout();
 
         {   // update font history version number
-            THREADSTATE * pts = GetThreadState();
+            THREADSTATE* pts = GetThreadState();
             pts->_iFontHistoryVersion++;
         }
 
@@ -2198,7 +2057,7 @@ Cleanup_ViewSource:
         {
             COnCommandExecParams cmdExecParams;
             cmdExecParams.pguidCmdGroup = pguidCmdGroup;
-            cmdExecParams.nCmdID        = nCmdID;
+            cmdExecParams.nCmdID = nCmdID;
             CNotification   nf;
 
             nf.Command(PrimaryRoot(), &cmdExecParams);
@@ -2211,15 +2070,15 @@ Cleanup_ViewSource:
         // tell shell to apply this exec to applicable explorer bars
 
         IGNORE_HR(CTExec(
-                pDocTarget->_pInPlace ?
-                    (IUnknown *)pDocTarget->_pInPlace->_pInPlaceSite : (IUnknown *)pDocTarget->_pClientSite,
-                &CGID_ExplorerBarDoc, nCmdID, 0, 0, 0));
+            pDocTarget->_pInPlace ?
+            (IUnknown*)pDocTarget->_pInPlace->_pInPlaceSite : (IUnknown*)pDocTarget->_pClientSite,
+            &CGID_ExplorerBarDoc, nCmdID, 0, 0, 0));
 #endif
 
-        hr             = S_OK;
+        hr = S_OK;
         break;
 
-    // Complex Text for setting default document reading order
+        // Complex Text for setting default document reading order
     case IDM_DIRLTR:
         hr = SetDocDirection(htmlDirLeftToRight);
         break;
@@ -2229,29 +2088,23 @@ Cleanup_ViewSource:
         break;
 
     case IDM_SHDV_MIMECSETMENUOPEN:
-        if (pvarargIn)
-        {
+        if (pvarargIn) {
             int nIdm;
             CODEPAGE cp = GetCodePage();
             BOOL fDocRTL;
             Assert(pvarargIn->vt == VT_I4);
 
             hr = THR(GetDocDirection(&fDocRTL));
-            if (hr == S_OK)
-            {
+            if (hr == S_OK) {
                 hr = THR(ShowMimeCSetMenu(_pOptionSettings, &nIdm, cp,
-                                           pvarargIn->lVal,
-                                           fDocRTL, IsCpAutoDetect()));
+                                          pvarargIn->lVal,
+                                          fDocRTL, IsCpAutoDetect()));
 
-                if (hr == S_OK)
-                {
-                    if (nIdm >= IDM_MIMECSET__FIRST__ && nIdm <= IDM_MIMECSET__LAST__)
-                    {
+                if (hr == S_OK) {
+                    if (nIdm >= IDM_MIMECSET__FIRST__ && nIdm <= IDM_MIMECSET__LAST__) {
                         idm = nIdm;     // handled below
-                    }
-                    else if (nIdm == IDM_DIRLTR || nIdm == IDM_DIRRTL)
-                    {
-                        Exec((GUID *)&CGID_MSHTML, nIdm, 0, NULL, NULL);
+                    } else if (nIdm == IDM_DIRLTR || nIdm == IDM_DIRRTL) {
+                        Exec((GUID*)&CGID_MSHTML, nIdm, 0, NULL, NULL);
                     }
 
                 }
@@ -2260,177 +2113,147 @@ Cleanup_ViewSource:
         break;
 
     case IDM_SHDV_FONTMENUOPEN:
-        if (pvarargIn)
-        {
+        if (pvarargIn) {
             int nIdm;
             Assert(pvarargIn->vt == VT_I4);
 
             hr = THR(ShowFontSizeMenu(&nIdm, _sBaselineFont,
-                                       pvarargIn->lVal));
+                                      pvarargIn->lVal));
 
-            if (hr == S_OK)
-            {
-                if ( (nIdm >= IDM_BASELINEFONT1 && nIdm <= IDM_BASELINEFONT5) )
-                {
-                    Exec((GUID *)&CGID_MSHTML, nIdm, 0, NULL, NULL);
+            if (hr == S_OK) {
+                if ((nIdm >= IDM_BASELINEFONT1 && nIdm <= IDM_BASELINEFONT5)) {
+                    Exec((GUID*)&CGID_MSHTML, nIdm, 0, NULL, NULL);
                 }
             }
         }
         break;
 
     case IDM_SHDV_GETMIMECSETMENU:
-        if (pvarargOut)
-        {
+        if (pvarargOut) {
             BOOL fDocRTL;
 
             V_VT(pvarargOut) = VT_I4;
             hr = THR(GetDocDirection(&fDocRTL));
-            if (hr == S_OK)
-            {
+            if (hr == S_OK) {
                 V_I4(pvarargOut) = HandleToLong(GetEncodingMenu(_pOptionSettings, GetCodePage(), fDocRTL, IsCpAutoDetect()));
 
-                hr = V_I4(pvarargOut)? S_OK: S_FALSE;
+                hr = V_I4(pvarargOut) ? S_OK : S_FALSE;
             }
-        }
-        else
-        {
+        } else {
             hr = E_INVALIDARG;
         }
         break;
 
     case IDM_SHDV_GETFONTMENU:
-        if (pvarargOut)
-        {
+        if (pvarargOut) {
             V_VT(pvarargOut) = VT_I4;
             V_I4(pvarargOut) = HandleToLong(GetFontSizeMenu(_sBaselineFont));
 
-            hr = V_I4(pvarargOut)? S_OK: S_FALSE;
-        }
-        else
-        {
+            hr = V_I4(pvarargOut) ? S_OK : S_FALSE;
+        } else {
             hr = E_INVALIDARG;
         }
         break;
 
     case IDM_SHDV_GETDOCDIRMENU:
-        if (pvarargOut)
-        {
+        if (pvarargOut) {
             BOOL fDocRTL;
 
             hr = THR(GetDocDirection(&fDocRTL));
 
             V_VT(pvarargOut) = VT_I4;
             V_I4(pvarargOut) = HandleToLong(GetOrAppendDocDirMenu(GetCodePage(), fDocRTL));
-            hr = V_I4(pvarargOut)? S_OK: OLECMDERR_E_DISABLED;
-        }
-        else
-        {
+            hr = V_I4(pvarargOut) ? S_OK : OLECMDERR_E_DISABLED;
+        } else {
             hr = E_INVALIDARG;
         }
-         break;
+        break;
 
     case IDM_SHDV_DOCCHARSET:
     case IDM_SHDV_DOCFAMILYCHARSET:
         // Return the family or actual charset for the doc
-        if (pvarargOut)
-        {
+        if (pvarargOut) {
             UINT uiCodePage = idm == IDM_SHDV_DOCFAMILYCHARSET ?
-                              WindowsCodePageFromCodePage(GetCodePage()) :
-                              GetCodePage();
+                WindowsCodePageFromCodePage(GetCodePage()) :
+                GetCodePage();
 
             V_VT(pvarargOut) = VT_I4;
             V_I4(pvarargOut) = uiCodePage;
 
             hr = S_OK;
-        }
-        else
-        {
+        } else {
             hr = S_FALSE;
         }
         break;
 
     case IDM_SHDV_GETFRAMEZONE:
-        if (!pvarargOut)
-        {
+        if (!pvarargOut) {
             hr = E_POINTER;
-        }
-        else
-        {
+        } else {
 
             // First get our own zone.  Then do broadcast to get zones
             // from child frames.
 
 
             hr = THR(GetFrameZone(pvarargOut));
-            if (OK(hr) && _fHasOleSite)
-            {
-                CElement * pPrimaryClient = GetPrimaryElementClient();
-                if(pPrimaryClient)
-                {
+            if (OK(hr) && _fHasOleSite) {
+                CElement* pPrimaryClient = GetPrimaryElementClient();
+                if (pPrimaryClient) {
                     CNotification   nf;
 
-                    nf.GetFrameZone(pPrimaryClient, (void *)pvarargOut);
+                    nf.GetFrameZone(pPrimaryClient, (void*)pvarargOut);
                     BroadcastNotify(&nf);
                 }
             }
 
-            if (hr)
-            {
+            if (hr) {
                 V_VT(pvarargOut) = VT_EMPTY;
             }
         }
         break;
         // Support for Context Menu Extensions
     case IDM_SHDV_ADDMENUEXTENSIONS:
-        {
-            if (   !pvarargIn  || (pvarargIn->vt  != VT_I4)
-                || !pvarargOut || (pvarargOut->vt != VT_I4)
-                )
-            {
-                Assert(pvarargIn);
-                hr = E_INVALIDARG;
-            }
-            else
-            {
-                HMENU hmenu = (HMENU)LongToHandle(V_I4(pvarargIn));
-                int   id    = V_I4(pvarargOut);
-                hr = THR(InsertMenuExt(hmenu, id));
-            }
+    {
+        if (!pvarargIn || (pvarargIn->vt != VT_I4)
+            || !pvarargOut || (pvarargOut->vt != VT_I4)
+            ) {
+            Assert(pvarargIn);
+            hr = E_INVALIDARG;
+        } else {
+            HMENU hmenu = (HMENU)LongToHandle(V_I4(pvarargIn));
+            int   id = V_I4(pvarargOut);
+            hr = THR(InsertMenuExt(hmenu, id));
         }
-        break;
+    }
+    break;
     case IDM_RUNURLSCRIPT:
         // This enables us to run scripts inside urls on the
         // current document.  The Variant In parameter is an URL
-        if (pvarargIn->vt == VT_BSTR)
-        {
+        if (pvarargIn->vt == VT_BSTR) {
             // get dispatch for the main window
 
             hr = THR(EnsureOmWindow());
-            if (SUCCEEDED (hr))
-            {
-                IDispatch      * pDispWindow=NULL;
+            if (SUCCEEDED(hr)) {
+                IDispatch* pDispWindow = NULL;
                 pDispWindow = (IHTMLWindow2*)(_pOmWindow->Window());
 
                 // bring up the dialog
 
                 hr = THR(ShowModalDialogHelper(
-                        this,
-                        pvarargIn->bstrVal,
-                        pDispWindow,
-                        NULL,
-                        NULL,
-                        HTMLDLG_NOUI | HTMLDLG_AUTOEXIT));
+                    this,
+                    pvarargIn->bstrVal,
+                    pDispWindow,
+                    NULL,
+                    NULL,
+                    HTMLDLG_NOUI | HTMLDLG_AUTOEXIT));
             }
         }
         break;
     case IDM_HTMLEDITMODE:
-        if (!pvarargIn || (pvarargIn->vt != VT_BOOL))
-        {
+        if (!pvarargIn || (pvarargIn->vt != VT_BOOL)) {
             Assert(pvarargIn);
             hr = E_INVALIDARG;
-        }
-        else
-        {
+        } else {
             GUID guidCmdGroup = CGID_MSHTML;
             _fInHTMLEditMode = !!V_BOOL(pvarargIn);
 
@@ -2444,19 +2267,16 @@ Cleanup_ViewSource:
         break;
 
     case IDM_DEFAULTBLOCK:
-        if (pvarargIn)
-        {
+        if (pvarargIn) {
             hr = THR(SetupDefaultBlockTag(pvarargIn));
-            if (S_OK == hr)
-            {
+            if (S_OK == hr) {
                 CNotification   nf;
 
                 nf.EditModeChange(GetPrimaryElementTop());
                 BroadcastNotify(&nf);
             }
         }
-        if (pvarargOut)
-        {
+        if (pvarargOut) {
             V_VT(pvarargOut) = VT_BSTR;
             if (GetDefaultBlockTag() == ETAG_DIV)
                 V_BSTR(pvarargOut) = SysAllocString(_T("DIV"));
@@ -2468,34 +2288,30 @@ Cleanup_ViewSource:
         break;
 
     case OLECMDID_ONUNLOAD:
-        {
-            BOOL fRetval = _pOmWindow ? _pOmWindow->Fire_onbeforeunload() : TRUE;
-            hr = S_OK;
-            if (pvarargOut)
-            {
-               V_VT  (pvarargOut) = VT_BOOL;
-               V_BOOL(pvarargOut) = VARIANT_BOOL_FROM_BOOL(fRetval);
-            }
+    {
+        BOOL fRetval = _pOmWindow ? _pOmWindow->Fire_onbeforeunload() : TRUE;
+        hr = S_OK;
+        if (pvarargOut) {
+            V_VT(pvarargOut) = VT_BOOL;
+            V_BOOL(pvarargOut) = VARIANT_BOOL_FROM_BOOL(fRetval);
         }
-        break;
+    }
+    break;
 
     case OLECMDID_DONTDOWNLOADCSS:
-        {
-            CDoc *pDoc = GetRootDoc();
+    {
+        CDoc* pDoc = GetRootDoc();
 
-            if (pDoc->DesignMode())
-                pDoc->_fDontDownloadCSS = TRUE;
-            hr = S_OK;
-        }
-        break;
+        if (pDoc->DesignMode())
+            pDoc->_fDontDownloadCSS = TRUE;
+        hr = S_OK;
+    }
+    break;
 
     case IDM_GETBYTESDOWNLOADED:
-        if (!pvarargOut)
-        {
+        if (!pvarargOut) {
             hr = E_POINTER;
-        }
-        else
-        {
+        } else {
             V_VT(pvarargOut) = VT_I4;
             V_I4(pvarargOut) = _pDwnDoc ? _pDwnDoc->GetBytesRead() : 0;
         }
@@ -2508,66 +2324,58 @@ Cleanup_ViewSource:
 
     case IDM_SHOWZEROBORDERATDESIGNTIME:
     case IDM_NOFIXUPURLSONPASTE:
-        {
-            CElement *pElement = GetPrimaryElementClient();
-            BOOL fSet;
+    {
+        CElement* pElement = GetPrimaryElementClient();
+        BOOL fSet;
 
-            if (!pvarargIn || pvarargIn->vt != VT_BOOL)
-            {
+        if (!pvarargIn || pvarargIn->vt != VT_BOOL) {
 
-                // If they give us junk, just toggle the flag.
+            // If they give us junk, just toggle the flag.
 
-                fSet = ! _fShowZeroBorderAtDesignTime;
-            }
-            else
-            {
-                fSet = ENSURE_BOOL(pvarargIn->bVal);
-            }
-
-            if (idm == IDM_SHOWZEROBORDERATDESIGNTIME)
-            {
-                _fShowZeroBorderAtDesignTime = fSet;
-                if (fSet)
-                {
-                    _view.SetFlag(CView::VF_ZEROBORDER);
-                }
-                else
-                {
-                    _view.ClearFlag(CView::VF_ZEROBORDER);
-                }
-
-                CNotification nf;
-                nf.ZeroGrayChange(GetPrimaryElementTop());
-                BroadcastNotify( & nf );
-
-                Invalidate();
-                hr = S_OK;
-            }
-            if( idm == IDM_NOFIXUPURLSONPASTE )
-            {
-                hr = S_OK;
-                _fNoFixupURLsOnPaste = fSet;
-            }
-                _pOptionSettings->dwMiscFlags = _dwMiscFlags();
-
-
-            // BUGBUG marka - is this supposed to be doing an invalidate ?
-
-            if (pElement)
-                pElement->ResizeElement(NFLAGS_FORCE);
-
-            // Send this command to our children
-            {
-                COnCommandExecParams cmdExecParams;
-                cmdExecParams.pguidCmdGroup = pguidCmdGroup;
-                cmdExecParams.nCmdID        = nCmdID;
-                CNotification   nf;
-
-                nf.Command(PrimaryRoot(), &cmdExecParams);
-                BroadcastNotify(&nf);
-            }
-            break;
+            fSet = !_fShowZeroBorderAtDesignTime;
+        } else {
+            fSet = ENSURE_BOOL(pvarargIn->bVal);
         }
+
+        if (idm == IDM_SHOWZEROBORDERATDESIGNTIME) {
+            _fShowZeroBorderAtDesignTime = fSet;
+            if (fSet) {
+                _view.SetFlag(CView::VF_ZEROBORDER);
+            } else {
+                _view.ClearFlag(CView::VF_ZEROBORDER);
+            }
+
+            CNotification nf;
+            nf.ZeroGrayChange(GetPrimaryElementTop());
+            BroadcastNotify(&nf);
+
+            Invalidate();
+            hr = S_OK;
+        }
+        if (idm == IDM_NOFIXUPURLSONPASTE) {
+            hr = S_OK;
+            _fNoFixupURLsOnPaste = fSet;
+        }
+        _pOptionSettings->dwMiscFlags = _dwMiscFlags();
+
+
+        // BUGBUG marka - is this supposed to be doing an invalidate ?
+
+        if (pElement)
+            pElement->ResizeElement(NFLAGS_FORCE);
+
+        // Send this command to our children
+        {
+            COnCommandExecParams cmdExecParams;
+            cmdExecParams.pguidCmdGroup = pguidCmdGroup;
+            cmdExecParams.nCmdID = nCmdID;
+            CNotification   nf;
+
+            nf.Command(PrimaryRoot(), &cmdExecParams);
+            BroadcastNotify(&nf);
+        }
+        break;
+    }
 
     case IDM_SHOWALLTAGS:
     case IDM_SHOWALIGNEDSITETAGS:
@@ -2578,127 +2386,121 @@ Cleanup_ViewSource:
     case IDM_SHOWUNKNOWNTAGS:
     case IDM_SHOWMISCTAGS:
     case IDM_SHOWWBRTAGS:
-       {
+    {
 
-            //  TODO: cleanup these flags [ashrafm]
+        //  TODO: cleanup these flags [ashrafm]
 
-            CVariant var;
-            BOOL fSet = FALSE;
+        CVariant var;
+        BOOL fSet = FALSE;
 
-            if (pvarargIn)
-            {
-                if(pvarargIn->vt != VT_BOOL)
-                    break;
-                fSet = ENSURE_BOOL(V_BOOL(pvarargIn));
-            }
-            else
-            {
-                switch(idm)
-                {
-                    case IDM_SHOWALIGNEDSITETAGS:
-                        fSet = !_fShowAlignedSiteTags; break;
-                    case IDM_SHOWSCRIPTTAGS:
-                        fSet = !_fShowScriptTags; break;
-                    case IDM_SHOWSTYLETAGS:
-                        fSet = !_fShowStyleTags; break;
-                    case IDM_SHOWCOMMENTTAGS:
-                        fSet = !_fShowCommentTags; break;
-                    case IDM_SHOWAREATAGS:
-                        fSet = !_fShowAreaTags; break;
-                    case IDM_SHOWMISCTAGS:
-                        fSet = !_fShowMiscTags; break;
-                    case IDM_SHOWUNKNOWNTAGS:
-                        fSet = !_fShowUnknownTags; break;
-                    case IDM_SHOWWBRTAGS:
-                        fSet = !_fShowWbrTags; break;
-                    case IDM_SHOWALLTAGS:
-                        fSet = !(_fShowWbrTags && _fShowUnknownTags && _fShowMiscTags &&
-                                    _fShowAreaTags && _fShowCommentTags && _fShowStyleTags &&
-                                    _fShowScriptTags && _fShowAlignedSiteTags);
-                        break;
-                    default:Assert(0);
-                }
-                V_VT(&var) = VT_BOOL;
-                V_BOOL(&var) = VARIANT_BOOL_FROM_BOOL(fSet);
-
-                pvarargIn = &var;
-            }
-
-
-            // HACKHACK: EnsureGlyphTableExistsAndExecute should be able to delete from the table
-
-            if (!fSet && (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWMISCTAGS))
-            {
-                // Empty the glyph table
-                idm = IDM_EMPTYGLYPHTABLE;
-            }
-
-            hr = EnsureGlyphTableExistsAndExecute(
-                    pguidCmdGroup, idm, nCmdexecopt,pvarargIn, pvarargOut);
-            if (hr)
+        if (pvarargIn) {
+            if (pvarargIn->vt != VT_BOOL)
                 break;
+            fSet = ENSURE_BOOL(V_BOOL(pvarargIn));
+        } else {
+            switch (idm) {
+            case IDM_SHOWALIGNEDSITETAGS:
+                fSet = !_fShowAlignedSiteTags; break;
+            case IDM_SHOWSCRIPTTAGS:
+                fSet = !_fShowScriptTags; break;
+            case IDM_SHOWSTYLETAGS:
+                fSet = !_fShowStyleTags; break;
+            case IDM_SHOWCOMMENTTAGS:
+                fSet = !_fShowCommentTags; break;
+            case IDM_SHOWAREATAGS:
+                fSet = !_fShowAreaTags; break;
+            case IDM_SHOWMISCTAGS:
+                fSet = !_fShowMiscTags; break;
+            case IDM_SHOWUNKNOWNTAGS:
+                fSet = !_fShowUnknownTags; break;
+            case IDM_SHOWWBRTAGS:
+                fSet = !_fShowWbrTags; break;
+            case IDM_SHOWALLTAGS:
+                fSet = !(_fShowWbrTags && _fShowUnknownTags && _fShowMiscTags &&
+                         _fShowAreaTags && _fShowCommentTags && _fShowStyleTags &&
+                         _fShowScriptTags && _fShowAlignedSiteTags);
+                break;
+            default:Assert(0);
+            }
+            V_VT(&var) = VT_BOOL;
+            V_BOOL(&var) = VARIANT_BOOL_FROM_BOOL(fSet);
 
-            if(idm == IDM_SHOWALLTAGS || idm == IDM_SHOWALIGNEDSITETAGS)
-                _fShowAlignedSiteTags = fSet;
-            if(idm == IDM_SHOWALLTAGS || idm == IDM_SHOWSCRIPTTAGS)
-                _fShowScriptTags = fSet;
-            if(idm == IDM_SHOWALLTAGS || idm == IDM_SHOWSTYLETAGS)
-                _fShowStyleTags =  fSet;
-            if(idm == IDM_SHOWALLTAGS || idm == IDM_SHOWCOMMENTTAGS)
-                _fShowCommentTags = fSet;
-            if(idm == IDM_SHOWALLTAGS || idm == IDM_SHOWAREATAGS)
-                _fShowAreaTags = fSet;
-            if(idm == IDM_SHOWALLTAGS || idm == IDM_SHOWMISCTAGS)
-                _fShowMiscTags = fSet;
-            if(idm == IDM_SHOWALLTAGS || idm == IDM_SHOWUNKNOWNTAGS)
-                _fShowUnknownTags = fSet;
-            if(idm == IDM_SHOWALLTAGS || idm == IDM_SHOWWBRTAGS)
-                _fShowWbrTags = fSet;
-            break;
+            pvarargIn = &var;
         }
+
+
+        // HACKHACK: EnsureGlyphTableExistsAndExecute should be able to delete from the table
+
+        if (!fSet && (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWMISCTAGS)) {
+            // Empty the glyph table
+            idm = IDM_EMPTYGLYPHTABLE;
+        }
+
+        hr = EnsureGlyphTableExistsAndExecute(
+            pguidCmdGroup, idm, nCmdexecopt, pvarargIn, pvarargOut);
+        if (hr)
+            break;
+
+        if (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWALIGNEDSITETAGS)
+            _fShowAlignedSiteTags = fSet;
+        if (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWSCRIPTTAGS)
+            _fShowScriptTags = fSet;
+        if (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWSTYLETAGS)
+            _fShowStyleTags = fSet;
+        if (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWCOMMENTTAGS)
+            _fShowCommentTags = fSet;
+        if (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWAREATAGS)
+            _fShowAreaTags = fSet;
+        if (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWMISCTAGS)
+            _fShowMiscTags = fSet;
+        if (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWUNKNOWNTAGS)
+            _fShowUnknownTags = fSet;
+        if (idm == IDM_SHOWALLTAGS || idm == IDM_SHOWWBRTAGS)
+            _fShowWbrTags = fSet;
+        break;
+    }
 
     case IDM_ADDTOGLYPHTABLE:
     case IDM_REMOVEFROMGLYPHTABLE:
     case IDM_REPLACEGLYPHCONTENTS:
-        {
-            if (!pvarargIn->bstrVal)
-                break;
+    {
+        if (!pvarargIn->bstrVal)
+            break;
 
-            hr = EnsureGlyphTableExistsAndExecute(
-                    pguidCmdGroup, idm, nCmdexecopt,pvarargIn, pvarargOut);
-            break;
-        }
+        hr = EnsureGlyphTableExistsAndExecute(
+            pguidCmdGroup, idm, nCmdexecopt, pvarargIn, pvarargOut);
+        break;
+    }
     case IDM_EMPTYGLYPHTABLE:
-        {
-            hr = EnsureGlyphTableExistsAndExecute(
-                    pguidCmdGroup, idm, nCmdexecopt,pvarargIn, pvarargOut);
-            break;
-        }
+    {
+        hr = EnsureGlyphTableExistsAndExecute(
+            pguidCmdGroup, idm, nCmdexecopt, pvarargIn, pvarargOut);
+        break;
+    }
     case IDM_NOACTIVATENORMALOLECONTROLS:
     case IDM_NOACTIVATEDESIGNTIMECONTROLS:
     case IDM_NOACTIVATEJAVAAPPLETS:
-        {
-            if (!pvarargIn || pvarargIn->vt != VT_BOOL)
-                break;
-
-            BOOL fSet = ENSURE_BOOL(pvarargIn->bVal);
-
-            if (idm == IDM_NOACTIVATENORMALOLECONTROLS)
-                _fNoActivateNormalOleControls = fSet;
-            else if (idm == IDM_NOACTIVATEDESIGNTIMECONTROLS)
-                _fNoActivateDesignTimeControls = fSet;
-            else
-                _fNoActivateJavaApplets = fSet;
-
-            _pOptionSettings->dwMiscFlags = _dwMiscFlags();
-
-            hr = S_OK;
+    {
+        if (!pvarargIn || pvarargIn->vt != VT_BOOL)
             break;
-        }
+
+        BOOL fSet = ENSURE_BOOL(pvarargIn->bVal);
+
+        if (idm == IDM_NOACTIVATENORMALOLECONTROLS)
+            _fNoActivateNormalOleControls = fSet;
+        else if (idm == IDM_NOACTIVATEDESIGNTIMECONTROLS)
+            _fNoActivateDesignTimeControls = fSet;
+        else
+            _fNoActivateJavaApplets = fSet;
+
+        _pOptionSettings->dwMiscFlags = _dwMiscFlags();
+
+        hr = S_OK;
+        break;
+    }
 
     case IDM_SETDIRTY:
-        if (!pvarargIn || pvarargIn->vt != VT_BOOL)
-        {
+        if (!pvarargIn || pvarargIn->vt != VT_BOOL) {
             hr = E_INVALIDARG;
             break;
         }
@@ -2707,14 +2509,11 @@ Cleanup_ViewSource:
         break;
 
     case IDM_PRESERVEUNDOALWAYS:
-        if (pvarargIn && pvarargIn->vt == VT_BOOL)
-        {
-            TLS( fAllowParentLessPropChanges ) = pvarargIn->boolVal;
+        if (pvarargIn && pvarargIn->vt == VT_BOOL) {
+            TLS(fAllowParentLessPropChanges) = pvarargIn->boolVal;
 
             hr = S_OK;
-        }
-        else
-        {
+        } else {
             hr = E_INVALIDARG;
         }
         break;
@@ -2743,19 +2542,15 @@ Cleanup_ViewSource:
     }
 
     case IDM_DWNH_SETDOWNLOAD:
-        if (pvarargIn && pvarargIn->vt == VT_UNKNOWN)
-        {
+        if (pvarargIn && pvarargIn->vt == VT_UNKNOWN) {
             hr = THR(SetDownloadNotify(pvarargIn->punkVal));
-        }
-        else
-        {
+        } else {
             hr = E_INVALIDARG;
         }
         break;
 
     case IDM_SAVEPICTURE:
-        if (!_pMenuObject)
-        {
+        if (!_pMenuObject) {
 
             // only do work here if there is no menu object, and there an
             // image on this document.  This is here to handle saveAs on a
@@ -2764,24 +2559,22 @@ Cleanup_ViewSource:
             // save the first image in the images collection instead.  If there
             // isn't one, then we fail,
 
-            CElement          * pImg = NULL;
-            CCollectionCache  * pCollectionCache = NULL;
+            CElement* pImg = NULL;
+            CCollectionCache* pCollectionCache = NULL;
 
             hr = THR(PrimaryMarkup()->EnsureCollectionCache(CMarkup::IMAGES_COLLECTION));
-            if (!hr)
-            {
+            if (!hr) {
                 pCollectionCache = PrimaryMarkup()->CollectionCache();
 
                 hr = THR(pCollectionCache->GetIntoAry(CMarkup::IMAGES_COLLECTION, 0, &pImg));
-                if (!hr)
-                {
+                if (!hr) {
                     Assert(pImg);
 
                     hr = THR_NOTRACE(pImg->Exec(pguidCmdGroup,
-                                        nCmdID,
-                                        nCmdexecopt,
-                                        pvarargIn,
-                                        pvarargOut));
+                                                nCmdID,
+                                                nCmdexecopt,
+                                                pvarargIn,
+                                                pvarargOut));
                 }
             }
 
@@ -2790,32 +2583,28 @@ Cleanup_ViewSource:
         }
         break;
     case IDM_SAVEPRETRANSFORMSOURCE:
-        if (!pvarargIn || (pvarargIn->vt != VT_BSTR) || !V_BSTR(pvarargIn) )
+        if (!pvarargIn || (pvarargIn->vt != VT_BSTR) || !V_BSTR(pvarargIn))
             hr = E_INVALIDARG;
-        else
-        {
+        else {
             hr = SavePretransformedSource(V_BSTR(pvarargIn));
         }
         break;
     }
 
-    if(FAILED(hr) && hr != OLECMDERR_E_NOTSUPPORTED)
+    if (FAILED(hr) && hr != OLECMDERR_E_NOTSUPPORTED)
         goto Cleanup;
 
 #ifndef NO_MULTILANG
-    if( idm >= IDM_MIMECSET__FIRST__ && idm <= IDM_MIMECSET__LAST__)
-    {
+    if (idm >= IDM_MIMECSET__FIRST__ && idm <= IDM_MIMECSET__LAST__) {
         CODEPAGE cp = GetCodePageFromMenuID(idm);
-        THREADSTATE * pts = GetThreadState();
+        THREADSTATE* pts = GetThreadState();
 
         // assigning IDM_MIMECSET__LAST__ to CpAutoDetect mode
-        if ( cp == CP_UNDEFINED && idm == IDM_MIMECSET__LAST__ )
-        {
+        if (cp == CP_UNDEFINED && idm == IDM_MIMECSET__LAST__) {
             SetCpAutoDetect(!IsCpAutoDetect());
             _fCodepageOverridden = FALSE;
 
-            if (IsCpAutoDetect() && g_pMultiLanguage2)
-            {
+            if (IsCpAutoDetect() && g_pMultiLanguage2) {
                 // we need the same refreshing effect as the regular cp
                 cp = CP_AUTO;
             }
@@ -2827,25 +2616,23 @@ Cleanup_ViewSource:
         // the system will be provided as options) and thus ValidateCodePage
         // is not required.
 
-        if (   CP_UNDEFINED != cp
+        if (CP_UNDEFINED != cp
 #ifndef UNIX
             && S_OK == MlangValidateCodePage(this, cp, _pInPlace->_hwnd, TRUE)
 #endif
-            )
-        {
+            ) {
             CNotification   nf;
 
             nf.Initialize(
                 NTYPE_SET_CODEPAGE,
                 PrimaryRoot(),
                 PrimaryRoot()->GetFirstBranch(),
-                (void *)(UINT_PTR)cp,
+                (void*)(UINT_PTR)cp,
                 0);
 
             // if AutoDetect mode is on, we don't make a change
             // to the default codepage for the document
-            if (!IsCpAutoDetect() && !HaveCodePageMetaTag())
-            {
+            if (!IsCpAutoDetect() && !HaveCodePageMetaTag()) {
                 // [review]
                 // here we save the current setting to the registry
                 // we should find better timing to do it
@@ -2865,8 +2652,7 @@ Cleanup_ViewSource:
     }
 #endif // !NO_MULTLANG
 
-    if (hr == OLECMDERR_E_NOTSUPPORTED)
-    {
+    if (hr == OLECMDERR_E_NOTSUPPORTED) {
         ctarg.pguidCmdGroup = pguidCmdGroup;
         ctarg.fQueryStatus = FALSE;
         ctarg.pexecArg = &execarg;
@@ -2875,24 +2661,21 @@ Cleanup_ViewSource:
         execarg.pvarargIn = pvarargIn;
         execarg.pvarargOut = pvarargOut;
 
-        if (_pMenuObject)
-        {
+        if (_pMenuObject) {
             hr = THR_NOTRACE(RouteCTElement(_pMenuObject, &ctarg));
         }
 
-        if (hr == OLECMDERR_E_NOTSUPPORTED && _pElemCurrent)
-        {
+        if (hr == OLECMDERR_E_NOTSUPPORTED && _pElemCurrent) {
             hr = THR_NOTRACE(RouteCTElement(_pElemCurrent, &ctarg));
         }
     }
 
-    if (hr == OLECMDERR_E_NOTSUPPORTED)
-    {
-        hr = THR_NOTRACE( _EditRouter.ExecEditCommand(pguidCmdGroup,
-                nCmdID, nCmdexecopt,
-                pvarargIn, pvarargOut,
-                (IUnknown *)(IPrivateUnknown *)this,
-                this ) );
+    if (hr == OLECMDERR_E_NOTSUPPORTED) {
+        hr = THR_NOTRACE(_EditRouter.ExecEditCommand(pguidCmdGroup,
+                                                     nCmdID, nCmdexecopt,
+                                                     pvarargIn, pvarargOut,
+                                                     (IUnknown*)(IPrivateUnknown*)this,
+                                                     this));
     }
 
 #ifndef NO_EDIT
@@ -2905,13 +2688,12 @@ Cleanup_ViewSource:
 
     //  These are the legitimate error codes from IOleCommandtarget::Exec
     //  Everything else is forced to S_OK
-    if ( hr != OLECMDERR_E_NOTSUPPORTED &&
-         hr != OLECMDERR_E_DISABLED     &&
-         hr != OLECMDERR_E_UNKNOWNGROUP &&
-         hr != OLECMDERR_E_CANCELED     &&
-         hr != OLECMDERR_E_NOHELP           )
-    {
-        if(!ShowLastErrorInfo(hr))
+    if (hr != OLECMDERR_E_NOTSUPPORTED &&
+        hr != OLECMDERR_E_DISABLED &&
+        hr != OLECMDERR_E_UNKNOWNGROUP &&
+        hr != OLECMDERR_E_CANCELED &&
+        hr != OLECMDERR_E_NOHELP) {
+        if (!ShowLastErrorInfo(hr))
             hr = S_OK;
     }
 Cleanup:
@@ -2928,13 +2710,13 @@ Cleanup:
 
 
 HRESULT
-CDoc::OnContextMenuExt(UINT idm, VARIANTARG * pvarargIn)
+CDoc::OnContextMenuExt(UINT idm, VARIANTARG* pvarargIn)
 {
     HRESULT          hr = E_FAIL;
-    IDispatch      * pDispWindow=NULL;
+    IDispatch* pDispWindow = NULL;
     CParentUndoUnit* pCPUU = NULL;
     unsigned int     nExts;
-    CONTEXTMENUEXT * pCME;
+    CONTEXTMENUEXT* pCME;
 
     Assert(idm >= IDM_MENUEXT_FIRST__ && idm <= IDM_MENUEXT_LAST__);
 
@@ -2943,7 +2725,7 @@ CDoc::OnContextMenuExt(UINT idm, VARIANTARG * pvarargIn)
     nExts = _pOptionSettings->aryContextMenuExts.Size();
     Assert((idm - IDM_MENUEXT_FIRST__) < nExts);
     pCME = _pOptionSettings->
-                aryContextMenuExts[idm - IDM_MENUEXT_FIRST__];
+        aryContextMenuExts[idm - IDM_MENUEXT_FIRST__];
     Assert(pCME);
 
     // Undo stuff
@@ -2961,16 +2743,15 @@ CDoc::OnContextMenuExt(UINT idm, VARIANTARG * pvarargIn)
     // bring up the dialog
 
     hr = THR(ShowModalDialogHelper(
-            this,
-            pCME->cstrActionUrl,
-            pDispWindow,
-            NULL,
-            NULL,
-            (pCME->dwFlags & MENUEXT_SHOWDIALOG)
-                            ? 0 : (HTMLDLG_NOUI | HTMLDLG_AUTOEXIT)));
+        this,
+        pCME->cstrActionUrl,
+        pDispWindow,
+        NULL,
+        NULL,
+        (pCME->dwFlags & MENUEXT_SHOWDIALOG)
+        ? 0 : (HTMLDLG_NOUI | HTMLDLG_AUTOEXIT)));
 
-    if (pCPUU)
-    {
+    if (pCPUU) {
         IGNORE_HR(CloseParentUnit(pCPUU, hr));
     }
 
@@ -2984,25 +2765,22 @@ CDoc::WaitForRecalc()
 {
     PerfDbgLog(tagPerfWatch, this, "+CDoc::WaitForRecalc");
 
-    CElement *  pElement = GetPrimaryElementClient();
+    CElement* pElement = GetPrimaryElementClient();
 
-    if (_view.HasLayoutTask())
-    {
+    if (_view.HasLayoutTask()) {
         PerfDbgLog(tagPerfWatch, this, "CDoc::WaitForRecalc (EnsureView)");
         _view.EnsureView(LAYOUT_DEFERPAINT);
     }
 
-    if (pElement)
-    {
+    if (pElement) {
         PerfDbgLog(tagPerfWatch, this, "CDoc::WaitForRecalc (Body/Frame WaitForRecalc)");
         if (pElement->Tag() == ETAG_BODY)
-            ((CBodyElement *)pElement)->WaitForRecalc();
+            ((CBodyElement*)pElement)->WaitForRecalc();
         else if (pElement->Tag() == ETAG_FRAMESET)
-            ((CFrameSetSite *)pElement)->WaitForRecalc();
+            ((CFrameSetSite*)pElement)->WaitForRecalc();
     }
 
-    if (_view.HasLayoutTask())
-    {
+    if (_view.HasLayoutTask()) {
         PerfDbgLog(tagPerfWatch, this, "CDoc::WaitForRecalc (EnsureView)");
         _view.EnsureView(LAYOUT_DEFERPAINT);
     }
@@ -3019,37 +2797,34 @@ CDoc::WaitForRecalc()
 
 
 HRESULT
-CDoc::AddToFavorites(TCHAR * pszURL, TCHAR * pszTitle)
+CDoc::AddToFavorites(TCHAR* pszURL, TCHAR* pszTitle)
 {
 #if defined(WIN16) || defined(WINCE)
     return S_FALSE;
 #else
     VARIANTARG varURL;
     VARIANTARG varTitle;
-    IUnknown * pUnk;
+    IUnknown* pUnk;
     HRESULT    hr;
 
-    varURL.vt        = VT_BSTR;
-    varURL.bstrVal   = pszURL;
-    varTitle.vt      = VT_BSTR;
+    varURL.vt = VT_BSTR;
+    varURL.bstrVal = pszURL;
+    varTitle.vt = VT_BSTR;
     varTitle.bstrVal = pszTitle;
 
-    if (_pInPlace && _pInPlace->_pInPlaceSite)
-    {
+    if (_pInPlace && _pInPlace->_pInPlaceSite) {
         pUnk = _pInPlace->_pInPlaceSite;
-    }
-    else
-    {
+    } else {
         pUnk = _pClientSite;
     }
 
     hr = THR(CTExec(
-            pUnk,
-            &CGID_Explorer,
-            SBCMDID_ADDTOFAVORITES,
-            MSOCMDEXECOPT_PROMPTUSER,
-            &varURL,
-            &varTitle));
+        pUnk,
+        &CGID_Explorer,
+        SBCMDID_ADDTOFAVORITES,
+        MSOCMDEXECOPT_PROMPTUSER,
+        &varURL,
+        &varTitle));
 
     RRETURN(hr);
 #endif
@@ -3066,7 +2841,7 @@ CDoc::AddToFavorites(TCHAR * pszURL, TCHAR * pszTitle)
 
 
 HRESULT
-CDoc::queryCommandSupported(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
+CDoc::queryCommandSupported(BSTR bstrCmdId, VARIANT_BOOL* pfRet)
 {
     RRETURN(super::queryCommandSupported(bstrCmdId, pfRet));
 }
@@ -3083,7 +2858,7 @@ CDoc::queryCommandSupported(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
 
 
 HRESULT
-CDoc::queryCommandEnabled(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
+CDoc::queryCommandEnabled(BSTR bstrCmdId, VARIANT_BOOL* pfRet)
 {
     RRETURN(super::queryCommandEnabled(bstrCmdId, pfRet));
 }
@@ -3101,7 +2876,7 @@ CDoc::queryCommandEnabled(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
 
 
 HRESULT
-CDoc::queryCommandState(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
+CDoc::queryCommandState(BSTR bstrCmdId, VARIANT_BOOL* pfRet)
 {
     RRETURN(super::queryCommandState(bstrCmdId, pfRet));
 }
@@ -3119,7 +2894,7 @@ CDoc::queryCommandState(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
 
 
 HRESULT
-CDoc::queryCommandIndeterm(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
+CDoc::queryCommandIndeterm(BSTR bstrCmdId, VARIANT_BOOL* pfRet)
 {
     RRETURN(super::queryCommandIndeterm(bstrCmdId, pfRet));
 }
@@ -3136,7 +2911,7 @@ CDoc::queryCommandIndeterm(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
 
 
 HRESULT
-CDoc::queryCommandText(BSTR bstrCmdId, BSTR *pcmdText)
+CDoc::queryCommandText(BSTR bstrCmdId, BSTR* pcmdText)
 {
     RRETURN(super::queryCommandText(bstrCmdId, pcmdText));
 }
@@ -3152,7 +2927,7 @@ CDoc::queryCommandText(BSTR bstrCmdId, BSTR *pcmdText)
 
 
 HRESULT
-CDoc::queryCommandValue(BSTR bstrCmdId, VARIANT *pvarRet)
+CDoc::queryCommandValue(BSTR bstrCmdId, VARIANT* pvarRet)
 {
     RRETURN(super::queryCommandValue(bstrCmdId, pvarRet));
 }
@@ -3169,7 +2944,7 @@ CDoc::queryCommandValue(BSTR bstrCmdId, VARIANT *pvarRet)
 
 
 HRESULT
-CDoc::execCommand(BSTR bstrCmdId, VARIANT_BOOL showUI, VARIANT value, VARIANT_BOOL *pfRet)
+CDoc::execCommand(BSTR bstrCmdId, VARIANT_BOOL showUI, VARIANT value, VARIANT_BOOL* pfRet)
 {
     HRESULT hr;
     CDoc::CLock Lock(this, FORMLOCK_QSEXECCMD);
@@ -3179,17 +2954,16 @@ CDoc::execCommand(BSTR bstrCmdId, VARIANT_BOOL showUI, VARIANT value, VARIANT_BO
     if (hr || !fAllow)
         goto Cleanup;           // Fail silently
 
-    hr = THR( super::execCommand( bstrCmdId, showUI, value ) );
+    hr = THR(super::execCommand(bstrCmdId, showUI, value));
 
-    if (pfRet)
-    {
+    if (pfRet) {
         // We return false when any error occures
         *pfRet = hr ? VB_FALSE : VB_TRUE;
         hr = S_OK;
     }
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ) );
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -3203,14 +2977,13 @@ Cleanup:
 
 
 HRESULT
-CDoc::execCommandShowHelp(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
+CDoc::execCommandShowHelp(BSTR bstrCmdId, VARIANT_BOOL* pfRet)
 {
     HRESULT hr;
 
     hr = THR(super::execCommandShowHelp(bstrCmdId));
 
-    if(pfRet != NULL)
-    {
+    if (pfRet != NULL) {
         // We return false when any error occures
         *pfRet = hr ? VB_FALSE : VB_TRUE;
         hr = S_OK;
@@ -3235,18 +3008,17 @@ CDoc::execCommandShowHelp(BSTR bstrCmdId, VARIANT_BOOL *pfRet)
 
 
 HRESULT
-CDoc::elementFromPoint(long x, long y, IHTMLElement **ppElement)
+CDoc::elementFromPoint(long x, long y, IHTMLElement** ppElement)
 {
     HRESULT    hr = S_OK;
-    POINT      pt = { x, y };
-    CTreeNode *pNode;
+    POINT      pt = {x, y};
+    CTreeNode* pNode;
     HTC        htc;
     CMessage   msg;
 
     msg.pt = pt;
 
-    if (!ppElement)
-    {
+    if (!ppElement) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
@@ -3254,41 +3026,36 @@ CDoc::elementFromPoint(long x, long y, IHTMLElement **ppElement)
 
     htc = HitTestPoint(&msg, &pNode, HT_VIRTUALHITTEST);
 
-    if (htc != HTC_NO)
-    {
-        Assert( pNode->Tag() != ETAG_ROOT );
+    if (htc != HTC_NO) {
+        Assert(pNode->Tag() != ETAG_ROOT);
 
-        if (pNode->Tag() == ETAG_TXTSLAVE)
-        {
+        if (pNode->Tag() == ETAG_TXTSLAVE) {
             Assert(pNode->Element()->MarkupMaster());
             pNode = pNode->Element()->MarkupMaster()->GetFirstBranch();
             Assert(pNode);
         }
 
-        if (pNode->Tag() == ETAG_IMG)
-        {
+        if (pNode->Tag() == ETAG_IMG) {
             // did we hit an area?
             pNode->Element()->SubDivisionFromPt(msg.ptContent, &msg.lSubDivision);
-            if (msg.lSubDivision >=0)
-            {
+            if (msg.lSubDivision >= 0) {
                 // hit was on an area in an img, return the area.
-                CAreaElement * pArea = NULL;
-                CImgElement  * pImg = DYNCAST(CImgElement, pNode->Element());
+                CAreaElement* pArea = NULL;
+                CImgElement* pImg = DYNCAST(CImgElement, pNode->Element());
 
                 Assert(pImg->GetMap());
 
                 // if we can get a node for the area, then return it
                 // otherwise default back to returning the element.
                 pImg->GetMap()->GetAreaContaining(msg.lSubDivision, &pArea);
-                if (pArea)
-                {
+                if (pArea) {
                     pNode = pArea->GetFirstBranch();
                     Assert(pNode);
                 }
             }
         }
 
-        hr = THR( pNode->GetElementInterface( IID_IHTMLElement, (void **) ppElement ) );
+        hr = THR(pNode->GetElementInterface(IID_IHTMLElement, (void**)ppElement));
     }
 
 Cleanup:
@@ -3309,12 +3076,12 @@ typedef struct tagIEPROPPAGEINFO
     LPSTR pszCurrentURL;
     DWORD dwRestrictMask;
     DWORD dwRestrictFlags;
-} IEPROPPAGEINFO, *LPIEPROPPAGEINFO;
+} IEPROPPAGEINFO, * LPIEPROPPAGEINFO;
 
-DYNLIB  s_dynlibINETCPL = { NULL, NULL, "inetcpl.cpl" };
+DYNLIB  s_dynlibINETCPL = {NULL, NULL, "inetcpl.cpl"};
 
 DYNPROC s_dynprocAddInternetPropertySheets =
-        { NULL, & s_dynlibINETCPL, "AddInternetPropertySheetsEx" };
+{NULL, &s_dynlibINETCPL, "AddInternetPropertySheetsEx"};
 
 #ifndef WIN16
 HRESULT
@@ -3328,26 +3095,22 @@ CDoc::AddPages(LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM lParam)
 
     HRESULT hr;
 
-    if (_cstrUrl && GetUrlScheme(_cstrUrl) == URL_SCHEME_FILE)
-    {
+    if (_cstrUrl && GetUrlScheme(_cstrUrl) == URL_SCHEME_FILE) {
         hr = THR(PathCreateFromUrl(_cstrUrl, achFile, &cchFile, 0));
         if (hr)
             goto Cleanup;
 
         pszURLW = achFile;
-    }
-    else
-    {
+    } else {
         pszURLW = _cstrUrl;
     }
 
-    if (pszURLW)
-    {
+    if (pszURLW) {
         pszURL = szURL;
         WideCharToMultiByte(CP_ACP, 0, pszURLW, -1, pszURL, sizeof(szURL), NULL, NULL);
     }
 
-    hr = THR(LoadProcedure(& s_dynprocAddInternetPropertySheets));
+    hr = THR(LoadProcedure(&s_dynprocAddInternetPropertySheets));
     if (hr)
         goto Cleanup;
 
@@ -3358,19 +3121,19 @@ CDoc::AddPages(LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM lParam)
     iepi.pszCurrentURL = pszURL;
     iepi.dwRestrictMask = 0;    // turn off all mask bits
 
-    hr = THR((*(HRESULT (WINAPI *)
-                    (LPFNADDPROPSHEETPAGE,
-                     LPARAM,
-                     PUINT,
-                     LPFNPSPCALLBACK,
-                     LPIEPROPPAGEINFO))
-             s_dynprocAddInternetPropertySheets.pfn)
-                     (lpfnAddPage, lParam, NULL, NULL, &iepi));
+    hr = THR((*(HRESULT(WINAPI*)
+                (LPFNADDPROPSHEETPAGE,
+                 LPARAM,
+                 PUINT,
+                 LPFNPSPCALLBACK,
+                 LPIEPROPPAGEINFO))
+              s_dynprocAddInternetPropertySheets.pfn)
+             (lpfnAddPage, lParam, NULL, NULL, &iepi));
 
 Cleanup:
     if (hr)
         hr = E_FAIL;
-    RRETURN (hr);
+    RRETURN(hr);
 }
 #endif // !WIN16
 
@@ -3396,7 +3159,7 @@ CDoc::toString(BSTR* String)
 
 
 HRESULT
-CDoc::SetupDefaultBlockTag(VARIANTARG *pvarargIn)
+CDoc::SetupDefaultBlockTag(VARIANTARG* pvarargIn)
 {
     HRESULT hr = E_INVALIDARG;
     BSTR pstr;
@@ -3410,16 +3173,11 @@ CDoc::SetupDefaultBlockTag(VARIANTARG *pvarargIn)
     // Get the string
     pstr = V_BSTR(pvarargIn);
 
-    if (!StrCmpC (pstr, _T("DIV")))
-    {
+    if (!StrCmpC(pstr, _T("DIV"))) {
         SetDefaultBlockTag(ETAG_DIV);
-    }
-    else if (!StrCmpC (pstr, _T("P")))
-    {
+    } else if (!StrCmpC(pstr, _T("P"))) {
         SetDefaultBlockTag(ETAG_P);
-    }
-    else
-    {
+    } else {
         SetDefaultBlockTag(ETAG_P);
         AssertSz(0, "Unexpected type");
         goto Cleanup;
@@ -3434,28 +3192,25 @@ Cleanup:
 
 
 HRESULT
-CDoc::EnsureGlyphTableExistsAndExecute (
-        GUID * pguidCmdGroup,
-        UINT idm,
-        DWORD nCmdexecopt,
-        VARIANTARG * pvarargIn,
-        VARIANTARG * pvarargOut)
+CDoc::EnsureGlyphTableExistsAndExecute(
+    GUID* pguidCmdGroup,
+    UINT idm,
+    DWORD nCmdexecopt,
+    VARIANTARG* pvarargIn,
+    VARIANTARG* pvarargOut)
 {
     HRESULT hr = S_OK;
 
-    if (idm == IDM_EMPTYGLYPHTABLE)
-    {
+    if (idm == IDM_EMPTYGLYPHTABLE) {
         delete _pGlyphTable;
         _pGlyphTable = NULL;
         hr = THR(ForceRelayout());
         RRETURN(hr);
     }
 
-    if (!_pGlyphTable)
-    {
-        _pGlyphTable = new CGlyph (this);
-        if (!_pGlyphTable)
-        {
+    if (!_pGlyphTable) {
+        _pGlyphTable = new CGlyph(this);
+        if (!_pGlyphTable) {
             hr = E_OUTOFMEMORY;
             goto Cleanup;
         }
@@ -3464,8 +3219,8 @@ CDoc::EnsureGlyphTableExistsAndExecute (
             goto Cleanup;
     }
     hr = _pGlyphTable->Exec(
-        pguidCmdGroup, idm, nCmdexecopt,pvarargIn, pvarargOut);
+        pguidCmdGroup, idm, nCmdexecopt, pvarargIn, pvarargOut);
 
 Cleanup:
-    RRETURN (hr);
+    RRETURN(hr);
 }

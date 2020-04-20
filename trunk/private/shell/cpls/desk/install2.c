@@ -11,10 +11,10 @@
 typedef
 BOOL
 (*PINSTALLNEWDEVICE)(
-   HWND hwndParent,
-   LPGUID ClassGuid,
-   PDWORD Reboot
-   );
+    HWND hwndParent,
+    LPGUID ClassGuid,
+    PDWORD Reboot
+    );
 
 
 ULONG PreConfigured;
@@ -25,9 +25,9 @@ CALLBACK
 AddPropSheetPageProc(
     IN HPROPSHEETPAGE hpage,
     IN LPARAM lParam
-   )
+)
 {
-    *((HPROPSHEETPAGE *)lParam) = hpage;
+    *((HPROPSHEETPAGE*)lParam) = hpage;
     return TRUE;
 }
 
@@ -52,7 +52,7 @@ AddPropSheetPageProc(
 VOID
 DeskSCSetServiceDemandStart(
     LPTSTR ServiceName
-    )
+)
 {
     SC_HANDLE SCMHandle;
     SC_HANDLE ServiceHandle;
@@ -73,10 +73,8 @@ DeskSCSetServiceDemandStart(
     // Change the service.
 
 
-    if (SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))
-    {
-        if (ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS))
-        {
+    if (SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) {
+        if (ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS)) {
             TraceMsg(TF_GENERAL, "DeskSCSetServiceDemandStart SC Managr handles opended\n");
 
             QueryServiceConfig(ServiceHandle,
@@ -89,13 +87,11 @@ DeskSCSetServiceDemandStart(
             TraceMsg(TF_GENERAL, "DeskSCSetServiceDemandStart buffer size = %d\n", ServiceConfigSize);
 
             if (ServiceConfig = (LPQUERY_SERVICE_CONFIG)
-                                 LocalAlloc(LPTR, ServiceConfigSize))
-            {
+                LocalAlloc(LPTR, ServiceConfigSize)) {
                 if (QueryServiceConfig(ServiceHandle,
                                        ServiceConfig,
                                        ServiceConfigSize,
-                                       &ServiceConfigSize))
-                {
+                                       &ServiceConfigSize)) {
                     TraceMsg(TF_GENERAL, "DeskSCSetServiceDemandStart Queried Config info\n");
 
 
@@ -107,8 +103,7 @@ DeskSCSetServiceDemandStart(
                     }
 
                     // Attempt to acquite the database lock.
-                    for (Attempts = 20; ((SCLock = LockServiceDatabase(SCMHandle)) == NULL) && Attempts; Attempts--)
-                    {
+                    for (Attempts = 20; ((SCLock = LockServiceDatabase(SCMHandle)) == NULL) && Attempts; Attempts--) {
                         TraceMsg(TF_GENERAL, "Install - Lock SC database locked\n");
                         Sleep(500);
                     }
@@ -127,18 +122,14 @@ DeskSCSetServiceDemandStart(
                                             NULL,
                                             NULL,
                                             NULL,
-                                            NULL))
-                    {
+                                            NULL)) {
                         TraceMsg(TF_GENERAL, "DeskSCSetServiceDemandStart SC manager succeeded\n");
-                    }
-                    else
-                    {
+                    } else {
                         TraceMsg(TF_GENERAL, "DeskSCSetServiceDemandStart SC manager failed : %d\n",
-                                        GetLastError());
+                                 GetLastError());
                     }
 
-                    if (SCLock)
-                    {
+                    if (SCLock) {
                         TraceMsg(TF_GENERAL, "DeskSCSetServiceDemandStart Unlock database\n");
                         UnlockServiceDatabase(SCLock);
                     }
@@ -171,16 +162,11 @@ DWORD DeskSCStartService(LPTSTR ServiceName)
     // Open the service controller
     // Open the service
     // Change the service.
-    if (SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))
-    {
-        if (ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS))
-        {
-            if (StartService(ServiceHandle, 0, NULL))
-            {
+    if (SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) {
+        if (ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS)) {
+            if (StartService(ServiceHandle, 0, NULL)) {
                 dwRet = NO_ERROR;
-            }
-            else
-            {
+            } else {
                 TraceMsg(TF_GENERAL, " StartService failed %d\n", GetLastError());
             }
 
@@ -213,16 +199,11 @@ BOOL DeskSCStopService(LPTSTR ServiceName)
     // Change the service.
 
 
-    if (SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))
-    {
-        if (ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS))
-        {
-            if (ControlService(ServiceHandle, SERVICE_CONTROL_STOP, &ServiceStatus))
-            {
-                bRet= TRUE;
-            }
-            else
-            {
+    if (SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) {
+        if (ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS)) {
+            if (ControlService(ServiceHandle, SERVICE_CONTROL_STOP, &ServiceStatus)) {
+                bRet = TRUE;
+            } else {
                 TraceMsg(TF_GENERAL, " StopService failed %d\n", GetLastError());
             }
 
@@ -243,7 +224,7 @@ BOOL DeskSCStopService(LPTSTR ServiceName)
 BOOL
 DeskSCDeleteService(
     LPTSTR ServiceName
-    )
+)
 {
     SC_HANDLE      SCMHandle;
     SC_HANDLE      ServiceHandle;
@@ -260,16 +241,11 @@ DeskSCDeleteService(
     // Change the service.
 
 
-    if (SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))
-    {
-        if (ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS))
-        {
-            if (DeleteService(ServiceHandle))
-            {
-                bRet= TRUE;
-            }
-            else
-            {
+    if (SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) {
+        if (ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS)) {
+            if (DeleteService(ServiceHandle)) {
+                bRet = TRUE;
+            } else {
                 TraceMsg(TF_GENERAL, "DeleteService failed %d\n", GetLastError());
             }
 
@@ -301,7 +277,7 @@ BOOL
 DeskIsPnPDriver(
     IN HDEVINFO         hDevInfo,
     IN PSP_DEVINFO_DATA pDeviceInfoData OPTIONAL
-    )
+)
 {
     SP_DRVINFO_DATA        DriverInfoData;
     SP_DRVINFO_DETAIL_DATA DriverInfoDetailData;
@@ -321,8 +297,7 @@ DeskIsPnPDriver(
 
     if (!SetupDiGetSelectedDriver(hDevInfo,
                                   pDeviceInfoData,
-                                  &DriverInfoData))
-    {
+                                  &DriverInfoData)) {
         TraceMsg(TF_GENERAL, "SetupDiGetSelectedDriver Error %d\n", GetLastError());
         return GetLastError();
     }
@@ -335,8 +310,7 @@ DeskIsPnPDriver(
                                      &DriverInfoDetailData,
                                      DriverInfoDetailData.cbSize,
                                      &cbOutputSize)) &&
-        (GetLastError() != ERROR_INSUFFICIENT_BUFFER))
-    {
+        (GetLastError() != ERROR_INSUFFICIENT_BUFFER)) {
         TraceMsg(TF_GENERAL, "SetupDiGetDriverInfoDetail Error %d\n", GetLastError());
         return GetLastError();
     }
@@ -352,8 +326,7 @@ DeskIsPnPDriver(
                                      INF_STYLE_WIN4,
                                      NULL);
 
-    if (InfFileHandle == INVALID_HANDLE_VALUE)
-    {
+    if (InfFileHandle == INVALID_HANDLE_VALUE) {
         TraceMsg(TF_GENERAL, "SetupOpenInfFile Error %d\n", INVALID_HANDLE_VALUE);
         return ERROR_INVALID_PARAMETER;
     }
@@ -371,8 +344,7 @@ DeskIsPnPDriver(
     if (SetupFindFirstLine(InfFileHandle,
                            szSoftwareSection,
                            TEXT("PnPEnabled"),
-                           &tmpContext))
-    {
+                           &tmpContext)) {
         SetupGetIntField(&tmpContext,
                          1,
                          &PnPDriver);
@@ -395,7 +367,7 @@ DeskInstallServiceExtensions(
     IN PSP_DRVINFO_DETAIL_DATA DriverInfoDetailData,
     IN LPTSTR                  pServiceName,
     IN DWORD                   dwDetect
-    )
+)
 {
     DWORD retError = NO_ERROR;
 
@@ -427,8 +399,7 @@ DeskInstallServiceExtensions(
                                      INF_STYLE_WIN4,
                                      NULL);
 
-    if (InfFileHandle == INVALID_HANDLE_VALUE)
-    {
+    if (InfFileHandle == INVALID_HANDLE_VALUE) {
         TraceMsg(TF_GENERAL, "SetupOpenInfFile Error %d\n", INVALID_HANDLE_VALUE);
         return ERROR_INVALID_PARAMETER;
     }
@@ -451,8 +422,7 @@ DeskInstallServiceExtensions(
     if (SetupFindFirstLine(InfFileHandle,
                            szSoftwareSection,
                            TEXT("MaximumNumberOfDevices"),
-                           &tmpContext))
-    {
+                           &tmpContext)) {
         SetupGetIntField(&tmpContext,
                          1,
                          &numDev);
@@ -461,8 +431,7 @@ DeskInstallServiceExtensions(
     if (SetupFindFirstLine(InfFileHandle,
                            szSoftwareSection,
                            TEXT("MaximumDeviceMemoryConfiguration"),
-                           &tmpContext))
-    {
+                           &tmpContext)) {
         SetupGetIntField(&tmpContext,
                          1,
                          &maxmem);
@@ -471,8 +440,7 @@ DeskInstallServiceExtensions(
     if (SetupFindFirstLine(InfFileHandle,
                            szSoftwareSection,
                            TEXT("PreConfiguredSettings"),
-                           &tmpContext))
-    {
+                           &tmpContext)) {
         SetupGetIntField(&tmpContext,
                          1,
                          &PreConfigured);
@@ -481,8 +449,7 @@ DeskInstallServiceExtensions(
     if (SetupFindFirstLine(InfFileHandle,
                            szSoftwareSection,
                            TEXT("KeepExistingDriverEnabled"),
-                           &tmpContext))
-    {
+                           &tmpContext)) {
         SetupGetIntField(&tmpContext,
                          1,
                          &KeepEnabled);
@@ -491,8 +458,7 @@ DeskInstallServiceExtensions(
     if (SetupFindFirstLine(InfFileHandle,
                            szSoftwareSection,
                            TEXT("PnPEnabled"),
-                           &tmpContext))
-    {
+                           &tmpContext)) {
         SetupGetIntField(&tmpContext,
                          1,
                          &PnPDriver);
@@ -504,22 +470,17 @@ DeskInstallServiceExtensions(
 
 
     wsprintf(keyName, TEXT("System\\CurrentControlSet\\Services\\%ws"), pServiceName, numDev);
-    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS) {
         ULONG Value = 1;
 
-        if (PnPDriver)
-        {
-            RegSetValueEx(hkey, TEXT("PnPEnabled"), 0, REG_DWORD, (LPBYTE) (&Value), SIZEOF(ULONG) );
+        if (PnPDriver) {
+            RegSetValueEx(hkey, TEXT("PnPEnabled"), 0, REG_DWORD, (LPBYTE)(&Value), SIZEOF(ULONG));
         }
 
-        if (dwDetect == LEGACY_DETECT)
-        {
-            RegSetValueEx(hkey, TEXT("LegacyDetect"), 0, REG_DWORD, (LPBYTE) (&Value), SIZEOF(ULONG) );
-        }
-        else if (dwDetect == REPORT_DEVICE)
-        {
-            RegSetValueEx(hkey, TEXT("ReportDevice"), 0, REG_DWORD, (LPBYTE) (&Value), SIZEOF(ULONG) );
+        if (dwDetect == LEGACY_DETECT) {
+            RegSetValueEx(hkey, TEXT("LegacyDetect"), 0, REG_DWORD, (LPBYTE)(&Value), SIZEOF(ULONG));
+        } else if (dwDetect == REPORT_DEVICE) {
+            RegSetValueEx(hkey, TEXT("ReportDevice"), 0, REG_DWORD, (LPBYTE)(&Value), SIZEOF(ULONG));
         }
 
         RegCloseKey(hkey);
@@ -530,8 +491,7 @@ DeskInstallServiceExtensions(
     // more than 10 MEG of PTEs
 
 
-    if ((maxmem = maxmem * numDev) > 10)
-    {
+    if ((maxmem = maxmem * numDev) > 10) {
 
         // we need 1K PTEs to support 1 MEG
         // Then add 50% for other devices this type of machine may have.
@@ -540,7 +500,7 @@ DeskInstallServiceExtensions(
         // to merge with whatever someone else put in there.
 
 
-        maxmem *= 0x400 * 3/2;
+        maxmem *= 0x400 * 3 / 2;
 
         if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,
                            TEXT("System\\CurrentControlSet\\Control\\Session Manager\\Memory Management"),
@@ -550,8 +510,7 @@ DeskInstallServiceExtensions(
                            KEY_READ | KEY_WRITE,
                            NULL,
                            &hkey,
-                           &disposition) == ERROR_SUCCESS)
-        {
+                           &disposition) == ERROR_SUCCESS) {
 
             // Check if we walready set maxmem in the registry.
 
@@ -559,10 +518,9 @@ DeskInstallServiceExtensions(
             DWORD data;
             DWORD cb = sizeof(data);
 
-            if ( (RegQueryValueEx(hkey, TEXT("SystemPages"), NULL, NULL, (LPBYTE)(&data), &cb) != ERROR_SUCCESS) || (data < maxmem) )
-            {
+            if ((RegQueryValueEx(hkey, TEXT("SystemPages"), NULL, NULL, (LPBYTE)(&data), &cb) != ERROR_SUCCESS) || (data < maxmem)) {
                 // Set the new value
-                RegSetValueEx(hkey, TEXT("SystemPages"), 0, REG_DWORD, (LPBYTE) &maxmem, sizeof(DWORD));
+                RegSetValueEx(hkey, TEXT("SystemPages"), 0, REG_DWORD, (LPBYTE)&maxmem, sizeof(DWORD));
 
                 // Tell the system we must reboot before running this driver.
                 ZeroMemory(&DeviceInstallParams, sizeof(DeviceInstallParams));
@@ -594,8 +552,7 @@ DeskInstallServiceExtensions(
 
     do {
 
-        if (PnPDriver && bSetSoftwareKey)
-        {
+        if (PnPDriver && bSetSoftwareKey) {
             HKEY hkeyTmp;
 
             hkey = INVALID_HANDLE_VALUE;
@@ -605,14 +562,11 @@ DeskInstallServiceExtensions(
 
 
             hkeyTmp = SetupDiOpenDevRegKey(hDevInfo, pDeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, KEY_READ | KEY_WRITE);
-            if (hkeyTmp != INVALID_HANDLE_VALUE)
-            {
+            if (hkeyTmp != INVALID_HANDLE_VALUE) {
                 RegCreateKeyEx(hkeyTmp, TEXT("Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition);
                 RegCloseKey(hkeyTmp);
             }
-        }
-        else
-        {
+        } else {
             numDev -= 1;
 
 
@@ -625,11 +579,9 @@ DeskInstallServiceExtensions(
             RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition);
         }
 
-        if (hkey != INVALID_HANDLE_VALUE)
-        {
+        if (hkey != INVALID_HANDLE_VALUE) {
             wsprintf(szSoftwareSection, TEXT("%ws.SoftwareSettings"), DriverInfoDetailData->SectionName);
-            if (!SetupInstallFromInfSection(hwnd, InfFileHandle, szSoftwareSection, SPINST_REGISTRY, hkey, NULL, 0, &SetupDefaultQueueCallback, Context, NULL, NULL))
-            {
+            if (!SetupInstallFromInfSection(hwnd, InfFileHandle, szSoftwareSection, SPINST_REGISTRY, hkey, NULL, 0, &SetupDefaultQueueCallback, Context, NULL, NULL)) {
                 TraceMsg(TF_GENERAL, "SetupInstallFromInfSection Error %d\n", INVALID_HANDLE_VALUE);
                 return ERROR_INVALID_PARAMETER;
             }
@@ -640,9 +592,8 @@ DeskInstallServiceExtensions(
             // Only do this for legacy installation at this point.
 
 
-            if ((PnPDriver && bSetSoftwareKey) == FALSE)
-            {
-                RegSetValueEx(hkey, TEXT("Device Description"), 0, REG_SZ, (LPBYTE) DriverInfoDetailData->DrvDescription, (lstrlen(DriverInfoDetailData->DrvDescription) + 1) * sizeof(TCHAR) );
+            if ((PnPDriver && bSetSoftwareKey) == FALSE) {
+                RegSetValueEx(hkey, TEXT("Device Description"), 0, REG_SZ, (LPBYTE)DriverInfoDetailData->DrvDescription, (lstrlen(DriverInfoDetailData->DrvDescription) + 1) * sizeof(TCHAR));
             }
 #if 0
 
@@ -655,8 +606,7 @@ DeskInstallServiceExtensions(
                 HMODULE hModule;
                 FARPROC PropSheetExtProc;
 
-                if (CM_Get_First_Log_Conf(&LogConfig, pDeviceInfoData->DevInst, BASIC_LOG_CONF) == CR_SUCCESS)
-                {
+                if (CM_Get_First_Log_Conf(&LogConfig, pDeviceInfoData->DevInst, BASIC_LOG_CONF) == CR_SUCCESS) {
 
                     // This device instance has a basic log config, so we want to
                     // give the user a resource selection dialog.
@@ -668,8 +618,7 @@ DeskInstallServiceExtensions(
 
                     if ((hModule = GetModuleHandle(TEXT("setupapi.dll"))) &&
                         (PropSheetExtProc = GetProcAddress(hModule,
-                                                           "ExtensionPropSheetPageProc")))
-                    {
+                                                           "ExtensionPropSheetPageProc"))) {
                         SP_PROPSHEETPAGE_REQUEST PropSheetRequest;
                         HPROPSHEETPAGE    hPage = {0};
                         PROPSHEETPAGE     PropPage;
@@ -686,29 +635,24 @@ DeskInstallServiceExtensions(
 
                         if (PropSheetExtProc(&PropSheetRequest,
                                              AddPropSheetPageProc,
-                                             &hPage))
-                        {
+                                             &hPage)) {
 
-                            PropHeader.dwSize      = sizeof(PROPSHEETHEADER);
-                            PropHeader.dwFlags     = PSH_NOAPPLYNOW;
-                            PropHeader.hwndParent  = hwnd;
-                            PropHeader.hInstance   = ghmod;
-                            PropHeader.pszIcon     = NULL;
-                            PropHeader.pszCaption  = TEXT(" ");
-                            PropHeader.nPages      = 1;
-                            PropHeader.phpage      = &hPage;
-                            PropHeader.nStartPage  = 0;
+                            PropHeader.dwSize = sizeof(PROPSHEETHEADER);
+                            PropHeader.dwFlags = PSH_NOAPPLYNOW;
+                            PropHeader.hwndParent = hwnd;
+                            PropHeader.hInstance = ghmod;
+                            PropHeader.pszIcon = NULL;
+                            PropHeader.pszCaption = TEXT(" ");
+                            PropHeader.nPages = 1;
+                            PropHeader.phpage = &hPage;
+                            PropHeader.nStartPage = 0;
                             PropHeader.pfnCallback = NULL;
 
-                            if (PropertySheet(&PropHeader) == -1)
-                            {
-                                if(hPage)
-                                {
+                            if (PropertySheet(&PropHeader) == -1) {
+                                if (hPage) {
                                     DestroyPropertySheetPage(hPage);
                                 }
-                            }
-                            else
-                            {
+                            } else {
 
                                 // BUGBUG can this return zero ?
 
@@ -725,13 +669,11 @@ DeskInstallServiceExtensions(
 
                                 // while(
 
-                                if (CM_Get_Next_Res_Des(&ResDes, ResDes, ResType_Mem, NULL, 0) == CR_SUCCESS)
-                                {
+                                if (CM_Get_Next_Res_Des(&ResDes, ResDes, ResType_Mem, NULL, 0) == CR_SUCCESS) {
                                     MEM_RESOURCE memRes;
 
-                                    if (CM_Get_Res_Des_Data(ResDes, &memRes, sizeof(memRes), 0) == CR_SUCCESS)
-                                    {
-                                        RegSetValueEx(hkey, TEXT("MemBase"), 0, REG_DWORD, (LPBYTE) &(memRes.MEM_Header.MD_Alloc_Base), sizeof(DWORD));
+                                    if (CM_Get_Res_Des_Data(ResDes, &memRes, sizeof(memRes), 0) == CR_SUCCESS) {
+                                        RegSetValueEx(hkey, TEXT("MemBase"), 0, REG_DWORD, (LPBYTE) & (memRes.MEM_Header.MD_Alloc_Base), sizeof(DWORD));
                                     }
 
                                     CM_Free_Res_Des_Handle(ResDes); // resdesnext
@@ -756,8 +698,7 @@ DeskInstallServiceExtensions(
     // entry.
 
 
-    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\OpenGLDrivers"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\OpenGLDrivers"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS) {
         wsprintf(szSoftwareSection, TEXT("%ws.OpenGLSoftwareSettings"), DriverInfoDetailData->SectionName);
         SetupInstallFromInfSection(hwnd, InfFileHandle, szSoftwareSection, SPINST_REGISTRY, hkey, NULL, 0, &SetupDefaultQueueCallback, Context, NULL, NULL);
         RegCloseKey(hkey);
@@ -784,7 +725,7 @@ DeskInstallService(
     IN PSP_DEVINFO_DATA pDeviceInfoData OPTIONAL,
     IN LPTSTR           pServiceName,
     IN DWORD            dwDetect
-    )
+)
 {
     SP_DEVINSTALL_PARAMS   DeviceInstallParams;
     SP_DRVINFO_DATA        DriverInfoData;
@@ -816,8 +757,7 @@ DeskInstallService(
 
     if (!SetupDiGetSelectedDriver(hDevInfo,
                                   pDeviceInfoData,
-                                  &DriverInfoData))
-    {
+                                  &DriverInfoData)) {
         TraceMsg(TF_GENERAL, "SetupDiGetSelectedDriver Error %d\n", GetLastError());
         return GetLastError();
     }
@@ -830,8 +770,7 @@ DeskInstallService(
                                      &DriverInfoDetailData,
                                      DriverInfoDetailData.cbSize,
                                      &cbOutputSize)) &&
-        (GetLastError() != ERROR_INSUFFICIENT_BUFFER))
-    {
+        (GetLastError() != ERROR_INSUFFICIENT_BUFFER)) {
         TraceMsg(TF_GENERAL, "SetupDiGetDriverInfoDetail Error %d\n", GetLastError());
         return GetLastError();
     }
@@ -846,8 +785,7 @@ DeskInstallService(
                             INF_STYLE_WIN4,
                             NULL);
 
-    if(hInf == INVALID_HANDLE_VALUE)
-    {
+    if (hInf == INVALID_HANDLE_VALUE) {
 
         // For some reason we couldn't open the INF--this should never happen.
 
@@ -865,13 +803,10 @@ DeskInstallService(
                                           ActualInfSection,
                                           sizeof(ActualInfSection) / sizeof(TCHAR),
                                           NULL,
-                                          NULL))
-    {
+                                          NULL)) {
         status = GetLastError();
         TraceMsg(TF_GENERAL, "SetupDiGetActualSectionToInstall Error %d\n", status);
-    }
-    else
-    {
+    } else {
 
         // Append a ".Services" to get the service install section name.
 
@@ -884,8 +819,7 @@ DeskInstallService(
 
         if (!SetupInstallServicesFromInfSection(hInf,
                                                 ActualInfSection,
-                                                0))
-        {
+                                                0)) {
             status = GetLastError();
             TraceMsg(TF_GENERAL, "SetupInstallServicesFromInfSection Error %d\n", status);
         }
@@ -898,8 +832,7 @@ DeskInstallService(
     if (SetupFindFirstLine(hInf,
                            ActualInfSection,
                            TEXT("AddService"),
-                           &infContext))
-    {
+                           &infContext)) {
         SetupGetStringField(&infContext,
                             1,
                             pServiceName,
@@ -910,8 +843,7 @@ DeskInstallService(
 
     SetupCloseInfFile(hInf);
 
-    if (status != NO_ERROR)
-    {
+    if (status != NO_ERROR) {
         return status;
     }
 
@@ -928,22 +860,19 @@ DeskInstallService(
                                           pServiceName,
                                           dwDetect);
 
-    if (status != NO_ERROR)
-    {
+    if (status != NO_ERROR) {
         TraceMsg(TF_GENERAL, "DeskInstallServiceExtensions Error %d\n", status);
         return status;
     }
 
-    if (dwDetect == 0)
-    {
+    if (dwDetect == 0) {
 
         // We have a DEVNODE and therefore a pDeviceInfoData.
         // Do the full device install, which will also start the device
         // dynamically.
 
 
-        if (!SetupDiInstallDevice(hDevInfo, pDeviceInfoData))
-        {
+        if (!SetupDiInstallDevice(hDevInfo, pDeviceInfoData)) {
             TraceMsg(TF_GENERAL, "SetupDiInstallDevice Error %d\n", GetLastError());
 
 
@@ -951,9 +880,7 @@ DeskInstallService(
 
 
             return GetLastError();
-        }
-        else
-        {
+        } else {
 
             // For a PnP Device which will never do detection, we want to mark
             // the device as DemandStart.
@@ -983,7 +910,7 @@ DeskRemoveService(
     IN HDEVINFO         hDevInfo,
     IN PSP_DEVINFO_DATA pDeviceInfoData OPTIONAL,
     IN LPTSTR           pServiceName
-    )
+)
 {
     CONFIGRET  crStatus = CR_FAILURE;
     ULONG      DevIdBufferLen;
@@ -1004,9 +931,8 @@ DeskRemoveService(
                                pServiceName,
                                CM_GETIDLIST_FILTER_SERVICE);
 
-    if ( (DevIdBufferLen) &&
-         (DevIdBuffer = LocalAlloc(LPTR, DevIdBufferLen * sizeof(TCHAR))))
-    {
+    if ((DevIdBufferLen) &&
+        (DevIdBuffer = LocalAlloc(LPTR, DevIdBufferLen * sizeof(TCHAR)))) {
 
         crStatus = CM_Get_Device_ID_List(pServiceName,
                                          DevIdBuffer,
@@ -1014,16 +940,14 @@ DeskRemoveService(
                                          CM_GETIDLIST_FILTER_SERVICE);
     }
 
-    if (crStatus == CR_SUCCESS)
-    {
+    if (crStatus == CR_SUCCESS) {
         pTmp = DevIdBuffer;
 
 
         // Walk the MULTI_SZ with the devices in it.
 
 
-        while (*pTmp)
-        {
+        while (*pTmp) {
             DEVINST DevInst;
 
             // ASSERT(wcsstr(TEXT("_DETECT"), pTmp));
@@ -1033,8 +957,7 @@ DeskRemoveService(
                                   pTmp,
                                   CM_LOCATE_DEVNODE_NORMAL | CM_LOCATE_DEVNODE_PHANTOM);
 
-            if (crStatus != CR_SUCCESS)
-            {
+            if (crStatus != CR_SUCCESS) {
                 TraceMsg(TF_GENERAL, " CM_Locate_DevNode %ws failed %d\n",
                          pTmp, crStatus);
                 continue;
@@ -1046,8 +969,7 @@ DeskRemoveService(
 
             crStatus = CM_Uninstall_DevNode(DevInst, 0);
 
-            if (crStatus != CR_SUCCESS)
-            {
+            if (crStatus != CR_SUCCESS) {
                 TraceMsg(TF_GENERAL, " CM_Locate_DevNode %ws failed %d\n",
                          pTmp, crStatus);
                 continue;
@@ -1087,7 +1009,7 @@ DeskDetectDevice(
     IN  PDETECT_PROGRESS_NOTIFY ProgressFunction,
     IN  PVOID                   ProgressFunctionParam,
     OUT PSP_DRVINFO_DATA        pDrvInfoData
-    )
+)
 {
 
     SP_DEVINSTALL_PARAMS DeviceInstallParams;
@@ -1122,8 +1044,7 @@ DeskDetectDevice(
                                   NULL,
                                   &DeviceInstallParams);
 
-    if (!SetupDiBuildDriverInfoList(hDevInfo, NULL, SPDIT_CLASSDRIVER))
-    {
+    if (!SetupDiBuildDriverInfoList(hDevInfo, NULL, SPDIT_CLASSDRIVER)) {
         return ERROR_INVALID_PARAMETER;
     }
 
@@ -1140,8 +1061,7 @@ DeskDetectDevice(
                                      INF_STYLE_WIN4,
                                      NULL);
 
-    if (InfFileHandle == INVALID_HANDLE_VALUE)
-    {
+    if (InfFileHandle == INVALID_HANDLE_VALUE) {
         return ERROR_INVALID_PARAMETER;
     }
 
@@ -1165,8 +1085,7 @@ DeskDetectDevice(
                                     &SetupDefaultQueueCallback,
                                     Context,
                                     NULL,
-                                    NULL))
-    {
+                                    NULL)) {
         TraceMsg(TF_GENERAL, " Install detect files failed %d\n", GetLastError());
         return GetLastError();
     }
@@ -1177,13 +1096,12 @@ DeskDetectDevice(
 
     if (SetupGetInfInformation(InfFileHandle,
                                INFINFO_INF_SPEC_IS_HINF,
-                               (PSP_INF_INFORMATION) Buffer,
+                               (PSP_INF_INFORMATION)Buffer,
                                sizeof(Buffer),
-                               NULL))
-    {
+                               NULL)) {
         TraceMsg(TF_GENERAL, " Getting Provider Name\n");
 
-        SetupQueryInfVersionInformation((PSP_INF_INFORMATION) Buffer,
+        SetupQueryInfVersionInformation((PSP_INF_INFORMATION)Buffer,
                                         0,
                                         TEXT("Provider"),
                                         Provider,
@@ -1207,13 +1125,11 @@ DeskDetectDevice(
     if (!SetupFindFirstLine(InfFileHandle,
                             TEXT("DetectDriverList"),
                             NULL,
-                            &infoContext))
-    {
+                            &infoContext)) {
         return ERROR_INVALID_PARAMETER;
     }
 
-    do
-    {
+    do {
         TCHAR DeviceDescription[LINE_LEN];
         ULONG DeviceDescriptionSize;
         TCHAR Manufacturer[LINE_LEN];
@@ -1229,24 +1145,21 @@ DeskDetectDevice(
         // For each driver in the list, install it and see if it loads
 
 
-        if ( (!SetupGetStringField(&infoContext,
-                                   0,
-                                   Manufacturer,
-                                   LINE_LEN,
-                                   &ManufacturerSize))
-           ||
-             (!SetupGetStringField(&infoContext,
-                                   1,
-                                   DeviceDescription,
-                                   LINE_LEN,
-                                   &DeviceDescriptionSize))
-           )
-        {
+        if ((!SetupGetStringField(&infoContext,
+                                  0,
+                                  Manufacturer,
+                                  LINE_LEN,
+                                  &ManufacturerSize))
+            ||
+            (!SetupGetStringField(&infoContext,
+                                  1,
+                                  DeviceDescription,
+                                  LINE_LEN,
+                                  &DeviceDescriptionSize))
+            ) {
             TraceMsg(TF_GENERAL, " Get Item failed on line %d, error %d\n",
                      LineCount, GetLastError());
-        }
-        else
-        {
+        } else {
 
             // Find the appropriate entry in the list of devices.
 
@@ -1255,22 +1168,19 @@ DeskDetectDevice(
                      Manufacturer, DeviceDescription);
 
             ZeroMemory(pDrvInfoData, sizeof(SP_DRVINFO_DATA));
-            pDrvInfoData->cbSize     = sizeof(SP_DRVINFO_DATA);
+            pDrvInfoData->cbSize = sizeof(SP_DRVINFO_DATA);
             pDrvInfoData->DriverType = SPDIT_CLASSDRIVER;
-            pDrvInfoData->Reserved   = 0; // Means search the list for this driver
-            _tcscpy(pDrvInfoData->Description,  DeviceDescription);
-            _tcscpy(pDrvInfoData->MfgName,      Manufacturer);
+            pDrvInfoData->Reserved = 0; // Means search the list for this driver
+            _tcscpy(pDrvInfoData->Description, DeviceDescription);
+            _tcscpy(pDrvInfoData->MfgName, Manufacturer);
             _tcscpy(pDrvInfoData->ProviderName, Provider);
 
             if (!SetupDiSetSelectedDriver(hDevInfo,
                                           NULL,
-                                          pDrvInfoData))
-            {
+                                          pDrvInfoData)) {
                 TraceMsg(TF_GENERAL, "DeskDetectDevice Select device failed on %ws, error %d\n",
                          DeviceDescription, GetLastError());
-            }
-            else
-            {
+            } else {
                 TraceMsg(TF_GENERAL, "DeskDetectDevice Match on device %ws\n", DeviceDescription);
 
 
@@ -1280,8 +1190,7 @@ DeskDetectDevice(
                 if (DeskInstallService(hDevInfo,
                                        NULL,
                                        ServiceName,
-                                       LEGACY_DETECT) == NO_ERROR)
-                {
+                                       LEGACY_DETECT) == NO_ERROR) {
                     TraceMsg(TF_GENERAL, "DeskDetectDevice Service %ws installed\n",
                              ServiceName);
 
@@ -1289,8 +1198,7 @@ DeskDetectDevice(
                     //  We have no DEVNODE.  Start the driver by hand.
 
 
-                    if (DeskSCStartService(ServiceName) == NO_ERROR)
-                    {
+                    if (DeskSCStartService(ServiceName) == NO_ERROR) {
                         TraceMsg(TF_GENERAL, "DeskDetectDevice Service started\n");
 
 
@@ -1322,12 +1230,10 @@ DeskDetectDevice(
                                             2,
                                             DetectBroken,
                                             LINE_LEN,
-                                            &DetectBrokenSize))
-                    {
+                                            &DetectBrokenSize)) {
                         TraceMsg(TF_GENERAL, " detect : %ws\n", DetectBroken);
 
-                        if (_tcscmp(DetectBroken, TEXT("detect_broken")) == 0)
-                        {
+                        if (_tcscmp(DetectBroken, TEXT("detect_broken")) == 0) {
                             TraceMsg(TF_GENERAL, "DeskDetectDevice detect_broken - RESET_SCREEN\n");
                             ChangeDisplaySettings(NULL, CDS_RESET);
                         }
@@ -1342,8 +1248,7 @@ DeskDetectDevice(
             // drivers for those !
 
 
-            if (detectionStatus == NO_ERROR)
-            {
+            if (detectionStatus == NO_ERROR) {
                 TraceMsg(TF_GENERAL, "DeskDetectDevice found device - stop detection\n");
                 break;
             }
@@ -1357,11 +1262,9 @@ DeskDetectDevice(
 
         LoopCount++;
 
-        if (ProgressFunction)
-        {
+        if (ProgressFunction) {
             if (ProgressFunction(ProgressFunctionParam,
-                                 LoopCount * 100 / LineCount))
-            {
+                                 LoopCount * 100 / LineCount)) {
 
                 // User cancelled - leave now.
 
@@ -1388,8 +1291,7 @@ DeskDetectDevice(
                                     &SetupDefaultQueueCallback,
                                     Context,
                                     NULL,
-                                    NULL))
-    {
+                                    NULL)) {
         TraceMsg(TF_GENERAL, " Remove detect files failed %d\n", GetLastError());
     }
 
@@ -1419,7 +1321,7 @@ BOOL
 DeskCheckInstallDatabase(
     IN HDEVINFO         hDevInfo,
     IN PSP_DEVINFO_DATA pDeviceInfoData
-    )
+)
 {
     BOOL            bRet = TRUE;
     HDEVINFO        HDevInfo;
@@ -1447,8 +1349,7 @@ DeskCheckInstallDatabase(
                                 DIREG_DRV,
                                 KEY_READ | KEY_WRITE);
 
-    if (hKey != INVALID_HANDLE_VALUE)
-    {
+    if (hKey != INVALID_HANDLE_VALUE) {
 
         // If this succeeds, then we can safely upgrade the driver since
         // it is an existing, properly installed driver.
@@ -1466,26 +1367,23 @@ DeskCheckInstallDatabase(
     // Let's find all the video drivers that are installed in the system
 
 
-    HDevInfo = SetupDiGetClassDevs((LPGUID) &GUID_DEVCLASS_DISPLAY,
+    HDevInfo = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_DISPLAY,
                                    NULL,
                                    NULL,
                                    0);
 
-    if (HDevInfo == INVALID_HANDLE_VALUE)
-    {
+    if (HDevInfo == INVALID_HANDLE_VALUE) {
         TraceMsg(TF_GENERAL, "Database - no existing driver\n");
         return TRUE;
     }
 
-    while (bRet)
-    {
+    while (bRet) {
         ZeroMemory(&DeviceInfoData, sizeof(SP_DEVINFO_DATA));
         DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
         if (!SetupDiEnumDeviceInfo(HDevInfo,
                                    index++,
-                                   &DeviceInfoData))
-        {
+                                   &DeviceInfoData)) {
             TraceMsg(TF_GENERAL, "Database retrieving device Error %d\n", GetLastError());
             break;
         }
@@ -1504,16 +1402,14 @@ DeskCheckInstallDatabase(
         if (CR_SUCCESS == CM_Get_Device_ID(DeviceInfoData.DevInst,
                                            RegistryProperty,
                                            sizeof(RegistryProperty),
-                                           0))
-        {
-            LPTSTR *pUpgrade = UpdateDatabase;
+                                           0)) {
+            LPTSTR* pUpgrade = UpdateDatabase;
 
             TraceMsg(TF_GENERAL, "\t CM_Get_Device_ID = %ws\n", RegistryProperty);
 
             if (_tcsncicmp(TEXT("ROOT\\LEGACY_"),
                            RegistryProperty,
-                           sizeof(TEXT("ROOT\\LEGACY_"))) == 0)
-            {
+                           sizeof(TEXT("ROOT\\LEGACY_"))) == 0) {
                 TraceMsg(TF_GENERAL, "\t Legacy DEVNODE = %ws\n", RegistryProperty);
 
 
@@ -1525,10 +1421,8 @@ DeskCheckInstallDatabase(
 
                 bRet = FALSE;
 
-                while (*pUpgrade)
-                {
-                    if (_tcsicmp(*pUpgrade, RegistryProperty) == 0)
-                    {
+                while (*pUpgrade) {
+                    if (_tcsicmp(*pUpgrade, RegistryProperty) == 0) {
                         TraceMsg(TF_GENERAL, "\t Upgrade DEVNODE = %ws\n", RegistryProperty);
 
                         bRet = TRUE;
@@ -1548,26 +1442,24 @@ DeskCheckInstallDatabase(
         BufferSize = sizeof(RegistryProperty);
 
         if (CR_SUCCESS ==
-                CM_Get_DevNode_Registry_Property(DeviceInfoData.DevInst,
-                                                 CM_DRP_DEVICEDESC,
-                                                 NULL,
-                                                 RegistryProperty,
-                                                 &BufferSize,
-                                                 0))
-        {
+            CM_Get_DevNode_Registry_Property(DeviceInfoData.DevInst,
+                                             CM_DRP_DEVICEDESC,
+                                             NULL,
+                                             RegistryProperty,
+                                             &BufferSize,
+                                             0)) {
             TraceMsg(TF_GENERAL, "\t CM_DRP_DEVICEDESC = %ws\n", RegistryProperty);
         }
 
         BufferSize = sizeof(RegistryProperty);
 
         if (CR_SUCCESS ==
-                CM_Get_DevNode_Registry_Property(DeviceInfoData.DevInst,
-                                                 CM_DRP_SERVICE,
-                                                 NULL,
-                                                 RegistryProperty,
-                                                 &BufferSize,
-                                                 0))
-        {
+            CM_Get_DevNode_Registry_Property(DeviceInfoData.DevInst,
+                                             CM_DRP_SERVICE,
+                                             NULL,
+                                             RegistryProperty,
+                                             &BufferSize,
+                                             0)) {
             TraceMsg(TF_GENERAL, "\t CM_DRP_SERVICE = %ws\n", RegistryProperty);
         }
     }
@@ -1597,20 +1489,17 @@ bDoLegacyDetection(VOID)
 
     hkey = NULL;
 
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("System\\Setup"), 0, KEY_READ | KEY_WRITE, &hkey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("System\\Setup"), 0, KEY_READ | KEY_WRITE, &hkey) == ERROR_SUCCESS) {
         cb = 256;
 
-        if (RegQueryValueEx(hkey, TEXT("SystemSetupInProgress"), NULL, NULL, (LPBYTE)(data), &cb) == ERROR_SUCCESS)
-        {
-            bSetupInProgress = * ((LPDWORD)(data));
+        if (RegQueryValueEx(hkey, TEXT("SystemSetupInProgress"), NULL, NULL, (LPBYTE)(data), &cb) == ERROR_SUCCESS) {
+            bSetupInProgress = *((LPDWORD)(data));
         }
 
         cb = 256;
 
-        if (RegQueryValueEx(hkey, TEXT("UpgradeInProgress"), NULL, NULL, (LPBYTE)(data), &cb) == ERROR_SUCCESS)
-        {
-            bUpgradeInProgress = * ((LPDWORD)(data));
+        if (RegQueryValueEx(hkey, TEXT("UpgradeInProgress"), NULL, NULL, (LPBYTE)(data), &cb) == ERROR_SUCCESS) {
+            bUpgradeInProgress = *((LPDWORD)(data));
         }
 
         if (hkey) {
@@ -1618,16 +1507,12 @@ bDoLegacyDetection(VOID)
         }
     }
 
-    if (bSetupInProgress)
-    {
-        if (bUpgradeInProgress)
-        {
+    if (bSetupInProgress) {
+        if (bUpgradeInProgress) {
             regstring = TEXT("System\\Video_Upgrade");
             TraceMsg(TF_GENERAL, "/t/tUpgrade\n");
             bRet = FALSE;
-        }
-        else
-        {
+        } else {
 
             // We only do installation or detection if not BASEVIDEO
 
@@ -1635,17 +1520,14 @@ bDoLegacyDetection(VOID)
             cb = 256;
             hkey = NULL;
 
-            if ( (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("System\\CurrentControlSet\\Control\\Setup"), 0, KEY_READ | KEY_WRITE, &hkey) == ERROR_SUCCESS)     &&
-                 (RegQueryValueEx(hkey, TEXT("video"), NULL, NULL, (LPBYTE)(data), &cb) == ERROR_SUCCESS)    &&
-                 (_tcscmp(data, TEXT("forcevga")) == 0)
-               )
-            {
+            if ((RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("System\\CurrentControlSet\\Control\\Setup"), 0, KEY_READ | KEY_WRITE, &hkey) == ERROR_SUCCESS) &&
+                (RegQueryValueEx(hkey, TEXT("video"), NULL, NULL, (LPBYTE)(data), &cb) == ERROR_SUCCESS) &&
+                (_tcscmp(data, TEXT("forcevga")) == 0)
+                ) {
                 regstring = TEXT("System\\Basevideo_Winnt");
                 TraceMsg(TF_GENERAL, "/t/tbasevideo install\n");
                 bRet = FALSE;
-            }
-            else
-            {
+            } else {
                 regstring = TEXT("System\\Video_Clean");
                 TraceMsg(TF_GENERAL, "/t/tCleanInstall\n");
                 bRet = TRUE;
@@ -1655,9 +1537,7 @@ bDoLegacyDetection(VOID)
                 RegCloseKey(hkey);
             }
         }
-    }
-    else
-    {
+    } else {
         regstring = TEXT("System\\Video_Missing_Winnt");
         TraceMsg(TF_GENERAL, "/t/tMissing $Winnt$.inf file\n");
         bRet = TRUE;
@@ -1688,7 +1568,7 @@ DisplayClassInstaller(
     IN DI_FUNCTION      InstallFunction,
     IN HDEVINFO         hDevInfo,
     IN PSP_DEVINFO_DATA pDeviceInfoData OPTIONAL
-    )
+)
 
 /*
 
@@ -1729,9 +1609,9 @@ Return Value:
     TCHAR ServiceName[LINE_LEN];
 
 
-    switch(InstallFunction) {
+    switch (InstallFunction) {
 
-    case DIF_SELECTDEVICE :
+    case DIF_SELECTDEVICE:
 
         TraceMsg(TF_GENERAL, "DisplayClassInstaller DIF_SELECTDEVICE \n");
 
@@ -1739,17 +1619,14 @@ Return Value:
         // Check for old display driver infs that we no longer support.
 
 
-        if (SetupDiBuildDriverInfoList(hDevInfo, NULL, SPDIT_CLASSDRIVER))
-        {
+        if (SetupDiBuildDriverInfoList(hDevInfo, NULL, SPDIT_CLASSDRIVER)) {
             if (!SetupDiEnumDriverInfo(hDevInfo,
                                        NULL,
                                        SPDIT_CLASSDRIVER,
                                        0,
-                                       &DrvInfoData))
-            {
+                                       &DrvInfoData)) {
 
-                if (GetLastError() == ERROR_NO_MORE_ITEMS)
-                {
+                if (GetLastError() == ERROR_NO_MORE_ITEMS) {
 
                     // This is what happens when an old inf is loaded.
                     // Tell the user it is an old inf.
@@ -1777,9 +1654,9 @@ Return Value:
         ZeroMemory(&SelectDevParams, sizeof(SelectDevParams));
 
         SelectDevParams.ClassInstallHeader.cbSize
-                                     = sizeof(SelectDevParams.ClassInstallHeader);
+            = sizeof(SelectDevParams.ClassInstallHeader);
         SelectDevParams.ClassInstallHeader.InstallFunction
-                                     = DIF_SELECTDEVICE;
+            = DIF_SELECTDEVICE;
 
 
         // Get current SelectDevice parameters, and then set the fields
@@ -1793,9 +1670,9 @@ Return Value:
                                      NULL);
 
         SelectDevParams.ClassInstallHeader.cbSize
-                                 = sizeof(SelectDevParams.ClassInstallHeader);
+            = sizeof(SelectDevParams.ClassInstallHeader);
         SelectDevParams.ClassInstallHeader.InstallFunction
-                                 = DIF_SELECTDEVICE;
+            = DIF_SELECTDEVICE;
 
 
         // Set the strings to use on the select driver page .
@@ -1831,7 +1708,7 @@ Return Value:
 
 
 
-    case DIF_FIRSTTIMESETUP :
+    case DIF_FIRSTTIMESETUP:
 
         TraceMsg(TF_GENERAL, "DisplayClassInstaller DIF_FIRSTTIMESETUP \n");
 
@@ -1841,8 +1718,7 @@ Return Value:
         // Don't do video driver detection during upgrade.
 
 
-        if (bDoLegacyDetection() == FALSE)
-        {
+        if (bDoLegacyDetection() == FALSE) {
             return NO_ERROR;
         }
 
@@ -1852,8 +1728,7 @@ Return Value:
                                NULL,
                                &DrvInfoData);
 
-        if (err == NO_ERROR)
-        {
+        if (err == NO_ERROR) {
             SP_DEVINFO_DATA      DeviceInfoData;
             SP_DEVINSTALL_PARAMS DeviceInstallParams;
             SP_DRVINFO_DATA      NewDrvInfoData = DrvInfoData;
@@ -1869,14 +1744,13 @@ Return Value:
 
             if (!SetupDiCreateDeviceInfo(hDevInfo,
                                          TEXT("Display"),
-                                         (LPGUID) &GUID_DEVCLASS_DISPLAY,
+                                         (LPGUID)&GUID_DEVCLASS_DISPLAY,
                                          NULL,
                                          NULL,
                                          DICD_GENERATE_ID,
-                                         &DeviceInfoData))
-            {
+                                         &DeviceInfoData)) {
                 err = GetLastError();
-                TraceMsg(TF_GENERAL, " FIRSTTIME CreateDeviceInfo failed : error = %d\n",err);
+                TraceMsg(TF_GENERAL, " FIRSTTIME CreateDeviceInfo failed : error = %d\n", err);
                 return err;
             }
 
@@ -1891,10 +1765,9 @@ Return Value:
 
             if (!SetupDiGetDeviceInstallParams(hDevInfo,
                                                &DeviceInfoData,
-                                               &DeviceInstallParams))
-            {
+                                               &DeviceInstallParams)) {
                 err = GetLastError();
-                TraceMsg(TF_GENERAL, " FIRSTTIME GetDeviceInstall : error = %d\n",err);
+                TraceMsg(TF_GENERAL, " FIRSTTIME GetDeviceInstall : error = %d\n", err);
                 return err;
             }
 
@@ -1904,10 +1777,9 @@ Return Value:
 
             if (!SetupDiSetDeviceInstallParams(hDevInfo,
                                                &DeviceInfoData,
-                                               &DeviceInstallParams))
-            {
+                                               &DeviceInstallParams)) {
                 err = GetLastError();
-                TraceMsg(TF_GENERAL, " FIRSTTIME SetDeviceInstall : error = %d\n",err);
+                TraceMsg(TF_GENERAL, " FIRSTTIME SetDeviceInstall : error = %d\n", err);
                 return err;
             }
 
@@ -1917,8 +1789,7 @@ Return Value:
 
             if (!SetupDiBuildDriverInfoList(hDevInfo,
                                             &DeviceInfoData,
-                                            SPDIT_CLASSDRIVER))
-            {
+                                            SPDIT_CLASSDRIVER)) {
                 err = GetLastError();
                 DbgPrint("Desk.cpl: FIRSTTIME SetupDiBuildDriverInfoList Error %d\n", err);
                 return err;
@@ -1932,8 +1803,7 @@ Return Value:
 
             if (!SetupDiSetSelectedDriver(hDevInfo,
                                           &DeviceInfoData,
-                                          &NewDrvInfoData))
-            {
+                                          &NewDrvInfoData)) {
                 err = GetLastError();
                 TraceMsg(TF_GENERAL, " FIRSTTIME display.inf dispdet.inf inconsistent = %d\n", err);
                 ASSERT(FALSE);
@@ -1952,24 +1822,19 @@ Return Value:
             // DEVNODE will be created.
 
 
-            if (DeskIsPnPDriver(hDevInfo, NULL))
-            {
+            if (DeskIsPnPDriver(hDevInfo, NULL)) {
                 if (!SetupDiCallClassInstaller(DIF_INSTALLDEVICEFILES,
                                                hDevInfo,
-                                               &DeviceInfoData))
-                {
+                                               &DeviceInfoData)) {
                     err = GetLastError();
                     TraceMsg(TF_GENERAL, " FIRSTTIME install of driver files failed = %d\n", err);
-                }
-                else
-                {
+                } else {
                     err = DeskInstallService(hDevInfo,
                                              &DeviceInfoData,
                                              ServiceName,
                                              REPORT_DEVICE);
 
-                    if (err == NO_ERROR)
-                    {
+                    if (err == NO_ERROR) {
                         err = DeskSCStartService(ServiceName);
                     }
                 }
@@ -1981,9 +1846,7 @@ Return Value:
 
                 SetupDiDeleteDeviceInfo(hDevInfo,
                                         &DeviceInfoData);
-            }
-            else
-            {
+            } else {
 
                 // We will get called later to register and install this
                 // device if it is a TRUE legacy DEVNODE...
@@ -1996,7 +1859,7 @@ Return Value:
 
 #if LATER
 
-    case DIF_DETECT :
+    case DIF_DETECT:
 
         TraceMsg(TF_GENERAL, "DisplayClassInstaller DIF_DETECT \n");
 
@@ -2009,9 +1872,9 @@ Return Value:
         ZeroMemory(&DetectDevParams, sizeof(DetectDevParams));
 
         DetectDevParams.ClassInstallHeader.cbSize
-                                     = sizeof(DetectDevParams.ClassInstallHeader);
+            = sizeof(DetectDevParams.ClassInstallHeader);
         DetectDevParams.ClassInstallHeader.InstallFunction
-                                     = DIF_DETECT;
+            = DIF_DETECT;
 
         SetupDiGetClassInstallParams(hDevInfo,
                                      NULL,
@@ -2029,7 +1892,7 @@ Return Value:
 #endif
 
 
-    case DIF_REGISTERDEVICE :
+    case DIF_REGISTERDEVICE:
 
 
         TraceMsg(TF_GENERAL, "DisplayClassInstaller DIF_REGISTERDEVICE \n");
@@ -2039,17 +1902,16 @@ Return Value:
                                        0,
                                        NULL,
                                        NULL,
-                                       NULL))
-        {
+                                       NULL)) {
             err = GetLastError();
-            TraceMsg(TF_GENERAL, "DIF_REGISTERDEVICE failed : error = %d\n",err);
+            TraceMsg(TF_GENERAL, "DIF_REGISTERDEVICE failed : error = %d\n", err);
             return err;
         }
 
         return NO_ERROR;
 
 
-    case DIF_ALLOW_INSTALL :
+    case DIF_ALLOW_INSTALL:
 
         TraceMsg(TF_GENERAL, "DisplayClassInstaller DIF_ALLOW_INSTALL \n");
 
@@ -2059,15 +1921,14 @@ Return Value:
 
 
         if (DeskCheckInstallDatabase(hDevInfo,
-                                     pDeviceInfoData) == FALSE)
-        {
+                                     pDeviceInfoData) == FALSE) {
             return ERROR_DI_DONT_INSTALL;
         }
 
         return ERROR_DI_DO_DEFAULT;
 
 
-    case DIF_INSTALLDEVICE :
+    case DIF_INSTALLDEVICE:
 
         TraceMsg(TF_GENERAL, "DisplayClassInstaller DIF_INSTALLDEVICE \n");
 
@@ -2094,11 +1955,11 @@ Return Value:
         return err;
 
 
-    case DIF_REMOVE :
+    case DIF_REMOVE:
 
-    default :
+    default:
 
-        TraceMsg(TF_GENERAL, "DisplayClassInstaller default function = %d\n", (DWORD) InstallFunction);
+        TraceMsg(TF_GENERAL, "DisplayClassInstaller default function = %d\n", (DWORD)InstallFunction);
 
         break;
     }
@@ -2117,7 +1978,7 @@ MonitorClassInstaller(
     IN DI_FUNCTION      InstallFunction,
     IN HDEVINFO         hDevInfo,
     IN PSP_DEVINFO_DATA pDeviceInfoData OPTIONAL
-    )
+)
 
 /*
 
@@ -2152,7 +2013,7 @@ Return Value:
 {
 
 
-    TraceMsg(TF_GENERAL, " MonitorClassInstaller function = %d\n", (DWORD) InstallFunction);
+    TraceMsg(TF_GENERAL, " MonitorClassInstaller function = %d\n", (DWORD)InstallFunction);
 
 
     // If we did not exit from the routine by handling the call, tell the
@@ -2181,7 +2042,7 @@ InstallNewDriver(
     HWND    hwnd,
     LPCTSTR pszModel,
     PBOOL   pbKeepEnabled
-    )
+)
 {
     DWORD err;
     BOOL bStatus;
@@ -2193,19 +2054,16 @@ InstallNewDriver(
 
     hModule = LoadLibrary(TEXT("newdev.dll"));
 
-    if (hModule)
-    {
+    if (hModule) {
         InstallNewDevice = (PINSTALLNEWDEVICE)GetProcAddress(hModule, "InstallNewDevice");
 
-        if (InstallNewDevice)
-        {
-            bStatus = (*InstallNewDevice)(hwnd, (LPGUID) &GUID_DEVCLASS_DISPLAY, &reboot);
+        if (InstallNewDevice) {
+            bStatus = (*InstallNewDevice)(hwnd, (LPGUID)&GUID_DEVCLASS_DISPLAY, &reboot);
 
         }
     }
 
-    if (bStatus)
-    {
+    if (bStatus) {
         DWORD disposition;
         HKEY hkey;
 
@@ -2221,8 +2079,7 @@ InstallNewDriver(
                       ID_DSP_TXT_INSTALL_DRIVER,
                       ID_DSP_TXT_DRIVER_INSTALLED);
 
-        if (PreConfigured == 0)
-        {
+        if (PreConfigured == 0) {
 
             // Create a registry key that indicates a new display was
             // installed.
@@ -2230,8 +2087,7 @@ InstallNewDriver(
 
             keyName = SZ_NEW_DISPLAY;
 
-            if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS)
-            {
+            if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS) {
                 RegCloseKey(hkey);
             }
         }
@@ -2242,8 +2098,7 @@ InstallNewDriver(
         // for these changes to take effect
 
 
-        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, SZ_REBOOT_NECESSARY, 0, NULL, REG_OPTION_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS)
-        {
+        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, SZ_REBOOT_NECESSARY, 0, NULL, REG_OPTION_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS) {
             RegCloseKey(hkey);
         }
 
@@ -2257,13 +2112,10 @@ InstallNewDriver(
         PropSheet_RestartWindows(ghwndPropSheet);
         PropSheet_CancelToClose(ghwndPropSheet);
 
-    }
-    else
-    {
+    } else {
         err = GetLastError();
 
-        if (err != ERROR_CANCELLED)
-        {
+        if (err != ERROR_CANCELLED) {
 
             // Tell the user the driver was not installed properly.
 

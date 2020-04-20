@@ -55,7 +55,7 @@ Return Value:
     m_Provider = NULL;
     m_reference_count = 1;
 #if defined(DEBUG_TRACING)
-    InitializeListHead (&m_CatalogLinkage);
+    InitializeListHead(&m_CatalogLinkage);
 #endif
 }  // PROTO_CATALOG_ITEM
 
@@ -93,8 +93,8 @@ Return Value:
         keyname,       // lpszSubKey
         0,             // dwReserved
         KEY_READ,      // samDesired
-        & thiskey      // phkResult
-        );
+        &thiskey      // phkResult
+    );
     if (result != ERROR_SUCCESS) {
         DEBUGF(DBG_ERR, ("Corrupted catalog entry key '%s', error = %lu\n", keyname, result));
         return(WSASYSCALLFAILURE);
@@ -103,11 +103,11 @@ Return Value:
     ReturnCode = IoRegistry(
         thiskey,  // EntryKey
         TRUE      // IsRead
-        );
+    );
 
     result = RegCloseKey(
         thiskey  // hkey
-        );
+    );
     if (result != ERROR_SUCCESS) {
         DEBUGF(DBG_ERR, ("Couldn't close catalog entry, error = %lu\n", result));
         return(WSASYSCALLFAILURE);
@@ -160,11 +160,11 @@ Return Value:
     None
 --*/
 {
-    if (m_Provider!=NULL) {
-        m_Provider->Dereference ();
+    if (m_Provider != NULL) {
+        m_Provider->Dereference();
         m_Provider = NULL;
     }
-    assert(IsListEmpty (&m_CatalogLinkage));
+    assert(IsListEmpty(&m_CatalogLinkage));
 }  // ~PROTO_CATALOG_ITEM
 
 
@@ -178,8 +178,8 @@ Return Value:
     None
 --*/
 {
-    assert (m_Provider==NULL);
-    Provider->Reference ();
+    assert(m_Provider == NULL);
+    Provider->Reference();
     m_Provider = Provider;
 }  // SetProvider
 
@@ -211,9 +211,9 @@ Return Value:
         REG_OPTION_NON_VOLATILE,  // fdwOptions
         KEY_ALL_ACCESS,           // samDesired
         NULL,                     // lpSecurityAttributes
-        & thiskey,                // phkResult
-        & key_disposition         // lpdwDisposition
-        );
+        &thiskey,                // phkResult
+        &key_disposition         // lpdwDisposition
+    );
     if (result != ERROR_SUCCESS) {
         DEBUGF(DBG_ERR, ("Error occurred creating catalog entry key (%lu)\n", result));
         return(WSASYSCALLFAILURE);
@@ -225,11 +225,11 @@ Return Value:
     ReturnCode = IoRegistry(
         thiskey,  // EntryKey
         FALSE     // IsRead
-        );
+    );
 
     result = RegCloseKey(
         thiskey  // hkey
-        );
+    );
     if (result != ERROR_SUCCESS) {
         DEBUGF(DBG_ERR, ("Couldn't close catalog entry, error = %lu\n", result));
         return(WSASYSCALLFAILURE);
@@ -244,16 +244,16 @@ Return Value:
 
 typedef struct {
     char            LibraryPath[MAX_PATH];
-        // The unexpanded path where the provider DLL is found.
+    // The unexpanded path where the provider DLL is found.
 
     WSAPROTOCOL_INFOW   ProtoInfo;
-        // The  protocol information.  Note that if the WSAPROTOCOL_INFOW structure
-        // is  ever changed to a non-flat structure (i.e., containing pointers)
-        // then  this  type  definition  will  have  to  be changed, since this
-        // structure must be strictly flat.
+    // The  protocol information.  Note that if the WSAPROTOCOL_INFOW structure
+    // is  ever changed to a non-flat structure (i.e., containing pointers)
+    // then  this  type  definition  will  have  to  be changed, since this
+    // structure must be strictly flat.
 } PACKED_CAT_ITEM;
 
-typedef PACKED_CAT_ITEM * PPACKED_CAT_ITEM;
+typedef PACKED_CAT_ITEM* PPACKED_CAT_ITEM;
 
 
 #define PACKED_ITEM_NAME "PackedCatalogItem"
@@ -298,8 +298,8 @@ Implementation Notes:
                 0,                 // lpdwReserved
                 NULL,              // lpdwType
                 NULL,              // lpbData
-                & packed_size      // lpcbData
-                );
+                &packed_size      // lpcbData
+            );
             if (lresult != ERROR_SUCCESS) {
                 DEBUGF(DBG_ERR, ("querying length of %s entry\n", PACKED_ITEM_NAME));
                 return_value = WSASYSCALLFAILURE;
@@ -319,7 +319,7 @@ Implementation Notes:
         }
 
         // If writing, then initialize the packed structure
-        if (! IsRead) {
+        if (!IsRead) {
             lstrcpy(packed_buf->LibraryPath, m_LibraryPath);
             packed_buf->ProtoInfo = m_ProtoInfo;
         } // if ! IsRead
@@ -331,25 +331,25 @@ Implementation Notes:
             WSABUF  io_descr;
 
             io_descr.len = packed_size;
-            io_descr.buf = (char FAR *) packed_buf;
+            io_descr.buf = (char FAR*) packed_buf;
             if (IsRead) {
                 io_result = ReadRegistryEntry(
                     EntryKey,             // EntryKey
                     PACKED_ITEM_NAME,     // EntryName
-                    (PVOID) & io_descr,   // Data
+                    (PVOID)&io_descr,   // Data
                     packed_size,          // MaxBytes
                     REG_BINARY            // TypeFlag
-                    );
+                );
             } // if IsRead
             else { // not IsRead
                 io_result = WriteRegistryEntry(
                     EntryKey,             // EntryKey
                     PACKED_ITEM_NAME,     // EntryName
-                    (PVOID) & io_descr,   // Data
+                    (PVOID)&io_descr,   // Data
                     REG_BINARY            // TypeFlag
-                    );
+                );
             } // else not IsRead
-            if (! io_result) {
+            if (!io_result) {
                 DEBUGF(DBG_ERR, ("error %s registry entry\n", IsRead ? "reading" : "writing"));
                 return_value = WSASYSCALLFAILURE;
                 TRY_THROW(guard_memalloc);
@@ -373,7 +373,7 @@ Implementation Notes:
         if (return_value == ERROR_SUCCESS) {
             return_value = WSASYSCALLFAILURE;
         }
-        if (packed_buf!=NULL)
+        if (packed_buf != NULL)
             delete packed_buf;
     } TRY_END(guard_memalloc);
 

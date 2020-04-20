@@ -4,7 +4,7 @@
 #define DEB_REG DEB_ERROR
 
 CRegistryA g_Reg;
-CRegistryA *g_vpReg = &g_Reg;
+CRegistryA* g_vpReg = &g_Reg;
 
 
 
@@ -22,19 +22,16 @@ CRegistryA *g_vpReg = &g_Reg;
 //  Notes:
 
 
-STDMETHODIMP CRegistryW::QueryInterface( REFIID riid, void **ppv )
+STDMETHODIMP CRegistryW::QueryInterface(REFIID riid, void** ppv)
 {
     HRESULT     hr = NOERROR;
 
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::QueryInterface (%lx, %p)\n", this, riid, ppv));
 
-    if ((riid == IID_IUnknown) || (riid == IID_IRegistryW))
-    {
-        *ppv = (void FAR *)this;
+    if ((riid == IID_IUnknown) || (riid == IID_IRegistryW)) {
+        *ppv = (void FAR*)this;
         AddRef();
-    }
-    else
-    {
+    } else {
         *ppv = NULL;
         hr = E_NOINTERFACE;
     }
@@ -58,7 +55,7 @@ STDMETHODIMP CRegistryW::QueryInterface( REFIID riid, void **ppv )
 //  Notes:
 
 
-STDMETHODIMP_(ULONG) CRegistryW::AddRef( void )
+STDMETHODIMP_(ULONG) CRegistryW::AddRef(void)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::AddRef\n", this));
 
@@ -83,13 +80,12 @@ STDMETHODIMP_(ULONG) CRegistryW::AddRef( void )
 //  Notes:
 
 
-STDMETHODIMP_(ULONG) CRegistryW::Release( void )
+STDMETHODIMP_(ULONG) CRegistryW::Release(void)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::Release\n", this));
 
     LONG lRet = --_CRefs;
-    if (_CRefs == 0)
-    {
+    if (_CRefs == 0) {
         delete this;
     }
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::Release (%ld)\n", this, lRet));
@@ -97,41 +93,41 @@ STDMETHODIMP_(ULONG) CRegistryW::Release( void )
 }
 
 // can this method be supported
-STDMETHODIMP_(LONG) CRegistryW::ConnectRegistry (
-     LPWSTR lpMachineName,
-     HKEY hKey,
-     IRegistryW **ppReg
-    )
+STDMETHODIMP_(LONG) CRegistryW::ConnectRegistry(
+    LPWSTR lpMachineName,
+    HKEY hKey,
+    IRegistryW** ppReg
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::ConnectRegistry\n", this));
     HKEY hKeyLoc = 0;
 
     LONG lRet;
 
-    lRet  = RegConnectRegistryW(lpMachineName, hKey, &hKeyLoc);
+    lRet = RegConnectRegistryW(lpMachineName, hKey, &hKeyLoc);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::ConnectRegistry (%ld)\n", this, lRet));
     return lRet;
 }
 
 
-STDMETHODIMP_(LONG) CRegistryW::CloseKey (
-     HKEY hKey
-    )
+STDMETHODIMP_(LONG) CRegistryW::CloseKey(
+    HKEY hKey
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::CloseKey\n", this));
     LONG lRet = 0;
-    lRet = RegCloseKey( hKey );
+    lRet = RegCloseKey(hKey);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::CloseKey (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::CreateKey (
-     HKEY hKey,
-     LPCWSTR lpSubKey,
-     PHKEY phkResult
-    )
+STDMETHODIMP_(LONG) CRegistryW::CreateKey(
+    HKEY hKey,
+    LPCWSTR lpSubKey,
+    PHKEY phkResult
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::CreateKey\n", this));
     LONG lRet = 0;
@@ -142,29 +138,29 @@ STDMETHODIMP_(LONG) CRegistryW::CreateKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::CreateKeyEx (
-     HKEY hKey,
-     LPCWSTR lpSubKey,
-     DWORD Reserved,
-     LPWSTR lpClass,
-     DWORD dwOptions,
-     REGSAM samDesired,
-     LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-     PHKEY phkResult,
-     LPDWORD lpdwDisposition
-    )
+STDMETHODIMP_(LONG) CRegistryW::CreateKeyEx(
+    HKEY hKey,
+    LPCWSTR lpSubKey,
+    DWORD Reserved,
+    LPWSTR lpClass,
+    DWORD dwOptions,
+    REGSAM samDesired,
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+    PHKEY phkResult,
+    LPDWORD lpdwDisposition
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::CreateKeyEx\n", this));
     LONG lRet = 0;
-    lRet = RegCreateKeyExW (hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
+    lRet = RegCreateKeyExW(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::CreateKeyEx (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::DeleteKey (
-     HKEY hKey,
-     LPCWSTR lpSubKey
-    )
+STDMETHODIMP_(LONG) CRegistryW::DeleteKey(
+    HKEY hKey,
+    LPCWSTR lpSubKey
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::DeleteKey\n", this));
     LONG lRet = 0;
@@ -175,10 +171,10 @@ STDMETHODIMP_(LONG) CRegistryW::DeleteKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::DeleteValue (
-     HKEY hKey,
-     LPCWSTR lpValueName
-    )
+STDMETHODIMP_(LONG) CRegistryW::DeleteValue(
+    HKEY hKey,
+    LPCWSTR lpValueName
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::DeleteValue\n", this));
     LONG lRet = 0;
@@ -190,66 +186,66 @@ STDMETHODIMP_(LONG) CRegistryW::DeleteValue (
 }
 
 
-STDMETHODIMP_(LONG) CRegistryW::EnumKey (
-     HKEY hKey,
-     DWORD dwIndex,
-     LPWSTR lpName,
-     DWORD cbName
-    )
+STDMETHODIMP_(LONG) CRegistryW::EnumKey(
+    HKEY hKey,
+    DWORD dwIndex,
+    LPWSTR lpName,
+    DWORD cbName
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::EnumKey\n", this));
     LONG lRet = 0;
 
-    lRet = RegEnumKeyW (hKey, dwIndex, lpName, cbName);
+    lRet = RegEnumKeyW(hKey, dwIndex, lpName, cbName);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::EnumKey (%ld)\n", this, lRet));
     return lRet;
 }
 
 
-STDMETHODIMP_(LONG) CRegistryW::EnumKeyEx (
-     HKEY hKey,
-     DWORD dwIndex,
-     LPWSTR lpName,
-     LPDWORD lpcbName,
-     LPDWORD lpReserved,
-     LPWSTR lpClass,
-     LPDWORD lpcbClass,
-     PFILETIME lpftLastWriteTime
-    )
+STDMETHODIMP_(LONG) CRegistryW::EnumKeyEx(
+    HKEY hKey,
+    DWORD dwIndex,
+    LPWSTR lpName,
+    LPDWORD lpcbName,
+    LPDWORD lpReserved,
+    LPWSTR lpClass,
+    LPDWORD lpcbClass,
+    PFILETIME lpftLastWriteTime
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::EnumKeyEx\n", this));
     LONG lRet = 0;
 
-    lRet = RegEnumKeyExW(hKey,dwIndex,lpName,lpcbName,lpReserved,
-                 lpClass,lpcbClass,lpftLastWriteTime);
+    lRet = RegEnumKeyExW(hKey, dwIndex, lpName, lpcbName, lpReserved,
+                         lpClass, lpcbClass, lpftLastWriteTime);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::EnumKeyEx (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::EnumValue (
-     HKEY hKey,
-     DWORD dwIndex,
-     LPWSTR lpValueName,
-     LPDWORD lpcbValueName,
-     LPDWORD lpReserved,
-     LPDWORD lpType,
-     LPBYTE lpData,
-     LPDWORD lpcbData
-    )
+STDMETHODIMP_(LONG) CRegistryW::EnumValue(
+    HKEY hKey,
+    DWORD dwIndex,
+    LPWSTR lpValueName,
+    LPDWORD lpcbValueName,
+    LPDWORD lpReserved,
+    LPDWORD lpType,
+    LPBYTE lpData,
+    LPDWORD lpcbData
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::EnumValue\n", this));
     LONG lRet = 0;
-    lRet = RegEnumValueW(hKey,dwIndex,lpValueName,
-                lpcbValueName,lpReserved,lpType,lpData,lpcbData);
+    lRet = RegEnumValueW(hKey, dwIndex, lpValueName,
+                         lpcbValueName, lpReserved, lpType, lpData, lpcbData);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::EnumValue (%ld)\n", this, lRet));
     return lRet;
 }
 
 
-STDMETHODIMP_(LONG) CRegistryW::FlushKey (HKEY hKey)
+STDMETHODIMP_(LONG) CRegistryW::FlushKey(HKEY hKey)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::FlushKey\n", this));
     LONG lRet = 0;
@@ -261,26 +257,26 @@ STDMETHODIMP_(LONG) CRegistryW::FlushKey (HKEY hKey)
 }
 
 
-STDMETHODIMP_(LONG) CRegistryW::GetKeySecurity (
-     HKEY hKey,
-     SECURITY_INFORMATION SecurityInformation,
-     PSECURITY_DESCRIPTOR pSecurityDescriptor,
-     LPDWORD lpcbSecurityDescriptor)
+STDMETHODIMP_(LONG) CRegistryW::GetKeySecurity(
+    HKEY hKey,
+    SECURITY_INFORMATION SecurityInformation,
+    PSECURITY_DESCRIPTOR pSecurityDescriptor,
+    LPDWORD lpcbSecurityDescriptor)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::GetKeySecurity\n", this));
     LONG lRet = 0;
 
-    lRet = RegGetKeySecurity (hKey,SecurityInformation, pSecurityDescriptor,lpcbSecurityDescriptor);
+    lRet = RegGetKeySecurity(hKey, SecurityInformation, pSecurityDescriptor, lpcbSecurityDescriptor);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::GetKeySecurity (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::LoadKey (
-     HKEY  hKey,
-     LPCWSTR  lpSubKey,
-     LPCWSTR  lpFile
-    )
+STDMETHODIMP_(LONG) CRegistryW::LoadKey(
+    HKEY  hKey,
+    LPCWSTR  lpSubKey,
+    LPCWSTR  lpFile
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::LoadKey\n", this));
     LONG lRet = 0;
@@ -291,133 +287,133 @@ STDMETHODIMP_(LONG) CRegistryW::LoadKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::NotifyChangeKeyValue (
-     HKEY hKey,
-     BOOL bWatchSubtree,
-     DWORD dwNotifyFilter,
-     HANDLE hEvent,
-     BOOL fAsynchronus
-    )
+STDMETHODIMP_(LONG) CRegistryW::NotifyChangeKeyValue(
+    HKEY hKey,
+    BOOL bWatchSubtree,
+    DWORD dwNotifyFilter,
+    HANDLE hEvent,
+    BOOL fAsynchronus
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::NotifyChangeKeyValue\n", this));
     LONG lRet = 0;
 
-    lRet = RegNotifyChangeKeyValue(hKey, bWatchSubtree, dwNotifyFilter, hEvent,fAsynchronus);
+    lRet = RegNotifyChangeKeyValue(hKey, bWatchSubtree, dwNotifyFilter, hEvent, fAsynchronus);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::NotifyChangeKeyValue (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::OpenKey (
-     HKEY hKey,
-     LPCWSTR lpSubKey,
-     PHKEY phkResult
-    )
+STDMETHODIMP_(LONG) CRegistryW::OpenKey(
+    HKEY hKey,
+    LPCWSTR lpSubKey,
+    PHKEY phkResult
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::OpenKey\n", this));
     LONG lRet = 0;
 
-    lRet =  RegOpenKeyW(hKey, lpSubKey, phkResult);
+    lRet = RegOpenKeyW(hKey, lpSubKey, phkResult);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::OpenKey (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::OpenKeyEx (
-     HKEY hKey,
-     LPCWSTR lpSubKey,
-     DWORD ulOptions,
-     REGSAM samDesired,
-     PHKEY phkResult
-    )
+STDMETHODIMP_(LONG) CRegistryW::OpenKeyEx(
+    HKEY hKey,
+    LPCWSTR lpSubKey,
+    DWORD ulOptions,
+    REGSAM samDesired,
+    PHKEY phkResult
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::OpenKeyEx\n", this));
     LONG lRet = 0;
 
-    lRet = RegOpenKeyExW(hKey,lpSubKey,ulOptions,samDesired,phkResult);
+    lRet = RegOpenKeyExW(hKey, lpSubKey, ulOptions, samDesired, phkResult);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::OpenKeyEx (%ld)\n", this, lRet));
     return lRet;
 }
 
 
-STDMETHODIMP_(LONG) CRegistryW::QueryInfoKey (
-     HKEY    hKey,
-     LPWSTR  lpClass,
-     LPDWORD lpcbClass,
-     LPDWORD lpReserved,
-     LPDWORD lpcSubKeys,
-     LPDWORD lpcbMaxSubKeyLen,
-     LPDWORD lpcbMaxClassLen,
-     LPDWORD lpcValues,
-     LPDWORD lpcbMaxValueNameLen,
-     LPDWORD lpcbMaxValueLen,
-     LPDWORD lpcbSecurityDescriptor,
-     PFILETIME lpftLastWriteTime
-    )
+STDMETHODIMP_(LONG) CRegistryW::QueryInfoKey(
+    HKEY    hKey,
+    LPWSTR  lpClass,
+    LPDWORD lpcbClass,
+    LPDWORD lpReserved,
+    LPDWORD lpcSubKeys,
+    LPDWORD lpcbMaxSubKeyLen,
+    LPDWORD lpcbMaxClassLen,
+    LPDWORD lpcValues,
+    LPDWORD lpcbMaxValueNameLen,
+    LPDWORD lpcbMaxValueLen,
+    LPDWORD lpcbSecurityDescriptor,
+    PFILETIME lpftLastWriteTime
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::QueryInfoKey\n", this));
     LONG lRet = 0;
 
-    lRet = RegQueryInfoKeyW (
-         hKey,
-         lpClass,
-         lpcbClass,
-         lpReserved,
-         lpcSubKeys,
-         lpcbMaxSubKeyLen,
-         lpcbMaxClassLen,
-         lpcValues,
-         lpcbMaxValueNameLen,
-         lpcbMaxValueLen,
-         lpcbSecurityDescriptor,
-         lpftLastWriteTime);
+    lRet = RegQueryInfoKeyW(
+        hKey,
+        lpClass,
+        lpcbClass,
+        lpReserved,
+        lpcSubKeys,
+        lpcbMaxSubKeyLen,
+        lpcbMaxClassLen,
+        lpcValues,
+        lpcbMaxValueNameLen,
+        lpcbMaxValueLen,
+        lpcbSecurityDescriptor,
+        lpftLastWriteTime);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::QueryInfoKey (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::QueryValue (
-     HKEY hKey,
-     LPCWSTR lpSubKey,
-     LPWSTR lpValue,
-     LONG   *lpcbValue
-    )
+STDMETHODIMP_(LONG) CRegistryW::QueryValue(
+    HKEY hKey,
+    LPCWSTR lpSubKey,
+    LPWSTR lpValue,
+    LONG* lpcbValue
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::QueryValue\n", this));
     LONG lRet = 0;
 
-    lRet = RegQueryValueW(hKey,lpSubKey,lpValue,lpcbValue);
+    lRet = RegQueryValueW(hKey, lpSubKey, lpValue, lpcbValue);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::QueryValue (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::QueryMultipleValues (
-     HKEY hKey,
-     PVALENTXW val_list,
-     DWORD num_vals,
-     LPWSTR lpValueBuf,
-     LPDWORD ldwTotsize
-    )
+STDMETHODIMP_(LONG) CRegistryW::QueryMultipleValues(
+    HKEY hKey,
+    PVALENTXW val_list,
+    DWORD num_vals,
+    LPWSTR lpValueBuf,
+    LPDWORD ldwTotsize
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::QueryMultipleValues\n", this));
     LONG lRet = 0;
 
-    lRet = RegQueryMultipleValuesW(hKey,(PVALENTW) val_list, num_vals, lpValueBuf, ldwTotsize);
+    lRet = RegQueryMultipleValuesW(hKey, (PVALENTW)val_list, num_vals, lpValueBuf, ldwTotsize);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::QueryMultipleValues (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::QueryValueEx (
-     HKEY hKey,
-     LPCWSTR lpValueName,
-     LPDWORD lpReserved,
-     LPDWORD lpType,
-     LPBYTE lpData,
-     LPDWORD lpcbData
-    )
+STDMETHODIMP_(LONG) CRegistryW::QueryValueEx(
+    HKEY hKey,
+    LPCWSTR lpValueName,
+    LPDWORD lpReserved,
+    LPDWORD lpType,
+    LPBYTE lpData,
+    LPDWORD lpcbData
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::QueryValueEx\n", this));
     LONG lRet = 0;
@@ -428,12 +424,12 @@ STDMETHODIMP_(LONG) CRegistryW::QueryValueEx (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::ReplaceKey (
-     HKEY     hKey,
-     LPCWSTR  lpSubKey,
-     LPCWSTR  lpNewFile,
-     LPCWSTR  lpOldFile
-    )
+STDMETHODIMP_(LONG) CRegistryW::ReplaceKey(
+    HKEY     hKey,
+    LPCWSTR  lpSubKey,
+    LPCWSTR  lpNewFile,
+    LPCWSTR  lpOldFile
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::ReplaceKey\n", this));
     LONG lRet = 0;
@@ -444,11 +440,11 @@ STDMETHODIMP_(LONG) CRegistryW::ReplaceKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::RestoreKey (
-     HKEY hKey,
-     LPCWSTR lpFile,
-     DWORD   dwFlags
-    )
+STDMETHODIMP_(LONG) CRegistryW::RestoreKey(
+    HKEY hKey,
+    LPCWSTR lpFile,
+    DWORD   dwFlags
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::RestoreKey\n", this));
     LONG lRet = 0;
@@ -459,11 +455,11 @@ STDMETHODIMP_(LONG) CRegistryW::RestoreKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::SaveKey (
-     HKEY hKey,
-     LPCWSTR lpFile,
-     LPSECURITY_ATTRIBUTES lpSecurityAttributes
-    )
+STDMETHODIMP_(LONG) CRegistryW::SaveKey(
+    HKEY hKey,
+    LPCWSTR lpFile,
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::SaveKey\n", this));
     LONG lRet = 0;
@@ -474,11 +470,11 @@ STDMETHODIMP_(LONG) CRegistryW::SaveKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::SetKeySecurity (
-     HKEY hKey,
-     SECURITY_INFORMATION SecurityInformation,
-     PSECURITY_DESCRIPTOR pSecurityDescriptor
-    )
+STDMETHODIMP_(LONG) CRegistryW::SetKeySecurity(
+    HKEY hKey,
+    SECURITY_INFORMATION SecurityInformation,
+    PSECURITY_DESCRIPTOR pSecurityDescriptor
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::SetKeySecurity\n", this));
     LONG lRet = 0;
@@ -489,44 +485,44 @@ STDMETHODIMP_(LONG) CRegistryW::SetKeySecurity (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::SetValue (
-     HKEY hKey,
-     LPCWSTR lpSubKey,
-     DWORD dwType,
-     LPCWSTR lpData,
-     DWORD cbData
-    )
+STDMETHODIMP_(LONG) CRegistryW::SetValue(
+    HKEY hKey,
+    LPCWSTR lpSubKey,
+    DWORD dwType,
+    LPCWSTR lpData,
+    DWORD cbData
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::SetValue\n", this));
     LONG lRet = 0;
 
-    lRet = RegSetValueW(hKey, lpSubKey, dwType,lpData, cbData );
+    lRet = RegSetValueW(hKey, lpSubKey, dwType, lpData, cbData);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::SetValue (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::SetValueEx (
-     HKEY hKey,
-     LPCWSTR lpValueName,
-     DWORD Reserved,
-     DWORD dwType,
-     const BYTE* lpData,
-     DWORD cbData
-    )
+STDMETHODIMP_(LONG) CRegistryW::SetValueEx(
+    HKEY hKey,
+    LPCWSTR lpValueName,
+    DWORD Reserved,
+    DWORD dwType,
+    const BYTE* lpData,
+    DWORD cbData
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::SetValueEx\n", this));
     LONG lRet = 0;
 
-    lRet = RegSetValueExW(hKey, lpValueName, Reserved, dwType,lpData, cbData);
+    lRet = RegSetValueExW(hKey, lpValueName, Reserved, dwType, lpData, cbData);
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryW::SetValueEx (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryW::UnLoadKey (
-     HKEY hKey,
-     LPCWSTR lpSubKey
-    )
+STDMETHODIMP_(LONG) CRegistryW::UnLoadKey(
+    HKEY hKey,
+    LPCWSTR lpSubKey
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryW::UnLoadKey\n", this));
     LONG lRet = 0;
@@ -554,19 +550,16 @@ STDMETHODIMP_(LONG) CRegistryW::UnLoadKey (
 //  Notes:
 
 
-STDMETHODIMP CRegistryA::QueryInterface( REFIID riid, void **ppv )
+STDMETHODIMP CRegistryA::QueryInterface(REFIID riid, void** ppv)
 {
     HRESULT     hr = NOERROR;
 
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::QueryInterface (%lx, %p)\n", this, riid, ppv));
 
-    if ((riid == IID_IUnknown) || (riid == IID_IRegistryA))
-    {
-        *ppv = (void FAR *)this;
+    if ((riid == IID_IUnknown) || (riid == IID_IRegistryA)) {
+        *ppv = (void FAR*)this;
         AddRef();
-    }
-    else
-    {
+    } else {
         *ppv = NULL;
         hr = E_NOINTERFACE;
     }
@@ -590,7 +583,7 @@ STDMETHODIMP CRegistryA::QueryInterface( REFIID riid, void **ppv )
 //  Notes:
 
 
-STDMETHODIMP_(ULONG) CRegistryA::AddRef( void )
+STDMETHODIMP_(ULONG) CRegistryA::AddRef(void)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::AddRef\n", this));
 
@@ -615,13 +608,12 @@ STDMETHODIMP_(ULONG) CRegistryA::AddRef( void )
 //  Notes:
 
 
-STDMETHODIMP_(ULONG) CRegistryA::Release( void )
+STDMETHODIMP_(ULONG) CRegistryA::Release(void)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::Release\n", this));
 
     LONG lRet = --_CRefs;
-    if (_CRefs == 0)
-    {
+    if (_CRefs == 0) {
         delete this;
     }
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::Release (%ld)\n", this, lRet));
@@ -629,41 +621,41 @@ STDMETHODIMP_(ULONG) CRegistryA::Release( void )
 }
 
 // can this method be supported
-STDMETHODIMP_(LONG) CRegistryA::ConnectRegistry (
-     LPSTR lpMachineName,
-     HKEY hKey,
-     IRegistryA **ppReg
-    )
+STDMETHODIMP_(LONG) CRegistryA::ConnectRegistry(
+    LPSTR lpMachineName,
+    HKEY hKey,
+    IRegistryA** ppReg
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::ConnectRegistry\n", this));
     HKEY hKeyLoc = 0;
 
     LONG lRet;
 
-    lRet  = RegConnectRegistryA(lpMachineName, hKey, &hKeyLoc);
+    lRet = RegConnectRegistryA(lpMachineName, hKey, &hKeyLoc);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::ConnectRegistry (%ld)\n", this, lRet));
     return lRet;
 }
 
 
-STDMETHODIMP_(LONG) CRegistryA::CloseKey (
-     HKEY hKey
-    )
+STDMETHODIMP_(LONG) CRegistryA::CloseKey(
+    HKEY hKey
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::CloseKey\n", this));
     LONG lRet = 0;
-    lRet = RegCloseKey( hKey );
+    lRet = RegCloseKey(hKey);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::CloseKey (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::CreateKey (
-     HKEY hKey,
-     LPCSTR lpSubKey,
-     PHKEY phkResult
-    )
+STDMETHODIMP_(LONG) CRegistryA::CreateKey(
+    HKEY hKey,
+    LPCSTR lpSubKey,
+    PHKEY phkResult
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::CreateKey\n", this));
     LONG lRet = 0;
@@ -674,29 +666,29 @@ STDMETHODIMP_(LONG) CRegistryA::CreateKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::CreateKeyEx (
-     HKEY hKey,
-     LPCSTR lpSubKey,
-     DWORD Reserved,
-     LPSTR lpClass,
-     DWORD dwOptions,
-     REGSAM samDesired,
-     LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-     PHKEY phkResult,
-     LPDWORD lpdwDisposition
-    )
+STDMETHODIMP_(LONG) CRegistryA::CreateKeyEx(
+    HKEY hKey,
+    LPCSTR lpSubKey,
+    DWORD Reserved,
+    LPSTR lpClass,
+    DWORD dwOptions,
+    REGSAM samDesired,
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+    PHKEY phkResult,
+    LPDWORD lpdwDisposition
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::CreateKeyEx\n", this));
     LONG lRet = 0;
-    lRet = RegCreateKeyExA (hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
+    lRet = RegCreateKeyExA(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::CreateKeyEx (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::DeleteKey (
-     HKEY hKey,
-     LPCSTR lpSubKey
-    )
+STDMETHODIMP_(LONG) CRegistryA::DeleteKey(
+    HKEY hKey,
+    LPCSTR lpSubKey
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::DeleteKey\n", this));
     LONG lRet = 0;
@@ -707,10 +699,10 @@ STDMETHODIMP_(LONG) CRegistryA::DeleteKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::DeleteValue (
-     HKEY hKey,
-     LPCSTR lpValueName
-    )
+STDMETHODIMP_(LONG) CRegistryA::DeleteValue(
+    HKEY hKey,
+    LPCSTR lpValueName
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::DeleteValue\n", this));
     LONG lRet = 0;
@@ -722,66 +714,66 @@ STDMETHODIMP_(LONG) CRegistryA::DeleteValue (
 }
 
 
-STDMETHODIMP_(LONG) CRegistryA::EnumKey (
-     HKEY hKey,
-     DWORD dwIndex,
-     LPSTR lpName,
-     DWORD cbName
-    )
+STDMETHODIMP_(LONG) CRegistryA::EnumKey(
+    HKEY hKey,
+    DWORD dwIndex,
+    LPSTR lpName,
+    DWORD cbName
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::EnumKey\n", this));
     LONG lRet = 0;
 
-    lRet = RegEnumKeyA (hKey, dwIndex, lpName, cbName);
+    lRet = RegEnumKeyA(hKey, dwIndex, lpName, cbName);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::EnumKey (%ld)\n", this, lRet));
     return lRet;
 }
 
 
-STDMETHODIMP_(LONG) CRegistryA::EnumKeyEx (
-     HKEY hKey,
-     DWORD dwIndex,
-     LPSTR lpName,
-     LPDWORD lpcbName,
-     LPDWORD lpReserved,
-     LPSTR lpClass,
-     LPDWORD lpcbClass,
-     PFILETIME lpftLastWriteTime
-    )
+STDMETHODIMP_(LONG) CRegistryA::EnumKeyEx(
+    HKEY hKey,
+    DWORD dwIndex,
+    LPSTR lpName,
+    LPDWORD lpcbName,
+    LPDWORD lpReserved,
+    LPSTR lpClass,
+    LPDWORD lpcbClass,
+    PFILETIME lpftLastWriteTime
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::EnumKeyEx\n", this));
     LONG lRet = 0;
 
-    lRet = RegEnumKeyExA(hKey,dwIndex,lpName,lpcbName,lpReserved,
-                 lpClass,lpcbClass,lpftLastWriteTime);
+    lRet = RegEnumKeyExA(hKey, dwIndex, lpName, lpcbName, lpReserved,
+                         lpClass, lpcbClass, lpftLastWriteTime);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::EnumKeyEx (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::EnumValue (
-     HKEY hKey,
-     DWORD dwIndex,
-     LPSTR lpValueName,
-     LPDWORD lpcbValueName,
-     LPDWORD lpReserved,
-     LPDWORD lpType,
-     LPBYTE lpData,
-     LPDWORD lpcbData
-    )
+STDMETHODIMP_(LONG) CRegistryA::EnumValue(
+    HKEY hKey,
+    DWORD dwIndex,
+    LPSTR lpValueName,
+    LPDWORD lpcbValueName,
+    LPDWORD lpReserved,
+    LPDWORD lpType,
+    LPBYTE lpData,
+    LPDWORD lpcbData
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::EnumValue\n", this));
     LONG lRet = 0;
-    lRet = RegEnumValueA(hKey,dwIndex,lpValueName,
-                lpcbValueName,lpReserved,lpType,lpData,lpcbData);
+    lRet = RegEnumValueA(hKey, dwIndex, lpValueName,
+                         lpcbValueName, lpReserved, lpType, lpData, lpcbData);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::EnumValue (%ld)\n", this, lRet));
     return lRet;
 }
 
 
-STDMETHODIMP_(LONG) CRegistryA::FlushKey (HKEY hKey)
+STDMETHODIMP_(LONG) CRegistryA::FlushKey(HKEY hKey)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::FlushKey\n", this));
     LONG lRet = 0;
@@ -793,26 +785,26 @@ STDMETHODIMP_(LONG) CRegistryA::FlushKey (HKEY hKey)
 }
 
 
-STDMETHODIMP_(LONG) CRegistryA::GetKeySecurity (
-     HKEY hKey,
-     SECURITY_INFORMATION SecurityInformation,
-     PSECURITY_DESCRIPTOR pSecurityDescriptor,
-     LPDWORD lpcbSecurityDescriptor)
+STDMETHODIMP_(LONG) CRegistryA::GetKeySecurity(
+    HKEY hKey,
+    SECURITY_INFORMATION SecurityInformation,
+    PSECURITY_DESCRIPTOR pSecurityDescriptor,
+    LPDWORD lpcbSecurityDescriptor)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::GetKeySecurity\n", this));
     LONG lRet = 0;
 
-    lRet = RegGetKeySecurity (hKey,SecurityInformation, pSecurityDescriptor,lpcbSecurityDescriptor);
+    lRet = RegGetKeySecurity(hKey, SecurityInformation, pSecurityDescriptor, lpcbSecurityDescriptor);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::GetKeySecurity (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::LoadKey (
-     HKEY  hKey,
-     LPCSTR  lpSubKey,
-     LPCSTR  lpFile
-    )
+STDMETHODIMP_(LONG) CRegistryA::LoadKey(
+    HKEY  hKey,
+    LPCSTR  lpSubKey,
+    LPCSTR  lpFile
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::LoadKey\n", this));
     LONG lRet = 0;
@@ -823,133 +815,133 @@ STDMETHODIMP_(LONG) CRegistryA::LoadKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::NotifyChangeKeyValue (
-     HKEY hKey,
-     BOOL bWatchSubtree,
-     DWORD dwNotifyFilter,
-     HANDLE hEvent,
-     BOOL fAsynchronus
-    )
+STDMETHODIMP_(LONG) CRegistryA::NotifyChangeKeyValue(
+    HKEY hKey,
+    BOOL bWatchSubtree,
+    DWORD dwNotifyFilter,
+    HANDLE hEvent,
+    BOOL fAsynchronus
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::NotifyChangeKeyValue\n", this));
     LONG lRet = 0;
 
-    lRet = RegNotifyChangeKeyValue(hKey, bWatchSubtree, dwNotifyFilter, hEvent,fAsynchronus);
+    lRet = RegNotifyChangeKeyValue(hKey, bWatchSubtree, dwNotifyFilter, hEvent, fAsynchronus);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::NotifyChangeKeyValue (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::OpenKey (
-     HKEY hKey,
-     LPCSTR lpSubKey,
-     PHKEY phkResult
-    )
+STDMETHODIMP_(LONG) CRegistryA::OpenKey(
+    HKEY hKey,
+    LPCSTR lpSubKey,
+    PHKEY phkResult
+)
 {
-    UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::OpenKey (lpSubKey:%s)\n", this,lpSubKey));
+    UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::OpenKey (lpSubKey:%s)\n", this, lpSubKey));
     LONG lRet = 0;
 
-    lRet =  RegOpenKeyA(hKey, lpSubKey, phkResult);
+    lRet = RegOpenKeyA(hKey, lpSubKey, phkResult);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::OpenKey (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::OpenKeyEx (
-     HKEY hKey,
-     LPCSTR lpSubKey,
-     DWORD ulOptions,
-     REGSAM samDesired,
-     PHKEY phkResult
-    )
+STDMETHODIMP_(LONG) CRegistryA::OpenKeyEx(
+    HKEY hKey,
+    LPCSTR lpSubKey,
+    DWORD ulOptions,
+    REGSAM samDesired,
+    PHKEY phkResult
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::OpenKeyEx\n", this));
     LONG lRet = 0;
 
-    lRet = RegOpenKeyExA(hKey,lpSubKey,ulOptions,samDesired,phkResult);
+    lRet = RegOpenKeyExA(hKey, lpSubKey, ulOptions, samDesired, phkResult);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::OpenKeyEx (%ld)\n", this, lRet));
     return lRet;
 }
 
 
-STDMETHODIMP_(LONG) CRegistryA::QueryInfoKey (
-     HKEY    hKey,
-     LPSTR  lpClass,
-     LPDWORD lpcbClass,
-     LPDWORD lpReserved,
-     LPDWORD lpcSubKeys,
-     LPDWORD lpcbMaxSubKeyLen,
-     LPDWORD lpcbMaxClassLen,
-     LPDWORD lpcValues,
-     LPDWORD lpcbMaxValueNameLen,
-     LPDWORD lpcbMaxValueLen,
-     LPDWORD lpcbSecurityDescriptor,
-     PFILETIME lpftLastWriteTime
-    )
+STDMETHODIMP_(LONG) CRegistryA::QueryInfoKey(
+    HKEY    hKey,
+    LPSTR  lpClass,
+    LPDWORD lpcbClass,
+    LPDWORD lpReserved,
+    LPDWORD lpcSubKeys,
+    LPDWORD lpcbMaxSubKeyLen,
+    LPDWORD lpcbMaxClassLen,
+    LPDWORD lpcValues,
+    LPDWORD lpcbMaxValueNameLen,
+    LPDWORD lpcbMaxValueLen,
+    LPDWORD lpcbSecurityDescriptor,
+    PFILETIME lpftLastWriteTime
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::QueryInfoKey\n", this));
     LONG lRet = 0;
 
-    lRet = RegQueryInfoKeyA (
-         hKey,
-         lpClass,
-         lpcbClass,
-         lpReserved,
-         lpcSubKeys,
-         lpcbMaxSubKeyLen,
-         lpcbMaxClassLen,
-         lpcValues,
-         lpcbMaxValueNameLen,
-         lpcbMaxValueLen,
-         lpcbSecurityDescriptor,
-         lpftLastWriteTime);
+    lRet = RegQueryInfoKeyA(
+        hKey,
+        lpClass,
+        lpcbClass,
+        lpReserved,
+        lpcSubKeys,
+        lpcbMaxSubKeyLen,
+        lpcbMaxClassLen,
+        lpcValues,
+        lpcbMaxValueNameLen,
+        lpcbMaxValueLen,
+        lpcbSecurityDescriptor,
+        lpftLastWriteTime);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::QueryInfoKey (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::QueryValue (
-     HKEY hKey,
-     LPCSTR lpSubKey,
-     LPSTR lpValue,
-     LONG   *lpcbValue
-    )
+STDMETHODIMP_(LONG) CRegistryA::QueryValue(
+    HKEY hKey,
+    LPCSTR lpSubKey,
+    LPSTR lpValue,
+    LONG* lpcbValue
+)
 {
-    UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::QueryValue (szValue:%s)\n", this,lpSubKey));
+    UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::QueryValue (szValue:%s)\n", this, lpSubKey));
     LONG lRet = 0;
 
-    lRet = RegQueryValueA(hKey,lpSubKey,lpValue,lpcbValue);
+    lRet = RegQueryValueA(hKey, lpSubKey, lpValue, lpcbValue);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::QueryValue (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::QueryMultipleValues (
-     HKEY hKey,
-     PVALENTXA val_list,
-     DWORD num_vals,
-     LPSTR lpValueBuf,
-     LPDWORD ldwTotsize
-    )
+STDMETHODIMP_(LONG) CRegistryA::QueryMultipleValues(
+    HKEY hKey,
+    PVALENTXA val_list,
+    DWORD num_vals,
+    LPSTR lpValueBuf,
+    LPDWORD ldwTotsize
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::QueryMultipleValues\n", this));
     LONG lRet = 0;
 
-    lRet = RegQueryMultipleValuesA(hKey,(PVALENTA) val_list, num_vals, lpValueBuf, ldwTotsize);
+    lRet = RegQueryMultipleValuesA(hKey, (PVALENTA)val_list, num_vals, lpValueBuf, ldwTotsize);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::QueryMultipleValues (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::QueryValueEx (
-     HKEY hKey,
-     LPCSTR lpValueName,
-     LPDWORD lpReserved,
-     LPDWORD lpType,
-     LPBYTE lpData,
-     LPDWORD lpcbData
-    )
+STDMETHODIMP_(LONG) CRegistryA::QueryValueEx(
+    HKEY hKey,
+    LPCSTR lpValueName,
+    LPDWORD lpReserved,
+    LPDWORD lpType,
+    LPBYTE lpData,
+    LPDWORD lpcbData
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::QueryValueEx\n", this));
     LONG lRet = 0;
@@ -960,12 +952,12 @@ STDMETHODIMP_(LONG) CRegistryA::QueryValueEx (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::ReplaceKey (
-     HKEY     hKey,
-     LPCSTR  lpSubKey,
-     LPCSTR  lpNewFile,
-     LPCSTR  lpOldFile
-    )
+STDMETHODIMP_(LONG) CRegistryA::ReplaceKey(
+    HKEY     hKey,
+    LPCSTR  lpSubKey,
+    LPCSTR  lpNewFile,
+    LPCSTR  lpOldFile
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::ReplaceKey\n", this));
     LONG lRet = 0;
@@ -976,11 +968,11 @@ STDMETHODIMP_(LONG) CRegistryA::ReplaceKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::RestoreKey (
-     HKEY hKey,
-     LPCSTR lpFile,
-     DWORD   dwFlags
-    )
+STDMETHODIMP_(LONG) CRegistryA::RestoreKey(
+    HKEY hKey,
+    LPCSTR lpFile,
+    DWORD   dwFlags
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::RestoreKey\n", this));
     LONG lRet = 0;
@@ -991,11 +983,11 @@ STDMETHODIMP_(LONG) CRegistryA::RestoreKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::SaveKey (
-     HKEY hKey,
-     LPCSTR lpFile,
-     LPSECURITY_ATTRIBUTES lpSecurityAttributes
-    )
+STDMETHODIMP_(LONG) CRegistryA::SaveKey(
+    HKEY hKey,
+    LPCSTR lpFile,
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::SaveKey\n", this));
     LONG lRet = 0;
@@ -1006,11 +998,11 @@ STDMETHODIMP_(LONG) CRegistryA::SaveKey (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::SetKeySecurity (
-     HKEY hKey,
-     SECURITY_INFORMATION SecurityInformation,
-     PSECURITY_DESCRIPTOR pSecurityDescriptor
-    )
+STDMETHODIMP_(LONG) CRegistryA::SetKeySecurity(
+    HKEY hKey,
+    SECURITY_INFORMATION SecurityInformation,
+    PSECURITY_DESCRIPTOR pSecurityDescriptor
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::SetKeySecurity\n", this));
     LONG lRet = 0;
@@ -1021,45 +1013,45 @@ STDMETHODIMP_(LONG) CRegistryA::SetKeySecurity (
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::SetValue (
-     HKEY hKey,
-     LPCSTR lpSubKey,
-     DWORD dwType,
-     LPCSTR lpData,
-     DWORD cbData
-    )
+STDMETHODIMP_(LONG) CRegistryA::SetValue(
+    HKEY hKey,
+    LPCSTR lpSubKey,
+    DWORD dwType,
+    LPCSTR lpData,
+    DWORD cbData
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::SetValue\n", this));
     LONG lRet = 0;
 
-    lRet = RegSetValueA(hKey, lpSubKey, dwType,lpData, cbData );
+    lRet = RegSetValueA(hKey, lpSubKey, dwType, lpData, cbData);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::SetValue (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::SetValueEx (
-     HKEY hKey,
-     LPCSTR lpValueName,
-     DWORD Reserved,
-     DWORD dwType,
-     const BYTE* lpData,
-     DWORD cbData
-    )
+STDMETHODIMP_(LONG) CRegistryA::SetValueEx(
+    HKEY hKey,
+    LPCSTR lpValueName,
+    DWORD Reserved,
+    DWORD dwType,
+    const BYTE* lpData,
+    DWORD cbData
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::SetValueEx\n", this));
     LONG lRet = 0;
 
-    lRet = RegSetValueExA(hKey, lpValueName, Reserved, dwType,lpData, cbData);
+    lRet = RegSetValueExA(hKey, lpValueName, Reserved, dwType, lpData, cbData);
 
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::SetValueEx (%ld)\n", this, lRet));
     return lRet;
 }
 
-STDMETHODIMP_(LONG) CRegistryA::UnLoadKey (
-     HKEY hKey,
-     LPCSTR lpSubKey
-    )
+STDMETHODIMP_(LONG) CRegistryA::UnLoadKey(
+    HKEY hKey,
+    LPCSTR lpSubKey
+)
 {
     UrlMkDebugOut((DEB_REG, "%p _IN CRegistryA::UnLoadKey\n", this));
     LONG lRet = 0;
@@ -1069,7 +1061,3 @@ STDMETHODIMP_(LONG) CRegistryA::UnLoadKey (
     UrlMkDebugOut((DEB_REG, "%p OUT CRegistryA::UnLoadKey (%ld)\n", this, lRet));
     return lRet;
 }
-
-
-
-

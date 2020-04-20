@@ -56,62 +56,62 @@
 #define CACHE_ACTION_FILL_LB            2
 #define CACHE_ACTION_MAKE_REG_ENTRIES   3
 
-typedef BOOL (CALLBACK* LPFNCREATEURLCACHECONTAINER)(LPCSTR,LPCSTR,LPCSTR,DWORD,DWORD,DWORD,LPVOID,LPDWORD);
-typedef BOOL (CALLBACK* LPFNDELETEURLCACHECONTAINER)(LPCSTR,DWORD);
-typedef HANDLE (CALLBACK* LPFNFINDFIRSTURLCACHECONTAINER)(LPDWORD,LPINTERNET_CACHE_CONTAINER_INFO,LPDWORD,DWORD);
-typedef BOOL (CALLBACK* LPFNFINDNEXTURLCACHECONTAINER)(HANDLE,LPINTERNET_CACHE_CONTAINER_INFO,LPDWORD);
-typedef BOOL (CALLBACK* LPFNFINDCLOSEURLCACHE)(HANDLE);
-typedef BOOL (CALLBACK* LPFNGETURLCACHECONFIGINFO)(LPINTERNET_CACHE_CONFIG_INFO,LPDWORD,DWORD);
+typedef BOOL(CALLBACK* LPFNCREATEURLCACHECONTAINER)(LPCSTR, LPCSTR, LPCSTR, DWORD, DWORD, DWORD, LPVOID, LPDWORD);
+typedef BOOL(CALLBACK* LPFNDELETEURLCACHECONTAINER)(LPCSTR, DWORD);
+typedef HANDLE(CALLBACK* LPFNFINDFIRSTURLCACHECONTAINER)(LPDWORD, LPINTERNET_CACHE_CONTAINER_INFO, LPDWORD, DWORD);
+typedef BOOL(CALLBACK* LPFNFINDNEXTURLCACHECONTAINER)(HANDLE, LPINTERNET_CACHE_CONTAINER_INFO, LPDWORD);
+typedef BOOL(CALLBACK* LPFNFINDCLOSEURLCACHE)(HANDLE);
+typedef BOOL(CALLBACK* LPFNGETURLCACHECONFIGINFO)(LPINTERNET_CACHE_CONFIG_INFO, LPDWORD, DWORD);
 
 
 // Global Variables:
 
 HINSTANCE g_hInst;          // current instance
 BOOL g_fRunSilent = FALSE;  // True = show no UI
-BOOL g_fRemove    = FALSE;  // True = remove the cache containers in INF
+BOOL g_fRemove = FALSE;  // True = remove the cache containers in INF
 //BOOL g_fNoIE4Msg  = FALSE;    // True = do not show UI saying IE4 WININET is required
-BOOL g_fNoIE4     = FALSE;  // IE4 WININET is not available
+BOOL g_fNoIE4 = FALSE;  // IE4 WININET is not available
 
-TCHAR  gszIniValTrue[]          = INI_TRUE ;
-TCHAR  gszIniValFalse[]         = INI_FALSE ;
-TCHAR  gszIniValOn[]            = INI_ON ;
-TCHAR  gszIniValOff[]           = INI_OFF ;
+TCHAR  gszIniValTrue[] = INI_TRUE;
+TCHAR  gszIniValFalse[] = INI_FALSE;
+TCHAR  gszIniValOn[] = INI_ON;
+TCHAR  gszIniValOff[] = INI_OFF;
 
-TCHAR  gszIniValYes[]           = INI_YES ;
-TCHAR  gszIniValNo[]            = INI_NO ;
+TCHAR  gszIniValYes[] = INI_YES;
+TCHAR  gszIniValNo[] = INI_NO;
 
-LPFNCREATEURLCACHECONTAINER     lpfnCreateUrlCacheContainer     = NULL;
-LPFNDELETEURLCACHECONTAINER     lpfnDeleteUrlCacheContainer     = NULL;
-LPFNFINDFIRSTURLCACHECONTAINER  lpfnFindFirstUrlCacheContainer  = NULL;
-LPFNFINDNEXTURLCACHECONTAINER   lpfnFindNextUrlCacheContainer   = NULL;
-LPFNFINDCLOSEURLCACHE           lpfnFindCloseUrlCache           = NULL;
-LPFNGETURLCACHECONFIGINFO       lpfnGetUrlCacheConfigInfo       = NULL;
+LPFNCREATEURLCACHECONTAINER     lpfnCreateUrlCacheContainer = NULL;
+LPFNDELETEURLCACHECONTAINER     lpfnDeleteUrlCacheContainer = NULL;
+LPFNFINDFIRSTURLCACHECONTAINER  lpfnFindFirstUrlCacheContainer = NULL;
+LPFNFINDNEXTURLCACHECONTAINER   lpfnFindNextUrlCacheContainer = NULL;
+LPFNFINDCLOSEURLCACHE           lpfnFindCloseUrlCache = NULL;
+LPFNGETURLCACHECONFIGINFO       lpfnGetUrlCacheConfigInfo = NULL;
 
 
 // Foward declarations of functions included in this code module:
 
 INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
-BOOL CenterWindow (HWND, HWND);
+BOOL CenterWindow(HWND, HWND);
 int OnInitDialog(HWND hDlg);
 
 BOOL LoadWininet(void);
 BOOL WininetLoaded(void);
-BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hListBox);
+BOOL CacheContainer(DWORD* dwTotal, DWORD* dwInstalled, DWORD dwAction, HWND hListBox);
 
 HRESULT ExpandEntry(
     LPSTR szSrc,
     LPSTR szBuf,
     DWORD cbBuffer,
-    const char * szVars[],
-    const char * szValues[]);
+    const char* szVars[],
+    const char* szValues[]);
 
 HRESULT ExpandVar(
-        LPSTR& pchSrc,          // passed by ref!
-        LPSTR& pchOut,          // passed by ref!
-        DWORD& cbLen,           // passed by ref!
-        DWORD cbBuffer,         // size of out buffer
-        const char * szVars[],  // array of variable names eg. %EXE_ROOT%
-        const char * szValues[]);// corresponding values to expand of vars
+    LPSTR& pchSrc,          // passed by ref!
+    LPSTR& pchOut,          // passed by ref!
+    DWORD& cbLen,           // passed by ref!
+    DWORD cbBuffer,         // size of out buffer
+    const char* szVars[],  // array of variable names eg. %EXE_ROOT%
+    const char* szValues[]);// corresponding values to expand of vars
 
 LPSTR GetINFDir(LPSTR lpBuffer, int nBuffSize);
 LPSTR GetINFDrive(LPSTR lpBuffer, int nBuffSize);
@@ -123,15 +123,15 @@ BOOL UrlCacheContainerExists(LPCSTR lpszUniqueVendorName, LPCSTR lpszCachePrefix
 // WININET CreateUrlCacheContainer WRAPPER
 // Wraps up the hacks in one spot - see f() header for details
 BOOL _CreateUrlCacheContainer(
-     IN LPCSTR lpszUniqueVendorName,
-     IN LPCSTR lpszCachePrefix,
-     IN LPCSTR lpszPrefixMap,           // New - part of WRAPPER
-     IN LPCSTR lpszVolumeTitle,         // New - part of WRAPPER
-     IN LPCSTR lpszVolumeLabel,         // New - part of Wrapper.
-     IN DWORD KBCacheLimit,
-     IN DWORD dwContainerType,
-     IN DWORD dwOptions
-     );
+    IN LPCSTR lpszUniqueVendorName,
+    IN LPCSTR lpszCachePrefix,
+    IN LPCSTR lpszPrefixMap,           // New - part of WRAPPER
+    IN LPCSTR lpszVolumeTitle,         // New - part of WRAPPER
+    IN LPCSTR lpszVolumeLabel,         // New - part of Wrapper.
+    IN DWORD KBCacheLimit,
+    IN DWORD dwContainerType,
+    IN DWORD dwOptions
+);
 
 
 /**\
@@ -149,16 +149,15 @@ int APIENTRY WinMain(HINSTANCE g_hInstance, HINSTANCE hPrevInstance, LPSTR lpCmd
     // Parse lpCmdLine looking for options we understand
     TCHAR szTokens[] = _T("-/ ");
     LPTSTR lpszToken = _tcstok(lpCmdLine, szTokens);
-    while (lpszToken != NULL)
-    {
-        if (_tcsicmp(lpszToken, _T("Silent"))==0)
+    while (lpszToken != NULL) {
+        if (_tcsicmp(lpszToken, _T("Silent")) == 0)
             g_fRunSilent = TRUE;
-        else if (_tcsicmp(lpszToken, _T("Remove"))==0)
+        else if (_tcsicmp(lpszToken, _T("Remove")) == 0)
             g_fRemove = TRUE;
-        else if (_tcsicmp(lpszToken, _T("Uninstall"))==0)
+        else if (_tcsicmp(lpszToken, _T("Uninstall")) == 0)
             g_fRemove = TRUE;
-//      else if (_tcsicmp(lpszToken, _T("NoIE4Msg"))==0)
-//          g_fNoIE4Msg = TRUE;
+        //      else if (_tcsicmp(lpszToken, _T("NoIE4Msg"))==0)
+        //          g_fNoIE4Msg = TRUE;
 
         lpszToken = _tcstok(NULL, szTokens);
     }
@@ -169,8 +168,7 @@ int APIENTRY WinMain(HINSTANCE g_hInstance, HINSTANCE hPrevInstance, LPSTR lpCmd
     // to WININET f() used in this application
     // This will avoid Undefined Dynalink errors when run on a
     // system without IE4
-    if (!LoadWininet())
-    {
+    if (!LoadWininet()) {
         g_fNoIE4 = TRUE;
 
         // Put up message about requiring IE4 WININET
@@ -191,16 +189,12 @@ int APIENTRY WinMain(HINSTANCE g_hInstance, HINSTANCE hPrevInstance, LPSTR lpCmd
         // Can't call WININET
         // Need to make registry entries to install cache containers
 
-        if (!CacheContainer(&dwTotal, &dwInstalled, CACHE_ACTION_FILL_LB, NULL))
-        {
-            if (g_fRunSilent)
-            {
+        if (!CacheContainer(&dwTotal, &dwInstalled, CACHE_ACTION_FILL_LB, NULL)) {
+            if (g_fRunSilent) {
                 // Create cache entries in silent mode.
                 CacheContainer(&dwTotal, &dwInstalled, CACHE_ACTION_MAKE_REG_ENTRIES, NULL);
 
-            }
-            else
-            {
+            } else {
                 // Otherwise run app.
                 DialogBox(g_hInstance, MAKEINTRESOURCE(IDD_MAINAPP), NULL, DlgProc);
             }
@@ -211,19 +205,15 @@ int APIENTRY WinMain(HINSTANCE g_hInstance, HINSTANCE hPrevInstance, LPSTR lpCmd
     }
 
 
-    if (!g_fRunSilent)
-    {
+    if (!g_fRunSilent) {
         // Only want to put up UI if any of the containers are NOT installed
         // (this includes those containers that are installed but the
         //  PrefixMap entry is incorrect - i.e. wrong drive)
 
-        if (!CacheContainer(&dwTotal, &dwInstalled, CACHE_ACTION_FILL_LB, NULL))
-        {
+        if (!CacheContainer(&dwTotal, &dwInstalled, CACHE_ACTION_FILL_LB, NULL)) {
             DialogBox(g_hInstance, MAKEINTRESOURCE(IDD_MAINAPP), NULL, DlgProc);
             return(FALSE);
-        }
-        else
-        {
+        } else {
             // All the CacheContainers are already installed or there is no INF
             // so check if we want to uninstall
             // OnInitDialog checks the g_fRemove flags and POST's a msg
@@ -231,9 +221,7 @@ int APIENTRY WinMain(HINSTANCE g_hInstance, HINSTANCE hPrevInstance, LPSTR lpCmd
             if (g_fRemove)
                 DialogBox(g_hInstance, MAKEINTRESOURCE(IDD_MAINAPP), NULL, DlgProc);
         }
-    }
-    else
-    {
+    } else {
         DWORD   dwAction = CACHE_ACTION_INSTALL;    // default action is INSTALL
 
         // We're running silent and deep - all quiet on board
@@ -242,8 +230,7 @@ int APIENTRY WinMain(HINSTANCE g_hInstance, HINSTANCE hPrevInstance, LPSTR lpCmd
         if (g_fRemove)
             dwAction = CACHE_ACTION_REMOVE;
 
-        if (!CacheContainer(&dwTotal, &dwInstalled, dwAction, NULL))
-        {
+        if (!CacheContainer(&dwTotal, &dwInstalled, dwAction, NULL)) {
             // BUGBUG: Since we're running silent what
             // should we do on failure?
         }
@@ -262,134 +249,120 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int wmId, wmEvent;
 
-    switch (message)
-    {
+    switch (message) {
 
-        case WM_INITDIALOG:
-            return OnInitDialog(hDlg);
+    case WM_INITDIALOG:
+        return OnInitDialog(hDlg);
 
-        case WM_COMMAND:
-            wmId    = LOWORD(wParam); // Remember, these are...
-            wmEvent = HIWORD(wParam); // ...different for Win32!
+    case WM_COMMAND:
+        wmId = LOWORD(wParam); // Remember, these are...
+        wmEvent = HIWORD(wParam); // ...different for Win32!
 
-            switch (wmId)
-            {
-                case IDM_INSTALL:
-                {
-                    DWORD   dwError = 0;
-                    DWORD   dwTotal = 0;
-                    DWORD   dwInstalled = 0;
-                    DWORD   dwAction = 0;
+        switch (wmId) {
+        case IDM_INSTALL:
+        {
+            DWORD   dwError = 0;
+            DWORD   dwTotal = 0;
+            DWORD   dwInstalled = 0;
+            DWORD   dwAction = 0;
 
-                    if (g_fNoIE4)
-                        dwAction = CACHE_ACTION_MAKE_REG_ENTRIES;
-                    else
-                        dwAction = CACHE_ACTION_INSTALL;
+            if (g_fNoIE4)
+                dwAction = CACHE_ACTION_MAKE_REG_ENTRIES;
+            else
+                dwAction = CACHE_ACTION_INSTALL;
 
-                    if (!CacheContainer(&dwTotal, &dwInstalled, dwAction, NULL))
-                    {
-                        dwError = GetLastError();
-                    }
-
-                    if (dwInstalled > 0)
-                    {
-                        char szString[128]; // Keep string 70% larger for localization
-                        char szBuffer[256];
-
-                        // Successfully installed a cache container
-                        // though not necessarily all of them.
-                        LoadString (g_hInst, IDM_SUCCESS, szString, sizeof(szString));
-                        wsprintf(szBuffer, szString, dwInstalled, dwTotal);
-                        LoadString (g_hInst, ID_APPNAME, szString, sizeof(szString));
-                        MessageBox(hDlg, szBuffer, szString, MB_OK);
-
-                        // We're done close this app
-                        PostMessage (hDlg, WM_CLOSE, 0, 0);
-                    }
-                    else
-                    {
-                        char szString[128]; // Keep string 70% larger for localization
-                        char szBuffer[256];
-
-                        // Unable to install any of the cache containers successfully
-                        LoadString (g_hInst, IDM_FAILED, szString, sizeof(szString));
-                        wsprintf(szBuffer, szString, dwTotal);
-                        LoadString (g_hInst, ID_APPNAME, szString, sizeof(szString));
-                        MessageBox(hDlg, szBuffer, szString, MB_OK);
-                    }
-                    break;
-                }
-
-                case IDM_UNINSTALL:
-                {
-                    DWORD   dwError = 0;
-                    DWORD   dwTotal = 0;
-                    DWORD   dwRemoved = 0;
-
-                    if (g_fNoIE4)
-                    {
-                        char szString[128]; // Keep string 70% larger for localization
-                        char szBuffer[256];
-
-                        // Uninstall of cache containers requires IE4
-                        LoadString (g_hInst, IDM_ERR_IE4REQFORUNINSTALL, szString, sizeof(szString));
-                        wsprintf(szBuffer, szString, dwRemoved, dwTotal);
-                        LoadString (g_hInst, ID_APPNAME, szString, sizeof(szString));
-                        MessageBox(hDlg, szBuffer, szString, MB_OK);
-                    }
-                    else
-                    {
-
-                        if (!CacheContainer(&dwTotal, &dwRemoved, CACHE_ACTION_REMOVE, NULL))
-                        {
-                            dwError = GetLastError();
-                        }
-
-                        if (dwRemoved > 0)
-                        {
-                            char szString[128]; // Keep string 70% larger for localization
-                            char szBuffer[256];
-
-                            // Successfully UnInstalled a cache container
-                            // though not necessarily all of them.
-                            LoadString (g_hInst, IDM_SUCCESS_REMOVE, szString, sizeof(szString));
-                            wsprintf(szBuffer, szString, dwRemoved, dwTotal);
-                            LoadString (g_hInst, ID_APPNAME, szString, sizeof(szString));
-                            MessageBox(hDlg, szBuffer, szString, MB_OK);
-                        }
-                        else
-                        {
-                            char szString[128]; // Keep string 70% larger for localization
-                            char szBuffer[256];
-
-                            // Unable to install any of the cache containers successfully
-                            LoadString (g_hInst, IDM_FAILED_REMOVE, szString, sizeof(szString));
-                            wsprintf(szBuffer, szString, dwTotal);
-                            LoadString (g_hInst, ID_APPNAME, szString, sizeof(szString));
-                            MessageBox(hDlg, szBuffer, szString, MB_OK);
-                        }
-                    }
-
-                    if (g_fRemove)
-                    {
-                        // We're done close this app
-                        PostMessage (hDlg, WM_CLOSE, 0, 0);
-                    }
-
-                    break;
-                }
-
-                case IDCANCEL:
-                    EndDialog(hDlg, TRUE);
-                    break;
-
-                default:
-                    return (FALSE);
+            if (!CacheContainer(&dwTotal, &dwInstalled, dwAction, NULL)) {
+                dwError = GetLastError();
             }
+
+            if (dwInstalled > 0) {
+                char szString[128]; // Keep string 70% larger for localization
+                char szBuffer[256];
+
+                // Successfully installed a cache container
+                // though not necessarily all of them.
+                LoadString(g_hInst, IDM_SUCCESS, szString, sizeof(szString));
+                wsprintf(szBuffer, szString, dwInstalled, dwTotal);
+                LoadString(g_hInst, ID_APPNAME, szString, sizeof(szString));
+                MessageBox(hDlg, szBuffer, szString, MB_OK);
+
+                // We're done close this app
+                PostMessage(hDlg, WM_CLOSE, 0, 0);
+            } else {
+                char szString[128]; // Keep string 70% larger for localization
+                char szBuffer[256];
+
+                // Unable to install any of the cache containers successfully
+                LoadString(g_hInst, IDM_FAILED, szString, sizeof(szString));
+                wsprintf(szBuffer, szString, dwTotal);
+                LoadString(g_hInst, ID_APPNAME, szString, sizeof(szString));
+                MessageBox(hDlg, szBuffer, szString, MB_OK);
+            }
+            break;
+        }
+
+        case IDM_UNINSTALL:
+        {
+            DWORD   dwError = 0;
+            DWORD   dwTotal = 0;
+            DWORD   dwRemoved = 0;
+
+            if (g_fNoIE4) {
+                char szString[128]; // Keep string 70% larger for localization
+                char szBuffer[256];
+
+                // Uninstall of cache containers requires IE4
+                LoadString(g_hInst, IDM_ERR_IE4REQFORUNINSTALL, szString, sizeof(szString));
+                wsprintf(szBuffer, szString, dwRemoved, dwTotal);
+                LoadString(g_hInst, ID_APPNAME, szString, sizeof(szString));
+                MessageBox(hDlg, szBuffer, szString, MB_OK);
+            } else {
+
+                if (!CacheContainer(&dwTotal, &dwRemoved, CACHE_ACTION_REMOVE, NULL)) {
+                    dwError = GetLastError();
+                }
+
+                if (dwRemoved > 0) {
+                    char szString[128]; // Keep string 70% larger for localization
+                    char szBuffer[256];
+
+                    // Successfully UnInstalled a cache container
+                    // though not necessarily all of them.
+                    LoadString(g_hInst, IDM_SUCCESS_REMOVE, szString, sizeof(szString));
+                    wsprintf(szBuffer, szString, dwRemoved, dwTotal);
+                    LoadString(g_hInst, ID_APPNAME, szString, sizeof(szString));
+                    MessageBox(hDlg, szBuffer, szString, MB_OK);
+                } else {
+                    char szString[128]; // Keep string 70% larger for localization
+                    char szBuffer[256];
+
+                    // Unable to install any of the cache containers successfully
+                    LoadString(g_hInst, IDM_FAILED_REMOVE, szString, sizeof(szString));
+                    wsprintf(szBuffer, szString, dwTotal);
+                    LoadString(g_hInst, ID_APPNAME, szString, sizeof(szString));
+                    MessageBox(hDlg, szBuffer, szString, MB_OK);
+                }
+            }
+
+            if (g_fRemove) {
+                // We're done close this app
+                PostMessage(hDlg, WM_CLOSE, 0, 0);
+            }
+
+            break;
+        }
+
+        case IDCANCEL:
+            EndDialog(hDlg, TRUE);
             break;
 
         default:
             return (FALSE);
+        }
+        break;
+
+    default:
+        return (FALSE);
     }
     return (TRUE);
 }
@@ -403,7 +376,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 // the 'working area', meaning that it is both within the display limits
 // of the screen, -and- not obscured by the tray or other frameing
 // elements of the desktop.
-BOOL CenterWindow (HWND hwndChild, HWND hwndParent)
+BOOL CenterWindow(HWND hwndChild, HWND hwndParent)
 {
     RECT    rChild, rParent, rWorkArea = {0,0,0,0};
     int     wChild, hChild, wParent, hParent;
@@ -411,12 +384,12 @@ BOOL CenterWindow (HWND hwndChild, HWND hwndParent)
     BOOL bResult;
 
     // Get the Height and Width of the child window
-    GetWindowRect (hwndChild, &rChild);
+    GetWindowRect(hwndChild, &rChild);
     wChild = rChild.right - rChild.left;
     hChild = rChild.bottom - rChild.top;
 
     // Get the Height and Width of the parent window
-    GetWindowRect (hwndParent, &rParent);
+    GetWindowRect(hwndParent, &rParent);
     wParent = rParent.right - rParent.left;
     hParent = rParent.bottom - rParent.top;
 
@@ -437,7 +410,7 @@ BOOL CenterWindow (HWND hwndChild, HWND hwndParent)
 
     // On Windows NT, the above metrics aren't valid (yet), so they all return
     // '0'. Lets deal with that situation properly:
-    if (wScreen==0 && hScreen==0) {
+    if (wScreen == 0 && hScreen == 0) {
         wScreen = GetSystemMetrics(SM_CXSCREEN);
         hScreen = GetSystemMetrics(SM_CYSCREEN);
         xScreen = 0; // These values should already be '0', but just in case
@@ -445,23 +418,23 @@ BOOL CenterWindow (HWND hwndChild, HWND hwndParent)
     }
 
     // Calculate new X position, then adjust for screen
-    xNew = rParent.left + ((wParent - wChild) /2);
+    xNew = rParent.left + ((wParent - wChild) / 2);
     if (xNew < xScreen) {
         xNew = xScreen;
-    } else if ((xNew+wChild) > wScreen) {
+    } else if ((xNew + wChild) > wScreen) {
         xNew = (xScreen + wScreen) - wChild;
     }
 
     // Calculate new Y position, then adjust for screen
-    yNew = rParent.top  + ((hParent - hChild) /2);
+    yNew = rParent.top + ((hParent - hChild) / 2);
     if (yNew < yScreen) {
         yNew = yScreen;
-    } else if ((yNew+hChild) > hScreen) {
+    } else if ((yNew + hChild) > hScreen) {
         yNew = (yScreen + hScreen) - hChild;
     }
 
     // Set it, and return
-    return SetWindowPos (hwndChild, NULL, xNew, yNew, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+    return SetWindowPos(hwndChild, NULL, xNew, yNew, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
 int OnInitDialog(HWND hDlg)
@@ -470,7 +443,7 @@ int OnInitDialog(HWND hDlg)
     DWORD   dwRemoved = 0;
     DWORD   dwTotal = 0;
 
-    CenterWindow (hDlg, GetDesktopWindow ());
+    CenterWindow(hDlg, GetDesktopWindow());
 
     hListBox = GetDlgItem(hDlg, IDC_LIST);
 
@@ -502,8 +475,7 @@ BOOL LoadWininet()
 
     hDll = LoadLibrary("WININET.DLL");
 
-    if (hDll != NULL)
-    {
+    if (hDll != NULL) {
         lpfnCreateUrlCacheContainer = (LPFNCREATEURLCACHECONTAINER)GetProcAddress(hDll, "CreateUrlCacheContainerA");
         lpfnDeleteUrlCacheContainer = (LPFNDELETEURLCACHECONTAINER)GetProcAddress(hDll, "DeleteUrlCacheContainerA");
         lpfnFindFirstUrlCacheContainer = (LPFNFINDFIRSTURLCACHECONTAINER)GetProcAddress(hDll, "FindFirstUrlCacheContainerA");
@@ -511,13 +483,12 @@ BOOL LoadWininet()
         lpfnFindCloseUrlCache = (LPFNFINDCLOSEURLCACHE)GetProcAddress(hDll, "FindCloseUrlCache");
         lpfnGetUrlCacheConfigInfo = (LPFNGETURLCACHECONFIGINFO)GetProcAddress(hDll, "GetUrlCacheConfigInfoA");
 
-        if ( (!lpfnCreateUrlCacheContainer) ||
-             (!lpfnDeleteUrlCacheContainer) ||
-             (!lpfnFindFirstUrlCacheContainer) ||
-             (!lpfnFindNextUrlCacheContainer) ||
-             (!lpfnFindCloseUrlCache) ||
-             (!lpfnGetUrlCacheConfigInfo) )
-        {
+        if ((!lpfnCreateUrlCacheContainer) ||
+            (!lpfnDeleteUrlCacheContainer) ||
+            (!lpfnFindFirstUrlCacheContainer) ||
+            (!lpfnFindNextUrlCacheContainer) ||
+            (!lpfnFindCloseUrlCache) ||
+            (!lpfnGetUrlCacheConfigInfo)) {
 
             lpfnCreateUrlCacheContainer = NULL;
             lpfnDeleteUrlCacheContainer = NULL;
@@ -530,8 +501,7 @@ BOOL LoadWininet()
 
             return FALSE;
         }
-    }
-    else
+    } else
         return FALSE;
 
     return TRUE;
@@ -568,7 +538,7 @@ BOOL WininetLoaded()
 BOOL UrlCacheContainerExists(LPCSTR lpszUniqueVendorName, LPCSTR lpszCachePrefix, LPCSTR lpszPrefixMap)
 {
     BYTE    bBuf[4096];
-    LPINTERNET_CACHE_CONTAINER_INFO lpCCI = (LPINTERNET_CACHE_CONTAINER_INFO) bBuf;
+    LPINTERNET_CACHE_CONTAINER_INFO lpCCI = (LPINTERNET_CACHE_CONTAINER_INFO)bBuf;
     DWORD   cbCEI = sizeof(bBuf);
     DWORD   dwModified = 0;
     HANDLE  hEnum = NULL;
@@ -587,23 +557,18 @@ BOOL UrlCacheContainerExists(LPCSTR lpszUniqueVendorName, LPCSTR lpszCachePrefix
 
     if (0 == lstrcmpi(lpszUniqueVendorName, lpCCI->lpszName))
         bFound = TRUE;
-    else
-    {
-        while (hEnum && lpfnFindNextUrlCacheContainer(hEnum, lpCCI, &cbCEI))
-        {
-            if (0 == lstrcmpi(lpszUniqueVendorName, lpCCI->lpszName))
-            {
+    else {
+        while (hEnum && lpfnFindNextUrlCacheContainer(hEnum, lpCCI, &cbCEI)) {
+            if (0 == lstrcmpi(lpszUniqueVendorName, lpCCI->lpszName)) {
                 bFound = TRUE;
                 break;
             }
         }
     }
 
-    if (bFound)
-    {
+    if (bFound) {
         // Now check if URL CachePrefix pattern is the same
-        if (0 == lstrcmpi(lpszCachePrefix, lpCCI->lpszCachePrefix))
-        {
+        if (0 == lstrcmpi(lpszCachePrefix, lpCCI->lpszCachePrefix)) {
             char    lpBuffer[256];
             DWORD   cbBuffer = sizeof(lpBuffer);
 
@@ -675,19 +640,19 @@ BOOL UrlCacheContainerExists(LPCSTR lpszUniqueVendorName, LPCSTR lpszCachePrefix
 *   Locates all the 'workarounds' to one function.
 \**/
 BOOL _CreateUrlCacheContainer(
-     IN LPCSTR lpszUniqueVendorName,
-     IN LPCSTR lpszCachePrefix,
-     IN LPCSTR lpszPrefixMap,           // New - part of WRAPPER
-     IN LPCSTR lpszVolumeTitle,         // New - part of WRAPPER
-     IN LPCSTR lpszVolumeLabel,         // New - part of WRAPPER
-     IN DWORD KBCacheLimit,
-     IN DWORD dwContainerType,          // Not used by WININET currently
-     IN DWORD dwOptions
-     )
+    IN LPCSTR lpszUniqueVendorName,
+    IN LPCSTR lpszCachePrefix,
+    IN LPCSTR lpszPrefixMap,           // New - part of WRAPPER
+    IN LPCSTR lpszVolumeTitle,         // New - part of WRAPPER
+    IN LPCSTR lpszVolumeLabel,         // New - part of WRAPPER
+    IN DWORD KBCacheLimit,
+    IN DWORD dwContainerType,          // Not used by WININET currently
+    IN DWORD dwOptions
+)
 {
     // Enough size to get our info first time without having to realloc
     BYTE bBuf[4096];
-    LPINTERNET_CACHE_CONFIG_INFO lpCCI = (LPINTERNET_CACHE_CONFIG_INFO) bBuf;
+    LPINTERNET_CACHE_CONFIG_INFO lpCCI = (LPINTERNET_CACHE_CONFIG_INFO)bBuf;
     DWORD cbCEI = sizeof(bBuf);
 
     DWORD dwError = 0;
@@ -700,20 +665,15 @@ BOOL _CreateUrlCacheContainer(
 
 
     // Figure out local user cache location directory
-    if (!lpfnGetUrlCacheConfigInfo(lpCCI, &cbCEI, CACHE_CONFIG_CONTENT_PATHS_FC))
-    {
+    if (!lpfnGetUrlCacheConfigInfo(lpCCI, &cbCEI, CACHE_CONFIG_CONTENT_PATHS_FC)) {
         // Look for ERROR_INSUFFICIENT_BUFFER and allocate enough
-        if (ERROR_INSUFFICIENT_BUFFER == GetLastError())
-        {
+        if (ERROR_INSUFFICIENT_BUFFER == GetLastError()) {
             // BUGBUG: TODO: Handle insufficient buffer case
             // Try again using required size returned in cbCEI
             //lpCCI = new INTERNET_CACHE_CONFIG_INFO[cbCEI];
-        }
-        else
+        } else
             dwError = GetLastError();
-    }
-    else
-    {
+    } else {
         if (lpCCI->dwNumCachePaths > 0)
             lstrcpy(szCachePath, lpCCI->CachePaths[0].CachePath);
     }
@@ -733,11 +693,10 @@ BOOL _CreateUrlCacheContainer(
     // cache containers and if found remove it and then re-add it.
 
     if (!lpfnCreateUrlCacheContainer(lpszUniqueVendorName, lpszCachePrefix,
-                szCachePath, KBCacheLimit, dwContainerType,
-                dwOptions, NULL, 0))
-    {
+                                     szCachePath, KBCacheLimit, dwContainerType,
+                                     dwOptions, NULL, 0)) {
         BYTE    bBuf[4096];
-        LPINTERNET_CACHE_CONTAINER_INFO lpCCI = (LPINTERNET_CACHE_CONTAINER_INFO) bBuf;
+        LPINTERNET_CACHE_CONTAINER_INFO lpCCI = (LPINTERNET_CACHE_CONTAINER_INFO)bBuf;
         DWORD   cbCEI = sizeof(bBuf);
         DWORD   dwModified = 0;
         HANDLE  hEnum = NULL;
@@ -747,43 +706,30 @@ BOOL _CreateUrlCacheContainer(
         // Look for our cache container, delete it, and re-create it
         hEnum = lpfnFindFirstUrlCacheContainer(&dwModified, lpCCI, &cbCEI, 0);
 
-        if (0 == lstrcmpi(lpszUniqueVendorName, lpCCI->lpszName))
-        {
+        if (0 == lstrcmpi(lpszUniqueVendorName, lpCCI->lpszName)) {
             // BUGBUG: Need to specify any options?
-            if (!lpfnDeleteUrlCacheContainer(lpszUniqueVendorName, 0))
-            {
+            if (!lpfnDeleteUrlCacheContainer(lpszUniqueVendorName, 0)) {
                 dwResult = GetLastError();
-            }
-            else
-            {
+            } else {
                 CreateAdditionalEntries(lpszUniqueVendorName, lpszVolumeTitle, lpszVolumeLabel, lpszPrefixMap);
 
                 if (!lpfnCreateUrlCacheContainer(lpszUniqueVendorName, lpszCachePrefix,
-                            szCachePath, KBCacheLimit, dwContainerType,
-                            dwOptions, NULL, 0))
-                {
+                                                 szCachePath, KBCacheLimit, dwContainerType,
+                                                 dwOptions, NULL, 0)) {
                     dwResult = GetLastError();
                 }
             }
-        }
-        else
-        {
-            while (hEnum && lpfnFindNextUrlCacheContainer(hEnum, lpCCI, &cbCEI))
-            {
-                if (0 == lstrcmpi(lpszUniqueVendorName, lpCCI->lpszName))
-                {
-                    if (!lpfnDeleteUrlCacheContainer(lpszUniqueVendorName, 0))
-                    {
+        } else {
+            while (hEnum && lpfnFindNextUrlCacheContainer(hEnum, lpCCI, &cbCEI)) {
+                if (0 == lstrcmpi(lpszUniqueVendorName, lpCCI->lpszName)) {
+                    if (!lpfnDeleteUrlCacheContainer(lpszUniqueVendorName, 0)) {
                         dwResult = GetLastError();
-                    }
-                    else
-                    {
+                    } else {
                         CreateAdditionalEntries(lpszUniqueVendorName, lpszVolumeTitle, lpszVolumeLabel, lpszPrefixMap);
 
                         if (!lpfnCreateUrlCacheContainer(lpszUniqueVendorName, lpszCachePrefix,
-                                    szCachePath, KBCacheLimit, dwContainerType,
-                                    dwOptions, NULL, 0))
-                        {
+                                                         szCachePath, KBCacheLimit, dwContainerType,
+                                                         dwOptions, NULL, 0)) {
                             dwResult = GetLastError();
                         }
 
@@ -805,9 +751,9 @@ BOOL _CreateUrlCacheContainer(
     else
         return (TRUE);
 
-//  return lpfnCreateUrlCacheContainer(lpszUniqueVendorName, lpszCachePrefix,
-//              szCachePath, KBCacheLimit, dwContainerType,
-//              dwOptions, NULL, 0);
+    //  return lpfnCreateUrlCacheContainer(lpszUniqueVendorName, lpszCachePrefix,
+    //              szCachePath, KBCacheLimit, dwContainerType,
+    //              dwOptions, NULL, 0);
 }
 
 /**\
@@ -822,14 +768,14 @@ BOOL _CreateUrlCacheContainer(
 DWORD CreateAdditionalEntries(LPCSTR lpszUniqueVendorName, LPCSTR lpszVolumeTitle,
                               LPCSTR lpszVolumeLabel, LPCSTR lpszPrefixMap)
 {
-    const static char *szKeyPrefixMap   = "PrefixMap";
-    const static char *szKeyVolumeLabel = "VolumeLabel";
-    const static char *szKeyVolumeTitle = "VolumeTitle";
-    const static char *szExtCacheRoot = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Cache\\Extensible Cache";
+    const static char* szKeyPrefixMap = "PrefixMap";
+    const static char* szKeyVolumeLabel = "VolumeLabel";
+    const static char* szKeyVolumeTitle = "VolumeTitle";
+    const static char* szExtCacheRoot = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Cache\\Extensible Cache";
 
-    HKEY hKeyRoot     = HKEY_CURRENT_USER;  // default to current user
+    HKEY hKeyRoot = HKEY_CURRENT_USER;  // default to current user
     HKEY hKeyCacheExt = 0;
-    HKEY hKeyVendor   = 0;
+    HKEY hKeyVendor = 0;
     DWORD dwDisposition = 0;
     DWORD   dwResult = ERROR_SUCCESS;
     CHAR szCurDir[MAX_PATH];
@@ -858,14 +804,11 @@ DWORD CreateAdditionalEntries(LPCSTR lpszUniqueVendorName, LPCSTR lpszVolumeTitl
     memset(&osvInfo, 0, sizeof(osvInfo));
     osvInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
-    if (GetVersionEx(&osvInfo))
-    {
-        if (VER_PLATFORM_WIN32_WINDOWS == osvInfo.dwPlatformId)
-        {
+    if (GetVersionEx(&osvInfo)) {
+        if (VER_PLATFORM_WIN32_WINDOWS == osvInfo.dwPlatformId) {
             // We're running on Win95 so default to HKLM
             hKeyRoot = HKEY_LOCAL_MACHINE;
-        }
-        else
+        } else
             hKeyRoot = HKEY_CURRENT_USER;   // else assume NT and default to HKCU
 
         DWORD dwType = REG_DWORD;
@@ -876,15 +819,13 @@ DWORD CreateAdditionalEntries(LPCSTR lpszUniqueVendorName, LPCSTR lpszVolumeTitl
 
         // But now have to see if User Profiles are enabled
         if ((dwResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Network\\Logon",
-                                NULL, KEY_ALL_ACCESS, &hKeyProfiles)) == ERROR_SUCCESS)
-        {
+                                     NULL, KEY_ALL_ACCESS, &hKeyProfiles)) == ERROR_SUCCESS) {
             if ((dwResult = RegQueryValueEx(hKeyProfiles, "UserProfiles",
-                                NULL, &dwType, (unsigned char *)&dwUserProfiles,
-                                &dwSize)) == ERROR_SUCCESS)
-            {
-                if ( (dwResult != ERROR_MORE_DATA) &&
-                     (1L == dwUserProfiles) )
-                            hKeyRoot = HKEY_CURRENT_USER;
+                                            NULL, &dwType, (unsigned char*)&dwUserProfiles,
+                                            &dwSize)) == ERROR_SUCCESS) {
+                if ((dwResult != ERROR_MORE_DATA) &&
+                    (1L == dwUserProfiles))
+                    hKeyRoot = HKEY_CURRENT_USER;
                 else
                     hKeyRoot = HKEY_LOCAL_MACHINE;
             }
@@ -892,10 +833,8 @@ DWORD CreateAdditionalEntries(LPCSTR lpszUniqueVendorName, LPCSTR lpszVolumeTitl
     }
 
 
-    if ( (dwResult = RegCreateKeyEx(hKeyRoot, szExtCacheRoot, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyCacheExt, &dwDisposition)) == ERROR_SUCCESS)
-    {
-        if ( (dwResult = RegOpenKeyEx(hKeyCacheExt, lpszUniqueVendorName, 0, KEY_ALL_ACCESS, &hKeyVendor)) != ERROR_SUCCESS)
-        {
+    if ((dwResult = RegCreateKeyEx(hKeyRoot, szExtCacheRoot, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyCacheExt, &dwDisposition)) == ERROR_SUCCESS) {
+        if ((dwResult = RegOpenKeyEx(hKeyCacheExt, lpszUniqueVendorName, 0, KEY_ALL_ACCESS, &hKeyVendor)) != ERROR_SUCCESS) {
             // Key didn't exist
 
             // Let's try to create it
@@ -903,11 +842,10 @@ DWORD CreateAdditionalEntries(LPCSTR lpszUniqueVendorName, LPCSTR lpszVolumeTitl
         }
     }
 
-    if (dwResult == ERROR_SUCCESS)
-    {
-        RegSetValueEx(hKeyVendor, szKeyPrefixMap, 0, REG_SZ, (CONST UCHAR *) lpszPrefixMap, lstrlen(lpszPrefixMap)+1);
-        RegSetValueEx(hKeyVendor, szKeyVolumeLabel, 0, REG_SZ, (CONST UCHAR *) lpszVolumeLabel, lstrlen(lpszVolumeLabel)+1);
-        RegSetValueEx(hKeyVendor, szKeyVolumeTitle, 0, REG_SZ, (CONST UCHAR *) lpszVolumeTitle, lstrlen(lpszVolumeTitle)+1);
+    if (dwResult == ERROR_SUCCESS) {
+        RegSetValueEx(hKeyVendor, szKeyPrefixMap, 0, REG_SZ, (CONST UCHAR*) lpszPrefixMap, lstrlen(lpszPrefixMap) + 1);
+        RegSetValueEx(hKeyVendor, szKeyVolumeLabel, 0, REG_SZ, (CONST UCHAR*) lpszVolumeLabel, lstrlen(lpszVolumeLabel) + 1);
+        RegSetValueEx(hKeyVendor, szKeyVolumeTitle, 0, REG_SZ, (CONST UCHAR*) lpszVolumeTitle, lstrlen(lpszVolumeTitle) + 1);
     }
 
     return dwResult;
@@ -927,12 +865,12 @@ DWORD CreateAdditionalEntries(LPCSTR lpszUniqueVendorName, LPCSTR lpszVolumeTitl
 
 DWORD GetPrefixMapEntry(LPCSTR lpszUniqueVendorName, LPSTR lpszPrefixMap, DWORD cbPrefixMap)
 {
-    const static char *szKeyPrefixMap = "PrefixMap";
-    const static char *szExtCacheRoot = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Cache\\Extensible Cache";
+    const static char* szKeyPrefixMap = "PrefixMap";
+    const static char* szExtCacheRoot = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Cache\\Extensible Cache";
 
-    HKEY hKeyRoot     = HKEY_CURRENT_USER;  // default to current user
+    HKEY hKeyRoot = HKEY_CURRENT_USER;  // default to current user
     HKEY hKeyCacheExt = 0;
-    HKEY hKeyVendor   = 0;
+    HKEY hKeyVendor = 0;
     DWORD dwDisposition = 0;
     unsigned long   ulVal = 0;
     DWORD   dwResult = ERROR_SUCCESS;
@@ -960,14 +898,11 @@ DWORD GetPrefixMapEntry(LPCSTR lpszUniqueVendorName, LPSTR lpszPrefixMap, DWORD 
     memset(&osvInfo, 0, sizeof(osvInfo));
     osvInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
-    if (GetVersionEx(&osvInfo))
-    {
-        if (VER_PLATFORM_WIN32_WINDOWS == osvInfo.dwPlatformId)
-        {
+    if (GetVersionEx(&osvInfo)) {
+        if (VER_PLATFORM_WIN32_WINDOWS == osvInfo.dwPlatformId) {
             // We're running on Win95 so default to HKLM
             hKeyRoot = HKEY_LOCAL_MACHINE;
-        }
-        else
+        } else
             hKeyRoot = HKEY_CURRENT_USER;   // else assume NT and default to HKCU
 
         DWORD dwType = REG_DWORD;
@@ -978,15 +913,13 @@ DWORD GetPrefixMapEntry(LPCSTR lpszUniqueVendorName, LPSTR lpszPrefixMap, DWORD 
 
         // But now have to see if User Profiles are enabled
         if ((dwResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Network\\Logon",
-                                NULL, KEY_ALL_ACCESS, &hKeyProfiles)) == ERROR_SUCCESS)
-        {
+                                     NULL, KEY_ALL_ACCESS, &hKeyProfiles)) == ERROR_SUCCESS) {
             if ((dwResult = RegQueryValueEx(hKeyProfiles, "UserProfiles",
-                                NULL, &dwType, (unsigned char *)&dwUserProfiles,
-                                &dwSize)) == ERROR_SUCCESS)
-            {
-                if ( (dwResult != ERROR_MORE_DATA) &&
-                     (1L == dwUserProfiles) )
-                            hKeyRoot = HKEY_CURRENT_USER;
+                                            NULL, &dwType, (unsigned char*)&dwUserProfiles,
+                                            &dwSize)) == ERROR_SUCCESS) {
+                if ((dwResult != ERROR_MORE_DATA) &&
+                    (1L == dwUserProfiles))
+                    hKeyRoot = HKEY_CURRENT_USER;
                 else
                     hKeyRoot = HKEY_LOCAL_MACHINE;
             }
@@ -994,24 +927,18 @@ DWORD GetPrefixMapEntry(LPCSTR lpszUniqueVendorName, LPSTR lpszPrefixMap, DWORD 
     }
 
 
-    if ( (dwResult = RegCreateKeyEx(hKeyRoot, szExtCacheRoot, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyCacheExt, &dwDisposition)) == ERROR_SUCCESS)
-    {
-        if ( (dwResult = RegOpenKeyEx(hKeyCacheExt, lpszUniqueVendorName, 0, KEY_ALL_ACCESS, &hKeyVendor)) != ERROR_SUCCESS)
-        {
+    if ((dwResult = RegCreateKeyEx(hKeyRoot, szExtCacheRoot, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyCacheExt, &dwDisposition)) == ERROR_SUCCESS) {
+        if ((dwResult = RegOpenKeyEx(hKeyCacheExt, lpszUniqueVendorName, 0, KEY_ALL_ACCESS, &hKeyVendor)) != ERROR_SUCCESS) {
             // Key didn't exist
             lpszPrefixMap[0] = '\0';
-        }
-        else    // key did exist so lets return it in lpszPrefixMap
+        } else    // key did exist so lets return it in lpszPrefixMap
         {
             // Vendor name must be unique so is it ok to assume uniqueness?
-            if ( (dwResult = RegQueryValueEx(hKeyVendor, szKeyPrefixMap, 0, &ulVal, (LPBYTE) lpszPrefixMap, &cbPrefixMap )) == ERROR_SUCCESS )
-            {
-            }
-            else
+            if ((dwResult = RegQueryValueEx(hKeyVendor, szKeyPrefixMap, 0, &ulVal, (LPBYTE)lpszPrefixMap, &cbPrefixMap)) == ERROR_SUCCESS) {
+            } else
                 lpszPrefixMap[0] = '\0';
         }
-    }
-    else
+    } else
         lpszPrefixMap[0] = '\0';
 
     return dwResult;
@@ -1028,29 +955,29 @@ DWORD GetPrefixMapEntry(LPCSTR lpszUniqueVendorName, LPSTR lpszPrefixMap, DWORD 
 \**/
 
 DWORD WriteCacheContainerEntry(
-     IN LPCSTR lpszUniqueVendorName,
-     IN LPCSTR lpszCachePrefix,
-     IN LPCSTR lpszPrefixMap,           // New - part of WRAPPER
-     IN LPCSTR lpszVolumeTitle,         // New - part of WRAPPER
-     IN LPCSTR lpszVolumeLabel,         // New - part of WRAPPER
-     IN DWORD KBCacheLimit,
-     IN DWORD dwContainerType,          // Not used by WININET currently
-     IN DWORD dwOptions
-     )
+    IN LPCSTR lpszUniqueVendorName,
+    IN LPCSTR lpszCachePrefix,
+    IN LPCSTR lpszPrefixMap,           // New - part of WRAPPER
+    IN LPCSTR lpszVolumeTitle,         // New - part of WRAPPER
+    IN LPCSTR lpszVolumeLabel,         // New - part of WRAPPER
+    IN DWORD KBCacheLimit,
+    IN DWORD dwContainerType,          // Not used by WININET currently
+    IN DWORD dwOptions
+)
 
 {
-    const static char *szCachePrefix    = "CachePrefix";
-    const static char *szKeyPrefixMap   = "PrefixMap";
-    const static char *szKeyVolumeLabel = "VolumeLabel";
-    const static char *szKeyVolumeTitle = "VolumeTitle";
-    const static char *szCacheLimit     = "CacheLimit";
-    const static char *szCacheOptions   = "CacheOptions";
-    const static char *szCachePath      = "CachePath";
-    const static char *szExtCacheRoot = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Cache\\Extensible Cache";
+    const static char* szCachePrefix = "CachePrefix";
+    const static char* szKeyPrefixMap = "PrefixMap";
+    const static char* szKeyVolumeLabel = "VolumeLabel";
+    const static char* szKeyVolumeTitle = "VolumeTitle";
+    const static char* szCacheLimit = "CacheLimit";
+    const static char* szCacheOptions = "CacheOptions";
+    const static char* szCachePath = "CachePath";
+    const static char* szExtCacheRoot = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Cache\\Extensible Cache";
 
-    HKEY hKeyRoot     = HKEY_CURRENT_USER;  // default to current user
+    HKEY hKeyRoot = HKEY_CURRENT_USER;  // default to current user
     HKEY hKeyCacheExt = 0;
-    HKEY hKeyVendor   = 0;
+    HKEY hKeyVendor = 0;
     DWORD dwDisposition = 0;
     DWORD   dwResult = ERROR_SUCCESS;
     CHAR lpszCachePath[MAX_PATH];
@@ -1060,14 +987,11 @@ DWORD WriteCacheContainerEntry(
     memset(&osvInfo, 0, sizeof(osvInfo));
     osvInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
-    if (GetVersionEx(&osvInfo))
-    {
-        if (VER_PLATFORM_WIN32_WINDOWS == osvInfo.dwPlatformId)
-        {
+    if (GetVersionEx(&osvInfo)) {
+        if (VER_PLATFORM_WIN32_WINDOWS == osvInfo.dwPlatformId) {
             // We're running on Win95 so default to HKLM
             hKeyRoot = HKEY_LOCAL_MACHINE;
-        }
-        else
+        } else
             hKeyRoot = HKEY_CURRENT_USER;   // else assume NT and default to HKCU
 
         DWORD dwType = REG_DWORD;
@@ -1077,45 +1001,40 @@ DWORD WriteCacheContainerEntry(
         HKEY hKeyProfiles = 0;
 
         BYTE bBuf[4096];
-        LPINTERNET_CACHE_CONFIG_INFO lpCCI = (LPINTERNET_CACHE_CONFIG_INFO) bBuf;
+        LPINTERNET_CACHE_CONFIG_INFO lpCCI = (LPINTERNET_CACHE_CONFIG_INFO)bBuf;
         DWORD cbCEI = sizeof(bBuf);
 
-        if (!lpfnGetUrlCacheConfigInfo)
-        {
+        if (!lpfnGetUrlCacheConfigInfo) {
             HINSTANCE   hDll;
 
             hDll = LoadLibrary("WININET.DLL");
 
-            if (hDll != NULL)
-            {
+            if (hDll != NULL) {
                 lpfnGetUrlCacheConfigInfo = (LPFNGETURLCACHECONFIGINFO)GetProcAddress(hDll, "GetUrlCacheConfigInfoA");
 
-                if (!lpfnGetUrlCacheConfigInfo)
-                {
+                if (!lpfnGetUrlCacheConfigInfo) {
                     FreeLibrary(hDll);
                     dwResult = -1;      // Indicate failure
                 }
             }
         }
 
-        if (lpfnGetUrlCacheConfigInfo)
-        {
+        if (lpfnGetUrlCacheConfigInfo) {
             // Figure out local user cache location directory
             // Note: Need to use IE3 backward compatible flag
             // IE3:   CACHE_CONFIG_DISK_CACHE_PATHS_FC
             // IE4:   CACHE_CONFIG_CONTENT_PATHS_FC
-            if (lpfnGetUrlCacheConfigInfo(lpCCI, &cbCEI, CACHE_CONFIG_DISK_CACHE_PATHS_FC))
-            {
+            if (lpfnGetUrlCacheConfigInfo(lpCCI, &cbCEI, CACHE_CONFIG_DISK_CACHE_PATHS_FC)) {
                 // Now need to parse the returned CachePath to remove trailing 'cache1\'
                 // "c:\windows\Temporary Internet Files\cache1\"
                 // look for backslash starting from end of string
                 int i = lstrlen(lpCCI->CachePaths[0].CachePath);
 
-                while( (lpCCI->CachePaths[0].CachePath[i] != '\\') && (i >= 0) )
-                       i--;
+                while ((lpCCI->CachePaths[0].CachePath[i] != '\\') && (i >= 0))
+                    i--;
 
                 if (lpCCI->CachePaths[0].CachePath[i] == '\\')
-                    lpCCI->CachePaths[0].CachePath[i+1] = '\0';     // Leave '\' intact for later strcat
+                    lpCCI->CachePaths[0].CachePath[i + 1] = '\0';     // Leave '\' intact for later strcat
 
                 if (lpCCI->dwNumCachePaths > 0)
                     lstrcpy(lpszCachePath, lpCCI->CachePaths[0].CachePath);
@@ -1124,18 +1043,14 @@ DWORD WriteCacheContainerEntry(
                 // All container content will be stored in this location
                 lstrcat(lpszCachePath, lpszUniqueVendorName);
             }
-        }
-        else
-        {
+        } else {
             // No IE3 or IE4 WININET present
             // so synthesize CachePath from GetWinDir() + "Temporary Internet Files"
 
-            if ( GetWindowsDirectory(lpszCachePath, MAX_PATH) > 0)
-            {
-                if ('\\' == lpszCachePath[lstrlen(lpszCachePath)-1])
+            if (GetWindowsDirectory(lpszCachePath, MAX_PATH) > 0) {
+                if ('\\' == lpszCachePath[lstrlen(lpszCachePath) - 1])
                     lstrcat(lpszCachePath, _T("Temporary Internet Files"));
-                else
-                {
+                else {
                     lstrcat(lpszCachePath, _T("\\"));
                     lstrcat(lpszCachePath, _T("Temporary Internet Files"));
                 }
@@ -1145,15 +1060,13 @@ DWORD WriteCacheContainerEntry(
 
         // But now have to see if User Profiles are enabled
         if ((dwResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Network\\Logon",
-                                NULL, KEY_ALL_ACCESS, &hKeyProfiles)) == ERROR_SUCCESS)
-        {
+                                     NULL, KEY_ALL_ACCESS, &hKeyProfiles)) == ERROR_SUCCESS) {
             if ((dwResult = RegQueryValueEx(hKeyProfiles, "UserProfiles",
-                                NULL, &dwType, (unsigned char *)&dwUserProfiles,
-                                &dwSize)) == ERROR_SUCCESS)
-            {
-                if ( (dwResult != ERROR_MORE_DATA) &&
-                     (1L == dwUserProfiles) )
-                            hKeyRoot = HKEY_CURRENT_USER;
+                                            NULL, &dwType, (unsigned char*)&dwUserProfiles,
+                                            &dwSize)) == ERROR_SUCCESS) {
+                if ((dwResult != ERROR_MORE_DATA) &&
+                    (1L == dwUserProfiles))
+                    hKeyRoot = HKEY_CURRENT_USER;
                 else
                     hKeyRoot = HKEY_LOCAL_MACHINE;
             }
@@ -1161,10 +1074,8 @@ DWORD WriteCacheContainerEntry(
     }
 
 
-    if ( (dwResult = RegCreateKeyEx(hKeyRoot, szExtCacheRoot, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyCacheExt, &dwDisposition)) == ERROR_SUCCESS)
-    {
-        if ( (dwResult = RegOpenKeyEx(hKeyCacheExt, lpszUniqueVendorName, 0, KEY_ALL_ACCESS, &hKeyVendor)) != ERROR_SUCCESS)
-        {
+    if ((dwResult = RegCreateKeyEx(hKeyRoot, szExtCacheRoot, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyCacheExt, &dwDisposition)) == ERROR_SUCCESS) {
+        if ((dwResult = RegOpenKeyEx(hKeyCacheExt, lpszUniqueVendorName, 0, KEY_ALL_ACCESS, &hKeyVendor)) != ERROR_SUCCESS) {
             // Key didn't exist
 
             // Let's try to create it
@@ -1172,15 +1083,14 @@ DWORD WriteCacheContainerEntry(
         }
     }
 
-    if (dwResult == ERROR_SUCCESS)
-    {
-        RegSetValueEx(hKeyVendor, szKeyPrefixMap, 0, REG_SZ, (CONST UCHAR *) lpszPrefixMap, lstrlen(lpszPrefixMap)+1);
-        RegSetValueEx(hKeyVendor, szKeyVolumeLabel, 0, REG_SZ, (CONST UCHAR *) lpszVolumeLabel, lstrlen(lpszVolumeLabel)+1);
-        RegSetValueEx(hKeyVendor, szKeyVolumeTitle, 0, REG_SZ, (CONST UCHAR *) lpszVolumeTitle, lstrlen(lpszVolumeTitle)+1);
-        RegSetValueEx(hKeyVendor, szCachePrefix, 0, REG_SZ, (CONST UCHAR *) lpszCachePrefix, lstrlen(lpszCachePrefix)+1);
-        RegSetValueEx(hKeyVendor, szCachePath, 0, REG_SZ, (CONST UCHAR *) lpszCachePath, lstrlen(lpszCachePath)+1);
-        RegSetValueEx(hKeyVendor, szCacheLimit, 0, REG_DWORD, (unsigned char *)&KBCacheLimit, sizeof(DWORD));
-        RegSetValueEx(hKeyVendor, szCacheOptions, 0, REG_DWORD, (unsigned char *)&dwOptions, sizeof(DWORD));
+    if (dwResult == ERROR_SUCCESS) {
+        RegSetValueEx(hKeyVendor, szKeyPrefixMap, 0, REG_SZ, (CONST UCHAR*) lpszPrefixMap, lstrlen(lpszPrefixMap) + 1);
+        RegSetValueEx(hKeyVendor, szKeyVolumeLabel, 0, REG_SZ, (CONST UCHAR*) lpszVolumeLabel, lstrlen(lpszVolumeLabel) + 1);
+        RegSetValueEx(hKeyVendor, szKeyVolumeTitle, 0, REG_SZ, (CONST UCHAR*) lpszVolumeTitle, lstrlen(lpszVolumeTitle) + 1);
+        RegSetValueEx(hKeyVendor, szCachePrefix, 0, REG_SZ, (CONST UCHAR*) lpszCachePrefix, lstrlen(lpszCachePrefix) + 1);
+        RegSetValueEx(hKeyVendor, szCachePath, 0, REG_SZ, (CONST UCHAR*) lpszCachePath, lstrlen(lpszCachePath) + 1);
+        RegSetValueEx(hKeyVendor, szCacheLimit, 0, REG_DWORD, (unsigned char*)&KBCacheLimit, sizeof(DWORD));
+        RegSetValueEx(hKeyVendor, szCacheOptions, 0, REG_DWORD, (unsigned char*)&dwOptions, sizeof(DWORD));
     }
 
 
@@ -1239,7 +1149,7 @@ DWORD WriteCacheContainerEntry(
 *
 *   Calls _CreateUrlCacheContainer()
 \**/
-BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hListBox)
+BOOL CacheContainer(DWORD* dwTotal, DWORD* dwInstalled, DWORD dwAction, HWND hListBox)
 {
     BOOL    bRet = FALSE;
     BOOL    bVolumeLabel = FALSE;
@@ -1248,17 +1158,17 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
 
     int nSectionSize = 4096;    // Limit each INF section to 4K
     char szSections[4096];
-    char *lpSections = (char *)szSections;
+    char* lpSections = (char*)szSections;
 
-    const static char *szAddCacheContainerSection = "Add.CacheContainer";
-    const static char *szKey_Name           = "Name";
-    const static char *szKey_VolumeTitle    = "VolumeTitle";
-    const static char *szKey_Prefix         = "CachePrefix";
-    const static char *szKey_Root           = "CacheRoot";
-    const static char *szKey_CacheLimit     = "KBCacheLimit";
-    const static char *szKey_AutoDelete     = "AutoDelete";
-    const static char *szKey_IncludeSubDirs = "IncludeSubDirs";
-    const static char *szKey_NoDesktopInit  = "NoDesktopInit";
+    const static char* szAddCacheContainerSection = "Add.CacheContainer";
+    const static char* szKey_Name = "Name";
+    const static char* szKey_VolumeTitle = "VolumeTitle";
+    const static char* szKey_Prefix = "CachePrefix";
+    const static char* szKey_Root = "CacheRoot";
+    const static char* szKey_CacheLimit = "KBCacheLimit";
+    const static char* szKey_AutoDelete = "AutoDelete";
+    const static char* szKey_IncludeSubDirs = "IncludeSubDirs";
+    const static char* szKey_NoDesktopInit = "NoDesktopInit";
     char szDefault[] = "*Unknown*";
     DWORD len;
 
@@ -1286,7 +1196,7 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
 
     // BEGIN NOTE: add vars and values in matching order
     // add a var by adding a new define VAR_NEW_VAR = NUM_VARS++
-    const char *szVars[] =
+    const char* szVars[] =
     {
 #define VAR_EXE_ROOT     0       // Replace with drive+path (ex. "D:" or "D:\PATH") of this EXE
         "%EXE_ROOT%",
@@ -1302,7 +1212,7 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
     char lpValBuffer[MAX_PATH];
     int nDriveBuffSize = MAX_PATH;
     char lpDriveBuffer[MAX_PATH];
-    const char *szValues[NUM_VARS + 1];
+    const char* szValues[NUM_VARS + 1];
     szValues[VAR_EXE_ROOT] = GetINFDir(lpValBuffer, nValBuffSize);
     szValues[VAR_EXE_DRIVE] = GetINFDrive(lpDriveBuffer, nDriveBuffSize);
     szValues[NUM_VARS] = NULL;
@@ -1312,17 +1222,16 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
 
     // Look for INF
 
-    LoadString (g_hInst, ID_INFNAME, szInf, sizeof(szInf));
-    lstrcpy(szInfPath, GetINFDir(szInfPath, sizeof(szInfPath)) );
-    strcat (szInfPath, "\\");
-    strcat (szInfPath, szInf);
-    strcat (szInfPath, ".INF");
+    LoadString(g_hInst, ID_INFNAME, szInf, sizeof(szInf));
+    lstrcpy(szInfPath, GetINFDir(szInfPath, sizeof(szInfPath)));
+    strcat(szInfPath, "\\");
+    strcat(szInfPath, szInf);
+    strcat(szInfPath, ".INF");
     hFile = CreateFile(szInfPath, GENERIC_READ, FILE_SHARE_READ, NULL,
                        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 
-    if (INVALID_HANDLE_VALUE != hFile)
-    {
+    if (INVALID_HANDLE_VALUE != hFile) {
         CloseHandle(hFile);
         hFile = NULL;
 
@@ -1332,30 +1241,25 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
         // Workaround for GetPrivateProfileSection() failure on Win95
         szDefault[0] = '\0';
         len = GetPrivateProfileString(szAddCacheContainerSection, NULL, szDefault, lpSections, nSectionSize, szInfPath);
-        if (!len)
-        {
+        if (!len) {
             // no CD-ROM Cache Container sections in INF
             // BUGBUG: Display a message if in NON Silent mode?
 
             // This is case where AUTORUN.INF has no [Add.Container] section
-        }
-        else
-        {
+        } else {
             // lpBuffer now has list of key strings (as in key=value)
             // final pair terminated with extra NULL
 
             // Loop through each cache container entry
-            while (*lpSections)
-            {
-                WORD  dResult   = 0;
+            while (*lpSections) {
+                WORD  dResult = 0;
 
                 // Init flags for this container to map-able.
                 DWORD dwOptions = INTERNET_CACHE_CONTAINER_MAP_ENABLED;
 
                 GetPrivateProfileString(szAddCacheContainerSection, lpSections, szDefault, szContainerName, STRING_BUFFER_SIZE, szInfPath);
 
-                if (szContainerName)
-                {
+                if (szContainerName) {
                     (*dwTotal)++;   // Keep track of how many cache containers in INF
 
                     // Build PrefixMap
@@ -1376,12 +1280,9 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
                     memcpy(szMapDrive, szPrefixMap, 2);
                     memcpy(szMapDrive + 2, "\\", sizeof("\\"));
                     if (GetVolumeInformation(szMapDrive, szVolumeLabel, MAX_PATH,
-                             NULL, NULL, NULL, NULL, 0))
-                    {
+                                             NULL, NULL, NULL, NULL, 0)) {
                         bVolumeLabel = TRUE;
-                    }
-                    else
-                    {
+                    } else {
                         *szVolumeLabel = '\0';
                         bVolumeLabel = FALSE;
                     }
@@ -1407,53 +1308,46 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
                                                        nDefault, szInfPath);
 
                     dResult = GetProfileBooleanWord(szContainerName, szKey_AutoDelete, szInfPath);
-                    switch (dResult)
-                    {
-                        case -1:    // The key did not exist in INF
-                            break;  // default is No/False for AutoDelete
-                        case FALSE:
-                            break;
-                        case TRUE:
-                            dwOptions |= INTERNET_CACHE_CONTAINER_AUTODELETE;
-                            break;
+                    switch (dResult) {
+                    case -1:    // The key did not exist in INF
+                        break;  // default is No/False for AutoDelete
+                    case FALSE:
+                        break;
+                    case TRUE:
+                        dwOptions |= INTERNET_CACHE_CONTAINER_AUTODELETE;
+                        break;
                     }
 
                     dResult = GetProfileBooleanWord(szContainerName, szKey_IncludeSubDirs, szInfPath);
-                    switch (dResult)
-                    {
-                        case -1:    // The key did not exist in INF
-                            break;  // default is Yes/True for IncludeSubDirs
-                        case FALSE:
-                            dwOptions |= INTERNET_CACHE_CONTAINER_NOSUBDIRS;    // Don't include subdirs in cacheview
-                            break;
-                        case TRUE:
-                            break;
+                    switch (dResult) {
+                    case -1:    // The key did not exist in INF
+                        break;  // default is Yes/True for IncludeSubDirs
+                    case FALSE:
+                        dwOptions |= INTERNET_CACHE_CONTAINER_NOSUBDIRS;    // Don't include subdirs in cacheview
+                        break;
+                    case TRUE:
+                        break;
                     }
 
                     dResult = GetProfileBooleanWord(szContainerName, szKey_NoDesktopInit, szInfPath);
-                    switch (dResult)
-                    {
-                        case -1:    // The key did not exist in INF
-                            break;  // default is No/False for NoDesktopInit
-                        case FALSE:
-                            break;
-                        case TRUE:
-                            dwOptions |= INTERNET_CACHE_CONTAINER_NODESKTOPINIT;
-                            break;
+                    switch (dResult) {
+                    case -1:    // The key did not exist in INF
+                        break;  // default is No/False for NoDesktopInit
+                    case FALSE:
+                        break;
+                    case TRUE:
+                        dwOptions |= INTERNET_CACHE_CONTAINER_NODESKTOPINIT;
+                        break;
                     }
 
 
-                    switch (dwAction)
-                    {
+                    switch (dwAction) {
                     case CACHE_ACTION_INSTALL:
                         // Call CreateUrlCacheContainer WRAPPER
-                        if (bVolumeLabel)
-                        {
+                        if (bVolumeLabel) {
                             bRet = _CreateUrlCacheContainer(lpSections, szCachePrefix, szPrefixMap,
                                                             szVolumeTitle, szVolumeLabel, nCacheLimit, 0, dwOptions);
-                        }
-                        else
-                        {
+                        } else {
                             bRet = FALSE;
                         }
 
@@ -1467,12 +1361,9 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
                     case CACHE_ACTION_FILL_LB:
                         // Fill listbox hListBox
 
-                        if (hListBox)
-                        {
+                        if (hListBox) {
                             SendMessage(hListBox, LB_ADDSTRING, 0, (LPARAM)lpSections);
-                        }
-                        else
-                        {
+                        } else {
                             // hListBox is NULL
 
                             //  if dwAction == CACHE_ACTION_FILL_LB then if hListBox
@@ -1488,12 +1379,10 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
 
                         break;
                     case CACHE_ACTION_MAKE_REG_ENTRIES:
-                        if (bVolumeLabel)
-                        {
+                        if (bVolumeLabel) {
                             bRet = WriteCacheContainerEntry(lpSections, szCachePrefix, szPrefixMap, szVolumeTitle,
                                                             szVolumeLabel, nCacheLimit, 0, dwOptions);
-                        }
-                        else
+                        } else
                             bRet = FALSE;
 
 
@@ -1506,13 +1395,11 @@ BOOL CacheContainer(DWORD *dwTotal, DWORD *dwInstalled, DWORD dwAction, HWND hLi
                 //else empty section entry, ignore and move to next
 
                 // Get Next Section name
-                while ( (*(lpSections++) != '\0')  );
+                while ((*(lpSections++) != '\0'));
 
             }
         }
-    }
-    else
-    {
+    } else {
         // Couldn't find INF file
         // BUGBUG: need to do anything else here?
     }
@@ -1529,8 +1416,8 @@ HRESULT ExpandEntry(
     LPSTR szSrc,
     LPSTR szBuf,
     DWORD cbBuffer,
-    const char * szVars[],
-    const char * szValues[])
+    const char* szVars[],
+    const char* szValues[])
 {
     //Assert(szSrc);
 
@@ -1547,7 +1434,7 @@ HRESULT ExpandEntry(
         if (*pchSrc == '%') {
 
             HRESULT hr1 = ExpandVar(pchSrc, pchOut, cbLen, // all passed by ref!
-                cbBuffer, szVars, szValues);
+                                    cbBuffer, szVars, szValues);
 
             if (FAILED(hr1)) {
                 hr = hr1;
@@ -1598,19 +1485,19 @@ HRESULT ExpandVar(
     LPSTR& pchOut,          // passed by ref!
     DWORD& cbLen,           // passed by ref!
     DWORD cbBuffer,
-    const char * szVars[],
-    const char * szValues[])
+    const char* szVars[],
+    const char* szValues[])
 {
     HRESULT hr = S_FALSE;
     int cbvar = 0;
 
     //Assert (*pchSrc == '%');
 
-    for (int i=0; szVars[i] && (cbvar = lstrlen(szVars[i])) ; i++) { // for each variable
+    for (int i = 0; szVars[i] && (cbvar = lstrlen(szVars[i])); i++) { // for each variable
 
         int cbneed = 0;
 
-        if ( (szValues[i] == NULL) || !(cbneed = lstrlen(szValues[i])))
+        if ((szValues[i] == NULL) || !(cbneed = lstrlen(szValues[i])))
             continue;
 
         cbneed++;   // add for nul
@@ -1619,21 +1506,21 @@ HRESULT ExpandVar(
 
             // found something we can expand
 
-                if ((cbLen + cbneed) >= cbBuffer) {
-                    // out of buffer space
-                    *pchOut = '\0'; // term
-                    hr = HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER);
-                    goto Exit;
-                }
-
-                lstrcpy(pchOut, szValues[i]);
-                cbLen += (cbneed -1); //don't count the nul
-
-                pchSrc += cbvar;        // skip past the var in pchSrc
-                pchOut += (cbneed -1);  // skip past dir in pchOut
-
-                hr = S_OK;
+            if ((cbLen + cbneed) >= cbBuffer) {
+                // out of buffer space
+                *pchOut = '\0'; // term
+                hr = HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER);
                 goto Exit;
+            }
+
+            lstrcpy(pchOut, szValues[i]);
+            cbLen += (cbneed - 1); //don't count the nul
+
+            pchSrc += cbvar;        // skip past the var in pchSrc
+            pchOut += (cbneed - 1);  // skip past dir in pchOut
+
+            hr = S_OK;
+            goto Exit;
 
         }
     }
@@ -1660,8 +1547,8 @@ LPSTR GetINFDir(LPSTR lpBuffer, int nBuffSize)
     // Get rid of executable name
     i = lstrlen(lpBuffer);
 
-    while( (lpBuffer[i] != '\\') && (i >= 0) )
-           i--;
+    while ((lpBuffer[i] != '\\') && (i >= 0))
+        i--;
 
     if (lpBuffer[i] == '\\')
         lpBuffer[i] = '\0';
@@ -1685,8 +1572,7 @@ LPSTR GetINFDrive(LPSTR lpBuffer, int nBuffSize)
     // Now trim off everything after first colon ':'
     if (':' == lpBuffer[1])
         lpBuffer[2] = '\0';
-    else
-    {
+    else {
         // assumption that lpBuffer of form "D:\path" failed
         // so actually parse it
         // #48022 robgil - add check for end of lpBuffer string
@@ -1695,22 +1581,19 @@ LPSTR GetINFDrive(LPSTR lpBuffer, int nBuffSize)
 
         if (':' == *lpBuffer)
             *(lpBuffer + 1) = '\0';
-        else
-        {
+        else {
             // #48022
             // Need to return \\server\share
             // for Drive when a UNC path
             lpBuffer = lpSaveBuffer;
 
-            if ('\\' == lpBuffer[0] && '\\' == lpBuffer[1])
-            {
+            if ('\\' == lpBuffer[0] && '\\' == lpBuffer[1]) {
                 lpBuffer += 2;  // move past leading '\\'
 
                 while (*lpBuffer != '\0' && *lpBuffer != '\\')
                     lpBuffer++;
 
-                if ('\\' == *lpBuffer)
-                {
+                if ('\\' == *lpBuffer) {
                     lpBuffer++;
 
                     while (*lpBuffer != '\0' && *lpBuffer != '\\')
@@ -1758,21 +1641,21 @@ WORD GetProfileBooleanWord
 {
     TCHAR   szTemp[10];
 
-    GetPrivateProfileString( szIniSection, szKeyName, _T(""), szTemp, sizeof( szTemp ), szIniFile ) ;
+    GetPrivateProfileString(szIniSection, szKeyName, _T(""), szTemp, sizeof(szTemp), szIniFile);
 
-    if (0 == lstrlen( szTemp ))
-        return ( (WORD) -1 ) ;
+    if (0 == lstrlen(szTemp))
+        return ((WORD)-1);
 
-    if ((0 == lstrcmpi( szTemp, gszIniValTrue )) ||
-       (0 == lstrcmpi( szTemp, gszIniValYes )) ||
-       (0 == lstrcmpi( szTemp, gszIniValOn )))
-        return ( TRUE ) ;
+    if ((0 == lstrcmpi(szTemp, gszIniValTrue)) ||
+        (0 == lstrcmpi(szTemp, gszIniValYes)) ||
+        (0 == lstrcmpi(szTemp, gszIniValOn)))
+        return (TRUE);
 
     // Try and convert something numeric
     if (0 != _ttoi(szTemp))     // atoi (via tchar.h)
-        return ( TRUE );
+        return (TRUE);
 
-    return ( FALSE ) ;
+    return (FALSE);
 
 } // end of GetProfileBooleanWord()
 

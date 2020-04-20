@@ -27,25 +27,25 @@
 #define COMPATWARN_DONT 1
 
 #ifndef WINNT
-// codes for SelectFontSize
+ // codes for SelectFontSize
 #define DPI_INVALID   (-1)
 #define DPI_FROMCOMBO (-2)
 #define DPI_CUSTOM    (-3)
 #endif
 
 extern "C" {
-extern BOOL CALLBACK CustomFontDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
+    extern BOOL CALLBACK CustomFontDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
 }
 
 //BUGBUG: (dli) This should be put in regstr.h
 #define REGSTR_VAL_DYNACOLORCHANGE TEXT("DynaColorChange")
 #define REGSTR_VAL_COMPATWARNING   TEXT("MultiMonitorCompatibilityWarning")
 static const TCHAR sc_szDeskAppletSoftwareKey[] = REGSTR_PATH_CONTROLSFOLDER TEXT("\\Display");
-static const TCHAR sc_szRegFontSize[]           = REGSTR_PATH_SETUP TEXT("\\") REGSTR_VAL_FONTSIZE;
-static const TCHAR sc_szQuickResRegName[]       = TEXT("Taskbar Display Controls");
-static const TCHAR sc_szQuickResCommandLine[]  = TEXT("RunDLL deskcp16.dll,QUICKRES_RUNDLLENTRY");
-static const TCHAR sc_szQuickResClass[]  = TEXT("SysQuickRes");
-static const char c_szQuickResCommandLine[]  = "RunDLL deskcp16.dll,QUICKRES_RUNDLLENTRY";
+static const TCHAR sc_szRegFontSize[] = REGSTR_PATH_SETUP TEXT("\\") REGSTR_VAL_FONTSIZE;
+static const TCHAR sc_szQuickResRegName[] = TEXT("Taskbar Display Controls");
+static const TCHAR sc_szQuickResCommandLine[] = TEXT("RunDLL deskcp16.dll,QUICKRES_RUNDLLENTRY");
+static const TCHAR sc_szQuickResClass[] = TEXT("SysQuickRes");
+static const char c_szQuickResCommandLine[] = "RunDLL deskcp16.dll,QUICKRES_RUNDLLENTRY";
 #ifndef WINNT
 static const TCHAR sc_szBoot[] = TEXT("boot");
 static const TCHAR sc_szSystemIni[] = TEXT("system.ini");
@@ -57,13 +57,13 @@ static const TCHAR sc_szAspect[] = TEXT("aspect");
 
 static const DWORD sc_GeneralHelpIds[] =
 {
-   // General Page
-    ID_DSP_FONTSIZEGRP, IDH_GENERAL_FONTSIZEGRP,
-    IDC_DYNA,           IDH_GENERAL_DYNA,
-    IDC_NODYNA,         IDH_GENERAL_NODYNA,
-    IDC_YESDYNA,        IDH_GENERAL_YESDYNA,
-    IDC_SHUTUP,        IDH_GENERAL_SHUTUP,
-    0, 0
+    // General Page
+     ID_DSP_FONTSIZEGRP, IDH_GENERAL_FONTSIZEGRP,
+     IDC_DYNA,           IDH_GENERAL_DYNA,
+     IDC_NODYNA,         IDH_GENERAL_NODYNA,
+     IDC_YESDYNA,        IDH_GENERAL_YESDYNA,
+     IDC_SHUTUP,        IDH_GENERAL_SHUTUP,
+     0, 0
 };
 
 /*-------*
@@ -74,30 +74,26 @@ int GetDisplayCPLPreference(LPCTSTR szRegVal)
     int val = -1;
     HKEY hk;
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, sc_szDeskAppletSoftwareKey, 0, KEY_READ, &hk) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, sc_szDeskAppletSoftwareKey, 0, KEY_READ, &hk) == ERROR_SUCCESS) {
         TCHAR sz[64];
         DWORD cb = sizeof(sz);
 
         *sz = 0;
         if ((RegQueryValueEx(hk, szRegVal, NULL, NULL,
-            (LPBYTE)sz, &cb) == ERROR_SUCCESS) && *sz)
-        {
+                             (LPBYTE)sz, &cb) == ERROR_SUCCESS) && *sz) {
             val = (int)MyStrToLong(sz);
         }
 
         RegCloseKey(hk);
     }
 
-    if (val == -1 && RegOpenKeyEx(HKEY_LOCAL_MACHINE, sc_szDeskAppletSoftwareKey, 0, KEY_READ, &hk) == ERROR_SUCCESS)
-    {
+    if (val == -1 && RegOpenKeyEx(HKEY_LOCAL_MACHINE, sc_szDeskAppletSoftwareKey, 0, KEY_READ, &hk) == ERROR_SUCCESS) {
         TCHAR sz[64];
         DWORD cb = sizeof(sz);
 
         *sz = 0;
         if ((RegQueryValueEx(hk, szRegVal, NULL, NULL,
-            (LPBYTE)sz, &cb) == ERROR_SUCCESS) && *sz)
-        {
+                             (LPBYTE)sz, &cb) == ERROR_SUCCESS) && *sz) {
             val = (int)MyStrToLong(sz);
         }
 
@@ -109,9 +105,9 @@ int GetDisplayCPLPreference(LPCTSTR szRegVal)
 
 int GetDynaCDSPreference()
 {
-//DLI: until we figure out if this command line stuff is still needed.
-//    if (g_fCommandLineModeSet)
-//        return DCDSF_YES;
+    //DLI: until we figure out if this command line stuff is still needed.
+    //    if (g_fCommandLineModeSet)
+    //        return DCDSF_YES;
 
     int iRegVal = GetDisplayCPLPreference(REGSTR_VAL_DYNACOLORCHANGE);
     if (iRegVal == -1)
@@ -123,8 +119,7 @@ void SetDisplayCPLPreference(LPCTSTR szRegVal, int val)
 {
     HKEY hk;
 
-    if (RegCreateKeyEx(HKEY_CURRENT_USER, sc_szDeskAppletSoftwareKey, 0, TEXT(""), 0, KEY_WRITE, NULL, &hk, NULL) == ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, sc_szDeskAppletSoftwareKey, 0, TEXT(""), 0, KEY_WRITE, NULL, &hk, NULL) == ERROR_SUCCESS) {
         TCHAR sz[64];
 
         wsprintf(sz, TEXT("%d"), val);
@@ -138,29 +133,29 @@ void SetDisplayCPLPreference(LPCTSTR szRegVal, int val)
 /*-------*
  *-------*/
 class CGeneralDlg {
-    private:
-        int _idCustomFonts;
-        int _iDynaOrg;
-        HWND _hwndFontList;
-        HWND _hDlg;
+private:
+    int _idCustomFonts;
+    int _iDynaOrg;
+    HWND _hwndFontList;
+    HWND _hDlg;
 
-        // current log pixels of the screen.
-        // does not change !
-        int _cLogPix;
-        BOOL _fForceSmallFont;
-        BOOL _InitFontList();
-        void _InstallQuickRes(BOOL fEnable);
-        void _InitQuickResCheckbox();
-        void _ApplyQuickResCheckbox();
-    public:
-        CGeneralDlg(BOOL fFoceSmallFont);
-        void InitGeneralDlg(HWND hDlg);
-        void SetFontSizeText( int cdpi );
-        BOOL ChangeFontSize();
-        BOOL HandleGeneralApply(HWND hDlg);
-        void HandleFontSelChange();
-        void ForceSmallFont();
-        LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    // current log pixels of the screen.
+    // does not change !
+    int _cLogPix;
+    BOOL _fForceSmallFont;
+    BOOL _InitFontList();
+    void _InstallQuickRes(BOOL fEnable);
+    void _InitQuickResCheckbox();
+    void _ApplyQuickResCheckbox();
+public:
+    CGeneralDlg(BOOL fFoceSmallFont);
+    void InitGeneralDlg(HWND hDlg);
+    void SetFontSizeText(int cdpi);
+    BOOL ChangeFontSize();
+    BOOL HandleGeneralApply(HWND hDlg);
+    void HandleFontSelChange();
+    void ForceSmallFont();
+    LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
 CGeneralDlg::CGeneralDlg(BOOL fFoceSmallFont) : _fForceSmallFont(fFoceSmallFont), _idCustomFonts(-1)
@@ -198,7 +193,7 @@ CGeneralDlg::CGeneralDlg(BOOL fFoceSmallFont) : _fForceSmallFont(fFoceSmallFont)
                             SZ_LOGPIXELS,
                             NULL,
                             NULL,
-                            (LPBYTE) &_cLogPix,
+                            (LPBYTE)&_cLogPix,
                             &cb) != ERROR_SUCCESS) {
 
             _cLogPix = 96;
@@ -206,23 +201,19 @@ CGeneralDlg::CGeneralDlg(BOOL fFoceSmallFont) : _fForceSmallFont(fFoceSmallFont)
         }
 
 #else
-        TCHAR szBuf[10];
+    TCHAR szBuf[10];
 
-   if (RegOpenKeyEx(HKEY_CURRENT_CONFIG, REGSTR_PATH_DISPLAYSETTINGS, 0, KEY_READ, &hkFont) == ERROR_SUCCESS)
-   {
-       cb = SIZEOF(szBuf);
+    if (RegOpenKeyEx(HKEY_CURRENT_CONFIG, REGSTR_PATH_DISPLAYSETTINGS, 0, KEY_READ, &hkFont) == ERROR_SUCCESS) {
+        cb = SIZEOF(szBuf);
 
-       if (RegQueryValueEx(hkFont, REGSTR_VAL_DPILOGICALX, NULL, NULL, (LPBYTE) szBuf, &cb) == ERROR_SUCCESS)
-       {
-           _cLogPix = MyStrToLong(szBuf);
-       }
-       else
-       {
-           _cLogPix = 96;
-       }
+        if (RegQueryValueEx(hkFont, REGSTR_VAL_DPILOGICALX, NULL, NULL, (LPBYTE)szBuf, &cb) == ERROR_SUCCESS) {
+            _cLogPix = MyStrToLong(szBuf);
+        } else {
+            _cLogPix = 96;
+        }
 
 #endif
-       RegCloseKey(hkFont);
+        RegCloseKey(hkFont);
 
     }
 };
@@ -241,28 +232,23 @@ BOOL NEAR PASCAL DeskCPLFontSize_GetRealSize(HKEY hkFontSize, LPCTSTR lpFontSize
     TCHAR szBuf[100];
     int i;
 
-    if (RegOpenKeyEx(hkFontSize, (LPTSTR)lpFontSize, 0, KEY_READ, &hk) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(hkFontSize, (LPTSTR)lpFontSize, 0, KEY_READ, &hk) == ERROR_SUCCESS) {
         // the font size is in there as is.  use it.
         lstrcpy(lpRealSize, lpFontSize);
         RegCloseKey(hk);
-    }
-    else
-    {
+    } else {
         int iWant, iBest, iCur;
         DWORD cchBuf = SIZEOF(szBuf);
         iBest = 0;
         iWant = MyStrToLong(lpFontSize);
         // find closest match
-        for (i=0; ; i++)
-        {
+        for (i = 0; ; i++) {
             // enumerate the fonts
-            if (RegEnumKeyEx(hkFontSize,i,(LPTSTR)szBuf,&cchBuf, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+            if (RegEnumKeyEx(hkFontSize, i, (LPTSTR)szBuf, &cchBuf, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
                 break;  // Bail if no more keys.
 
             iCur = MyStrToLong(szBuf);
-            if ((!iBest) || (ABS(iBest - iWant) > ABS(iCur - iWant)))
-            {
+            if ((!iBest) || (ABS(iBest - iWant) > ABS(iCur - iWant))) {
                 iBest = iCur;
             }
         }
@@ -281,7 +267,7 @@ BOOL DeskCPLSetFontSize(LPCTSTR lpszFontSize)
 {
     TCHAR szBuf[100], szRealSize[50];
     TCHAR szLHS[100], szRHS[100];
-    HKEY hkFontSize=NULL, hkIniStuff=NULL, hkSettings=NULL,hk=NULL;
+    HKEY hkFontSize = NULL, hkIniStuff = NULL, hkSettings = NULL, hk = NULL;
     BOOL bRet = FALSE;
     DWORD dw;
     int i;
@@ -320,11 +306,10 @@ BOOL DeskCPLSetFontSize(LPCTSTR lpszFontSize)
     if (RegOpenKeyEx(hkFontSize, szBuf, 0, KEY_READ, &hkIniStuff) != ERROR_SUCCESS)
         goto error;
 
-    if (RegCreateKeyEx(HKEY_CURRENT_CONFIG, REGSTR_PATH_DISPLAYSETTINGS,  0, TEXT(""), 0, KEY_WRITE, NULL, &hk, NULL) != ERROR_SUCCESS)
+    if (RegCreateKeyEx(HKEY_CURRENT_CONFIG, REGSTR_PATH_DISPLAYSETTINGS, 0, TEXT(""), 0, KEY_WRITE, NULL, &hk, NULL) != ERROR_SUCCESS)
         goto error;
 
-    for (dw=0; ; dw++)
-    {
+    for (dw = 0; ; dw++) {
         cbData1 = SIZEOF(szLHS);
         cbData2 = SIZEOF(szRHS);
         if (RegEnumValue(hkIniStuff, dw, szLHS, &cbData1, NULL, NULL, (LPBYTE)szRHS, &cbData2) != ERROR_SUCCESS)
@@ -356,8 +341,7 @@ BOOL DeskCPLSetFontSize(LPCTSTR lpszFontSize)
     if (RegCreateKeyEx(HKEY_CURRENT_CONFIG, REGSTR_PATH_FONTS, 0, TEXT(""), 0, KEY_WRITE, NULL, &hk, NULL) != ERROR_SUCCESS)
         goto error;
 
-    for (dw=0; ; dw++)
-    {
+    for (dw = 0; ; dw++) {
         cbData1 = SIZEOF(szLHS);
         cbData2 = SIZEOF(szRHS);
         // remember, the registry has LH and RH reversed here
@@ -397,7 +381,7 @@ BOOL DeskCPLSetFontSize(LPCTSTR lpszFontSize)
         bRet++;     // need a restart
     ReleaseDC(NULL, hdc);
 
-// BUGBUG error recovery?  can it be done here?  is it needed?
+    // BUGBUG error recovery?  can it be done here?  is it needed?
 
 error:
     if (hkFontSize) RegCloseKey(hkFontSize);
@@ -416,15 +400,15 @@ BOOL CGeneralDlg::ChangeFontSize()
 
     int i = ComboBox_GetCurSel(_hwndFontList);
 
-    if (i != CB_ERR ) {
+    if (i != CB_ERR) {
 
         TCHAR awcDesc[10];
 
         cFontSize = ComboBox_GetItemData(_hwndFontList, i);
 
-        if ( (cFontSize != CB_ERR) &&
-             (cFontSize != 0) &&
-             (cFontSize != _cLogPix)) {
+        if ((cFontSize != CB_ERR) &&
+            (cFontSize != 0) &&
+            (cFontSize != _cLogPix)) {
 
 
             // The user has changed the fonts.
@@ -459,9 +443,7 @@ BOOL CGeneralDlg::ChangeFontSize()
 
 
                 PropSheet_RestartWindows(GetParent(_hDlg));
-            }
-            else
-            {
+            } else {
 
                 // Setup failed.
 
@@ -477,8 +459,7 @@ BOOL CGeneralDlg::ChangeFontSize()
         }
     }
 
-    if (cFontSize == 0)
-    {
+    if (cFontSize == 0) {
 
         // If we could not read the inf, then ignore the font selection
         // and don't force the reboot on account of that.
@@ -517,7 +498,7 @@ BOOL CGeneralDlg::_InitFontList() {
 
     int i;
     ASSERT(_hwndFontList);
-    ULONG uCurSel = (ULONG) -1;
+    ULONG uCurSel = (ULONG)-1;
     int cPix = 0;
 
 #ifdef WINNT
@@ -533,15 +514,12 @@ BOOL CGeneralDlg::_InitFontList() {
                                      INF_STYLE_WIN4,
                                      NULL);
 
-    if (InfFileHandle != INVALID_HANDLE_VALUE)
-    {
+    if (InfFileHandle != INVALID_HANDLE_VALUE) {
         if (SetupFindFirstLine(InfFileHandle,
                                TEXT("Font Sizes"),
                                NULL,
-                               &infoContext))
-        {
-            while(TRUE)
-            {
+                               &infoContext)) {
+            while (TRUE) {
                 TCHAR awcDesc[LINE_LEN];
 
                 if (SetupGetStringField(&infoContext,
@@ -551,15 +529,13 @@ BOOL CGeneralDlg::_InitFontList() {
                                         NULL) &&
                     SetupGetIntField(&infoContext,
                                      1,
-                                     &cPix))
-                {
+                                     &cPix)) {
 
                     // Add it to the list box
 
 
                     i = ComboBox_AddString(_hwndFontList, awcDesc);
-                    if (i != CB_ERR)
-                    {
+                    if (i != CB_ERR) {
                         ComboBox_SetItemData(_hwndFontList, i, cPix);
                         if (_cLogPix == cPix)
                             uCurSel = i;
@@ -571,8 +547,7 @@ BOOL CGeneralDlg::_InitFontList() {
 
 
                 if (!SetupFindNextLine(&infoContext,
-                                       &infoContext))
-                {
+                                       &infoContext)) {
                     break;
                 }
             }
@@ -600,19 +575,17 @@ BOOL CGeneralDlg::_InitFontList() {
     TCHAR szBuf[100];
     TCHAR szBuf2[100];
     DWORD cbData;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sc_szRegFontSize, 0, KEY_READ, &hkFonts) != ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sc_szRegFontSize, 0, KEY_READ, &hkFonts) != ERROR_SUCCESS) {
         LoadString(hInstance, IDS_UNKNOWN, szBuf, SIZEOF(szBuf));
         ComboBox_AddString(_hwndFontList, szBuf);
         ComboBox_SetCurSel(_hwndFontList, 0);
         return FALSE;
     }
 
-    for (i=0; ; i++)
-    {
+    for (i = 0; ; i++) {
         DWORD cchBuf = ARRAYSIZE(szBuf);
         // enumerate the fonts
-        if (RegEnumKeyEx(hkFonts,i,szBuf,&cchBuf, NULL,NULL, NULL, NULL)
+        if (RegEnumKeyEx(hkFonts, i, szBuf, &cchBuf, NULL, NULL, NULL, NULL)
             != ERROR_SUCCESS)
             break;  // Bail if no more keys.
 
@@ -622,11 +595,9 @@ BOOL CGeneralDlg::_InitFontList() {
         cbData = SIZEOF(szBuf2);
 
         if (RegQueryValueEx(hkEnumFont, REGSTR_VAL_DESCRIPTION, NULL, NULL,
-                            (LPBYTE)szBuf2, &cbData) == ERROR_SUCCESS)
-        {
+                            (LPBYTE)szBuf2, &cbData) == ERROR_SUCCESS) {
             index = ComboBox_AddString(_hwndFontList, szBuf2);
-            if (index != CB_ERR)
-            {
+            if (index != CB_ERR) {
                 cPix = (int)MyStrToLong(szBuf);
                 ComboBox_SetItemData(_hwndFontList, index, cPix);
                 if (_cLogPix == cPix)
@@ -646,37 +617,36 @@ BOOL CGeneralDlg::_InitFontList() {
     if (_idCustomFonts != CB_ERR)
         ComboBox_SetItemData(_hwndFontList, _idCustomFonts, _cLogPix);
 
-    if (uCurSel == (ULONG) -1) {
+    if (uCurSel == (ULONG)-1) {
         uCurSel = _idCustomFonts;
     }
 
 
     if (_fForceSmallFont && (_cLogPix == 96))
         this->ForceSmallFont();
-    else
-    {
+    else {
 
         // Select the right entry.
 
         ComboBox_SetCurSel(_hwndFontList, uCurSel);
-        this->SetFontSizeText( _cLogPix );
+        this->SetFontSizeText(_cLogPix);
     }
 
     return TRUE;
 }
 
 
-void CGeneralDlg::SetFontSizeText( int cdpi )
+void CGeneralDlg::SetFontSizeText(int cdpi)
 {
     LPTSTR pszFontSize;
     HWND hwndCustFontPer;
     if (cdpi == CDPI_NORMAL)
-        pszFontSize = FmtSprint( ID_DSP_NORMAL_FONTSIZE_TEXT, cdpi );
+        pszFontSize = FmtSprint(ID_DSP_NORMAL_FONTSIZE_TEXT, cdpi);
     else
-        pszFontSize = FmtSprint( ID_DSP_CUSTOM_FONTSIZE_TEXT, (100 * cdpi) / CDPI_NORMAL, cdpi );
+        pszFontSize = FmtSprint(ID_DSP_CUSTOM_FONTSIZE_TEXT, (100 * cdpi) / CDPI_NORMAL, cdpi);
 
     hwndCustFontPer = GetDlgItem(_hDlg, ID_DSP_CUSTFONTPER);
-    SendMessage(hwndCustFontPer, WM_SETTEXT, 0, (LPARAM)pszFontSize );
+    SendMessage(hwndCustFontPer, WM_SETTEXT, 0, (LPARAM)pszFontSize);
 
     LocalFree(pszFontSize);
 }
@@ -693,14 +663,12 @@ void CGeneralDlg::ForceSmallFont() {
 
     iSmall = CB_ERR;
     dpiSmall = 9999;
-    for (i=0; i <=1; i++)
-    {
+    for (i = 0; i <= 1; i++) {
         dpi = ComboBox_GetItemData(_hwndFontList, i);
         if (dpi == CB_ERR)
             continue;
 
-        if (dpi < dpiSmall || iSmall < CB_ERR)
-        {
+        if (dpi < dpiSmall || iSmall < CB_ERR) {
             iSmall = i;
             dpiSmall = dpi;
         }
@@ -717,14 +685,13 @@ BOOL CGeneralDlg::HandleGeneralApply(HWND hDlg)
     int iDynaNew;
 
     if (IsDlgButtonChecked(hDlg, IDC_YESDYNA))
-        iDynaNew= DCDSF_YES;
+        iDynaNew = DCDSF_YES;
     else if (IsDlgButtonChecked(hDlg, IDC_NODYNA))
-        iDynaNew= DCDSF_NO;
+        iDynaNew = DCDSF_NO;
     else
         iDynaNew = DCDSF_PROBABLY;
 
-    if (iDynaNew != _iDynaOrg)
-    {
+    if (iDynaNew != _iDynaOrg) {
         SetDisplayCPLPreference(REGSTR_VAL_DYNACOLORCHANGE, iDynaNew);
         _iDynaOrg = iDynaNew;
     }
@@ -757,8 +724,7 @@ void CGeneralDlg::HandleFontSelChange()
         // We only have two entries for now !
 
 
-        for (i=0; i <=1; i++)
-        {
+        for (i = 0; i <= 1; i++) {
             if (ComboBox_GetItemData(_hwndFontList, i) == _cLogPix)
                 ComboBox_SetCurSel(_hwndFontList, i);
         }
@@ -780,15 +746,14 @@ void CGeneralDlg::HandleFontSelChange()
 
             InitDragSizeClass();
             cdpi = DialogBoxParam(hInstance, MAKEINTRESOURCE(DLG_CUSTOMFONT),
-                                  _hDlg, CustomFontDlgProc, cdpi );
+                                  _hDlg, CustomFontDlgProc, cdpi);
             if (cdpi != 0)
                 ComboBox_SetItemData(_hwndFontList, _idCustomFonts, cdpi);
             else
                 cdpi = ComboBox_GetItemData(_hwndFontList, _idCustomFonts);
         }
 
-        if (cdpi != _cLogPix)
-        {
+        if (cdpi != _cLogPix) {
             FmtMessageBox(_hDlg,
                           MB_ICONINFORMATION,
                           FALSE,
@@ -808,16 +773,14 @@ void StartStopQuickRes(HWND hDlg, BOOL fEnable)
 TryAgain:
     hwnd = FindWindow(sc_szQuickResClass, NULL);
 
-    if (fEnable)
-    {
+    if (fEnable) {
         if (!hwnd)
             WinExec(c_szQuickResCommandLine, SW_SHOWNORMAL);
 
         return;
     }
 
-    if (hwnd)
-    {
+    if (hwnd) {
         SendMessage(hwnd, WM_CLOSE, 0, 0L);
         goto TryAgain;
     }
@@ -827,14 +790,11 @@ void CGeneralDlg::_InstallQuickRes(BOOL fEnable)
 {
     HKEY hk = NULL;
 
-    if (fEnable)
-    {
-        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_RUN, 0, TEXT(""), 0, KEY_WRITE, NULL, &hk, NULL) == ERROR_SUCCESS)
-        {
+    if (fEnable) {
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_RUN, 0, TEXT(""), 0, KEY_WRITE, NULL, &hk, NULL) == ERROR_SUCCESS) {
             RegSetValueEx(hk, sc_szQuickResRegName, NULL, REG_SZ, (LPBYTE)sc_szQuickResCommandLine, lstrlen(sc_szQuickResCommandLine) + 1);
         }
-    }
-    else if (RegOpenKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_RUN, 0, KEY_WRITE, &hk) == ERROR_SUCCESS)
+    } else if (RegOpenKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_RUN, 0, KEY_WRITE, &hk) == ERROR_SUCCESS)
         RegDeleteValue(hk, sc_szQuickResRegName);
 
     if (hk)
@@ -853,79 +813,74 @@ void CGeneralDlg::_InitQuickResCheckbox()
     BOOL fResult = FALSE;
     HKEY hk;
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_RUN, 0, KEY_READ, &hk) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_RUN, 0, KEY_READ, &hk) == ERROR_SUCCESS) {
         TCHAR szBuf[4];
         DWORD dwLen = 0;
 
         fResult = (RegQueryValueEx(hk, sc_szQuickResRegName, NULL, NULL,
-            (LPBYTE)szBuf, &dwLen) == ERROR_MORE_DATA);
+                                   (LPBYTE)szBuf, &dwLen) == ERROR_MORE_DATA);
 
         RegCloseKey(hk);
     }
 
-    CheckDlgButton(_hDlg, IDC_SHOWQUICKRES, fResult? BST_CHECKED : BST_UNCHECKED);
+    CheckDlgButton(_hDlg, IDC_SHOWQUICKRES, fResult ? BST_CHECKED : BST_UNCHECKED);
 }
 
 LRESULT CALLBACK CGeneralDlg::WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    NMHDR *lpnm;
+    NMHDR* lpnm;
 
-    switch (message)
-    {
+    switch (message) {
     case WM_INITDIALOG:
         InitGeneralDlg(hDlg);
         break;
 
     case WM_NOTIFY:
-        lpnm = (NMHDR *)lParam;
-        switch (lpnm->code)
-        {
-            case PSN_APPLY:
-                return HandleGeneralApply(hDlg);
-            default:
-                return FALSE;
+        lpnm = (NMHDR*)lParam;
+        switch (lpnm->code) {
+        case PSN_APPLY:
+            return HandleGeneralApply(hDlg);
+        default:
+            return FALSE;
         }
         break;
 
     case WM_COMMAND:
 
-        switch (GET_WM_COMMAND_ID(wParam, lParam))
-        {
-            case IDC_NODYNA:
-            case IDC_YESDYNA:
-            case IDC_SHUTUP:
-                if (GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED)
-                    PropSheet_Changed(GetParent(hDlg), hDlg);
-                break;
-            case ID_DSP_FONTSIZE:
-                switch (GET_WM_COMMAND_CMD(wParam, lParam))
-                {
-                    case CBN_SELCHANGE:
-                        HandleFontSelChange();
-                        break;
-                    default:
-                        break;
-                }
-                break;
-
-            case IDC_SHOWQUICKRES:
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
+        case IDC_NODYNA:
+        case IDC_YESDYNA:
+        case IDC_SHUTUP:
+            if (GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED)
                 PropSheet_Changed(GetParent(hDlg), hDlg);
+            break;
+        case ID_DSP_FONTSIZE:
+            switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
+            case CBN_SELCHANGE:
+                HandleFontSelChange();
                 break;
-
             default:
                 break;
+            }
+            break;
+
+        case IDC_SHOWQUICKRES:
+            PropSheet_Changed(GetParent(hDlg), hDlg);
+            break;
+
+        default:
+            break;
         }
         break;
 
     case WM_HELP:
         WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, TEXT("mds.hlp"), HELP_WM_HELP,
-            (DWORD)(LPTSTR)sc_GeneralHelpIds);
+                (DWORD)(LPTSTR)sc_GeneralHelpIds);
         break;
 
     case WM_CONTEXTMENU:
         WinHelp((HWND)wParam, TEXT("mds.hlp"), HELP_CONTEXTMENU,
-            (DWORD)(LPTSTR)sc_GeneralHelpIds);
+                (DWORD)(LPTSTR)sc_GeneralHelpIds);
         break;
 
     default:
@@ -942,36 +897,33 @@ LRESULT CALLBACK CGeneralDlg::WndProc(HWND hDlg, UINT message, WPARAM wParam, LP
 BOOL CALLBACK
 GeneralPageProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    CGeneralDlg * pcgd = (CGeneralDlg * )GetWindowLong(hDlg, DWL_USER);
-    switch (message)
-    {
-        case WM_INITDIALOG:
-            ASSERT(!pcgd);
-            ASSERT(lParam);
+    CGeneralDlg* pcgd = (CGeneralDlg*)GetWindowLong(hDlg, DWL_USER);
+    switch (message) {
+    case WM_INITDIALOG:
+        ASSERT(!pcgd);
+        ASSERT(lParam);
 
-            pcgd = new CGeneralDlg((BOOL)((LPPROPSHEETPAGE)lParam)->lParam);
-            if(pcgd)
-            {
-                // now we need to init
-                pcgd->InitGeneralDlg(hDlg);
-                SetWindowLong(hDlg, DWL_USER, (LPARAM)pcgd);
-                return TRUE;
-            }
+        pcgd = new CGeneralDlg((BOOL)((LPPROPSHEETPAGE)lParam)->lParam);
+        if (pcgd) {
+            // now we need to init
+            pcgd->InitGeneralDlg(hDlg);
+            SetWindowLong(hDlg, DWL_USER, (LPARAM)pcgd);
+            return TRUE;
+        }
 
-            break;
+        break;
 
-        case WM_DESTROY:
-            if (pcgd)
-            {
-                SetWindowLong(hDlg, DWL_USER, NULL);
-                delete pcgd;
-            }
-            break;
+    case WM_DESTROY:
+        if (pcgd) {
+            SetWindowLong(hDlg, DWL_USER, NULL);
+            delete pcgd;
+        }
+        break;
 
-        default:
-            if (pcgd)
-                return pcgd->WndProc(hDlg, message, wParam, lParam);
-            break;
+    default:
+        if (pcgd)
+            return pcgd->WndProc(hDlg, message, wParam, lParam);
+        break;
     }
 
     return FALSE;
@@ -981,28 +933,23 @@ GeneralPageProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
  *-------*/
 BOOL CALLBACK AskDynaCDSProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
 {
-    int *pTemp;
+    int* pTemp;
 
-    switch (msg)
-    {
+    switch (msg) {
     case WM_INITDIALOG:
-        if ((pTemp = (int *)lp) != NULL)
-        {
+        if ((pTemp = (int*)lp) != NULL) {
             SetWindowLong(hDlg, DWL_USER, (LONG)pTemp);
-            CheckDlgButton(hDlg, (*pTemp & DCDSF_DYNA)?
-                IDC_YESDYNA : IDC_NODYNA, BST_CHECKED);
-        }
-        else
+            CheckDlgButton(hDlg, (*pTemp & DCDSF_DYNA) ?
+                           IDC_YESDYNA : IDC_NODYNA, BST_CHECKED);
+        } else
             EndDialog(hDlg, -1);
         break;
 
     case WM_COMMAND:
-        switch (GET_WM_COMMAND_ID(wp, lp))
-        {
+        switch (GET_WM_COMMAND_ID(wp, lp)) {
         case IDOK:
-            if ((pTemp = (int *)GetWindowLong(hDlg, DWL_USER)) != NULL)
-            {
-                *pTemp = IsDlgButtonChecked(hDlg, IDC_YESDYNA)? DCDSF_DYNA : 0;
+            if ((pTemp = (int*)GetWindowLong(hDlg, DWL_USER)) != NULL) {
+                *pTemp = IsDlgButtonChecked(hDlg, IDC_YESDYNA) ? DCDSF_DYNA : 0;
 
                 if (!IsDlgButtonChecked(hDlg, IDC_SHUTUP))
                     *pTemp |= DCDSF_ASK;
@@ -1032,11 +979,9 @@ int  AskDynaCDS(HWND hOwner)
 {
     int val = GetDynaCDSPreference();
 
-    if (val & DCDSF_ASK)
-    {
+    if (val & DCDSF_ASK) {
         switch (DialogBoxParam(hInstance, MAKEINTRESOURCE(DLG_ASKDYNACDS),
-            hOwner, AskDynaCDSProc, (LPARAM)(int *)&val))
-        {
+                               hOwner, AskDynaCDSProc, (LPARAM)(int*)&val)) {
         case 0:         // user cancelled
             return -1;
 
@@ -1053,11 +998,9 @@ int  AskDynaCDS(HWND hOwner)
  *-------*/
 BOOL CALLBACK WarnCompatProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
 {
-    switch (msg)
-    {
+    switch (msg) {
     case WM_COMMAND:
-        switch (GET_WM_COMMAND_ID(wp, lp))
-        {
+        switch (GET_WM_COMMAND_ID(wp, lp)) {
         case IDOK:
 
             if (IsDlgButtonChecked(hDlg, IDC_SHUTUP))
@@ -1083,8 +1026,7 @@ BOOL CALLBACK WarnCompatProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
 
 BOOL WarnUserAboutCompatibility(HWND hOwner)
 {
-    if (GetDisplayCPLPreference(REGSTR_VAL_COMPATWARNING) == -1)
-    {
+    if (GetDisplayCPLPreference(REGSTR_VAL_COMPATWARNING) == -1) {
         return (DialogBox(hInstance, MAKEINTRESOURCE(DLG_COMPATWARN), hOwner, WarnCompatProc) == IDOK);
     }
     return TRUE;

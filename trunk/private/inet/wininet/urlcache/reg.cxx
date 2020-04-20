@@ -27,7 +27,7 @@ Revision History:
 REGISTRY_OBJ::REGISTRY_OBJ(
     HKEY Handle,
     DWORD Error
-    )
+)
 /*
 
 Routine Description:
@@ -61,7 +61,7 @@ DWORD REGISTRY_OBJ::WorkWith(
     LPTSTR KeyName,
     DWORD dwFlags,
     DWORD dwAccess
-    )
+)
 /*
 
 Routine Description:
@@ -81,27 +81,23 @@ Return Value:
 
 --*/
 {
-    if (_RegHandle)
-    {
+    if (_RegHandle) {
         REGCLOSEKEY(_RegHandle);
     }
     _Index = 0;
     _ValIndex = 0;
     _dwAccess = dwAccess;
 
-    _Status = REGOPENKEYEX(ParentHandle, KeyName, 0, _dwAccess, &_RegHandle );
-    if (_Status == ERROR_FILE_NOT_FOUND  && dwFlags == CREATE_KEY_IF_NOT_EXISTS)
-    {
+    _Status = REGOPENKEYEX(ParentHandle, KeyName, 0, _dwAccess, &_RegHandle);
+    if (_Status == ERROR_FILE_NOT_FOUND && dwFlags == CREATE_KEY_IF_NOT_EXISTS) {
         REGISTRY_OBJ roTemp(ParentHandle, (LPSTR)NULL);
         _Status = roTemp.GetStatus();
-        if (_Status==ERROR_SUCCESS)
-        {
+        if (_Status == ERROR_SUCCESS) {
             _Status = roTemp.Create(KeyName, &_RegHandle);
         }
     }
 
-    if( _Status != ERROR_SUCCESS )
-    {
+    if (_Status != ERROR_SUCCESS) {
         _RegHandle = NULL;
     }
 
@@ -109,10 +105,10 @@ Return Value:
 }
 
 DWORD REGISTRY_OBJ::WorkWith(
-    REGISTRY_OBJ *ParentObj,
+    REGISTRY_OBJ* ParentObj,
     LPTSTR KeyName,
     DWORD dwFlags
-    )
+)
 /*
 
 Routine Description:
@@ -132,21 +128,18 @@ Return Value:
 
 --*/
 {
-    if (_RegHandle)
-    {
+    if (_RegHandle) {
         REGCLOSEKEY(_RegHandle);
     }
     _Index = 0;
     _ValIndex = 0;
     _dwAccess = ParentObj->GetAccessFlags();
-    _Status = REGOPENKEYEX(ParentObj->_RegHandle, KeyName, 0, _dwAccess, &_RegHandle );
-    if (_Status == ERROR_FILE_NOT_FOUND  && dwFlags == CREATE_KEY_IF_NOT_EXISTS)
-    {
+    _Status = REGOPENKEYEX(ParentObj->_RegHandle, KeyName, 0, _dwAccess, &_RegHandle);
+    if (_Status == ERROR_FILE_NOT_FOUND && dwFlags == CREATE_KEY_IF_NOT_EXISTS) {
         _Status = ParentObj->Create(KeyName, &_RegHandle);
     }
 
-    if( _Status != ERROR_SUCCESS )
-    {
+    if (_Status != ERROR_SUCCESS) {
         _RegHandle = NULL;
     }
 
@@ -157,7 +150,7 @@ DWORD
 REGISTRY_OBJ::Create(
     LPTSTR ChildName,
     HKEY* pChildHandle
-    )
+)
 /*
 
 Routine Description:
@@ -177,17 +170,16 @@ Return Value:
     HKEY ChildHandle;
     DWORD KeyDisposition;
 
-    _Status = REGCREATEKEYEX(_RegHandle, ChildName, 0, DEFAULT_CLASS, REG_OPTION_NON_VOLATILE, DEFAULT_KEY_ACCESS, NULL, (pChildHandle) ? pChildHandle : &ChildHandle, &KeyDisposition );
-    if( _Status != ERROR_SUCCESS )
-    {
-        return( _Status );
+    _Status = REGCREATEKEYEX(_RegHandle, ChildName, 0, DEFAULT_CLASS, REG_OPTION_NON_VOLATILE, DEFAULT_KEY_ACCESS, NULL, (pChildHandle) ? pChildHandle : &ChildHandle, &KeyDisposition);
+    if (_Status != ERROR_SUCCESS) {
+        return(_Status);
     }
 
-    if( KeyDisposition == REG_CREATED_NEW_KEY ) {
+    if (KeyDisposition == REG_CREATED_NEW_KEY) {
 #ifndef unix
-        TcpsvcsDbgPrint(( DEBUG_REGISTRY, "Registry key (%ws) is created.\n", ChildName ));
+        TcpsvcsDbgPrint((DEBUG_REGISTRY, "Registry key (%ws) is created.\n", ChildName));
 #else
-        TcpsvcsDbgPrint(( DEBUG_REGISTRY, "Registry key (%s) is created.\n", ChildName ));
+        TcpsvcsDbgPrint((DEBUG_REGISTRY, "Registry key (%s) is created.\n", ChildName));
 #endif /* unix */
     }
 
@@ -195,20 +187,19 @@ Return Value:
     // close the child handle before return.
 
 
-    if (!pChildHandle)
-    {
-        REGCLOSEKEY( ChildHandle );
+    if (!pChildHandle) {
+        REGCLOSEKEY(ChildHandle);
     }
 
-    return( ERROR_SUCCESS );
+    return(ERROR_SUCCESS);
 }
 
 
 DWORD
 REGISTRY_OBJ::Create(
     LPTSTR ChildName,
-    REGISTRY_OBJ **ChildObj
-    )
+    REGISTRY_OBJ** ChildObj
+)
 /*
 
 Routine Description:
@@ -229,31 +220,30 @@ Return Value:
     HKEY ChildHandle;
     DWORD KeyDisposition;
 
-    Error = REGCREATEKEYEX(_RegHandle, ChildName, 0, DEFAULT_CLASS, REG_OPTION_NON_VOLATILE, DEFAULT_KEY_ACCESS, NULL, &ChildHandle, &KeyDisposition );
-    if( Error != ERROR_SUCCESS ) {
-        *ChildObj = new REGISTRY_OBJ( NULL, Error );
-    }
-    else {
-        if( KeyDisposition == REG_CREATED_NEW_KEY ) {
+    Error = REGCREATEKEYEX(_RegHandle, ChildName, 0, DEFAULT_CLASS, REG_OPTION_NON_VOLATILE, DEFAULT_KEY_ACCESS, NULL, &ChildHandle, &KeyDisposition);
+    if (Error != ERROR_SUCCESS) {
+        *ChildObj = new REGISTRY_OBJ(NULL, Error);
+    } else {
+        if (KeyDisposition == REG_CREATED_NEW_KEY) {
 #ifndef unix
-            TcpsvcsDbgPrint(( DEBUG_REGISTRY, "Registry key (%ws) is created.\n", ChildName ));
+            TcpsvcsDbgPrint((DEBUG_REGISTRY, "Registry key (%ws) is created.\n", ChildName));
 #else
-            TcpsvcsDbgPrint(( DEBUG_REGISTRY, "Registry key (%s) is created.\n", ChildName ));
+            TcpsvcsDbgPrint((DEBUG_REGISTRY, "Registry key (%s) is created.\n", ChildName));
 #endif /* unix */
         }
 
-        *ChildObj = new REGISTRY_OBJ( ChildHandle, (DWORD)ERROR_SUCCESS );
+        *ChildObj = new REGISTRY_OBJ(ChildHandle, (DWORD)ERROR_SUCCESS);
     }
 
-    return( Error );
+    return(Error);
 }
 
 DWORD
 REGISTRY_OBJ::Create(
     LPTSTR ChildName,
-    REGISTRY_OBJ **ChildObj,
-    DWORD *KeyDisposition
-    )
+    REGISTRY_OBJ** ChildObj,
+    DWORD* KeyDisposition
+)
 /*
 
 Routine Description:
@@ -279,30 +269,29 @@ Return Value:
     DWORD Error;
     HKEY ChildHandle;
 
-    Error = REGCREATEKEYEX(_RegHandle, ChildName, 0, DEFAULT_CLASS, REG_OPTION_NON_VOLATILE, DEFAULT_KEY_ACCESS, NULL, &ChildHandle, KeyDisposition );
-    if( Error != ERROR_SUCCESS ) {
-        *ChildObj = new REGISTRY_OBJ( NULL, Error );
-    }
-    else {
-        if( *KeyDisposition == REG_CREATED_NEW_KEY ) {
+    Error = REGCREATEKEYEX(_RegHandle, ChildName, 0, DEFAULT_CLASS, REG_OPTION_NON_VOLATILE, DEFAULT_KEY_ACCESS, NULL, &ChildHandle, KeyDisposition);
+    if (Error != ERROR_SUCCESS) {
+        *ChildObj = new REGISTRY_OBJ(NULL, Error);
+    } else {
+        if (*KeyDisposition == REG_CREATED_NEW_KEY) {
 #ifndef unix
-            TcpsvcsDbgPrint(( DEBUG_REGISTRY, "Registry key (%ws) is created.\n", ChildName ));
+            TcpsvcsDbgPrint((DEBUG_REGISTRY, "Registry key (%ws) is created.\n", ChildName));
 #else
-            TcpsvcsDbgPrint(( DEBUG_REGISTRY, "Registry key (%s) is created.\n", ChildName ));
+            TcpsvcsDbgPrint((DEBUG_REGISTRY, "Registry key (%s) is created.\n", ChildName));
 #endif /* unix */
         }
 
-        *ChildObj = new REGISTRY_OBJ( ChildHandle, (DWORD)ERROR_SUCCESS );
+        *ChildObj = new REGISTRY_OBJ(ChildHandle, (DWORD)ERROR_SUCCESS);
     }
 
-    return( Error );
+    return(Error);
 }
 
 DWORD
 REGISTRY_OBJ::GetValue(
     LPTSTR ValueName,
-    DWORD *Data
-    )
+    DWORD* Data
+)
 /*
 
 Routine Description:
@@ -324,25 +313,25 @@ Return Value:
     DWORD ValueSize = sizeof(DWORD);
 
     Error = RegQueryValueEx(
-                _RegHandle,
-                ValueName,
-                0,
-                &ValueType,
-                (LPBYTE)Data,
-                &ValueSize );
+        _RegHandle,
+        ValueName,
+        0,
+        &ValueType,
+        (LPBYTE)Data,
+        &ValueSize);
 
-//    TcpsvcsDbgAssert( ValueSize == sizeof( DWORD ) );
-//    TcpsvcsDbgAssert( ValueType == REG_DWORD );
+    //    TcpsvcsDbgAssert( ValueSize == sizeof( DWORD ) );
+    //    TcpsvcsDbgAssert( ValueType == REG_DWORD );
 
-    return( Error );
+    return(Error);
 }
 
 DWORD
 REGISTRY_OBJ::GetValue(
     LPTSTR ValueName,
-    LPTSTR *Data,
-    DWORD *NumStrings
-    )
+    LPTSTR* Data,
+    DWORD* NumStrings
+)
 /*
 
 Routine Description:
@@ -364,69 +353,68 @@ Return Value:
     DWORD ValueSize;
     LPBYTE StringData = NULL;
 
-    Error = GetValueSizeAndType( ValueName, &ValueSize, &ValueType );
+    Error = GetValueSizeAndType(ValueName, &ValueSize, &ValueType);
 
-    if( Error != ERROR_SUCCESS ) {
-        return( Error );
+    if (Error != ERROR_SUCCESS) {
+        return(Error);
     }
 
     TcpsvcsDbgAssert(
         (ValueType == REG_SZ) ||
         (ValueType == REG_EXPAND_SZ) ||
-        (ValueType == REG_MULTI_SZ) );
+        (ValueType == REG_MULTI_SZ));
 
-    StringData = (LPBYTE)CacheHeap->Alloc( ValueSize );
+    StringData = (LPBYTE)CacheHeap->Alloc(ValueSize);
 
-    if( StringData == NULL ) {
-        return( ERROR_NOT_ENOUGH_MEMORY );
+    if (StringData == NULL) {
+        return(ERROR_NOT_ENOUGH_MEMORY);
     }
 
     Error = RegQueryValueEx(
-                _RegHandle,
-                ValueName,
-                0,
-                &ValueType,
-                StringData,
-                &ValueSize );
+        _RegHandle,
+        ValueName,
+        0,
+        &ValueType,
+        StringData,
+        &ValueSize);
 
-    if( Error != ERROR_SUCCESS ) {
-        CacheHeap->Free( StringData );
-        return( Error );
+    if (Error != ERROR_SUCCESS) {
+        CacheHeap->Free(StringData);
+        return(Error);
     }
 
 #ifdef unix
     if (Error == ERROR_SUCCESS) {
-       CHAR szExpand[MAX_PATH+1];
+        CHAR szExpand[MAX_PATH + 1];
         DWORD Length = ExpandEnvironmentStrings((LPTSTR)StringData,
                                                 (LPTSTR)szExpand,
                                                 MAX_PATH);
-       if (Length == 0 || Length > MAX_PATH) {
-           Error = GetLastError();
-           CacheHeap->Free(StringData);
-           return (Error);
+        if (Length == 0 || Length > MAX_PATH) {
+            Error = GetLastError();
+            CacheHeap->Free(StringData);
+            return (Error);
         }
 
         CacheHeap->Free(StringData);
-        StringData = (LPBYTE)CacheHeap->Alloc( Length );
-        if(StringData == NULL){
-            return( ERROR_NOT_ENOUGH_MEMORY );
+        StringData = (LPBYTE)CacheHeap->Alloc(Length);
+        if (StringData == NULL) {
+            return(ERROR_NOT_ENOUGH_MEMORY);
         }
-        memcpy(StringData,szExpand,Length+1);
+        memcpy(StringData, szExpand, Length + 1);
     }
 #endif /* unix */
 
-    *Data = (LPTSTR)StringData;
+    * Data = (LPTSTR)StringData;
 
-    if( (ValueType == REG_SZ) || (ValueType == REG_EXPAND_SZ) ) {
+    if ((ValueType == REG_SZ) || (ValueType == REG_EXPAND_SZ)) {
         *NumStrings = 1;
-    }
-    else {
+    } else {
 
         DWORD Strings = 0;
         LPTSTR StrPtr = (LPTSTR)StringData;
         DWORD Len;
 
-        while( (Len = lstrlen(StrPtr)) != 0 ) {
+        while ((Len = lstrlen(StrPtr)) != 0) {
             Strings++;
             StrPtr = StrPtr + Len + 1;
         }
@@ -434,15 +422,15 @@ Return Value:
         *NumStrings = Strings;
     }
 
-    return( ERROR_SUCCESS );
+    return(ERROR_SUCCESS);
 }
 
 DWORD
 REGISTRY_OBJ::GetValue(
     LPTSTR ValueName,
-    LPBYTE *Data,
-    DWORD *DataLen
-    )
+    LPBYTE* Data,
+    DWORD* DataLen
+)
 /*
 
 Routine Description:
@@ -464,44 +452,44 @@ Return Value:
     DWORD ValueSize;
     LPBYTE BinaryData = NULL;
 
-    Error = GetValueSizeAndType( ValueName, &ValueSize, &ValueType );
+    Error = GetValueSizeAndType(ValueName, &ValueSize, &ValueType);
 
-    if( Error != ERROR_SUCCESS ) {
-        return( Error );
+    if (Error != ERROR_SUCCESS) {
+        return(Error);
     }
 
-    TcpsvcsDbgAssert( ValueType == REG_BINARY );
+    TcpsvcsDbgAssert(ValueType == REG_BINARY);
 
-    BinaryData = (LPBYTE)CacheHeap->Alloc( ValueSize );
+    BinaryData = (LPBYTE)CacheHeap->Alloc(ValueSize);
 
-    if( BinaryData == NULL ) {
-        return( ERROR_NOT_ENOUGH_MEMORY );
+    if (BinaryData == NULL) {
+        return(ERROR_NOT_ENOUGH_MEMORY);
     }
 
     Error = RegQueryValueEx(
-                _RegHandle,
-                ValueName,
-                0,
-                &ValueType,
-                BinaryData,
-                &ValueSize );
+        _RegHandle,
+        ValueName,
+        0,
+        &ValueType,
+        BinaryData,
+        &ValueSize);
 
-    if( Error != ERROR_SUCCESS ) {
-        CacheHeap->Free( BinaryData );
-        return( Error );
+    if (Error != ERROR_SUCCESS) {
+        CacheHeap->Free(BinaryData);
+        return(Error);
     }
 
     *Data = BinaryData;
     *DataLen = ValueSize;
-    return( ERROR_SUCCESS );
+    return(ERROR_SUCCESS);
 }
 
 DWORD
 REGISTRY_OBJ::GetValue(
     LPTSTR ValueName,
     LPBYTE Data,
-    DWORD *DataLen
-    )
+    DWORD* DataLen
+)
 /*
 
 Routine Description:
@@ -528,34 +516,34 @@ Return Value:
     DWORD ValueType;
 
     Error = RegQueryValueEx(
-                _RegHandle,
-                ValueName,
-                0,
-                &ValueType,
-                Data,
-                DataLen );
+        _RegHandle,
+        ValueName,
+        0,
+        &ValueType,
+        Data,
+        DataLen);
 
 #ifdef unix
     {
-    CHAR szExpand[MAX_PATH+1];
+        CHAR szExpand[MAX_PATH + 1];
         DWORD Length = ExpandEnvironmentStrings((LPTSTR)Data,
                                                 (LPTSTR)szExpand,
                                                 MAX_PATH);
-       if (Length == 0 || Length > MAX_PATH) {
-           Error = GetLastError();
-           return (Error);
+        if (Length == 0 || Length > MAX_PATH) {
+            Error = GetLastError();
+            return (Error);
         }
-        memcpy(Data,szExpand,Length+1);
+        memcpy(Data, szExpand, Length + 1);
     }
 #endif /* unix */
-    return( Error );
+    return(Error);
 }
 
 DWORD
 REGISTRY_OBJ::SetValue(
     LPTSTR ValueName,
     LPDWORD Data
-    )
+)
 /*
 
 Routine Description:
@@ -576,8 +564,8 @@ Return Value:
 {
     DWORD Error;
 
-    Error = RegSetValueEx(_RegHandle, ValueName, 0, REG_DWORD, (LPBYTE)Data, sizeof(DWORD) );
-    return( Error );
+    Error = RegSetValueEx(_RegHandle, ValueName, 0, REG_DWORD, (LPBYTE)Data, sizeof(DWORD));
+    return(Error);
 }
 
 
@@ -604,10 +592,10 @@ Return Value:
 {
     DWORD Error;
 
-    UNIX_NORMALIZE_IF_CACHE_PATH((LPTSTR)Data,TEXT("%USERPROFILE%"),ValueName);
+    UNIX_NORMALIZE_IF_CACHE_PATH((LPTSTR)Data, TEXT("%USERPROFILE%"), ValueName);
 
-    Error = RegSetValueEx(_RegHandle, ValueName, 0, StringType, (LPBYTE)Data, sizeof(TCHAR) * (lstrlen(Data) + 1) );
-    return( Error );
+    Error = RegSetValueEx(_RegHandle, ValueName, 0, StringType, (LPBYTE)Data, sizeof(TCHAR) * (lstrlen(Data) + 1));
+    return(Error);
 }
 
 DWORD
@@ -616,7 +604,7 @@ REGISTRY_OBJ::SetValue(
     LPSTR Data,
     DWORD DataLen,
     DWORD StringType
-    )
+)
 /*
 
 Routine Description:
@@ -643,8 +631,8 @@ Return Value:
 {
     DWORD Error;
 
-    Error = RegSetValueEx(_RegHandle, ValueName, 0, StringType, (LPBYTE)Data, DataLen );
-    return( Error );
+    Error = RegSetValueEx(_RegHandle, ValueName, 0, StringType, (LPBYTE)Data, DataLen);
+    return(Error);
 }
 
 DWORD REGISTRY_OBJ::SetValue(LPTSTR ValueName, LPBYTE Data, DWORD DataLen)
@@ -659,8 +647,8 @@ Return Value:
 {
     DWORD Error;
 
-    Error = RegSetValueEx(_RegHandle, ValueName, 0, REG_BINARY, Data, DataLen );
-    return( Error );
+    Error = RegSetValueEx(_RegHandle, ValueName, 0, REG_BINARY, Data, DataLen);
+    return(Error);
 }
 
 
@@ -681,33 +669,33 @@ Return Value:
 
     KeyLength = KeySize * sizeof(TCHAR);
     Error = RegEnumKeyEx(
-                _RegHandle,
-                _Index,
-                Key,
-                &KeyLength,
-                0,                  // reserved.
-                NULL,               // class string not required.
-                0,                  // class string buffer size.
-                &KeyLastWrite );
+        _RegHandle,
+        _Index,
+        Key,
+        &KeyLength,
+        0,                  // reserved.
+        NULL,               // class string not required.
+        0,                  // class string buffer size.
+        &KeyLastWrite);
 
-    if( Error != ERROR_SUCCESS ) {
-        return( Error );
+    if (Error != ERROR_SUCCESS) {
+        return(Error);
     }
 
-    TcpsvcsDbgAssert( KeyLength <= KeySize );
+    TcpsvcsDbgAssert(KeyLength <= KeySize);
 
 
     // increament the index to point to the next key.
 
 
     _Index++;
-    return( ERROR_SUCCESS );
+    return(ERROR_SUCCESS);
 }
 
 DWORD
 REGISTRY_OBJ::DeleteKey(
     LPTSTR ChildKeyName
-    )
+)
 /*
 
 Routine Description:
@@ -726,12 +714,12 @@ Return Value:
 {
     DWORD Error;
     LPTSTR GChildKeyName[MAX_KEY_SIZE];
-    REGISTRY_OBJ ChildObj( _RegHandle, ChildKeyName );
+    REGISTRY_OBJ ChildObj(_RegHandle, ChildKeyName);
 
     Error = ChildObj.GetStatus();
 
-    if( Error != ERROR_SUCCESS ) {
-        return( Error );
+    if (Error != ERROR_SUCCESS) {
+        return(Error);
     }
 
 
@@ -739,47 +727,47 @@ Return Value:
 
 
     Error = ChildObj.FindFirstKey(
-                (LPTSTR)GChildKeyName,
-                MAX_KEY_SIZE );
+        (LPTSTR)GChildKeyName,
+        MAX_KEY_SIZE);
 
-    while( Error == ERROR_SUCCESS ) {
+    while (Error == ERROR_SUCCESS) {
 
-        Error = ChildObj.DeleteKey( (LPTSTR)GChildKeyName );
+        Error = ChildObj.DeleteKey((LPTSTR)GChildKeyName);
 
-        if( Error != ERROR_SUCCESS ) {
-            return( Error );
+        if (Error != ERROR_SUCCESS) {
+            return(Error);
         }
 
         Error = ChildObj.FindFirstKey(
-                    (LPTSTR)GChildKeyName,
-                    MAX_KEY_SIZE );
+            (LPTSTR)GChildKeyName,
+            MAX_KEY_SIZE);
     }
 
-    if( Error != ERROR_NO_MORE_ITEMS ) {
-        return( Error );
+    if (Error != ERROR_NO_MORE_ITEMS) {
+        return(Error);
     }
 
 
     // delete this key.
 
 
-    Error = RegDeleteKey( _RegHandle, (LPTSTR)ChildKeyName );
-    return( Error );
+    Error = RegDeleteKey(_RegHandle, (LPTSTR)ChildKeyName);
+    return(Error);
 }
 
 DWORD
 REGISTRY_OBJ::DeleteValue(
     LPTSTR ValueName
-    )
+)
 {
     DWORD Error;
     Error = RegDeleteValue(
-                _RegHandle,
-                ValueName
-                );
+        _RegHandle,
+        ValueName
+    );
 
 
-    return( Error );
+    return(Error);
 }
 
 
@@ -788,8 +776,8 @@ REGISTRY_OBJ::FindNextValue(
     LPSTR ValueName,
     DWORD ValueSize,
     LPBYTE Data,
-    DWORD *DataLen
-    )
+    DWORD* DataLen
+)
 /*
 
 Routine Description:
@@ -817,26 +805,26 @@ Return Value:
     ValueLength = ValueSize * sizeof(CHAR);
 
     Error = RegEnumValue(
-                _RegHandle,
-                _ValIndex,
-                ValueName,
-                &ValueLength,
-                NULL,                  // reserved.
-                &ValueType,
-                Data,
-                DataLen );
+        _RegHandle,
+        _ValIndex,
+        ValueName,
+        &ValueLength,
+        NULL,                  // reserved.
+        &ValueType,
+        Data,
+        DataLen);
 
-    if( Error != ERROR_SUCCESS ) {
-        return( Error );
+    if (Error != ERROR_SUCCESS) {
+        return(Error);
     }
 
-    TcpsvcsDbgAssert( ValueLength <= ValueSize );
+    TcpsvcsDbgAssert(ValueLength <= ValueSize);
 
 
     // increment the value index to point to the next value.
 
 
     _ValIndex++;
-    return( ERROR_SUCCESS );
+    return(ERROR_SUCCESS);
 }
 

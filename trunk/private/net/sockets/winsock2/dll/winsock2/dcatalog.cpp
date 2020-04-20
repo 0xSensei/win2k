@@ -31,7 +31,7 @@ Revision History:
 #define NUM_ENTRIES_NAME        "Num_Catalog_Entries"
 
 #define FIRST_SERIAL_NUMBER 1
-    // The first access serial number to be assigned on a given system.
+// The first access serial number to be assigned on a given system.
 #define FIRST_CATALOG_ENTRY_ID 1001
     // The first catalog entry ID to be assigned on a given system.
 
@@ -47,8 +47,8 @@ Return Value:
     // Initialize members
     m_num_items = 0;
     m_reg_key = NULL;
-    m_serial_num = FIRST_SERIAL_NUMBER-1;
-    m_next_id = FIRST_CATALOG_ENTRY_ID-1;
+    m_serial_num = FIRST_SERIAL_NUMBER - 1;
+    m_next_id = FIRST_CATALOG_ENTRY_ID - 1;
     m_protocol_list.Flink = NULL;
 }
 
@@ -70,14 +70,13 @@ Return Value:
     DWORD  key_disposition;
 
     assert(ParentKey != NULL);
-    assert (m_protocol_list.Flink == NULL);
+    assert(m_protocol_list.Flink == NULL);
     __try {
         InitializeCriticalSection(&m_catalog_lock);
-    }
-    __except (WS2_EXCEPTION_FILTER ()) {
+    } __except (WS2_EXCEPTION_FILTER()) {
         return FALSE;
     }
-    InitializeListHead (&m_protocol_list);
+    InitializeListHead(&m_protocol_list);
 
     // We must first try to open the key before trying to create it.
     // RegCreateKeyEx() will fail with ERROR_ACCESS_DENIED if the current user has insufficient privilege to create the target registry key, even if that key already exists.
@@ -86,11 +85,11 @@ Return Value:
         DCATALOG::GetCurrentCatalogName(),      // lpszSubKey
         0,                                      // dwReserved
         MAXIMUM_ALLOWED,                        // samDesired
-        & new_key                               // phkResult
-        );
-    if( lresult == ERROR_SUCCESS ) {
+        &new_key                               // phkResult
+    );
+    if (lresult == ERROR_SUCCESS) {
         key_disposition = REG_OPENED_EXISTING_KEY;
-    } else if( lresult == ERROR_FILE_NOT_FOUND ) {
+    } else if (lresult == ERROR_FILE_NOT_FOUND) {
         lresult = RegCreateKeyEx(
             ParentKey,                          // hkey
             DCATALOG::GetCurrentCatalogName(),  // lpszSubKey
@@ -99,9 +98,9 @@ Return Value:
             REG_OPTION_NON_VOLATILE,            // fdwOptions
             KEY_ALL_ACCESS,                     // samDesired
             NULL,                               // lpSecurityAttributes
-            & new_key,                          // phkResult
-            & key_disposition                   // lpdwDisposition
-            );
+            &new_key,                          // phkResult
+            &key_disposition                   // lpdwDisposition
+        );
     }
 
     if (lresult != ERROR_SUCCESS) {
@@ -122,10 +121,10 @@ Return Value:
             bresult = WriteRegistryEntry(
                 new_key,           // EntryKey
                 NUM_ENTRIES_NAME,  // EntryName
-                (PVOID) & dwData,  // Data
+                (PVOID)&dwData,  // Data
                 REG_DWORD          // TypeFlag
-                );
-            if (! bresult) {
+            );
+            if (!bresult) {
                 DEBUGF(DBG_ERR, ("Writing Num_Entries\n"));
                 TRY_THROW(guard_open);
             }
@@ -134,10 +133,10 @@ Return Value:
             bresult = WriteRegistryEntry(
                 new_key,                  // EntryKey
                 NEXT_CATALOG_ENTRY_NAME,  // EntryName
-                (PVOID) & dwData,         // Data
+                (PVOID)&dwData,         // Data
                 REG_DWORD                 // TypeFlag
-                );
-            if (! bresult) {
+            );
+            if (!bresult) {
                 DEBUGF(DBG_ERR, ("Writing %s\n", NEXT_CATALOG_ENTRY_NAME));
                 TRY_THROW(guard_open);
             }
@@ -146,10 +145,10 @@ Return Value:
             bresult = WriteRegistryEntry(
                 new_key,                  // EntryKey
                 SERIAL_NUMBER_NAME,       // EntryName
-                (PVOID) & dwData,         // Data
+                (PVOID)&dwData,         // Data
                 REG_DWORD                 // TypeFlag
-                );
-            if (! bresult) {
+            );
+            if (!bresult) {
                 DEBUGF(DBG_ERR, ("Writing %s\n", SERIAL_NUMBER_NAME));
                 TRY_THROW(guard_open);
             }
@@ -162,44 +161,44 @@ Return Value:
                 REG_OPTION_NON_VOLATILE,  // fdwOptions
                 KEY_ALL_ACCESS,           // samDesired
                 NULL,                     // lpSecurityAttributes
-                & entries_key,            // phkResult
-                & dont_care               // lpdwDisposition
-                );
+                &entries_key,            // phkResult
+                &dont_care               // lpdwDisposition
+            );
             if (lresult != ERROR_SUCCESS) {
                 DEBUGF(DBG_ERR, ("Creating entries subkey '%s'\n", CATALOG_ENTRIES_NAME));
                 TRY_THROW(guard_open);
             }
             lresult = RegCloseKey(
                 entries_key  // hkey
-                );
+            );
             if (lresult != ERROR_SUCCESS) {
                 DEBUGF(DBG_ERR, ("Closing entries subkey\n"));
                 TRY_THROW(guard_open);
             }
         }  // if REG_CREATED_NEW_KEY
         else {
-            bresult = ReadRegistryEntry (
-                        new_key,                // EntryKey
-                        SERIAL_NUMBER_NAME,     // EntryName
-                        (PVOID) &dwData,        // Data
-                        sizeof (DWORD),         // MaxBytes
-                        REG_DWORD               // TypeFlag
-                        );
+            bresult = ReadRegistryEntry(
+                new_key,                // EntryKey
+                SERIAL_NUMBER_NAME,     // EntryName
+                (PVOID)&dwData,        // Data
+                sizeof(DWORD),         // MaxBytes
+                REG_DWORD               // TypeFlag
+            );
             if (!bresult) {
-                    // This must be the first time this version of ws2_32.dll
-                // is being run.  We need to update catalog to have this
-                // new entry or fail initialization.
+                // This must be the first time this version of ws2_32.dll
+            // is being run.  We need to update catalog to have this
+            // new entry or fail initialization.
 
                 dwData = FIRST_SERIAL_NUMBER;
-                bresult = WriteRegistryEntry (
-                            new_key,                // EntryKey
-                            SERIAL_NUMBER_NAME,     // EntryName
-                            (PVOID) &dwData,        // Data
-                            REG_DWORD               // TypeFlag
-                            );
+                bresult = WriteRegistryEntry(
+                    new_key,                // EntryKey
+                    SERIAL_NUMBER_NAME,     // EntryName
+                    (PVOID)&dwData,        // Data
+                    REG_DWORD               // TypeFlag
+                );
                 if (!bresult) {
-                    DEBUGF (DBG_ERR, ("Writing '%s' value.\n", SERIAL_NUMBER_NAME));
-                    TRY_THROW (guard_open);
+                    DEBUGF(DBG_ERR, ("Writing '%s' value.\n", SERIAL_NUMBER_NAME));
+                    TRY_THROW(guard_open);
                 }
             }
         } // else
@@ -211,7 +210,7 @@ Return Value:
 
         close_result = RegCloseKey(
             new_key  // hkey
-            );
+        );
         if (close_result != ERROR_SUCCESS) {
             DEBUGF(DBG_ERR, ("Closing catalog key\n"));
         }
@@ -243,15 +242,14 @@ Implementation Notes:
     BOOL bresult;
 
     assert(ParentKey != NULL);
-    assert(m_reg_key==NULL);
+    assert(m_reg_key == NULL);
 
     bresult = OpenCatalog(ParentKey);
     // Opening  the catalog has the side-effect of creating an empty catalog if
     // needed.
     if (bresult) {
-        return_value =  RefreshFromRegistry (ChangeEvent);
-    }
-    else {
+        return_value = RefreshFromRegistry(ChangeEvent);
+    } else {
         DEBUGF(DBG_ERR, ("Unable to create or open catalog\n"));
         return_value = WSASYSCALLFAILURE;
     }
@@ -310,26 +308,26 @@ Implementation Notes:
     BOOL        catalog_changed = TRUE;
 
     // Create the event if caller did not provide one
-    if (ChangeEvent==NULL) {
-        ChangeEvent = CreateEvent (NULL, FALSE, FALSE, NULL);
-        if (ChangeEvent==NULL) {
+    if (ChangeEvent == NULL) {
+        ChangeEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+        if (ChangeEvent == NULL) {
             return WSASYSCALLFAILURE;
         }
         created_event = TRUE;
     }
 
     // Lock this catalog object
-    AcquireCatalogLock ();
+    AcquireCatalogLock();
 
     assert(m_reg_key != NULL);
 
     // Initialize locals to known defaults
     item = NULL;
-    InitializeListHead (&temp_list);
+    InitializeListHead(&temp_list);
 
     do {
         // Synchronize with writers
-        return_value = SynchronizeSharedCatalogAccess (m_reg_key, ChangeEvent, &serial_num);
+        return_value = SynchronizeSharedCatalogAccess(m_reg_key, ChangeEvent, &serial_num);
         if (return_value != ERROR_SUCCESS) {
             // Non-recoverable
             break;
@@ -347,8 +345,8 @@ Implementation Notes:
             CATALOG_ENTRIES_NAME,  // lpszSubKey
             0,                     // dwReserved
             MAXIMUM_ALLOWED,       // samDesired
-            & entries_key          // phkResult
-            );
+            &entries_key          // phkResult
+        );
 
         if (lresult != ERROR_SUCCESS) {
             // Non-recoverable
@@ -365,11 +363,11 @@ Implementation Notes:
             bresult = ReadRegistryEntry(
                 m_reg_key,              // EntryKey
                 NEXT_CATALOG_ENTRY_NAME,// EntryName
-                (PVOID) & next_id,      // Data
+                (PVOID)&next_id,      // Data
                 sizeof(DWORD),          // MaxBytes
                 REG_DWORD               // TypeFlag
-                );
-            if (! bresult) {
+            );
+            if (!bresult) {
                 DEBUGF(DBG_ERR, ("Reading %s from registry\n", NUM_ENTRIES_NAME));
                 TRY_THROW(guard_open);
                 return_value = WSASYSCALLFAILURE;
@@ -379,17 +377,17 @@ Implementation Notes:
             bresult = ReadRegistryEntry(
                 m_reg_key,              // EntryKey
                 NUM_ENTRIES_NAME,       // EntryName
-                (PVOID) & num_entries,  // Data
+                (PVOID)&num_entries,  // Data
                 sizeof(DWORD),          // MaxBytes
                 REG_DWORD               // TypeFlag
-                );
-            if (! bresult) {
+            );
+            if (!bresult) {
                 DEBUGF(DBG_ERR, ("Reading %s from registry\n", NUM_ENTRIES_NAME));
                 return_value = WSASYSCALLFAILURE;
                 TRY_THROW(guard_open);
             }
 
-            assert (IsListEmpty (&temp_list));
+            assert(IsListEmpty(&temp_list));
             // read the items and place on temp list
             for (seq_num = 1; seq_num <= num_entries; seq_num++) {
                 item = new PROTO_CATALOG_ITEM();
@@ -401,23 +399,23 @@ Implementation Notes:
                 return_value = item->InitializeFromRegistry(
                     entries_key,  // ParentKey
                     (INT)seq_num  // SequenceNum
-                    );
+                );
                 if (return_value != ERROR_SUCCESS) {
-                    item->Dereference ();
+                    item->Dereference();
                     DEBUGF(DBG_ERR, ("Initializing new proto catalog item\n"));
                     TRY_THROW(guard_open);
                 }
-                InsertTailList (&temp_list, &item->m_CatalogLinkage);
+                InsertTailList(&temp_list, &item->m_CatalogLinkage);
             }  // for seq_num
         }
         TRY_CATCH(guard_open) {
-            assert (return_value!=ERROR_SUCCESS);
+            assert(return_value != ERROR_SUCCESS);
         } TRY_END(guard_open);
 
         // close catalog
         lresult = RegCloseKey(
             entries_key  // hkey
-            );
+        );
         if (lresult != ERROR_SUCCESS) {
             DEBUGF(DBG_ERR, ("Closing entries key of registry\n"));
             // non-fatal
@@ -428,46 +426,45 @@ Implementation Notes:
         // in reading it to ensure consistent view of the whole
         // catalog.
 
-        catalog_changed = HasCatalogChanged (ChangeEvent);
+        catalog_changed = HasCatalogChanged(ChangeEvent);
 
-        if ((return_value==ERROR_SUCCESS) && !catalog_changed) {
-            UpdateProtocolList (&temp_list);
+        if ((return_value == ERROR_SUCCESS) && !catalog_changed) {
+            UpdateProtocolList(&temp_list);
 
             // Store new catalog parameters
-            assert (m_num_items == num_entries);
+            assert(m_num_items == num_entries);
             m_next_id = next_id;
             m_serial_num = serial_num;
             break;
         }
 
         // Free the entries we might have read
-        while (!IsListEmpty (&temp_list)) {
+        while (!IsListEmpty(&temp_list)) {
             PLIST_ENTRY     list_member;
-            list_member = RemoveHeadList (&temp_list);
-            item = CONTAINING_RECORD (list_member, PROTO_CATALOG_ITEM, m_CatalogLinkage);
+            list_member = RemoveHeadList(&temp_list);
+            item = CONTAINING_RECORD(list_member, PROTO_CATALOG_ITEM, m_CatalogLinkage);
 #if defined(DEBUG_TRACING)
-            InitializeListHead (&item->m_CatalogLinkage);
+            InitializeListHead(&item->m_CatalogLinkage);
 #endif
-            item->Dereference ();
+            item->Dereference();
         }
-    }
-    while (catalog_changed); // Retry while catalog is being written over
+    } while (catalog_changed); // Retry while catalog is being written over
 
     // We should have freed or consumed all the items we
     // might have read.
-    assert (IsListEmpty (&temp_list));
+    assert(IsListEmpty(&temp_list));
 
-    ReleaseCatalogLock ();
+    ReleaseCatalogLock();
 
     // Close the event if we created one.
     if (created_event)
-        CloseHandle (ChangeEvent);
+        CloseHandle(ChangeEvent);
 
     return return_value;
 }  // RefreshFromRegistry
 
 
-VOID DCATALOG::UpdateProtocolList (PLIST_ENTRY     new_list)
+VOID DCATALOG::UpdateProtocolList(PLIST_ENTRY     new_list)
 /*
 Routine Description:
     This procedure carefully updates the catalog to match the one
@@ -496,51 +493,51 @@ Implementation Notes:
     PLIST_ENTRY         list_member;
 
     // Move items from current list to old list
-    InsertHeadList (&m_protocol_list, &old_list);
-    RemoveEntryList (&m_protocol_list);
-    InitializeListHead (&m_protocol_list);
+    InsertHeadList(&m_protocol_list, &old_list);
+    RemoveEntryList(&m_protocol_list);
+    InitializeListHead(&m_protocol_list);
 
     // for all loaded items
-    while (!IsListEmpty (new_list)) {
-        list_member = RemoveHeadList (new_list);
-        item = CONTAINING_RECORD (list_member, PROTO_CATALOG_ITEM, m_CatalogLinkage);
+    while (!IsListEmpty(new_list)) {
+        list_member = RemoveHeadList(new_list);
+        item = CONTAINING_RECORD(list_member, PROTO_CATALOG_ITEM, m_CatalogLinkage);
 
         // check if the same item is in the old list
         list_member = old_list.Flink;
-        while (list_member!=&old_list) {
+        while (list_member != &old_list) {
             PPROTO_CATALOG_ITEM old_item;
-            old_item = CONTAINING_RECORD (list_member, PROTO_CATALOG_ITEM, m_CatalogLinkage);
+            old_item = CONTAINING_RECORD(list_member, PROTO_CATALOG_ITEM, m_CatalogLinkage);
             list_member = list_member->Flink;
-            if (item->GetProtocolInfo()->dwCatalogEntryId== old_item->GetProtocolInfo()->dwCatalogEntryId) {
+            if (item->GetProtocolInfo()->dwCatalogEntryId == old_item->GetProtocolInfo()->dwCatalogEntryId) {
                 // it is, use the old one and get rid of the new
-                assert (*(item->GetProviderId ()) == *(old_item->GetProviderId()));
+                assert(*(item->GetProviderId()) == *(old_item->GetProviderId()));
 #if defined(DEBUG_TRACING)
-                InitializeListHead (&item->m_CatalogLinkage);
+                InitializeListHead(&item->m_CatalogLinkage);
 #endif
-                item->Dereference ();
+                item->Dereference();
                 item = old_item;
-                RemoveEntryList (&item->m_CatalogLinkage);
+                RemoveEntryList(&item->m_CatalogLinkage);
 #if defined(DEBUG_TRACING)
-                InitializeListHead (&item->m_CatalogLinkage);
+                InitializeListHead(&item->m_CatalogLinkage);
 #endif
                 m_num_items -= 1;
                 break;
             }
         }
         // add item to the current list
-        InsertTailList (&m_protocol_list, &item->m_CatalogLinkage);
+        InsertTailList(&m_protocol_list, &item->m_CatalogLinkage);
         m_num_items += 1;
     }
 
     // destroy all remaining items on the old list
-    while (!IsListEmpty (&old_list)) {
-        list_member = RemoveHeadList (&old_list);
-        item = CONTAINING_RECORD (list_member, PROTO_CATALOG_ITEM, m_CatalogLinkage);
+    while (!IsListEmpty(&old_list)) {
+        list_member = RemoveHeadList(&old_list);
+        item = CONTAINING_RECORD(list_member, PROTO_CATALOG_ITEM, m_CatalogLinkage);
 #if defined(DEBUG_TRACING)
-        InitializeListHead (&item->m_CatalogLinkage);
+        InitializeListHead(&item->m_CatalogLinkage);
 #endif
         m_num_items -= 1;
-        item->Dereference ();
+        item->Dereference();
     }
 }
 
@@ -575,14 +572,14 @@ Implementation Notes:
     BOOL bresult;
 
     // lock the catalog object
-    AcquireCatalogLock ();
-    assert (m_reg_key!=NULL);
-    assert (m_serial_num!=0);
+    AcquireCatalogLock();
+    assert(m_reg_key != NULL);
+    assert(m_serial_num != 0);
 
     // Get exclusive access to the registry
     // This also verifies that registry has not change since
     // it was last read
-    return_value = AcquireExclusiveCatalogAccess (m_reg_key, m_serial_num, &access_key);
+    return_value = AcquireExclusiveCatalogAccess(m_reg_key, m_serial_num, &access_key);
     if (return_value == ERROR_SUCCESS) {
         // Create or open existing entries key
         lresult = RegCreateKeyEx(
@@ -593,42 +590,42 @@ Implementation Notes:
             REG_OPTION_NON_VOLATILE,  // fdwOptions
             KEY_ALL_ACCESS,           // samDesired
             NULL,                     // lpSecurityAttributes
-            & entries_key,            // phkResult
-            & dont_care               // lpdwDisposition
-            );
+            &entries_key,            // phkResult
+            &dont_care               // lpdwDisposition
+        );
         if (lresult == ERROR_SUCCESS) {
             TRY_START(any_failure) {
                 PLIST_ENTRY          ListMember;
                 PPROTO_CATALOG_ITEM  item;
                 DWORD                num_items = 0;
 
-                lresult = RegDeleteSubkeys (entries_key);
+                lresult = RegDeleteSubkeys(entries_key);
 
                 // Write catalog items to registry
                 ListMember = m_protocol_list.Flink;
-                while (ListMember != & m_protocol_list) {
+                while (ListMember != &m_protocol_list) {
                     item = CONTAINING_RECORD(ListMember, PROTO_CATALOG_ITEM, m_CatalogLinkage);
                     ListMember = ListMember->Flink;
                     num_items += 1;
                     return_value = item->WriteToRegistry(
                         entries_key,  // ParentKey
                         num_items     // SequenceNum
-                        );
+                    );
                     if (return_value != ERROR_SUCCESS) {
                         DEBUGF(DBG_ERR, ("Writing item (%lu) to registry\n", num_items));
                         TRY_THROW(any_write_failure);
                     }
                 }  // while get item
 
-                assert (m_num_items == num_items);
+                assert(m_num_items == num_items);
                 // Write number of items
                 bresult = WriteRegistryEntry(
                     m_reg_key,             // EntryKey
                     NUM_ENTRIES_NAME,     // EntryName
-                    (PVOID) & m_num_items,// Data
+                    (PVOID)&m_num_items,// Data
                     REG_DWORD             // TypeFlag
-                    );
-                if (! bresult) {
+                );
+                if (!bresult) {
                     DEBUGF(DBG_ERR, ("Writing %s value\n", NUM_ENTRIES_NAME));
                     return_value = WSASYSCALLFAILURE;
                     TRY_THROW(any_write_failure);
@@ -638,10 +635,10 @@ Implementation Notes:
                 bresult = WriteRegistryEntry(
                     m_reg_key,               // EntryKey
                     NEXT_CATALOG_ENTRY_NAME,// EntryName
-                    (PVOID) & m_next_id,    // Data
+                    (PVOID)&m_next_id,    // Data
                     REG_DWORD               // TypeFlag
-                    );
-                if (! bresult) {
+                );
+                if (!bresult) {
                     DEBUGF(DBG_ERR, ("Writing %s value\n", NUM_ENTRIES_NAME));
                     return_value = WSASYSCALLFAILURE;
                     TRY_THROW(any_write_failure);
@@ -655,14 +652,14 @@ Implementation Notes:
             // Close entries key
             lresult = RegCloseKey(
                 entries_key  // hkey
-                );
+            );
             if (lresult != ERROR_SUCCESS) {
                 DEBUGF(DBG_ERR, ("Closing entries key of registry\n"));
                 // Non-fatal
             }
         }
 
-        ReleaseExclusiveCatalogAccess (m_reg_key, m_serial_num, access_key);// Release registry
+        ReleaseExclusiveCatalogAccess(m_reg_key, m_serial_num, access_key);// Release registry
     }
 
     ReleaseCatalogLock();// Unlock catalog object
@@ -701,34 +698,34 @@ Implementation Notes:
     DEBUGF(DBG_TRACE, ("Catalog destructor\n"));
 
     // Check if we were fully initialized.
-    if (m_protocol_list.Flink==NULL) {
+    if (m_protocol_list.Flink == NULL) {
         return;
     }
     AcquireCatalogLock();
 
-    while ((this_linkage = m_protocol_list.Flink) != & m_protocol_list) {
+    while ((this_linkage = m_protocol_list.Flink) != &m_protocol_list) {
         this_item = CONTAINING_RECORD(
             this_linkage,        // address
             PROTO_CATALOG_ITEM,  // type
             m_CatalogLinkage     // field
-            );
+        );
         RemoveCatalogItem(
             this_item  // CatalogItem
-            );
-        this_item->Dereference ();
+        );
+        this_item->Dereference();
     }  // while (get entry linkage)
 
-    assert( m_num_items == 0 );
-    if (m_reg_key!=NULL) {
-        lresult = RegCloseKey (m_reg_key);
+    assert(m_num_items == 0);
+    if (m_reg_key != NULL) {
+        lresult = RegCloseKey(m_reg_key);
         if (lresult != ERROR_SUCCESS) {
-            DEBUGF (DBG_ERR, ("Closing catalog registry key, err: %ld.\n", lresult));
+            DEBUGF(DBG_ERR, ("Closing catalog registry key, err: %ld.\n", lresult));
         }
         m_reg_key = NULL;
     }
 
     ReleaseCatalogLock();
-    DeleteCriticalSection( &m_catalog_lock );
+    DeleteCriticalSection(&m_catalog_lock);
 }  // ~DCATALOG
 
 
@@ -736,7 +733,7 @@ VOID
 DCATALOG::EnumerateCatalogItems(
     IN CATALOGITERATION  Iteration,
     IN PVOID             PassBack
-    )
+)
 /*
 Routine Description:
     This  procedure enumerates all of the DPROTO_CATALOG_ITEM structures in the catalog  by  calling  the indicated iteration procedure once for each item.
@@ -770,10 +767,10 @@ Arguments:
 
     ListMember = m_protocol_list.Flink;
 
-    while (enumerate_more && (ListMember != & m_protocol_list)) {
+    while (enumerate_more && (ListMember != &m_protocol_list)) {
         CatalogEntry = CONTAINING_RECORD(ListMember, PROTO_CATALOG_ITEM, m_CatalogLinkage);
         ListMember = ListMember->Flink;
-        enumerate_more = (* Iteration) (
+        enumerate_more = (*Iteration) (
             PassBack,     // PassBack
             CatalogEntry  // CatalogEntry
             );
@@ -786,8 +783,8 @@ Arguments:
 INT
 DCATALOG::GetCountedCatalogItemFromCatalogEntryId(
     IN  DWORD                     CatalogEntryId,
-    OUT PPROTO_CATALOG_ITEM FAR * CatalogItem
-    )
+    OUT PPROTO_CATALOG_ITEM FAR* CatalogItem
+)
 /*
 Routine Description:
     This  procedure  retrieves  a  reference  to a catalog item given a catalog entry ID to search for.
@@ -806,26 +803,26 @@ Return Value:
     assert(CatalogItem != NULL);
 
     // Prepare for early error return
-    * CatalogItem = NULL;
+    *CatalogItem = NULL;
     ReturnCode = WSAEINVAL;
 
     AcquireCatalogLock();
 
     ListMember = m_protocol_list.Flink;
 
-    while (ListMember != & m_protocol_list) {
+    while (ListMember != &m_protocol_list) {
         CatalogEntry = CONTAINING_RECORD(ListMember, PROTO_CATALOG_ITEM, m_CatalogLinkage);
         ListMember = ListMember->Flink;
-        if (CatalogEntry->GetProtocolInfo()->dwCatalogEntryId==CatalogEntryId) {
+        if (CatalogEntry->GetProtocolInfo()->dwCatalogEntryId == CatalogEntryId) {
             if (CatalogEntry->GetProvider() == NULL) {
                 ReturnCode = LoadProvider(
                     CatalogEntry    // CatalogEntry
-                    );
+                );
                 if (ReturnCode != ERROR_SUCCESS) {
                     break;
                 }
             }  // if provider is NULL
-            CatalogEntry->Reference ();
+            CatalogEntry->Reference();
             *CatalogItem = CatalogEntry;
             ReturnCode = ERROR_SUCCESS;
             break;
@@ -837,7 +834,7 @@ Return Value:
 }  // GetCatalogItemFromCatalogEntryId
 
 
-INT DCATALOG::GetCountedCatalogItemFromAddressFamily(IN  INT af, OUT PPROTO_CATALOG_ITEM FAR * CatalogItem)
+INT DCATALOG::GetCountedCatalogItemFromAddressFamily(IN  INT af, OUT PPROTO_CATALOG_ITEM FAR* CatalogItem)
 /*
 Routine Description:
     This  procedure  retrieves  a  reference  to a catalog item given an address  to search for.
@@ -860,27 +857,27 @@ Return Value:
     assert(CatalogItem != NULL);
 
     // Prepare for early error return
-    * CatalogItem = NULL;
+    *CatalogItem = NULL;
     ReturnCode = WSAEINVAL;
 
     AcquireCatalogLock();
 
     ListMember = m_protocol_list.Flink;
 
-    while (ListMember != & m_protocol_list) {
+    while (ListMember != &m_protocol_list) {
         CatalogEntry = CONTAINING_RECORD(ListMember, PROTO_CATALOG_ITEM, m_CatalogLinkage);
         ListMember = ListMember->Flink;
         if (CatalogEntry->GetProtocolInfo()->iAddressFamily == af) {
             if (CatalogEntry->GetProvider() == NULL) {
                 ReturnCode = LoadProvider(
                     CatalogEntry    // CatalogEntry
-                    );
+                );
                 if (ReturnCode != ERROR_SUCCESS) {
                     break;
                 }
             }  // if provider is NULL
-            CatalogEntry->Reference ();
-            * CatalogItem = CatalogEntry;
+            CatalogEntry->Reference();
+            *CatalogItem = CatalogEntry;
             ReturnCode = ERROR_SUCCESS;
             // Found something, break out.
             break;
@@ -892,7 +889,7 @@ Return Value:
 }
 
 
-INT DCATALOG::GetCountedCatalogItemFromAttributes(IN INT af, IN INT type, IN INT protocol, IN DWORD StartAfterId OPTIONAL, OUT PPROTO_CATALOG_ITEM FAR * CatalogItem)
+INT DCATALOG::GetCountedCatalogItemFromAttributes(IN INT af, IN INT type, IN INT protocol, IN DWORD StartAfterId OPTIONAL, OUT PPROTO_CATALOG_ITEM FAR* CatalogItem)
 /*
 Routine Description:
     Retrieves a PROTO_CATALOG_ITEM reference, choosing an item from the catalog based  on  three parameters (af, type, protocol) to determine which service provider  is used.
@@ -932,11 +929,11 @@ Implementation Notes:
 
     assert(CatalogItem != NULL);
 
-    * CatalogItem = NULL;// Prepare for early error returns
+    *CatalogItem = NULL;// Prepare for early error returns
 
     // Parameter consistency check:
     if (af == 0) {
-        if( protocol == 0 ) {
+        if (protocol == 0) {
             return WSAEINVAL;// These cannot both be zero.
         }
 
@@ -949,17 +946,16 @@ Implementation Notes:
     ListMember = m_protocol_list.Flink;
 
     // Find the place to start if asked
-    if( StartAfterId != 0 ) {
-        while (ListMember != & m_protocol_list) {
+    if (StartAfterId != 0) {
+        while (ListMember != &m_protocol_list) {
             CatalogEntry = CONTAINING_RECORD(ListMember, PROTO_CATALOG_ITEM, m_CatalogLinkage);
             ListMember = ListMember->Flink;
-            if (CatalogEntry->GetProtocolInfo()->dwCatalogEntryId==StartAfterId)
+            if (CatalogEntry->GetProtocolInfo()->dwCatalogEntryId == StartAfterId)
                 break;
         }
     }
 
-    while ((ListMember != & m_protocol_list) && (match_strength < MATCHED_TYPE_FAMILY_PROTOCOL))
-    {
+    while ((ListMember != &m_protocol_list) && (match_strength < MATCHED_TYPE_FAMILY_PROTOCOL)) {
         CatalogEntry = CONTAINING_RECORD(ListMember, PROTO_CATALOG_ITEM, m_CatalogLinkage);
         ListMember = ListMember->Flink;
         ProtoInfo = CatalogEntry->GetProtocolInfo();
@@ -992,22 +988,22 @@ Implementation Notes:
     // Select  an  appropriate error code for "no match" cases, or success code
     // to proceed.
     switch (match_strength) {
-        case MATCHED_NONE:
-            ReturnCode = WSAESOCKTNOSUPPORT;
-            break;
-        case MATCHED_TYPE:
-            ReturnCode = WSAEAFNOSUPPORT;
-            break;
-        case MATCHED_TYPE_FAMILY:
-            ReturnCode = WSAEPROTONOSUPPORT;
-            break;
-        case MATCHED_TYPE_FAMILY_PROTOCOL:
-            // A full match found, continue
-            ReturnCode = ERROR_SUCCESS;
-            break;
-        default:
-            DEBUGF(DBG_ERR, ("Should not get here\n"));
-            ReturnCode = WSASYSCALLFAILURE;
+    case MATCHED_NONE:
+        ReturnCode = WSAESOCKTNOSUPPORT;
+        break;
+    case MATCHED_TYPE:
+        ReturnCode = WSAEAFNOSUPPORT;
+        break;
+    case MATCHED_TYPE_FAMILY:
+        ReturnCode = WSAEPROTONOSUPPORT;
+        break;
+    case MATCHED_TYPE_FAMILY_PROTOCOL:
+        // A full match found, continue
+        ReturnCode = ERROR_SUCCESS;
+        break;
+    default:
+        DEBUGF(DBG_ERR, ("Should not get here\n"));
+        ReturnCode = WSASYSCALLFAILURE;
     }  // switch (match_strength)
 
     if (ReturnCode == ERROR_SUCCESS) {
@@ -1020,8 +1016,8 @@ Implementation Notes:
     }  // if ReturnCode is ERROR_SUCCESS
 
     if (ReturnCode == ERROR_SUCCESS) {
-        CatalogEntry->Reference ();
-        * CatalogItem = CatalogEntry;
+        CatalogEntry->Reference();
+        *CatalogItem = CatalogEntry;
     } // if ReturnCode is ERROR_SUCCESS
 
     ReleaseCatalogLock();
@@ -1055,24 +1051,24 @@ Return Value:
     AcquireCatalogLock();
 
 Restart:
-    for( listEntry = m_protocol_list.Flink ; listEntry != &m_protocol_list ; listEntry = listEntry->Flink ) {
+    for (listEntry = m_protocol_list.Flink; listEntry != &m_protocol_list; listEntry = listEntry->Flink) {
         catalogItem = CONTAINING_RECORD(listEntry, PROTO_CATALOG_ITEM, m_CatalogLinkage);
 
         // Skip non-IFS providers.
-        if( ( catalogItem->GetProtocolInfo()->dwServiceFlags1 & XP1_IFS_HANDLES ) == 0 ) {
+        if ((catalogItem->GetProtocolInfo()->dwServiceFlags1 & XP1_IFS_HANDLES) == 0) {
             continue;
         }
 
         // Load the provider if necessary.
         provider = catalogItem->GetProvider();
-        if( provider == NULL ) {
+        if (provider == NULL) {
             result = LoadProvider(catalogItem);
-            if( result != NO_ERROR ) {
+            if (result != NO_ERROR) {
                 continue;// Could not load the provider. Press on regardless.
             }
-            provider = catalogItem->GetProvider ();
+            provider = catalogItem->GetProvider();
 
-            assert( provider != NULL );
+            assert(provider != NULL);
         }
 
         // Reference catalog item, remeber current catalog serial
@@ -1080,27 +1076,27 @@ Restart:
         // in case provider waits in another thread on catalog lock
         // while holding on of its locks which it may need to acquire
         // while we are calling into it.
-        catalogItem->Reference ();
+        catalogItem->Reference();
         serial_num = m_serial_num;
-        ReleaseCatalogLock ();
+        ReleaseCatalogLock();
 
         // Try a getsockopt( SO_PROTOCOL_INFOW ) on the socket to determine
         // if the current provider recognizes it. This has the added benefit
         // of returning the dwCatalogEntryId for the socket, which we can
         // use to call WPUModifyIFSHandle().
         optionLength = sizeof(protocolInfo);
-        result = provider->WSPGetSockOpt(Socket, SOL_SOCKET, SO_PROTOCOL_INFOW, (char FAR *)&protocolInfo, &optionLength, &error);
+        result = provider->WSPGetSockOpt(Socket, SOL_SOCKET, SO_PROTOCOL_INFOW, (char FAR*) & protocolInfo, &optionLength, &error);
 
         // Do not need catalog item any longer
-        catalogItem->Dereference ();
-        if( result != ERROR_SUCCESS ) {
+        catalogItem->Dereference();
+        if (result != ERROR_SUCCESS) {
             // WPUGetSockOpt() failed, probably because the socket is
             // not recognized. Continue on and try another provider.
-            AcquireCatalogLock ();
+            AcquireCatalogLock();
             // Check if catalog has changed while we are calling
             // into the provider, if so, restart the lookup
             // otherwise, press on.
-            if (serial_num==m_serial_num)
+            if (serial_num == m_serial_num)
                 continue;
             else
                 goto Restart;
@@ -1120,7 +1116,7 @@ Restart:
         //     all of the internal stuff" from WPUModifyIFSHandle() into
         //     a common function shared with this function.
         modifiedSocket = WPUModifyIFSHandle(protocolInfo.dwCatalogEntryId, Socket, &error);
-        if( modifiedSocket == INVALID_SOCKET ) {
+        if (modifiedSocket == INVALID_SOCKET) {
             // This error is not continuable, as the provider has
             // recognized the socket, but for some reason we cannot
             // create the necessary internal infrastructure for the
@@ -1134,7 +1130,7 @@ Restart:
         }
 
         // Success!
-        assert( modifiedSocket == Socket );
+        assert(modifiedSocket == Socket);
         return ERROR_SUCCESS;
     }
 
@@ -1144,18 +1140,18 @@ Restart:
 } // FindIFSProviderForSocket
 
 
-DWORD DCATALOG::AllocateCatalogEntryId (VOID)
+DWORD DCATALOG::AllocateCatalogEntryId(VOID)
 {
     DWORD   id;
-    AcquireCatalogLock ();
-    assert (m_reg_key!=NULL);
+    AcquireCatalogLock();
+    assert(m_reg_key != NULL);
 
-    if (m_next_id!=0)
+    if (m_next_id != 0)
         id = m_next_id++;
     else
         id = 0;
 
-    ReleaseCatalogLock ();
+    ReleaseCatalogLock();
     return id;
 }
 
@@ -1171,12 +1167,12 @@ Arguments:
 --*/
 {
     assert(CatalogItem != NULL);
-    assert (IsListEmpty (&CatalogItem->m_CatalogLinkage));
+    assert(IsListEmpty(&CatalogItem->m_CatalogLinkage));
 
     InsertTailList(
-        & m_protocol_list,               // ListHead
-        & CatalogItem->m_CatalogLinkage  // Entry
-       );
+        &m_protocol_list,               // ListHead
+        &CatalogItem->m_CatalogLinkage  // Entry
+    );
     m_num_items++;
 }  // AppendCatalogItem
 
@@ -1191,12 +1187,12 @@ Arguments:
 --*/
 {
     assert(CatalogItem != NULL);
-    assert(!IsListEmpty (&CatalogItem->m_CatalogLinkage));
+    assert(!IsListEmpty(&CatalogItem->m_CatalogLinkage));
 
-    RemoveEntryList(& CatalogItem->m_CatalogLinkage  // Entry
-        );
+    RemoveEntryList(&CatalogItem->m_CatalogLinkage  // Entry
+    );
 #if defined(DEBUG_TRACING)
-    InitializeListHead (&CatalogItem->m_CatalogLinkage);
+    InitializeListHead(&CatalogItem->m_CatalogLinkage);
 #endif
     assert(m_num_items > 0);
     m_num_items--;
@@ -1224,23 +1220,23 @@ Return Value:
 
     assert(CatalogEntry != NULL);
 
-    AcquireCatalogLock ();// Serialize provider loading/unloading
+    AcquireCatalogLock();// Serialize provider loading/unloading
 
     // Check if provider is loaded under the lock
-    if (CatalogEntry->GetProvider ()==NULL) {
-        LocalProvider = FindAnotherProviderInstance (CatalogEntry->GetProviderId ());// First attempt to find another instance of the provider
+    if (CatalogEntry->GetProvider() == NULL) {
+        LocalProvider = FindAnotherProviderInstance(CatalogEntry->GetProviderId());// First attempt to find another instance of the provider
         if (LocalProvider != NULL) {// Success, just set it
-            CatalogEntry->SetProvider (LocalProvider);
+            CatalogEntry->SetProvider(LocalProvider);
             ReturnCode = ERROR_SUCCESS;
         } else {// Create and attempt to load provider object
             LocalProvider = new(DPROVIDER);
-            if (LocalProvider !=NULL ) {
+            if (LocalProvider != NULL) {
                 ReturnCode = LocalProvider->Initialize(CatalogEntry->GetLibraryPath(), CatalogEntry->GetProtocolInfo());
                 if (ERROR_SUCCESS == ReturnCode) {
-                    CatalogEntry->SetProvider (LocalProvider);
+                    CatalogEntry->SetProvider(LocalProvider);
                 }
 
-                LocalProvider->Dereference ();
+                LocalProvider->Dereference();
             } else {
                 DEBUGF(DBG_ERR, ("Couldn't allocate a DPROVIDER object\n"));
                 ReturnCode = WSA_NOT_ENOUGH_MEMORY;
@@ -1249,7 +1245,7 @@ Return Value:
     } // if provider not loaded
 
     // Serialize provider loading/unloading
-    ReleaseCatalogLock ();
+    ReleaseCatalogLock();
     return(ReturnCode);
 }
 
@@ -1271,13 +1267,12 @@ Implementation notes:
 
     ListMember = m_protocol_list.Flink;
 
-    while (ListMember != & m_protocol_list)
-    {
+    while (ListMember != &m_protocol_list) {
         CatalogEntry = CONTAINING_RECORD(ListMember, PROTO_CATALOG_ITEM, m_CatalogLinkage);
         ListMember = ListMember->Flink;
-        LocalProvider = CatalogEntry->GetProvider ();
-        if( (LocalProvider!=NULL) // This check is much less expensive
-                && (*(CatalogEntry->GetProviderId()) == *ProviderId)) {
+        LocalProvider = CatalogEntry->GetProvider();
+        if ((LocalProvider != NULL) // This check is much less expensive
+            && (*(CatalogEntry->GetProviderId()) == *ProviderId)) {
             return LocalProvider;
         } //if
     } //while

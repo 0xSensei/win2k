@@ -15,25 +15,25 @@ const struct
     {TREE_GROUP, TEXT("group")}
 };
 
-const TCHAR c_szType[]              = TEXT("Type");
-const TCHAR c_szText[]              = TEXT("Text");
-const TCHAR c_szPlugUIText[]        = TEXT("PlugUIText");
-const TCHAR c_szDefaultBitmap[]     = TEXT("Bitmap");
-const TCHAR c_szHKeyRoot[]          = TEXT("HKeyRoot");
-const TCHAR c_szRegPath[]           = TEXT("RegPath");
-const TCHAR c_szValueName[]         = TEXT("ValueName");
-const TCHAR c_szCheckedValue[]      = TEXT("CheckedValue");
-const TCHAR c_szUncheckedValue[]    = TEXT("UncheckedValue");
-const TCHAR c_szDefaultValue[]      = TEXT("DefaultValue");
-const TCHAR c_szSPIAction[]         = TEXT("SPIAction");
-const TCHAR c_szSPIParamON[]        = TEXT("SPIParamON");
-const TCHAR c_szSPIParamOFF[]       = TEXT("SPIParamOFF");
-const TCHAR c_szCheckedValueNT[]    = TEXT("CheckedValueNT");
-const TCHAR c_szCheckedValueW95[]   = TEXT("CheckedValueW95");
-const TCHAR c_szMask[]              = TEXT("Mask");
-const TCHAR c_szOffset[]            = TEXT("Offset");
-const TCHAR c_szHelpID[]            = TEXT("HelpID");
-const TCHAR c_szWarning[]           = TEXT("WarningIfNotDefault");
+const TCHAR c_szType[] = TEXT("Type");
+const TCHAR c_szText[] = TEXT("Text");
+const TCHAR c_szPlugUIText[] = TEXT("PlugUIText");
+const TCHAR c_szDefaultBitmap[] = TEXT("Bitmap");
+const TCHAR c_szHKeyRoot[] = TEXT("HKeyRoot");
+const TCHAR c_szRegPath[] = TEXT("RegPath");
+const TCHAR c_szValueName[] = TEXT("ValueName");
+const TCHAR c_szCheckedValue[] = TEXT("CheckedValue");
+const TCHAR c_szUncheckedValue[] = TEXT("UncheckedValue");
+const TCHAR c_szDefaultValue[] = TEXT("DefaultValue");
+const TCHAR c_szSPIAction[] = TEXT("SPIAction");
+const TCHAR c_szSPIParamON[] = TEXT("SPIParamON");
+const TCHAR c_szSPIParamOFF[] = TEXT("SPIParamOFF");
+const TCHAR c_szCheckedValueNT[] = TEXT("CheckedValueNT");
+const TCHAR c_szCheckedValueW95[] = TEXT("CheckedValueW95");
+const TCHAR c_szMask[] = TEXT("Mask");
+const TCHAR c_szOffset[] = TEXT("Offset");
+const TCHAR c_szHelpID[] = TEXT("HelpID");
+const TCHAR c_szWarning[] = TEXT("WarningIfNotDefault");
 
 
 #define BITMAP_WIDTH    16
@@ -41,7 +41,7 @@ const TCHAR c_szWarning[]           = TEXT("WarningIfNotDefault");
 #define NUM_BITMAPS     5
 #define MAX_KEY_NAME    64
 
-DWORD RegTreeType( LPCTSTR pszType );
+DWORD RegTreeType(LPCTSTR pszType);
 BOOL AppendStatus(LPTSTR pszText, UINT cbText, BOOL fOn);
 BOOL IsScreenReaderEnabled();
 
@@ -51,24 +51,24 @@ public:
     CRegTreeOptions();
 
     // IUnknown Methods
-    STDMETHODIMP QueryInterface(REFIID,void **);
+    STDMETHODIMP QueryInterface(REFIID, void**);
     STDMETHODIMP_(ULONG) AddRef(void);
     STDMETHODIMP_(ULONG) Release(void);
 
     // IRegTreeOptions Methods
-    STDMETHODIMP InitTree( HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey, LPCSTR pszParam);
-    STDMETHODIMP WalkTree( WALK_TREE_CMD cmd );
-    STDMETHODIMP ShowHelp( HTREEITEM hti, DWORD dwFlags );
-    STDMETHODIMP ToggleItem( HTREEITEM hti );
+    STDMETHODIMP InitTree(HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey, LPCSTR pszParam);
+    STDMETHODIMP WalkTree(WALK_TREE_CMD cmd);
+    STDMETHODIMP ShowHelp(HTREEITEM hti, DWORD dwFlags);
+    STDMETHODIMP ToggleItem(HTREEITEM hti);
 
 protected:
     ~CRegTreeOptions();
 
     BOOL    _RegEnumTree(HKEY hkeyRoot, LPCSTR pszRoot, HTREEITEM htviparent, HTREEITEM htvins);
     int     _DefaultIconImage(HKEY hkey, int iImage);
-    DWORD   _GetCheckStatus(HKEY hkey, BOOL *pbChecked, BOOL bUseDefault);
-    DWORD   _RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, DWORD *pcbData, REG_CMD cmd);
-    BOOL    _WalkTreeRecursive(HTREEITEM htvi,WALK_TREE_CMD cmd);
+    DWORD   _GetCheckStatus(HKEY hkey, BOOL* pbChecked, BOOL bUseDefault);
+    DWORD   _RegGetSetSetting(HKEY hKey, DWORD* pType, LPBYTE pData, DWORD* pcbData, REG_CMD cmd);
+    BOOL    _WalkTreeRecursive(HTREEITEM htvi, WALK_TREE_CMD cmd);
     DWORD   _SaveCheckStatus(HKEY hkey, BOOL bChecked);
     BOOL    _RegIsRestricted(HKEY hsubkey);
     UINT        _cRef;
@@ -88,10 +88,9 @@ STDAPI CRegTreeOptions_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk, LPC
     // aggregation checking is handled in class factory
     TraceMsg(DM_TRACE, "rto - CreateInstance(...) called");
 
-    CRegTreeOptions *pTO = new CRegTreeOptions();
-    if (pTO)
-    {
-        *ppunk = SAFECAST(pTO, IUnknown *);
+    CRegTreeOptions* pTO = new CRegTreeOptions();
+    if (pTO) {
+        *ppunk = SAFECAST(pTO, IUnknown*);
         return S_OK;
     }
 
@@ -119,7 +118,7 @@ CRegTreeOptions::~CRegTreeOptions()
 
 // IUnknown Methods...
 
-HRESULT CRegTreeOptions::QueryInterface(REFIID riid, void **ppv)
+HRESULT CRegTreeOptions::QueryInterface(REFIID riid, void** ppv)
 {
     static const QITAB qit[] = {
         QITABENT(CRegTreeOptions, IRegTreeOptions),        // IID_IRegTreeOptions
@@ -144,8 +143,7 @@ ULONG CRegTreeOptions::Release()
         return _cRef;
 
     // destroy the imagelist
-    if (_hwndTree)
-    {
+    if (_hwndTree) {
         ImageList_Destroy(TreeView_SetImageList(_hwndTree, NULL, TVSIL_NORMAL));
 
         // Clean up the accessibility stuff
@@ -190,18 +188,16 @@ HRESULT CRegTreeOptions::InitTree(HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey
     if (!hkeyRoot || !pszRegKey)
         return E_INVALIDARG;
 
-    if (pszParam)
-    {
+    if (pszParam) {
         SHAnsiToTChar(pszParam, szParam, ARRAYSIZE(szParam));
         Str_SetPtr(&_pszParam, szParam);      // be sure to free in destructor
     }
 
     _hwndTree = hwndTree;
-    if(IS_WINDOW_RTL_MIRRORED(_hwndTree))
-    {
+    if (IS_WINDOW_RTL_MIRRORED(_hwndTree)) {
         flags |= ILC_MIRROR;
     }
-    _hIml     = ImageList_Create( BITMAP_WIDTH, BITMAP_HEIGHT, flags, NUM_BITMAPS, 4 );
+    _hIml = ImageList_Create(BITMAP_WIDTH, BITMAP_HEIGHT, flags, NUM_BITMAPS, 4);
 
     // Initialize the tree view window.
     SHSetWindowBits(_hwndTree, GWL_STYLE, TVS_CHECKBOXES, 0);
@@ -212,21 +208,19 @@ HRESULT CRegTreeOptions::InitTree(HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey
     // IEUNIX (Varma): an ugly hack to workaround _AddMasked api problems while
     // creating masked bitmaps.  Need to create DIBSection from
     // CreateMappedBitmap.  This is to fix buttons visibility on mono when black
-    if (SHGetCurColorRes() < 2)
-    {
+    if (SHGetCurColorRes() < 2) {
         hBmp = CreateMappedBitmap(g_hinst, IDB_BUTTONS, CMB_MASKED, NULL, 0);
-        ImageList_Add( _hIml, hBmp, NULL );
-    }
-    else
+        ImageList_Add(_hIml, hBmp, NULL);
+    } else
 #endif
     {
         hBmp = CreateMappedBitmap(g_hinst, IDB_BUTTONS, 0, NULL, 0);
-        ImageList_AddMasked( _hIml, hBmp, CLR_DEFAULT);
+        ImageList_AddMasked(_hIml, hBmp, CLR_DEFAULT);
     }
-    DeleteObject( hBmp );
+    DeleteObject(hBmp);
 
     // Associate the image list with the tree.
-    HIMAGELIST himl = TreeView_SetImageList( _hwndTree, _hIml, TVSIL_NORMAL );
+    HIMAGELIST himl = TreeView_SetImageList(_hwndTree, _hIml, TVSIL_NORMAL);
     if (himl)
         ImageList_Destroy(himl);
 
@@ -242,16 +236,15 @@ HRESULT CRegTreeOptions::InitTree(HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey
 
 HRESULT CRegTreeOptions::WalkTree(WALK_TREE_CMD cmd)
 {
-    HTREEITEM htvi = TreeView_GetRoot( _hwndTree );
+    HTREEITEM htvi = TreeView_GetRoot(_hwndTree);
 
     // and walk the list of other roots
-    while (htvi)
-    {
+    while (htvi) {
         // recurse through its children
         _WalkTreeRecursive(htvi, cmd);
 
         // get the next root
-        htvi = TreeView_GetNextSibling( _hwndTree, htvi );
+        htvi = TreeView_GetNextSibling(_hwndTree, htvi);
     }
 
     return S_OK;    // success?
@@ -269,131 +262,112 @@ HRESULT CRegTreeOptions::ToggleItem(HTREEITEM hti)
     tvi.pszText = szText;
     tvi.cchTextMax = ARRAYSIZE(szText);
 
-    if (hti && TreeView_GetItem(_hwndTree, &tvi))
-    {
+    if (hti && TreeView_GetItem(_hwndTree, &tvi)) {
         BOOL bScreenReaderEnabled = IsScreenReaderEnabled();
         HKEY hkey = (HKEY)tvi.lParam;
 
         TCHAR szMsg[512];
 
-        if (SUCCEEDED(SHLoadRegUIString(hkey, c_szWarning, szMsg, ARRAYSIZE(szMsg))))
-        {
+        if (SUCCEEDED(SHLoadRegUIString(hkey, c_szWarning, szMsg, ARRAYSIZE(szMsg)))) {
             BOOL bDefaultState, bCurrentState = (tvi.iImage == IDCHECKED) || (tvi.iImage == IDRADIOON);
 
             _GetCheckStatus(hkey, &bDefaultState, TRUE);
 
             // trying to change the current state to the non recomended state?
-            if (bDefaultState == bCurrentState)
-            {
-                if (MLShellMessageBox(_hwndTree, szMsg, MAKEINTRESOURCE(IDS_ALLUSER_WARNING_TITLE), (MB_YESNO | MB_DEFBUTTON2 | MB_ICONEXCLAMATION)) != IDYES)
-                {
+            if (bDefaultState == bCurrentState) {
+                if (MLShellMessageBox(_hwndTree, szMsg, MAKEINTRESOURCE(IDS_ALLUSER_WARNING_TITLE), (MB_YESNO | MB_DEFBUTTON2 | MB_ICONEXCLAMATION)) != IDYES) {
                     return S_FALSE;
                 }
             }
         }
 
-        if ( tvi.iImage == IDUNCHECKED )
-        {
-            tvi.iImage         = IDCHECKED;
+        if (tvi.iImage == IDUNCHECKED) {
+            tvi.iImage = IDCHECKED;
             tvi.iSelectedImage = IDCHECKED;
             //See if we need to add status text
-            if (bScreenReaderEnabled)
-            {
+            if (bScreenReaderEnabled) {
                 AppendStatus(szText, ARRAYSIZE(szText), TRUE);
             }
             TraceMsg(TF_GENERAL, "Checked!");
-        }
-        else if ( tvi.iImage == IDCHECKED )
-        {
-            tvi.iImage         = IDUNCHECKED;
+        } else if (tvi.iImage == IDCHECKED) {
+            tvi.iImage = IDUNCHECKED;
             tvi.iSelectedImage = IDUNCHECKED;
             //See if we need to add status text
-            if (bScreenReaderEnabled)
-            {
+            if (bScreenReaderEnabled) {
                 AppendStatus(szText, ARRAYSIZE(szText), FALSE);
             }
             TraceMsg(TF_GENERAL, "Unchecked!");
-        }
-        else if (( tvi.iImage == IDRADIOON ) || ( tvi.iImage == IDRADIOOFF ))
-        {
+        } else if ((tvi.iImage == IDRADIOON) || (tvi.iImage == IDRADIOOFF)) {
             HTREEITEM htvi;
             TV_ITEM   otvi; // other tvi-s
             TCHAR     szOtext[MAX_PATH];
 
             // change all the "on" radios to "off"
-            htvi = TreeView_GetParent( _hwndTree, tvi.hItem );
-            htvi = TreeView_GetChild( _hwndTree, htvi );
+            htvi = TreeView_GetParent(_hwndTree, tvi.hItem);
+            htvi = TreeView_GetChild(_hwndTree, htvi);
 
             // hunt for the "on"s
-            while ( htvi )
-            {
+            while (htvi) {
                 // get info about item
                 otvi.mask = TVIF_HANDLE | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_TEXT;
                 otvi.hItem = htvi;
                 otvi.pszText = szOtext;
                 otvi.cchTextMax = ARRAYSIZE(szOtext);
-                TreeView_GetItem( _hwndTree, &otvi );
+                TreeView_GetItem(_hwndTree, &otvi);
 
                 // is it a radio button that is on?
-                if ( otvi.iImage == IDRADIOON )
-                {   // yes.. turn it off
-                    otvi.iImage         = IDRADIOOFF;
+                if (otvi.iImage == IDRADIOON) {   // yes.. turn it off
+                    otvi.iImage = IDRADIOOFF;
                     otvi.iSelectedImage = IDRADIOOFF;
                     //See if we need to add status text
-                    if (bScreenReaderEnabled)
-                    {
-                        AppendStatus(szOtext,ARRAYSIZE(szOtext), FALSE);
+                    if (bScreenReaderEnabled) {
+                        AppendStatus(szOtext, ARRAYSIZE(szOtext), FALSE);
                     }
 
-                    TreeView_SetItem( _hwndTree, &otvi );
+                    TreeView_SetItem(_hwndTree, &otvi);
                 }
 
                 // find the next child
-                htvi = TreeView_GetNextSibling( _hwndTree, htvi );
+                htvi = TreeView_GetNextSibling(_hwndTree, htvi);
             }
 
             // turn on the item that was hit
-            tvi.iImage         = IDRADIOON;
+            tvi.iImage = IDRADIOON;
             tvi.iSelectedImage = IDRADIOON;
 
             //See if we need to add status text
-            if (bScreenReaderEnabled)
-            {
-                AppendStatus(szText,ARRAYSIZE(szText), TRUE);
+            if (bScreenReaderEnabled) {
+                AppendStatus(szText, ARRAYSIZE(szText), TRUE);
             }
 
         }
 
         // change only if it is a checkbox or radio item
-        if ( tvi.iImage <= IDUNKNOWN )
-        {
-            TreeView_SetItem( _hwndTree, &tvi );
+        if (tvi.iImage <= IDUNKNOWN) {
+            TreeView_SetItem(_hwndTree, &tvi);
         }
     }
     return S_OK;
 }
 
 
-HRESULT CRegTreeOptions::ShowHelp( HTREEITEM hti, DWORD dwFlags )
+HRESULT CRegTreeOptions::ShowHelp(HTREEITEM hti, DWORD dwFlags)
 {
     TV_ITEM tvi;
 
-    tvi.mask  = TVIF_HANDLE | TVIF_PARAM;
+    tvi.mask = TVIF_HANDLE | TVIF_PARAM;
     tvi.hItem = hti;
 
-    if (hti && TreeView_GetItem( _hwndTree, &tvi))
-    {
+    if (hti && TreeView_GetItem(_hwndTree, &tvi)) {
         HKEY hkey = (HKEY)tvi.lParam;
 
-        TCHAR szHelpID[MAX_PATH+10]; // max path for helpfile + 10 for the help id
+        TCHAR szHelpID[MAX_PATH + 10]; // max path for helpfile + 10 for the help id
         DWORD cbHelpID = SIZEOF(szHelpID);
 
 
-        if (SHQueryValueEx(hkey, c_szHelpID, NULL, NULL, szHelpID, &cbHelpID) == ERROR_SUCCESS)
-        {
+        if (SHQueryValueEx(hkey, c_szHelpID, NULL, NULL, szHelpID, &cbHelpID) == ERROR_SUCCESS) {
             LPTSTR psz = StrChr(szHelpID, TEXT('#'));
-            if (psz)
-            {
+            if (psz) {
                 DWORD mapIDCToIDH[4];
 
                 *psz++ = 0; // NULL the '#'
@@ -414,49 +388,44 @@ HRESULT CRegTreeOptions::ShowHelp( HTREEITEM hti, DWORD dwFlags )
 
 int CRegTreeOptions::_DefaultIconImage(HKEY hkey, int iImage)
 {
-    TCHAR   szIcon [ MAX_PATH + 10 ];   // 10 = ",XXXX" plus some more
+    TCHAR   szIcon[MAX_PATH + 10];   // 10 = ",XXXX" plus some more
     DWORD   cb = sizeof(szIcon);
 
     if (ERROR_SUCCESS ==
-        SHQueryValueEx(hkey, c_szDefaultBitmap, NULL, NULL, szIcon, &cb))
-    {
+        SHQueryValueEx(hkey, c_szDefaultBitmap, NULL, NULL, szIcon, &cb)) {
         int         image;
-        LPTSTR      psz = StrRChr( szIcon, szIcon + lstrlen(szIcon), TEXT(',') );
+        LPTSTR      psz = StrRChr(szIcon, szIcon + lstrlen(szIcon), TEXT(','));
         HICON hicon = NULL;
 
-        ASSERT( psz );   // shouldn't be zero
-        if ( !psz )
+        ASSERT(psz);   // shouldn't be zero
+        if (!psz)
             return iImage;
 
         *psz++ = 0; // terminate and move over
-        image = StrToInt( psz ); // get ID
+        image = StrToInt(psz); // get ID
 
-        if (!*szIcon)
-        {
+        if (!*szIcon) {
             hicon = (HICON)LoadIcon(g_hinst, (LPCTSTR)(INT_PTR)image);
-        }
-        else
-        {
+        } else {
             // get the bitmap from the library
-            ExtractIconEx(szIcon, (UINT)(-1*image), NULL, &hicon, 1 );
+            ExtractIconEx(szIcon, (UINT)(-1 * image), NULL, &hicon, 1);
             if (!hicon)
-                ExtractIconEx(szIcon, (UINT)(-1*image), &hicon, NULL, 1 );
+                ExtractIconEx(szIcon, (UINT)(-1 * image), &hicon, NULL, 1);
         }
 
-        if (hicon)
-        {
-            iImage = ImageList_AddIcon( _hIml, (HICON)hicon);
+        if (hicon) {
+            iImage = ImageList_AddIcon(_hIml, (HICON)hicon);
 
             // NOTE: The docs say you don't need to do a delete object on icons loaded by LoadIcon, but
             // you do for CreateIcon.  It doesn't say what to do for ExtractIcon, so we'll just call it anyway.
-            DestroyIcon( hicon );
+            DestroyIcon(hicon);
         }
     }
 
     return iImage;
 }
 
-DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, DWORD *pcbData, REG_CMD cmd)
+DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD* pType, LPBYTE pData, DWORD* pcbData, REG_CMD cmd)
 {
     TCHAR szPath[MAX_PATH];
     TCHAR szName[MAX_PATH];
@@ -468,8 +437,7 @@ DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, 
     DWORD dwMask;
     DWORD dwOffset;
 
-    if (cmd == REG_GETDEFAULT)
-    {
+    if (cmd == REG_GETDEFAULT) {
         return SHQueryValueEx(hKey, c_szDefaultValue, NULL, pType, pData, pcbData);
     }
 
@@ -485,8 +453,7 @@ DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, 
 
     cb = sizeof(hkRoot);
     dwError = SHQueryValueEx(hKey, c_szHKeyRoot, NULL, NULL, &hkRoot, &cb);
-    if (dwError != ERROR_SUCCESS)
-    {
+    if (dwError != ERROR_SUCCESS) {
         // use default
         hkRoot = HKEY_CURRENT_USER;
     }
@@ -494,20 +461,14 @@ DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, 
     cb = sizeof(szPath);
 
     dwError = SHQueryValueEx(hKey, c_szRegPath, NULL, NULL, szPath, &cb);
-    if (dwError == ERROR_SUCCESS)
-    {
-        if (_pszParam)
-        {
+    if (dwError == ERROR_SUCCESS) {
+        if (_pszParam) {
             wnsprintf(szBuf, ARRAYSIZE(szBuf), szPath, _pszParam);
             pszPath = szBuf;
-        }
-        else
-        {
+        } else {
             pszPath = szPath;
         }
-    }
-    else
-    {
+    } else {
         if (cmd == REG_GET)
             return SHQueryValueEx(hKey, c_szDefaultValue, NULL, pType, pData, pcbData);
         else
@@ -516,19 +477,15 @@ DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, 
 
     cb = sizeof(szName);
     dwError = SHQueryValueEx(hKey, c_szValueName, NULL, NULL, szName, &cb);
-    if (dwError == ERROR_SUCCESS)
-    {
+    if (dwError == ERROR_SUCCESS) {
         HKEY hKeyReal;
         DWORD dw;
 
         dwError = RegCreateKeyEx(hkRoot, pszPath, 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hKeyReal, &dw);
-        if (dwError == ERROR_SUCCESS)
-        {
-            switch (cmd)
-            {
+        if (dwError == ERROR_SUCCESS) {
+            switch (cmd) {
             case REG_SET:
-                if (fOffset || fMask)
-                {
+                if (fOffset || fMask) {
                     DWORD cbData;
 
                     // Note: It so happens that the Valuename maynot be in the registry so we
@@ -538,15 +495,13 @@ DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, 
                     dwError = SHQueryValueEx(hKeyReal, szName, NULL, NULL, NULL, &cbData);
 
                     //Does the Value exists ?
-                    if (dwError == ERROR_FILE_NOT_FOUND)
-                    {
+                    if (dwError == ERROR_FILE_NOT_FOUND) {
                         //We dont have the Valuename in the registry so create it.
                         DWORD dwTypeDefault, dwDefault, cbDefault = sizeof(dwDefault);
                         dwError = SHQueryValueEx(hKey, c_szDefaultValue, NULL, &dwTypeDefault, &dwDefault, &cbDefault);
 
                         //This should succeed . if not then someone messed up the registry setting
-                        if (dwError == ERROR_SUCCESS)
-                        {
+                        if (dwError == ERROR_SUCCESS) {
                             dwError = SHSetValue(hKeyReal, NULL, szName, dwTypeDefault, &dwDefault, cbDefault);
 
                             //By setting this value we dont have to do the failed (see above) Query again
@@ -558,32 +513,26 @@ DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, 
                     // Do the usual stuff.
 
                     // grab the size of the entry
-                    if (dwError == ERROR_SUCCESS)
-                    {
+                    if (dwError == ERROR_SUCCESS) {
                         // alloc enough space for it
-                        DWORD *pdwData = (DWORD *)LocalAlloc(LPTR, cbData);
-                        if (pdwData)
-                        {
+                        DWORD* pdwData = (DWORD*)LocalAlloc(LPTR, cbData);
+                        if (pdwData) {
                             // get the data
                             dwError = SHQueryValueEx(hKeyReal, szName, NULL, pType, pdwData, &cbData);
-                            if (dwError == ERROR_SUCCESS && dwOffset < cbData / sizeof(DWORD))
-                            {
+                            if (dwError == ERROR_SUCCESS && dwOffset < cbData / sizeof(DWORD)) {
                                 // NOTE: offset defaults to 0 and mask defaults to 0xffffffff, so if there's only
                                 // a mask or only an offset, we'll do the right thing
 
                                 *(pdwData + dwOffset) &= ~dwMask;             // clear the bits
-                                *(pdwData + dwOffset) |= *((DWORD *)pData);  // set the bits
+                                *(pdwData + dwOffset) |= *((DWORD*)pData);  // set the bits
 
                                 dwError = SHSetValue(hKeyReal, NULL, szName, *pType, pdwData, cbData);
                             }
                             LocalFree(pdwData);
-                        }
-                        else
+                        } else
                             return ERROR_NOT_ENOUGH_MEMORY;
                     }
-                }
-                else
-                {
+                } else {
                     dwError = SHSetValue(hKeyReal, NULL, szName, *pType, pData, *pcbData);
                 }
 
@@ -591,35 +540,28 @@ DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, 
 
             case REG_GET:
                 // grab the value that we have
-                if (fOffset)
-                {
+                if (fOffset) {
                     DWORD cbData;
 
-                    if (SHQueryValueEx(hKeyReal, szName, NULL, NULL, NULL, &cbData) == ERROR_SUCCESS)
-                    {
-                        DWORD *pdwData = (DWORD*)LocalAlloc(LPTR, cbData);
-                        if (pdwData)
-                        {
+                    if (SHQueryValueEx(hKeyReal, szName, NULL, NULL, NULL, &cbData) == ERROR_SUCCESS) {
+                        DWORD* pdwData = (DWORD*)LocalAlloc(LPTR, cbData);
+                        if (pdwData) {
                             dwError = SHQueryValueEx(hKeyReal, szName, NULL, pType, pdwData, &cbData);
                             if (dwOffset < cbData / sizeof(DWORD))
-                                *((DWORD *)pData) = *(pdwData + dwOffset);
+                                *((DWORD*)pData) = *(pdwData + dwOffset);
                             else
-                                *((DWORD *)pData) = 0;  // Invalid offset, return something vague
+                                *((DWORD*)pData) = 0;  // Invalid offset, return something vague
                             *pcbData = sizeof(DWORD);
                             LocalFree(pdwData);
-                        }
-                        else
+                        } else
                             return ERROR_NOT_ENOUGH_MEMORY;
                     }
-                }
-                else
-                {
+                } else {
                     dwError = SHQueryValueEx(hKeyReal, szName, NULL, pType, pData, pcbData);
                 }
 
-                if ((dwError == ERROR_SUCCESS) && fMask)
-                {
-                    *((DWORD *)pData) &= dwMask;
+                if ((dwError == ERROR_SUCCESS) && fMask) {
+                    *((DWORD*)pData) &= dwMask;
                 }
                 break;
             }
@@ -628,8 +570,7 @@ DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, 
         }
     }
 
-    if ((cmd == REG_GET) && (dwError != ERROR_SUCCESS))
-    {
+    if ((cmd == REG_GET) && (dwError != ERROR_SUCCESS)) {
         // get the default setting
         dwError = SHQueryValueEx(hKey, c_szDefaultValue, NULL, pType, pData, pcbData);
     }
@@ -637,7 +578,7 @@ DWORD CRegTreeOptions::_RegGetSetSetting(HKEY hKey, DWORD *pType, LPBYTE pData, 
     return dwError;
 }
 
-DWORD CRegTreeOptions::_GetCheckStatus(HKEY hkey, BOOL *pbChecked, BOOL bUseDefault)
+DWORD CRegTreeOptions::_GetCheckStatus(HKEY hkey, BOOL* pbChecked, BOOL bUseDefault)
 {
     DWORD dwError, cbData, dwType;
     BYTE rgData[32];
@@ -649,27 +590,24 @@ DWORD CRegTreeOptions::_GetCheckStatus(HKEY hkey, BOOL *pbChecked, BOOL bUseDefa
     cbData = sizeof(rgData);
 
     dwError = _RegGetSetSetting(hkey, &dwType, rgData, &cbData, bUseDefault ? REG_GETDEFAULT : REG_GET);
-    if (dwError == ERROR_SUCCESS)
-    {
+    if (dwError == ERROR_SUCCESS) {
         // second, get the value for the "checked" state and compare.
         cbDataCHK = sizeof(rgDataCHK);
         dwError = SHQueryValueEx(hkey, c_szCheckedValue, NULL, &dwTypeCHK, rgDataCHK, &cbDataCHK);
-        if (dwError != ERROR_SUCCESS)
-        {
+        if (dwError != ERROR_SUCCESS) {
             // ok, we couldn't find the "checked" value, is it because
             // it's platform dependent?
             cbDataCHK = sizeof(rgDataCHK);
             dwError = SHQueryValueEx(hkey,
-                g_fRunningOnNT ? c_szCheckedValueNT : c_szCheckedValueW95,
-                NULL, &dwTypeCHK, rgDataCHK, &cbDataCHK);
+                                     g_fRunningOnNT ? c_szCheckedValueNT : c_szCheckedValueW95,
+                                     NULL, &dwTypeCHK, rgDataCHK, &cbDataCHK);
         }
 
-        if (dwError == ERROR_SUCCESS)
-        {
+        if (dwError == ERROR_SUCCESS) {
             // make sure two value types match.
             if ((dwType != dwTypeCHK) &&
-                    (((dwType == REG_BINARY) && (dwTypeCHK == REG_DWORD) && (cbData != 4))
-                    || ((dwType == REG_DWORD) && (dwTypeCHK == REG_BINARY) && (cbDataCHK != 4))))
+                (((dwType == REG_BINARY) && (dwTypeCHK == REG_DWORD) && (cbData != 4))
+                 || ((dwType == REG_DWORD) && (dwTypeCHK == REG_BINARY) && (cbDataCHK != 4))))
                 return ERROR_BAD_FORMAT;
 
             switch (dwType) {
@@ -715,24 +653,20 @@ DWORD CRegTreeOptions::_SaveCheckStatus(HKEY hkey, BOOL bChecked)
         dwError = SHQueryValueEx(hkey, bChecked ? (g_fRunningOnNT ? c_szCheckedValueNT : c_szCheckedValueW95) : c_szUncheckedValue, NULL, &dwType, rgData, &cbData);
 
     }
-    if (dwError == ERROR_SUCCESS)
-    {
+    if (dwError == ERROR_SUCCESS) {
         dwError = _RegGetSetSetting(hkey, &dwType, rgData, &cbData, REG_SET);
-        if (dwError == ERROR_SUCCESS)
-        {
+        if (dwError == ERROR_SUCCESS) {
             // check if we need to update SPI, this is optional.
             DWORD dwAction, dwParam;
 
             cbData = sizeof(dwAction);
             if (SHQueryValueEx(hkey, c_szSPIAction, NULL, NULL, &dwAction, &cbData)
-                == ERROR_SUCCESS)
-            {
+                == ERROR_SUCCESS) {
                 // we have a SPI Action code.
 
                 cbData = sizeof(dwParam);
                 if (SHQueryValueEx(hkey, bChecked ? c_szSPIParamON : c_szSPIParamOFF, NULL, NULL, &dwParam, &cbData)
-                    != ERROR_SUCCESS)
-                {
+                    != ERROR_SUCCESS) {
                     // if we don't have a SPI Param, use bChecked as default.
                     // hence make SPIParamON and SPIParamOFF optional.
 
@@ -749,7 +683,7 @@ DWORD CRegTreeOptions::_SaveCheckStatus(HKEY hkey, BOOL bChecked)
 
 
 HTREEITEM Tree_AddItem(HTREEITEM hParent, LPTSTR pszText, HTREEITEM hInsAfter,
-                       int iImage, HWND hwndTree, HKEY hkey, BOOL *pbExisted)
+                       int iImage, HWND hwndTree, HKEY hkey, BOOL* pbExisted)
 {
     HTREEITEM hItem;
     TV_ITEM tvI;
@@ -768,22 +702,19 @@ HTREEITEM Tree_AddItem(HTREEITEM hParent, LPTSTR pszText, HTREEITEM hInsAfter,
     // We only want to add an item if it is not already there.
     // We do this to handle reading out of HKCU and HKLM.
 
-    TCHAR szKeyName[ MAX_KEY_NAME ];
+    TCHAR szKeyName[MAX_KEY_NAME];
 
-    tvI.mask        = TVIF_HANDLE | TVIF_TEXT;
-    tvI.pszText     = szKeyName;
-    tvI.cchTextMax  = ARRAYSIZE(szKeyName);
+    tvI.mask = TVIF_HANDLE | TVIF_TEXT;
+    tvI.pszText = szKeyName;
+    tvI.cchTextMax = ARRAYSIZE(szKeyName);
 
-    for (hItem = TreeView_GetChild(hwndTree, hParent) ;
-        hItem != NULL ;
-        hItem = TreeView_GetNextSibling(hwndTree, hItem)
-        )
-    {
+    for (hItem = TreeView_GetChild(hwndTree, hParent);
+         hItem != NULL;
+         hItem = TreeView_GetNextSibling(hwndTree, hItem)
+         ) {
         tvI.hItem = hItem;
-        if (TreeView_GetItem(hwndTree, &tvI))
-        {
-            if (!StrCmp(tvI.pszText, szText))
-            {
+        if (TreeView_GetItem(hwndTree, &tvI)) {
+            if (!StrCmp(tvI.pszText, szText)) {
                 // We found a match!
 
                 *pbExisted = TRUE;
@@ -794,22 +725,22 @@ HTREEITEM Tree_AddItem(HTREEITEM hParent, LPTSTR pszText, HTREEITEM hInsAfter,
 
     // Create the item
     tvI.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_PARAM;
-    tvI.iImage         = iImage;
+    tvI.iImage = iImage;
     tvI.iSelectedImage = iImage;
-    tvI.pszText        = szText;
-    tvI.cchTextMax     = lstrlen(szText);
+    tvI.pszText = szText;
+    tvI.cchTextMax = lstrlen(szText);
 
     // lParam is the HKEY for this item:
     tvI.lParam = (LPARAM)hkey;
 
     // Create insert item
-    tvIns.item         = tvI;
+    tvIns.item = tvI;
     tvIns.hInsertAfter = hInsAfter;
-    tvIns.hParent      = hParent;
+    tvIns.hParent = hParent;
 
     // Insert the item into the tree.
-    hItem = (HTREEITEM) SendMessage(hwndTree, TVM_INSERTITEM, 0,
-                                    (LPARAM)(LPTV_INSERTSTRUCT)&tvIns);
+    hItem = (HTREEITEM)SendMessage(hwndTree, TVM_INSERTITEM, 0,
+                                   (LPARAM)(LPTV_INSERTSTRUCT)&tvIns);
 
     *pbExisted = FALSE;
     return (hItem);
@@ -820,12 +751,11 @@ BOOL _IsValidKey(HKEY hkeyRoot, LPCTSTR pszSubKey, LPCTSTR pszValue)
     TCHAR szPath[MAX_PATH];
     DWORD dwType, cbSize = sizeof(szPath);
 
-    if (ERROR_SUCCESS == SHGetValue(hkeyRoot, pszSubKey, pszValue, &dwType, szPath, &cbSize))
-    {
+    if (ERROR_SUCCESS == SHGetValue(hkeyRoot, pszSubKey, pszValue, &dwType, szPath, &cbSize)) {
         // Zero in the DWORD case or NULL in the string case
         // indicates that this item is not available.
         if (dwType == REG_DWORD)
-            return *((DWORD *)szPath) != 0;
+            return *((DWORD*)szPath) != 0;
         else
             return szPath[0] != 0;
     }
@@ -840,26 +770,22 @@ BOOL CRegTreeOptions::_RegIsRestricted(HKEY hsubkey)
     HKEY hkey;
     BOOL fRet = FALSE;
     // Does a "Policy" Sub key exist?
-    if (RegOpenKeyEx(hsubkey, TEXT("Policy"), 0, KEY_READ, &hkey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(hsubkey, TEXT("Policy"), 0, KEY_READ, &hkey) == ERROR_SUCCESS) {
         // Yes; Enumerate this key. The Values are Policy keys or
         // Full reg paths.
         DWORD cb;
-        TCHAR szKeyName[ MAX_KEY_NAME ];
+        TCHAR szKeyName[MAX_KEY_NAME];
         FILETIME ftLastWriteTime;
 
-        for (int i=0;
-            cb = ARRAYSIZE( szKeyName ),
-            ERROR_SUCCESS == RegEnumKeyEx( hkey, i, szKeyName, &cb, NULL, NULL, NULL, &ftLastWriteTime )
-            && !fRet; i++)
-        {
+        for (int i = 0;
+             cb = ARRAYSIZE(szKeyName),
+             ERROR_SUCCESS == RegEnumKeyEx(hkey, i, szKeyName, &cb, NULL, NULL, NULL, &ftLastWriteTime)
+             && !fRet; i++) {
             TCHAR szPath[MAXIMUM_SUB_KEY_LENGTH];
             DWORD dwType, cbSize = sizeof(szPath);
 
-            if (ERROR_SUCCESS == SHGetValue(hkey, szKeyName, TEXT("RegKey"), &dwType, szPath, &cbSize))
-            {
-                if (_IsValidKey(HKEY_LOCAL_MACHINE, szPath, szKeyName))
-                {
+            if (ERROR_SUCCESS == SHGetValue(hkey, szKeyName, TEXT("RegKey"), &dwType, szPath, &cbSize)) {
+                if (_IsValidKey(HKEY_LOCAL_MACHINE, szPath, szKeyName)) {
                     fRet = TRUE;
                     break;
                 }
@@ -867,8 +793,7 @@ BOOL CRegTreeOptions::_RegIsRestricted(HKEY hsubkey)
 
             // It's not a full Key, try off of policies
             if (_IsValidKey(HKEY_LOCAL_MACHINE, REGSTR_POLICIES_EXPLORER, szKeyName) ||
-                _IsValidKey(HKEY_CURRENT_USER, REGSTR_POLICIES_EXPLORER, szKeyName))
-            {
+                _IsValidKey(HKEY_CURRENT_USER, REGSTR_POLICIES_EXPLORER, szKeyName)) {
                 fRet = TRUE;
                 break;
             }
@@ -882,76 +807,68 @@ BOOL CRegTreeOptions::_RegIsRestricted(HKEY hsubkey)
 BOOL CRegTreeOptions::_RegEnumTree(HKEY hkeyRoot, LPCSTR pszRoot, HTREEITEM htviparent, HTREEITEM htvins)
 {
     HKEY            hkey, hsubkey;
-    TCHAR           szKeyName[ MAX_KEY_NAME ];
+    TCHAR           szKeyName[MAX_KEY_NAME];
     FILETIME        ftLastWriteTime;
 
     // Enumerate from REGSTR_PATH_ADVANCEDLIST all the subkeys to populate the tree
-    if (RegOpenKeyExA(hkeyRoot, pszRoot, 0, KEY_READ, &hkey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyExA(hkeyRoot, pszRoot, 0, KEY_READ, &hkey) == ERROR_SUCCESS) {
         int i;
         DWORD cb;
         BOOL bScreenReaderEnabled = IsScreenReaderEnabled();
 
         // we must search all the sub-keys
-        for (i=0;                    // always start with 0
-            cb=ARRAYSIZE( szKeyName ),   // string size
-               ERROR_SUCCESS ==
-               RegEnumKeyEx( hkey, i, szKeyName, &cb, NULL, NULL, NULL, &ftLastWriteTime );
-            i++)                    // get next entry
+        for (i = 0;                    // always start with 0
+             cb = ARRAYSIZE(szKeyName),   // string size
+             ERROR_SUCCESS ==
+             RegEnumKeyEx(hkey, i, szKeyName, &cb, NULL, NULL, NULL, &ftLastWriteTime);
+             i++)                    // get next entry
         {
             // get more info on the entry
-            if ( ERROR_SUCCESS == RegOpenKeyEx( hkey, szKeyName, 0, KEY_READ, &hsubkey ) )
-            {
+            if (ERROR_SUCCESS == RegOpenKeyEx(hkey, szKeyName, 0, KEY_READ, &hsubkey)) {
                 TCHAR szTemp[MAX_PATH];
                 HKEY hkeySave = NULL;
 
-                if (!_RegIsRestricted(hsubkey))
-                {
+                if (!_RegIsRestricted(hsubkey)) {
                     // Get the type of items under this root
-                    cb = ARRAYSIZE( szTemp );
-                    if ( ERROR_SUCCESS ==
-                         SHQueryValueEx( hsubkey, c_szType, NULL, NULL, szTemp, &cb ))
-                    {
+                    cb = ARRAYSIZE(szTemp);
+                    if (ERROR_SUCCESS ==
+                        SHQueryValueEx(hsubkey, c_szType, NULL, NULL, szTemp, &cb)) {
                         HTREEITEM htviroot;
                         int     iImage;
                         BOOL    bChecked;
                         DWORD   dwError = ERROR_SUCCESS;
 
                         // get the type of node
-                        DWORD dwTreeType = RegTreeType( szTemp );
+                        DWORD dwTreeType = RegTreeType(szTemp);
 
                         // get some more info about the this item
-                        switch (dwTreeType)
-                        {
-                            case TREE_GROUP:
-                                iImage = _DefaultIconImage(hsubkey, IDUNKNOWN);
+                        switch (dwTreeType) {
+                        case TREE_GROUP:
+                            iImage = _DefaultIconImage(hsubkey, IDUNKNOWN);
+                            hkeySave = hsubkey;
+                            break;
+
+                        case TREE_CHECKBOX:
+                            dwError = _GetCheckStatus(hsubkey, &bChecked, FALSE);
+                            if (dwError == ERROR_SUCCESS) {
+                                iImage = bChecked ? IDCHECKED : IDUNCHECKED;
                                 hkeySave = hsubkey;
-                                break;
+                            }
+                            break;
 
-                            case TREE_CHECKBOX:
-                                dwError = _GetCheckStatus(hsubkey, &bChecked, FALSE);
-                                if (dwError == ERROR_SUCCESS)
-                                {
-                                    iImage = bChecked ? IDCHECKED : IDUNCHECKED;
-                                    hkeySave = hsubkey;
-                                }
-                                break;
+                        case TREE_RADIO:
+                            dwError = _GetCheckStatus(hsubkey, &bChecked, FALSE);
+                            if (dwError == ERROR_SUCCESS) {
+                                iImage = bChecked ? IDRADIOON : IDRADIOOFF;
+                                hkeySave = hsubkey;
+                            }
+                            break;
 
-                            case TREE_RADIO:
-                                dwError = _GetCheckStatus(hsubkey, &bChecked, FALSE);
-                                if (dwError == ERROR_SUCCESS)
-                                {
-                                    iImage = bChecked ? IDRADIOON : IDRADIOOFF;
-                                    hkeySave = hsubkey;
-                                }
-                                break;
-
-                            default:
-                                dwError = ERROR_INVALID_PARAMETER;
+                        default:
+                            dwError = ERROR_INVALID_PARAMETER;
                         }
 
-                        if (dwError == ERROR_SUCCESS)
-                        {
+                        if (dwError == ERROR_SUCCESS) {
                             BOOL bItemExisted = FALSE;
                             int cch;
                             LPTSTR pszText;
@@ -964,20 +881,14 @@ BOOL CRegTreeOptions::_RegEnumTree(HKEY hkeyRoot, LPCSTR pszRoot, HTREEITEM htvi
                             // different value
 
                             hr = SHLoadRegUIString(hsubkey, c_szPlugUIText, szTemp, cch);
-                            if (SUCCEEDED(hr) && szTemp[0] != TEXT('@'))
-                            {
+                            if (SUCCEEDED(hr) && szTemp[0] != TEXT('@')) {
                                 pszText = szTemp;
-                            }
-                            else
-                            {
+                            } else {
                                 // try to get the old non-plugUI enabled text
                                 hr = SHLoadRegUIString(hsubkey, c_szText, szTemp, cch);
-                                if (SUCCEEDED(hr))
-                                {
+                                if (SUCCEEDED(hr)) {
                                     pszText = szTemp;
-                                }
-                                else
-                                {
+                                } else {
                                     // if all else fails, the key name itself
                                     // is a little more useful than garbage
 
@@ -987,8 +898,7 @@ BOOL CRegTreeOptions::_RegEnumTree(HKEY hkeyRoot, LPCSTR pszRoot, HTREEITEM htvi
                             }
 
                             //See if we need to add status text
-                            if (bScreenReaderEnabled && (dwTreeType != TREE_GROUP))
-                            {
+                            if (bScreenReaderEnabled && (dwTreeType != TREE_GROUP)) {
                                 AppendStatus(pszText, cch, bChecked);
                             }
 
@@ -998,8 +908,7 @@ BOOL CRegTreeOptions::_RegEnumTree(HKEY hkeyRoot, LPCSTR pszRoot, HTREEITEM htvi
                             if (bItemExisted)
                                 hkeySave = NULL;
 
-                            if (dwTreeType == TREE_GROUP)
-                            {
+                            if (dwTreeType == TREE_GROUP) {
                                 CHAR szKeyNameTemp[MAX_KEY_NAME];
 
                                 SHTCharToAnsi(szKeyName, szKeyNameTemp, ARRAYSIZE(szKeyNameTemp));
@@ -1019,7 +928,7 @@ BOOL CRegTreeOptions::_RegEnumTree(HKEY hkeyRoot, LPCSTR pszRoot, HTREEITEM htvi
         // Sort all keys under htviparent
         SendMessage(_hwndTree, TVM_SORTCHILDREN, 0, (LPARAM)htviparent);
 
-        RegCloseKey( hkey );
+        RegCloseKey(hkey);
         return TRUE;
     }
 
@@ -1035,25 +944,22 @@ BOOL CRegTreeOptions::_WalkTreeRecursive(HTREEITEM htvi, WALK_TREE_CMD cmd)
     BOOL bChecked;
 
     // step through the children
-    hctvi = TreeView_GetChild( _hwndTree, htvi );
-    while ( hctvi )
-    {
+    hctvi = TreeView_GetChild(_hwndTree, htvi);
+    while (hctvi) {
         _WalkTreeRecursive(hctvi, cmd);
-        hctvi = TreeView_GetNextSibling( _hwndTree, hctvi );
+        hctvi = TreeView_GetNextSibling(_hwndTree, hctvi);
     }
 
     // get ourselves
-    tvi.mask  = TVIF_HANDLE | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_PARAM;
+    tvi.mask = TVIF_HANDLE | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_PARAM;
     tvi.hItem = htvi;
-    TreeView_GetItem( _hwndTree, &tvi );
+    TreeView_GetItem(_hwndTree, &tvi);
 
-    switch (cmd)
-    {
+    switch (cmd) {
     case WALK_TREE_DELETE:
         // if we are destroying the tree...
         // do we have something to clean up?
-        if ( tvi.lParam )
-        {
+        if (tvi.lParam) {
             // close the reg hey
             RegCloseKey((HKEY)tvi.lParam);
         }
@@ -1064,13 +970,10 @@ BOOL CRegTreeOptions::_WalkTreeRecursive(HTREEITEM htvi, WALK_TREE_CMD cmd)
 
         // now save ourselves (if needed)
         // what are we?
-        if ( tvi.iImage == IDCHECKED || tvi.iImage == IDRADIOON)
-        {
+        if (tvi.iImage == IDCHECKED || tvi.iImage == IDRADIOON) {
             // checkbox or radio that is checked
             _SaveCheckStatus(hkey, TRUE);
-        }
-        else if ( tvi.iImage == IDUNCHECKED )
-        {
+        } else if (tvi.iImage == IDUNCHECKED) {
             // checkbox that is unchecked
             _SaveCheckStatus(hkey, FALSE);
         }
@@ -1084,15 +987,14 @@ BOOL CRegTreeOptions::_WalkTreeRecursive(HTREEITEM htvi, WALK_TREE_CMD cmd)
         hkey = (HKEY)tvi.lParam;
         bChecked = FALSE;
 
-        if ((tvi.iImage == IDCHECKED)   ||
+        if ((tvi.iImage == IDCHECKED) ||
             (tvi.iImage == IDUNCHECKED) ||
-            (tvi.iImage == IDRADIOON)   ||
-            (tvi.iImage == IDRADIOOFF))
-        {
+            (tvi.iImage == IDRADIOON) ||
+            (tvi.iImage == IDRADIOOFF)) {
             _GetCheckStatus(hkey, &bChecked, cmd == WALK_TREE_RESTORE ? TRUE : FALSE);
             tvi.iImage = (tvi.iImage == IDCHECKED) || (tvi.iImage == IDUNCHECKED) ?
-                         (bChecked ? IDCHECKED : IDUNCHECKED) :
-                         (bChecked ? IDRADIOON : IDRADIOOFF);
+                (bChecked ? IDCHECKED : IDUNCHECKED) :
+                (bChecked ? IDRADIOON : IDRADIOOFF);
             tvi.iSelectedImage = tvi.iImage;
             TreeView_SetItem(_hwndTree, &tvi);
         }
@@ -1103,10 +1005,9 @@ BOOL CRegTreeOptions::_WalkTreeRecursive(HTREEITEM htvi, WALK_TREE_CMD cmd)
 }
 
 
-DWORD RegTreeType( LPCTSTR pszType )
+DWORD RegTreeType(LPCTSTR pszType)
 {
-    for (int i = 0; i < ARRAYSIZE(c_aTreeTypes); i++)
-    {
+    for (int i = 0; i < ARRAYSIZE(c_aTreeTypes); i++) {
         if (!lstrcmpi(pszType, c_aTreeTypes[i].name))
             return c_aTreeTypes[i].type;
     }
@@ -1114,10 +1015,10 @@ DWORD RegTreeType( LPCTSTR pszType )
     return TREE_UNKNOWN;
 }
 
-BOOL AppendStatus(LPTSTR pszText,UINT cbText, BOOL fOn)
+BOOL AppendStatus(LPTSTR pszText, UINT cbText, BOOL fOn)
 {
     LPTSTR pszTemp;
-    UINT cbStrLen , cbStatusLen;
+    UINT cbStrLen, cbStatusLen;
 
     //if there's no string specified then return
     if (!pszText)
@@ -1129,35 +1030,29 @@ BOOL AppendStatus(LPTSTR pszText,UINT cbText, BOOL fOn)
 
 
     //Remove the old status appended
-    pszTemp = StrRStrI(pszText,pszText + cbStrLen, TEXT("-ON"));
+    pszTemp = StrRStrI(pszText, pszText + cbStrLen, TEXT("-ON"));
 
-    if(pszTemp)
-    {
+    if (pszTemp) {
         *pszTemp = (TCHAR)0;
         cbStrLen = lstrlen(pszText);
     }
 
-    pszTemp = StrRStrI(pszText,pszText + cbStrLen, TEXT("-OFF"));
+    pszTemp = StrRStrI(pszText, pszText + cbStrLen, TEXT("-OFF"));
 
-    if(pszTemp)
-    {
+    if (pszTemp) {
         *pszTemp = (TCHAR)0;
         cbStrLen = lstrlen(pszText);
     }
 
     //check if we append status text, we'll explode or not
-    if (cbStrLen + cbStatusLen > cbText)
-    {
+    if (cbStrLen + cbStatusLen > cbText) {
         //We'll explode
         return FALSE;
     }
 
-    if (fOn)
-    {
+    if (fOn) {
         StrCat(pszText, TEXT("-ON"));
-    }
-    else
-    {
+    } else {
         StrCat(pszText, TEXT("-OFF"));
     }
     return TRUE;

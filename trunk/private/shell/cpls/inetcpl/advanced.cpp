@@ -52,10 +52,10 @@ typedef struct
     HWND hDlg;              // handle of our dialog
     HWND hwndTree;          // handle to the treeview
 
-    IRegTreeOptions *pTO;   // pointer to RegTreeOptions interface
+    IRegTreeOptions* pTO;   // pointer to RegTreeOptions interface
     BOOL fChanged;
     BOOL fShowIEOnDesktop;
-} ADVANCEDPAGE, *LPADVANCEDPAGE;
+} ADVANCEDPAGE, * LPADVANCEDPAGE;
 
 
 BOOL IsShowIEOnDesktopEnabled()
@@ -63,7 +63,7 @@ BOOL IsShowIEOnDesktopEnabled()
     HKEY hk;
     if (SUCCEEDED(SHRegGetCLSIDKey(CLSID_Internet, TEXT("ShellFolder"), TRUE, FALSE, &hk))) {
         DWORD dwValue = 0, cbSize = SIZEOF(dwValue);
-        SHGetValueW(hk, NULL, TEXT("Attributes"), NULL, (BYTE *)&dwValue, &cbSize);
+        SHGetValueW(hk, NULL, TEXT("Attributes"), NULL, (BYTE*)&dwValue, &cbSize);
         RegCloseKey(hk);
 
         return (dwValue & SFGAO_NONENUMERATED) != SFGAO_NONENUMERATED;;
@@ -116,11 +116,11 @@ void ShowIEOnDesktop(BOOL fShow)
         HKEY hk;
         if (SUCCEEDED(SHRegGetCLSIDKey(CLSID_Internet, TEXT("ShellFolder"), FALSE, FALSE, &hk))) {
             DWORD dwValue = 0, cbSize = SIZEOF(dwValue);
-            SHGetValue(hk, NULL, TEXT("Attributes"), NULL, (BYTE *)&dwValue, &cbSize);
+            SHGetValue(hk, NULL, TEXT("Attributes"), NULL, (BYTE*)&dwValue, &cbSize);
 
             dwValue = (dwValue & ~SFGAO_NONENUMERATED) | (fShow ? 0 : SFGAO_NONENUMERATED);
 
-            SHSetValueW(hk, NULL, TEXT("Attributes"), REG_DWORD, (BYTE *)&dwValue, SIZEOF(dwValue));
+            SHSetValueW(hk, NULL, TEXT("Attributes"), REG_DWORD, (BYTE*)&dwValue, SIZEOF(dwValue));
             RegCloseKey(hk);
         }
     }
@@ -164,7 +164,7 @@ BOOL AdvancedDlgInit(HWND hDlg)
     pAdv->hwndTree = GetDlgItem(pAdv->hDlg, IDC_ADVANCEDTREE);
 
     CoInitialize(0);
-    hr = CoCreateInstance(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_IRegTreeOptions, (LPVOID *)&(pAdv->pTO));
+    hr = CoCreateInstance(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_IRegTreeOptions, (LPVOID*)&(pAdv->pTO));
     if (SUCCEEDED(hr)) {
 #ifdef UNICODE  // InitTree takes Ansi string
         char szRegPath[REGSTR_MAX_VALUE_LENGTH];
@@ -233,7 +233,7 @@ void AdvancedDlgOnNotify(LPADVANCEDPAGE pAdv, LPNMHDR psn)
     switch (psn->code) {
     case TVN_KEYDOWN:
     {
-        TV_KEYDOWN *pnm = (TV_KEYDOWN*)psn;
+        TV_KEYDOWN* pnm = (TV_KEYDOWN*)psn;
         if (pnm->wVKey == VK_SPACE) {
             if (!g_restrict.fAdvanced) {
                 pAdv->pTO->ToggleItem((HTREEITEM)SendMessage(pAdv->hwndTree, TVM_GETNEXTITEM, TVGN_CARET, NULL));
@@ -428,7 +428,7 @@ typedef struct tagCOLORSINFO
     COLORREF colorLinkNotViewed;
     COLORREF colorLinkHover;
     BOOL     fUseHoverColor;
-} COLORSINFO, *LPCOLORSINFO;
+} COLORSINFO, * LPCOLORSINFO;
 
 VOID Color_DrawButton(HWND hDlg, LPDRAWITEMSTRUCT lpdis, COLORREF the_color)
 {
@@ -502,7 +502,7 @@ VOID Color_DrawButton(HWND hDlg, LPDRAWITEMSTRUCT lpdis, COLORREF the_color)
 COLORREF g_CustomColors[16] = {0};
 
 // ChooseColorW is yet implemented in comdlg32.dll
-BOOL UseColorPicker(HWND hWnd, COLORREF *the_color, int extra_flags)
+BOOL UseColorPicker(HWND hWnd, COLORREF* the_color, int extra_flags)
 {
     // Make a local copy of the custom colors so they are not saved if the
     // color picker dialog is cancelled
@@ -833,7 +833,7 @@ typedef struct tagACCESSIBILITYINFO
     BOOL fMyFontSize;
     BOOL fMyStyleSheet;
     TCHAR szStyleSheetPath[MAX_PATH];
-} ACCESSIBILITYINFO, *LPACCESSIBILITYINFO;
+} ACCESSIBILITYINFO, * LPACCESSIBILITYINFO;
 
 INT_PTR CALLBACK AccessibilityDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -856,23 +856,23 @@ INT_PTR CALLBACK AccessibilityDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 
         if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Internet Explorer\\Settings"), 0, NULL, 0, KEY_READ, NULL, &hkey, NULL) == ERROR_SUCCESS) {
             cb = sizeof(pai->fMyColors);
-            RegQueryValueEx(hkey, TEXT("Always Use My Colors"), NULL, NULL, (LPBYTE)&(pai->fMyColors), &cb);
+            RegQueryValueEx(hkey, TEXT("Always Use My Colors"), NULL, NULL, (LPBYTE) & (pai->fMyColors), &cb);
 
             cb = sizeof(pai->fMyFontStyle);
-            RegQueryValueEx(hkey, TEXT("Always Use My Font Face"), NULL, NULL, (LPBYTE)&(pai->fMyFontStyle), &cb);
+            RegQueryValueEx(hkey, TEXT("Always Use My Font Face"), NULL, NULL, (LPBYTE) & (pai->fMyFontStyle), &cb);
 
             cb = sizeof(pai->fMyFontSize);
-            RegQueryValueEx(hkey, TEXT("Always Use My Font Size"), NULL, NULL, (LPBYTE)&(pai->fMyFontSize), &cb);
+            RegQueryValueEx(hkey, TEXT("Always Use My Font Size"), NULL, NULL, (LPBYTE) & (pai->fMyFontSize), &cb);
 
             RegCloseKey(hkey);
 
         }
         if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Internet Explorer\\Styles"), 0, NULL, 0, KEY_READ, NULL, &hkey, NULL) == ERROR_SUCCESS) {
             cb = sizeof(pai->fMyStyleSheet);
-            RegQueryValueEx(hkey, TEXT("Use My Stylesheet"), NULL, NULL, (LPBYTE)&(pai->fMyStyleSheet), &cb);
+            RegQueryValueEx(hkey, TEXT("Use My Stylesheet"), NULL, NULL, (LPBYTE) & (pai->fMyStyleSheet), &cb);
 
             cb = sizeof(pai->szStyleSheetPath);
-            RegQueryValueEx(hkey, TEXT("User Stylesheet"), NULL, NULL, (LPBYTE)&(pai->szStyleSheetPath), &cb);
+            RegQueryValueEx(hkey, TEXT("User Stylesheet"), NULL, NULL, (LPBYTE) & (pai->szStyleSheetPath), &cb);
             RegCloseKey(hkey);
         }
 
@@ -915,15 +915,15 @@ INT_PTR CALLBACK AccessibilityDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 
                 cb = sizeof(pai->fMyColors);
                 pai->fMyColors = IsDlgButtonChecked(hDlg, IDC_CHECK_COLOR);
-                RegSetValueEx(hkey, TEXT("Always Use My Colors"), NULL, REG_DWORD, (LPBYTE)&(pai->fMyColors), cb);
+                RegSetValueEx(hkey, TEXT("Always Use My Colors"), NULL, REG_DWORD, (LPBYTE) & (pai->fMyColors), cb);
 
                 cb = sizeof(pai->fMyFontStyle);
                 pai->fMyFontStyle = IsDlgButtonChecked(hDlg, IDC_CHECK_FONT_STYLE);
-                RegSetValueEx(hkey, TEXT("Always Use My Font Face"), NULL, REG_DWORD, (LPBYTE)&(pai->fMyFontStyle), cb);
+                RegSetValueEx(hkey, TEXT("Always Use My Font Face"), NULL, REG_DWORD, (LPBYTE) & (pai->fMyFontStyle), cb);
 
                 cb = sizeof(pai->fMyFontSize);
                 pai->fMyFontSize = IsDlgButtonChecked(hDlg, IDC_CHECK_FONT_SIZE);
-                RegSetValueEx(hkey, TEXT("Always Use My Font Size"), NULL, REG_DWORD, (LPBYTE)&(pai->fMyFontSize), cb);
+                RegSetValueEx(hkey, TEXT("Always Use My Font Size"), NULL, REG_DWORD, (LPBYTE) & (pai->fMyFontSize), cb);
 
                 RegCloseKey(hkey);
             }
@@ -937,11 +937,11 @@ INT_PTR CALLBACK AccessibilityDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
                 // We don't know if this is exactly what we need to do, so we ifdef it.
                 cb = (_tcslen(pai->szStyleSheetPath) + 1) * sizeof(TCHAR);
 #endif
-                RegSetValueEx(hkey, TEXT("User Stylesheet"), NULL, REG_SZ, (LPBYTE)&(pai->szStyleSheetPath), cb);
+                RegSetValueEx(hkey, TEXT("User Stylesheet"), NULL, REG_SZ, (LPBYTE) & (pai->szStyleSheetPath), cb);
 
                 cb = sizeof(pai->fMyStyleSheet);
                 pai->fMyStyleSheet = IsDlgButtonChecked(hDlg, IDC_CHECK_USE_MY_STYLESHEET);
-                RegSetValueEx(hkey, TEXT("Use My Stylesheet"), NULL, REG_DWORD, (LPBYTE)&(pai->fMyStyleSheet), cb);
+                RegSetValueEx(hkey, TEXT("Use My Stylesheet"), NULL, REG_DWORD, (LPBYTE) & (pai->fMyStyleSheet), cb);
 
                 RegCloseKey(hkey);
             }

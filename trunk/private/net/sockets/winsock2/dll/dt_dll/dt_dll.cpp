@@ -230,15 +230,15 @@ VOID InitializeDll(VOID)
     EnterCriticalSection(&CrSec);
     if (!DllInitialized) {
         DllInitialized = TRUE;
-        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, 
-                         "System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data", 
-                         0, 
-                         MAXIMUM_ALLOWED, 
+        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                         "System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data",
+                         0,
+                         MAXIMUM_ALLOWED,
                          &hkeyAppData) == NO_ERROR) {
             DWORD   value, sz, type;
             sz = sizeof(value);
             if ((RegQueryValueEx(hkeyAppData, ModuleFileName, NULL, &type, (PUCHAR)&value, &sz) == NO_ERROR) &&
-                (type == REG_DWORD) && 
+                (type == REG_DWORD) &&
                 (sz == sizeof(value))) {
                 switch (value) {
                 case FILE_ONLY:
@@ -269,8 +269,8 @@ VOID InitializeDll(VOID)
                                 if (!outputStyleSet) {
                                     // Pop up a dialog box for the user to choose output method.
                                     OutputStyle = DialogBox(DllInstHandle,
-                                                            MAKEINTRESOURCE(IDD_DIALOG1), 
-                                                            NULL, 
+                                                            MAKEINTRESOURCE(IDD_DIALOG1),
+                                                            NULL,
                                                             (DLGPROC)DebugDlgProc);
                                 }
                             } else {
@@ -316,7 +316,7 @@ VOID InitializeDll(VOID)
                         // Pop up a dialog box for the user to choose output method.
                         OutputStyle = DialogBox(DllInstHandle,
                                                 MAKEINTRESOURCE(IDD_DIALOG1),
-                                                NULL, 
+                                                NULL,
                                                 (DLGPROC)DebugDlgProc);
                     }
                 }
@@ -324,9 +324,9 @@ VOID InitializeDll(VOID)
 
 
             if ((OutputStyle == FILE_ONLY) || (OutputStyle == FILE_AND_WINDOW)) {
-                LogFileHandle = CreateFile(LogFileName, 
+                LogFileHandle = CreateFile(LogFileName,
                                            GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                           NULL, 
+                                           NULL,
                                            CREATE_ALWAYS,
                                            FILE_ATTRIBUTE_NORMAL,
                                            NULL);
@@ -364,7 +364,7 @@ VOID InitializeDll(VOID)
                     CreateThread(NULL,
                                  0,
                                  (LPTHREAD_START_ROUTINE)WindowThreadFunc,
-                                 (LPVOID)InitDataPtr, 
+                                 (LPVOID)InitDataPtr,
                                  0,
                                  &WindowThreadId);
             } else {
@@ -495,7 +495,7 @@ BOOL WINAPIV WSAPostApiNotify(IN  INT    NotificationCode, OUT LPVOID ReturnCode
   PostApiNotify()
 
   Function Description:
-      Like PreApiNotify, builds a string and passes it, 
+      Like PreApiNotify, builds a string and passes it,
       along with information about the call, to a handler function.
   Arguments:
       NotificationCode  -- specifies which API function called us.
@@ -569,7 +569,7 @@ LRESULT APIENTRY DTMainWndProc(IN HWND   WindowHandle, IN UINT   Message, IN WPA
       Window procedure for the main window of the Dll.
       This function processes WM_CREATE messages in order to create a child edit control,
       which does most of the dirty work.
-      Also processes WM_COMMAND to trap notification messages from the edit control, 
+      Also processes WM_COMMAND to trap notification messages from the edit control,
       as well as WM_SIZE and WM_DESTROY messages.
   Arguments:
       WindowHandle -- the window.
@@ -676,7 +676,7 @@ LRESULT APIENTRY DTEditWndProc(IN HWND   WindowHandle, IN UINT   Message, IN WPA
 /*++
   Function Description:
       Subclassed window procedure for the debug window.
-      This function disables some edit control functionality, 
+      This function disables some edit control functionality,
       and also responds to a user-defined message to print out text in the window.
   Arguments:
       WindowHandle -- the window.
@@ -709,7 +709,7 @@ DWORD WindowThreadFunc(LPDWORD TheParam)
 /*
   Function Description:
       Thread function for WindowThread created in DllMain during process attachment.
-      Registers a window class, creates an instance of that class, 
+      Registers a window class, creates an instance of that class,
       and goes into a message loop to retrieve messages for that window or it's child edit control.
   Arguments:
       TheParam -- Pointer to the parameter passed in by the function that called CreateThread.
@@ -785,7 +785,7 @@ DWORD WindowThreadFunc(LPDWORD TheParam)
 BOOL APIENTRY DebugDlgProc(HWND DialogWindow, UINT Message, WPARAM WParam, LPARAM LParam)
 /*++
   Function Description:
-      Window function for the dialog box IDC_DIALOG1, 
+      Window function for the dialog box IDC_DIALOG1,
       the dialog box that pops up when the dll is loaded and prompts the user for the output style of his/her choice.
   Arguments:
       DialogWindow -- handle to the dialog box window.
@@ -840,7 +840,7 @@ BOOL APIENTRY DebugDlgProc(HWND DialogWindow, UINT Message, WPARAM WParam, LPARA
                 // No radio buttons were clicked -- pop up a Message box.
                 MessageBox(DialogWindow,
                            "You must choose one output method.",
-                           "Choose or Die.", 
+                           "Choose or Die.",
                            MB_OK | MB_ICONSTOP);
                 break;
             }
@@ -849,15 +849,15 @@ BOOL APIENTRY DebugDlgProc(HWND DialogWindow, UINT Message, WPARAM WParam, LPARA
             if (IsDlgButtonChecked(DialogWindow, IDC_CHECK)) {
                 DWORD rc, disposition;
                 HKEY    hkeyAppData;
-                rc = RegCreateKeyEx(HKEY_LOCAL_MACHINE, 
+                rc = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
                                     "System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data",
-                                    0, 
+                                    0,
                                     NULL,
                                     REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL,
-                                    &hkeyAppData, 
+                                    &hkeyAppData,
                                     &disposition);
                 if (rc == NO_ERROR) {
-                    rc = RegSetValueEx(hkeyAppData, 
+                    rc = RegSetValueEx(hkeyAppData,
                                        ModuleFileName,
                                        0,
                                        REG_DWORD,
@@ -867,7 +867,7 @@ BOOL APIENTRY DebugDlgProc(HWND DialogWindow, UINT Message, WPARAM WParam, LPARA
                 }
 
                 if (rc != NO_ERROR) {
-                    if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+                    if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                                       NULL, rc, 0, Buffer, sizeof(Buffer), NULL) != 0) {
 
                     } else {
@@ -918,10 +918,10 @@ BOOL DTTextOut(IN HWND   WindowHandle, IN HANDLE FileHandle, IN char* String, DW
 
     // Build a new string with the line-number and pid.tid in front.
     if (Style == DEBUGGER)
-        BufIndex += wsprintf(Output, "DT_DLL(%d-%X.%X @%8.8lX) ", 
+        BufIndex += wsprintf(Output, "DT_DLL(%d-%X.%X @%8.8lX) ",
                              LineCount++,
                              GetCurrentProcessId(),
-                             GetCurrentThreadId(), 
+                             GetCurrentThreadId(),
                              GetTickCount());
     else
         BufIndex += wsprintf(Output,
@@ -966,7 +966,7 @@ BOOL DTTextOut(IN HWND   WindowHandle, IN HANDLE FileHandle, IN char* String, DW
 void AbortAndClose(IN HANDLE FileHandle, IN HWND WindowHandle)
 /*
   Function Description:
-      Closes a file handle, informs the user via a message box, 
+      Closes a file handle, informs the user via a message box,
       and changes the global variable OutputStyle to WINDOW_ONLY
   Arguments:
       FileHandle -- handle to a file that caused the error.

@@ -39,7 +39,7 @@
 // Function prototypes
 inline LONG UnicodeToAnsi(LPSTR szOut, LPCWSTR pwszIn, LONG cbOut, LONG cbIn = -1) throw();
 inline LONG AnsiToUnicode(LPWSTR pwszOut, LPCSTR szIn, LONG cbOut, LONG cbIn = -1) throw();
-static void CvtDevmode(DEVMODEA *pdma, const DEVMODEW *pdmw) throw();
+static void CvtDevmode(DEVMODEA* pdma, const DEVMODEW* pdmw) throw();
 
 BOOL g_fWin95;
 BOOL g_fOSInit = FALSE;
@@ -56,22 +56,21 @@ BOOL g_fOSInit = FALSE;
 #endif
 
 #ifdef DEBUG
-int AssertFail(const CHAR *pszMsg) throw()
+int AssertFail(const CHAR* pszMsg) throw()
 {
     int wRet = MessageBoxA(NULL, pszMsg, "Assert Failed in Win95 layer", MB_ABORTRETRYIGNORE | MB_DEFBUTTON3 | MB_SYSTEMMODAL | MB_ICONHAND);
-    switch (wRet)
-    {
-        case IDABORT:
-            FatalAppExit(0, L"BOO HOO");
-            break;
-        case IDRETRY:
-            DebugBreak();
-            // deliberately fall through to IDIGNORE in order to continue
-        case IDIGNORE:
-            // go aways
-            break;
+    switch (wRet) {
+    case IDABORT:
+        FatalAppExit(0, L"BOO HOO");
+        break;
+    case IDRETRY:
+        DebugBreak();
+        // deliberately fall through to IDIGNORE in order to continue
+    case IDIGNORE:
+        // go aways
+        break;
     }
-    
+
     return 0;
 }
 #else
@@ -97,7 +96,7 @@ inline LONG AnsiToUnicode(LPWSTR pwszDestString, LPCSTR szSrcString, LONG   cbDe
     return MultiByteToWideChar(CP_ACP, 0, szSrcString, cbSrcString, pwszDestString, cbDestString);
 }
 
-static void CvtDevmode(DEVMODEA *pdma, const DEVMODEW *pdmw) throw()
+static void CvtDevmode(DEVMODEA* pdma, const DEVMODEW* pdmw) throw()
 {
     Verify(0 <= UnicodeToAnsi((LPSTR)pdma->dmDeviceName, pdmw->dmDeviceName, CCHDEVICENAME));
     memcpy(&pdma->dmSpecVersion, &pdmw->dmSpecVersion, OffsetOf(DEVMODE, dmFormName) - OffsetOf(DEVMODE, dmSpecVersion));
@@ -112,8 +111,7 @@ static void CvtDevmode(DEVMODEA *pdma, const DEVMODEW *pdmw) throw()
 
 inline bool FWide() throw()
 {
-    if (!g_fOSInit)
-    {
+    if (!g_fOSInit) {
         OSVERSIONINFOA osvi;
         osvi.dwOSVersionInfoSize = sizeof(osvi);
 
@@ -184,8 +182,7 @@ inline bool FWide() throw()
 size_t cUnicodeMultiSzLen(LPCWSTR lpsz) throw()
 {
     size_t cRet = 0;
-    while (*lpsz)
-    {
+    while (*lpsz) {
         size_t c = wcslen(lpsz) + 1;
         cRet += c;
         lpsz += c;
@@ -196,8 +193,7 @@ size_t cUnicodeMultiSzLen(LPCWSTR lpsz) throw()
 size_t cAnsiMultiSzLen(LPCSTR lpsz) throw()
 {
     size_t cRet = 0;
-    while (*lpsz)
-    {
+    while (*lpsz) {
         size_t c = _mbslen((const unsigned char*)lpsz) + 1;
         cRet += c;
         lpsz += c;
@@ -205,7 +201,7 @@ size_t cAnsiMultiSzLen(LPCSTR lpsz) throw()
     return cRet + 1;
 }
 
-extern "C"{
+extern "C" {
 
     // Added by VanK for DHTMLEdit OCX
     HINTERNET WINAPI OInternetOpenW(LPCWSTR lpszAgent, DWORD dwAccessType, LPCWSTR lpszProxy, LPCWSTR lpszProxyBypass, DWORD dwFlags)
@@ -254,11 +250,11 @@ extern "C"{
     HRESULT
         __stdcall
         OURLOpenBlockingStreamW(
-        LPUNKNOWN                pCaller,    // In
-        LPCWSTR                    wszURL,        // In
-        LPSTREAM                *ppStream,    // Out
-        DWORD                    dwReserved,    // In
-        LPBINDSTATUSCALLBACK    lpfnCB        // In
+            LPUNKNOWN                pCaller,    // In
+            LPCWSTR                    wszURL,        // In
+            LPSTREAM* ppStream,    // Out
+            DWORD                    dwReserved,    // In
+            LPBINDSTATUSCALLBACK    lpfnCB        // In
         )
     {
         if (FWide())
@@ -276,10 +272,10 @@ extern "C"{
     BOOL
         WINAPI
         OInternetCreateUrlW(
-        LPURL_COMPONENTSW    lpUrlComponents,    // In
-        DWORD                dwFlags,            // In
-        LPWSTR                lpwszUrl,            // Out
-        LPDWORD                lpdwUrlLength        // In/Out
+            LPURL_COMPONENTSW    lpUrlComponents,    // In
+            DWORD                dwFlags,            // In
+            LPWSTR                lpwszUrl,            // Out
+            LPDWORD                lpdwUrlLength        // In/Out
         )
     {
         Assert(lpUrlComponents);
@@ -311,9 +307,8 @@ extern "C"{
         urlaComp.dwExtraInfoLength = lpUrlComponents->dwExtraInfoLength;
 
         BOOL bfResult = InternetCreateUrlA(&urlaComp, dwFlags, szUrl, &cchLen);
-        *lpdwUrlLength = cchLen*sizeof(WCHAR);    // Return even on fail; this tells how much to allocate on next call.
-        if (bfResult)
-        {
+        *lpdwUrlLength = cchLen * sizeof(WCHAR);    // Return even on fail; this tells how much to allocate on next call.
+        if (bfResult) {
             LONG lRet = AnsiToUnicode(lpwszUrl, szUrl, *lpdwUrlLength, cchLen);
             *lpdwUrlLength = lRet * sizeof(WCHAR);
         }
@@ -338,7 +333,7 @@ extern "C"{
         DWORD                dwUrlLength,    // In
         DWORD                dwFlags,        // In
         LPURL_COMPONENTSW    lpUrlComponents    // Out
-        )
+    )
     {
         if (FWide())
             return InternetCrackUrlW(lpwszUrl, dwUrlLength, dwFlags, lpUrlComponents);
@@ -369,29 +364,23 @@ extern "C"{
         URL_COMPONENTSA    urlaComp;
         memset(&urlaComp, 0, sizeof(urlaComp));    // In case this is ever recompiled with a larger structure
 
-        if (0 != lpUrlComponents->dwSchemeLength && NULL != lpUrlComponents->lpszScheme)
-        {
-            szScheme = SzAlloc((lpUrlComponents->dwSchemeLength + 1)*sizeof(WCHAR));
+        if (0 != lpUrlComponents->dwSchemeLength && NULL != lpUrlComponents->lpszScheme) {
+            szScheme = SzAlloc((lpUrlComponents->dwSchemeLength + 1) * sizeof(WCHAR));
         }
-        if (0 != lpUrlComponents->dwHostNameLength && NULL != lpUrlComponents->lpszHostName)
-        {
-            szHostName = SzAlloc((lpUrlComponents->dwHostNameLength + 1)*sizeof(WCHAR));
+        if (0 != lpUrlComponents->dwHostNameLength && NULL != lpUrlComponents->lpszHostName) {
+            szHostName = SzAlloc((lpUrlComponents->dwHostNameLength + 1) * sizeof(WCHAR));
         }
-        if (0 != lpUrlComponents->dwUserNameLength && NULL != lpUrlComponents->lpszUserName)
-        {
-            szUserName = SzAlloc((lpUrlComponents->dwUserNameLength + 1)*sizeof(WCHAR));
+        if (0 != lpUrlComponents->dwUserNameLength && NULL != lpUrlComponents->lpszUserName) {
+            szUserName = SzAlloc((lpUrlComponents->dwUserNameLength + 1) * sizeof(WCHAR));
         }
-        if (0 != lpUrlComponents->dwPasswordLength && NULL != lpUrlComponents->lpszPassword)
-        {
-            szPassword = SzAlloc((lpUrlComponents->dwPasswordLength + 1)*sizeof(WCHAR));
+        if (0 != lpUrlComponents->dwPasswordLength && NULL != lpUrlComponents->lpszPassword) {
+            szPassword = SzAlloc((lpUrlComponents->dwPasswordLength + 1) * sizeof(WCHAR));
         }
-        if (0 != lpUrlComponents->dwUrlPathLength && NULL != lpUrlComponents->lpszUrlPath)
-        {
-            szUrlPath = SzAlloc((lpUrlComponents->dwUrlPathLength + 1)*sizeof(WCHAR));
+        if (0 != lpUrlComponents->dwUrlPathLength && NULL != lpUrlComponents->lpszUrlPath) {
+            szUrlPath = SzAlloc((lpUrlComponents->dwUrlPathLength + 1) * sizeof(WCHAR));
         }
-        if (0 != lpUrlComponents->dwExtraInfoLength && NULL != lpUrlComponents->lpszExtraInfo)
-        {
-            szExtraInfo = SzAlloc((lpUrlComponents->dwExtraInfoLength + 1)*sizeof(WCHAR));
+        if (0 != lpUrlComponents->dwExtraInfoLength && NULL != lpUrlComponents->lpszExtraInfo) {
+            szExtraInfo = SzAlloc((lpUrlComponents->dwExtraInfoLength + 1) * sizeof(WCHAR));
         }
 
         urlaComp.dwStructSize = sizeof(URL_COMPONENTSA);
@@ -412,43 +401,36 @@ extern "C"{
 
         BOOL bfResult = InternetCrackUrlA(szURLIn, dwUrlLength, dwFlags, &urlaComp);
 
-        if (bfResult)
-        {
+        if (bfResult) {
             lpUrlComponents->nScheme = urlaComp.nScheme;
             lpUrlComponents->nPort = urlaComp.nPort;
 
-            if (NULL != szScheme)
-            {
+            if (NULL != szScheme) {
                 lpUrlComponents->dwSchemeLength = AnsiToUnicode(
                     lpUrlComponents->lpszScheme, szScheme,
                     lpUrlComponents->dwSchemeLength, urlaComp.dwSchemeLength + 1) - 1;
             }
-            if (NULL != szHostName)
-            {
+            if (NULL != szHostName) {
                 lpUrlComponents->dwHostNameLength = AnsiToUnicode(
                     lpUrlComponents->lpszHostName, szHostName,
                     lpUrlComponents->dwHostNameLength, urlaComp.dwHostNameLength + 1) - 1;
             }
-            if (NULL != szUserName)
-            {
+            if (NULL != szUserName) {
                 lpUrlComponents->dwUserNameLength = AnsiToUnicode(
                     lpUrlComponents->lpszUserName, szUserName,
                     lpUrlComponents->dwUserNameLength, urlaComp.dwUserNameLength + 1) - 1;
             }
-            if (NULL != szPassword)
-            {
+            if (NULL != szPassword) {
                 lpUrlComponents->dwPasswordLength = AnsiToUnicode(
                     lpUrlComponents->lpszPassword, szPassword,
                     lpUrlComponents->dwPasswordLength, urlaComp.dwPasswordLength + 1) - 1;
             }
-            if (NULL != szUrlPath)
-            {
+            if (NULL != szUrlPath) {
                 lpUrlComponents->dwUrlPathLength = AnsiToUnicode(
                     lpUrlComponents->lpszUrlPath, szUrlPath,
                     lpUrlComponents->dwUrlPathLength, urlaComp.dwUrlPathLength + 1) - 1;
             }
-            if (NULL != szExtraInfo)
-            {
+            if (NULL != szExtraInfo) {
                 lpUrlComponents->dwExtraInfoLength = AnsiToUnicode(
                     lpUrlComponents->lpszExtraInfo, szExtraInfo,
                     lpUrlComponents->dwExtraInfoLength, urlaComp.dwExtraInfoLength + 1) - 1;
@@ -461,7 +443,7 @@ extern "C"{
     BOOL
         WINAPI
         ODeleteUrlCacheEntryW(
-        LPCWSTR    lpwszUrlName    // In
+            LPCWSTR    lpwszUrlName    // In
         )
     {
         if (FWide())
@@ -475,10 +457,10 @@ extern "C"{
     BOOL
         WINAPI
         OAppendMenuW(
-        HMENU hMenu,
-        UINT uFlags,
-        UINT uIDnewItem,
-        LPCWSTR lpnewItem
+            HMENU hMenu,
+            UINT uFlags,
+            UINT uIDnewItem,
+            LPCWSTR lpnewItem
         )
     {
         if (FWide())
@@ -495,11 +477,11 @@ extern "C"{
     LRESULT
         WINAPI
         OCallWindowProcW(
-        WNDPROC lpPrevWndFunc,
-        HWND hWnd,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam)
+            WNDPROC lpPrevWndFunc,
+            HWND hWnd,
+            UINT Msg,
+            WPARAM wParam,
+            LPARAM lParam)
     {
         if (FWide())
             return CallWindowProcW(lpPrevWndFunc, hWnd, Msg, wParam, lParam);
@@ -510,8 +492,8 @@ extern "C"{
     DWORD
         WINAPI
         OCharLowerBuffW(
-        LPWSTR lpsz,
-        DWORD cchLength)
+            LPWSTR lpsz,
+            DWORD cchLength)
     {
         if (!lpsz)
             return 0;
@@ -520,8 +502,7 @@ extern "C"{
             return CharLowerBuffW(lpsz, cchLength);
 
         DWORD i = 0;
-        while (i++ < cchLength)
-        {
+        while (i++ < cchLength) {
             *lpsz = towlower(*lpsz);
             lpsz++;
         }
@@ -531,7 +512,7 @@ extern "C"{
     LPWSTR
         WINAPI
         OCharLowerW(
-        LPWSTR lpsz)
+            LPWSTR lpsz)
     {
         if (!lpsz)
             return NULL;
@@ -540,15 +521,13 @@ extern "C"{
             return CharLowerW(lpsz);
 
         // Checking if it's a single byte character.
-        if (FATOM(lpsz))
-        {
+        if (FATOM(lpsz)) {
             return (LPWSTR)towlower((WCHAR)LOWORD(lpsz));
         }
 
         LPWSTR lp = lpsz;
 
-        while (*lp)
-        {
+        while (*lp) {
             *lp = towlower(*lp);
             lp++;
         }
@@ -559,8 +538,8 @@ extern "C"{
     LPWSTR
         WINAPI
         OCharPrevW(
-        LPCWSTR lpszStart,
-        LPCWSTR lpszCurrent)
+            LPCWSTR lpszStart,
+            LPCWSTR lpszCurrent)
     {
         return (LPWSTR)((lpszStart != lpszCurrent) ? lpszCurrent - 1 : lpszCurrent);
     }
@@ -568,11 +547,10 @@ extern "C"{
     BOOL
         WINAPI
         OCharToOemW(
-        LPCWSTR lpszSrc,
-        LPSTR lpszDst)
+            LPCWSTR lpszSrc,
+            LPSTR lpszDst)
     {
-        if (FWide())
-        {
+        if (FWide()) {
             Assert((LPSTR)lpszSrc != lpszDst);
             return CharToOemW(lpszSrc, lpszDst);
         }
@@ -593,15 +571,13 @@ extern "C"{
             return CharUpperW(lpsz);
 
         // Checking if it's a single byte character.
-        if (FATOM(lpsz))
-        {
+        if (FATOM(lpsz)) {
             return (LPWSTR)towupper((WCHAR)LOWORD(lpsz));
         }
 
         LPWSTR lp = lpsz;
 
-        while (*lp)
-        {
+        while (*lp) {
             *lp = towupper(*lp);
             lp++;
         }
@@ -623,13 +599,13 @@ extern "C"{
     }
 
 
-    HDC WINAPI OCreateDCW(LPCWSTR lpszDriver, LPCWSTR lpszDevice, LPCWSTR lpszOutput, CONST DEVMODEW *lpInitData)
+    HDC WINAPI OCreateDCW(LPCWSTR lpszDriver, LPCWSTR lpszDevice, LPCWSTR lpszOutput, CONST DEVMODEW* lpInitData)
     {
         Assert(!lpszOutput);
         if (FWide())
             return CreateDCW(lpszDriver, lpszDevice, lpszOutput, lpInitData);
 
-        DEVMODEA *pdma = lpInitData ?
+        DEVMODEA* pdma = lpInitData ?
             (DEVMODEA*)SzAlloc(sizeof(DEVMODEA) + lpInitData->dmDriverExtra) :
             NULL;
 
@@ -638,14 +614,11 @@ extern "C"{
         LPSTR szDev = NULL;
 
         // in Win95, only "display" is allowed as a driver name
-        if (szDriv && !lstrcmpiA(szDriv, "display"))
-        {
+        if (szDriv && !lstrcmpiA(szDriv, "display")) {
             Assert(!lpszDevice);
             Assert(!lpInitData);
             pdma = NULL;    // Force to NULL.
-        }
-        else
-        {
+        } else {
 #ifdef DEBUG
             // For NT we pass this in so only assert if this is
             // not true.
@@ -655,8 +628,7 @@ extern "C"{
             szDriv = NULL;
             Assert(lpszDevice);
             szDev = Convert(lpszDevice);
-            if (lpInitData)
-            {
+            if (lpInitData) {
                 CvtDevmode(pdma, lpInitData);
             }
         }
@@ -668,8 +640,8 @@ extern "C"{
     BOOL
         WINAPI
         OCreateDirectoryW(
-        LPCWSTR lpPathName,
-        LPSECURITY_ATTRIBUTES lpSecurityAttributes
+            LPCWSTR lpPathName,
+            LPSECURITY_ATTRIBUTES lpSecurityAttributes
         )
     {
         if (FWide())
@@ -686,9 +658,9 @@ extern "C"{
     BOOL
         WINAPI
         OCreateDirectoryExW(
-        LPCWSTR lpTemplateDirectory,
-        LPCWSTR lpNewDirectory,
-        LPSECURITY_ATTRIBUTES lpSecurityAttributes
+            LPCWSTR lpTemplateDirectory,
+            LPCWSTR lpNewDirectory,
+            LPSECURITY_ATTRIBUTES lpSecurityAttributes
         )
     {
         if (FWide())
@@ -703,10 +675,10 @@ extern "C"{
     HDC
         WINAPI
         OCreateEnhMetaFileW(
-        HDC hdc,
-        LPCWSTR lpFileName,
-        CONST RECT *lpRect,
-        LPCWSTR lpDescription)
+            HDC hdc,
+            LPCWSTR lpFileName,
+            CONST RECT* lpRect,
+            LPCWSTR lpDescription)
     {
         if (FWide())
             return CreateEnhMetaFileW(hdc, lpFileName, lpRect, lpDescription);
@@ -720,10 +692,10 @@ extern "C"{
     HANDLE
         WINAPI
         OCreateEventW(
-        LPSECURITY_ATTRIBUTES lpEventAttributes,
-        BOOL bManualReset,
-        BOOL bInitialState,
-        LPCWSTR lpName
+            LPSECURITY_ATTRIBUTES lpEventAttributes,
+            BOOL bManualReset,
+            BOOL bInitialState,
+            LPCWSTR lpName
         )
     {
         if (FWide())
@@ -737,13 +709,13 @@ extern "C"{
     HANDLE
         WINAPI
         OCreateFileW(
-        LPCWSTR lpFileName,
-        DWORD dwDesiredAccess,
-        DWORD dwShareMode,
-        LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-        DWORD dwCreationDisposition,
-        DWORD dwFlagsAndAttributes,
-        HANDLE hTemplateFile
+            LPCWSTR lpFileName,
+            DWORD dwDesiredAccess,
+            DWORD dwShareMode,
+            LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+            DWORD dwCreationDisposition,
+            DWORD dwFlagsAndAttributes,
+            HANDLE hTemplateFile
         )
     {
         // Don't even attempt this on Win95!
@@ -751,7 +723,7 @@ extern "C"{
 
         if (FWide())
             return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
-            dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+                               dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 
         PreConvert();
         LPSTR sz = Convert(lpFileName);
@@ -761,7 +733,7 @@ extern "C"{
 
     HFONT
         WINAPI
-        OCreateFontIndirectW(CONST LOGFONTW * plfw)
+        OCreateFontIndirectW(CONST LOGFONTW* plfw)
     {
         Assert(plfw);
 
@@ -780,20 +752,20 @@ extern "C"{
     // From: Mark Ashton on 5/29/97
     HFONT
         OCreateFontW(
-        int nHeight, // logical height of font
-        int nWidth, // logical average character width
-        int nEscapement, // angle of escapement
-        int nOrientation, // base-line orientation angle
-        int fnWeight, // font weight
-        DWORD fdwItalic, // italic attribute flag
-        DWORD fdwUnderline, // underline attribute flag
-        DWORD fdwStrikeOut, // strikeout attribute flag
-        DWORD fdwCharSet, // character set identifier
-        DWORD fdwOutputPrecision, // output precision
-        DWORD fdwClipPrecision, // clipping precision
-        DWORD fdwQuality, // output quality
-        DWORD fdwPitchAndFamily, // pitch and family
-        LPCWSTR lpszFace) // pointer to typeface name string
+            int nHeight, // logical height of font
+            int nWidth, // logical average character width
+            int nEscapement, // angle of escapement
+            int nOrientation, // base-line orientation angle
+            int fnWeight, // font weight
+            DWORD fdwItalic, // italic attribute flag
+            DWORD fdwUnderline, // underline attribute flag
+            DWORD fdwStrikeOut, // strikeout attribute flag
+            DWORD fdwCharSet, // character set identifier
+            DWORD fdwOutputPrecision, // output precision
+            DWORD fdwClipPrecision, // clipping precision
+            DWORD fdwQuality, // output quality
+            DWORD fdwPitchAndFamily, // pitch and family
+            LPCWSTR lpszFace) // pointer to typeface name string
     {
         if (FWide())
             return CreateFontW(nHeight, nWidth, nEscapement, nOrientation, fnWeight, fdwItalic, fdwUnderline, fdwStrikeOut, fdwCharSet, fdwOutputPrecision, fdwClipPrecision, fdwQuality, fdwPitchAndFamily, lpszFace);
@@ -805,21 +777,21 @@ extern "C"{
     HWND
         WINAPI
         OCreateMDIWindowW(
-        LPWSTR lpClassName,
-        LPWSTR lpWindowName,
-        DWORD dwStyle,
-        int X,
-        int Y,
-        int nWidth,
-        int nHeight,
-        HWND hWndParent,
-        HINSTANCE hInstance,
-        LPARAM lParam
+            LPWSTR lpClassName,
+            LPWSTR lpWindowName,
+            DWORD dwStyle,
+            int X,
+            int Y,
+            int nWidth,
+            int nHeight,
+            HWND hWndParent,
+            HINSTANCE hInstance,
+            LPARAM lParam
         )
     {
         if (FWide())
             return CreateMDIWindowW(lpClassName, lpWindowName, dwStyle,
-            X, Y, nWidth, nHeight, hWndParent, hInstance, lParam);
+                                    X, Y, nWidth, nHeight, hWndParent, hInstance, lParam);
 
         PreConvert();
         LPSTR szClass = Convert(lpClassName);
@@ -844,10 +816,10 @@ extern "C"{
     HANDLE
         WINAPI
         OCreateSemaphoreW(
-        LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
-        LONG lInitialCount,
-        LONG lMaximumCount,
-        LPCWSTR lpName
+            LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
+            LONG lInitialCount,
+            LONG lMaximumCount,
+            LPCWSTR lpName
         )
     {
         if (FWide())
@@ -861,17 +833,17 @@ extern "C"{
     HWND
         WINAPI
         OCreateWindowExW(DWORD dwExStyle,
-        LPCWSTR lpClassName,
-        LPCWSTR lpWindowName,
-        DWORD dwStyle,
-        int X,
-        int Y,
-        int nWidth,
-        int nHeight,
-        HWND hWndParent,
-        HMENU hMenu,
-        HINSTANCE hInstance,
-        LPVOID lpParam)
+                         LPCWSTR lpClassName,
+                         LPCWSTR lpWindowName,
+                         DWORD dwStyle,
+                         int X,
+                         int Y,
+                         int nWidth,
+                         int nHeight,
+                         HWND hWndParent,
+                         HMENU hMenu,
+                         HINSTANCE hInstance,
+                         LPVOID lpParam)
     {
         if (FWide())
             return CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
@@ -879,13 +851,10 @@ extern "C"{
         PreConvert();
 
         LPSTR szClass;
-        if (FATOM(lpClassName))
-        {
+        if (FATOM(lpClassName)) {
             // is it an atom?
             szClass = (LPSTR)lpClassName;
-        }
-        else
-        {
+        } else {
             // otherwise convert the string
             szClass = Convert(lpClassName);
         }
@@ -900,12 +869,11 @@ extern "C"{
     HSZ
         WINAPI
         ODdeCreateStringHandleW(
-        DWORD idInst,
-        LPCWSTR psz,
-        int iCodePage)
+            DWORD idInst,
+            LPCWSTR psz,
+            int iCodePage)
     {
-        if (FWide())
-        {
+        if (FWide()) {
             Assert(CP_WINUNICODE == iCodePage);
             return DdeCreateStringHandleW(idInst, psz, iCodePage);
         }
@@ -917,10 +885,10 @@ extern "C"{
     UINT
         WINAPI
         ODdeInitializeW(
-        LPDWORD pidInst,
-        PFNCALLBACK pfnCallback,
-        DWORD afCmd,
-        DWORD ulRes)
+            LPDWORD pidInst,
+            PFNCALLBACK pfnCallback,
+            DWORD afCmd,
+            DWORD ulRes)
     {
         if (FWide())
             return DdeInitializeW(pidInst, pfnCallback, afCmd, ulRes);
@@ -930,11 +898,11 @@ extern "C"{
     LRESULT
         WINAPI
         ODefFrameProcW(
-        HWND hWnd,
-        HWND hWndMDIClient,
-        UINT uMsg,
-        WPARAM wParam,
-        LPARAM lParam)
+            HWND hWnd,
+            HWND hWndMDIClient,
+            UINT uMsg,
+            WPARAM wParam,
+            LPARAM lParam)
     {
         if (FWide())
             return DefFrameProcW(hWnd, hWndMDIClient, uMsg, wParam, lParam);
@@ -945,10 +913,10 @@ extern "C"{
     LRESULT
         WINAPI
         ODefMDIChildProcW(
-        HWND hWnd,
-        UINT uMsg,
-        WPARAM wParam,
-        LPARAM lParam)
+            HWND hWnd,
+            UINT uMsg,
+            WPARAM wParam,
+            LPARAM lParam)
     {
         if (FWide())
             return DefMDIChildProcW(hWnd, uMsg, wParam, lParam);
@@ -959,10 +927,10 @@ extern "C"{
     LRESULT
         WINAPI
         ODefWindowProcW(
-        HWND hWnd,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam)
+            HWND hWnd,
+            UINT Msg,
+            WPARAM wParam,
+            LPARAM lParam)
     {
         if (FWide())
             return DefWindowProcW(hWnd, Msg, wParam, lParam);
@@ -973,7 +941,7 @@ extern "C"{
     BOOL
         WINAPI
         ODeleteFileW(
-        LPCWSTR pwsz)
+            LPCWSTR pwsz)
     {
         if (FWide())
             return DeleteFileW(pwsz);
@@ -986,15 +954,15 @@ extern "C"{
     LRESULT
         WINAPI
         ODialogBoxIndirectParamW(
-        HINSTANCE hInstance,
-        LPCDLGTEMPLATEW hDialogTemplate,
-        HWND hWndParent,
-        DLGPROC lpDialogFunc,
-        LPARAM dwInitParam)
+            HINSTANCE hInstance,
+            LPCDLGTEMPLATEW hDialogTemplate,
+            HWND hWndParent,
+            DLGPROC lpDialogFunc,
+            LPARAM dwInitParam)
     {
         if (FWide())
             return DialogBoxIndirectParamW(hInstance, hDialogTemplate, hWndParent,
-            lpDialogFunc, dwInitParam);
+                                           lpDialogFunc, dwInitParam);
 
         return DialogBoxIndirectParamA(hInstance, hDialogTemplate, hWndParent,
                                        lpDialogFunc, dwInitParam);
@@ -1003,11 +971,11 @@ extern "C"{
     LRESULT
         WINAPI
         ODialogBoxParamW(
-        HINSTANCE hInstance,
-        LPCWSTR lpTemplateName,
-        HWND hWndParent,
-        DLGPROC lpDialogFunc,
-        LPARAM dwInitParam)
+            HINSTANCE hInstance,
+            LPCWSTR lpTemplateName,
+            HWND hWndParent,
+            DLGPROC lpDialogFunc,
+            LPARAM dwInitParam)
     {
         if (FWide())
             return DialogBoxParamW(hInstance, lpTemplateName, hWndParent, lpDialogFunc, dwInitParam);
@@ -1023,7 +991,7 @@ extern "C"{
     LRESULT
         WINAPI
         ODispatchMessageW(
-        CONST MSG *lpMsg)
+            CONST MSG* lpMsg)
     {
         if (FWide())
             return DispatchMessageW(lpMsg);
@@ -1034,11 +1002,11 @@ extern "C"{
     int
         WINAPI
         ODrawTextW(
-        HDC hDC,
-        LPCWSTR lpString,
-        int nCount,
-        LPRECT lpRect,
-        UINT uFormat)
+            HDC hDC,
+            LPCWSTR lpString,
+            int nCount,
+            LPRECT lpRect,
+            UINT uFormat)
     {
         // NOTE OS may write 3 characters beyond end of lpString so make room!
 
@@ -1057,10 +1025,9 @@ extern "C"{
         const LPSTR sz = SzAlloc(nBuff + 4);
 
         Verify(nBuff == WideCharToMultiByte(CP_ACP, 0, lpString, nCount,
-            sz, nBuff, NULL, NULL));
+                                            sz, nBuff, NULL, NULL));
 
-        if (fModifyString)
-        {
+        if (fModifyString) {
             // DrawTextA doesn't nessacerily '\0' terminate the output,
             // so have termiators ready
             memcpy(sz + nBuff, "\0\0\0\0", 4);
@@ -1071,15 +1038,14 @@ extern "C"{
         // With certain flags, DrawText modifies the string, truncating it with
         // an ellipsis.  We need to convert back and update the string passed to
         // the wrapper before we return.
-        if (fModifyString && 0 <= iDrawTextReturn)
-        {
+        if (fModifyString && 0 <= iDrawTextReturn) {
             Assert('\0' == sz[nBuff + 3]); // Verify not too many were overwritten
 
             // The windows function prototype has lpString as constant even
             //    though the string gets modified!
             const int nStringLen = -1 != nCount ? nCount : wcslen(lpString);
             Verify(0 <= AnsiToUnicode(const_cast<LPWSTR>(lpString), sz,
-                nStringLen + 4));
+                                      nStringLen + 4));
         }
         return iDrawTextReturn;
     }
@@ -1109,9 +1075,9 @@ extern "C"{
     DWORD
         WINAPI
         OExpandEnvironmentStringsW(
-        LPCWSTR lpSrc,
-        LPWSTR lpDst,
-        DWORD nSize
+            LPCWSTR lpSrc,
+            LPWSTR lpDst,
+            DWORD nSize
         )
     {
         if (FWide())
@@ -1122,16 +1088,12 @@ extern "C"{
         LPSTR szDst = SzAlloc(sizeof(WCHAR) * nSize);
         DWORD dwRet = ExpandEnvironmentStringsA(szSrc, szDst, sizeof(WCHAR) * nSize);
 
-        if (dwRet)
-        {
+        if (dwRet) {
             LONG lRet = AnsiToUnicode(lpDst, szDst, nSize, min(dwRet, sizeof(WCHAR) * nSize));
-            if (dwRet < (DWORD)lRet)
-            {
+            if (dwRet < (DWORD)lRet) {
                 dwRet = lRet;
             }
-        }
-        else if (lpDst && 0 < nSize)
-        {
+        } else if (lpDst && 0 < nSize) {
             *lpDst = L'\0';
         }
 
@@ -1141,8 +1103,8 @@ extern "C"{
     VOID
         WINAPI
         OFatalAppExitW(
-        UINT uAction,
-        LPCWSTR lpMessageText
+            UINT uAction,
+            LPCWSTR lpMessageText
         )
     {
         if (FWide())
@@ -1157,9 +1119,9 @@ extern "C"{
     HANDLE
         WINAPI
         OFindFirstChangeNotificationW(
-        LPCWSTR lpPathName,
-        BOOL bWatchSubtree,
-        DWORD dwNotifyFilter
+            LPCWSTR lpPathName,
+            BOOL bWatchSubtree,
+            DWORD dwNotifyFilter
         )
     {
         if (FWide())
@@ -1174,8 +1136,8 @@ extern "C"{
     HANDLE
         WINAPI
         OFindFirstFileW(
-        LPCWSTR lpFileName,
-        LPWIN32_FIND_DATAW lpFindFileData
+            LPCWSTR lpFileName,
+            LPWIN32_FIND_DATAW lpFindFileData
         )
     {
         if (FWide())
@@ -1185,8 +1147,7 @@ extern "C"{
         LPSTR sz = Convert(lpFileName);
         WIN32_FIND_DATAA findFileData;
         HANDLE h = FindFirstFileA(sz, &findFileData);
-        if (INVALID_HANDLE_VALUE != h)
-        {
+        if (INVALID_HANDLE_VALUE != h) {
             lpFindFileData->dwFileAttributes = findFileData.dwFileAttributes;
             lpFindFileData->ftCreationTime = findFileData.ftCreationTime;
             lpFindFileData->ftLastAccessTime = findFileData.ftLastAccessTime;
@@ -1205,8 +1166,8 @@ extern "C"{
     BOOL
         WINAPI
         OFindNextFileW(
-        HANDLE hFindFile,
-        LPWIN32_FIND_DATAW lpFindFileData
+            HANDLE hFindFile,
+            LPWIN32_FIND_DATAW lpFindFileData
         )
     {
         if (FWide())
@@ -1214,8 +1175,7 @@ extern "C"{
 
         WIN32_FIND_DATAA findFileData;
         BOOL fFlag = FindNextFileA(hFindFile, &findFileData);
-        if (fFlag)
-        {
+        if (fFlag) {
             lpFindFileData->dwFileAttributes = findFileData.dwFileAttributes;
             lpFindFileData->ftCreationTime = findFileData.ftCreationTime;
             lpFindFileData->ftLastAccessTime = findFileData.ftLastAccessTime;
@@ -1233,9 +1193,9 @@ extern "C"{
     HRSRC
         WINAPI
         OFindResourceW(
-        HINSTANCE hModule,
-        LPCWSTR lpName,
-        LPCWSTR lpType
+            HINSTANCE hModule,
+            LPCWSTR lpName,
+            LPCWSTR lpType
         )
     {
         if (FWide())
@@ -1256,8 +1216,8 @@ extern "C"{
     HWND
         WINAPI
         OFindWindowW(
-        LPCWSTR lpClassName,
-        LPCWSTR lpWindowName)
+            LPCWSTR lpClassName,
+            LPCWSTR lpWindowName)
     {
         if (FWide())
             return FindWindowW(lpClassName, lpWindowName);
@@ -1276,76 +1236,59 @@ extern "C"{
     DWORD
         WINAPI
         OFormatMessageW(
-        DWORD dwFlags,
-        LPCVOID lpSource,
-        DWORD dwMessageId,
-        DWORD dwLanguageId,
-        LPWSTR lpBuffer,
-        DWORD nSize,
-        va_list *Arguments)
+            DWORD dwFlags,
+            LPCVOID lpSource,
+            DWORD dwMessageId,
+            DWORD dwLanguageId,
+            LPWSTR lpBuffer,
+            DWORD nSize,
+            va_list* Arguments)
     {
 
         if (FWide())
             return FormatMessageW(dwFlags, lpSource, dwMessageId, dwLanguageId,
-            lpBuffer, nSize, Arguments);
+                                  lpBuffer, nSize, Arguments);
 
         DWORD dwRet;
 
         LPSTR szBuffer = NULL;
 
-        if (!(dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER))
-        {
+        if (!(dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER)) {
             Assert(!IsBadWritePtr(lpBuffer, nSize * sizeof(WCHAR)));
             szBuffer = SzAlloc(sizeof(WCHAR) * nSize);
         }
 
-        if (dwFlags & FORMAT_MESSAGE_FROM_STRING)
-        {
+        if (dwFlags & FORMAT_MESSAGE_FROM_STRING) {
             PreConvert();
             LPSTR szSource = Convert((LPWSTR)lpSource);
 
-            if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER)
-            {   // Must pass address of szBuffer
+            if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) {   // Must pass address of szBuffer
                 dwRet = FormatMessageA(dwFlags, szSource, dwMessageId, dwLanguageId, (char*)&szBuffer, sizeof(WCHAR) * nSize, Arguments);
-            }
-            else
-            {
+            } else {
                 dwRet = FormatMessageA(dwFlags, szSource, dwMessageId, dwLanguageId, szBuffer, sizeof(WCHAR) * nSize, Arguments);
             }
-        }
-        else
-        {
-            if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER)
-            {   // Must pass address of szBuffer
+        } else {
+            if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) {   // Must pass address of szBuffer
                 dwRet = FormatMessageA(dwFlags, lpSource, dwMessageId, dwLanguageId, (char*)&szBuffer, sizeof(WCHAR) * nSize, Arguments);
-            }
-            else
-            {
+            } else {
                 dwRet = FormatMessageA(dwFlags, lpSource, dwMessageId, dwLanguageId, szBuffer, sizeof(WCHAR) * nSize, Arguments);
             }
         }
 
-        if (dwRet)
-        {
-            if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER)
-            { // szBuffer contains LocalAlloc ptr to new string. lpBuffer is a
+        if (dwRet) {
+            if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) { // szBuffer contains LocalAlloc ptr to new string. lpBuffer is a
                 // WCHAR** when FORMAT_MESSAGE_ALLOCATE_BUFFER is defined.
                 WCHAR* pTemp = (WCHAR*)LocalAlloc(NONZEROLPTR, (dwRet + 1) * sizeof(WCHAR));
                 dwRet = pTemp == NULL ? 0 : AnsiToUnicode(pTemp, szBuffer, dwRet + 1);
                 LocalFree(szBuffer);
-                if (dwRet)
-                {
+                if (dwRet) {
                     *(WCHAR**)lpBuffer = pTemp;
                 }
                 return dwRet;
-            }
-            else
-            { // Just convert
+            } else { // Just convert
                 return AnsiToUnicode(lpBuffer, szBuffer, nSize);
             }
-        }
-        else if (lpBuffer && 0 < nSize)
-        {
+        } else if (lpBuffer && 0 < nSize) {
             *lpBuffer = L'\0';
         }
 
@@ -1355,10 +1298,10 @@ extern "C"{
     BOOL
         APIENTRY
         OGetCharABCWidthsFloatW(
-        HDC     hdc,
-        UINT    uFirstChar,
-        UINT    uLastChar,
-        LPABCFLOAT      lpABC)
+            HDC     hdc,
+            UINT    uFirstChar,
+            UINT    uLastChar,
+            LPABCFLOAT      lpABC)
     {
         if (FWide())
             return GetCharABCWidthsFloatW(hdc, uFirstChar, uLastChar, lpABC);
@@ -1369,10 +1312,10 @@ extern "C"{
     BOOL
         APIENTRY
         OGetCharABCWidthsW(
-        HDC hdc,
-        UINT uFirstChar,
-        UINT uLastChar,
-        LPABC lpABC)
+            HDC hdc,
+            UINT uFirstChar,
+            UINT uLastChar,
+            LPABC lpABC)
     {
         if (FWide())
             return GetCharABCWidthsW(hdc, uFirstChar, uLastChar, lpABC);
@@ -1383,10 +1326,10 @@ extern "C"{
     BOOL
         APIENTRY
         OGetCharWidthFloatW(
-        HDC     hdc,
-        UINT    iFirstChar,
-        UINT    iLastChar,
-        PFLOAT  pBuffer)
+            HDC     hdc,
+            UINT    iFirstChar,
+            UINT    iLastChar,
+            PFLOAT  pBuffer)
     {
         if (FWide())
             return GetCharWidthFloatW(hdc, iFirstChar, iLastChar, pBuffer);
@@ -1398,10 +1341,10 @@ extern "C"{
     BOOL
         WINAPI
         OGetCharWidthW(
-        HDC hdc,
-        UINT iFirstChar,
-        UINT iLastChar,
-        LPINT lpBuffer)
+            HDC hdc,
+            UINT iFirstChar,
+            UINT iLastChar,
+            LPINT lpBuffer)
     {
         if (FWide())
             return GetCharWidth32W(hdc, iFirstChar, iLastChar, lpBuffer);
@@ -1432,9 +1375,9 @@ extern "C"{
         WINAPI
         OGetClassInfoW
         (
-        HINSTANCE hInstance,
-        LPCWSTR lpClassName,
-        LPWNDCLASSW lpWndClass
+            HINSTANCE hInstance,
+            LPCWSTR lpClassName,
+            LPWNDCLASSW lpWndClass
         )
     {
         if (FWide())
@@ -1443,8 +1386,7 @@ extern "C"{
         PreConvert();
         LPSTR szClassName = Convert(lpClassName);
         BOOL fRet = GetClassInfoA(hInstance, szClassName, (LPWNDCLASSA)lpWndClass);
-        if (!fRet)
-        {
+        if (!fRet) {
             return false;
         }
 
@@ -1457,25 +1399,21 @@ extern "C"{
         Assert(GetCurrentThreadId() == g_dwCallingThread);
 #endif // DEBUG
 
-        if (!FATOM(lpWndClass->lpszMenuName))
-        {
+        if (!FATOM(lpWndClass->lpszMenuName)) {
             Assert(strlen((LPCSTR)lpWndClass->lpszMenuName) <
                    (sizeof(g_szMenuName) / sizeof(WCHAR)));
             if (!AnsiToUnicode(g_szMenuName, (LPCSTR)lpWndClass->lpszMenuName,
-                strlen((LPCSTR)lpWndClass->lpszMenuName) + 1))
-            {
+                               strlen((LPCSTR)lpWndClass->lpszMenuName) + 1)) {
                 return false;
             }
             lpWndClass->lpszMenuName = g_szMenuName;
         }
 
-        if (!FATOM(lpWndClass->lpszClassName))
-        {
+        if (!FATOM(lpWndClass->lpszClassName)) {
             Assert(strlen((LPCSTR)lpWndClass->lpszClassName) <
                    (sizeof(g_szClassName) / sizeof(WCHAR)));
             if (!AnsiToUnicode(g_szClassName, (LPCSTR)lpWndClass->lpszClassName,
-                strlen((LPCSTR)lpWndClass->lpszClassName) + 1))
-            {
+                               strlen((LPCSTR)lpWndClass->lpszClassName) + 1)) {
                 return false;
             }
             lpWndClass->lpszClassName = g_szClassName;
@@ -1488,9 +1426,9 @@ extern "C"{
         WINAPI
         OGetClassInfoExW
         (
-        HINSTANCE hInstance,
-        LPCWSTR lpClassName,
-        LPWNDCLASSEXW lpWndClass
+            HINSTANCE hInstance,
+            LPCWSTR lpClassName,
+            LPWNDCLASSEXW lpWndClass
         )
     {
         if (FWide())
@@ -1499,8 +1437,7 @@ extern "C"{
         PreConvert();
         LPSTR szClassName = Convert(lpClassName);
         BOOL fRet = GetClassInfoExA(hInstance, szClassName, (LPWNDCLASSEXA)lpWndClass);
-        if (!fRet)
-        {
+        if (!fRet) {
             return false;
         }
 
@@ -1513,25 +1450,21 @@ extern "C"{
         Assert(GetCurrentThreadId() == g_dwCallingThread);
 #endif // DEBUG
 
-        if (!FATOM(lpWndClass->lpszMenuName))
-        {
+        if (!FATOM(lpWndClass->lpszMenuName)) {
             Assert(strlen((LPCSTR)lpWndClass->lpszMenuName) <
                    (sizeof(g_szMenuName) / sizeof(WCHAR)));
             if (!AnsiToUnicode(g_szMenuName, (LPCSTR)lpWndClass->lpszMenuName,
-                strlen((LPCSTR)lpWndClass->lpszMenuName) + 1))
-            {
+                               strlen((LPCSTR)lpWndClass->lpszMenuName) + 1)) {
                 return false;
             }
             lpWndClass->lpszMenuName = g_szMenuName;
         }
 
-        if (!FATOM(lpWndClass->lpszClassName))
-        {
+        if (!FATOM(lpWndClass->lpszClassName)) {
             Assert(strlen((LPCSTR)lpWndClass->lpszClassName) <
                    (sizeof(g_szClassName) / sizeof(WCHAR)));
             if (!AnsiToUnicode(g_szClassName, (LPCSTR)lpWndClass->lpszClassName,
-                strlen((LPCSTR)lpWndClass->lpszClassName) + 1))
-            {
+                               strlen((LPCSTR)lpWndClass->lpszClassName) + 1)) {
                 return false;
             }
             lpWndClass->lpszClassName = g_szClassName;
@@ -1543,8 +1476,8 @@ extern "C"{
     DWORD
         WINAPI
         OGetClassLongW(
-        HWND hWnd,
-        int nIndex)
+            HWND hWnd,
+            int nIndex)
     {
         if (FWide())
             return GetClassLongW(hWnd, nIndex);
@@ -1554,9 +1487,9 @@ extern "C"{
     DWORD
         WINAPI
         OSetClassLongW(
-        HWND hWnd,
-        int nIndex,
-        LONG dwNewLong)
+            HWND hWnd,
+            int nIndex,
+            LONG dwNewLong)
     {
         if (FWide())
             return SetClassLongW(hWnd, nIndex, dwNewLong);
@@ -1568,9 +1501,9 @@ extern "C"{
     int
         WINAPI
         OGetClassNameW(
-        HWND hWnd,
-        LPWSTR lpClassName,
-        int nMaxCount)
+            HWND hWnd,
+            LPWSTR lpClassName,
+            int nMaxCount)
     {
         if (FWide())
             return GetClassNameW(hWnd, lpClassName, nMaxCount);
@@ -1579,8 +1512,7 @@ extern "C"{
         int nRet = GetClassNameA(hWnd, sz, sizeof(WCHAR) * nMaxCount);
 
         // $UNDONE_POST_98: This is bogus, we should do this like OLoadStringW
-        if (nRet)
-        {
+        if (nRet) {
             // force null-termination
             sz[sizeof(WCHAR) * nMaxCount] = '\0';
             sz[sizeof(WCHAR) * nMaxCount + 1] = '\0';
@@ -1591,16 +1523,14 @@ extern "C"{
             nRet = min(AnsiToUnicode(wsz, sz, 2 * nMaxCount + 1), nMaxCount);
 
             // copy the requested number of characters
-            if (lpClassName)
-            {
+            if (lpClassName) {
                 memcpy(lpClassName, wsz, nRet * sizeof(WCHAR));
             }
 
             return nRet;
         }
 
-        else if (lpClassName && 0 < nMaxCount)
-        {
+        else if (lpClassName && 0 < nMaxCount) {
             *lpClassName = L'\0';
         }
 
@@ -1610,8 +1540,8 @@ extern "C"{
     DWORD
         WINAPI
         OGetCurrentDirectoryW(
-        DWORD nBufferLength,
-        LPWSTR lpBuffer)
+            DWORD nBufferLength,
+            LPWSTR lpBuffer)
     {
         if (FWide())
             return GetCurrentDirectoryW(nBufferLength, lpBuffer);
@@ -1620,12 +1550,9 @@ extern "C"{
         DWORD dwRet = GetCurrentDirectoryA(sizeof(WCHAR) * nBufferLength, sz);
 
         // $UNDONE_POST_98: This is bogus, we should do this like OLoadStringW
-        if (dwRet)
-        {
+        if (dwRet) {
             return AnsiToUnicode(lpBuffer, sz, nBufferLength);
-        }
-        else if (lpBuffer && 0 < nBufferLength)
-        {
+        } else if (lpBuffer && 0 < nBufferLength) {
             *lpBuffer = L'\0';
         }
 
@@ -1635,10 +1562,10 @@ extern "C"{
     UINT
         WINAPI
         OGetDlgItemTextW(
-        HWND hDlg,
-        int nIDDlgItem,
-        LPWSTR lpString,
-        int nMaxCount)
+            HWND hDlg,
+            int nIDDlgItem,
+            LPWSTR lpString,
+            int nMaxCount)
     {
         if (FWide())
             return GetDlgItemTextW(hDlg, nIDDlgItem, lpString, nMaxCount);
@@ -1647,12 +1574,9 @@ extern "C"{
         UINT uRet = GetDlgItemTextA(hDlg, nIDDlgItem, sz, sizeof(WCHAR) * nMaxCount);
 
         // $UNDONE_POST_98: This is bogus, we should do this like OLoadStringW
-        if (uRet)
-        {
+        if (uRet) {
             return AnsiToUnicode(lpString, sz, nMaxCount);
-        }
-        else if (lpString && 0 < nMaxCount)
-        {
+        } else if (lpString && 0 < nMaxCount) {
             *lpString = L'\0';
         }
 
@@ -1662,7 +1586,7 @@ extern "C"{
     DWORD
         WINAPI
         OGetFileAttributesW(
-        LPCWSTR lpFileName
+            LPCWSTR lpFileName
         )
     {
         if (FWide())
@@ -1676,10 +1600,10 @@ extern "C"{
     DWORD
         WINAPI
         OGetFullPathNameW(
-        LPCWSTR lpFileName,
-        DWORD nBufferLength,
-        LPWSTR lpBuffer,
-        LPWSTR *lpFilePart
+            LPCWSTR lpFileName,
+            DWORD nBufferLength,
+            LPWSTR lpBuffer,
+            LPWSTR* lpFilePart
         )
     {
         if (FWide())
@@ -1693,8 +1617,7 @@ extern "C"{
         DWORD dwRet = GetFullPathNameA(szFile, sizeof(WCHAR) * nBufferLength, szBuffer, &pszFile);
 
         // $UNDONE_POST_98: This is bogus, we should do this like OLoadStringW
-        if (dwRet)
-        {
+        if (dwRet) {
             DWORD dwNoOfChar = AnsiToUnicode(lpBuffer, szBuffer, nBufferLength);
             *pszFile = '\0';
             *lpFilePart = lpBuffer + AnsiToUnicode(NULL, szBuffer, 0);
@@ -1707,13 +1630,13 @@ extern "C"{
     DWORD
         WINAPI
         OGetGlyphOutlineW(
-        HDC     hdc,
-        UINT    uChar,
-        UINT    uFormat,
-        LPGLYPHMETRICS      lpgm,
-        DWORD       cbBuffer,
-        LPVOID      lpvBuffer,
-        CONST MAT2 *    lpmat2)
+            HDC     hdc,
+            UINT    uChar,
+            UINT    uFormat,
+            LPGLYPHMETRICS      lpgm,
+            DWORD       cbBuffer,
+            LPVOID      lpvBuffer,
+            CONST MAT2* lpmat2)
     {
         if (FWide())
             return GetGlyphOutlineW(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
@@ -1724,9 +1647,9 @@ extern "C"{
     DWORD
         WINAPI
         OGetKerningPairsW(
-        HDC         hdc,
-        DWORD       nNumPairs,
-        LPKERNINGPAIR       lpkrnpair)
+            HDC         hdc,
+            DWORD       nNumPairs,
+            LPKERNINGPAIR       lpkrnpair)
     {
         if (FWide())
             return GetKerningPairsW(hdc, nNumPairs, lpkrnpair);
@@ -1737,10 +1660,10 @@ extern "C"{
     BOOL
         WINAPI
         OGetMessageW(
-        LPMSG lpMsg,
-        HWND hWnd,
-        UINT wMsgFilterMin,
-        UINT wMsgFilterMax)
+            LPMSG lpMsg,
+            HWND hWnd,
+            UINT wMsgFilterMin,
+            UINT wMsgFilterMax)
     {
         if (FWide())
             return GetMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax);
@@ -1751,27 +1674,24 @@ extern "C"{
     DWORD
         WINAPI
         OGetModuleFileNameW(
-        HINSTANCE hModule,
-        LPWSTR pwszFilename,
-        DWORD nSize
+            HINSTANCE hModule,
+            LPWSTR pwszFilename,
+            DWORD nSize
         )
     {
         if (FWide())
             return GetModuleFileNameW(
-            hModule,
-            pwszFilename,
-            nSize
+                hModule,
+                pwszFilename,
+                nSize
             );
 
         LPSTR sz = SzAlloc(sizeof(WCHAR) * nSize);
         DWORD dwRet = GetModuleFileNameA(hModule, sz, sizeof(WCHAR) * nSize);
         // $UNDONE_POST_98: This is bogus, we should do this like OLoadStringW
-        if (dwRet)
-        {
+        if (dwRet) {
             return AnsiToUnicode(pwszFilename, sz, nSize, dwRet + 1);
-        }
-        else if (pwszFilename && 0 < nSize)
-        {
+        } else if (pwszFilename && 0 < nSize) {
             *pwszFilename = L'\0';
         }
 
@@ -1781,7 +1701,7 @@ extern "C"{
     HMODULE
         WINAPI
         OGetModuleHandleW(
-        LPCWSTR lpModuleName
+            LPCWSTR lpModuleName
         )
     {
         if (FWide())
@@ -1800,7 +1720,7 @@ extern "C"{
     APIENTRY
         OGetOpenFileNameW
         (
-        LPOPENFILENAMEW lpofn
+            LPOPENFILENAMEW lpofn
         )
     {
         if (FWide())
@@ -1828,22 +1748,19 @@ extern "C"{
         ofn.lpfnHook = NULL;
         ofn.lpTemplateName = ((lpofn->Flags & OFN_ENABLETEMPLATE) &&
                               !FATOM(lpofn->lpTemplateName)) ?
-                              Convert(lpofn->lpTemplateName) :
-                              (LPSTR)lpofn->lpTemplateName;
+            Convert(lpofn->lpTemplateName) :
+            (LPSTR)lpofn->lpTemplateName;
         BOOL fFlag = GetOpenFileNameA(&ofn);
-        if (fFlag)
-        {
+        if (fFlag) {
             Assert(lpofn->hwndOwner == ofn.hwndOwner);
             Assert(lpofn->hInstance == ofn.hInstance);
-            if (ofn.lpstrCustomFilter)
-            {
+            if (ofn.lpstrCustomFilter) {
                 lpofn->nMaxCustFilter = AnsiToUnicode(lpofn->lpstrCustomFilter, ofn.lpstrCustomFilter, lpofn->nMaxCustFilter, strlen(ofn.lpstrCustomFilter) + 1);
             }
             lpofn->nFilterIndex = ofn.nFilterIndex;
             Assert(lpofn->nMaxFile == ofn.nMaxFile);
             Verify(0 <= AnsiToUnicode(lpofn->lpstrFile, ofn.lpstrFile, lpofn->nMaxFile, strlen(ofn.lpstrFile) + 1));
-            if (ofn.lpstrFileTitle)
-            {
+            if (ofn.lpstrFileTitle) {
                 lpofn->nMaxFileTitle = AnsiToUnicode(lpofn->lpstrFileTitle, ofn.lpstrFileTitle, strlen(ofn.lpstrFileTitle) + 1);
             }
             lpofn->Flags = ofn.Flags;
@@ -1851,9 +1768,7 @@ extern "C"{
             lpofn->nFileExtension = ofn.nFileExtension;
             Assert(lpofn->lCustData == ofn.lCustData);
             Assert(lpofn->lpfnHook == ofn.lpfnHook);
-        }
-        else if (lpofn->lpstrFile)
-        {   // if buffer too small first 2 bytes are the required size
+        } else if (lpofn->lpstrFile) {   // if buffer too small first 2 bytes are the required size
             memcpy(lpofn->lpstrFile, ofn.lpstrFile, sizeof(short));
         }
         return fFlag;
@@ -1862,9 +1777,9 @@ extern "C"{
     UINT
         APIENTRY
         OGetOutlineTextMetricsW(
-        HDC hdc,
-        UINT cbData,
-        LPOUTLINETEXTMETRICW lpOTM)
+            HDC hdc,
+            UINT cbData,
+            LPOUTLINETEXTMETRICW lpOTM)
     {
         // *** TextMetrics defines BYTE elements in the structure for the
         // value of first first/last character defined in the font.
@@ -1879,10 +1794,10 @@ extern "C"{
     UINT
         WINAPI
         OGetPrivateProfileIntW(
-        LPCWSTR lpAppName,
-        LPCWSTR lpKeyName,
-        INT nDefault,
-        LPCWSTR lpFileName)
+            LPCWSTR lpAppName,
+            LPCWSTR lpKeyName,
+            INT nDefault,
+            LPCWSTR lpFileName)
     {
         if (FWide())
             return GetPrivateProfileIntW(lpAppName, lpKeyName, nDefault, lpFileName);
@@ -1905,7 +1820,7 @@ extern "C"{
     {
         if (FWide())
             return GetPrivateProfileStringW(lpAppName, lpKeyName, lpDefault, lpReturnedString,
-            nSize, lpFileName);
+                                            nSize, lpFileName);
 
         PreConvert();
         LPSTR szAppName = Convert(lpAppName);
@@ -1923,19 +1838,14 @@ extern "C"{
 
         if (dwNoOfChar)
             return dwRet;
-        else
-        {
+        else {
             LPWSTR lpTempString = SzWAlloc(sizeof(WCHAR) * nSize);
-            if (AnsiToUnicode(lpTempString, szReturnedString, sizeof(WCHAR) * nSize))
-            {
-                if (lpAppName && lpKeyName)
-                {
+            if (AnsiToUnicode(lpTempString, szReturnedString, sizeof(WCHAR) * nSize)) {
+                if (lpAppName && lpKeyName) {
                     lpTempString[nSize - 1] = L'\0';
                     wcsncpy(lpReturnedString, lpTempString, nSize);
                     return nSize - 1;
-                }
-                else
-                {
+                } else {
                     lpTempString[nSize - 1] = L'\0';
                     lpTempString[nSize - 2] = L'\0';
                     wcsncpy(lpReturnedString, lpTempString, nSize);
@@ -1951,33 +1861,29 @@ extern "C"{
     int
         WINAPI
         OGetObjectW(
-        HGDIOBJ hgdiobj,
-        int cbBuffer,
-        LPVOID lpvObject)
+            HGDIOBJ hgdiobj,
+            int cbBuffer,
+            LPVOID lpvObject)
     {
         if (FWide())
             return GetObjectW(hgdiobj, cbBuffer, lpvObject);
 
         DWORD dwObj = GetObjectType(hgdiobj);
-        if (OBJ_FONT == dwObj)
-        {
+        if (OBJ_FONT == dwObj) {
             //$CONSIDER: This effects all getobject call, performance?
             Assert(cbBuffer == sizeof(LOGFONTW));
             LOGFONTA  lfa;
-            LOGFONTW *plfw = (LOGFONTW *)lpvObject;
+            LOGFONTW* plfw = (LOGFONTW*)lpvObject;
 
             int nRet = GetObjectA(hgdiobj, sizeof(lfa), &lfa);
 
-            if (nRet)
-            {
+            if (nRet) {
                 memcpy(plfw, &lfa, sizeof(LOGFONTA));
                 Verify(0 <= AnsiToUnicode(plfw->lfFaceName, lfa.lfFaceName, LF_FACESIZE));
             }
 
             return nRet;
-        }
-        else
-        {
+        } else {
             return GetObjectA(hgdiobj, cbBuffer, lpvObject);
         }
     }
@@ -1985,9 +1891,9 @@ extern "C"{
     UINT
         WINAPI
         OGetProfileIntW(
-        LPCWSTR lpAppName,
-        LPCWSTR lpKeyName,
-        INT nDefault
+            LPCWSTR lpAppName,
+            LPCWSTR lpKeyName,
+            INT nDefault
         )
     {
         if (FWide())
@@ -2003,8 +1909,8 @@ extern "C"{
     HANDLE
         WINAPI
         OGetPropW(
-        HWND hWnd,
-        LPCWSTR lpString)
+            HWND hWnd,
+            LPCWSTR lpString)
     {
         if (FWide())
             return GetPropW(hWnd, lpString);
@@ -2049,22 +1955,19 @@ extern "C"{
         ofn.lpfnHook = NULL;
         ofn.lpTemplateName = ((lpofn->Flags & OFN_ENABLETEMPLATE) &&
                               !FATOM(lpofn->lpTemplateName)) ?
-                              Convert(lpofn->lpTemplateName) :
-                              (LPSTR)lpofn->lpTemplateName;
+            Convert(lpofn->lpTemplateName) :
+            (LPSTR)lpofn->lpTemplateName;
         BOOL fFlag = GetSaveFileNameA(&ofn);
-        if (fFlag)
-        {
+        if (fFlag) {
             Assert(lpofn->hwndOwner == ofn.hwndOwner);
             Assert(lpofn->hInstance == ofn.hInstance);
-            if (ofn.lpstrCustomFilter)
-            {
+            if (ofn.lpstrCustomFilter) {
                 lpofn->nMaxCustFilter = AnsiToUnicode(lpofn->lpstrCustomFilter, ofn.lpstrCustomFilter, lpofn->nMaxCustFilter, ofn.nMaxCustFilter);
             }
             lpofn->nFilterIndex = ofn.nFilterIndex;
             Assert(lpofn->nMaxFile == ofn.nMaxFile);
             Verify(0 <= AnsiToUnicode(lpofn->lpstrFile, ofn.lpstrFile, lpofn->nMaxFile, ofn.nMaxFile));
-            if (ofn.lpstrFileTitle)
-            {
+            if (ofn.lpstrFileTitle) {
                 lpofn->nMaxFileTitle = AnsiToUnicode(lpofn->lpstrFileTitle, ofn.lpstrFileTitle, lpofn->nMaxFileTitle);
             }
             lpofn->Flags = ofn.Flags;
@@ -2072,9 +1975,7 @@ extern "C"{
             lpofn->nFileExtension = ofn.nFileExtension;
             Assert(lpofn->lCustData == ofn.lCustData);
             Assert(lpofn->lpfnHook == ofn.lpfnHook);
-        }
-        else if (lpofn->lpstrFile)
-        {   // if buffer too small first 2 bytes are the required size
+        } else if (lpofn->lpstrFile) {   // if buffer too small first 2 bytes are the required size
             memcpy(lpofn->lpstrFile, ofn.lpstrFile, sizeof(short));
         }
         return fFlag;
@@ -2083,11 +1984,11 @@ extern "C"{
     DWORD
         WINAPI
         OGetTabbedTextExtentW(
-        HDC hDC,
-        LPCWSTR lpString,
-        int nCount,
-        int nTabPositions,
-        LPINT lpnTabStopPositions)
+            HDC hDC,
+            LPCWSTR lpString,
+            int nCount,
+            int nTabPositions,
+            LPINT lpnTabStopPositions)
     {
         Assert(-1 != nCount);
 
@@ -2105,10 +2006,10 @@ extern "C"{
     UINT
         WINAPI
         OGetTempFileNameW(
-        LPCWSTR lpPathName,
-        LPCWSTR lpPrefixString,
-        UINT uUnique,
-        LPWSTR lpTempFileName
+            LPCWSTR lpPathName,
+            LPCWSTR lpPrefixString,
+            UINT uUnique,
+            LPWSTR lpTempFileName
         )
     {
         if (FWide())
@@ -2122,8 +2023,7 @@ extern "C"{
 
         char szTempFilename[_MAX_PATH];
         UINT dwRet = GetTempFileNameA(szPathName, szPrefixString, uUnique, szTempFilename);
-        if (dwRet)
-        {
+        if (dwRet) {
             Verify(0 <= AnsiToUnicode(lpTempFileName, szTempFilename, _MAX_PATH));
         }
         return dwRet;
@@ -2133,8 +2033,8 @@ extern "C"{
     DWORD
         WINAPI
         OGetTempPathW(
-        DWORD nBufferLength,
-        LPWSTR lpBuffer
+            DWORD nBufferLength,
+            LPWSTR lpBuffer
         )
     {
         if (FWide())
@@ -2142,8 +2042,7 @@ extern "C"{
 
         char szPath[_MAX_PATH];
         DWORD dwRet = GetTempPathA(_MAX_PATH, szPath);
-        if (dwRet)
-        {
+        if (dwRet) {
             Verify(0 <= AnsiToUnicode(lpBuffer, szPath, nBufferLength));
         }
         return dwRet;
@@ -2152,10 +2051,10 @@ extern "C"{
     BOOL
         APIENTRY
         OGetTextExtentPoint32W(
-        HDC hdc,
-        LPCWSTR pwsz,
-        int cb,
-        LPSIZE pSize
+            HDC hdc,
+            LPCWSTR pwsz,
+            int cb,
+            LPSIZE pSize
         )
     {
         Assert(-1 != cb);
@@ -2173,10 +2072,10 @@ extern "C"{
     BOOL
         APIENTRY
         OGetTextExtentPointW(
-        HDC hdc,
-        LPCWSTR pwsz,
-        int cb,
-        LPSIZE pSize
+            HDC hdc,
+            LPCWSTR pwsz,
+            int cb,
+            LPSIZE pSize
         )
     {
         Assert(-1 != cb);
@@ -2192,20 +2091,20 @@ extern "C"{
 
     BOOL
         APIENTRY OGetTextExtentExPointW(
-        HDC hdc,
-        LPCWSTR lpszStr,
-        int cchString,
-        int nMaxExtent,
-        LPINT lpnFit,
-        LPINT alpDx,
-        LPSIZE pSize
+            HDC hdc,
+            LPCWSTR lpszStr,
+            int cchString,
+            int nMaxExtent,
+            LPINT lpnFit,
+            LPINT alpDx,
+            LPSIZE pSize
         )
     {
         Assert(-1 != cchString);
 
         if (FWide())
             return GetTextExtentExPointW(hdc, lpszStr, cchString,
-            nMaxExtent, lpnFit, alpDx, pSize);
+                                         nMaxExtent, lpnFit, alpDx, pSize);
 
         PreConvert();
         LONG  n = 0;
@@ -2217,8 +2116,8 @@ extern "C"{
     LONG
         WINAPI
         OGetWindowLongW(
-        HWND hWnd,
-        int nIndex)
+            HWND hWnd,
+            int nIndex)
     {
         if (FWide())
             return GetWindowLongW(hWnd, nIndex);
@@ -2229,8 +2128,8 @@ extern "C"{
     BOOL
         WINAPI
         OGetTextMetricsW(
-        HDC hdc,
-        LPTEXTMETRICW lptm)
+            HDC hdc,
+            LPTEXTMETRICW lptm)
     {
         if (FWide())
             return GetTextMetricsW(hdc, lptm);
@@ -2251,8 +2150,7 @@ extern "C"{
 
         BOOL fRet = GetTextMetricsA(hdc, &tma);
 
-        if (fRet)
-        {
+        if (fRet) {
             memcpy(&lptm->tmItalic, &tma.tmItalic, sizeof(TEXTMETRIC) - OffsetOf(TEXTMETRIC, tmItalic));
 
             // Convert tma.tmFirstChar (1 byte char) to lptm->tmFirstChar
@@ -2271,8 +2169,8 @@ extern "C"{
     BOOL
         WINAPI
         OGetUserNameW(
-        LPWSTR lpBuffer,
-        LPDWORD nSize
+            LPWSTR lpBuffer,
+            LPDWORD nSize
         )
     {
         if (FWide())
@@ -2282,8 +2180,7 @@ extern "C"{
         LPSTR sz = SzAlloc(dwLen);
 
         BOOL fFlag = GetUserNameA(sz, nSize);
-        if (fFlag)
-        {
+        if (fFlag) {
             *nSize = AnsiToUnicode(lpBuffer, sz, dwLen);
         }
         return fFlag;
@@ -2292,19 +2189,19 @@ extern "C"{
     BOOL
         WINAPI
         OGetVolumeInformationW(
-        LPCWSTR lpRootPathName,
-        LPWSTR lpVolumeNameBuffer,
-        DWORD nVolumeNameSize,
-        LPDWORD lpVolumeSerialNumber,
-        LPDWORD lpMaximumComponentLength,
-        LPDWORD lpFileSystemFlags,
-        LPWSTR lpFileSystemNameBuffer,
-        DWORD nFileSystemNameSize
+            LPCWSTR lpRootPathName,
+            LPWSTR lpVolumeNameBuffer,
+            DWORD nVolumeNameSize,
+            LPDWORD lpVolumeSerialNumber,
+            LPDWORD lpMaximumComponentLength,
+            LPDWORD lpFileSystemFlags,
+            LPWSTR lpFileSystemNameBuffer,
+            DWORD nFileSystemNameSize
         )
     {
         if (FWide())
             return GetVolumeInformationW(lpRootPathName, lpVolumeNameBuffer, nVolumeNameSize, lpVolumeSerialNumber,
-            lpMaximumComponentLength, lpFileSystemFlags, lpFileSystemNameBuffer, nFileSystemNameSize);
+                                         lpMaximumComponentLength, lpFileSystemFlags, lpFileSystemNameBuffer, nFileSystemNameSize);
 
         PreConvert();
         LPSTR szRoot = Convert(lpRootPathName);
@@ -2314,23 +2211,18 @@ extern "C"{
         BOOL fRet = GetVolumeInformationA(szRoot, szName, sizeof(WCHAR) * nVolumeNameSize, lpVolumeSerialNumber,
                                           lpMaximumComponentLength, lpFileSystemFlags, szSysName, sizeof(WCHAR) * nFileSystemNameSize);
 
-        if (fRet)
-        {
+        if (fRet) {
             if (!AnsiToUnicode(lpVolumeNameBuffer, szName, nVolumeNameSize) ||
-                !AnsiToUnicode(lpFileSystemNameBuffer, szSysName, nFileSystemNameSize))
-            {
+                !AnsiToUnicode(lpFileSystemNameBuffer, szSysName, nFileSystemNameSize)) {
                 fRet = false;
             }
         }
-        if (!fRet)
-        {
-            if (lpVolumeNameBuffer && 0 < nVolumeNameSize)
-            {
+        if (!fRet) {
+            if (lpVolumeNameBuffer && 0 < nVolumeNameSize) {
                 *lpVolumeNameBuffer = L'\0';
             }
 
-            if (lpFileSystemNameBuffer && 0 < nFileSystemNameSize)
-            {
+            if (lpFileSystemNameBuffer && 0 < nFileSystemNameSize) {
                 *lpFileSystemNameBuffer = L'\0';
             }
         }
@@ -2341,7 +2233,7 @@ extern "C"{
     int
         WINAPI
         OGetWindowTextLengthW(
-        HWND hWnd)
+            HWND hWnd)
     {
         if (FWide())
             return GetWindowTextLengthW(hWnd);
@@ -2352,9 +2244,9 @@ extern "C"{
     int
         WINAPI
         OGetWindowTextW(
-        HWND hWnd,
-        LPWSTR lpString,
-        int nMaxCount)
+            HWND hWnd,
+            LPWSTR lpString,
+            int nMaxCount)
     {
 
         /**  Blackbox Testing results for GetWindowText Win32 API ******
@@ -2382,18 +2274,14 @@ extern "C"{
         LPSTR sz = SzAlloc(sizeof(WCHAR) * nMaxCount);
         int nRet = GetWindowTextA(hWnd, sz, sizeof(WCHAR) * nMaxCount);
         // $UNDONE_POST_98: This is bogus, we should do this like OLoadStringW
-        if (nRet)
-        {
+        if (nRet) {
             return AnsiToUnicode(lpString, sz, nMaxCount);
-        }
-        else
-        {
+        } else {
             // GetWindowText() returns 0 when you call it on a window which
             // has no text (e.g. edit control without any text). It also initializes
             // the buffer passed in to receive the text to "\0". So we should initialize
             // the buffer passed in before returning.
-            if (lpString && 0 < nMaxCount)
-            {
+            if (lpString && 0 < nMaxCount) {
                 *lpString = L'\0';
             }
         }
@@ -2404,7 +2292,7 @@ extern "C"{
     ATOM
         WINAPI
         OGlobalAddAtomW(
-        LPCWSTR lpString
+            LPCWSTR lpString
         )
     {
         if (FWide())
@@ -2419,23 +2307,21 @@ extern "C"{
     UINT
         WINAPI
         OGlobalGetAtomNameW(
-        ATOM nAtom,
-        LPWSTR lpBuffer,
-        int nSize
+            ATOM nAtom,
+            LPWSTR lpBuffer,
+            int nSize
         )
     {
         if (FWide())
             return GlobalGetAtomNameW(nAtom, lpBuffer, nSize);
 
         LPSTR sz = SzAlloc(sizeof(WCHAR) * nSize);
-        if (GlobalGetAtomNameA(nAtom, sz, sizeof(WCHAR) * nSize))
-        {
+        if (GlobalGetAtomNameA(nAtom, sz, sizeof(WCHAR) * nSize)) {
             // $UNDONE_POST_98: This is bogus, we should do this like OLoadStringW
             return AnsiToUnicode(lpBuffer, sz, nSize) - 1;
         }
 
-        if (lpBuffer && 0 < nSize)
-        {
+        if (lpBuffer && 0 < nSize) {
             *lpBuffer = L'\0';
         }
         return 0;
@@ -2444,21 +2330,20 @@ extern "C"{
     BOOL
         WINAPI
         OGrayStringW(
-        HDC hDC,
-        HBRUSH hBrush,
-        GRAYSTRINGPROC lpOutputFunc,
-        LPARAM lpData,
-        int nCount,
-        int X,
-        int Y,
-        int nWidth,
-        int nHeight)
+            HDC hDC,
+            HBRUSH hBrush,
+            GRAYSTRINGPROC lpOutputFunc,
+            LPARAM lpData,
+            int nCount,
+            int X,
+            int Y,
+            int nWidth,
+            int nHeight)
     {
         if (FWide())
             return GrayStringW(hDC, hBrush, lpOutputFunc, lpData, nCount, X, Y, nWidth, nHeight);
 
-        if (!lpOutputFunc)
-        {
+        if (!lpOutputFunc) {
             PreConvert();
             LPSTR szData = Convert((LPCWSTR)lpData);
             return GrayStringA(hDC, hBrush, lpOutputFunc, (LPARAM)szData, nCount, X, Y, nWidth, nHeight);
@@ -2470,11 +2355,11 @@ extern "C"{
     BOOL
         WINAPI
         OInsertMenuW(
-        HMENU hMenu,
-        UINT uPosition,
-        UINT uFlags,
-        UINT uIDNewItem,
-        LPCWSTR lpNewItem
+            HMENU hMenu,
+            UINT uPosition,
+            UINT uFlags,
+            UINT uIDNewItem,
+            LPCWSTR lpNewItem
         )
     {
         if (FWide())
@@ -2491,8 +2376,8 @@ extern "C"{
     BOOL
         WINAPI
         OIsBadStringPtrW(
-        LPCWSTR lpsz,
-        UINT ucchMax
+            LPCWSTR lpsz,
+            UINT ucchMax
         )
     {
         if (FWide())
@@ -2505,7 +2390,7 @@ extern "C"{
     BOOL
         WINAPI
         OIsCharAlphaNumericW(
-        WCHAR wch)
+            WCHAR wch)
     {
         if (FWide())
             return IsCharAlphaNumericW(wch);
@@ -2514,19 +2399,14 @@ extern "C"{
         // not a defined constant
         CHAR psz[4];
 
-        int cch = WideCharToMultiByte(CP_ACP, 0, &wch, 1, (CHAR *)psz, 4, NULL, NULL);
-        if (1 == cch)
-        {
+        int cch = WideCharToMultiByte(CP_ACP, 0, &wch, 1, (CHAR*)psz, 4, NULL, NULL);
+        if (1 == cch) {
             return IsCharAlphaNumericA(*psz);
-        }
-        else if (1 < cch)
-        {
+        } else if (1 < cch) {
             // It's a multi-byte character, so treat it as alpha
             // Note: we are not sure that this is entirely correct
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -2534,7 +2414,7 @@ extern "C"{
     BOOL
         WINAPI
         OIsCharAlphaW(
-        WCHAR wch)
+            WCHAR wch)
     {
         if (FWide())
             return IsCharAlphaW(wch);
@@ -2543,19 +2423,14 @@ extern "C"{
         // not a defined constant
         CHAR psz[4];
 
-        int cch = WideCharToMultiByte(CP_ACP, 0, &wch, 1, (CHAR *)psz, 4, NULL, NULL);
-        if (1 == cch)
-        {
+        int cch = WideCharToMultiByte(CP_ACP, 0, &wch, 1, (CHAR*)psz, 4, NULL, NULL);
+        if (1 == cch) {
             return IsCharAlphaA(*psz);
-        }
-        else if (1 < cch)
-        {
+        } else if (1 < cch) {
             // It's a multi-byte character, so treat it as alpha
             // Note: we are not sure that this is entirely correct
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -2563,8 +2438,8 @@ extern "C"{
     BOOL
         WINAPI
         OIsDialogMessageW(
-        HWND hDlg,
-        LPMSG lpMsg)
+            HWND hDlg,
+            LPMSG lpMsg)
     {
         // WARNING!!!
         // Bug #6488. We have run into problems due to using IsDialogMessageW on
@@ -2597,8 +2472,7 @@ extern "C"{
 
         LPSTR dst = cchDest ? SzAlloc(cchDest * 2) : NULL;
         int dwRet = LCMapStringA(Locale, dwMapFlags, sz, dw, dst, cchDest * 2);
-        if (dwRet && cchDest)
-        {
+        if (dwRet && cchDest) {
             dwRet = MultiByteToWideChar(CP_ACP, 0, dst, dwRet, lpDestStr, cchDest);
         }
         return dwRet;
@@ -2607,8 +2481,8 @@ extern "C"{
     HACCEL
         WINAPI
         OLoadAcceleratorsW(
-        HINSTANCE hInst,
-        LPCWSTR   lpTableName)
+            HINSTANCE hInst,
+            LPCWSTR   lpTableName)
     {
         if (FWide())
             return LoadAcceleratorsW(hInst, lpTableName);
@@ -2624,8 +2498,8 @@ extern "C"{
     HBITMAP
         WINAPI
         OLoadBitmapW(
-        HINSTANCE hInstance,
-        LPCWSTR lpBitmapName)
+            HINSTANCE hInstance,
+            LPCWSTR lpBitmapName)
     {
         if (FWide())
             return LoadBitmapW(hInstance, lpBitmapName);
@@ -2641,13 +2515,13 @@ extern "C"{
     HCURSOR
         WINAPI
         OLoadCursorW(
-        HINSTANCE hInstance,
-        LPCWSTR lpCursorName)
+            HINSTANCE hInstance,
+            LPCWSTR lpCursorName)
     {
         if (FWide())
             return LoadCursorW(
-            hInstance,
-            lpCursorName);
+                hInstance,
+                lpCursorName);
 
         if (FATOM(lpCursorName))
             return LoadCursorA(hInstance, (LPSTR)lpCursorName);
@@ -2660,8 +2534,8 @@ extern "C"{
     HICON
         WINAPI
         OLoadIconW(
-        HINSTANCE hInstance,
-        LPCWSTR lpIconName)
+            HINSTANCE hInstance,
+            LPCWSTR lpIconName)
     {
         if (FWide())
             return LoadIconW(hInstance, lpIconName);
@@ -2677,7 +2551,7 @@ extern "C"{
     HINSTANCE
         WINAPI
         OLoadLibraryW(
-        LPCWSTR pwszFileName
+            LPCWSTR pwszFileName
         )
     {
         if (FWide())
@@ -2691,9 +2565,9 @@ extern "C"{
     HMODULE
         WINAPI
         OLoadLibraryExW(
-        LPCWSTR lpLibFileName,
-        HANDLE hFile,
-        DWORD dwFlags
+            LPCWSTR lpLibFileName,
+            HANDLE hFile,
+            DWORD dwFlags
         )
     {
         if (FWide())
@@ -2707,7 +2581,7 @@ extern "C"{
     HMENU
         WINAPI
         OLoadMenuIndirectW(
-        CONST MENUTEMPLATEW *lpMenuTemplate)
+            CONST MENUTEMPLATEW* lpMenuTemplate)
     {
         if (FWide())
             return LoadMenuIndirectW(lpMenuTemplate);
@@ -2721,8 +2595,8 @@ extern "C"{
     HMENU
         WINAPI
         OLoadMenuW(
-        HINSTANCE hInstance,
-        LPCWSTR lpMenuName)
+            HINSTANCE hInstance,
+            LPCWSTR lpMenuName)
     {
         if (FWide())
             return LoadMenuW(hInstance, lpMenuName);
@@ -2738,10 +2612,10 @@ extern "C"{
     int
         WINAPI
         OLoadStringW(
-        HINSTANCE hInstance,
-        UINT uID,
-        LPWSTR lpBuffer,
-        int nBufferMax)
+            HINSTANCE hInstance,
+            UINT uID,
+            LPWSTR lpBuffer,
+            int nBufferMax)
     {
         if (FWide())
             return LoadStringW(hInstance, uID, lpBuffer, nBufferMax);
@@ -2749,18 +2623,15 @@ extern "C"{
         LPSTR sz = SzAlloc(sizeof(WCHAR) * nBufferMax);
         int nRet = LoadStringA(hInstance, uID, sz, sizeof(WCHAR) * nBufferMax);
 
-        if (!nRet)
-        {
-            if (lpBuffer && 0 < nBufferMax)
-            {
+        if (!nRet) {
+            if (lpBuffer && 0 < nBufferMax) {
                 *lpBuffer = L'\0';
             }
             return 0;
         }
 
         LONG lRet = AnsiToUnicode(lpBuffer, sz, nBufferMax, nRet + 1); // '\0'
-        if (lRet)
-        {
+        if (lRet) {
             return lRet - 1;
         }
 
@@ -2775,8 +2646,8 @@ extern "C"{
     LPWSTR
         WINAPI
         OlstrcatW(
-        LPWSTR lpString1,
-        LPCWSTR lpString2
+            LPWSTR lpString1,
+            LPCWSTR lpString2
         )
     {
         if (!lpString1 || !lpString2)
@@ -2788,8 +2659,8 @@ extern "C"{
     int
         WINAPI
         OlstrcmpiW(
-        LPCWSTR lpString1,
-        LPCWSTR lpString2
+            LPCWSTR lpString1,
+            LPCWSTR lpString2
         )
     {
         if (FWide())
@@ -2805,8 +2676,8 @@ extern "C"{
     int
         WINAPI
         OlstrcmpW(
-        LPCWSTR lpString1,
-        LPCWSTR lpString2
+            LPCWSTR lpString1,
+            LPCWSTR lpString2
         )
     {
         if (FWide())
@@ -2822,8 +2693,8 @@ extern "C"{
     LPWSTR
         WINAPI
         OlstrcpyW(
-        LPWSTR lpString1,
-        LPCWSTR lpString2
+            LPWSTR lpString1,
+            LPCWSTR lpString2
         )
     {
         if (!lpString1)
@@ -2840,18 +2711,16 @@ extern "C"{
     LPWSTR
         WINAPI
         OlstrcpynW(
-        LPWSTR lpString1,
-        LPCWSTR lpString2,
-        int iMaxLength
+            LPWSTR lpString1,
+            LPCWSTR lpString2,
+            int iMaxLength
         )
     {
-        if (!lpString1)
-        {
+        if (!lpString1) {
             return lpString1;
         }
 
-        if (!lpString2)
-        {
+        if (!lpString2) {
             lpString2 = L"";
         }
 
@@ -2865,7 +2734,7 @@ extern "C"{
     int
         WINAPI
         OlstrlenW(
-        LPCWSTR lpString
+            LPCWSTR lpString
         )
     {
         return lpString ? wcslen(lpString) : 0;
@@ -2874,8 +2743,8 @@ extern "C"{
     UINT
         WINAPI
         OMapVirtualKeyW(
-        UINT uCode,
-        UINT uMapType)
+            UINT uCode,
+            UINT uMapType)
     {
         // The only person using this so far is using uMapType == 0
         Assert(2 != uMapType);
@@ -2887,10 +2756,10 @@ extern "C"{
     int
         WINAPI
         OMessageBoxW(
-        HWND hWnd,
-        LPCWSTR lpText,
-        LPCWSTR lpCaption,
-        UINT uType)
+            HWND hWnd,
+            LPCWSTR lpText,
+            LPCWSTR lpCaption,
+            UINT uType)
     {
         if (FWide())
             return MessageBoxW(hWnd, lpText, lpCaption, uType);
@@ -2905,7 +2774,7 @@ extern "C"{
     int
         WINAPI
         OMessageBoxIndirectW(
-        LPMSGBOXPARAMSW lpmbp)
+            LPMSGBOXPARAMSW lpmbp)
     {
         Assert(!IsBadWritePtr((void*)lpmbp, sizeof MSGBOXPARAMSW));
         Assert(sizeof MSGBOXPARAMSW == lpmbp->cbSize);
@@ -2919,16 +2788,13 @@ extern "C"{
         MSGBOXPARAMSA mbpa;
         memcpy(&mbpa, lpmbp, sizeof MSGBOXPARAMSA);
 
-        if (!FATOM(lpmbp->lpszText))
-        {
+        if (!FATOM(lpmbp->lpszText)) {
             mbpa.lpszText = Convert(lpmbp->lpszText);
         }
-        if (!FATOM(lpmbp->lpszCaption))
-        {
+        if (!FATOM(lpmbp->lpszCaption)) {
             mbpa.lpszCaption = Convert(lpmbp->lpszCaption);
         }
-        if ((lpmbp->dwStyle & MB_USERICON) && !FATOM(lpmbp->lpszIcon))
-        {
+        if ((lpmbp->dwStyle & MB_USERICON) && !FATOM(lpmbp->lpszIcon)) {
             mbpa.lpszIcon = Convert(lpmbp->lpszIcon);
         }
 
@@ -2938,23 +2804,21 @@ extern "C"{
     BOOL
         WINAPI
         OModifyMenuW(
-        HMENU hMnu,
-        UINT uPosition,
-        UINT uFlags,
-        UINT uIDNewItem,
-        LPCWSTR lpNewItem
+            HMENU hMnu,
+            UINT uPosition,
+            UINT uFlags,
+            UINT uIDNewItem,
+            LPCWSTR lpNewItem
         )
     {
         if (FWide())
             return ModifyMenuW(hMnu, uPosition, uFlags, uIDNewItem, lpNewItem);
 
-        if (MF_STRING == uFlags)
-        {
+        if (MF_STRING == uFlags) {
             PreConvert();
             LPSTR sz = Convert(lpNewItem);
             return ModifyMenuA(hMnu, uPosition, uFlags, uIDNewItem, sz);
-        }
-        else
+        } else
             return ModifyMenuA(hMnu, uPosition, uFlags, uIDNewItem, (LPSTR)lpNewItem);
 
     }
@@ -2964,9 +2828,9 @@ extern "C"{
     BOOL
         WINAPI
         OMoveFileExW(
-        LPCWSTR lpExistingFileName,
-        LPCWSTR lpNewFileName,
-        DWORD dwFlags
+            LPCWSTR lpExistingFileName,
+            LPCWSTR lpNewFileName,
+            DWORD dwFlags
         )
     {
         if (FWide())
@@ -2982,8 +2846,8 @@ extern "C"{
     BOOL
         WINAPI
         OMoveFileW(
-        LPCWSTR lpExistingFileName,
-        LPCWSTR lpNewFileName)
+            LPCWSTR lpExistingFileName,
+            LPCWSTR lpNewFileName)
     {
         if (FWide())
             return MoveFileW(lpExistingFileName, lpNewFileName);
@@ -2998,46 +2862,41 @@ extern "C"{
     HANDLE
         WINAPI
         OLoadImageW(
-        HINSTANCE hinst,
-        LPCWSTR lpszName,
-        UINT uType,
-        int cxDesired,
-        int cyDesired,
-        UINT fuLoad)
+            HINSTANCE hinst,
+            LPCWSTR lpszName,
+            UINT uType,
+            int cxDesired,
+            int cyDesired,
+            UINT fuLoad)
     {
-        if (FWide())
-        {
+        if (FWide()) {
             Assert(!(LR_LOADFROMFILE & fuLoad));
             return LoadImageW(hinst, lpszName, uType, cxDesired, cyDesired, fuLoad);
         }
 
-        if (!FATOM(lpszName))
-        {
+        if (!FATOM(lpszName)) {
             PreConvert();
             LPSTR pszName = Convert(lpszName);
             return LoadImageA(hinst, pszName, uType, cxDesired, cyDesired, fuLoad);
-        }
-        else
+        } else
             return LoadImageA(hinst, (LPSTR)lpszName, uType, cxDesired, cyDesired, fuLoad);
     }
 
     BOOL
         WINAPI
         OOemToCharW(
-        LPCSTR lpszSrc,
-        LPWSTR lpszDst)
+            LPCSTR lpszSrc,
+            LPWSTR lpszDst)
     {
-        if (FWide())
-        {
+        if (FWide()) {
             Assert(lpszSrc != (LPCSTR)lpszDst);
             return OemToCharW(lpszSrc, lpszDst);
         }
 
-        DWORD cb = _mbslen((const unsigned char *)lpszSrc);
+        DWORD cb = _mbslen((const unsigned char*)lpszSrc);
         LPSTR szDst = SzAlloc(cb);
         BOOL fRet = OemToCharA(lpszSrc, szDst);
-        if (fRet)
-        {
+        if (fRet) {
             Verify(0 <= AnsiToUnicode(lpszDst, szDst, cb));
         }
         return fRet;
@@ -3045,8 +2904,7 @@ extern "C"{
 
     VOID WINAPI OOutputDebugStringW(LPCWSTR lpOutputString)
     {
-        if (FWide())
-        {
+        if (FWide()) {
             OutputDebugStringW(lpOutputString);
             return;
         }
@@ -3059,11 +2917,11 @@ extern "C"{
     BOOL
         WINAPI
         OPeekMessageW(
-        LPMSG lpMsg,
-        HWND hWnd,
-        UINT wMsgFilterMin,
-        UINT wMsgFilterMax,
-        UINT wRemoveMsg)
+            LPMSG lpMsg,
+            HWND hWnd,
+            UINT wMsgFilterMin,
+            UINT wMsgFilterMax,
+            UINT wRemoveMsg)
     {
         if (FWide())
             return PeekMessageW(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
@@ -3074,10 +2932,10 @@ extern "C"{
     BOOL
         WINAPI
         OPostMessageW(
-        HWND hWnd,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam)
+            HWND hWnd,
+            UINT Msg,
+            WPARAM wParam,
+            LPARAM lParam)
     {
         if (FWide())
             return PostMessageW(hWnd, Msg, wParam, lParam);
@@ -3088,10 +2946,10 @@ extern "C"{
     BOOL
         WINAPI
         OPostThreadMessageW(
-        DWORD idThread,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam)
+            DWORD idThread,
+            UINT Msg,
+            WPARAM wParam,
+            LPARAM lParam)
     {
         if (FWide())
             return PostThreadMessageW(idThread, Msg, wParam, lParam);
@@ -3104,15 +2962,15 @@ extern "C"{
     LONG
         APIENTRY
         ORegCreateKeyExW(
-        HKEY hKey,
-        LPCWSTR lpSubKey,
-        DWORD Reserved,
-        LPWSTR lpClass,
-        DWORD dwOptions,
-        REGSAM samDesired,
-        LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-        PHKEY phkResult,
-        LPDWORD lpdwDisposition
+            HKEY hKey,
+            LPCWSTR lpSubKey,
+            DWORD Reserved,
+            LPWSTR lpClass,
+            DWORD dwOptions,
+            REGSAM samDesired,
+            LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+            PHKEY phkResult,
+            LPDWORD lpdwDisposition
         )
     {
         Assert(lpSubKey);
@@ -3129,9 +2987,9 @@ extern "C"{
     LONG
         APIENTRY
         ORegCreateKeyW(
-        HKEY hKey,
-        LPCWSTR lpSubKey,
-        PHKEY phkResult
+            HKEY hKey,
+            LPCWSTR lpSubKey,
+            PHKEY phkResult
         )
     {
         if (FWide())
@@ -3146,10 +3004,10 @@ extern "C"{
     LONG
         APIENTRY
         ORegEnumKeyW(
-        HKEY hKey,
-        DWORD dwIndex,
-        LPWSTR lpName,
-        DWORD cbName
+            HKEY hKey,
+            DWORD dwIndex,
+            LPWSTR lpName,
+            DWORD cbName
         )
     {
         if (FWide())
@@ -3168,22 +3026,21 @@ extern "C"{
     LONG
         APIENTRY
         ORegEnumValueW(
-        HKEY hKey,
-        DWORD dwIndex,
-        LPWSTR lpValueName,
-        LPDWORD lpcbValueName,  // Documentation indicates this is a count of characters, despite the Hungarian.
-        LPDWORD lpReserved,
-        LPDWORD lpType,         // May be NULL, but we need to know it on return if lpData is not NULL.
-        LPBYTE lpData,          // May be NULL
-        LPDWORD lpcbData        // May be NULL is lpData is NULL
+            HKEY hKey,
+            DWORD dwIndex,
+            LPWSTR lpValueName,
+            LPDWORD lpcbValueName,  // Documentation indicates this is a count of characters, despite the Hungarian.
+            LPDWORD lpReserved,
+            LPDWORD lpType,         // May be NULL, but we need to know it on return if lpData is not NULL.
+            LPBYTE lpData,          // May be NULL
+            LPDWORD lpcbData        // May be NULL is lpData is NULL
         )
     {
         if (FWide())
             return RegEnumValueW(hKey, dwIndex, lpValueName, lpcbValueName, lpReserved, lpType, lpData, lpcbData);
 
         // Required pointers:
-        if (!lpValueName || !lpcbValueName || !lpcbData && lpData)
-        {
+        if (!lpValueName || !lpcbValueName || !lpcbData && lpData) {
             Assert(lpValueName);
             Assert(lpcbValueName);
             Assert(!lpcbData && lpData);
@@ -3192,8 +3049,7 @@ extern "C"{
 
         // If NULL was specified for lpType, we need to supply our own so we can check for string results.
         DWORD dwPrivateType = 0;
-        if (!lpType)
-        {
+        if (!lpType) {
             lpType = &dwPrivateType;
         }
 
@@ -3203,35 +3059,31 @@ extern "C"{
 
         LONG lResult = RegEnumValueA(hKey, dwIndex, pchValueName, &cbValueName, lpReserved, lpType, lpData, lpcbData);
 
-        if (ERROR_SUCCESS == lResult)
-        {
+        if (ERROR_SUCCESS == lResult) {
             *lpcbValueName = AnsiToUnicode(lpValueName, pchValueName, min(*lpcbValueName, cbValueName + 1)) - 1; // Returned value does NOT include terminating NULL
 
-            if (lpData)
-            {
+            if (lpData) {
                 // If the resulting data was a string, convert it in place.
-                switch (*lpType)
+                switch (*lpType) {
+                case REG_MULTI_SZ:
+                    // Not supported
+                    Assert(0 && REG_MULTI_SZ);
+                    lResult = E_FAIL;
+                    break;
+                case REG_EXPAND_SZ:
+                case REG_SZ:
                 {
-                    case REG_MULTI_SZ:
-                        // Not supported
-                        Assert(0 && REG_MULTI_SZ);
-                        lResult = E_FAIL;
-                        break;
-                    case REG_EXPAND_SZ:
-                    case REG_SZ:
-                        {
-                            Assert(lpcbData);
-                            LPSTR pszTemp = SzAlloc(*lpcbData); // is the number of bytes!
-                            memcpy(pszTemp, lpData, *lpcbData);
-                            *lpcbData = AnsiToUnicode((LPWSTR)lpData, pszTemp, dwOrigCbData / sizeof(WCHAR), *lpcbData) * sizeof(WCHAR);
+                    Assert(lpcbData);
+                    LPSTR pszTemp = SzAlloc(*lpcbData); // is the number of bytes!
+                    memcpy(pszTemp, lpData, *lpcbData);
+                    *lpcbData = AnsiToUnicode((LPWSTR)lpData, pszTemp, dwOrigCbData / sizeof(WCHAR), *lpcbData) * sizeof(WCHAR);
 
-                            //    It's possible to encounter a second stage overflow, if lpData >= sizeof(Unicode)/2
-                            if (0 == *lpcbData)
-                            {
-                                lResult = ERROR_MORE_DATA;
-                            }
-                        }
-                        break;
+                    //    It's possible to encounter a second stage overflow, if lpData >= sizeof(Unicode)/2
+                    if (0 == *lpcbData) {
+                        lResult = ERROR_MORE_DATA;
+                    }
+                }
+                break;
                 }
             }
         }
@@ -3254,8 +3106,8 @@ extern "C"{
     LONG
         APIENTRY
         ORegDeleteKeyW(
-        HKEY hKey,
-        LPCWSTR pwszSubKey
+            HKEY hKey,
+            LPCWSTR pwszSubKey
         )
     {
         Assert(pwszSubKey);
@@ -3270,8 +3122,8 @@ extern "C"{
     LONG
         APIENTRY
         ORegDeleteValueW(
-        HKEY hKey,
-        LPWSTR lpValueName
+            HKEY hKey,
+            LPWSTR lpValueName
         )
     {
         if (FWide())
@@ -3285,7 +3137,7 @@ extern "C"{
     ATOM
         WINAPI
         ORegisterClassW(
-        CONST WNDCLASSW *lpWndClass)
+            CONST WNDCLASSW* lpWndClass)
     {
         if (FWide())
             return RegisterClassW(lpWndClass);
@@ -3296,8 +3148,7 @@ extern "C"{
         PreConvert();
 
         if (!(IsBadReadPtr(wc.lpszMenuName, sizeof(*wc.lpszMenuName)) ||
-            IsBadReadPtr(lpWndClass->lpszMenuName, sizeof(*(lpWndClass->lpszMenuName)))))
-        {
+              IsBadReadPtr(lpWndClass->lpszMenuName, sizeof(*(lpWndClass->lpszMenuName))))) {
             wc.lpszMenuName = Convert(lpWndClass->lpszMenuName);
         }
 
@@ -3308,7 +3159,7 @@ extern "C"{
 
     ATOM
         WINAPI
-        ORegisterClassExW(CONST WNDCLASSEXW * lpWndClass)
+        ORegisterClassExW(CONST WNDCLASSEXW* lpWndClass)
     {
         if (FWide())
             return RegisterClassExW(lpWndClass);
@@ -3318,8 +3169,7 @@ extern "C"{
 
         PreConvert();
 
-        if (!FATOM(wc.lpszMenuName))
-        {
+        if (!FATOM(wc.lpszMenuName)) {
             wc.lpszMenuName = Convert(lpWndClass->lpszMenuName);
         }
 
@@ -3333,8 +3183,8 @@ extern "C"{
         WINAPI
         OUnregisterClassW
         (
-        LPCTSTR  lpClassName,   // address of class name string
-        HINSTANCE  hInstance    // handle of application instance
+            LPCTSTR  lpClassName,   // address of class name string
+            HINSTANCE  hInstance    // handle of application instance
         )
     {
         if (FWide())
@@ -3352,7 +3202,7 @@ extern "C"{
     UINT
         WINAPI
         ORegisterClipboardFormatW(
-        LPCWSTR lpszFormat)
+            LPCWSTR lpszFormat)
     {
         if (FWide())
             return RegisterClipboardFormatW(lpszFormat);
@@ -3389,30 +3239,29 @@ extern "C"{
     LONG
         APIENTRY
         ORegQueryInfoKeyW(
-        HKEY hKey,
-        LPWSTR lpClass,
-        LPDWORD lpcbClass,
-        LPDWORD lpReserved,
-        LPDWORD lpcSubKeys,
-        LPDWORD lpcbMaxSubKeyLen,
-        LPDWORD lpcbMaxClassLen,
-        LPDWORD lpcValues,
-        LPDWORD lpcbMaxValueNameLen,
-        LPDWORD lpcbMaxValueLen,
-        LPDWORD lpcbSecurityDescriptor,
-        PFILETIME lpftLastWriteTime
+            HKEY hKey,
+            LPWSTR lpClass,
+            LPDWORD lpcbClass,
+            LPDWORD lpReserved,
+            LPDWORD lpcSubKeys,
+            LPDWORD lpcbMaxSubKeyLen,
+            LPDWORD lpcbMaxClassLen,
+            LPDWORD lpcValues,
+            LPDWORD lpcbMaxValueNameLen,
+            LPDWORD lpcbMaxValueLen,
+            LPDWORD lpcbSecurityDescriptor,
+            PFILETIME lpftLastWriteTime
         )
     {
         Assert(!lpClass && !lpcbClass); //$ UNDONE_POST_98 - Not wrapped yet!
         if (FWide())
             return RegQueryInfoKeyW(hKey, lpClass, lpcbClass, lpReserved,
-            lpcSubKeys, lpcbMaxSubKeyLen,
-            lpcbMaxClassLen, lpcValues, lpcbMaxValueNameLen,
-            lpcbMaxValueLen, lpcbSecurityDescriptor,
-            lpftLastWriteTime);
+                                    lpcSubKeys, lpcbMaxSubKeyLen,
+                                    lpcbMaxClassLen, lpcValues, lpcbMaxValueNameLen,
+                                    lpcbMaxValueLen, lpcbSecurityDescriptor,
+                                    lpftLastWriteTime);
 
-        if (lpClass && (!lpcbClass || IsBadWritePtr(lpcbClass, sizeof(lpcbClass))))
-        {
+        if (lpClass && (!lpcbClass || IsBadWritePtr(lpcbClass, sizeof(lpcbClass)))) {
             // lpcbClass must be valid if lpClass is non-NULL
             return ERROR_INVALID_PARAMETER;
         }
@@ -3426,7 +3275,7 @@ extern "C"{
 
     LONG
         APIENTRY ORegQueryValueW(HKEY hKey, LPCWSTR pwszSubKey, LPWSTR pwszValue,
-        PLONG   lpcbValue)
+                                 PLONG   lpcbValue)
     {
         if (FWide())
             return RegQueryValueW(hKey, pwszSubKey, pwszValue, lpcbValue);
@@ -3439,15 +3288,13 @@ extern "C"{
 
         lRet = RegQueryValueA(hKey, sz, NULL, &cb);
 
-        if (ERROR_SUCCESS != lRet)
-        {
+        if (ERROR_SUCCESS != lRet) {
             return lRet;
         }
         // If the caller was just asking for the size of the value, jump out
         //  now, without actually retrieving and converting the value.
 
-        if (!pwszValue)
-        {
+        if (!pwszValue) {
             // Adjust size of buffer to report, to account for CHAR -> WCHAR
             *lpcbValue = cb * sizeof(WCHAR);
             goto Exit;
@@ -3457,8 +3304,7 @@ extern "C"{
         // If the caller was asking for the value, but allocated too small
         // of a buffer, set the buffer size and jump out.
 
-        if (*lpcbValue < (LONG)(cb * sizeof(WCHAR)))
-        {
+        if (*lpcbValue < (LONG)(cb * sizeof(WCHAR))) {
             //$UNDONE_POST_98: We should actually use the nubmer of bytes required, not some
             // wild guess as we are here
 
@@ -3474,8 +3320,7 @@ extern "C"{
 
         lRet = RegQueryValueA(hKey, sz, szValue, &cb);
 
-        if (ERROR_SUCCESS == lRet)
-        {
+        if (ERROR_SUCCESS == lRet) {
             Verify(0 <= AnsiToUnicode(pwszValue, szValue, cb));
 
             //$UNDONE_POST_98: We should actually use the nubmer of bytes required, not some
@@ -3483,9 +3328,7 @@ extern "C"{
 
             // Adjust size of buffer to report, to account for CHAR -> WCHAR
             *lpcbValue = cb * sizeof(WCHAR);
-        }
-        else if (pwszValue && 0 < cb)
-        {
+        } else if (pwszValue && 0 < cb) {
             *pwszValue = L'\0';
         }
 
@@ -3497,12 +3340,12 @@ extern "C"{
     LONG
         APIENTRY
         ORegSetValueExW(
-        HKEY hKey,
-        LPCWSTR lpValueName,
-        DWORD Reserved,
-        DWORD dwType,
-        CONST BYTE* lpData,
-        DWORD cbData
+            HKEY hKey,
+            LPCWSTR lpValueName,
+            DWORD Reserved,
+            DWORD dwType,
+            CONST BYTE* lpData,
+            DWORD cbData
         )
     {
         if (FWide())
@@ -3516,22 +3359,17 @@ extern "C"{
         // NOTE: when calling RegSetValueExA, if the data type is
         // REG_SZ, REG_EXPAND_SZ, or REG_MULTI_SZ, then the API expects the strings
         // to be ansi also.
-        if (REG_SZ == dwType || REG_EXPAND_SZ == dwType)
-        {
+        if (REG_SZ == dwType || REG_EXPAND_SZ == dwType) {
             DWORD dwData = 0;
             LPSTR szData = ConvertWithLen((LPTSTR)lpData, -1, &dwData);
-            lRet = RegSetValueExA(hKey, sz, Reserved, dwType, (CONST BYTE *)szData, dwData);
-        }
-        else if (REG_MULTI_SZ == dwType)
-        {
+            lRet = RegSetValueExA(hKey, sz, Reserved, dwType, (CONST BYTE*)szData, dwData);
+        } else if (REG_MULTI_SZ == dwType) {
             DWORD dwData = 0;
             LPSTR szData = ConvertWithLen((LPWSTR)lpData,
                                           cUnicodeMultiSzLen((LPWSTR)lpData),
                                           &dwData);
-            lRet = RegSetValueExA(hKey, sz, Reserved, dwType, (CONST BYTE *)szData, dwData);
-        }
-        else
-        {
+            lRet = RegSetValueExA(hKey, sz, Reserved, dwType, (CONST BYTE*)szData, dwData);
+        } else {
             lRet = RegSetValueExA(hKey, sz, Reserved, dwType, lpData, cbData);
         }
 
@@ -3540,13 +3378,13 @@ extern "C"{
 
     LONG
         APIENTRY ORegSetValueW(HKEY hKey, LPCWSTR lpSubKey, DWORD dwType,
-        LPCWSTR lpData, DWORD cbData)
+                               LPCWSTR lpData, DWORD cbData)
     {
         Assert(REG_SZ == dwType);
 
         if (FWide())
             return RegSetValueW(hKey, lpSubKey, dwType,
-            lpData, cbData);
+                                lpData, cbData);
 
         PreConvert();
         LPSTR szKey = Convert(lpSubKey);
@@ -3569,34 +3407,30 @@ extern "C"{
         LPSTR sz = Convert(lpValueName);
 
         lRet = RegQueryValueExA(hKey, sz, lpReserved, &dwTempType, NULL, &cb);
-        if (ERROR_SUCCESS != lRet)
-        {
+        if (ERROR_SUCCESS != lRet) {
             return lRet;
         }
 
         // If the caller was just asking for the size of the value, jump out
         //  now, without actually retrieving and converting the value.
 
-        if (!lpData)
-        {
-            switch (dwTempType)
-            {
-                case REG_EXPAND_SZ:
-                case REG_MULTI_SZ:
-                case REG_SZ:
-                    // Adjust size of buffer to report, to account for CHAR -> WCHAR
+        if (!lpData) {
+            switch (dwTempType) {
+            case REG_EXPAND_SZ:
+            case REG_MULTI_SZ:
+            case REG_SZ:
+                // Adjust size of buffer to report, to account for CHAR -> WCHAR
 
-                    *lpcbData = cb * sizeof(WCHAR);
-                    break;
+                *lpcbData = cb * sizeof(WCHAR);
+                break;
 
-                default:
-                    *lpcbData = cb;
-                    break;
+            default:
+                *lpcbData = cb;
+                break;
             }
 
             // Set the type, if required.
-            if (lpType)
-            {
+            if (lpType) {
                 *lpType = dwTempType;
             }
 
@@ -3608,30 +3442,27 @@ extern "C"{
         // Determine the size of buffer needed
 
 
-        switch (dwTempType)
-        {
-            case REG_EXPAND_SZ:
-            case REG_MULTI_SZ:
-            case REG_SZ:
-                cbRequired = cb * sizeof(WCHAR);
-                break;
+        switch (dwTempType) {
+        case REG_EXPAND_SZ:
+        case REG_MULTI_SZ:
+        case REG_SZ:
+            cbRequired = cb * sizeof(WCHAR);
+            break;
 
-            default:
-                cbRequired = cb;
-                break;
+        default:
+            cbRequired = cb;
+            break;
         }
 
         // If the caller was asking for the value, but allocated too small
         // of a buffer, set the buffer size and jump out.
 
-        if (*lpcbData < cbRequired)
-        {
+        if (*lpcbData < cbRequired) {
             // Adjust size of buffer to report, to account for CHAR -> WCHAR
             *lpcbData = cbRequired;
 
             // Set the type, if required.
-            if (lpType)
-            {
+            if (lpType) {
                 *lpType = dwTempType;
             }
 
@@ -3641,57 +3472,53 @@ extern "C"{
 
         // Otherwise, retrieve and convert the value.
 
-        switch (dwTempType)
-        {
-            case REG_EXPAND_SZ:
-            case REG_MULTI_SZ:
-            case REG_SZ:
+        switch (dwTempType) {
+        case REG_EXPAND_SZ:
+        case REG_MULTI_SZ:
+        case REG_SZ:
 
-                lpTempBuffer = (LPBYTE)SzAlloc(cbRequired);
+            lpTempBuffer = (LPBYTE)SzAlloc(cbRequired);
 
-                lRet = RegQueryValueExA(hKey,
-                                        sz,
-                                        lpReserved,
-                                        &dwTempType,
-                                        lpTempBuffer,
-                                        &cb);
+            lRet = RegQueryValueExA(hKey,
+                                    sz,
+                                    lpReserved,
+                                    &dwTempType,
+                                    lpTempBuffer,
+                                    &cb);
 
-                if (ERROR_SUCCESS == lRet)
-                {
-                    switch (dwTempType)
-                    {
-                        case REG_EXPAND_SZ:
-                        case REG_MULTI_SZ:
-                        case REG_SZ:
+            if (ERROR_SUCCESS == lRet) {
+                switch (dwTempType) {
+                case REG_EXPAND_SZ:
+                case REG_MULTI_SZ:
+                case REG_SZ:
 
-                            *lpcbData = AnsiToUnicode((LPWSTR)lpData, (LPSTR)lpTempBuffer, *lpcbData, cb);
-                            Verify(0 <= *lpcbData);
-                            *lpcbData = cb * sizeof(WCHAR); // Result it in BYTES!
+                    *lpcbData = AnsiToUnicode((LPWSTR)lpData, (LPSTR)lpTempBuffer, *lpcbData, cb);
+                    Verify(0 <= *lpcbData);
+                    *lpcbData = cb * sizeof(WCHAR); // Result it in BYTES!
 
-                            // Set the type, if required.
-                            if (lpType)
-                            {
-                                *lpType = dwTempType;
-                            }
-                            break;
+                    // Set the type, if required.
+                    if (lpType) {
+                        *lpType = dwTempType;
                     }
+                    break;
                 }
+            }
 
-                goto Exit;
+            goto Exit;
 
-            default:
-
-
-                // No conversion of out parameters needed.  Just call narrow
-                // version with args passed in, and return directly.
+        default:
 
 
-                lRet = RegQueryValueExA(hKey,
-                                        sz,
-                                        lpReserved,
-                                        lpType,
-                                        lpData,
-                                        lpcbData);
+            // No conversion of out parameters needed.  Just call narrow
+            // version with args passed in, and return directly.
+
+
+            lRet = RegQueryValueExA(hKey,
+                                    sz,
+                                    lpReserved,
+                                    lpType,
+                                    lpData,
+                                    lpcbData);
 
         }
 
@@ -3703,8 +3530,8 @@ extern "C"{
     HANDLE
         WINAPI
         ORemovePropW(
-        HWND hWnd,
-        LPCWSTR lpString)
+            HWND hWnd,
+            LPCWSTR lpString)
     {
         if (FWide())
             return RemovePropW(hWnd, lpString);
@@ -3720,32 +3547,31 @@ extern "C"{
     LRESULT
         WINAPI
         OSendDlgItemMessageW(
-        HWND hDlg,
-        int nIDDlgItem,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam)
+            HWND hDlg,
+            int nIDDlgItem,
+            UINT Msg,
+            WPARAM wParam,
+            LPARAM lParam)
     {
         if (FWide())
             return SendDlgItemMessageW(hDlg, nIDDlgItem, Msg, wParam, lParam);
 
         PreConvert();
-        switch (Msg)
+        switch (Msg) {
+        case LB_ADDSTRING:
+        case LB_INSERTSTRING:
+        case LB_SELECTSTRING:
+        case LB_FINDSTRING:
+        case LB_FINDSTRINGEXACT:
+        case CB_ADDSTRING:
+        case CB_INSERTSTRING:
+        case CB_SELECTSTRING:
+        case CB_FINDSTRING:
+        case CB_FINDSTRINGEXACT:
         {
-            case LB_ADDSTRING:
-            case LB_INSERTSTRING:
-            case LB_SELECTSTRING:
-            case LB_FINDSTRING:
-            case LB_FINDSTRINGEXACT:
-            case CB_ADDSTRING:
-            case CB_INSERTSTRING:
-            case CB_SELECTSTRING:
-            case CB_FINDSTRING:
-            case CB_FINDSTRINGEXACT:
-                {
-                    lParam = (LPARAM)Convert((LPWSTR)lParam);
-                    break;
-                }
+            lParam = (LPARAM)Convert((LPWSTR)lParam);
+            break;
+        }
         }
 
         return SendDlgItemMessageA(hDlg, nIDDlgItem, Msg, wParam, lParam);
@@ -3754,10 +3580,10 @@ extern "C"{
     LRESULT
         WINAPI
         OSendMessageW(
-        HWND hWnd,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam)
+            HWND hWnd,
+            UINT Msg,
+            WPARAM wParam,
+            LPARAM lParam)
     {
         // incase TCHAR strings are being passed in lParam the caller
         // will have to do the proper conversions PlatformToInternal or
@@ -3780,9 +3606,9 @@ extern "C"{
     BOOL
         WINAPI
         OSetDlgItemTextW(
-        HWND hDlg,
-        int nIDDlgItem,
-        LPCWSTR lpString)
+            HWND hDlg,
+            int nIDDlgItem,
+            LPCWSTR lpString)
     {
         if (FWide())
             return SetDlgItemTextW(hDlg, nIDDlgItem, lpString);
@@ -3795,8 +3621,8 @@ extern "C"{
     BOOL
         WINAPI
         OSetFileAttributesW(
-        LPCWSTR lpFileName,
-        DWORD dwFileAttributes
+            LPCWSTR lpFileName,
+            DWORD dwFileAttributes
         )
     {
         if (FWide())
@@ -3810,9 +3636,9 @@ extern "C"{
     BOOL
         WINAPI
         OSetPropW(
-        HWND hWnd,
-        LPCWSTR lpString,
-        HANDLE hData)
+            HWND hWnd,
+            LPCWSTR lpString,
+            HANDLE hData)
     {
         if (FWide())
             return SetPropW(hWnd, lpString, hData);
@@ -3828,10 +3654,10 @@ extern "C"{
     BOOL
         WINAPI
         OSetMenuItemInfoW(
-        HMENU hMenu,
-        UINT uItem,
-        BOOL fByPosition,
-        LPCMENUITEMINFOW lpcmii
+            HMENU hMenu,
+            UINT uItem,
+            BOOL fByPosition,
+            LPCMENUITEMINFOW lpcmii
         )
     {
         Assert(!IsBadWritePtr((void*)lpcmii, sizeof MENUITEMINFOW));
@@ -3846,8 +3672,7 @@ extern "C"{
 
         if (!(lpcmii->fMask & MIIM_TYPE) ||
             MFT_STRING != (lpcmii->fType &
-            (MFT_BITMAP | MFT_SEPARATOR | MFT_OWNERDRAW | MFT_STRING)))
-        {
+                           (MFT_BITMAP | MFT_SEPARATOR | MFT_OWNERDRAW | MFT_STRING))) {
             return SetMenuItemInfoA(hMenu, uItem, fByPosition, &mii);
         }
 
@@ -3859,9 +3684,9 @@ extern "C"{
     LONG
         WINAPI
         OSetWindowLongW(
-        HWND hWnd,
-        int nIndex,
-        LONG dwNewLong)
+            HWND hWnd,
+            int nIndex,
+            LONG dwNewLong)
     {
         if (FWide())
             return SetWindowLongW(hWnd, nIndex, dwNewLong);
@@ -3882,8 +3707,8 @@ extern "C"{
     BOOL
         WINAPI
         OSetWindowTextW(
-        HWND hWnd,
-        LPCWSTR lpString)
+            HWND hWnd,
+            LPCWSTR lpString)
     {
         if (FWide())
             return SetWindowTextW(hWnd, lpString);
@@ -3896,20 +3721,20 @@ extern "C"{
     LONG
         WINAPI
         OTabbedTextOutW(
-        HDC hDC,
-        int X,
-        int Y,
-        LPCWSTR lpString,
-        int nCount,
-        int nTabPositions,
-        LPINT lpnTabStopPositions,
-        int nTabOrigin)
+            HDC hDC,
+            int X,
+            int Y,
+            LPCWSTR lpString,
+            int nCount,
+            int nTabPositions,
+            LPINT lpnTabStopPositions,
+            int nTabOrigin)
     {
         Assert(-1 != nCount);
 
         if (FWide())
             return TabbedTextOutW(hDC, X, Y, lpString, nCount, nTabPositions,
-            lpnTabStopPositions, nTabOrigin);
+                                  lpnTabStopPositions, nTabOrigin);
 
         PreConvert();
         LONG  n = 0;
@@ -3924,9 +3749,9 @@ extern "C"{
     int
         WINAPI
         OTranslateAcceleratorW(
-        HWND hWnd,
-        HACCEL hAccTable,
-        LPMSG lpMsg)
+            HWND hWnd,
+            HACCEL hAccTable,
+            LPMSG lpMsg)
     {
         if (FWide())
             return TranslateAcceleratorW(hWnd, hAccTable, lpMsg);
@@ -3938,7 +3763,7 @@ extern "C"{
     SHORT
         WINAPI
         OVkKeyScanW(
-        WCHAR ch)
+            WCHAR ch)
     {
         if (FWide())
             return VkKeyScanW(ch);
@@ -3953,10 +3778,10 @@ extern "C"{
     BOOL
         WINAPI
         OWinHelpW(
-        HWND hWndMain,
-        LPCWSTR lpszHelp,
-        UINT uCommand,
-        DWORD dwData
+            HWND hWndMain,
+            LPCWSTR lpszHelp,
+            UINT uCommand,
+            DWORD dwData
         )
     {
         if (FWide())
@@ -3970,10 +3795,10 @@ extern "C"{
     BOOL
         WINAPI
         OWritePrivateProfileStringW(
-        LPCWSTR lpAppName,
-        LPCWSTR lpKeyName,
-        LPCWSTR lpString,
-        LPCWSTR lpFileName)
+            LPCWSTR lpAppName,
+            LPCWSTR lpKeyName,
+            LPCWSTR lpString,
+            LPCWSTR lpFileName)
     {
         if (FWide())
             return WritePrivateProfileStringW(lpAppName, lpKeyName, lpString, lpFileName);
@@ -4007,7 +3832,7 @@ extern "C"{
     BOOL
         WINAPI
         OGetVersionExW(
-        LPOSVERSIONINFOW lpVersionInformation
+            LPOSVERSIONINFOW lpVersionInformation
         )
     {
         if (FWide())
@@ -4021,14 +3846,13 @@ extern "C"{
 
         int fRetval = GetVersionExA(&osviVersionInfo);
 
-        if (fRetval)
-        {
+        if (fRetval) {
             memcpy(lpVersionInformation, &osviVersionInfo, sizeof(OSVERSIONINFOA));
 
             Verify(0 <= AnsiToUnicode(lpVersionInformation->szCSDVersion,
-                osviVersionInfo.szCSDVersion,
-                sizeof(lpVersionInformation->szCSDVersion)
-                / sizeof(lpVersionInformation->szCSDVersion[0])));
+                                      osviVersionInfo.szCSDVersion,
+                                      sizeof(lpVersionInformation->szCSDVersion)
+                                      / sizeof(lpVersionInformation->szCSDVersion[0])));
         }
 
         return fRetval;
@@ -4037,49 +3861,43 @@ extern "C"{
     LONG
         APIENTRY
         ORegEnumKeyExW(
-        HKEY hKey,
-        DWORD dwIndex,
-        LPWSTR lpName,
-        LPDWORD lpcbName,
-        LPDWORD lpReserved,
-        LPWSTR lpClass,
-        LPDWORD lpcbClass,
-        PFILETIME lpftLastWriteTime
+            HKEY hKey,
+            DWORD dwIndex,
+            LPWSTR lpName,
+            LPDWORD lpcbName,
+            LPDWORD lpReserved,
+            LPWSTR lpClass,
+            LPDWORD lpcbClass,
+            PFILETIME lpftLastWriteTime
         )
     {
         if (FWide())
             return RegEnumKeyExW(
-            hKey,
-            dwIndex,
-            lpName,
-            lpcbName,
-            lpReserved,
-            lpClass,
-            lpcbClass,
-            lpftLastWriteTime
+                hKey,
+                dwIndex,
+                lpName,
+                lpcbName,
+                lpReserved,
+                lpClass,
+                lpcbClass,
+                lpftLastWriteTime
             );
 
         LPSTR szName, szClass;
         DWORD cbName, cbClass;
 
-        if (lpcbName)
-        {
+        if (lpcbName) {
             cbName = sizeof(WCHAR) * *lpcbName;
             szName = lpName ? SzAlloc(cbName) : NULL;
-        }
-        else
-        {
+        } else {
             szName = NULL;
             cbName = 0;
         }
 
-        if (lpcbClass)
-        {
+        if (lpcbClass) {
             cbClass = sizeof(WCHAR) * (*lpcbClass);
             szClass = lpClass ? SzAlloc(cbClass) : NULL;
-        }
-        else
-        {
+        } else {
             szClass = NULL;
             cbClass = 0;
         }
@@ -4087,29 +3905,24 @@ extern "C"{
         LONG lRet = RegEnumKeyExA(hKey, dwIndex, szName, &cbName, lpReserved,
                                   szClass, &cbClass, lpftLastWriteTime);
 
-        if (ERROR_SUCCESS != lRet)
-        {
+        if (ERROR_SUCCESS != lRet) {
             return lRet;
         }
 
         // Get the number of characters instead of number of bytes.
-        if (lpcbName)
-        {
+        if (lpcbName) {
             DWORD dwNoOfChar = AnsiToUnicode((LPWSTR)lpName, (LPSTR)szName, *lpcbName);
-            if (cbName && !dwNoOfChar)
-            {
+            if (cbName && !dwNoOfChar) {
                 return ERROR_BUFFER_OVERFLOW;
             }
 
             *lpcbName = dwNoOfChar;
         }
 
-        if (lpcbClass && lpClass)
-        {
+        if (lpcbClass && lpClass) {
             DWORD dwNoOfChar = AnsiToUnicode((LPWSTR)lpClass, (LPSTR)szClass, *lpcbClass);
 
-            if (cbClass && !dwNoOfChar)
-            {
+            if (cbClass && !dwNoOfChar) {
                 return ERROR_BUFFER_OVERFLOW;
             }
 
@@ -4123,12 +3936,12 @@ extern "C"{
     HANDLE
         WINAPI
         OCreateFileMappingW(
-        HANDLE hFile,
-        LPSECURITY_ATTRIBUTES lpFileMappingAttributes,
-        DWORD flProtect,
-        DWORD dwMaximumSizeHigh,
-        DWORD dwMaximumSizeLow,
-        LPCWSTR lpName
+            HANDLE hFile,
+            LPSECURITY_ATTRIBUTES lpFileMappingAttributes,
+            DWORD flProtect,
+            DWORD dwMaximumSizeHigh,
+            DWORD dwMaximumSizeLow,
+            LPCWSTR lpName
         )
     {
         if (FWide())
@@ -4142,10 +3955,10 @@ extern "C"{
     LRESULT
         WINAPI
         ODefDlgProcW(
-        HWND hDlg,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam)
+            HWND hDlg,
+            UINT Msg,
+            WPARAM wParam,
+            LPARAM lParam)
     {
         // incase TCHAR strings are being passed in lParam the caller
         // will have to do the proper conversions PlatformToInternal or
@@ -4160,10 +3973,10 @@ extern "C"{
     int
         WINAPI
         OGetLocaleInfoW(
-        LCID     Locale,
-        LCTYPE   LCType,
-        LPWSTR  lpLCData,
-        int      cchData)
+            LCID     Locale,
+            LCTYPE   LCType,
+            LPWSTR  lpLCData,
+            int      cchData)
     {
         DWORD dwRet;
 
@@ -4178,12 +3991,9 @@ extern "C"{
 
         dwRet = GetLocaleInfoA(Locale, LCType, szBuffer, cchDataAnsi);
         // $UNDONE_POST_98: This is bogus, we should do this like OLoadStringW
-        if (dwRet)
-        {
+        if (dwRet) {
             return AnsiToUnicode(lpLCData, szBuffer, cchData, dwRet);
-        }
-        else if (lpLCData && 0 < cchData)
-        {
+        } else if (lpLCData && 0 < cchData) {
             *lpLCData = L'\0';
         }
 
@@ -4193,9 +4003,9 @@ extern "C"{
     BOOL
         WINAPI
         OSetLocaleInfoW(
-        LCID     Locale,
-        LCTYPE   LCType,
-        LPCWSTR lpLCData)
+            LCID     Locale,
+            LCTYPE   LCType,
+            LPCWSTR lpLCData)
     {
         if (FWide())
             return SetLocaleInfoW(Locale, LCType, lpLCData);
@@ -4254,10 +4064,10 @@ extern "C"{
         WINAPI
         OStgCreateDocfile
         (
-        const WCHAR * pwcsName,
-        DWORD grfMode,
-        DWORD reserved,
-        IStorage ** ppstgOpen
+            const WCHAR* pwcsName,
+            DWORD grfMode,
+            DWORD reserved,
+            IStorage** ppstgOpen
         )
     {
         HRESULT hrReturn;
@@ -4281,8 +4091,8 @@ extern "C"{
         WINAPI
         OStartDocW
         (
-        HDC hDC,
-        CONST DOCINFOW * pdiDocW
+            HDC hDC,
+            CONST DOCINFOW* pdiDocW
         )
     {
         if (FWide())
@@ -4305,31 +4115,30 @@ extern "C"{
     BOOL
         WINAPI
         OSystemParametersInfoW(
-        UINT uiAction,
-        UINT uiParam,
-        PVOID pvParam,
-        UINT fWinIni)
+            UINT uiAction,
+            UINT uiParam,
+            PVOID pvParam,
+            UINT fWinIni)
     {
         if (FWide())
             return SystemParametersInfoW(uiAction, uiParam, pvParam, fWinIni);
 
-        switch (uiAction)
-        {   // unsupported actions
-            case SPI_GETHIGHCONTRAST:
-            case SPI_GETICONMETRICS:
-            case SPI_GETICONTITLELOGFONT:
-            case SPI_GETNONCLIENTMETRICS:
-            case SPI_GETSERIALKEYS:
-            case SPI_GETSOUNDSENTRY:
-            case SPI_SETDESKWALLPAPER:
-            case SPI_SETHIGHCONTRAST:
-            case SPI_SETICONMETRICS:
-            case SPI_SETICONTITLELOGFONT:
-            case SPI_SETNONCLIENTMETRICS:
-            case SPI_SETSERIALKEYS:
-            case SPI_SETSOUNDSENTRY:
-                AssertFail("No Unicode Wrapper Available for Win32 API - SystemParametersInfoW");
-                return 0;
+        switch (uiAction) {   // unsupported actions
+        case SPI_GETHIGHCONTRAST:
+        case SPI_GETICONMETRICS:
+        case SPI_GETICONTITLELOGFONT:
+        case SPI_GETNONCLIENTMETRICS:
+        case SPI_GETSERIALKEYS:
+        case SPI_GETSOUNDSENTRY:
+        case SPI_SETDESKWALLPAPER:
+        case SPI_SETHIGHCONTRAST:
+        case SPI_SETICONMETRICS:
+        case SPI_SETICONTITLELOGFONT:
+        case SPI_SETNONCLIENTMETRICS:
+        case SPI_SETSERIALKEYS:
+        case SPI_SETSOUNDSENTRY:
+            AssertFail("No Unicode Wrapper Available for Win32 API - SystemParametersInfoW");
+            return 0;
         };
         return SystemParametersInfoA(uiAction, uiParam, pvParam, fWinIni);
     }
@@ -4337,13 +4146,12 @@ extern "C"{
     LPWSTR
         WINAPI
         OCharNextW(
-        LPCWSTR lpsz)
+            LPCWSTR lpsz)
     {
         if (FWide())
             return CharNextW(lpsz);
 
-        if (*lpsz == L'\0')
-        {
+        if (*lpsz == L'\0') {
             return const_cast<LPWSTR>(lpsz);
         }
 
@@ -4355,7 +4163,7 @@ extern "C"{
     BOOL
         APIENTRY
         OAbortSystemShutdownW(
-        LPWSTR lpMachineName
+            LPWSTR lpMachineName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AbortSystemShutdownW");
@@ -4365,17 +4173,17 @@ extern "C"{
     BOOL
         WINAPI
         OAccessCheckAndAuditAlarmW(
-        LPCWSTR SubsystemName,
-        LPVOID HandleId,
-        LPWSTR ObjectTypeName,
-        LPWSTR ObjectName,
-        PSECURITY_DESCRIPTOR SecurityDescriptor,
-        DWORD DesiredAccess,
-        PGENERIC_MAPPING GenericMapping,
-        BOOL ObjectCreation,
-        LPDWORD GrantedAccess,
-        LPBOOL AccessStatus,
-        LPBOOL pfGenerateOnClose
+            LPCWSTR SubsystemName,
+            LPVOID HandleId,
+            LPWSTR ObjectTypeName,
+            LPWSTR ObjectName,
+            PSECURITY_DESCRIPTOR SecurityDescriptor,
+            DWORD DesiredAccess,
+            PGENERIC_MAPPING GenericMapping,
+            BOOL ObjectCreation,
+            LPDWORD GrantedAccess,
+            LPBOOL AccessStatus,
+            LPBOOL pfGenerateOnClose
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AccessCheckAndAuditAlarmW");
@@ -4392,9 +4200,9 @@ extern "C"{
     BOOL
         WINAPI
         OAddFormW(
-        HANDLE  hPrinter,
-        DWORD   Level,
-        LPBYTE  pForm
+            HANDLE  hPrinter,
+            DWORD   Level,
+            LPBYTE  pForm
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AddFormW");
@@ -4404,11 +4212,11 @@ extern "C"{
     BOOL
         WINAPI
         OAddJobW(
-        HANDLE  hPrinter,
-        DWORD   Level,
-        LPBYTE  pData,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded
+            HANDLE  hPrinter,
+            DWORD   Level,
+            LPBYTE  pData,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AddJobW");
@@ -4418,9 +4226,9 @@ extern "C"{
     BOOL
         WINAPI
         OAddMonitorW(
-        LPWSTR   pName,
-        DWORD   Level,
-        LPBYTE  pMonitors
+            LPWSTR   pName,
+            DWORD   Level,
+            LPBYTE  pMonitors
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AddMonitorW");
@@ -4430,9 +4238,9 @@ extern "C"{
     BOOL
         WINAPI
         OAddPortW(
-        LPWSTR   pName,
-        HWND    hWnd,
-        LPWSTR   pMonitorName
+            LPWSTR   pName,
+            HWND    hWnd,
+            LPWSTR   pMonitorName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AddPortW");
@@ -4442,9 +4250,9 @@ extern "C"{
     HANDLE
         WINAPI
         OAddPrinterW(
-        LPWSTR   pName,
-        DWORD   Level,
-        LPBYTE  pPrinter
+            LPWSTR   pName,
+            DWORD   Level,
+            LPBYTE  pPrinter
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AddPrinterW");
@@ -4454,7 +4262,7 @@ extern "C"{
     BOOL
         WINAPI
         OAddPrinterConnectionW(
-        LPWSTR   pName
+            LPWSTR   pName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AddPrinterConnectionW");
@@ -4464,9 +4272,9 @@ extern "C"{
     BOOL
         WINAPI
         OAddPrinterDriverW(
-        LPWSTR   pName,
-        DWORD   Level,
-        LPBYTE  pDriverInfo
+            LPWSTR   pName,
+            DWORD   Level,
+            LPBYTE  pDriverInfo
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AddPrinterDriverW");
@@ -4476,10 +4284,10 @@ extern "C"{
     BOOL
         WINAPI
         OAddPrintProcessorW(
-        LPWSTR   pName,
-        LPWSTR   pEnvironment,
-        LPWSTR   pPathName,
-        LPWSTR   pPrintProcessorName
+            LPWSTR   pName,
+            LPWSTR   pEnvironment,
+            LPWSTR   pPathName,
+            LPWSTR   pPrintProcessorName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AddPrintProcessorW");
@@ -4489,9 +4297,9 @@ extern "C"{
     BOOL
         WINAPI
         OAddPrintProvidorW(
-        LPWSTR  pName,
-        DWORD    level,
-        LPBYTE   pProvidorInfo
+            LPWSTR  pName,
+            DWORD    level,
+            LPBYTE   pProvidorInfo
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AddPrintProvidorW");
@@ -4501,11 +4309,11 @@ extern "C"{
     LONG
         WINAPI
         OAdvancedDocumentPropertiesW(
-        HWND    hWnd,
-        HANDLE  hPrinter,
-        LPWSTR   pDeviceName,
-        PDEVMODEW pDevModeOutput,
-        PDEVMODEW pDevModeInput
+            HWND    hWnd,
+            HANDLE  hPrinter,
+            LPWSTR   pDeviceName,
+            PDEVMODEW pDevModeOutput,
+            PDEVMODEW pDevModeInput
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - AdvancedDocumentPropertiesW");
@@ -4521,8 +4329,8 @@ extern "C"{
     BOOL
         WINAPI
         OBackupEventLogW(
-        HANDLE hEventLog,
-        LPCWSTR lpBackupFileName
+            HANDLE hEventLog,
+            LPCWSTR lpBackupFileName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - BackupEventLogW");
@@ -4532,8 +4340,8 @@ extern "C"{
     HANDLE
         WINAPI
         OBeginUpdateResourceW(
-        LPCWSTR pFileName,
-        BOOL bDeleteExistingResources
+            LPCWSTR pFileName,
+            BOOL bDeleteExistingResources
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - BeginUpdateResourceW");
@@ -4543,8 +4351,8 @@ extern "C"{
     BOOL
         WINAPI
         OBuildCommDCBW(
-        LPCWSTR lpDef,
-        LPDCB lpDCB
+            LPCWSTR lpDef,
+            LPDCB lpDCB
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - BuildCommDCBW");
@@ -4554,9 +4362,9 @@ extern "C"{
     BOOL
         WINAPI
         OBuildCommDCBAndTimeoutsW(
-        LPCWSTR lpDef,
-        LPDCB lpDCB,
-        LPCOMMTIMEOUTS lpCommTimeouts
+            LPCWSTR lpDef,
+            LPDCB lpDCB,
+            LPCOMMTIMEOUTS lpCommTimeouts
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - BuildCommDCBAndTimeoutsW");
@@ -4566,8 +4374,8 @@ extern "C"{
     BOOL
         WINAPI
         OCallMsgFilterW(
-        LPMSG lpMsg,
-        int nCode)
+            LPMSG lpMsg,
+            int nCode)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CallMsgFilterW");
         return 0;
@@ -4576,13 +4384,13 @@ extern "C"{
     BOOL
         WINAPI
         OCallNamedPipeW(
-        LPCWSTR lpNamedPipeName,
-        LPVOID lpInBuffer,
-        DWORD nInBufferSize,
-        LPVOID lpOutBuffer,
-        DWORD nOutBufferSize,
-        LPDWORD lpBytesRead,
-        DWORD nTimeOut
+            LPCWSTR lpNamedPipeName,
+            LPVOID lpInBuffer,
+            DWORD nInBufferSize,
+            LPVOID lpOutBuffer,
+            DWORD nOutBufferSize,
+            LPDWORD lpBytesRead,
+            DWORD nTimeOut
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CallNamedPipeW");
@@ -4592,8 +4400,8 @@ extern "C"{
     LONG
         WINAPI
         OChangeDisplaySettingsW(
-        LPDEVMODEW lpDevMode,
-        DWORD dwFlags)
+            LPDEVMODEW lpDevMode,
+            DWORD dwFlags)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ChangeDisplaySettingsW");
         return 0;
@@ -4602,11 +4410,11 @@ extern "C"{
     BOOL
         WINAPI
         OChangeMenuW(
-        HMENU hMenu,
-        UINT cmd,
-        LPCWSTR lpszNewItem,
-        UINT cmdInsert,
-        UINT flags)
+            HMENU hMenu,
+            UINT cmd,
+            LPCWSTR lpszNewItem,
+            UINT cmdInsert,
+            UINT flags)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ChangeMenuW");
         return 0;
@@ -4616,17 +4424,17 @@ extern "C"{
     BOOL
         WINAPI
         OChangeServiceConfigW(
-        SC_HANDLE    hService,
-        DWORD        dwServiceType,
-        DWORD        dwStartType,
-        DWORD        dwErrorControl,
-        LPCWSTR     lpBinaryPathName,
-        LPCWSTR     lpLoadOrderGroup,
-        LPDWORD      lpdwTagId,
-        LPCWSTR     lpDependencies,
-        LPCWSTR     lpServiceStartName,
-        LPCWSTR     lpPassword,
-        LPCWSTR     lpDisplayName
+            SC_HANDLE    hService,
+            DWORD        dwServiceType,
+            DWORD        dwStartType,
+            DWORD        dwErrorControl,
+            LPCWSTR     lpBinaryPathName,
+            LPCWSTR     lpLoadOrderGroup,
+            LPDWORD      lpdwTagId,
+            LPCWSTR     lpDependencies,
+            LPCWSTR     lpServiceStartName,
+            LPCWSTR     lpPassword,
+            LPCWSTR     lpDisplayName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ChangeServiceConfigW");
@@ -4679,12 +4487,12 @@ extern "C"{
     int
         WINAPI
         OCompareStringW(
-        LCID     Locale,
-        DWORD    dwCmpFlags,
-        LPCWSTR lpString1,
-        int      cchCount1,
-        LPCWSTR lpString2,
-        int      cchCount2)
+            LCID     Locale,
+            DWORD    dwCmpFlags,
+            LPCWSTR lpString1,
+            int      cchCount1,
+            LPCWSTR lpString2,
+            int      cchCount2)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CompareStringW");
         return 0;
@@ -4693,9 +4501,9 @@ extern "C"{
     BOOL
         WINAPI
         OConfigurePortW(
-        LPWSTR   pName,
-        HWND    hWnd,
-        LPWSTR   pPortName
+            LPWSTR   pName,
+            HWND    hWnd,
+            LPWSTR   pPortName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ConfigurePortW");
@@ -4705,9 +4513,9 @@ extern "C"{
     int
         WINAPI
         OCopyAcceleratorTableW(
-        HACCEL hAccelSrc,
-        LPACCEL lpAccelDst,
-        int cAccelEntries)
+            HACCEL hAccelSrc,
+            LPACCEL lpAccelDst,
+            int cAccelEntries)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CopyAcceleratorTableW");
         return 0;
@@ -4732,7 +4540,7 @@ extern "C"{
     HACCEL
         WINAPI
         OCreateAcceleratorTableW(
-        LPACCEL, int)
+            LPACCEL, int)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateAcceleratorTableW");
         return 0;
@@ -4748,12 +4556,12 @@ extern "C"{
     HDESK
         WINAPI
         OCreateDesktopW(
-        LPWSTR lpszDesktop,
-        LPWSTR lpszDevice,
-        LPDEVMODEW pDevmode,
-        DWORD dwFlags,
-        DWORD dwDesiredAccess,
-        LPSECURITY_ATTRIBUTES lpsa)
+            LPWSTR lpszDesktop,
+            LPWSTR lpszDevice,
+            LPDEVMODEW pDevmode,
+            DWORD dwFlags,
+            DWORD dwDesiredAccess,
+            LPSECURITY_ATTRIBUTES lpsa)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateDesktopW");
         return 0;
@@ -4762,11 +4570,11 @@ extern "C"{
     HWND
         WINAPI
         OCreateDialogIndirectParamW(
-        HINSTANCE hInstance,
-        LPCDLGTEMPLATEW lpTemplate,
-        HWND hWndParent,
-        DLGPROC lpDialogFunc,
-        LPARAM dwInitParam)
+            HINSTANCE hInstance,
+            LPCDLGTEMPLATEW lpTemplate,
+            HWND hWndParent,
+            DLGPROC lpDialogFunc,
+            LPARAM dwInitParam)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateDialogIndirectParamW");
         return 0;
@@ -4775,11 +4583,11 @@ extern "C"{
     HWND
         WINAPI
         OCreateDialogParamW(
-        HINSTANCE hInstance,
-        LPCWSTR lpTemplateName,
-        HWND hWndParent,
-        DLGPROC lpDialogFunc,
-        LPARAM dwInitParam)
+            HINSTANCE hInstance,
+            LPCWSTR lpTemplateName,
+            HWND hWndParent,
+            DLGPROC lpDialogFunc,
+            LPARAM dwInitParam)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateDialogParamW");
         return 0;
@@ -4788,10 +4596,10 @@ extern "C"{
     HDC
         WINAPI
         OCreateICW(
-        LPCWSTR lpszDriver,
-        LPCWSTR lpszDevice,
-        LPCWSTR lpszOutput,
-        CONST DEVMODEW *lpdvmInit)
+            LPCWSTR lpszDriver,
+            LPCWSTR lpszDevice,
+            LPCWSTR lpszOutput,
+            CONST DEVMODEW* lpdvmInit)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateICW");
         return 0;
@@ -4800,10 +4608,10 @@ extern "C"{
     HANDLE
         WINAPI
         OCreateMailslotW(
-        LPCWSTR lpName,
-        DWORD nMaxMessageSize,
-        DWORD lReadTimeout,
-        LPSECURITY_ATTRIBUTES lpSecurityAttributes
+            LPCWSTR lpName,
+            DWORD nMaxMessageSize,
+            DWORD lReadTimeout,
+            LPSECURITY_ATTRIBUTES lpSecurityAttributes
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateMailslotW");
@@ -4813,9 +4621,9 @@ extern "C"{
     HANDLE
         WINAPI
         OCreateMutexW(
-        LPSECURITY_ATTRIBUTES lpMutexAttributes,
-        BOOL bInitialOwner,
-        LPCWSTR lpName
+            LPSECURITY_ATTRIBUTES lpMutexAttributes,
+            BOOL bInitialOwner,
+            LPCWSTR lpName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateMutexW");
@@ -4825,14 +4633,14 @@ extern "C"{
     HANDLE
         WINAPI
         OCreateNamedPipeW(
-        LPCWSTR lpName,
-        DWORD dwOpenMode,
-        DWORD dwPipeMode,
-        DWORD nMaxInstances,
-        DWORD nOutBufferSize,
-        DWORD nInBufferSize,
-        DWORD nDefaultTimeOut,
-        LPSECURITY_ATTRIBUTES lpSecurityAttributes
+            LPCWSTR lpName,
+            DWORD dwOpenMode,
+            DWORD dwPipeMode,
+            DWORD nMaxInstances,
+            DWORD nOutBufferSize,
+            DWORD nInBufferSize,
+            DWORD nDefaultTimeOut,
+            LPSECURITY_ATTRIBUTES lpSecurityAttributes
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateNamedPipeW");
@@ -4842,16 +4650,16 @@ extern "C"{
     BOOL
         WINAPI
         OCreateProcessW(
-        LPCWSTR lpApplicationName,
-        LPWSTR lpCommandLine,
-        LPSECURITY_ATTRIBUTES lpProcessAttributes,
-        LPSECURITY_ATTRIBUTES lpThreadAttributes,
-        BOOL bInheritHandles,
-        DWORD dwCreationFlags,
-        LPVOID lpEnvironment,
-        LPCWSTR lpCurrentDirectory,
-        LPSTARTUPINFOW lpStartupInfo,
-        LPPROCESS_INFORMATION lpProcessInformation
+            LPCWSTR lpApplicationName,
+            LPWSTR lpCommandLine,
+            LPSECURITY_ATTRIBUTES lpProcessAttributes,
+            LPSECURITY_ATTRIBUTES lpThreadAttributes,
+            BOOL bInheritHandles,
+            DWORD dwCreationFlags,
+            LPVOID lpEnvironment,
+            LPCWSTR lpCurrentDirectory,
+            LPSTARTUPINFOW lpStartupInfo,
+            LPPROCESS_INFORMATION lpProcessInformation
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateProcessW");
@@ -4861,17 +4669,17 @@ extern "C"{
     BOOL
         WINAPI
         OCreateProcessAsUserW(
-        HANDLE hToken,
-        LPCWSTR lpApplicationName,
-        LPWSTR lpCommandLine,
-        LPSECURITY_ATTRIBUTES lpProcessAttributes,
-        LPSECURITY_ATTRIBUTES lpThreadAttributes,
-        BOOL bInheritHandles,
-        DWORD dwCreationFlags,
-        LPVOID lpEnvironment,
-        LPCWSTR lpCurrentDirectory,
-        LPSTARTUPINFOW lpStartupInfo,
-        LPPROCESS_INFORMATION lpProcessInformation
+            HANDLE hToken,
+            LPCWSTR lpApplicationName,
+            LPWSTR lpCommandLine,
+            LPSECURITY_ATTRIBUTES lpProcessAttributes,
+            LPSECURITY_ATTRIBUTES lpThreadAttributes,
+            BOOL bInheritHandles,
+            DWORD dwCreationFlags,
+            LPVOID lpEnvironment,
+            LPCWSTR lpCurrentDirectory,
+            LPSTARTUPINFOW lpStartupInfo,
+            LPPROCESS_INFORMATION lpProcessInformation
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateProcessAsUserW");
@@ -4881,7 +4689,7 @@ extern "C"{
     HPROPSHEETPAGE
         WINAPI
         OCreatePropertySheetPageW(
-        LPCPROPSHEETPAGEW lpcpsp
+            LPCPROPSHEETPAGEW lpcpsp
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreatePropertySheetPageW");
@@ -4900,19 +4708,19 @@ extern "C"{
     SC_HANDLE
         WINAPI
         OCreateServiceW(
-        SC_HANDLE    hSCManager,
-        LPCWSTR     lpServiceName,
-        LPCWSTR     lpDisplayName,
-        DWORD        dwDesiredAccess,
-        DWORD        dwServiceType,
-        DWORD        dwStartType,
-        DWORD        dwErrorControl,
-        LPCWSTR     lpBinaryPathName,
-        LPCWSTR     lpLoadOrderGroup,
-        LPDWORD      lpdwTagId,
-        LPCWSTR     lpDependencies,
-        LPCWSTR     lpServiceStartName,
-        LPCWSTR     lpPassword
+            SC_HANDLE    hSCManager,
+            LPCWSTR     lpServiceName,
+            LPCWSTR     lpDisplayName,
+            DWORD        dwDesiredAccess,
+            DWORD        dwServiceType,
+            DWORD        dwStartType,
+            DWORD        dwErrorControl,
+            LPCWSTR     lpBinaryPathName,
+            LPCWSTR     lpLoadOrderGroup,
+            LPDWORD      lpdwTagId,
+            LPCWSTR     lpDependencies,
+            LPCWSTR     lpServiceStartName,
+            LPCWSTR     lpPassword
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - CreateServiceW");
@@ -4934,8 +4742,8 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ODceErrorInqTextW(
-        IN RPC_STATUS RpcStatus,
-        OUT unsigned short __RPC_FAR * ErrorText
+            IN RPC_STATUS RpcStatus,
+            OUT unsigned short __RPC_FAR* ErrorText
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DceErrorInqTextW");
@@ -4945,9 +4753,9 @@ extern "C"{
     BOOL
         WINAPI
         ODefineDosDeviceW(
-        DWORD dwFlags,
-        LPCWSTR lpDeviceName,
-        LPCWSTR lpTargetPath
+            DWORD dwFlags,
+            LPCWSTR lpDeviceName,
+            LPCWSTR lpTargetPath
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DefineDosDeviceW");
@@ -4957,8 +4765,8 @@ extern "C"{
     BOOL
         WINAPI
         ODeleteFormW(
-        HANDLE  hPrinter,
-        LPWSTR   pFormName
+            HANDLE  hPrinter,
+            LPWSTR   pFormName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DeleteFormW");
@@ -4968,9 +4776,9 @@ extern "C"{
     BOOL
         WINAPI
         ODeleteMonitorW(
-        LPWSTR   pName,
-        LPWSTR   pEnvironment,
-        LPWSTR   pMonitorName
+            LPWSTR   pName,
+            LPWSTR   pEnvironment,
+            LPWSTR   pMonitorName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DeleteMonitorW");
@@ -4980,9 +4788,9 @@ extern "C"{
     BOOL
         WINAPI
         ODeletePortW(
-        LPWSTR   pName,
-        HWND    hWnd,
-        LPWSTR   pPortName
+            LPWSTR   pName,
+            HWND    hWnd,
+            LPWSTR   pPortName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DeletePortW");
@@ -4992,7 +4800,7 @@ extern "C"{
     BOOL
         WINAPI
         ODeletePrinterConnectionW(
-        LPWSTR   pName
+            LPWSTR   pName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DeletePrinterConnectionW");
@@ -5002,9 +4810,9 @@ extern "C"{
     BOOL
         WINAPI
         ODeletePrinterDriverW(
-        LPWSTR    pName,
-        LPWSTR    pEnvironment,
-        LPWSTR    pDriverName
+            LPWSTR    pName,
+            LPWSTR    pEnvironment,
+            LPWSTR    pDriverName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DeletePrinterDriverW");
@@ -5014,9 +4822,9 @@ extern "C"{
     BOOL
         WINAPI
         ODeletePrintProcessorW(
-        LPWSTR   pName,
-        LPWSTR   pEnvironment,
-        LPWSTR   pPrintProcessorName
+            LPWSTR   pName,
+            LPWSTR   pEnvironment,
+            LPWSTR   pPrintProcessorName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DeletePrintProcessorW");
@@ -5026,9 +4834,9 @@ extern "C"{
     BOOL
         WINAPI
         ODeletePrintProvidorW(
-        LPWSTR   pName,
-        LPWSTR   pEnvironment,
-        LPWSTR   pPrintProvidorName
+            LPWSTR   pName,
+            LPWSTR   pEnvironment,
+            LPWSTR   pPrintProvidorName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DeletePrintProvidorW");
@@ -5038,7 +4846,7 @@ extern "C"{
     int
         WINAPI
         ODeviceCapabilitiesW(LPCWSTR, LPCWSTR, WORD,
-        LPWSTR, CONST DEVMODEW *)
+                             LPWSTR, CONST DEVMODEW*)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DeviceCapabilitiesW");
         return 0;
@@ -5047,11 +4855,11 @@ extern "C"{
     int
         WINAPI
         ODlgDirListW(
-        HWND hDlg,
-        LPWSTR lpPathSpec,
-        int nIDListBox,
-        int nIDStaticPath,
-        UINT uFileType)
+            HWND hDlg,
+            LPWSTR lpPathSpec,
+            int nIDListBox,
+            int nIDStaticPath,
+            UINT uFileType)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DlgDirListW");
         return 0;
@@ -5060,11 +4868,11 @@ extern "C"{
     int
         WINAPI
         ODlgDirListComboBoxW(
-        HWND hDlg,
-        LPWSTR lpPathSpec,
-        int nIDComboBox,
-        int nIDStaticPath,
-        UINT uFiletype)
+            HWND hDlg,
+            LPWSTR lpPathSpec,
+            int nIDComboBox,
+            int nIDStaticPath,
+            UINT uFiletype)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DlgDirListComboBoxW");
         return 0;
@@ -5073,10 +4881,10 @@ extern "C"{
     BOOL
         WINAPI
         ODlgDirSelectComboBoxExW(
-        HWND hDlg,
-        LPWSTR lpString,
-        int nCount,
-        int nIDComboBox)
+            HWND hDlg,
+            LPWSTR lpString,
+            int nCount,
+            int nIDComboBox)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DlgDirSelectComboBoxExW");
         return 0;
@@ -5085,10 +4893,10 @@ extern "C"{
     BOOL
         WINAPI
         ODlgDirSelectExW(
-        HWND hDlg,
-        LPWSTR lpString,
-        int nCount,
-        int nIDListBox)
+            HWND hDlg,
+            LPWSTR lpString,
+            int nCount,
+            int nIDListBox)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DlgDirSelectExW");
         return 0;
@@ -5097,12 +4905,12 @@ extern "C"{
     DWORD
         WINAPI
         ODocumentPropertiesW(
-        HWND      hWnd,
-        HANDLE    hPrinter,
-        LPWSTR   pDeviceName,
-        PDEVMODEW pDevModeOutput,
-        PDEVMODEW pDevModeInput,
-        DWORD     fMode
+            HWND      hWnd,
+            HANDLE    hPrinter,
+            LPWSTR   pDeviceName,
+            PDEVMODEW pDevModeOutput,
+            PDEVMODEW pDevModeInput,
+            DWORD     fMode
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - DocumentPropertiesW");
@@ -5136,8 +4944,8 @@ extern "C"{
     BOOL
         WINAPI
         OEndUpdateResourceW(
-        HANDLE      hUpdate,
-        BOOL        fDiscard
+            HANDLE      hUpdate,
+            BOOL        fDiscard
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EndUpdateResourceW");
@@ -5147,10 +4955,10 @@ extern "C"{
     BOOL
         WINAPI
         OEnumCalendarInfoW(
-        CALINFO_ENUMPROCW lpCalInfoEnumProc,
-        LCID              Locale,
-        CALID             Calendar,
-        CALTYPE           CalType)
+            CALINFO_ENUMPROCW lpCalInfoEnumProc,
+            LCID              Locale,
+            CALID             Calendar,
+            CALTYPE           CalType)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumCalendarInfoW");
         return 0;
@@ -5159,9 +4967,9 @@ extern "C"{
     BOOL
         WINAPI
         OEnumDateFormatsW(
-        DATEFMT_ENUMPROCW lpDateFmtEnumProc,
-        LCID              Locale,
-        DWORD             dwFlags)
+            DATEFMT_ENUMPROCW lpDateFmtEnumProc,
+            LCID              Locale,
+            DWORD             dwFlags)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumDateFormatsW");
         return 0;
@@ -5171,12 +4979,12 @@ extern "C"{
     BOOL
         WINAPI
         OEnumDependentServicesW(
-        SC_HANDLE               hService,
-        DWORD                   dwServiceState,
-        LPENUM_SERVICE_STATUSW  lpServices,
-        DWORD                   cbBufSize,
-        LPDWORD                 pcbBytesNeeded,
-        LPDWORD                 lpServicesReturned
+            SC_HANDLE               hService,
+            DWORD                   dwServiceState,
+            LPENUM_SERVICE_STATUSW  lpServices,
+            DWORD                   cbBufSize,
+            LPDWORD                 pcbBytesNeeded,
+            LPDWORD                 lpServicesReturned
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumDependentServicesW");
@@ -5187,9 +4995,9 @@ extern "C"{
     BOOL
         WINAPI
         OEnumDesktopsW(
-        HWINSTA hwinsta,
-        DESKTOPENUMPROCW lpEnumFunc,
-        LPARAM lParam)
+            HWINSTA hwinsta,
+            DESKTOPENUMPROCW lpEnumFunc,
+            LPARAM lParam)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumDesktopsW");
         return 0;
@@ -5198,9 +5006,9 @@ extern "C"{
     BOOL
         WINAPI
         OEnumDisplaySettingsW(
-        LPCWSTR lpszDeviceName,
-        DWORD iModeNum,
-        LPDEVMODEW lpDevMode)
+            LPCWSTR lpszDeviceName,
+            DWORD iModeNum,
+            LPDEVMODEW lpDevMode)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumDisplaySettingsW");
         return 0;
@@ -5233,12 +5041,12 @@ extern "C"{
     BOOL
         WINAPI
         OEnumFormsW(
-        HANDLE  hPrinter,
-        DWORD   Level,
-        LPBYTE  pForm,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded,
-        LPDWORD pcReturned
+            HANDLE  hPrinter,
+            DWORD   Level,
+            LPBYTE  pForm,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded,
+            LPDWORD pcReturned
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumFormsW");
@@ -5255,14 +5063,14 @@ extern "C"{
     BOOL
         WINAPI
         OEnumJobsW(
-        HANDLE  hPrinter,
-        DWORD   FirstJob,
-        DWORD   NoJobs,
-        DWORD   Level,
-        LPBYTE  pJob,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded,
-        LPDWORD pcReturned
+            HANDLE  hPrinter,
+            DWORD   FirstJob,
+            DWORD   NoJobs,
+            DWORD   Level,
+            LPBYTE  pJob,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded,
+            LPDWORD pcReturned
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumJobsW");
@@ -5272,12 +5080,12 @@ extern "C"{
     BOOL
         WINAPI
         OEnumMonitorsW(
-        LPWSTR   pName,
-        DWORD   Level,
-        LPBYTE  pMonitors,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded,
-        LPDWORD pcReturned
+            LPWSTR   pName,
+            DWORD   Level,
+            LPBYTE  pMonitors,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded,
+            LPDWORD pcReturned
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumMonitorsW");
@@ -5287,12 +5095,12 @@ extern "C"{
     BOOL
         WINAPI
         OEnumPortsW(
-        LPWSTR   pName,
-        DWORD   Level,
-        LPBYTE  pPorts,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded,
-        LPDWORD pcReturned
+            LPWSTR   pName,
+            DWORD   Level,
+            LPBYTE  pPorts,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded,
+            LPDWORD pcReturned
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumPortsW");
@@ -5302,13 +5110,13 @@ extern "C"{
     BOOL
         WINAPI
         OEnumPrinterDriversW(
-        LPWSTR   pName,
-        LPWSTR   pEnvironment,
-        DWORD   Level,
-        LPBYTE  pDriverInfo,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded,
-        LPDWORD pcReturned
+            LPWSTR   pName,
+            LPWSTR   pEnvironment,
+            DWORD   Level,
+            LPBYTE  pDriverInfo,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded,
+            LPDWORD pcReturned
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumPrinterDriversW");
@@ -5318,13 +5126,13 @@ extern "C"{
     BOOL
         WINAPI
         OEnumPrintersW(
-        DWORD   Flags,
-        LPWSTR   Name,
-        DWORD   Level,
-        LPBYTE  pPrinterEnum,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded,
-        LPDWORD pcReturned
+            DWORD   Flags,
+            LPWSTR   Name,
+            DWORD   Level,
+            LPBYTE  pPrinterEnum,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded,
+            LPDWORD pcReturned
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumPrintersW");
@@ -5334,13 +5142,13 @@ extern "C"{
     BOOL
         WINAPI
         OEnumPrintProcessorDatatypesW(
-        LPWSTR   pName,
-        LPWSTR   pPrintProcessorName,
-        DWORD   Level,
-        LPBYTE  pDatatypes,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded,
-        LPDWORD pcReturned
+            LPWSTR   pName,
+            LPWSTR   pPrintProcessorName,
+            DWORD   Level,
+            LPBYTE  pDatatypes,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded,
+            LPDWORD pcReturned
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumPrintProcessorDatatypesW");
@@ -5350,13 +5158,13 @@ extern "C"{
     BOOL
         WINAPI
         OEnumPrintProcessorsW(
-        LPWSTR   pName,
-        LPWSTR   pEnvironment,
-        DWORD   Level,
-        LPBYTE  pPrintProcessorInfo,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded,
-        LPDWORD pcReturned
+            LPWSTR   pName,
+            LPWSTR   pEnvironment,
+            DWORD   Level,
+            LPBYTE  pPrintProcessorInfo,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded,
+            LPDWORD pcReturned
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumPrintProcessorsW");
@@ -5366,8 +5174,8 @@ extern "C"{
     int
         WINAPI
         OEnumPropsW(
-        HWND hWnd,
-        PROPENUMPROCW lpEnumFunc)
+            HWND hWnd,
+            PROPENUMPROCW lpEnumFunc)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumPropsW");
         return 0;
@@ -5376,9 +5184,9 @@ extern "C"{
     int
         WINAPI
         OEnumPropsExW(
-        HWND hWnd,
-        PROPENUMPROCEXW lpEnumFunc,
-        LPARAM lParam)
+            HWND hWnd,
+            PROPENUMPROCEXW lpEnumFunc,
+            LPARAM lParam)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumPropsExW");
         return 0;
@@ -5387,9 +5195,9 @@ extern "C"{
     INT
         APIENTRY
         OEnumProtocolsW(
-        IN     LPINT           lpiProtocols,
-        IN OUT LPVOID          lpProtocolBuffer,
-        IN OUT LPDWORD         lpdwBufferLength
+            IN     LPINT           lpiProtocols,
+            IN OUT LPVOID          lpProtocolBuffer,
+            IN OUT LPDWORD         lpdwBufferLength
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumProtocolsW");
@@ -5399,11 +5207,11 @@ extern "C"{
     BOOL
         WINAPI
         OEnumResourceLanguagesW(
-        HMODULE hModule,
-        LPCWSTR lpType,
-        LPCWSTR lpName,
-        ENUMRESLANGPROC lpEnumFunc,
-        LONG lParam
+            HMODULE hModule,
+            LPCWSTR lpType,
+            LPCWSTR lpName,
+            ENUMRESLANGPROC lpEnumFunc,
+            LONG lParam
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumResourceLanguagesW");
@@ -5413,10 +5221,10 @@ extern "C"{
     BOOL
         WINAPI
         OEnumResourceNamesW(
-        HMODULE hModule,
-        LPCWSTR lpType,
-        ENUMRESNAMEPROC lpEnumFunc,
-        LONG lParam
+            HMODULE hModule,
+            LPCWSTR lpType,
+            ENUMRESNAMEPROC lpEnumFunc,
+            LONG lParam
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumResourceNamesW");
@@ -5426,9 +5234,9 @@ extern "C"{
     BOOL
         WINAPI
         OEnumResourceTypesW(
-        HMODULE hModule,
-        ENUMRESTYPEPROC lpEnumFunc,
-        LONG lParam
+            HMODULE hModule,
+            ENUMRESTYPEPROC lpEnumFunc,
+            LONG lParam
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumResourceTypesW");
@@ -5439,14 +5247,14 @@ extern "C"{
     BOOL
         WINAPI
         OEnumServicesStatusW(
-        SC_HANDLE               hSCManager,
-        DWORD                   dwServiceType,
-        DWORD                   dwServiceState,
-        LPENUM_SERVICE_STATUSW  lpServices,
-        DWORD                   cbBufSize,
-        LPDWORD                 pcbBytesNeeded,
-        LPDWORD                 lpServicesReturned,
-        LPDWORD                 lpResumeHandle
+            SC_HANDLE               hSCManager,
+            DWORD                   dwServiceType,
+            DWORD                   dwServiceState,
+            LPENUM_SERVICE_STATUSW  lpServices,
+            DWORD                   cbBufSize,
+            LPDWORD                 pcbBytesNeeded,
+            LPDWORD                 lpServicesReturned,
+            LPDWORD                 lpResumeHandle
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumServicesStatusW");
@@ -5457,8 +5265,8 @@ extern "C"{
     BOOL
         WINAPI
         OEnumSystemCodePagesW(
-        CODEPAGE_ENUMPROCW lpCodePageEnumProc,
-        DWORD              dwFlags)
+            CODEPAGE_ENUMPROCW lpCodePageEnumProc,
+            DWORD              dwFlags)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumSystemCodePagesW");
         return 0;
@@ -5467,8 +5275,8 @@ extern "C"{
     BOOL
         WINAPI
         OEnumSystemLocalesW(
-        LOCALE_ENUMPROCW lpLocaleEnumProc,
-        DWORD            dwFlags)
+            LOCALE_ENUMPROCW lpLocaleEnumProc,
+            DWORD            dwFlags)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumSystemLocalesW");
         return 0;
@@ -5477,9 +5285,9 @@ extern "C"{
     BOOL
         WINAPI
         OEnumTimeFormatsW(
-        TIMEFMT_ENUMPROCW lpTimeFmtEnumProc,
-        LCID              Locale,
-        DWORD             dwFlags)
+            TIMEFMT_ENUMPROCW lpTimeFmtEnumProc,
+            LCID              Locale,
+            DWORD             dwFlags)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumTimeFormatsW");
         return 0;
@@ -5488,8 +5296,8 @@ extern "C"{
     BOOL
         WINAPI
         OEnumWindowStationsW(
-        WINSTAENUMPROCW lpEnumFunc,
-        LPARAM lParam)
+            WINSTAENUMPROCW lpEnumFunc,
+            LPARAM lParam)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - EnumWindowStationsW");
         return 0;
@@ -5512,7 +5320,7 @@ extern "C"{
     }
 
 
-    UINT WINAPI OExtractIconExW(LPCWSTR lpszFile, int nIconIndex, HICON FAR *phiconLarge, HICON FAR *phiconSmall, UINT nIcons)
+    UINT WINAPI OExtractIconExW(LPCWSTR lpszFile, int nIconIndex, HICON FAR* phiconLarge, HICON FAR* phiconSmall, UINT nIcons)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ExtractIconExW");
         return 0;
@@ -5532,11 +5340,11 @@ extern "C"{
     BOOL
         WINAPI
         OFillConsoleOutputCharacterW(
-        HANDLE hConsoleOutput,
-        WCHAR  cCharacter,
-        DWORD  nLength,
-        COORD  dwWriteCoord,
-        LPDWORD lpNumberOfCharsWritten
+            HANDLE hConsoleOutput,
+            WCHAR  cCharacter,
+            DWORD  nLength,
+            COORD  dwWriteCoord,
+            LPDWORD lpNumberOfCharsWritten
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - FillConsoleOutputCharacterW");
@@ -5562,10 +5370,10 @@ extern "C"{
     HRSRC
         WINAPI
         OFindResourceExW(
-        HMODULE hModule,
-        LPCWSTR lpType,
-        LPCWSTR lpName,
-        WORD    wLanguage
+            HMODULE hModule,
+            LPCWSTR lpType,
+            LPCWSTR lpName,
+            WORD    wLanguage
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - FindResourceExW");
@@ -5590,11 +5398,11 @@ extern "C"{
     int
         WINAPI
         OFoldStringW(
-        DWORD    dwMapFlags,
-        LPCWSTR lpSrcStr,
-        int      cchSrc,
-        LPWSTR  lpDestStr,
-        int      cchDest)
+            DWORD    dwMapFlags,
+            LPCWSTR lpSrcStr,
+            int      cchSrc,
+            LPWSTR  lpDestStr,
+            int      cchDest)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - FoldStringW");
         return 0;
@@ -5603,8 +5411,8 @@ extern "C"{
     BOOL
         WINAPI
         OGetBinaryTypeW(
-        LPCWSTR lpApplicationName,
-        LPDWORD lpBinaryType
+            LPCWSTR lpApplicationName,
+            LPDWORD lpBinaryType
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetBinaryTypeW");
@@ -5630,7 +5438,7 @@ extern "C"{
     LPWSTR
         WINAPI
         OGetCommandLineW(
-        VOID
+            VOID
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetCommandLineW");
@@ -5640,8 +5448,8 @@ extern "C"{
     DWORD
         WINAPI
         OGetCompressedFileSizeW(
-        LPCWSTR lpFileName,
-        LPDWORD lpFileSizeHigh
+            LPCWSTR lpFileName,
+            LPDWORD lpFileSizeHigh
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetCompressedFileSizeW");
@@ -5651,8 +5459,8 @@ extern "C"{
     BOOL
         WINAPI
         OGetComputerNameW(
-        LPWSTR lpBuffer,
-        LPDWORD nSize
+            LPWSTR lpBuffer,
+            LPDWORD nSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetComputerNameW");
@@ -5662,8 +5470,8 @@ extern "C"{
     DWORD
         WINAPI
         OGetConsoleTitleW(
-        LPWSTR lpConsoleTitle,
-        DWORD nSize
+            LPWSTR lpConsoleTitle,
+            DWORD nSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetConsoleTitleW");
@@ -5673,12 +5481,12 @@ extern "C"{
     int
         WINAPI
         OGetCurrencyFormatW(
-        LCID     Locale,
-        DWORD    dwFlags,
-        LPCWSTR lpValue,
-        CONST CURRENCYFMTW *lpFormat,
-        LPWSTR  lpCurrencyStr,
-        int      cchCurrency)
+            LCID     Locale,
+            DWORD    dwFlags,
+            LPCWSTR lpValue,
+            CONST CURRENCYFMTW* lpFormat,
+            LPWSTR  lpCurrencyStr,
+            int      cchCurrency)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetCurrencyFormatW");
         return 0;
@@ -5687,12 +5495,12 @@ extern "C"{
     int
         WINAPI
         OGetDateFormatW(
-        LCID     Locale,
-        DWORD    dwFlags,
-        CONST SYSTEMTIME *lpDate,
-        LPCWSTR lpFormat,
-        LPWSTR  lpDateStr,
-        int      cchDate)
+            LCID     Locale,
+            DWORD    dwFlags,
+            CONST SYSTEMTIME* lpDate,
+            LPCWSTR lpFormat,
+            LPWSTR  lpDateStr,
+            int      cchDate)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetDateFormatW");
         return 0;
@@ -5701,9 +5509,9 @@ extern "C"{
     BOOL
         WINAPI
         OGetDefaultCommConfigW(
-        LPCWSTR lpszName,
-        LPCOMMCONFIG lpCC,
-        LPDWORD lpdwSize
+            LPCWSTR lpszName,
+            LPCOMMCONFIG lpCC,
+            LPDWORD lpdwSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetDefaultCommConfigW");
@@ -5713,11 +5521,11 @@ extern "C"{
     BOOL
         WINAPI
         OGetDiskFreeSpaceW(
-        LPCWSTR lpRootPathName,
-        LPDWORD lpSectorsPerCluster,
-        LPDWORD lpBytesPerSector,
-        LPDWORD lpNumberOfFreeClusters,
-        LPDWORD lpTotalNumberOfClusters
+            LPCWSTR lpRootPathName,
+            LPDWORD lpSectorsPerCluster,
+            LPDWORD lpBytesPerSector,
+            LPDWORD lpNumberOfFreeClusters,
+            LPDWORD lpTotalNumberOfClusters
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetDiskFreeSpaceW");
@@ -5727,7 +5535,7 @@ extern "C"{
     UINT
         WINAPI
         OGetDriveTypeW(
-        LPCWSTR lpRootPathName
+            LPCWSTR lpRootPathName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetDriveTypeW");
@@ -5753,9 +5561,9 @@ extern "C"{
     DWORD
         WINAPI
         OGetEnvironmentVariableW(
-        LPCWSTR lpName,
-        LPWSTR lpBuffer,
-        DWORD nSize
+            LPCWSTR lpName,
+            LPWSTR lpBuffer,
+            DWORD nSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetEnvironmentVariableW");
@@ -5765,8 +5573,8 @@ extern "C"{
     INT
         APIENTRY
         OGetExpandedNameW(
-        LPWSTR,
-        LPWSTR
+            LPWSTR,
+            LPWSTR
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetExpandedNameW");
@@ -5776,11 +5584,11 @@ extern "C"{
     BOOL
         WINAPI
         OGetFileSecurityW(
-        LPCWSTR lpFileName,
-        SECURITY_INFORMATION RequestedInformation,
-        PSECURITY_DESCRIPTOR pSecurityDescriptor,
-        DWORD nLength,
-        LPDWORD lpnLengthNeeded
+            LPCWSTR lpFileName,
+            SECURITY_INFORMATION RequestedInformation,
+            PSECURITY_DESCRIPTOR pSecurityDescriptor,
+            DWORD nLength,
+            LPDWORD lpnLengthNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetFileSecurityW");
@@ -5791,9 +5599,9 @@ extern "C"{
         WINAPI
         OGetFileTitleW
         (
-        LPCWSTR pwszFile,
-        LPWSTR pwszOut,
-        WORD w
+            LPCWSTR pwszFile,
+            LPWSTR pwszOut,
+            WORD w
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetFileTitleW");
@@ -5815,12 +5623,12 @@ extern "C"{
     BOOL
         WINAPI
         OGetFormW(
-        HANDLE  hPrinter,
-        LPWSTR   pFormName,
-        DWORD   Level,
-        LPBYTE  pForm,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded
+            HANDLE  hPrinter,
+            LPWSTR   pFormName,
+            DWORD   Level,
+            LPBYTE  pForm,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetFormW");
@@ -5836,12 +5644,12 @@ extern "C"{
     BOOL
         WINAPI
         OGetJobW(
-        HANDLE   hPrinter,
-        DWORD    JobId,
-        DWORD    Level,
-        LPBYTE   pJob,
-        DWORD    cbBuf,
-        LPDWORD  pcbNeeded
+            HANDLE   hPrinter,
+            DWORD    JobId,
+            DWORD    Level,
+            LPBYTE   pJob,
+            DWORD    cbBuf,
+            LPDWORD  pcbNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetJobW");
@@ -5851,7 +5659,7 @@ extern "C"{
     BOOL
         WINAPI
         OGetKeyboardLayoutNameW(
-        LPWSTR pwszKLID)
+            LPWSTR pwszKLID)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetKeyboardLayoutNameW");
         return 0;
@@ -5866,8 +5674,8 @@ extern "C"{
     DWORD
         WINAPI
         OGetLogicalDriveStringsW(
-        DWORD nBufferLength,
-        LPWSTR lpBuffer
+            DWORD nBufferLength,
+            LPWSTR lpBuffer
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetLogicalDriveStringsW");
@@ -5877,10 +5685,10 @@ extern "C"{
     BOOL
         WINAPI
         OGetMenuItemInfoW(
-        HMENU,
-        UINT,
-        BOOL,
-        LPMENUITEMINFOW
+            HMENU,
+            UINT,
+            BOOL,
+            LPMENUITEMINFOW
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetMenuItemInfoW");
@@ -5896,9 +5704,9 @@ extern "C"{
     INT
         APIENTRY
         OGetNameByTypeW(
-        IN     LPGUID          lpServiceType,
-        IN OUT LPWSTR         lpServiceName,
-        IN     DWORD           dwNameLength
+            IN     LPGUID          lpServiceType,
+            IN OUT LPWSTR         lpServiceName,
+            IN     DWORD           dwNameLength
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetNameByTypeW");
@@ -5908,13 +5716,13 @@ extern "C"{
     BOOL
         WINAPI
         OGetNamedPipeHandleStateW(
-        HANDLE hNamedPipe,
-        LPDWORD lpState,
-        LPDWORD lpCurInstances,
-        LPDWORD lpMaxCollectionCount,
-        LPDWORD lpCollectDataTimeout,
-        LPWSTR lpUserName,
-        DWORD nMaxUserNameSize
+            HANDLE hNamedPipe,
+            LPDWORD lpState,
+            LPDWORD lpCurInstances,
+            LPDWORD lpMaxCollectionCount,
+            LPDWORD lpCollectDataTimeout,
+            LPWSTR lpUserName,
+            DWORD nMaxUserNameSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetNamedPipeHandleStateW");
@@ -5924,12 +5732,12 @@ extern "C"{
     int
         WINAPI
         OGetNumberFormatW(
-        LCID     Locale,
-        DWORD    dwFlags,
-        LPCWSTR lpValue,
-        CONST NUMBERFMTW *lpFormat,
-        LPWSTR  lpNumberStr,
-        int      cchNumber)
+            LCID     Locale,
+            DWORD    dwFlags,
+            LPCWSTR lpValue,
+            CONST NUMBERFMTW* lpFormat,
+            LPWSTR  lpNumberStr,
+            int      cchNumber)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetNumberFormatW");
         return 0;
@@ -5938,11 +5746,11 @@ extern "C"{
     BOOL
         WINAPI
         OGetPrinterW(
-        HANDLE  hPrinter,
-        DWORD   Level,
-        LPBYTE  pPrinter,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded
+            HANDLE  hPrinter,
+            DWORD   Level,
+            LPBYTE  pPrinter,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetPrinterW");
@@ -5952,12 +5760,12 @@ extern "C"{
     DWORD
         WINAPI
         OGetPrinterDataW(
-        HANDLE   hPrinter,
-        LPWSTR    pValueName,
-        LPDWORD  pType,
-        LPBYTE   pData,
-        DWORD    nSize,
-        LPDWORD  pcbNeeded
+            HANDLE   hPrinter,
+            LPWSTR    pValueName,
+            LPDWORD  pType,
+            LPBYTE   pData,
+            DWORD    nSize,
+            LPDWORD  pcbNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetPrinterDataW");
@@ -5967,12 +5775,12 @@ extern "C"{
     BOOL
         WINAPI
         OGetPrinterDriverW(
-        HANDLE  hPrinter,
-        LPWSTR   pEnvironment,
-        DWORD   Level,
-        LPBYTE  pDriverInfo,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded
+            HANDLE  hPrinter,
+            LPWSTR   pEnvironment,
+            DWORD   Level,
+            LPBYTE  pDriverInfo,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetPrinterDriverW");
@@ -5982,12 +5790,12 @@ extern "C"{
     BOOL
         WINAPI
         OGetPrinterDriverDirectoryW(
-        LPWSTR   pName,
-        LPWSTR   pEnvironment,
-        DWORD   Level,
-        LPBYTE  pDriverDirectory,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded
+            LPWSTR   pName,
+            LPWSTR   pEnvironment,
+            DWORD   Level,
+            LPBYTE  pDriverDirectory,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetPrinterDriverDirectoryW");
@@ -5997,12 +5805,12 @@ extern "C"{
     BOOL
         WINAPI
         OGetPrintProcessorDirectoryW(
-        LPWSTR   pName,
-        LPWSTR   pEnvironment,
-        DWORD   Level,
-        LPBYTE  pPrintProcessorInfo,
-        DWORD   cbBuf,
-        LPDWORD pcbNeeded
+            LPWSTR   pName,
+            LPWSTR   pEnvironment,
+            DWORD   Level,
+            LPBYTE  pPrintProcessorInfo,
+            DWORD   cbBuf,
+            LPDWORD pcbNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetPrintProcessorDirectoryW");
@@ -6012,10 +5820,10 @@ extern "C"{
     DWORD
         WINAPI
         OGetPrivateProfileSectionW(
-        LPCWSTR lpAppName,
-        LPWSTR lpReturnedString,
-        DWORD nSize,
-        LPCWSTR lpFileName
+            LPCWSTR lpAppName,
+            LPWSTR lpReturnedString,
+            DWORD nSize,
+            LPCWSTR lpFileName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetPrivateProfileSectionW");
@@ -6025,9 +5833,9 @@ extern "C"{
     DWORD
         WINAPI
         OGetPrivateProfileSectionNamesW(
-        LPWSTR lpszReturnBuffer,
-        DWORD nSize,
-        LPCWSTR lpFileName
+            LPWSTR lpszReturnBuffer,
+            DWORD nSize,
+            LPCWSTR lpFileName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetPrivateProfileSectionNamesW");
@@ -6037,11 +5845,11 @@ extern "C"{
     BOOL
         WINAPI
         OGetPrivateProfileStructW(
-        LPCWSTR lpszSection,
-        LPCWSTR lpszKey,
-        LPVOID   lpStruct,
-        UINT     uSizeStruct,
-        LPCWSTR szFile
+            LPCWSTR lpszSection,
+            LPCWSTR lpszKey,
+            LPVOID   lpStruct,
+            UINT     uSizeStruct,
+            LPCWSTR szFile
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetPrivateProfileStructW");
@@ -6051,9 +5859,9 @@ extern "C"{
     DWORD
         WINAPI
         OGetProfileSectionW(
-        LPCWSTR lpAppName,
-        LPWSTR lpReturnedString,
-        DWORD nSize
+            LPCWSTR lpAppName,
+            LPWSTR lpReturnedString,
+            DWORD nSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetProfileSectionW");
@@ -6063,11 +5871,11 @@ extern "C"{
     DWORD
         WINAPI
         OGetProfileStringW(
-        LPCWSTR lpAppName,
-        LPCWSTR lpKeyName,
-        LPCWSTR lpDefault,
-        LPWSTR lpReturnedString,
-        DWORD nSize
+            LPCWSTR lpAppName,
+            LPCWSTR lpKeyName,
+            LPCWSTR lpDefault,
+            LPWSTR lpReturnedString,
+            DWORD nSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetProfileStringW");
@@ -6078,10 +5886,10 @@ extern "C"{
     BOOL
         WINAPI
         OGetServiceDisplayNameW(
-        SC_HANDLE               hSCManager,
-        LPCWSTR                lpServiceName,
-        LPWSTR                 lpDisplayName,
-        LPDWORD                 lpcchBuffer
+            SC_HANDLE               hSCManager,
+            LPCWSTR                lpServiceName,
+            LPWSTR                 lpDisplayName,
+            LPDWORD                 lpcchBuffer
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetServiceDisplayNameW");
@@ -6091,10 +5899,10 @@ extern "C"{
     BOOL
         WINAPI
         OGetServiceKeyNameW(
-        SC_HANDLE               hSCManager,
-        LPCWSTR                lpDisplayName,
-        LPWSTR                 lpServiceName,
-        LPDWORD                 lpcchBuffer
+            SC_HANDLE               hSCManager,
+            LPCWSTR                lpDisplayName,
+            LPWSTR                 lpServiceName,
+            LPDWORD                 lpcchBuffer
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetServiceKeyNameW");
@@ -6105,9 +5913,9 @@ extern "C"{
     DWORD
         WINAPI
         OGetShortPathNameW(
-        LPCWSTR lpszLongPath,
-        LPWSTR  lpszShortPath,
-        DWORD    cchBuffer
+            LPCWSTR lpszLongPath,
+            LPWSTR  lpszShortPath,
+            DWORD    cchBuffer
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetShortPathNameW");
@@ -6117,7 +5925,7 @@ extern "C"{
     VOID
         WINAPI
         OGetStartupInfoW(
-        LPSTARTUPINFOW lpStartupInfo
+            LPSTARTUPINFOW lpStartupInfo
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetStartupInfoW");
@@ -6127,11 +5935,11 @@ extern "C"{
     BOOL
         WINAPI
         OGetStringTypeExW(
-        LCID     Locale,
-        DWORD    dwInfoType,
-        LPCWSTR lpSrcStr,
-        int      cchSrc,
-        LPWORD   lpCharType)
+            LCID     Locale,
+            DWORD    dwInfoType,
+            LPCWSTR lpSrcStr,
+            int      cchSrc,
+            LPWORD   lpCharType)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetStringTypeExW");
         return 0;
@@ -6140,8 +5948,8 @@ extern "C"{
     UINT
         WINAPI
         OGetSystemDirectoryW(
-        LPWSTR lpBuffer,
-        UINT uSize
+            LPWSTR lpBuffer,
+            UINT uSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetSystemDirectoryW");
@@ -6151,12 +5959,12 @@ extern "C"{
     int
         WINAPI
         OGetTimeFormatW(
-        LCID     Locale,
-        DWORD    dwFlags,
-        CONST SYSTEMTIME *lpTime,
-        LPCWSTR lpFormat,
-        LPWSTR  lpTimeStr,
-        int      cchTime)
+            LCID     Locale,
+            DWORD    dwFlags,
+            CONST SYSTEMTIME* lpTime,
+            LPCWSTR lpFormat,
+            LPWSTR  lpTimeStr,
+            int      cchTime)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetTimeFormatW");
         return 0;
@@ -6165,8 +5973,8 @@ extern "C"{
     INT
         APIENTRY
         OGetTypeByNameW(
-        IN     LPWSTR         lpServiceName,
-        IN OUT LPGUID          lpServiceType
+            IN     LPWSTR         lpServiceName,
+            IN OUT LPGUID          lpServiceType
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetTypeByNameW");
@@ -6176,11 +5984,11 @@ extern "C"{
     BOOL
         WINAPI
         OGetUserObjectInformationW(
-        HANDLE hObj,
-        int nIndex,
-        PVOID pvInfo,
-        DWORD nLength,
-        LPDWORD lpnLengthNeeded)
+            HANDLE hObj,
+            int nIndex,
+            PVOID pvInfo,
+            DWORD nLength,
+            LPDWORD lpnLengthNeeded)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetUserObjectInformationW");
         return 0;
@@ -6189,8 +5997,8 @@ extern "C"{
     UINT
         WINAPI
         OGetWindowsDirectoryW(
-        LPWSTR lpBuffer,
-        UINT uSize
+            LPWSTR lpBuffer,
+            UINT uSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetWindowsDirectoryW");
@@ -6200,7 +6008,7 @@ extern "C"{
     ATOM
         WINAPI
         OGlobalFindAtomW(
-        LPCWSTR lpString
+            LPCWSTR lpString
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GlobalFindAtomW");
@@ -6209,8 +6017,8 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         OI_RpcServerUnregisterEndpointW(
-        IN unsigned short * Protseq,
-        IN unsigned short * Endpoint
+            IN unsigned short* Protseq,
+            IN unsigned short* Endpoint
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - I_RpcServerUnregisterEndpointW");
@@ -6354,11 +6162,11 @@ extern "C"{
     BOOL
         APIENTRY
         OInitiateSystemShutdownW(
-        LPWSTR lpMachineName,
-        LPWSTR lpMessage,
-        DWORD dwTimeout,
-        BOOL bForceAppsClosed,
-        BOOL bRebootAfterShutdown
+            LPWSTR lpMachineName,
+            LPWSTR lpMessage,
+            DWORD dwTimeout,
+            BOOL bForceAppsClosed,
+            BOOL bRebootAfterShutdown
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - InitiateSystemShutdownW");
@@ -6368,10 +6176,10 @@ extern "C"{
     BOOL
         WINAPI
         OInsertMenuItemW(
-        HMENU,
-        UINT,
-        BOOL,
-        LPCMENUITEMINFOW
+            HMENU,
+            UINT,
+            BOOL,
+            LPCMENUITEMINFOW
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - InsertMenuItemW");
@@ -6381,7 +6189,7 @@ extern "C"{
     BOOL
         WINAPI
         OIsCharLowerW(
-        WCHAR ch)
+            WCHAR ch)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - IsCharLowerW");
         return 0;
@@ -6406,7 +6214,7 @@ extern "C"{
     HCURSOR
         WINAPI
         OLoadCursorFromFileW(
-        LPCWSTR    lpFileName)
+            LPCWSTR    lpFileName)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - LoadCursorFromFileW");
         return 0;
@@ -6415,8 +6223,8 @@ extern "C"{
     HKL
         WINAPI
         OLoadKeyboardLayoutW(
-        LPCWSTR pwszKLID,
-        UINT Flags)
+            LPCWSTR pwszKLID,
+            UINT Flags)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - LoadKeyboardLayoutW");
         return 0;
@@ -6425,12 +6233,12 @@ extern "C"{
     BOOL
         WINAPI
         OLogonUserW(
-        LPWSTR lpszUsername,
-        LPWSTR lpszDomain,
-        LPWSTR lpszPassword,
-        DWORD dwLogonType,
-        DWORD dwLogonProvider,
-        PHANDLE phToken
+            LPWSTR lpszUsername,
+            LPWSTR lpszDomain,
+            LPWSTR lpszPassword,
+            DWORD dwLogonType,
+            DWORD dwLogonProvider,
+            PHANDLE phToken
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - LogonUserW");
@@ -6440,9 +6248,9 @@ extern "C"{
     INT
         APIENTRY
         OLZOpenFileW(
-        LPWSTR,
-        LPOFSTRUCT,
-        WORD
+            LPWSTR,
+            LPOFSTRUCT,
+            WORD
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - LZOpenFileW");
@@ -6452,9 +6260,9 @@ extern "C"{
     UINT
         WINAPI
         OMapVirtualKeyExW(
-        UINT uCode,
-        UINT uMapType,
-        HKL dwhkl)
+            UINT uCode,
+            UINT uMapType,
+            HKL dwhkl)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - MapVirtualKeyExW");
         return 0;
@@ -6463,11 +6271,11 @@ extern "C"{
     HRESULT
         WINAPI
         OMIMEAssociationDialogW(HWND hwndParent,
-        DWORD dwInFlags,
-        PCWSTR pcszFile,
-        PCWSTR pcszMIMEContentType,
-        PWSTR pszAppBuf,
-        UINT ucAppBufLen)
+                                DWORD dwInFlags,
+                                PCWSTR pcszFile,
+                                PCWSTR pcszMIMEContentType,
+                                PWSTR pszAppBuf,
+                                UINT ucAppBufLen)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - MIMEAssociationDialogW");
         return 0;
@@ -6476,8 +6284,8 @@ extern "C"{
     DWORD
         APIENTRY
         OMultinetGetConnectionPerformanceW(
-        LPNETRESOURCEW lpNetResource,
-        LPNETCONNECTINFOSTRUCT lpNetConnectInfoStruct
+            LPNETRESOURCEW lpNetResource,
+            LPNETCONNECTINFOSTRUCT lpNetConnectInfoStruct
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - MultinetGetConnectionPerformanceW");
@@ -6487,9 +6295,9 @@ extern "C"{
     BOOL
         WINAPI
         OObjectCloseAuditAlarmW(
-        LPCWSTR SubsystemName,
-        LPVOID HandleId,
-        BOOL GenerateOnClose
+            LPCWSTR SubsystemName,
+            LPVOID HandleId,
+            BOOL GenerateOnClose
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ObjectCloseAuditAlarmW");
@@ -6499,18 +6307,18 @@ extern "C"{
     BOOL
         WINAPI
         OObjectOpenAuditAlarmW(
-        LPCWSTR SubsystemName,
-        LPVOID HandleId,
-        LPWSTR ObjectTypeName,
-        LPWSTR ObjectName,
-        PSECURITY_DESCRIPTOR pSecurityDescriptor,
-        HANDLE ClientToken,
-        DWORD DesiredAccess,
-        DWORD GrantedAccess,
-        PPRIVILEGE_SET Privileges,
-        BOOL ObjectCreation,
-        BOOL AccessGranted,
-        LPBOOL GenerateOnClose
+            LPCWSTR SubsystemName,
+            LPVOID HandleId,
+            LPWSTR ObjectTypeName,
+            LPWSTR ObjectName,
+            PSECURITY_DESCRIPTOR pSecurityDescriptor,
+            HANDLE ClientToken,
+            DWORD DesiredAccess,
+            DWORD GrantedAccess,
+            PPRIVILEGE_SET Privileges,
+            BOOL ObjectCreation,
+            BOOL AccessGranted,
+            LPBOOL GenerateOnClose
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ObjectOpenAuditAlarmW");
@@ -6520,12 +6328,12 @@ extern "C"{
     BOOL
         WINAPI
         OObjectPrivilegeAuditAlarmW(
-        LPCWSTR SubsystemName,
-        LPVOID HandleId,
-        HANDLE ClientToken,
-        DWORD DesiredAccess,
-        PPRIVILEGE_SET Privileges,
-        BOOL AccessGranted
+            LPCWSTR SubsystemName,
+            LPVOID HandleId,
+            HANDLE ClientToken,
+            DWORD DesiredAccess,
+            PPRIVILEGE_SET Privileges,
+            BOOL AccessGranted
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ObjectPrivilegeAuditAlarmW");
@@ -6535,9 +6343,9 @@ extern "C"{
     BOOL
         WINAPI
         OOemToCharBuffW(
-        LPCSTR lpszSrc,
-        LPWSTR lpszDst,
-        DWORD cchDstLength)
+            LPCSTR lpszSrc,
+            LPWSTR lpszDst,
+            DWORD cchDstLength)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OemToCharBuffW");
         return 0;
@@ -6546,8 +6354,8 @@ extern "C"{
     HANDLE
         WINAPI
         OOpenBackupEventLogW(
-        LPCWSTR lpUNCServerName,
-        LPCWSTR lpFileName
+            LPCWSTR lpUNCServerName,
+            LPCWSTR lpFileName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenBackupEventLogW");
@@ -6557,10 +6365,10 @@ extern "C"{
     HDESK
         WINAPI
         OOpenDesktopW(
-        LPWSTR lpszDesktop,
-        DWORD dwFlags,
-        BOOL fInherit,
-        DWORD dwDesiredAccess)
+            LPWSTR lpszDesktop,
+            DWORD dwFlags,
+            BOOL fInherit,
+            DWORD dwDesiredAccess)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenDesktopW");
         return 0;
@@ -6569,9 +6377,9 @@ extern "C"{
     HANDLE
         WINAPI
         OOpenEventW(
-        DWORD dwDesiredAccess,
-        BOOL bInheritHandle,
-        LPCWSTR lpName
+            DWORD dwDesiredAccess,
+            BOOL bInheritHandle,
+            LPCWSTR lpName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenEventW");
@@ -6581,8 +6389,8 @@ extern "C"{
     HANDLE
         WINAPI
         OOpenEventLogW(
-        LPCWSTR lpUNCServerName,
-        LPCWSTR lpSourceName
+            LPCWSTR lpUNCServerName,
+            LPCWSTR lpSourceName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenEventLogW");
@@ -6592,9 +6400,9 @@ extern "C"{
     HANDLE
         WINAPI
         OOpenFileMappingW(
-        DWORD dwDesiredAccess,
-        BOOL bInheritHandle,
-        LPCWSTR lpName
+            DWORD dwDesiredAccess,
+            BOOL bInheritHandle,
+            LPCWSTR lpName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenFileMappingW");
@@ -6604,9 +6412,9 @@ extern "C"{
     HANDLE
         WINAPI
         OOpenMutexW(
-        DWORD dwDesiredAccess,
-        BOOL bInheritHandle,
-        LPCWSTR lpName
+            DWORD dwDesiredAccess,
+            BOOL bInheritHandle,
+            LPCWSTR lpName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenMutexW");
@@ -6616,9 +6424,9 @@ extern "C"{
     BOOL
         WINAPI
         OOpenPrinterW(
-        LPWSTR    pPrinterName,
-        LPHANDLE phPrinter,
-        LPPRINTER_DEFAULTSW pDefault
+            LPWSTR    pPrinterName,
+            LPHANDLE phPrinter,
+            LPPRINTER_DEFAULTSW pDefault
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenPrinterW");
@@ -6629,9 +6437,9 @@ extern "C"{
     SC_HANDLE
         WINAPI
         OOpenSCManagerW(
-        LPCWSTR lpMachineName,
-        LPCWSTR lpDatabaseName,
-        DWORD   dwDesiredAccess
+            LPCWSTR lpMachineName,
+            LPCWSTR lpDatabaseName,
+            DWORD   dwDesiredAccess
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenSCManagerW");
@@ -6642,9 +6450,9 @@ extern "C"{
     HANDLE
         WINAPI
         OOpenSemaphoreW(
-        DWORD dwDesiredAccess,
-        BOOL bInheritHandle,
-        LPCWSTR lpName
+            DWORD dwDesiredAccess,
+            BOOL bInheritHandle,
+            LPCWSTR lpName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenSemaphoreW");
@@ -6655,9 +6463,9 @@ extern "C"{
     SC_HANDLE
         WINAPI
         OOpenServiceW(
-        SC_HANDLE   hSCManager,
-        LPCWSTR    lpServiceName,
-        DWORD       dwDesiredAccess
+            SC_HANDLE   hSCManager,
+            LPCWSTR    lpServiceName,
+            DWORD       dwDesiredAccess
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenServiceW");
@@ -6668,9 +6476,9 @@ extern "C"{
     HWINSTA
         WINAPI
         OOpenWindowStationW(
-        LPWSTR lpszWinSta,
-        BOOL fInherit,
-        DWORD dwDesiredAccess)
+            LPWSTR lpszWinSta,
+            BOOL fInherit,
+            DWORD dwDesiredAccess)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - OpenWindowStationW");
         return 0;
@@ -6685,10 +6493,10 @@ extern "C"{
     BOOL
         WINAPI
         OPeekConsoleInputW(
-        HANDLE hConsoleInput,
-        PINPUT_RECORD lpBuffer,
-        DWORD nLength,
-        LPDWORD lpNumberOfEventsRead
+            HANDLE hConsoleInput,
+            PINPUT_RECORD lpBuffer,
+            DWORD nLength,
+            LPDWORD lpNumberOfEventsRead
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - PeekConsoleInputW");
@@ -6697,7 +6505,7 @@ extern "C"{
 
     BOOL
         WINAPI
-        OPolyTextOutW(HDC, CONST POLYTEXTW *, int)
+        OPolyTextOutW(HDC, CONST POLYTEXTW*, int)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - PolyTextOutW");
         return 0;
@@ -6713,12 +6521,12 @@ extern "C"{
     DWORD
         WINAPI
         OPrinterMessageBoxW(
-        HANDLE  hPrinter,
-        DWORD   Error,
-        HWND    hWnd,
-        LPWSTR   pText,
-        LPWSTR   pCaption,
-        DWORD   dwType
+            HANDLE  hPrinter,
+            DWORD   Error,
+            HWND    hWnd,
+            LPWSTR   pText,
+            LPWSTR   pCaption,
+            DWORD   dwType
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - PrinterMessageBoxW");
@@ -6728,11 +6536,11 @@ extern "C"{
     BOOL
         WINAPI
         OPrivilegedServiceAuditAlarmW(
-        LPCWSTR SubsystemName,
-        LPCWSTR ServiceName,
-        HANDLE ClientToken,
-        PPRIVILEGE_SET Privileges,
-        BOOL AccessGranted
+            LPCWSTR SubsystemName,
+            LPCWSTR ServiceName,
+            HANDLE ClientToken,
+            PPRIVILEGE_SET Privileges,
+            BOOL AccessGranted
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - PrivilegedServiceAuditAlarmW");
@@ -6742,7 +6550,7 @@ extern "C"{
     int
         WINAPI
         OPropertySheetW(
-        LPCPROPSHEETHEADERW lpcpsh
+            LPCPROPSHEETHEADERW lpcpsh
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - PropertySheetW");
@@ -6752,9 +6560,9 @@ extern "C"{
     DWORD
         WINAPI
         OQueryDosDeviceW(
-        LPCWSTR lpDeviceName,
-        LPWSTR lpTargetPath,
-        DWORD ucchMax
+            LPCWSTR lpDeviceName,
+            LPWSTR lpTargetPath,
+            DWORD ucchMax
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - QueryDosDeviceW");
@@ -6765,10 +6573,10 @@ extern "C"{
     BOOL
         WINAPI
         OQueryServiceConfigW(
-        SC_HANDLE               hService,
-        LPQUERY_SERVICE_CONFIGW lpServiceConfig,
-        DWORD                   cbBufSize,
-        LPDWORD                 pcbBytesNeeded
+            SC_HANDLE               hService,
+            LPQUERY_SERVICE_CONFIGW lpServiceConfig,
+            DWORD                   cbBufSize,
+            LPDWORD                 pcbBytesNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - QueryServiceConfigW");
@@ -6778,10 +6586,10 @@ extern "C"{
     BOOL
         WINAPI
         OQueryServiceLockStatusW(
-        SC_HANDLE                       hSCManager,
-        LPQUERY_SERVICE_LOCK_STATUSW    lpLockStatus,
-        DWORD                           cbBufSize,
-        LPDWORD                         pcbBytesNeeded
+            SC_HANDLE                       hSCManager,
+            LPQUERY_SERVICE_LOCK_STATUSW    lpLockStatus,
+            DWORD                           cbBufSize,
+            LPDWORD                         pcbBytesNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - QueryServiceLockStatusW");
@@ -6792,11 +6600,11 @@ extern "C"{
     BOOL
         WINAPI
         OReadConsoleW(
-        HANDLE hConsoleInput,
-        LPVOID lpBuffer,
-        DWORD nNumberOfCharsToRead,
-        LPDWORD lpNumberOfCharsRead,
-        LPVOID lpReserved
+            HANDLE hConsoleInput,
+            LPVOID lpBuffer,
+            DWORD nNumberOfCharsToRead,
+            LPDWORD lpNumberOfCharsRead,
+            LPVOID lpReserved
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ReadConsoleW");
@@ -6806,10 +6614,10 @@ extern "C"{
     BOOL
         WINAPI
         OReadConsoleInputW(
-        HANDLE hConsoleInput,
-        PINPUT_RECORD lpBuffer,
-        DWORD nLength,
-        LPDWORD lpNumberOfEventsRead
+            HANDLE hConsoleInput,
+            PINPUT_RECORD lpBuffer,
+            DWORD nLength,
+            LPDWORD lpNumberOfEventsRead
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ReadConsoleInputW");
@@ -6819,11 +6627,11 @@ extern "C"{
     BOOL
         WINAPI
         OReadConsoleOutputW(
-        HANDLE hConsoleOutput,
-        PCHAR_INFO lpBuffer,
-        COORD dwBufferSize,
-        COORD dwBufferCoord,
-        PSMALL_RECT lpReadRegion
+            HANDLE hConsoleOutput,
+            PCHAR_INFO lpBuffer,
+            COORD dwBufferSize,
+            COORD dwBufferCoord,
+            PSMALL_RECT lpReadRegion
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ReadConsoleOutputW");
@@ -6833,11 +6641,11 @@ extern "C"{
     BOOL
         WINAPI
         OReadConsoleOutputCharacterW(
-        HANDLE hConsoleOutput,
-        LPWSTR lpCharacter,
-        DWORD nLength,
-        COORD dwReadCoord,
-        LPDWORD lpNumberOfCharsRead
+            HANDLE hConsoleOutput,
+            LPWSTR lpCharacter,
+            DWORD nLength,
+            COORD dwReadCoord,
+            LPDWORD lpNumberOfCharsRead
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ReadConsoleOutputCharacterW");
@@ -6847,13 +6655,13 @@ extern "C"{
     BOOL
         WINAPI
         OReadEventLogW(
-        HANDLE     hEventLog,
-        DWORD      dwReadFlags,
-        DWORD      dwRecordOffset,
-        LPVOID     lpBuffer,
-        DWORD      nNumberOfBytesToRead,
-        DWORD      *pnBytesRead,
-        DWORD      *pnMinNumberOfBytesNeeded
+            HANDLE     hEventLog,
+            DWORD      dwReadFlags,
+            DWORD      dwRecordOffset,
+            LPVOID     lpBuffer,
+            DWORD      nNumberOfBytesToRead,
+            DWORD* pnBytesRead,
+            DWORD* pnMinNumberOfBytesNeeded
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ReadEventLogW");
@@ -6863,9 +6671,9 @@ extern "C"{
     LONG
         APIENTRY
         ORegConnectRegistryW(
-        LPWSTR lpMachineName,
-        HKEY hKey,
-        PHKEY phkResult
+            LPWSTR lpMachineName,
+            HKEY hKey,
+            PHKEY phkResult
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RegConnectRegistryW");
@@ -6875,8 +6683,8 @@ extern "C"{
     HANDLE
         WINAPI
         ORegisterEventSourceW(
-        LPCWSTR lpUNCServerName,
-        LPCWSTR lpSourceName
+            LPCWSTR lpUNCServerName,
+            LPCWSTR lpSourceName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RegisterEventSourceW");
@@ -6894,9 +6702,9 @@ extern "C"{
     LONG
         APIENTRY
         ORegLoadKeyW(
-        HKEY    hKey,
-        LPCWSTR  lpSubKey,
-        LPCWSTR  lpFile
+            HKEY    hKey,
+            LPCWSTR  lpSubKey,
+            LPCWSTR  lpFile
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RegLoadKeyW");
@@ -6906,11 +6714,11 @@ extern "C"{
     LONG
         APIENTRY
         ORegQueryMultipleValuesW(
-        HKEY hKey,
-        PVALENTW val_list,
-        DWORD num_vals,
-        LPWSTR lpValueBuf,
-        LPDWORD ldwTotsize
+            HKEY hKey,
+            PVALENTW val_list,
+            DWORD num_vals,
+            LPWSTR lpValueBuf,
+            LPDWORD ldwTotsize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RegQueryMultipleValuesW");
@@ -6920,10 +6728,10 @@ extern "C"{
     LONG
         APIENTRY
         ORegReplaceKeyW(
-        HKEY     hKey,
-        LPCWSTR  lpSubKey,
-        LPCWSTR  lpNewFile,
-        LPCWSTR  lpOldFile
+            HKEY     hKey,
+            LPCWSTR  lpSubKey,
+            LPCWSTR  lpNewFile,
+            LPCWSTR  lpOldFile
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RegReplaceKeyW");
@@ -6933,9 +6741,9 @@ extern "C"{
     LONG
         APIENTRY
         ORegRestoreKeyW(
-        HKEY hKey,
-        LPCWSTR lpFile,
-        DWORD   dwFlags
+            HKEY hKey,
+            LPCWSTR lpFile,
+            DWORD   dwFlags
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RegRestoreKeyW");
@@ -6945,9 +6753,9 @@ extern "C"{
     LONG
         APIENTRY
         ORegSaveKeyW(
-        HKEY hKey,
-        LPCWSTR lpFile,
-        LPSECURITY_ATTRIBUTES lpSecurityAttributes
+            HKEY hKey,
+            LPCWSTR lpFile,
+            LPSECURITY_ATTRIBUTES lpSecurityAttributes
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RegSaveKeyW");
@@ -6957,8 +6765,8 @@ extern "C"{
     LONG
         APIENTRY
         ORegUnLoadKeyW(
-        HKEY    hKey,
-        LPCWSTR lpSubKey
+            HKEY    hKey,
+            LPCWSTR lpSubKey
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RegUnLoadKeyW");
@@ -6968,7 +6776,7 @@ extern "C"{
     BOOL
         WINAPI
         ORemoveDirectoryW(
-        LPCWSTR lpPathName
+            LPCWSTR lpPathName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RemoveDirectoryW");
@@ -6993,15 +6801,15 @@ extern "C"{
     BOOL
         WINAPI
         OReportEventW(
-        HANDLE     hEventLog,
-        WORD       wType,
-        WORD       wCategory,
-        DWORD      dwEventID,
-        PSID       lpUserSid,
-        WORD       wNumStrings,
-        DWORD      dwDataSize,
-        LPCWSTR   *lpStrings,
-        LPVOID     lpRawData
+            HANDLE     hEventLog,
+            WORD       wType,
+            WORD       wCategory,
+            DWORD      dwEventID,
+            PSID       lpUserSid,
+            WORD       wNumStrings,
+            DWORD      dwDataSize,
+            LPCWSTR* lpStrings,
+            LPVOID     lpRawData
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ReportEventW");
@@ -7011,8 +6819,8 @@ extern "C"{
     HDC
         WINAPI
         OResetDCW(
-        HDC hdc,
-        CONST DEVMODEW *lpInitData)
+            HDC hdc,
+            CONST DEVMODEW* lpInitData)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ResetDCW");
         return 0;
@@ -7021,8 +6829,8 @@ extern "C"{
     BOOL
         WINAPI
         OResetPrinterW(
-        HANDLE   hPrinter,
-        LPPRINTER_DEFAULTSW pDefault
+            HANDLE   hPrinter,
+            LPPRINTER_DEFAULTSW pDefault
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ResetPrinterW");
@@ -7031,8 +6839,8 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcBindingFromStringBindingW(
-        IN unsigned short __RPC_FAR * StringBinding,
-        OUT RPC_BINDING_HANDLE __RPC_FAR * Binding
+            IN unsigned short __RPC_FAR* StringBinding,
+            OUT RPC_BINDING_HANDLE __RPC_FAR* Binding
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcBindingFromStringBindingW");
@@ -7041,12 +6849,12 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcBindingInqAuthClientW(
-        IN RPC_BINDING_HANDLE ClientBinding, OPTIONAL
-        OUT RPC_AUTHZ_HANDLE __RPC_FAR * Privs,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * ServerPrincName, OPTIONAL
-        OUT unsigned long __RPC_FAR * AuthnLevel, OPTIONAL
-        OUT unsigned long __RPC_FAR * AuthnSvc, OPTIONAL
-        OUT unsigned long __RPC_FAR * AuthzSvc OPTIONAL
+            IN RPC_BINDING_HANDLE ClientBinding, OPTIONAL
+            OUT RPC_AUTHZ_HANDLE __RPC_FAR* Privs,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* ServerPrincName, OPTIONAL
+            OUT unsigned long __RPC_FAR* AuthnLevel, OPTIONAL
+            OUT unsigned long __RPC_FAR* AuthnSvc, OPTIONAL
+            OUT unsigned long __RPC_FAR* AuthzSvc OPTIONAL
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcBindingInqAuthClientW");
@@ -7055,8 +6863,8 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcBindingToStringBindingW(
-        IN RPC_BINDING_HANDLE Binding,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * StringBinding
+            IN RPC_BINDING_HANDLE Binding,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* StringBinding
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcBindingToStringBindingW");
@@ -7065,10 +6873,10 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcEpRegisterNoReplaceW(
-        IN RPC_IF_HANDLE IfSpec,
-        IN RPC_BINDING_VECTOR * BindingVector,
-        IN UUID_VECTOR * UuidVector OPTIONAL,
-        IN unsigned short  * Annotation
+            IN RPC_IF_HANDLE IfSpec,
+            IN RPC_BINDING_VECTOR* BindingVector,
+            IN UUID_VECTOR* UuidVector OPTIONAL,
+            IN unsigned short* Annotation
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcEpRegisterNoReplaceW");
@@ -7077,11 +6885,11 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcMgmtEpEltInqNextW(
-        IN RPC_EP_INQ_HANDLE InquiryContext,
-        OUT RPC_IF_ID __RPC_FAR * IfId,
-        OUT RPC_BINDING_HANDLE __RPC_FAR * Binding OPTIONAL,
-        OUT UUID __RPC_FAR * ObjectUuid OPTIONAL,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * Annotation OPTIONAL
+            IN RPC_EP_INQ_HANDLE InquiryContext,
+            OUT RPC_IF_ID __RPC_FAR* IfId,
+            OUT RPC_BINDING_HANDLE __RPC_FAR* Binding OPTIONAL,
+            OUT UUID __RPC_FAR* ObjectUuid OPTIONAL,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* Annotation OPTIONAL
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcMgmtEpEltInqNextW");
@@ -7090,9 +6898,9 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcMgmtInqServerPrincNameW(
-        IN RPC_BINDING_HANDLE Binding,
-        IN unsigned long AuthnSvc,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * ServerPrincName
+            IN RPC_BINDING_HANDLE Binding,
+            IN unsigned long AuthnSvc,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* ServerPrincName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcMgmtInqServerPrincNameW");
@@ -7101,7 +6909,7 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcNetworkInqProtseqsW(
-        OUT RPC_PROTSEQ_VECTORW __RPC_FAR * __RPC_FAR * ProtseqVector
+            OUT RPC_PROTSEQ_VECTORW __RPC_FAR* __RPC_FAR* ProtseqVector
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcNetworkInqProtseqsW");
@@ -7110,7 +6918,7 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcNetworkIsProtseqValidW(
-        IN unsigned short __RPC_FAR * Protseq
+            IN unsigned short __RPC_FAR* Protseq
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcNetworkIsProtseqValidW");
@@ -7119,9 +6927,9 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcNsBindingInqEntryNameW(
-        IN RPC_BINDING_HANDLE Binding,
-        IN unsigned long EntryNameSyntax,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * EntryName
+            IN RPC_BINDING_HANDLE Binding,
+            IN unsigned long EntryNameSyntax,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* EntryName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcNsBindingInqEntryNameW");
@@ -7130,7 +6938,7 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcProtseqVectorFreeW(
-        IN OUT RPC_PROTSEQ_VECTORW __RPC_FAR * __RPC_FAR * ProtseqVector
+            IN OUT RPC_PROTSEQ_VECTORW __RPC_FAR* __RPC_FAR* ProtseqVector
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcProtseqVectorFreeW");
@@ -7139,8 +6947,8 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcServerInqDefaultPrincNameW(
-        IN unsigned long AuthnSvc,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * PrincName
+            IN unsigned long AuthnSvc,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* PrincName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcServerInqDefaultPrincNameW");
@@ -7149,9 +6957,9 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcServerUseProtseqW(
-        IN unsigned short __RPC_FAR * Protseq,
-        IN unsigned int MaxCalls,
-        IN void __RPC_FAR * SecurityDescriptor OPTIONAL
+            IN unsigned short __RPC_FAR* Protseq,
+            IN unsigned int MaxCalls,
+            IN void __RPC_FAR* SecurityDescriptor OPTIONAL
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcServerUseProtseqW");
@@ -7160,10 +6968,10 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcServerUseProtseqEpW(
-        IN unsigned short __RPC_FAR * Protseq,
-        IN unsigned int MaxCalls,
-        IN unsigned short __RPC_FAR * Endpoint,
-        IN void __RPC_FAR * SecurityDescriptor OPTIONAL
+            IN unsigned short __RPC_FAR* Protseq,
+            IN unsigned int MaxCalls,
+            IN unsigned short __RPC_FAR* Endpoint,
+            IN void __RPC_FAR* SecurityDescriptor OPTIONAL
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcServerUseProtseqEpW");
@@ -7172,10 +6980,10 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcServerUseProtseqIfW(
-        IN unsigned short __RPC_FAR * Protseq,
-        IN unsigned int MaxCalls,
-        IN RPC_IF_HANDLE IfSpec,
-        IN void __RPC_FAR * SecurityDescriptor OPTIONAL
+            IN unsigned short __RPC_FAR* Protseq,
+            IN unsigned int MaxCalls,
+            IN RPC_IF_HANDLE IfSpec,
+            IN void __RPC_FAR* SecurityDescriptor OPTIONAL
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcServerUseProtseqIfW");
@@ -7184,12 +6992,12 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcStringBindingComposeW(
-        IN unsigned short __RPC_FAR * ObjUuid OPTIONAL,
-        IN unsigned short __RPC_FAR * Protseq OPTIONAL,
-        IN unsigned short __RPC_FAR * NetworkAddr OPTIONAL,
-        IN unsigned short __RPC_FAR * Endpoint OPTIONAL,
-        IN unsigned short __RPC_FAR * Options OPTIONAL,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * StringBinding OPTIONAL
+            IN unsigned short __RPC_FAR* ObjUuid OPTIONAL,
+            IN unsigned short __RPC_FAR* Protseq OPTIONAL,
+            IN unsigned short __RPC_FAR* NetworkAddr OPTIONAL,
+            IN unsigned short __RPC_FAR* Endpoint OPTIONAL,
+            IN unsigned short __RPC_FAR* Options OPTIONAL,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* StringBinding OPTIONAL
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcStringBindingComposeW");
@@ -7198,12 +7006,12 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcStringBindingParseW(
-        IN unsigned short __RPC_FAR * StringBinding,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * ObjUuid OPTIONAL,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * Protseq OPTIONAL,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * NetworkAddr OPTIONAL,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * Endpoint OPTIONAL,
-        OUT unsigned short __RPC_FAR * __RPC_FAR * NetworkOptions OPTIONAL
+            IN unsigned short __RPC_FAR* StringBinding,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* ObjUuid OPTIONAL,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* Protseq OPTIONAL,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* NetworkAddr OPTIONAL,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* Endpoint OPTIONAL,
+            OUT unsigned short __RPC_FAR* __RPC_FAR* NetworkOptions OPTIONAL
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcStringBindingParseW");
@@ -7212,7 +7020,7 @@ extern "C"{
 
     RPC_STATUS RPC_ENTRY
         ORpcStringFreeW(
-        IN OUT unsigned short __RPC_FAR * __RPC_FAR * String
+            IN OUT unsigned short __RPC_FAR* __RPC_FAR* String
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - RpcStringFreeW");
@@ -7222,11 +7030,11 @@ extern "C"{
     BOOL
         WINAPI
         OScrollConsoleScreenBufferW(
-        HANDLE hConsoleOutput,
-        CONST SMALL_RECT *lpScrollRectangle,
-        CONST SMALL_RECT *lpClipRectangle,
-        COORD dwDestinationOrigin,
-        CONST CHAR_INFO *lpFill
+            HANDLE hConsoleOutput,
+            CONST SMALL_RECT* lpScrollRectangle,
+            CONST SMALL_RECT* lpClipRectangle,
+            COORD dwDestinationOrigin,
+            CONST CHAR_INFO* lpFill
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - ScrollConsoleScreenBufferW");
@@ -7236,12 +7044,12 @@ extern "C"{
     DWORD
         WINAPI
         OSearchPathW(
-        LPCWSTR lpPath,
-        LPCWSTR lpFileName,
-        LPCWSTR lpExtension,
-        DWORD nBufferLength,
-        LPWSTR lpBuffer,
-        LPWSTR *lpFilePart
+            LPCWSTR lpPath,
+            LPCWSTR lpFileName,
+            LPCWSTR lpExtension,
+            DWORD nBufferLength,
+            LPWSTR lpBuffer,
+            LPWSTR* lpFilePart
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SearchPathW");
@@ -7251,12 +7059,12 @@ extern "C"{
     BOOL
         WINAPI
         OSendMessageCallbackW(
-        HWND hWnd,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam,
-        SENDASYNCPROC lpResultCallBack,
-        DWORD dwData)
+            HWND hWnd,
+            UINT Msg,
+            WPARAM wParam,
+            LPARAM lParam,
+            SENDASYNCPROC lpResultCallBack,
+            DWORD dwData)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SendMessageCallbackW");
         return 0;
@@ -7265,13 +7073,13 @@ extern "C"{
     LRESULT
         WINAPI
         OSendMessageTimeoutW(
-        HWND hWnd,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam,
-        UINT fuFlags,
-        UINT uTimeout,
-        LPDWORD lpdwResult)
+            HWND hWnd,
+            UINT Msg,
+            WPARAM wParam,
+            LPARAM lParam,
+            UINT fuFlags,
+            UINT uTimeout,
+            LPDWORD lpdwResult)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SendMessageTimeoutW");
         return 0;
@@ -7310,9 +7118,9 @@ extern "C"{
     BOOL
         WINAPI
         OSetFileSecurityW(
-        LPCWSTR lpFileName,
-        SECURITY_INFORMATION SecurityInformation,
-        PSECURITY_DESCRIPTOR pSecurityDescriptor
+            LPCWSTR lpFileName,
+            SECURITY_INFORMATION SecurityInformation,
+            PSECURITY_DESCRIPTOR pSecurityDescriptor
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SetFileSecurityW");
@@ -7322,10 +7130,10 @@ extern "C"{
     BOOL
         WINAPI
         OSetFormW(
-        HANDLE  hPrinter,
-        LPWSTR   pFormName,
-        DWORD   Level,
-        LPBYTE  pForm
+            HANDLE  hPrinter,
+            LPWSTR   pFormName,
+            DWORD   Level,
+            LPBYTE  pForm
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SetFormW");
@@ -7342,11 +7150,11 @@ extern "C"{
     BOOL
         WINAPI
         OSetJobW(
-        HANDLE  hPrinter,
-        DWORD   JobId,
-        DWORD   Level,
-        LPBYTE  pJob,
-        DWORD   Command
+            HANDLE  hPrinter,
+            DWORD   JobId,
+            DWORD   Level,
+            LPBYTE  pJob,
+            DWORD   Command
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SetJobW");
@@ -7356,10 +7164,10 @@ extern "C"{
     BOOL
         WINAPI
         OSetPrinterW(
-        HANDLE  hPrinter,
-        DWORD   Level,
-        LPBYTE  pPrinter,
-        DWORD   Command
+            HANDLE  hPrinter,
+            DWORD   Level,
+            LPBYTE  pPrinter,
+            DWORD   Command
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SetPrinterW");
@@ -7369,11 +7177,11 @@ extern "C"{
     DWORD
         WINAPI
         OSetPrinterDataW(
-        HANDLE  hPrinter,
-        LPWSTR   pValueName,
-        DWORD   Type,
-        LPBYTE  pData,
-        DWORD   cbData
+            HANDLE  hPrinter,
+            LPWSTR   pValueName,
+            DWORD   Type,
+            LPBYTE  pData,
+            DWORD   cbData
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SetPrinterDataW");
@@ -7434,13 +7242,13 @@ extern "C"{
         return 0;
     }
 
-    DWORD WINAPI OSHGetFileInfoW(LPCWSTR pszPath, DWORD dwFileAttributes, SHFILEINFOW FAR *psfi, UINT cbFileInfo, UINT uFlags)
+    DWORD WINAPI OSHGetFileInfoW(LPCWSTR pszPath, DWORD dwFileAttributes, SHFILEINFOW FAR* psfi, UINT cbFileInfo, UINT uFlags)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SHGetFileInfoW");
         return 0;
     }
 
-    BOOL WINAPI OSHGetNewLinkInfoW(LPCWSTR pszLinkTo, LPCWSTR pszDir, LPWSTR pszName, BOOL FAR * pfMustCopy, UINT uFlags)
+    BOOL WINAPI OSHGetNewLinkInfoW(LPCWSTR pszLinkTo, LPCWSTR pszDir, LPWSTR pszName, BOOL FAR* pfMustCopy, UINT uFlags)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - SHGetNewLinkInfoW");
         return 0;
@@ -7465,7 +7273,7 @@ extern "C"{
     }
 
 #if 0 //$UNDONE_POST_98 - We should wrap these as being NT only...
-    BOOL WINAPI OStartServiceW(SC_HANDLE hService, DWORD dwNumServiceArgs, LPCWSTR *lpServiceArgVectors)
+    BOOL WINAPI OStartServiceW(SC_HANDLE hService, DWORD dwNumServiceArgs, LPCWSTR* lpServiceArgVectors)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - StartServiceW");
         return 0;
@@ -7487,7 +7295,7 @@ extern "C"{
     }
     */
 
-    HRESULT WINAPI OTranslateURLW(PCWSTR pcszURL, DWORD dwInFlags, PWSTR *ppszTranslatedURL)
+    HRESULT WINAPI OTranslateURLW(PCWSTR pcszURL, DWORD dwInFlags, PWSTR* ppszTranslatedURL)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - TranslateURLW");
         return 0;
@@ -7506,7 +7314,7 @@ extern "C"{
     }
 
     /* client/server */
-    RPC_STATUS RPC_ENTRY OUuidFromStringW(IN unsigned short __RPC_FAR * StringUuid, OUT UUID __RPC_FAR * Uuid)
+    RPC_STATUS RPC_ENTRY OUuidFromStringW(IN unsigned short __RPC_FAR* StringUuid, OUT UUID __RPC_FAR* Uuid)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - UuidFromStringW");
         return 0;
@@ -7530,7 +7338,7 @@ extern "C"{
         return 0;
     }
 
-    BOOL WINAPI OVerQueryValueW(const LPVOID pBlock, LPWSTR lpSubBlock, LPVOID *lplpBuffer, PUINT puLerr)
+    BOOL WINAPI OVerQueryValueW(const LPVOID pBlock, LPWSTR lpSubBlock, LPVOID* lplpBuffer, PUINT puLerr)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - VerQueryValueW");
         return 0;
@@ -7593,9 +7401,9 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetAddConnectionW(
-        LPCWSTR   lpRemoteName,
-        LPCWSTR   lpPassword,
-        LPCWSTR   lpLocalName
+            LPCWSTR   lpRemoteName,
+            LPCWSTR   lpPassword,
+            LPCWSTR   lpLocalName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetAddConnectionW");
@@ -7605,10 +7413,10 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetAddConnection2W(
-        LPNETRESOURCEW lpNetResource,
-        LPCWSTR       lpPassword,
-        LPCWSTR       lpUserName,
-        DWORD          dwFlags
+            LPNETRESOURCEW lpNetResource,
+            LPCWSTR       lpPassword,
+            LPCWSTR       lpUserName,
+            DWORD          dwFlags
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetAddConnection2W");
@@ -7618,11 +7426,11 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetAddConnection3W(
-        HWND           hwndOwner,
-        LPNETRESOURCEW lpNetResource,
-        LPCWSTR       lpPassword,
-        LPCWSTR       lpUserName,
-        DWORD          dwFlags
+            HWND           hwndOwner,
+            LPNETRESOURCEW lpNetResource,
+            LPCWSTR       lpPassword,
+            LPCWSTR       lpUserName,
+            DWORD          dwFlags
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetAddConnection3W");
@@ -7632,8 +7440,8 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetCancelConnectionW(
-        LPCWSTR lpName,
-        BOOL     fForce
+            LPCWSTR lpName,
+            BOOL     fForce
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetCancelConnectionW");
@@ -7643,9 +7451,9 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetCancelConnection2W(
-        LPCWSTR lpName,
-        DWORD    dwFlags,
-        BOOL     fForce
+            LPCWSTR lpName,
+            DWORD    dwFlags,
+            BOOL     fForce
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetCancelConnection2W");
@@ -7661,7 +7469,7 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetDisconnectDialog1W(
-        LPDISCDLGSTRUCTW lpConnDlgStruct
+            LPDISCDLGSTRUCTW lpConnDlgStruct
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetDisconnectDialog1W");
@@ -7671,10 +7479,10 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetEnumResourceW(
-        HANDLE  hEnum,
-        LPDWORD lpcCount,
-        LPVOID  lpBuffer,
-        LPDWORD lpBufferSize
+            HANDLE  hEnum,
+            LPDWORD lpcCount,
+            LPVOID  lpBuffer,
+            LPDWORD lpBufferSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetEnumResourceW");
@@ -7693,7 +7501,7 @@ extern "C"{
         DWORD      nErrorBufSize,
         LPWSTR    lpNameBuf,
         DWORD      nNameBufSize
-        )
+    )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetGetLastErrorW");
         return 0;
@@ -7702,8 +7510,8 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetGetNetworkInformationW(
-        LPCWSTR          lpProvider,
-        LPNETINFOSTRUCT   lpNetInfoStruct
+            LPCWSTR          lpProvider,
+            LPNETINFOSTRUCT   lpNetInfoStruct
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetGetNetworkInformationW");
@@ -7713,9 +7521,9 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetGetProviderNameW(
-        DWORD   dwNetType,
-        LPWSTR lpProviderName,
-        LPDWORD lpBufferSize
+            DWORD   dwNetType,
+            LPWSTR lpProviderName,
+            LPDWORD lpBufferSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetGetProviderNameW");
@@ -7725,10 +7533,10 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetGetUniversalNameW(
-        LPCWSTR lpLocalPath,
-        DWORD    dwInfoLevel,
-        LPVOID   lpBuffer,
-        LPDWORD  lpBufferSize
+            LPCWSTR lpLocalPath,
+            DWORD    dwInfoLevel,
+            LPVOID   lpBuffer,
+            LPDWORD  lpBufferSize
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetGetUniversalNameW");
@@ -7738,9 +7546,9 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetGetUserW(
-        LPCWSTR  lpName,
-        LPWSTR   lpUserName,
-        LPDWORD   lpnLength
+            LPCWSTR  lpName,
+            LPWSTR   lpUserName,
+            LPDWORD   lpnLength
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetGetUserW");
@@ -7750,11 +7558,11 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetOpenEnumW(
-        DWORD          dwScope,
-        DWORD          dwType,
-        DWORD          dwUsage,
-        LPNETRESOURCEW lpNetResource,
-        LPHANDLE       lphEnum
+            DWORD          dwScope,
+            DWORD          dwType,
+            DWORD          dwUsage,
+            LPNETRESOURCEW lpNetResource,
+            LPHANDLE       lphEnum
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetOpenEnumW");
@@ -7764,9 +7572,9 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetSetConnectionW(
-        LPCWSTR    lpName,
-        DWORD       dwProperties,
-        LPVOID      pvValues
+            LPCWSTR    lpName,
+            DWORD       dwProperties,
+            LPVOID      pvValues
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetSetConnectionW");
@@ -7776,14 +7584,14 @@ extern "C"{
     DWORD
         APIENTRY
         OWNetUseConnectionW(
-        HWND            hwndOwner,
-        LPNETRESOURCEW  lpNetResource,
-        LPCWSTR        lpUserID,
-        LPCWSTR        lpPassword,
-        DWORD           dwFlags,
-        LPWSTR         lpAccessName,
-        LPDWORD         lpBufferSize,
-        LPDWORD         lpResult
+            HWND            hwndOwner,
+            LPNETRESOURCEW  lpNetResource,
+            LPCWSTR        lpUserID,
+            LPCWSTR        lpPassword,
+            DWORD           dwFlags,
+            LPWSTR         lpAccessName,
+            LPDWORD         lpBufferSize,
+            LPDWORD         lpResult
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WNetUseConnectionW");
@@ -7793,11 +7601,11 @@ extern "C"{
     BOOL
         WINAPI
         OWriteConsoleW(
-        HANDLE hConsoleOutput,
-        CONST VOID *lpBuffer,
-        DWORD nNumberOfCharsToWrite,
-        LPDWORD lpNumberOfCharsWritten,
-        LPVOID lpReserved
+            HANDLE hConsoleOutput,
+            CONST VOID* lpBuffer,
+            DWORD nNumberOfCharsToWrite,
+            LPDWORD lpNumberOfCharsWritten,
+            LPVOID lpReserved
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WriteConsoleW");
@@ -7807,10 +7615,10 @@ extern "C"{
     BOOL
         WINAPI
         OWriteConsoleInputW(
-        HANDLE hConsoleInput,
-        CONST INPUT_RECORD *lpBuffer,
-        DWORD nLength,
-        LPDWORD lpNumberOfEventsWritten
+            HANDLE hConsoleInput,
+            CONST INPUT_RECORD* lpBuffer,
+            DWORD nLength,
+            LPDWORD lpNumberOfEventsWritten
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WriteConsoleInputW");
@@ -7820,11 +7628,11 @@ extern "C"{
     BOOL
         WINAPI
         OWriteConsoleOutputW(
-        HANDLE hConsoleOutput,
-        CONST CHAR_INFO *lpBuffer,
-        COORD dwBufferSize,
-        COORD dwBufferCoord,
-        PSMALL_RECT lpWriteRegion
+            HANDLE hConsoleOutput,
+            CONST CHAR_INFO* lpBuffer,
+            COORD dwBufferSize,
+            COORD dwBufferCoord,
+            PSMALL_RECT lpWriteRegion
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WriteConsoleOutputW");
@@ -7834,11 +7642,11 @@ extern "C"{
     BOOL
         WINAPI
         OWriteConsoleOutputCharacterW(
-        HANDLE hConsoleOutput,
-        LPCWSTR lpCharacter,
-        DWORD nLength,
-        COORD dwWriteCoord,
-        LPDWORD lpNumberOfCharsWritten
+            HANDLE hConsoleOutput,
+            LPCWSTR lpCharacter,
+            DWORD nLength,
+            COORD dwWriteCoord,
+            LPDWORD lpNumberOfCharsWritten
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WriteConsoleOutputCharacterW");
@@ -7848,9 +7656,9 @@ extern "C"{
     BOOL
         WINAPI
         OWritePrivateProfileSectionW(
-        LPCWSTR lpAppName,
-        LPCWSTR lpString,
-        LPCWSTR lpFileName
+            LPCWSTR lpAppName,
+            LPCWSTR lpString,
+            LPCWSTR lpFileName
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WritePrivateProfileSectionW");
@@ -7860,11 +7668,11 @@ extern "C"{
     BOOL
         WINAPI
         OWritePrivateProfileStructW(
-        LPCWSTR lpszSection,
-        LPCWSTR lpszKey,
-        LPVOID   lpStruct,
-        UINT     uSizeStruct,
-        LPCWSTR szFile
+            LPCWSTR lpszSection,
+            LPCWSTR lpszKey,
+            LPVOID   lpStruct,
+            UINT     uSizeStruct,
+            LPCWSTR szFile
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WritePrivateProfileStructW");
@@ -7874,8 +7682,8 @@ extern "C"{
     BOOL
         WINAPI
         OWriteProfileSectionW(
-        LPCWSTR lpAppName,
-        LPCWSTR lpString
+            LPCWSTR lpAppName,
+            LPCWSTR lpString
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WriteProfileSectionW");
@@ -7885,9 +7693,9 @@ extern "C"{
     BOOL
         WINAPI
         OWriteProfileStringW(
-        LPCWSTR lpAppName,
-        LPCWSTR lpKeyName,
-        LPCWSTR lpString
+            LPCWSTR lpAppName,
+            LPCWSTR lpKeyName,
+            LPCWSTR lpString
         )
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - WriteProfileStringW");
@@ -7897,9 +7705,9 @@ extern "C"{
     int
         WINAPI
         OwvsprintfW(
-        LPWSTR,
-        LPCWSTR,
-        va_list arglist)
+            LPWSTR,
+            LPCWSTR,
+            va_list arglist)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - wvsprintfW");
         return 0;

@@ -38,7 +38,7 @@
 typedef struct CATALOG_INFO_CONTEXT_
 {
     DWORD                       cbStruct;
-    WCHAR                       *pwszCatalogFile;
+    WCHAR* pwszCatalogFile;
     DWORD_PTR                   dwEnumReserved; // used internally by enum.
 } CATALOG_INFO_CONTEXT;
 
@@ -60,18 +60,18 @@ typedef struct CATALOG_INFO_CONTEXT_
 
 #define REG_CATALOG_BASE_DIRECTORY      L"CatRoot"
 
-static WCHAR        *pwszCatalogBaseDirectory = NULL;
+static WCHAR* pwszCatalogBaseDirectory = NULL;
 
 typedef struct CRYPT_CAT_ADMIN_
 {
     DWORD           cbStruct;
 
-    cCatalogDB_     *pDB;
+    cCatalogDB_* pDB;
 
     DWORD           cHashDB;
-    cHashDB_        **paHashDB;
+    cHashDB_** paHashDB;
 
-    BYTE            *pbCalculatedHash;
+    BYTE* pbCalculatedHash;
 
     BOOL            fConnected;
 
@@ -80,10 +80,10 @@ typedef struct CRYPT_CAT_ADMIN_
     DWORD           dwCurrentSysId;
     DWORD           dwCurrentCatId; // only filled out after the add or find functions
 
-    WCHAR           *pwszSubSysDir; // entire directory to subsystems area
+    WCHAR* pwszSubSysDir; // entire directory to subsystems area
 
-    WCHAR           *pwszCurCatName;
-    WCHAR           *pwszOrigCatName;
+    WCHAR* pwszCurCatName;
+    WCHAR* pwszOrigCatName;
 
     DWORD           dwLastDBError;
 } CRYPT_CAT_ADMIN;
@@ -96,10 +96,10 @@ typedef struct ENUM_HASH_IDX_
 } ENUM_HASH_IDX;
 
 
-BOOL _LoadHashDB(CRYPT_CAT_ADMIN *psCatAdmin);
-BOOL _UpdateHashIndex(CRYPT_CAT_ADMIN *psCatAdmin, WCHAR *pwszCatName);
-CATALOG_INFO_CONTEXT *_AllocateInfoContext(void);
-void _DeallocateInfoContext(CATALOG_INFO_CONTEXT **psInfo);
+BOOL _LoadHashDB(CRYPT_CAT_ADMIN* psCatAdmin);
+BOOL _UpdateHashIndex(CRYPT_CAT_ADMIN* psCatAdmin, WCHAR* pwszCatName);
+CATALOG_INFO_CONTEXT* _AllocateInfoContext(void);
+void _DeallocateInfoContext(CATALOG_INFO_CONTEXT** psInfo);
 
 static void SetupDefaults(void);
 static void CleanupDefaults(void);
@@ -108,39 +108,36 @@ static void CleanupDefaults(void);
 //  Exported functions:
 
 
-BOOL WINAPI CryptCATAdminAcquireContext(HCATADMIN *phCatAdmin, const GUID *pgSubsystem, DWORD dwFlags)
+BOOL WINAPI CryptCATAdminAcquireContext(HCATADMIN* phCatAdmin, const GUID* pgSubsystem, DWORD dwFlags)
 {
     GUID                gDefault = DEF_SUBSYS_ID;
-    CRYPT_CAT_ADMIN     *psCatAdmin;
+    CRYPT_CAT_ADMIN* psCatAdmin;
     BOOL                fRet;
 
-    fRet        = TRUE;
+    fRet = TRUE;
 
-    psCatAdmin  = NULL;
+    psCatAdmin = NULL;
 
-    if (!(phCatAdmin))
-    {
+    if (!(phCatAdmin)) {
         goto InvalidParam;
     }
 
     *phCatAdmin = NULL;
 
-    if (!(psCatAdmin = new CRYPT_CAT_ADMIN))
-    {
+    if (!(psCatAdmin = new CRYPT_CAT_ADMIN)) {
         goto MemoryError;
     }
 
     memset(psCatAdmin, 0x00, sizeof(CRYPT_CAT_ADMIN));
 
-    psCatAdmin->cbStruct        = sizeof(CRYPT_CAT_ADMIN);
-    psCatAdmin->dwCurrentCatId  = INVALID_CAT_ID;
+    psCatAdmin->cbStruct = sizeof(CRYPT_CAT_ADMIN);
+    psCatAdmin->dwCurrentCatId = INVALID_CAT_ID;
 
     *phCatAdmin = (HCATADMIN)psCatAdmin;
 
-    if (!(pgSubsystem))
-    {
-        psCatAdmin->fUseDefSubSysId     = TRUE;
-        pgSubsystem                     = &gDefault;
+    if (!(pgSubsystem)) {
+        psCatAdmin->fUseDefSubSysId = TRUE;
+        pgSubsystem = &gDefault;
     }
 
     SysMast     sSysMast;
@@ -149,13 +146,11 @@ BOOL WINAPI CryptCATAdminAcquireContext(HCATADMIN *phCatAdmin, const GUID *pgSub
 
     guid2wstr(pgSubsystem, &sSysMast.SubDir[0]);
 
-    if (!(psCatAdmin->pDB = new cCatalogDB_(pwszCatalogBaseDirectory, &sSysMast.SubDir[0])))
-    {
+    if (!(psCatAdmin->pDB = new cCatalogDB_(pwszCatalogBaseDirectory, &sSysMast.SubDir[0]))) {
         goto DBErrorAlloc;
     }
 
-    if (!(psCatAdmin->pDB->Initialize()))
-    {
+    if (!(psCatAdmin->pDB->Initialize())) {
         goto DBErrorInit;
     }
 
@@ -163,8 +158,7 @@ BOOL WINAPI CryptCATAdminAcquireContext(HCATADMIN *phCatAdmin, const GUID *pgSub
 
     psCatAdmin->pwszSubSysDir = new WCHAR[wcslen(pwszCatalogBaseDirectory) + wcslen(&sSysMast.SubDir[0]) + 2];
 
-    if (!(psCatAdmin->pwszSubSysDir))
-    {
+    if (!(psCatAdmin->pwszSubSysDir)) {
         goto MemoryError;
     }
 
@@ -174,82 +168,73 @@ BOOL WINAPI CryptCATAdminAcquireContext(HCATADMIN *phCatAdmin, const GUID *pgSub
 
     //  get the current SysId
 
-    if (!(psCatAdmin->pDB->SysMast_Get(pgSubsystem, &sSysMast)))
-    {
+    if (!(psCatAdmin->pDB->SysMast_Get(pgSubsystem, &sSysMast))) {
         sSysMast.SysId = psCatAdmin->pDB->SysMast_GetNewId();
         memcpy(&sSysMast.SysGuid, pgSubsystem, sizeof(GUID));
         guid2wstr(pgSubsystem, &sSysMast.SubDir[0]);
 
-        if (!(psCatAdmin->pDB->SysMast_Add(&sSysMast)))
-        {
+        if (!(psCatAdmin->pDB->SysMast_Add(&sSysMast))) {
             goto DBError;
         }
     }
 
     DWORD   dwCnt;
 
-    if (!(psCatAdmin->fUseDefSubSysId))
-    {
-        psCatAdmin->paHashDB = new cHashDB_ *[1];
+    if (!(psCatAdmin->fUseDefSubSysId)) {
+        psCatAdmin->paHashDB = new cHashDB_ * [1];
         dwCnt = 1;
-    }
-    else
-    {
+    } else {
         dwCnt = psCatAdmin->pDB->SysMast_NumKeys();
 
-        psCatAdmin->paHashDB = new cHashDB_ *[dwCnt];
+        psCatAdmin->paHashDB = new cHashDB_ * [dwCnt];
     }
 
-    if (!(psCatAdmin->paHashDB))
-    {
+    if (!(psCatAdmin->paHashDB)) {
         goto MemoryError;
     }
 
     psCatAdmin->cHashDB = dwCnt;
-    memset(psCatAdmin->paHashDB, NULL, sizeof(cHashDB_ *) * dwCnt);
+    memset(psCatAdmin->paHashDB, NULL, sizeof(cHashDB_*) * dwCnt);
     psCatAdmin->dwCurrentSysId = (DWORD)sSysMast.SysId;
 
-    CommonReturn:
-        return(fRet);
+CommonReturn:
+    return(fRet);
 
-    ErrorReturn:
-        if (phCatAdmin)
-        {
-            DWORD   lErr;
+ErrorReturn:
+    if (phCatAdmin) {
+        DWORD   lErr;
 
-            lErr = GetLastError();
-            CryptCATAdminReleaseContext((HCATADMIN)psCatAdmin, 0);
-            SetLastError(lErr);
+        lErr = GetLastError();
+        CryptCATAdminReleaseContext((HCATADMIN)psCatAdmin, 0);
+        SetLastError(lErr);
 
-            psCatAdmin  = NULL;
-            *phCatAdmin = NULL;
-        }
+        psCatAdmin = NULL;
+        *phCatAdmin = NULL;
+    }
 
-        fRet = FALSE;
-        goto CommonReturn;
+    fRet = FALSE;
+    goto CommonReturn;
 
-    SET_ERROR_VAR_EX(DBG_SS, MemoryError,       ERROR_NOT_ENOUGH_MEMORY);
-    SET_ERROR_VAR_EX(DBG_SS, InvalidParam,      ERROR_INVALID_PARAMETER);
-    SET_ERROR_VAR_EX(DBG_SS, DBErrorInit,       ERROR_DATABASE_FAILURE);
-    SET_ERROR_VAR_EX(DBG_SS, DBErrorAlloc,      ERROR_DATABASE_FAILURE);
-    SET_ERROR_VAR_EX(DBG_SS, DBError,           ERROR_DATABASE_FAILURE);
+    SET_ERROR_VAR_EX(DBG_SS, MemoryError, ERROR_NOT_ENOUGH_MEMORY);
+    SET_ERROR_VAR_EX(DBG_SS, InvalidParam, ERROR_INVALID_PARAMETER);
+    SET_ERROR_VAR_EX(DBG_SS, DBErrorInit, ERROR_DATABASE_FAILURE);
+    SET_ERROR_VAR_EX(DBG_SS, DBErrorAlloc, ERROR_DATABASE_FAILURE);
+    SET_ERROR_VAR_EX(DBG_SS, DBError, ERROR_DATABASE_FAILURE);
 }
 
 BOOL WINAPI CryptCATAdminReleaseContext(HCATADMIN hCatAdmin, DWORD dwFlags)
 {
-    CRYPT_CAT_ADMIN *psCatAdmin;
+    CRYPT_CAT_ADMIN* psCatAdmin;
     DWORD           i;
 
-    psCatAdmin = (CRYPT_CAT_ADMIN *)hCatAdmin;
+    psCatAdmin = (CRYPT_CAT_ADMIN*)hCatAdmin;
 
-    if ((psCatAdmin) && (psCatAdmin->cbStruct == sizeof(CRYPT_CAT_ADMIN)))
-    {
+    if ((psCatAdmin) && (psCatAdmin->cbStruct == sizeof(CRYPT_CAT_ADMIN))) {
         DELETE_OBJECT(psCatAdmin->pwszSubSysDir);
         DELETE_OBJECT(psCatAdmin->pwszCurCatName);
         DELETE_OBJECT(psCatAdmin->pwszOrigCatName);
 
-        for (i = 0; i < psCatAdmin->cHashDB; i++)
-        {
+        for (i = 0; i < psCatAdmin->cHashDB; i++) {
             DELETE_OBJECT(psCatAdmin->paHashDB[i]);
         }
         DELETE_OBJECT(psCatAdmin->paHashDB);
@@ -260,8 +245,7 @@ BOOL WINAPI CryptCATAdminReleaseContext(HCATADMIN hCatAdmin, DWORD dwFlags)
 
         DELETE_OBJECT(psCatAdmin);
 
-        if (dwFlags != 0)
-        {
+        if (dwFlags != 0) {
             SetLastError(ERROR_INVALID_PARAMETER);
         }
 
@@ -273,26 +257,24 @@ BOOL WINAPI CryptCATAdminReleaseContext(HCATADMIN hCatAdmin, DWORD dwFlags)
     return(FALSE);
 }
 
-BOOL WINAPI CryptCATAdminCalcHashFromFileHandle(HANDLE hFile, DWORD *pcbHash, BYTE *pbHash, DWORD dwFlags)
+BOOL WINAPI CryptCATAdminCalcHashFromFileHandle(HANDLE hFile, DWORD* pcbHash, BYTE* pbHash, DWORD dwFlags)
 {
     GUID                gFlat = CRYPT_SUBJTYPE_FLAT_IMAGE;
-    BYTE                *pbRet;
-    SIP_INDIRECT_DATA   *pbIndirectData;
+    BYTE* pbRet;
+    SIP_INDIRECT_DATA* pbIndirectData;
     BOOL                fRet;
 
-    pbIndirectData  = NULL;
-    pbRet           = NULL;
+    pbIndirectData = NULL;
+    pbRet = NULL;
 
-    if (!(hFile) || (hFile == INVALID_HANDLE_VALUE) || !(pcbHash) || (dwFlags != 0))
-    {
+    if (!(hFile) || (hFile == INVALID_HANDLE_VALUE) || !(pcbHash) || (dwFlags != 0)) {
         goto InvalidParam;
     }
 
     GUID                gSubject;
     SIP_DISPATCH_INFO   sSip;
 
-    if (!(CryptSIPRetrieveSubjectGuid(L"CATADMIN", hFile, &gSubject)))
-    {
+    if (!(CryptSIPRetrieveSubjectGuid(L"CATADMIN", hFile, &gSubject))) {
         memcpy(&gSubject, &gFlat, sizeof(GUID));
     }
 
@@ -300,8 +282,7 @@ BOOL WINAPI CryptCATAdminCalcHashFromFileHandle(HANDLE hFile, DWORD *pcbHash, BY
 
     sSip.cbSize = sizeof(SIP_DISPATCH_INFO);
 
-    if (!(CryptSIPLoad(&gSubject, 0, &sSip)))
-    {
+    if (!(CryptSIPLoad(&gSubject, 0, &sSip))) {
         goto SIPLoadError;
     }
 
@@ -309,48 +290,42 @@ BOOL WINAPI CryptCATAdminCalcHashFromFileHandle(HANDLE hFile, DWORD *pcbHash, BY
     DWORD               cbIndirectData;
 
     memset(&sSubjInfo, 0x00, sizeof(SIP_SUBJECTINFO));
-    sSubjInfo.cbSize                    = sizeof(SIP_SUBJECTINFO);
+    sSubjInfo.cbSize = sizeof(SIP_SUBJECTINFO);
 
-    sSubjInfo.DigestAlgorithm.pszObjId  = (char *)CertAlgIdToOID(CALG_SHA1);
+    sSubjInfo.DigestAlgorithm.pszObjId = (char*)CertAlgIdToOID(CALG_SHA1);
 
-    sSubjInfo.dwFlags                   = SPC_INC_PE_RESOURCES_FLAG | SPC_INC_PE_IMPORT_ADDR_TABLE_FLAG | MSSIP_FLAGS_PROHIBIT_RESIZE_ON_CREATE;
-    sSubjInfo.pgSubjectType             = &gSubject;
-    sSubjInfo.hFile                     = hFile;
-    sSubjInfo.pwsFileName               = L"CATADMIN";
-    sSubjInfo.dwEncodingType            = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
+    sSubjInfo.dwFlags = SPC_INC_PE_RESOURCES_FLAG | SPC_INC_PE_IMPORT_ADDR_TABLE_FLAG | MSSIP_FLAGS_PROHIBIT_RESIZE_ON_CREATE;
+    sSubjInfo.pgSubjectType = &gSubject;
+    sSubjInfo.hFile = hFile;
+    sSubjInfo.pwsFileName = L"CATADMIN";
+    sSubjInfo.dwEncodingType = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
 
     cbIndirectData = 0;
 
     sSip.pfCreate(&sSubjInfo, &cbIndirectData, NULL);
 
-    if (cbIndirectData == 0)
-    {
-        SetLastError( E_NOTIMPL );
+    if (cbIndirectData == 0) {
+        SetLastError(E_NOTIMPL);
         goto SIPError;
     }
 
-    if (!(pbIndirectData = (SIP_INDIRECT_DATA   *)new BYTE[cbIndirectData]))
-    {
+    if (!(pbIndirectData = (SIP_INDIRECT_DATA*)new BYTE[cbIndirectData])) {
         goto MemoryError;
     }
 
-    if (!(sSip.pfCreate(&sSubjInfo, &cbIndirectData, pbIndirectData)))
-    {
-        if ( GetLastError() == 0 )
-        {
-            SetLastError( ERROR_INVALID_DATA );
+    if (!(sSip.pfCreate(&sSubjInfo, &cbIndirectData, pbIndirectData))) {
+        if (GetLastError() == 0) {
+            SetLastError(ERROR_INVALID_DATA);
         }
         goto SIPError;
     }
 
-    if ((pbIndirectData->Digest.cbData == 0) || (pbIndirectData->Digest.cbData > MAX_HASH_LEN))
-    {
-        SetLastError( ERROR_INVALID_DATA );
+    if ((pbIndirectData->Digest.cbData == 0) || (pbIndirectData->Digest.cbData > MAX_HASH_LEN)) {
+        SetLastError(ERROR_INVALID_DATA);
         goto SIPError;
     }
 
-    if (!(pbRet = new BYTE[pbIndirectData->Digest.cbData]))
-    {
+    if (!(pbRet = new BYTE[pbIndirectData->Digest.cbData])) {
         goto MemoryError;
     }
 
@@ -358,61 +333,54 @@ BOOL WINAPI CryptCATAdminCalcHashFromFileHandle(HANDLE hFile, DWORD *pcbHash, BY
 
     fRet = TRUE;
 
-    CommonReturn:
-        if (pbRet)
-        {
-            if (*pcbHash < pbIndirectData->Digest.cbData)
-            {
-                SetLastError(ERROR_INSUFFICIENT_BUFFER);
-                fRet = FALSE;
-            }
-            else if (pbHash)
-            {
-                memcpy(pbHash, pbRet, pbIndirectData->Digest.cbData);
-            }
-
-            *pcbHash = pbIndirectData->Digest.cbData;
-
-            delete pbRet;
+CommonReturn:
+    if (pbRet) {
+        if (*pcbHash < pbIndirectData->Digest.cbData) {
+            SetLastError(ERROR_INSUFFICIENT_BUFFER);
+            fRet = FALSE;
+        } else if (pbHash) {
+            memcpy(pbHash, pbRet, pbIndirectData->Digest.cbData);
         }
 
-        if (pbIndirectData)
-        {
-            delete pbIndirectData;
-        }
+        *pcbHash = pbIndirectData->Digest.cbData;
 
-        if ((GetLastError() == ERROR_INSUFFICIENT_BUFFER) && !(pbHash))
-        {
-            fRet = TRUE;
-        }
+        delete pbRet;
+    }
 
-        return(fRet);
+    if (pbIndirectData) {
+        delete pbIndirectData;
+    }
 
-    ErrorReturn:
-        DELETE_OBJECT(pbRet);
-        fRet = FALSE;
-        goto CommonReturn;
+    if ((GetLastError() == ERROR_INSUFFICIENT_BUFFER) && !(pbHash)) {
+        fRet = TRUE;
+    }
+
+    return(fRet);
+
+ErrorReturn:
+    DELETE_OBJECT(pbRet);
+    fRet = FALSE;
+    goto CommonReturn;
 
     TRACE_ERROR_EX(DBG_SS, SIPLoadError);
     TRACE_ERROR_EX(DBG_SS, SIPError);
 
-    SET_ERROR_VAR_EX(DBG_SS, InvalidParam,      ERROR_INVALID_PARAMETER);
-    SET_ERROR_VAR_EX(DBG_SS, MemoryError,       ERROR_NOT_ENOUGH_MEMORY);
+    SET_ERROR_VAR_EX(DBG_SS, InvalidParam, ERROR_INVALID_PARAMETER);
+    SET_ERROR_VAR_EX(DBG_SS, MemoryError, ERROR_NOT_ENOUGH_MEMORY);
 }
 
 BOOL WINAPI CryptCATAdminReleaseCatalogContext(HCATADMIN hCatAdmin, HCATINFO hCatInfo, DWORD dwFlags)
 {
-    CRYPT_CAT_ADMIN             *psCatAdmin;
-    CATALOG_INFO_CONTEXT        *pContext;
+    CRYPT_CAT_ADMIN* psCatAdmin;
+    CATALOG_INFO_CONTEXT* pContext;
 
-    psCatAdmin  = (CRYPT_CAT_ADMIN *)hCatAdmin;
-    pContext    = (CATALOG_INFO_CONTEXT *)hCatInfo;
+    psCatAdmin = (CRYPT_CAT_ADMIN*)hCatAdmin;
+    pContext = (CATALOG_INFO_CONTEXT*)hCatInfo;
 
     if (!(psCatAdmin) ||
         (psCatAdmin->cbStruct != sizeof(CRYPT_CAT_ADMIN)) ||
         !(pContext) ||
-        (pContext->cbStruct != sizeof(CATALOG_INFO_CONTEXT)))
-    {
+        (pContext->cbStruct != sizeof(CATALOG_INFO_CONTEXT))) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return(FALSE);
     }
@@ -423,15 +391,15 @@ BOOL WINAPI CryptCATAdminReleaseCatalogContext(HCATADMIN hCatAdmin, HCATINFO hCa
 
 }
 
-HCATINFO WINAPI CryptCATAdminEnumCatalogFromHash(HCATADMIN hCatAdmin, BYTE *pbHash, DWORD cbHash, DWORD dwFlags, HCATINFO *phPrev)
+HCATINFO WINAPI CryptCATAdminEnumCatalogFromHash(HCATADMIN hCatAdmin, BYTE* pbHash, DWORD cbHash, DWORD dwFlags, HCATINFO* phPrev)
 {
-    CRYPT_CAT_ADMIN             *psCatAdmin = (CRYPT_CAT_ADMIN *)hCatAdmin;
-    WCHAR                       *pwsz = NULL;
-    CATALOG_INFO_CONTEXT        *psRet = NULL;
-    CATALOG_INFO_CONTEXT        *pPrev;
+    CRYPT_CAT_ADMIN* psCatAdmin = (CRYPT_CAT_ADMIN*)hCatAdmin;
+    WCHAR* pwsz = NULL;
+    CATALOG_INFO_CONTEXT* psRet = NULL;
+    CATALOG_INFO_CONTEXT* pPrev;
 
     if (phPrev) {
-        pPrev = (CATALOG_INFO_CONTEXT *)*phPrev;
+        pPrev = (CATALOG_INFO_CONTEXT*)*phPrev;
     } else {
         pPrev = NULL;
     }
@@ -443,45 +411,36 @@ HCATINFO WINAPI CryptCATAdminEnumCatalogFromHash(HCATADMIN hCatAdmin, BYTE *pbHa
         !(pbHash) ||
         (cbHash == 0) ||
         (cbHash > MAX_HASH_LEN) ||
-        (dwFlags != 0))
-    {
+        (dwFlags != 0)) {
         goto InvalidParam;
     }
 
-    if (!(psRet = _AllocateInfoContext()))
-    {
+    if (!(psRet = _AllocateInfoContext())) {
         goto MemoryError;
     }
 
-    ENUM_HASH_IDX *psIdx = (ENUM_HASH_IDX *)psRet->dwEnumReserved;
+    ENUM_HASH_IDX* psIdx = (ENUM_HASH_IDX*)psRet->dwEnumReserved;
 
-    if (!(pPrev))
-    {
+    if (!(pPrev)) {
         psIdx->dwRecNum = 0xffffffff;//  first call or caller passed in NULL
-    }
-    else
-    {
-        if (pPrev->cbStruct != sizeof(CATALOG_INFO_CONTEXT))
-        {
+    } else {
+        if (pPrev->cbStruct != sizeof(CATALOG_INFO_CONTEXT)) {
             goto InvalidParam;
         }
 
-        ENUM_HASH_IDX *psPrevIdx = (ENUM_HASH_IDX *)pPrev->dwEnumReserved;
-        if (!(psPrevIdx))
-        {
+        ENUM_HASH_IDX* psPrevIdx = (ENUM_HASH_IDX*)pPrev->dwEnumReserved;
+        if (!(psPrevIdx)) {
             goto InvalidParam;
         }
-        psIdx->dwRecNum   = psPrevIdx->dwRecNum;
-        psIdx->dwDBIdx    = psPrevIdx->dwDBIdx;
+        psIdx->dwRecNum = psPrevIdx->dwRecNum;
+        psIdx->dwDBIdx = psPrevIdx->dwDBIdx;
     }
 
     DELETE_OBJECT(psCatAdmin->pwszCurCatName);
-    psCatAdmin->dwCurrentCatId  = INVALID_CAT_ID;
+    psCatAdmin->dwCurrentCatId = INVALID_CAT_ID;
 
-    if (!(psCatAdmin->paHashDB[0]))
-    {
-        if (!(_LoadHashDB(psCatAdmin)))
-        {
+    if (!(psCatAdmin->paHashDB[0])) {
+        if (!(_LoadHashDB(psCatAdmin))) {
             goto DBError;
         }
     }
@@ -490,23 +449,18 @@ HCATINFO WINAPI CryptCATAdminEnumCatalogFromHash(HCATADMIN hCatAdmin, BYTE *pbHa
     memset(&sHashMast, 0x00, sizeof(HashMast));
 
     DWORD dwIdx = psIdx->dwDBIdx;
-    while (dwIdx < psCatAdmin->cHashDB)
-    {
-        if (psCatAdmin->paHashDB[dwIdx])
-        {
-            if (psCatAdmin->paHashDB[dwIdx]->HashMast_Get(psIdx->dwRecNum, pbHash, cbHash, &sHashMast))
-            {
-                psIdx->dwDBIdx  = dwIdx;
+    while (dwIdx < psCatAdmin->cHashDB) {
+        if (psCatAdmin->paHashDB[dwIdx]) {
+            if (psCatAdmin->paHashDB[dwIdx]->HashMast_Get(psIdx->dwRecNum, pbHash, cbHash, &sHashMast)) {
+                psIdx->dwDBIdx = dwIdx;
                 psIdx->dwRecNum = psCatAdmin->paHashDB[dwIdx]->HashMast_GetKeyNum();
 
-                if (!(psCatAdmin->pwszCurCatName = new WCHAR[wcslen(psCatAdmin->paHashDB[dwIdx]->pwszSubSysDir) + wcslen(&sHashMast.CatName[0]) + 2]))
-                {
+                if (!(psCatAdmin->pwszCurCatName = new WCHAR[wcslen(psCatAdmin->paHashDB[dwIdx]->pwszSubSysDir) + wcslen(&sHashMast.CatName[0]) + 2])) {
                     goto MemoryError;
                 }
 
                 wcscpy(psCatAdmin->pwszCurCatName, psCatAdmin->paHashDB[dwIdx]->pwszSubSysDir);
-                if (psCatAdmin->pwszCurCatName[wcslen(psCatAdmin->pwszCurCatName) - 1] != L'\\')
-                {
+                if (psCatAdmin->pwszCurCatName[wcslen(psCatAdmin->pwszCurCatName) - 1] != L'\\') {
                     wcscat(psCatAdmin->pwszCurCatName, L"\\");
                 }
                 wcscat(psCatAdmin->pwszCurCatName, &sHashMast.CatName[0]);
@@ -521,55 +475,50 @@ HCATINFO WINAPI CryptCATAdminEnumCatalogFromHash(HCATADMIN hCatAdmin, BYTE *pbHa
 
         dwIdx++;
         psIdx->dwRecNum = 0xffffffff;
-        psIdx->dwDBIdx  = dwIdx;
+        psIdx->dwDBIdx = dwIdx;
     }
 
-    if (!(psCatAdmin->pwszCurCatName))
-    {
+    if (!(psCatAdmin->pwszCurCatName)) {
         goto CatNotFound;
     }
 
-    if (!(psRet->pwszCatalogFile = new WCHAR[wcslen(psCatAdmin->pwszCurCatName) + 1]))
-    {
+    if (!(psRet->pwszCatalogFile = new WCHAR[wcslen(psCatAdmin->pwszCurCatName) + 1])) {
         goto MemoryError;
     }
 
     wcscpy(psRet->pwszCatalogFile, psCatAdmin->pwszCurCatName);
 
-    CommonReturn:
-        if (pPrev)
-        {
-            _DeallocateInfoContext(&pPrev);
-            *phPrev = NULL;
-        }
+CommonReturn:
+    if (pPrev) {
+        _DeallocateInfoContext(&pPrev);
+        *phPrev = NULL;
+    }
 
-        return((HCATINFO)psRet);
+    return((HCATINFO)psRet);
 
-    ErrorReturn:
-        _DeallocateInfoContext(&psRet);
-        psRet = NULL;
-        goto CommonReturn;
+ErrorReturn:
+    _DeallocateInfoContext(&psRet);
+    psRet = NULL;
+    goto CommonReturn;
 
     SET_ERROR_VAR_EX(DBG_SS, InvalidParam, ERROR_INVALID_PARAMETER);
-    SET_ERROR_VAR_EX(DBG_SS, MemoryError,  ERROR_NOT_ENOUGH_MEMORY);
-    SET_ERROR_VAR_EX(DBG_SS, DBError,      ERROR_DATABASE_FAILURE);
-    SET_ERROR_VAR_EX(DBG_SS, CatNotFound,  ERROR_NOT_FOUND);
+    SET_ERROR_VAR_EX(DBG_SS, MemoryError, ERROR_NOT_ENOUGH_MEMORY);
+    SET_ERROR_VAR_EX(DBG_SS, DBError, ERROR_DATABASE_FAILURE);
+    SET_ERROR_VAR_EX(DBG_SS, CatNotFound, ERROR_NOT_FOUND);
 }
 
 
-BOOL WINAPI CryptCATCatalogInfoFromContext(IN HCATINFO hCatInfo, IN OUT CATALOG_INFO *psCatInfo, IN DWORD dwFlags)
+BOOL WINAPI CryptCATCatalogInfoFromContext(IN HCATINFO hCatInfo, IN OUT CATALOG_INFO* psCatInfo, IN DWORD dwFlags)
 {
-    CATALOG_INFO_CONTEXT    *pContext;
+    CATALOG_INFO_CONTEXT* pContext;
 
-    pContext = (CATALOG_INFO_CONTEXT *)hCatInfo;
-    if (!(pContext) || !(psCatInfo))
-    {
+    pContext = (CATALOG_INFO_CONTEXT*)hCatInfo;
+    if (!(pContext) || !(psCatInfo)) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return(FALSE);
     }
 
-    if (pContext->pwszCatalogFile)
-    {
+    if (pContext->pwszCatalogFile) {
         wcscpy(&psCatInfo->wszCatalogFile[0], pContext->pwszCatalogFile);
         return(TRUE);
     }
@@ -577,31 +526,28 @@ BOOL WINAPI CryptCATCatalogInfoFromContext(IN HCATINFO hCatInfo, IN OUT CATALOG_
     return(FALSE);
 }
 
-HCATINFO WINAPI CryptCATAdminAddCatalog(HCATADMIN hCatAdmin, WCHAR *pwszCatalogFile, WCHAR *pwszSelectBaseName, DWORD dwFlags)
+HCATINFO WINAPI CryptCATAdminAddCatalog(HCATADMIN hCatAdmin, WCHAR* pwszCatalogFile, WCHAR* pwszSelectBaseName, DWORD dwFlags)
 {
-    CRYPT_CAT_ADMIN         *psCatAdmin;
-    CATALOG_INFO_CONTEXT    *psRet;
+    CRYPT_CAT_ADMIN* psCatAdmin;
+    CATALOG_INFO_CONTEXT* psRet;
     BOOL                    fRet;
     LPWSTR                  pwszName = NULL;
 
-    psRet       = NULL;
-    psCatAdmin  = (CRYPT_CAT_ADMIN *)hCatAdmin;
+    psRet = NULL;
+    psCatAdmin = (CRYPT_CAT_ADMIN*)hCatAdmin;
 
-    if (!(psCatAdmin) || (psCatAdmin->cbStruct != sizeof(CRYPT_CAT_ADMIN)) || !(pwszCatalogFile) || (dwFlags != 0))
-    {
+    if (!(psCatAdmin) || (psCatAdmin->cbStruct != sizeof(CRYPT_CAT_ADMIN)) || !(pwszCatalogFile) || (dwFlags != 0)) {
         goto InvalidParam;
     }
 
-    WCHAR               *pwszBaseName;
+    WCHAR* pwszBaseName;
 
     DELETE_OBJECT(psCatAdmin->pwszCurCatName);
-    psCatAdmin->dwCurrentCatId  = INVALID_CAT_ID;
+    psCatAdmin->dwCurrentCatId = INVALID_CAT_ID;
 
     //  first, check the catalog...
-    if (!(IsCatalogFile(INVALID_HANDLE_VALUE, pwszCatalogFile)))
-    {
-        if ( GetLastError() == ERROR_FILE_NOT_FOUND )
-        {
+    if (!(IsCatalogFile(INVALID_HANDLE_VALUE, pwszCatalogFile))) {
+        if (GetLastError() == ERROR_FILE_NOT_FOUND) {
             goto ErrorReturn;
         }
 
@@ -610,17 +556,13 @@ HCATINFO WINAPI CryptCATAdminAddCatalog(HCATADMIN hCatAdmin, WCHAR *pwszCatalogF
 
     //  set the base file name
 
-    if (!(pwszBaseName = wcsrchr(pwszCatalogFile, L'\\')))
-    {
+    if (!(pwszBaseName = wcsrchr(pwszCatalogFile, L'\\'))) {
         pwszBaseName = wcsrchr(pwszCatalogFile, L':');
     }
 
-    if (pwszBaseName)
-    {
+    if (pwszBaseName) {
         *pwszBaseName++;
-    }
-    else
-    {
+    } else {
         pwszBaseName = pwszCatalogFile;
     }
 
@@ -636,27 +578,22 @@ HCATINFO WINAPI CryptCATAdminAddCatalog(HCATADMIN hCatAdmin, WCHAR *pwszCatalogF
 
     wcscpy(&sCatMast.OrigName[0], pwszBaseName);
 
-    if (pwszSelectBaseName)
-    {
+    if (pwszSelectBaseName) {
         wcscat(&sCatMast.CurName[0], pwszSelectBaseName);
-    }
-    else
-    {
+    } else {
         sCatMast.CurName[0] = NULL; // will get set in the add
     }
 
     GetSystemTime(&sTime);
     SystemTimeToFileTime(&sTime, &sCatMast.InstDate);
 
-    if (!(psCatAdmin->pDB->CatMast_Add(&sCatMast)))
-    {
+    if (!(psCatAdmin->pDB->CatMast_Add(&sCatMast))) {
         goto DBError;
     }
 
     //  build return catalog name
     psCatAdmin->pwszCurCatName = new WCHAR[wcslen(psCatAdmin->pwszSubSysDir) + wcslen(&sCatMast.CurName[0]) + 1];
-    if (!(psCatAdmin->pwszCurCatName))
-    {
+    if (!(psCatAdmin->pwszCurCatName)) {
         goto MemoryError;
     }
 
@@ -674,65 +611,59 @@ HCATINFO WINAPI CryptCATAdminAddCatalog(HCATADMIN hCatAdmin, WCHAR *pwszCatalogF
 
     SetFileAttributesU(psCatAdmin->pwszCurCatName, FILE_ATTRIBUTE_NORMAL);
 
-    if ( pwszSelectBaseName != NULL )
-    {
+    if (pwszSelectBaseName != NULL) {
         pwszName = sCatMast.CurName;
     }
 
     CatalogCompactHashDatabase(HASHMAST_NAME, psCatAdmin->pwszSubSysDir, HASHMAST_NAME, pwszName);
 
-    if (!(_UpdateHashIndex(psCatAdmin, &sCatMast.CurName[0])))
-    {
+    if (!(_UpdateHashIndex(psCatAdmin, &sCatMast.CurName[0]))) {
         DELETE_OBJECT(psCatAdmin->pwszCurCatName);
         goto ErrorReturn;
     }
 
     CatalogCompactHashDatabase(HASHMAST_NAME, psCatAdmin->pwszSubSysDir, HASHMAST_NAME, NULL);
 
-    psCatAdmin->dwCurrentCatId  = sCatMast.CatId;
+    psCatAdmin->dwCurrentCatId = sCatMast.CatId;
 
-    if (!(psRet = _AllocateInfoContext()))
-    {
+    if (!(psRet = _AllocateInfoContext())) {
         goto MemoryError;
     }
 
-    if (!(psRet->pwszCatalogFile = new WCHAR[wcslen(psCatAdmin->pwszCurCatName) + 1]))
-    {
+    if (!(psRet->pwszCatalogFile = new WCHAR[wcslen(psCatAdmin->pwszCurCatName) + 1])) {
         goto MemoryError;
     }
 
     wcscpy(psRet->pwszCatalogFile, psCatAdmin->pwszCurCatName);
 
-    CommonReturn:
-        return((HCATINFO)psRet);
+CommonReturn:
+    return((HCATINFO)psRet);
 
-    ErrorReturn:
-        if (psCatAdmin)
-        {
-            DELETE_OBJECT(psCatAdmin->pwszCurCatName);
-        }
-        _DeallocateInfoContext(&psRet);
-        psRet = NULL;
-        goto CommonReturn;
+ErrorReturn:
+    if (psCatAdmin) {
+        DELETE_OBJECT(psCatAdmin->pwszCurCatName);
+    }
+    _DeallocateInfoContext(&psRet);
+    psRet = NULL;
+    goto CommonReturn;
 
     TRACE_ERROR_EX(DBG_SS, FileCopyError);
 
-    SET_ERROR_VAR_EX(DBG_SS, InvalidParam,      ERROR_INVALID_PARAMETER);
-    SET_ERROR_VAR_EX(DBG_SS, MemoryError,       ERROR_NOT_ENOUGH_MEMORY);
-    SET_ERROR_VAR_EX(DBG_SS, DBError,           ERROR_DATABASE_FAILURE);
-    SET_ERROR_VAR_EX(DBG_SS, BadFileFormat,     ERROR_BAD_FORMAT);
+    SET_ERROR_VAR_EX(DBG_SS, InvalidParam, ERROR_INVALID_PARAMETER);
+    SET_ERROR_VAR_EX(DBG_SS, MemoryError, ERROR_NOT_ENOUGH_MEMORY);
+    SET_ERROR_VAR_EX(DBG_SS, DBError, ERROR_DATABASE_FAILURE);
+    SET_ERROR_VAR_EX(DBG_SS, BadFileFormat, ERROR_BAD_FORMAT);
 }
 
-BOOL WINAPI CatAdminDllMain(HANDLE hInstDLL,DWORD fdwReason,LPVOID lpvReserved)
+BOOL WINAPI CatAdminDllMain(HANDLE hInstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_ATTACH:
-                SetupDefaults();
-                break;
-        case DLL_PROCESS_DETACH:
-                CleanupDefaults();
-                break;
+    switch (fdwReason) {
+    case DLL_PROCESS_ATTACH:
+        SetupDefaults();
+        break;
+    case DLL_PROCESS_DETACH:
+        CleanupDefaults();
+        break;
     }
 
     return(TRUE);
@@ -742,7 +673,7 @@ BOOL WINAPI CatAdminDllMain(HANDLE hInstDLL,DWORD fdwReason,LPVOID lpvReserved)
 //  Local functions:
 
 
-BOOL _LoadHashDB(CRYPT_CAT_ADMIN *psCatAdmin)
+BOOL _LoadHashDB(CRYPT_CAT_ADMIN* psCatAdmin)
 {
     DWORD   dwCnt;
     DWORD   dwIdx;
@@ -752,20 +683,16 @@ BOOL _LoadHashDB(CRYPT_CAT_ADMIN *psCatAdmin)
     BOOL    fLoop;
     BOOL    fCreatedOK = FALSE;
 
-    if (!(psCatAdmin->fUseDefSubSysId))
-    {
-        if (!(psCatAdmin->paHashDB[0] = new cHashDB_(psCatAdmin->pwszSubSysDir, L"", &fCreatedOK)))
-        {
+    if (!(psCatAdmin->fUseDefSubSysId)) {
+        if (!(psCatAdmin->paHashDB[0] = new cHashDB_(psCatAdmin->pwszSubSysDir, L"", &fCreatedOK))) {
             goto MemoryError;
         }
 
-        if (!fCreatedOK)
-        {
+        if (!fCreatedOK) {
             goto ErrorReturn;
         }
 
-        if (!(psCatAdmin->paHashDB[0]->Initialize()))
-        {
+        if (!(psCatAdmin->paHashDB[0]->Initialize())) {
             DELETE_OBJECT(psCatAdmin->paHashDB[0]);
             goto DBError;
         }
@@ -777,37 +704,30 @@ BOOL _LoadHashDB(CRYPT_CAT_ADMIN *psCatAdmin)
 
     dwCnt = psCatAdmin->pDB->SysMast_NumKeys();
 
-    if (!(fLoop = psCatAdmin->pDB->SysMast_GetFirst(&sRec)))
-    {
+    if (!(fLoop = psCatAdmin->pDB->SysMast_GetFirst(&sRec))) {
         goto DBError;
     }
 
-    dwIdx   = 0;
+    dwIdx = 0;
     dwDBIdx = 0;
 
-    while (fLoop)
-    {
-        if (dwIdx >= dwCnt)
-        {
+    while (fLoop) {
+        if (dwIdx >= dwCnt) {
             return(TRUE);  // we should do a re-alloc!
         }
 
-        if (sRec.SubDir[0])
-        {
+        if (sRec.SubDir[0]) {
             psCatAdmin->paHashDB[dwDBIdx] = new cHashDB_(pwszCatalogBaseDirectory, &sRec.SubDir[0], &fCreatedOK);
 
-            if (!(psCatAdmin->paHashDB[dwDBIdx]))
-            {
+            if (!(psCatAdmin->paHashDB[dwDBIdx])) {
                 goto MemoryError;
             }
 
-            if (!fCreatedOK)
-            {
+            if (!fCreatedOK) {
                 goto ErrorReturn;
             }
 
-            if (!(psCatAdmin->paHashDB[dwDBIdx]->Initialize()))
-            {
+            if (!(psCatAdmin->paHashDB[dwDBIdx]->Initialize())) {
                 DELETE_OBJECT(psCatAdmin->paHashDB[dwDBIdx]);
                 goto DBError;
             }
@@ -822,15 +742,15 @@ BOOL _LoadHashDB(CRYPT_CAT_ADMIN *psCatAdmin)
 
     fRet = TRUE;
 
-    CommonReturn:
-        return(fRet);
+CommonReturn:
+    return(fRet);
 
-    ErrorReturn:
-        fRet = FALSE;
-        goto CommonReturn;
+ErrorReturn:
+    fRet = FALSE;
+    goto CommonReturn;
 
-    SET_ERROR_VAR_EX(DBG_SS, MemoryError,       ERROR_NOT_ENOUGH_MEMORY);
-    SET_ERROR_VAR_EX(DBG_SS, DBError,           ERROR_DATABASE_FAILURE);
+    SET_ERROR_VAR_EX(DBG_SS, MemoryError, ERROR_NOT_ENOUGH_MEMORY);
+    SET_ERROR_VAR_EX(DBG_SS, DBError, ERROR_DATABASE_FAILURE);
 }
 
 static void SetupDefaults(void)
@@ -847,18 +767,16 @@ static void SetupDefaults(void)
     wszDefaultDir[0] = NULL;
     MultiByteToWideChar(0, 0, &szDefaultDir[0], -1, &wszDefaultDir[0], MAX_PATH);
 
-    pwszDefaultDir = new WCHAR [ wcslen(wszDefaultDir)+wcslen(REG_CATALOG_BASE_DIRECTORY)+3 ];
-    if ( pwszDefaultDir == NULL )
-    {
+    pwszDefaultDir = new WCHAR[wcslen(wszDefaultDir) + wcslen(REG_CATALOG_BASE_DIRECTORY) + 3];
+    if (pwszDefaultDir == NULL) {
         // BUGBUG: Not setup for upper layer to deal with errors
-        SetLastError( E_OUTOFMEMORY );
+        SetLastError(E_OUTOFMEMORY);
         return;
     }
 
-    wcscpy( pwszDefaultDir, wszDefaultDir );
+    wcscpy(pwszDefaultDir, wszDefaultDir);
 
-    if ((wszDefaultDir[0]) && (wszDefaultDir[wcslen(&wszDefaultDir[0]) - 1] != L'\\'))
-    {
+    if ((wszDefaultDir[0]) && (wszDefaultDir[wcslen(&wszDefaultDir[0]) - 1] != L'\\')) {
         wcscat(pwszDefaultDir, L"\\");
     }
     wcscat(pwszDefaultDir, REG_CATALOG_BASE_DIRECTORY);
@@ -868,18 +786,15 @@ static void SetupDefaults(void)
 
 #if defined(ENABLE_REG_BASED_CATROOT)
 
-    if (RegCreateKeyExU(HKEY_LOCAL_MACHINE, REG_MACHINE_SETTINGS_KEY, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS)
-    {
+    if (RegCreateKeyExU(HKEY_LOCAL_MACHINE, REG_MACHINE_SETTINGS_KEY, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS) {
         DWORD   dwType;
         DWORD   cbSize;
 
         cbSize = 0;
         RegQueryValueExU(hKey, REG_CATALOG_BASE_DIRECTORY, NULL, &dwType, NULL, &cbSize);
 
-        if (cbSize > 0)
-        {
-            if (!(pwszCatalogBaseDirectory = new WCHAR[(cbSize / sizeof(WCHAR)) + 3]))
-            {
+        if (cbSize > 0) {
+            if (!(pwszCatalogBaseDirectory = new WCHAR[(cbSize / sizeof(WCHAR)) + 3])) {
                 RegCloseKey(hKey);
                 SetLastError(ERROR_NOT_ENOUGH_MEMORY);
                 return;
@@ -887,11 +802,9 @@ static void SetupDefaults(void)
 
             pwszCatalogBaseDirectory[0] = NULL;
 
-            RegQueryValueExU(hKey, REG_CATALOG_BASE_DIRECTORY, NULL, &dwType, (BYTE *)pwszCatalogBaseDirectory, &cbSize);
-        }
-        else
-        {
-            RegSetValueExU(hKey, REG_CATALOG_BASE_DIRECTORY, 0, REG_SZ, (const BYTE *)pwszDefaultDir, (wcslen(pwszDefaultDir) + 1) * sizeof(WCHAR));
+            RegQueryValueExU(hKey, REG_CATALOG_BASE_DIRECTORY, NULL, &dwType, (BYTE*)pwszCatalogBaseDirectory, &cbSize);
+        } else {
+            RegSetValueExU(hKey, REG_CATALOG_BASE_DIRECTORY, 0, REG_SZ, (const BYTE*)pwszDefaultDir, (wcslen(pwszDefaultDir) + 1) * sizeof(WCHAR));
         }
 
         RegCloseKey(hKey);
@@ -899,19 +812,14 @@ static void SetupDefaults(void)
 
 #endif
 
-    if ((pwszCatalogBaseDirectory) && (pwszCatalogBaseDirectory[0]))
-    {
-        if (pwszCatalogBaseDirectory[wcslen(pwszCatalogBaseDirectory) - 1] != L'\\')
-        {
+    if ((pwszCatalogBaseDirectory) && (pwszCatalogBaseDirectory[0])) {
+        if (pwszCatalogBaseDirectory[wcslen(pwszCatalogBaseDirectory) - 1] != L'\\') {
             wcscat(pwszCatalogBaseDirectory, L"\\");
         }
-    }
-    else
-    {
+    } else {
         DELETE_OBJECT(pwszCatalogBaseDirectory);
 
-        if (!(pwszCatalogBaseDirectory = new WCHAR[wcslen(pwszDefaultDir) + 1]))
-        {
+        if (!(pwszCatalogBaseDirectory = new WCHAR[wcslen(pwszDefaultDir) + 1])) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             return;
         }
@@ -927,9 +835,9 @@ static void CleanupDefaults(void)
     DELETE_OBJECT(pwszCatalogBaseDirectory);
 }
 
-BOOL _UpdateHashIndex(CRYPT_CAT_ADMIN *psCatAdmin, WCHAR *pwszCatName)
+BOOL _UpdateHashIndex(CRYPT_CAT_ADMIN* psCatAdmin, WCHAR* pwszCatName)
 {
-    cHashDB_    *pHashDB;
+    cHashDB_* pHashDB;
     BOOL        fRet;
     HANDLE      hCat;
     LPWSTR      pwszPath = NULL;
@@ -937,63 +845,52 @@ BOOL _UpdateHashIndex(CRYPT_CAT_ADMIN *psCatAdmin, WCHAR *pwszCatName)
 
     hCat = NULL;
 
-    if (!(pHashDB = new cHashDB_(psCatAdmin->pwszSubSysDir, L"", &fCreatedOK)))
-    {
+    if (!(pHashDB = new cHashDB_(psCatAdmin->pwszSubSysDir, L"", &fCreatedOK))) {
         goto MemoryError;
     }
 
-    if (!fCreatedOK)
-    {
+    if (!fCreatedOK) {
         goto ErrorReturn;
     }
 
-    if (!(pHashDB->Initialize()))
-    {
+    if (!(pHashDB->Initialize())) {
         goto DBError;
     }
 
-    pwszPath = new WCHAR [ wcslen(psCatAdmin->pwszSubSysDir)+wcslen(pwszCatName)+2 ];
-    if ( pwszPath == NULL )
-    {
+    pwszPath = new WCHAR[wcslen(psCatAdmin->pwszSubSysDir) + wcslen(pwszCatName) + 2];
+    if (pwszPath == NULL) {
         goto MemoryError;
     }
 
     wcscpy(pwszPath, psCatAdmin->pwszSubSysDir);
 
-    if (pwszPath[wcslen(pwszPath) - 1] != L'\\')
-    {
+    if (pwszPath[wcslen(pwszPath) - 1] != L'\\') {
         wcscat(pwszPath, L"\\");
     }
 
     wcscat(pwszPath, pwszCatName);
 
-    if (!(hCat = CryptCATOpen(pwszPath, 0, NULL, 0, 0)))
-    {
+    if (!(hCat = CryptCATOpen(pwszPath, 0, NULL, 0, 0))) {
         goto CATError;
     }
 
-    CRYPTCATMEMBER  *pCatMember;
+    CRYPTCATMEMBER* pCatMember;
     HashMast        sHashMast;
 
     pCatMember = NULL;
 
-    while (pCatMember = CryptCATEnumerateMember(hCat, pCatMember))
-    {
-        if (pCatMember->pIndirectData)
-        {
-            if (pCatMember->pIndirectData->Digest.pbData)
-            {
-                if (pCatMember->pIndirectData->Digest.cbData <= MAX_HASH_LEN)
-                {
+    while (pCatMember = CryptCATEnumerateMember(hCat, pCatMember)) {
+        if (pCatMember->pIndirectData) {
+            if (pCatMember->pIndirectData->Digest.pbData) {
+                if (pCatMember->pIndirectData->Digest.cbData <= MAX_HASH_LEN) {
                     memset(&sHashMast, 0x00, sizeof(HashMast));
 
                     memcpy(&sHashMast.Hash[0], pCatMember->pIndirectData->Digest.pbData,
-                                    pCatMember->pIndirectData->Digest.cbData);
+                           pCatMember->pIndirectData->Digest.cbData);
                     sHashMast.SysId = psCatAdmin->dwCurrentSysId;
                     wcscpy(&sHashMast.CatName[0], pwszCatName);
 
-                    if (!(pHashDB->HashMast_Add(&sHashMast)))
-                    {
+                    if (!(pHashDB->HashMast_Add(&sHashMast))) {
                         goto DBError;
                     }
                 }
@@ -1003,44 +900,41 @@ BOOL _UpdateHashIndex(CRYPT_CAT_ADMIN *psCatAdmin, WCHAR *pwszCatName)
 
     fRet = TRUE;
 
-    CommonReturn:
-        if (hCat)
-        {
-            CryptCATClose(hCat);
-        }
+CommonReturn:
+    if (hCat) {
+        CryptCATClose(hCat);
+    }
 
-        DELETE_OBJECT(pHashDB);
+    DELETE_OBJECT(pHashDB);
 
-        DELETE_OBJECT(pwszPath);
+    DELETE_OBJECT(pwszPath);
 
-        return(fRet);
+    return(fRet);
 
-    ErrorReturn:
-        fRet = FALSE;
-        goto CommonReturn;
+ErrorReturn:
+    fRet = FALSE;
+    goto CommonReturn;
 
     TRACE_ERROR_EX(DBG_SS, CATError);
 
-    SET_ERROR_VAR_EX(DBG_SS, MemoryError,       ERROR_NOT_ENOUGH_MEMORY);
-    SET_ERROR_VAR_EX(DBG_SS, DBError,           ERROR_DATABASE_FAILURE);
+    SET_ERROR_VAR_EX(DBG_SS, MemoryError, ERROR_NOT_ENOUGH_MEMORY);
+    SET_ERROR_VAR_EX(DBG_SS, DBError, ERROR_DATABASE_FAILURE);
 }
 
-CATALOG_INFO_CONTEXT *_AllocateInfoContext(void)
+CATALOG_INFO_CONTEXT* _AllocateInfoContext(void)
 {
-    CATALOG_INFO_CONTEXT    *psRet;
+    CATALOG_INFO_CONTEXT* psRet;
 
-    if (!(psRet = new CATALOG_INFO_CONTEXT))
-    {
+    if (!(psRet = new CATALOG_INFO_CONTEXT)) {
         return(NULL);
     }
 
     memset(psRet, 0x00, sizeof(CATALOG_INFO_CONTEXT));
-    psRet->cbStruct     = sizeof(CATALOG_INFO_CONTEXT);
+    psRet->cbStruct = sizeof(CATALOG_INFO_CONTEXT);
 
-    ENUM_HASH_IDX   *psIdx;
+    ENUM_HASH_IDX* psIdx;
 
-    if (!(psIdx = new ENUM_HASH_IDX))
-    {
+    if (!(psIdx = new ENUM_HASH_IDX)) {
         delete psRet;
         return(NULL);
     }
@@ -1052,16 +946,15 @@ CATALOG_INFO_CONTEXT *_AllocateInfoContext(void)
     return(psRet);
 }
 
-void _DeallocateInfoContext(CATALOG_INFO_CONTEXT **psInfo)
+void _DeallocateInfoContext(CATALOG_INFO_CONTEXT** psInfo)
 {
-    if (!(psInfo) || !(*psInfo))
-    {
+    if (!(psInfo) || !(*psInfo)) {
         return;
     }
 
-    ENUM_HASH_IDX   *psIdx;
+    ENUM_HASH_IDX* psIdx;
 
-    psIdx = (ENUM_HASH_IDX *)(*psInfo)->dwEnumReserved;
+    psIdx = (ENUM_HASH_IDX*)(*psInfo)->dwEnumReserved;
 
     DELETE_OBJECT(psIdx);
     DELETE_OBJECT((*psInfo)->pwszCatalogFile);

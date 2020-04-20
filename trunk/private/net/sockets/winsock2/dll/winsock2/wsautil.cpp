@@ -899,8 +899,8 @@ Return Value:
     // Check if it what caller was expecting
     if (ExpectedSerialNum != serial_num) {
         DEBUGF(DBG_ERR,
-            ("Catalog serial number changed since we read it, %ld->%ld.\n",
-             ExpectedSerialNum, serial_num));
+               ("Catalog serial number changed since we read it, %ld->%ld.\n",
+                ExpectedSerialNum, serial_num));
         return WSATRY_AGAIN;
     }
 

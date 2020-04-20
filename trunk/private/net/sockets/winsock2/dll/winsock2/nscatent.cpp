@@ -36,7 +36,7 @@ Revision History:
 NSCATALOGENTRY::NSCATALOGENTRY()
 /*
 Routine Description:
-    This  procedure  constructs  an empty NSCATALOGENTRY object.  
+    This  procedure  constructs  an empty NSCATALOGENTRY object.
     The first method  invoked  after  this  constructor must be InitializeFromRegistry or InitializeFromValues.
 Return Value:
     Implicitly  returns  a pointer to a newly created NSCATALOGENTRY object or NULL if there is a memory allocation failure.
@@ -73,7 +73,7 @@ INT NSCATALOGENTRY::InitializeFromRegistry(IN  HKEY  ParentKey, IN  INT   Sequen
 /*
 Routine Description:
     This  procedure initializes the protocol info part of the catalog item from
-    information  retrieved  from  the  catalog  portion of the registry.  
+    information  retrieved  from  the  catalog  portion of the registry.
     It is assumed that the catalog portion is locked against competing I/O attempts.
 Arguments:
     ParentKey   - Supplies  an open registry key for the registry entry that is
@@ -134,7 +134,7 @@ Routine Description:
 Arguments:
     LibraryPath  - Supplies    a    reference   to   a   buffer   holding   the
                    zero-terminated,   fully-qualified   path  of  the  provider
-                   library that implements this protocol.  
+                   library that implements this protocol.
                    The path may include expandable environment references of the form '%variable%'.
     DisplayString  - Supplies a reference to a buffer holding a
                      zero-terminated display string for this namespace privider.
@@ -159,8 +159,7 @@ Return Value:
     m_providerDisplayString = new WCHAR[wcslen(DisplayString) + 1];
     if (m_providerDisplayString != NULL) {
         (void)wcscpy(m_providerDisplayString, DisplayString);
-    }
-    else {
+    } else {
         ReturnValue = WSAENOBUFS;
     }
 
@@ -190,13 +189,11 @@ Return Value:
     if (m_providerDisplayString != NULL) {
         delete m_providerDisplayString;
         m_providerDisplayString = NULL;
-    }
-    else {
+    } else {
         DEBUGF(DBG_WARN, ("Destructing uninitialized protocol catalog item\n"));
     }
 
-    if (m_provider != NULL)
-    {
+    if (m_provider != NULL) {
         m_provider->Dereference();
         m_provider = NULL;
     } //if
@@ -329,31 +326,29 @@ Return Value:
 
         if (io_result) {
             pathLength = MultiByteToWideChar(CP_ACP,                                   // CodePage
-                0,                                        // dwFlags
-                ansiPath,                                 // lpMultiByteStr
-                -1,                                       // cchMultiByte
-                m_LibraryPath,                            // lpWideCharStr
-                sizeof(m_LibraryPath) / sizeof(WCHAR)     // cchWideChar
+                                             0,                                        // dwFlags
+                                             ansiPath,                                 // lpMultiByteStr
+                                             -1,                                       // cchMultiByte
+                                             m_LibraryPath,                            // lpWideCharStr
+                                             sizeof(m_LibraryPath) / sizeof(WCHAR)     // cchWideChar
             );
 
             io_result = (pathLength > 0);
         }
-    }
-    else {
+    } else {
         pathLength = WideCharToMultiByte(CP_ACP,                                       // CodePage
-            0,                                            // dwFlags
-            m_LibraryPath,                                // lpWideCharStr
-            -1,                                           // cchWideChar
-            ansiPath,                                     // lpMultiByteStr
-            sizeof(ansiPath),                             // cchMultiByte
-            NULL,
-            NULL
+                                         0,                                            // dwFlags
+                                         m_LibraryPath,                                // lpWideCharStr
+                                         -1,                                           // cchWideChar
+                                         ansiPath,                                     // lpMultiByteStr
+                                         sizeof(ansiPath),                             // cchMultiByte
+                                         NULL,
+                                         NULL
         );
 
         if (pathLength == 0) {
             io_result = FALSE;
-        }
-        else {
+        } else {
             io_result = WriteRegistryEntry(
                 EntryKey,                                     // EntryKey
                 "LibraryPath",                                // EntryName
@@ -414,31 +409,29 @@ Return Value:
 
         if (io_result) {
             pathLength = MultiByteToWideChar(CP_ACP,                                   // CodePage
-                0,                                        // dwFlags
-                ansiPath,                                 // lpMultiByteStr
-                -1,                                       // cchMultiByte
-                m_providerDisplayString,                  // lpWideCharStr
-                val                                       // cchWideChar
+                                             0,                                        // dwFlags
+                                             ansiPath,                                 // lpMultiByteStr
+                                             -1,                                       // cchMultiByte
+                                             m_providerDisplayString,                  // lpWideCharStr
+                                             val                                       // cchWideChar
             );
 
             io_result = (pathLength > 0);
         }
-    }
-    else {
+    } else {
         pathLength = WideCharToMultiByte(CP_ACP,                                       // CodePage
-            0,                                            // dwFlags
-            m_providerDisplayString,                      // lpWideCharStr
-            -1,                                           // cchWideChar
-            ansiPath,                                     // lpMultiByteStr
-            sizeof(ansiPath),                             // cchMultiByte
-            NULL,
-            NULL
+                                         0,                                            // dwFlags
+                                         m_providerDisplayString,                      // lpWideCharStr
+                                         -1,                                           // cchWideChar
+                                         ansiPath,                                     // lpMultiByteStr
+                                         sizeof(ansiPath),                             // cchMultiByte
+                                         NULL,
+                                         NULL
         );
 
         if (pathLength == 0) {
             io_result = FALSE;
-        }
-        else {
+        } else {
             io_result = WriteRegistryEntry(
                 EntryKey,                                     // EntryKey
                 "DisplayString",                              // EntryName
@@ -455,7 +448,7 @@ Return Value:
     // GUID ProviderId;
     if (IsRead) {
         carrier.len = sizeof(GUID);
-        carrier.buf = (char*)& m_providerId;
+        carrier.buf = (char*)&m_providerId;
 
         io_result = ReadRegistryEntry(
             EntryKey,                                  // EntryKey
@@ -464,8 +457,7 @@ Return Value:
             sizeof(GUID),                              // MaxBytes
             REG_BINARY                                 // TypeFlag
         );
-    }
-    else {
+    } else {
         carrier.len = sizeof(GUID);
         carrier.buf = (char*)&m_providerId;
         io_result = WriteRegistryEntry(
@@ -489,8 +481,7 @@ Return Value:
             sizeof(DWORD),                                // MaxBytes
             REG_DWORD                                     // TypeFlag
         );
-        if (!io_result)
-        {
+        if (!io_result) {
             // since this key may not exist, treat an error
             // as an acceptable case and simply store the
             // default value.
@@ -498,20 +489,16 @@ Return Value:
             m_address_family = -1;
             io_result = TRUE;
         }
-    }
-    else {
+    } else {
         // only do this if a value has been set
-        if (m_address_family != -1)
-        {
+        if (m_address_family != -1) {
             io_result = WriteRegistryEntry(
                 EntryKey,                                     // EntryKey
                 "AddressFamily",                              // EntryName
                 (PVOID) & (m_address_family),                 // Data
                 REG_DWORD                                     // TypeFlag
             );
-        }
-        else
-        {
+        } else {
             io_result = TRUE;
         }
     }
@@ -529,8 +516,7 @@ Return Value:
             sizeof(DWORD),                                // MaxBytes
             REG_DWORD                                     // TypeFlag
         );
-    }
-    else {
+    } else {
         io_result = WriteRegistryEntry(
             EntryKey,                                     // EntryKey
             "SupportedNameSpace",                         // EntryName
@@ -554,8 +540,7 @@ Return Value:
         );
         if (io_result)
             m_enabled = (val != 0);
-    }
-    else {
+    } else {
         val = m_enabled ? 1 : 0;
         io_result = WriteRegistryEntry(
             EntryKey,                                     // EntryKey
@@ -578,8 +563,7 @@ Return Value:
             sizeof(DWORD),                                // MaxBytes
             REG_DWORD                                     // TypeFlag
         );
-    }
-    else {
+    } else {
         io_result = WriteRegistryEntry(
             EntryKey,                                     // EntryKey
             "Version",                                    // EntryName
@@ -603,8 +587,7 @@ Return Value:
         );
         if (io_result)
             m_stores_service_class_info = (val != 0);
-    }
-    else {
+    } else {
         val = m_stores_service_class_info ? 1 : 0;
         io_result = WriteRegistryEntry(
             EntryKey,                                     // EntryKey

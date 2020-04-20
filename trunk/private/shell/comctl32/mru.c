@@ -20,7 +20,7 @@ typedef struct tagMRUDATA
     TCHAR szSubKey[32];
 #endif
     LPTSTR cOrder;
-} MRUDATA, *PMRUDATA;
+} MRUDATA, * PMRUDATA;
 
 #define c_szMRU     TEXT("MRUList")
 
@@ -46,7 +46,7 @@ BOOL IsValidPMRUDATA(PMRUDATA pmru)
 // Internal memcmp - saves loading crt's, cdecl so we can use
 // as MRUCMPDATAPROC
 
-int CDECL _mymemcmp(const void *pBuf1, const void *pBuf2, size_t cb)
+int CDECL _mymemcmp(const void* pBuf1, const void* pBuf2, size_t cb)
 {
     // Take advantage of the intrinsic version from crtfree.h
     return memcmp(pBuf1, pBuf2, cb);
@@ -61,7 +61,7 @@ int CDECL _mymemcmp(const void *pBuf1, const void *pBuf2, size_t cb)
 
 //  For binary data we stick the size of the data at the begining and store the
 //  whole thing in one go.
-BOOL MRUIsSameData(PMRUDATA pMRU, BYTE FAR* pVal, const void FAR *lpData, UINT cbData)
+BOOL MRUIsSameData(PMRUDATA pMRU, BYTE FAR* pVal, const void FAR* lpData, UINT cbData)
 {
     int cbUseSize;
     MRUCMPDATAPROC lpfnCompare;
@@ -76,14 +76,12 @@ BOOL MRUIsSameData(PMRUDATA pMRU, BYTE FAR* pVal, const void FAR *lpData, UINT c
     // don't require the sizes to be equal in order for the
     // data to be equivalent.
 
-    if (pMRU->lpfnCompare == _mymemcmp)
-    {
+    if (pMRU->lpfnCompare == _mymemcmp) {
         if (DATASIZE(pVal) != cbData)
             return FALSE;
 
         cbUseSize = cbData;
-    }
-    else
+    } else
         cbUseSize = min(DATASIZE(pVal), cbData);
 
     return ((*lpfnCompare)(lpData, DATAPDATA(pVal), cbUseSize) == 0);
@@ -91,7 +89,7 @@ BOOL MRUIsSameData(PMRUDATA pMRU, BYTE FAR* pVal, const void FAR *lpData, UINT c
 
 
 
-HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbData, LPINT lpiSlot)
+HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR* lpData, UINT cbData, LPINT lpiSlot)
 {
     HANDLE hMRU = NULL;
     PTSTR pOrder, pNewOrder, pTemp;
@@ -113,17 +111,17 @@ HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbD
 #endif
     if (!lpfnCompare) {
         lpfnCompare = (lpmi->fFlags & MRU_BINARY) ? (MRUCMPPROC)_mymemcmp :
-                      (
+            (
 #ifdef UNICODE
-                       (lpmi->fFlags & MRU_ANSI) ? (MRUCMPPROC)lstrcmpiA :
+            (lpmi->fFlags & MRU_ANSI) ? (MRUCMPPROC)lstrcmpiA :
 #endif
-                       (MRUCMPPROC)lstrcmpi
-                      );
+                (MRUCMPPROC)lstrcmpi
+                );
     }
 
     //  limit to 126 so that we don't use extended chars
-    if (uMax > MAX_CHAR-BASE_CHAR)
-        uMax = MAX_CHAR-BASE_CHAR;
+    if (uMax > MAX_CHAR - BASE_CHAR)
+        uMax = MAX_CHAR - BASE_CHAR;
 
     if (RegCreateKeyEx(hKey, lpszSubKey, 0L, (LPTSTR)c_szShell, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkeySubKey, &dwDisposition) != ERROR_SUCCESS)
         goto Error1;
@@ -134,8 +132,7 @@ HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbD
 
     cbVal = ((LONG)uMax + 1) * sizeof(TCHAR);
 
-    if (RegQueryValueEx(hkeySubKey, (LPTSTR)c_szMRU, NULL, &dwType, (LPBYTE)pOrder, &cbVal) != ERROR_SUCCESS)
-    {
+    if (RegQueryValueEx(hkeySubKey, (LPTSTR)c_szMRU, NULL, &dwType, (LPBYTE)pOrder, &cbVal) != ERROR_SUCCESS) {
         // if not already in the registry, then start fresh
         *pOrder = 0;
     }
@@ -150,13 +147,13 @@ HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbD
     // We allocate room for the MRUDATA structure, plus the order list,
     // and the list of strings.
     cb = (lpmi->fFlags & MRU_BINARY) ? sizeof(LPBYTE) : sizeof(LPTSTR);
-    pMRU = (PMRUDATA)Alloc(sizeof(MRUDATA)+(uMax*cb));
+    pMRU = (PMRUDATA)Alloc(sizeof(MRUDATA) + (uMax * cb));
     if (!pMRU) {
         goto Error2;
     }
 
     // Allocate space for the order list
-    pMRU->cOrder = (LPTSTR)Alloc((uMax+1)*sizeof(TCHAR));
+    pMRU->cOrder = (LPTSTR)Alloc((uMax + 1) * sizeof(TCHAR));
     if (!pMRU->cOrder) {
         Free(pMRU);
         goto Error2;
@@ -173,8 +170,7 @@ HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbD
     // Traverse through the MRU list, adding strings to the end of the
     // list.
     szTemp[1] = TEXT('\0');
-    for (pTemp = pOrder, pNewOrder = pMRU->cOrder; ; ++pTemp)
-    {
+    for (pTemp = pOrder, pNewOrder = pMRU->cOrder; ; ++pTemp) {
         // Stop when we get to the end of the list.
         szTemp[0] = *pTemp;
         if (!szTemp[0]) {
@@ -183,7 +179,7 @@ HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbD
 
         if (lpmi->fFlags & MRU_BINARY) {
             // Check if in range and if we have already used this letter.
-            if ((UINT)(szTemp[0]-BASE_CHAR)>=uMax || NTHDATA(pMRU, szTemp[0]-BASE_CHAR)) {
+            if ((UINT)(szTemp[0] - BASE_CHAR) >= uMax || NTHDATA(pMRU, szTemp[0] - BASE_CHAR)) {
                 continue;
             }
             // Get the value from the registry
@@ -203,12 +199,12 @@ HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbD
 
             // now really get it
             DATASIZE(pVal) = cbVal;
-            if (RegQueryValueEx(hkeySubKey, szTemp, NULL, &dwType, pVal+sizeof(DWORD),
+            if (RegQueryValueEx(hkeySubKey, szTemp, NULL, &dwType, pVal + sizeof(DWORD),
                                 (LPDWORD)pVal) != ERROR_SUCCESS)
                 continue;
 
             // Note that blank elements ARE allowed in the list.
-            NTHDATA(pMRU, szTemp[0]-BASE_CHAR) = pVal;
+            NTHDATA(pMRU, szTemp[0] - BASE_CHAR) = pVal;
             *pNewOrder++ = szTemp[0];
 
 
@@ -220,7 +216,7 @@ HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbD
                 // Check if we have the specified one or not.
                 if (MRUIsSameData(pMRU, pVal, lpData, cbData)) {
                     // Found it.
-                    *lpiSlot = (INT) (pNewOrder - pMRU->cOrder);
+                    *lpiSlot = (INT)(pNewOrder - pMRU->cOrder);
 
                     TraceMsg(DM_MRULAZY, "CreateMRUListLazy found it. Copying %s", pTemp);
 
@@ -238,7 +234,7 @@ HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbD
         } else {
 
             // Check if in range and if we have already used this letter.
-            if ((UINT)(szTemp[0]-BASE_CHAR)>=uMax || NTHSTRING(pMRU, szTemp[0]-BASE_CHAR)) {
+            if ((UINT)(szTemp[0] - BASE_CHAR) >= uMax || NTHSTRING(pMRU, szTemp[0] - BASE_CHAR)) {
                 continue;
             }
             // Get the value from the registry
@@ -261,7 +257,7 @@ HANDLE WINAPI CreateMRUListLazy(LPMRUINFO lpmi, const void FAR *lpData, UINT cbD
 
             // Note that blank elements are not allowed in the list.
             if (*((LPTSTR)pVal)) {
-                NTHSTRING(pMRU, szTemp[0]-BASE_CHAR) = (LPTSTR)pVal;
+                NTHSTRING(pMRU, szTemp[0] - BASE_CHAR) = (LPTSTR)pVal;
                 *pNewOrder++ = szTemp[0];
             } else {
                 Free(pVal);
@@ -310,17 +306,17 @@ HANDLE WINAPI CreateMRUList(LPMRUINFO lpmi)
 // ANSI thunk
 
 
-HANDLE WINAPI CreateMRUListLazyA(LPMRUINFOA lpmi, const void FAR *lpData, UINT cbData, LPINT lpiSlot)
+HANDLE WINAPI CreateMRUListLazyA(LPMRUINFOA lpmi, const void FAR* lpData, UINT cbData, LPINT lpiSlot)
 {
     MRUINFOW MRUInfoW;
     HANDLE hMRU;
 
-    MRUInfoW.cbSize       = sizeof (MRUINFOW);
-    MRUInfoW.uMax         = lpmi->uMax;
-    MRUInfoW.fFlags       = lpmi->fFlags;
-    MRUInfoW.hKey         = lpmi->hKey;
-    MRUInfoW.lpszSubKey   = ProduceWFromA(CP_ACP, lpmi->lpszSubKey);
-    MRUInfoW.lpfnCompare  = (MRUCMPPROCW)lpmi->lpfnCompare;
+    MRUInfoW.cbSize = sizeof(MRUINFOW);
+    MRUInfoW.uMax = lpmi->uMax;
+    MRUInfoW.fFlags = lpmi->fFlags;
+    MRUInfoW.hKey = lpmi->hKey;
+    MRUInfoW.lpszSubKey = ProduceWFromA(CP_ACP, lpmi->lpszSubKey);
+    MRUInfoW.lpfnCompare = (MRUCMPPROCW)lpmi->lpfnCompare;
 
     MRUInfoW.fFlags |= MRU_ANSI;
 
@@ -347,7 +343,7 @@ HANDLE WINAPI CreateMRUListW(LPMRUINFOW lpmi)
     return NULL;
 }
 
-HANDLE WINAPI CreateMRUListLazyW(LPMRUINFOW lpmi, const void FAR *lpData, UINT cbData, LPINT lpiSlot)
+HANDLE WINAPI CreateMRUListLazyW(LPMRUINFOW lpmi, const void FAR* lpData, UINT cbData, LPINT lpiSlot)
 {
     SetLastErrorEx(ERROR_CALL_NOT_IMPLEMENTED, SLE_WARNING);
     return NULL;
@@ -359,30 +355,24 @@ HANDLE WINAPI CreateMRUListLazyW(LPMRUINFOW lpmi, const void FAR *lpData, UINT c
 STDAPI_(void) FreeMRUList(HANDLE hMRU)
 {
     int i;
-    LPVOID FAR *pTemp;
+    LPVOID FAR* pTemp;
     PMRUDATA pMRU = (PMRUDATA)hMRU;
 
     ASSERT(IS_VALID_STRUCT_PTR(pMRU, MRUDATA));
 
-    if (pMRU)
-    {
-        pTemp = (pMRU->fFlags & MRU_BINARY) ? &NTHDATA(pMRU, 0) : (LPBYTE FAR *)&NTHSTRING(pMRU, 0);
-        if (pMRU->fFlags & MRU_ORDERDIRTY)
-        {
-            RegSetValueEx(pMRU->hKey, c_szMRU, 0L, REG_SZ, (CONST BYTE *)pMRU->cOrder, sizeof(TCHAR) * (lstrlen(pMRU->cOrder) + 1));
+    if (pMRU) {
+        pTemp = (pMRU->fFlags & MRU_BINARY) ? &NTHDATA(pMRU, 0) : (LPBYTE FAR*) & NTHSTRING(pMRU, 0);
+        if (pMRU->fFlags & MRU_ORDERDIRTY) {
+            RegSetValueEx(pMRU->hKey, c_szMRU, 0L, REG_SZ, (CONST BYTE*)pMRU->cOrder, sizeof(TCHAR) * (lstrlen(pMRU->cOrder) + 1));
         }
 
-        for (i=pMRU->uMax-1; i>=0; --i, ++pTemp)
-        {
-            if (*pTemp)
-            {
-                if (pMRU->fFlags & MRU_BINARY)
-                {
+        for (i = pMRU->uMax - 1; i >= 0; --i, ++pTemp) {
+            if (*pTemp) {
+                if (pMRU->fFlags & MRU_BINARY) {
                     Free((LPBYTE)*pTemp);
                     *pTemp = NULL;
-                }
-                else
-                    Str_SetPtr((LPTSTR FAR *)pTemp, NULL);
+                } else
+                    Str_SetPtr((LPTSTR FAR*)pTemp, NULL);
             }
         }
         RegCloseKey(pMRU->hKey);
@@ -401,7 +391,7 @@ STDAPI_(int) AddMRUString(HANDLE hMRU, LPCTSTR szString)
     TCHAR cFirst;
     int iSlot = -1;
     LPTSTR lpTemp;
-    LPTSTR FAR * pTemp;
+    LPTSTR FAR* pTemp;
     int i;
     UINT uMax;
     MRUCMPPROC lpfnCompare;
@@ -423,33 +413,28 @@ STDAPI_(int) AddMRUString(HANDLE hMRU, LPCTSTR szString)
 
     /* Check if the string already exists in the list.
     */
-    for (i=0, pTemp=&NTHSTRING(pMRU, 0); (UINT)i<uMax; ++i, ++pTemp)
-    {
-        if (*pTemp)
-        {
+    for (i = 0, pTemp = &NTHSTRING(pMRU, 0); (UINT)i < uMax; ++i, ++pTemp) {
+        if (*pTemp) {
             int iResult;
 
 #ifdef UNICODE
-            if (pMRU->fFlags & MRU_ANSI)
-            {
+            if (pMRU->fFlags & MRU_ANSI) {
                 LPSTR lpStringA, lpTempA;
 
-                lpStringA = ProduceAFromW (CP_ACP, szString);
-                lpTempA = ProduceAFromW (CP_ACP, (LPWSTR)*pTemp);
+                lpStringA = ProduceAFromW(CP_ACP, szString);
+                lpTempA = ProduceAFromW(CP_ACP, (LPWSTR)*pTemp);
 
-                iResult = (*lpfnCompare)((const void FAR *)lpStringA, (const void FAR *)lpTempA);
+                iResult = (*lpfnCompare)((const void FAR*)lpStringA, (const void FAR*)lpTempA);
 
-                FreeProducedString (lpStringA);
-                FreeProducedString (lpTempA);
-            }
-            else
+                FreeProducedString(lpStringA);
+                FreeProducedString(lpTempA);
+            } else
 #endif
             {
-                iResult = (*lpfnCompare)((const void FAR *)szString, (const void FAR *)*pTemp);
+                iResult = (*lpfnCompare)((const void FAR*)szString, (const void FAR*) * pTemp);
             }
 
-            if (!iResult)
-            {
+            if (!iResult) {
                 // found it, so don't do the write out
                 cFirst = i + BASE_CHAR;
                 iSlot = i;
@@ -461,41 +446,36 @@ STDAPI_(int) AddMRUString(HANDLE hMRU, LPCTSTR szString)
     /* Attempt to find an unused entry.  Count up the used entries at the
     * same time.
     */
-    for (i=0, pTemp=&NTHSTRING(pMRU, 0); ; ++i, ++pTemp)
-    {
+    for (i = 0, pTemp = &NTHSTRING(pMRU, 0); ; ++i, ++pTemp) {
         if ((UINT)i >= uMax)    // If we got to the end of the list.
         {
             // use the entry at the end of the cOrder list
-            cFirst = pMRU->cOrder[uMax-1];
-            pTemp = &NTHSTRING(pMRU, cFirst-BASE_CHAR);
+            cFirst = pMRU->cOrder[uMax - 1];
+            pTemp = &NTHSTRING(pMRU, cFirst - BASE_CHAR);
             break;
         }
 
         // Is the entry not used?
-        if (!*pTemp)
-        {
+        if (!*pTemp) {
             // yes
-            cFirst = i+BASE_CHAR;
+            cFirst = i + BASE_CHAR;
             break;
         }
     }
 
-    if (Str_SetPtr(pTemp, szString))
-    {
+    if (Str_SetPtr(pTemp, szString)) {
         TCHAR szTemp[2];
 
-        iSlot = (int)(cFirst-BASE_CHAR);
+        iSlot = (int)(cFirst - BASE_CHAR);
 
         szTemp[0] = cFirst;
         szTemp[1] = TEXT('\0');
 
-        RegSetValueEx(pMRU->hKey, szTemp, 0L, REG_SZ, (CONST BYTE *)szString,
-            sizeof(TCHAR) * (lstrlen(szString) + 1));
+        RegSetValueEx(pMRU->hKey, szTemp, 0L, REG_SZ, (CONST BYTE*)szString,
+                      sizeof(TCHAR) * (lstrlen(szString) + 1));
 
         fShouldWrite = TRUE;
-    }
-    else
-    {
+    } else {
         /* Since iSlot == -1, we will remove the reference to cFirst
         * below.
         */
@@ -505,22 +485,19 @@ FoundEntry:
     /* Remove any previous reference to cFirst.
     */
     lpTemp = StrChr(pMRU->cOrder, cFirst);
-    if (lpTemp)
-    {
-        lstrcpy(lpTemp, lpTemp+1);
+    if (lpTemp) {
+        lstrcpy(lpTemp, lpTemp + 1);
     }
 
-    if (iSlot != -1)
-    {
+    if (iSlot != -1) {
         // shift everything over and put cFirst at the front
-        hmemcpy(pMRU->cOrder+1, pMRU->cOrder, pMRU->uMax*sizeof(TCHAR));
+        hmemcpy(pMRU->cOrder + 1, pMRU->cOrder, pMRU->uMax * sizeof(TCHAR));
         pMRU->cOrder[0] = cFirst;
     }
 
-    if (fShouldWrite)
-    {
-        RegSetValueEx(pMRU->hKey, c_szMRU, 0L, REG_SZ, (CONST BYTE *)pMRU->cOrder,
-            sizeof(TCHAR) * (lstrlen(pMRU->cOrder) + 1));
+    if (fShouldWrite) {
+        RegSetValueEx(pMRU->hKey, c_szMRU, 0L, REG_SZ, (CONST BYTE*)pMRU->cOrder,
+                      sizeof(TCHAR) * (lstrlen(pMRU->cOrder) + 1));
         pMRU->fFlags &= ~MRU_ORDERDIRTY;
     } else
         pMRU->fFlags |= MRU_ORDERDIRTY;
@@ -546,7 +523,7 @@ STDAPI_(int) AddMRUStringA(HANDLE hMRU, LPCSTR szString)
 
     iResult = AddMRUString(hMRU, lpStringW);
 
-    FreeProducedString (lpStringW);
+    FreeProducedString(lpStringW);
 
     return iResult;
 }
@@ -576,8 +553,7 @@ STDAPI_(int) DelMRUString(HANDLE hMRU, int nItem)
 
     ASSERT(IS_VALID_STRUCT_PTR(pMRU, MRUDATA));
 
-    if (pMRU)
-    {
+    if (pMRU) {
 
         // Make sure the index value is within the length of
         // the string so we don't pick up some random value.
@@ -587,21 +563,17 @@ STDAPI_(int) DelMRUString(HANDLE hMRU, int nItem)
 
         // Be easy -- just remove the entry from the cOrder list
         lpTemp = &pMRU->cOrder[nItem];
-        if (lpTemp)
-        {
+        if (lpTemp) {
             int iSlot = *lpTemp - BASE_CHAR;
             if (iSlot >= 0 && iSlot < MAX_CHAR - BASE_CHAR)
                 Str_SetPtr(&NTHSTRING(pMRU, iSlot), NULL);
-            lstrcpy(lpTemp, lpTemp+1);
+            lstrcpy(lpTemp, lpTemp + 1);
 
-            if (!(pMRU->fFlags & MRU_CACHEWRITE))
-            {
-                RegSetValueEx(pMRU->hKey, c_szMRU, 0L, REG_SZ, (CONST BYTE *)pMRU->cOrder,
+            if (!(pMRU->fFlags & MRU_CACHEWRITE)) {
+                RegSetValueEx(pMRU->hKey, c_szMRU, 0L, REG_SZ, (CONST BYTE*)pMRU->cOrder,
                               sizeof(TCHAR) * (lstrlen(pMRU->cOrder) + 1));
                 pMRU->fFlags &= ~MRU_ORDERDIRTY;
-            }
-            else
-            {
+            } else {
                 pMRU->fFlags |= MRU_ORDERDIRTY;
             }
 
@@ -615,12 +587,12 @@ STDAPI_(int) DelMRUString(HANDLE hMRU, int nItem)
 
 
 // Add data to an MRU list.
-STDAPI_(int) AddMRUData(HANDLE hMRU, const void FAR *lpData, UINT cbData)
+STDAPI_(int) AddMRUData(HANDLE hMRU, const void FAR* lpData, UINT cbData)
 {
     TCHAR cFirst;
     int iSlot = -1;
     LPTSTR lpTemp;
-    LPBYTE FAR *ppData;
+    LPBYTE FAR* ppData;
     int i;
     UINT uMax;
     MRUCMPDATAPROC lpfnCompare;
@@ -642,10 +614,8 @@ STDAPI_(int) AddMRUData(HANDLE hMRU, const void FAR *lpData, UINT cbData)
     lpfnCompare = (MRUCMPDATAPROC)pMRU->lpfnCompare;
 
     // Check if the data already exists in the list.
-    for (i=0, ppData=&NTHDATA(pMRU, 0); (UINT)i<uMax; ++i, ++ppData)
-    {
-        if (*ppData && MRUIsSameData(pMRU, *ppData, lpData, cbData))
-        {
+    for (i = 0, ppData = &NTHDATA(pMRU, 0); (UINT)i < uMax; ++i, ++ppData) {
+        if (*ppData && MRUIsSameData(pMRU, *ppData, lpData, cbData)) {
             // found it, so don't do the write out
             cFirst = i + BASE_CHAR;
             iSlot = i;
@@ -656,51 +626,46 @@ STDAPI_(int) AddMRUData(HANDLE hMRU, const void FAR *lpData, UINT cbData)
 
     // When created "lazy", we are not supposed to add a new item.
 
-    if (pMRU->fFlags & MRU_LAZY)
-    {
+    if (pMRU->fFlags & MRU_LAZY) {
         ASSERT(0);
         return -1;
     }
 
     // Attempt to find an unused entry.  Count up the used entries at the
     // same time.
-    for (i=0, ppData=&NTHDATA(pMRU, 0); ; ++i, ++ppData)
-    {
+    for (i = 0, ppData = &NTHDATA(pMRU, 0); ; ++i, ++ppData) {
         if ((UINT)i >= uMax)
             // If we got to the end of the list.
         {
             // use the entry at the end of the cOrder list
-            cFirst = pMRU->cOrder[uMax-1];
-            ppData = &NTHDATA(pMRU, cFirst-BASE_CHAR);
+            cFirst = pMRU->cOrder[uMax - 1];
+            ppData = &NTHDATA(pMRU, cFirst - BASE_CHAR);
             break;
         }
 
         if (!*ppData)
             // If the entry is not used.
         {
-            cFirst = i+BASE_CHAR;
+            cFirst = i + BASE_CHAR;
             break;
         }
     }
 
-    *ppData = ReAlloc(*ppData, cbData+sizeof(DWORD));
-    if (*ppData)
-    {
+    *ppData = ReAlloc(*ppData, cbData + sizeof(DWORD));
+    if (*ppData) {
         TCHAR szTemp[2];
 
         *((LPDWORD)(*ppData)) = cbData;
         hmemcpy(DATAPDATA(*ppData), lpData, cbData);
 
-        iSlot = (int)(cFirst-BASE_CHAR);
+        iSlot = (int)(cFirst - BASE_CHAR);
 
         szTemp[0] = cFirst;
         szTemp[1] = TEXT('\0');
 
         RegSetValueEx(pMRU->hKey, szTemp, 0L, REG_BINARY, (LPVOID)lpData, cbData);
         fShouldWrite = TRUE;
-    }
-    else
-    {
+    } else {
         // Since iSlot == -1, we will remove the reference to cFirst
         // below.
     }
@@ -708,22 +673,19 @@ STDAPI_(int) AddMRUData(HANDLE hMRU, const void FAR *lpData, UINT cbData)
 FoundEntry:
     // Remove any previous reference to cFirst.
     lpTemp = StrChr(pMRU->cOrder, cFirst);
-    if (lpTemp)
-    {
-        lstrcpy(lpTemp, lpTemp+1);
+    if (lpTemp) {
+        lstrcpy(lpTemp, lpTemp + 1);
     }
 
-    if (iSlot != -1)
-    {
+    if (iSlot != -1) {
         // shift everything over and put cFirst at the front
-        hmemcpy(pMRU->cOrder+1, pMRU->cOrder, pMRU->uMax*sizeof(TCHAR));
+        hmemcpy(pMRU->cOrder + 1, pMRU->cOrder, pMRU->uMax * sizeof(TCHAR));
         pMRU->cOrder[0] = cFirst;
     }
 
-    if (fShouldWrite)
-    {
-        RegSetValueEx(pMRU->hKey, c_szMRU, 0L, REG_SZ, (CONST BYTE *)pMRU->cOrder,
-            sizeof(TCHAR) * (lstrlen(pMRU->cOrder) + 1));
+    if (fShouldWrite) {
+        RegSetValueEx(pMRU->hKey, c_szMRU, 0L, REG_SZ, (CONST BYTE*)pMRU->cOrder,
+                      sizeof(TCHAR) * (lstrlen(pMRU->cOrder) + 1));
         pMRU->fFlags &= ~MRU_ORDERDIRTY;
     } else
         pMRU->fFlags |= MRU_ORDERDIRTY;
@@ -738,12 +700,12 @@ FoundEntry:
 
 // Find data in an MRU list.
 // Returns the slot number.
-STDAPI_(int) FindMRUData(HANDLE hMRU, const void FAR *lpData, UINT cbData, LPINT lpiSlot)
+STDAPI_(int) FindMRUData(HANDLE hMRU, const void FAR* lpData, UINT cbData, LPINT lpiSlot)
 {
     TCHAR cFirst;
     int iSlot = -1;
     LPTSTR lpTemp;
-    LPBYTE FAR *ppData;
+    LPBYTE FAR* ppData;
     int i;
     UINT uMax;
     PMRUDATA pMRU = (PMRUDATA)hMRU;
@@ -758,8 +720,7 @@ STDAPI_(int) FindMRUData(HANDLE hMRU, const void FAR *lpData, UINT cbData, LPINT
         return(-1); // Error state.
 
     // Can't call this API when it's created lazily.
-    if (pMRU->fFlags & MRU_LAZY)
-    {
+    if (pMRU->fFlags & MRU_LAZY) {
         ASSERT(0);
         return -1;
     }
@@ -768,13 +729,11 @@ STDAPI_(int) FindMRUData(HANDLE hMRU, const void FAR *lpData, UINT cbData, LPINT
 
     /* Find the item in the list.
     */
-    for (i=0, ppData=&NTHDATA(pMRU, 0); (UINT)i<uMax; ++i, ++ppData)
-    {
+    for (i = 0, ppData = &NTHDATA(pMRU, 0); (UINT)i < uMax; ++i, ++ppData) {
         if (!*ppData)
             continue;
 
-        if (MRUIsSameData(pMRU, *ppData, lpData, cbData))
-        {
+        if (MRUIsSameData(pMRU, *ppData, lpData, cbData)) {
             // So i now has the slot number in it.
             if (lpiSlot != NULL)
                 *lpiSlot = i;
@@ -783,7 +742,7 @@ STDAPI_(int) FindMRUData(HANDLE hMRU, const void FAR *lpData, UINT cbData, LPINT
             cFirst = i + BASE_CHAR;
             lpTemp = StrChr(pMRU->cOrder, cFirst);
             ASSERT(lpTemp);
-            return((lpTemp == NULL)? -1 : (int)(lpTemp - (LPTSTR)pMRU->cOrder));
+            return((lpTemp == NULL) ? -1 : (int)(lpTemp - (LPTSTR)pMRU->cOrder));
         }
     }
 
@@ -800,7 +759,7 @@ STDAPI_(int) FindMRUString(HANDLE hMRU, LPCTSTR szString, LPINT lpiSlot)
     TCHAR cFirst;
     int iSlot = -1;
     LPTSTR lpTemp;
-    LPTSTR FAR *pTemp;
+    LPTSTR FAR* pTemp;
     int i;
     UINT uMax;
     MRUCMPPROC lpfnCompare;
@@ -820,33 +779,28 @@ STDAPI_(int) FindMRUString(HANDLE hMRU, LPCTSTR szString, LPINT lpiSlot)
 
     /* Find the item in the list.
     */
-    for (i=0, pTemp=&NTHSTRING(pMRU, 0); (UINT)i<uMax; ++i, ++pTemp)
-    {
-        if (*pTemp)
-        {
+    for (i = 0, pTemp = &NTHSTRING(pMRU, 0); (UINT)i < uMax; ++i, ++pTemp) {
+        if (*pTemp) {
             int iResult;
 
 #ifdef UNICODE
-            if (pMRU->fFlags & MRU_ANSI)
-            {
+            if (pMRU->fFlags & MRU_ANSI) {
                 LPSTR lpStringA, lpTempA;
 
-                lpStringA = ProduceAFromW (CP_ACP, szString);
-                lpTempA = ProduceAFromW (CP_ACP, (LPWSTR)*pTemp);
+                lpStringA = ProduceAFromW(CP_ACP, szString);
+                lpTempA = ProduceAFromW(CP_ACP, (LPWSTR)*pTemp);
 
-                iResult = (*lpfnCompare)((const void FAR *)lpStringA, (const void FAR *)lpTempA);
+                iResult = (*lpfnCompare)((const void FAR*)lpStringA, (const void FAR*)lpTempA);
 
-                FreeProducedString (lpStringA);
-                FreeProducedString (lpTempA);
-            }
-            else
+                FreeProducedString(lpStringA);
+                FreeProducedString(lpTempA);
+            } else
 #endif
             {
-                iResult = (*lpfnCompare)((CONST VOID FAR *)szString, (CONST VOID FAR *)*pTemp);
+                iResult = (*lpfnCompare)((CONST VOID FAR*)szString, (CONST VOID FAR*) * pTemp);
             }
 
-            if (!iResult)
-            {
+            if (!iResult) {
                 // So i now has the slot number in it.
                 if (lpiSlot != NULL)
                     *lpiSlot = i;
@@ -854,7 +808,7 @@ STDAPI_(int) FindMRUString(HANDLE hMRU, LPCTSTR szString, LPINT lpiSlot)
                 // Now convert the slot number into an index number
                 cFirst = i + BASE_CHAR;
                 lpTemp = StrChr(pMRU->cOrder, cFirst);
-                return((lpTemp == NULL)? -1 : (int)(lpTemp - (LPTSTR)pMRU->cOrder));
+                return((lpTemp == NULL) ? -1 : (int)(lpTemp - (LPTSTR)pMRU->cOrder));
             }
         }
     }
@@ -877,7 +831,7 @@ int WINAPI FindMRUStringA(HANDLE hMRU, LPCSTR szString, LPINT lpiSlot)
 
     iResult = FindMRUString(hMRU, lpStringW, lpiSlot);
 
-    FreeProducedString (lpStringW);
+    FreeProducedString(lpStringW);
 
     return iResult;
 }
@@ -912,18 +866,15 @@ STDAPI_(int) EnumMRUList(HANDLE hMRU, int nItem, LPVOID lpData, UINT uLen)
 
     ASSERT(IS_VALID_STRUCT_PTR(pMRU, MRUDATA));
 
-    if (pMRU)
-    {
+    if (pMRU) {
         nItems = lstrlen(pMRU->cOrder);
 
         if (nItem < 0 || !lpData)
             return nItems;
 
-        if (nItem < nItems)
-        {
-            if (pMRU->fFlags & MRU_BINARY)
-            {
-                pData = NTHDATA(pMRU, pMRU->cOrder[nItem]-BASE_CHAR);
+        if (nItem < nItems) {
+            if (pMRU->fFlags & MRU_BINARY) {
+                pData = NTHDATA(pMRU, pMRU->cOrder[nItem] - BASE_CHAR);
                 if (!pData)
                     return -1;
 
@@ -932,10 +883,8 @@ STDAPI_(int) EnumMRUList(HANDLE hMRU, int nItem, LPVOID lpData, UINT uLen)
 
                 nItems = uLen;
 
-            }
-            else
-            {
-                pTemp = NTHSTRING(pMRU, pMRU->cOrder[nItem]-BASE_CHAR);
+            } else {
+                pTemp = NTHSTRING(pMRU, pMRU->cOrder[nItem] - BASE_CHAR);
                 if (!pTemp)
                     return -1;
 
@@ -943,8 +892,7 @@ STDAPI_(int) EnumMRUList(HANDLE hMRU, int nItem, LPVOID lpData, UINT uLen)
 
                 nItems = lstrlen(pTemp);
             }
-        }
-        else  // revert to error condition
+        } else  // revert to error condition
             nItems = -1;
     }
 
@@ -961,8 +909,7 @@ STDAPI_(int) EnumMRUListA(HANDLE hMRU, int nItem, LPVOID lpData, UINT uLen)
 
     ASSERT(IS_VALID_STRUCT_PTR(pMRU, MRUDATA));
 
-    if (pMRU)
-    {
+    if (pMRU) {
         LPVOID lpDataW;
         BOOL bAllocatedMemory = FALSE;
 
@@ -970,16 +917,14 @@ STDAPI_(int) EnumMRUListA(HANDLE hMRU, int nItem, LPVOID lpData, UINT uLen)
         //  we need a temp buffer if the data is a string.
         //  but if it is binary, then we trust the callers buffer.
 
-        if (!(pMRU->fFlags & MRU_BINARY) && uLen && lpData)
-        {
+        if (!(pMRU->fFlags & MRU_BINARY) && uLen && lpData) {
             lpDataW = LocalAlloc(LPTR, uLen * sizeof(TCHAR));
 
             if (!lpDataW)
                 return -1;
 
             bAllocatedMemory = TRUE;
-        }
-        else
+        } else
             lpDataW = lpData;
 
         //  call the real thing
@@ -989,10 +934,8 @@ STDAPI_(int) EnumMRUListA(HANDLE hMRU, int nItem, LPVOID lpData, UINT uLen)
         //  if the buffer was a string that we allocated
         //  then we need to thunk the string into the callers buffer
 
-        if (!(pMRU->fFlags & MRU_BINARY) && lpData && uLen && (iResult != -1))
-        {
-            WideCharToMultiByte(CP_ACP, 0, (LPWSTR)lpDataW, -1,
-                (LPSTR)lpData, uLen, NULL, NULL);
+        if (!(pMRU->fFlags & MRU_BINARY) && lpData && uLen && (iResult != -1)) {
+            WideCharToMultiByte(CP_ACP, 0, (LPWSTR)lpDataW, -1, (LPSTR)lpData, uLen, NULL, NULL);
         }
 
         if (bAllocatedMemory)

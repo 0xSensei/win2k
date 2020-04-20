@@ -46,7 +46,7 @@ typedef struct _ENUMREGWORDDATA {
     } lpfn;
     LPVOID lpData;
     DWORD  dwCodePage;
-} ENUMREGWORDDATA, *PENUMREGWORDDATA;
+} ENUMREGWORDDATA, * PENUMREGWORDDATA;
 
 #define HEX_ASCII_SIZE          20
 
@@ -54,7 +54,7 @@ typedef struct tagIMELAYOUT {
     HKL     hImeKL;
     WCHAR   szKeyName[HEX_ASCII_SIZE];
     WCHAR   szImeName[IM_FILE_SIZE];
-} IMELAYOUT, *PIMELAYOUT;
+} IMELAYOUT, * PIMELAYOUT;
 
 #define ImmAssert UserAssert
 
@@ -69,13 +69,13 @@ typedef struct tagFE_KEYBOARDS {
  * Function pointers to registry routines in advapi32.dll.
 */
 typedef struct {
-    LONG (WINAPI* RegCreateKeyW)(HKEY, LPCWSTR, PHKEY);
-    LONG (WINAPI* RegOpenKeyW)(HKEY, LPCWSTR, PHKEY);
-    LONG (WINAPI* RegCloseKey)(HKEY);
-    LONG (WINAPI* RegDeleteKeyW)(HKEY, LPCWSTR);
-    LONG (WINAPI* RegCreateKeyExW)(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD, REGSAM, LPSECURITY_ATTRIBUTES, PHKEY, LPDWORD);
-    LONG (WINAPI* RegSetValueExW)(HKEY, LPCWSTR, DWORD Reserved, DWORD, CONST BYTE*, DWORD);
-    LONG (WINAPI* RegQueryValueExW)(HKEY, LPCWSTR, LPDWORD, LPDWORD, LPBYTE, LPDWORD);
+    LONG(WINAPI* RegCreateKeyW)(HKEY, LPCWSTR, PHKEY);
+    LONG(WINAPI* RegOpenKeyW)(HKEY, LPCWSTR, PHKEY);
+    LONG(WINAPI* RegCloseKey)(HKEY);
+    LONG(WINAPI* RegDeleteKeyW)(HKEY, LPCWSTR);
+    LONG(WINAPI* RegCreateKeyExW)(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD, REGSAM, LPSECURITY_ATTRIBUTES, PHKEY, LPDWORD);
+    LONG(WINAPI* RegSetValueExW)(HKEY, LPCWSTR, DWORD Reserved, DWORD, CONST BYTE*, DWORD);
+    LONG(WINAPI* RegQueryValueExW)(HKEY, LPCWSTR, LPDWORD, LPDWORD, LPBYTE, LPDWORD);
     HMODULE hModule;
     BOOLEAN fOk;
 } ADVAPI_FN;
@@ -209,7 +209,7 @@ VOID SelectInputContext(
 
 DWORD BuildHimcList(
     DWORD idThread,
-    HIMC **pphimcFirst);
+    HIMC** pphimcFirst);
 
 HIMC ImmGetSaveContext(
     HWND  hWnd,
@@ -396,7 +396,7 @@ VOID ImmPostMessages(
     INT  iNum,
     PTRANSMSG pTransMsg);
 
-BOOL HotKeyIDDispatcher( HWND hWnd, HIMC hImc, HKL hKL, DWORD dwHotKeyID );
+BOOL HotKeyIDDispatcher(HWND hWnd, HIMC hImc, HKL hKL, DWORD dwHotKeyID);
 
 BOOL OpenRegApi(ADVAPI_FN* pfn);
 void CloseRegApi(ADVAPI_FN* pfn);
@@ -409,15 +409,15 @@ LRESULT TranslateIMESubFunctions(
     LPIMESTRUCT lpIme,
     BOOL fAnsi);
 
-LRESULT TransGetLevel( HWND hWndApp );
-LRESULT TransSetLevel( HWND hWndApp, LPIMESTRUCT lpIme);
+LRESULT TransGetLevel(HWND hWndApp);
+LRESULT TransSetLevel(HWND hWndApp, LPIMESTRUCT lpIme);
 
 /*
  * kcodecnv.c
 */
-LRESULT TransCodeConvert( HIMC hImc, LPIMESTRUCT lpIme);
-LRESULT TransConvertList( HIMC hImc, LPIMESTRUCT lpIme);
-LRESULT TransGetMNTable( HIMC hImc, LPIMESTRUCT lpIme);
+LRESULT TransCodeConvert(HIMC hImc, LPIMESTRUCT lpIme);
+LRESULT TransConvertList(HIMC hImc, LPIMESTRUCT lpIme);
+LRESULT TransGetMNTable(HIMC hImc, LPIMESTRUCT lpIme);
 
 /*
  * ktranmsg.c
@@ -437,7 +437,7 @@ UINT WINNLSTranslateMessageJ(
     PTRANSMSG           pTransMsg,
     LPINPUTCONTEXT      lpIMC,
     LPCOMPOSITIONSTRING lpCompStr,
-    BOOL bAnsiIMC );
+    BOOL bAnsiIMC);
 
 /*
  * input.c
@@ -447,7 +447,7 @@ UINT WINNLSTranslateMessage(
     PTRANSMSG pTransMsg, // source buffer that contains 4.0 style messages
     HIMC   hImc,         // input context handle
     BOOL   fAnsi,        // TRUE if pdwt contains ANSI messages
-    DWORD  dwLangId );   // language ID ( KOREAN or JAPANESE )
+    DWORD  dwLangId);   // language ID ( KOREAN or JAPANESE )
 
 
 /*

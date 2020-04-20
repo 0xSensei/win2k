@@ -65,14 +65,14 @@ DWORD APIENTRY PackBlobWorker(
     IN    LPTSTR                   lpTypeName,
     IN    DWORD                    dwValueCount,
     IN    PSERVICE_TYPE_VALUE_ABS  Values,
-    OUT   PBYTE                   *lppBuffer,
-    OUT   DWORD                   *lpdBufferSize,
+    OUT   PBYTE* lppBuffer,
+    OUT   DWORD* lpdBufferSize,
     IN    BOOL                     fIsAnsi
 );
 
 
 #if defined(UNICODE)
-DWORD AllocateUnicodeString(IN     LPSTR   lpAnsi, IN OUT LPTSTR *lppUnicode);
+DWORD AllocateUnicodeString(IN     LPSTR   lpAnsi, IN OUT LPTSTR* lppUnicode);
 #endif
 
 DWORD
@@ -82,8 +82,8 @@ PackBuffer(
     IN     LPSERVICE_INFO  lpServiceInfo,
     IN     BOOL            fUnicodeCaller,
     IN     LPTSTR          lpServiceName,
-    IN OUT LPBYTE         *lppStart,
-    IN OUT LPBYTE         *lppEnd,
+    IN OUT LPBYTE* lppStart,
+    IN OUT LPBYTE* lppEnd,
     IN OUT LPDWORD         lpdwBytesTooFew
 );
 
@@ -91,8 +91,8 @@ VOID
 PackString(
     IN     LPTSTR  lpSource,
     IN     LPBYTE  lpStartVar,
-    IN OUT LPBYTE *lppEnd,
-    IN OUT LPBYTE *lppDest,
+    IN OUT LPBYTE* lppEnd,
+    IN OUT LPBYTE* lppDest,
     IN OUT LPDWORD lpdwBytesTooFew,
     IN     BOOL    fConvertToAnsi
 );
@@ -183,7 +183,7 @@ INT SSRegistrySettings(
 // Convert a SERVICE_ADDRESSES structure into a CSADDR_INFO structure.
 // This will allocate whatever memory is required leaving the caller to
 // free it. A return value of NULL indicates a memory allocation error
-CSADDR_INFO * SrvAddrsToCsAddrs(PSERVICE_ADDRESSES psa, PDWORD  pdwNumberOfCsAddrs)
+CSADDR_INFO* SrvAddrsToCsAddrs(PSERVICE_ADDRESSES psa, PDWORD  pdwNumberOfCsAddrs)
 {
     DWORD  dwTotalSize;
     DWORD  dwX;
@@ -261,7 +261,7 @@ LPWSANSCLASSINFO ServiceTypeToClassInfo(BOOL   fUnicodeCaller, DWORD  dwNumberOf
 
     lpci = ALLOCATE_HEAP(sizeof(WSANSCLASSINFO) * dwNumberOf);
     if (lpci1 = lpci) {
-        memset(lpci, 0, sizeof(WSANSCLASSINFO)  * dwNumberOf);
+        memset(lpci, 0, sizeof(WSANSCLASSINFO) * dwNumberOf);
         while (dwNumberOf--) {
 #ifdef UNICODE
             if (!fUnicodeCaller) {
@@ -656,7 +656,7 @@ Return Value:
 #endif
 
         // make sure the service type name is not empty
-        if (lpServiceTypeName  && *lpServiceTypeName != 0) {
+        if (lpServiceTypeName && *lpServiceTypeName != 0) {
             err = SSRegistrySettings(dwOperation, lpServiceTypeName, TmpSvcInfo.lpServiceType);
         } else {
             err = ERROR_INVALID_PARAMETER;
@@ -1229,8 +1229,8 @@ DWORD PackBuffer(
     IN     LPSERVICE_INFO  lpServiceInfo,
     IN     BOOL            fUnicodeCaller,
     IN     LPTSTR          lpServiceName,
-    IN OUT LPBYTE         *lppStart,
-    IN OUT LPBYTE         *lppEnd,
+    IN OUT LPBYTE* lppStart,
+    IN OUT LPBYTE* lppEnd,
     IN OUT LPDWORD         lpdwBytesTooFew
 )
 /*
@@ -1304,7 +1304,7 @@ Return Value:
             lpTmpServiceAddress = (LPSERVICE_ADDRESSES)lpEnd;
             lpTmpServiceAddress->dwAddressCount = AddressCount;
 
-            lpTmpAddress = (LPSERVICE_ADDRESS) &(lpTmpServiceAddress->Addresses[0]);
+            lpTmpAddress = (LPSERVICE_ADDRESS) & (lpTmpServiceAddress->Addresses[0]);
         }
 
         // for each variable array, make sure we have enough for the thang it points to.
@@ -1383,7 +1383,7 @@ Return Value:
 }
 
 
-VOID PackString(LPTSTR lpSource, LPBYTE lpStartVar, LPBYTE *lppEnd, LPBYTE *lppDest, LPDWORD lpdwBytesTooFew, BOOL fConvertToAnsi)
+VOID PackString(LPTSTR lpSource, LPBYTE lpStartVar, LPBYTE* lppEnd, LPBYTE* lppDest, LPDWORD lpdwBytesTooFew, BOOL fConvertToAnsi)
 /*
 Routine Description:
     Packs a single string at the end of a buffer.
@@ -1411,7 +1411,7 @@ Return Value:
     // find length. we word align because we dont know if next item after this string needs to be aligned.
     Length = (_tcslen(lpSource) + 1) * (fConvertToAnsi ? sizeof(CHAR) : sizeof(WCHAR));
     Length = ROUND_UP_COUNT(Length, ALIGN_DWORD);
-    if ((lpStartVar + Length) > *lppEnd) {
+    if ((lpStartVar + Length) > * lppEnd) {
         // not enough space. calculate how many bytes short &
         // set the end marker to where the variable section is (ie. buffer fully used) so that further calculations are correct.
         *lpdwBytesTooFew += (DWORD)(ULONG_PTR)(((LPBYTE)lpStartVar + Length) - ((LPBYTE)*lppEnd));
@@ -1453,17 +1453,17 @@ Return Value:
 // The string handling function table. This is used to switch to either ANSI
 // or Unicode string functions. Note, the order of the values is very important.
 
-typedef  LPWSTR(__cdecl *LPCOPYFUNCTION)(LPVOID, LPVOID);
-typedef  size_t(__cdecl *LPLENGTHFUNCTION)(LPVOID);
+typedef  LPWSTR(__cdecl* LPCOPYFUNCTION)(LPVOID, LPVOID);
+typedef  size_t(__cdecl* LPLENGTHFUNCTION)(LPVOID);
 
 #ifdef CHICAGO
 
-char * MyStrCpy(char * d, char * s)
+char* MyStrCpy(char* d, char* s)
 {
     return FSTRCPY(d, s);
 }
 
-size_t MyStrLen(char * s)
+size_t MyStrLen(char* s)
 {
     return FSTRLEN(s);
 }
@@ -1479,8 +1479,8 @@ DWORD APIENTRY PackBlobWorker(
     LPTSTR lpTypeName,
     DWORD dwValueCount,
     PSERVICE_TYPE_VALUE_ABS Values,
-    PBYTE *lppBuffer,
-    DWORD *lpdBufferSize,
+    PBYTE* lppBuffer,
+    DWORD* lpdBufferSize,
     BOOL fIsAnsi
 )
 /*

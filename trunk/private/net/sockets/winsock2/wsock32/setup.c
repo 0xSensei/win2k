@@ -150,7 +150,7 @@ typedef struct _NAME_GUID_PAIR
 {
     LPTSTR Name;
     GUID Guid;
-} NAME_GUID_PAIR, *LPNAME_GUID_PAIR;
+} NAME_GUID_PAIR, * LPNAME_GUID_PAIR;
 
 
 // Private globals.
@@ -199,9 +199,9 @@ DWORD InitializeSetup(VOID);
 VOID TerminateSetup(VOID);
 BOOL IsStringInMultiSz(LPTSTR MultiSz, LPTSTR String);
 DWORD ReadDword(HKEY RootKey, LPTSTR ValueName, LPDWORD Value);
-DWORD ReadMultiSz(HKEY RootKey, LPTSTR ValueName, LPTSTR FAR * Value);
-DWORD ReadBinary(HKEY RootKey, LPTSTR ValueName, LPVOID FAR * Value, LPDWORD ValueLength);
-DWORD ReadString(HKEY RootKey, LPTSTR ValueName, LPTSTR FAR * Value);
+DWORD ReadMultiSz(HKEY RootKey, LPTSTR ValueName, LPTSTR FAR* Value);
+DWORD ReadBinary(HKEY RootKey, LPTSTR ValueName, LPVOID FAR* Value, LPDWORD ValueLength);
+DWORD ReadString(HKEY RootKey, LPTSTR ValueName, LPTSTR FAR* Value);
 DWORD ReadGuid(HKEY RootKey, LPTSTR ValueName, LPGUID Value);
 DWORD WriteDword(HKEY RootKey, LPTSTR ValueName, DWORD Value);
 DWORD WriteMultiSz(HKEY RootKey, LPTSTR ValueName, LPTSTR Value);
@@ -211,28 +211,28 @@ DWORD WriteGuid(HKEY RootKey, LPTSTR ValueName, LPGUID Value);
 DWORD OpenServicesRoot(PHKEY ServicesKey);
 DWORD OpenWinsockRoot(HKEY ServicesKey, PHKEY WinsockKey);
 DWORD OpenSetupMigrationRoot(HKEY WinsockKey, PHKEY MigrationKey, PHKEY ProvidersKey, PHKEY WellKnownGuidsKey);
-DWORD ReadNewProviderList(HKEY WinsockKey, LPTSTR FAR * NewProviderList);
-DWORD ReadOldProviderList(HKEY MigrationKey, LPTSTR FAR * OldProviderList);
-DWORD ReadKnownStaticProviderList(HKEY MigrationKey, LPTSTR FAR * KnownStaticProviderList);
+DWORD ReadNewProviderList(HKEY WinsockKey, LPTSTR FAR* NewProviderList);
+DWORD ReadOldProviderList(HKEY MigrationKey, LPTSTR FAR* OldProviderList);
+DWORD ReadKnownStaticProviderList(HKEY MigrationKey, LPTSTR FAR* KnownStaticProviderList);
 DWORD ReadProviderId(HKEY ProvidersKey, LPTSTR ProviderName, LPGUID ProviderId);
 DWORD CreateDefaultSetupMigrationTree(HKEY WinsockKey, HKEY MigrationKey, PHKEY ProvidersKey, PHKEY WellKnownGuidsKey);
 DWORD RecursivelyDeleteRegistryTree(HKEY RootKey, LPTSTR TargetKeyName);
 DWORD RemoveProviderByName(HKEY ProvidersKey, LPTSTR ProviderName);
-DWORD ReadProtocolDataFromRegistry(HKEY ProvidersKey, LPTSTR ProviderName, LPPROTOCOL_INFO FAR * RegistryInfo11, LPDWORD RegistryInfo11Length);
+DWORD ReadProtocolDataFromRegistry(HKEY ProvidersKey, LPTSTR ProviderName, LPPROTOCOL_INFO FAR* RegistryInfo11, LPDWORD RegistryInfo11Length);
 DWORD ReadProtocolDataFromProvider(HKEY ServicesKey,
                                    LPTSTR ProviderName,
                                    LPTSTR ProviderDllPath,
-                                   LPPROTOCOL_INFO FAR * ProtocolInfo11,
+                                   LPPROTOCOL_INFO FAR* ProtocolInfo11,
                                    LPDWORD ProtocolInfo11Length,
                                    LPDWORD ProtocolInfo11Entries);
-DWORD ReadProviderSupportedProtocolsFromRegistry(HKEY ParametersKey, LPDWORD FAR * ProtocolList);
+DWORD ReadProviderSupportedProtocolsFromRegistry(HKEY ParametersKey, LPDWORD FAR* ProtocolList);
 VOID MapProtocolInfoToSelfRelative(LPPROTOCOL_INFO ProtocolInfo11, DWORD ProtocolInfo11Entries);
 VOID MapProtocolInfoToAbsolute(LPPROTOCOL_INFO ProtocolInfo11, DWORD ProtocolInfo11Entries);
 DWORD BuildWinsock2ProtocolList(LPTSTR ProviderName,
                                 LPTSTR ProviderDllPath,
                                 LPPROTOCOL_INFO ProtocolInfo11,
                                 DWORD ProtocolInfo11Entries,
-                                LPWSAPROTOCOL_INFO FAR * ProtocolInfo2,
+                                LPWSAPROTOCOL_INFO FAR* ProtocolInfo2,
                                 LPDWORD ProtocolInfo2Entries);
 VOID BuildNewProtocolName(LPTSTR ProviderName, LPPROTOCOL_INFO ProtocolInfo11, LPTSTR NewProtocolName);
 DWORD InstallNewProvider(HKEY WellKnownGuidsKey,
@@ -253,7 +253,7 @@ DWORD CreateProtocolCatalogMutex(LPHANDLE Handle);
 DWORD AcquireProtocolCatalogMutex(HANDLE Handle);
 DWORD ReleaseProtocolCatalogMutex(HANDLE Handle);
 DWORD RemoveAllInstalledProviders(HKEY ProvidersKey);
-DWORD AppendStringToMultiSz(LPTSTR * MultiSz, LPTSTR String);
+DWORD AppendStringToMultiSz(LPTSTR* MultiSz, LPTSTR String);
 DWORD SanitizeWinsock2ConfigForProvider(LPGUID ProviderId);
 DWORD DetermineGuidForProvider(HKEY WellKnownGuidsKey, LPTSTR ProviderName, LPTSTR ProviderDllPath, LPGUID ProviderId);
 
@@ -724,7 +724,7 @@ exit:
 }
 
 
-DWORD ReadMultiSz(HKEY RootKey, LPTSTR ValueName, LPTSTR FAR * Value)
+DWORD ReadMultiSz(HKEY RootKey, LPTSTR ValueName, LPTSTR FAR* Value)
 /*
 Routine Description:
     Reads a MULTI_SZ value from the registry.
@@ -788,7 +788,7 @@ exit:
 }
 
 
-DWORD ReadString(HKEY RootKey, LPTSTR ValueName, LPTSTR FAR * Value)
+DWORD ReadString(HKEY RootKey, LPTSTR ValueName, LPTSTR FAR* Value)
 /*
 Routine Description:
     Reads a string value from the registry.
@@ -852,7 +852,7 @@ exit:
 }
 
 
-DWORD ReadBinary(HKEY RootKey, LPTSTR ValueName, LPVOID FAR * Value, LPDWORD ValueLength)
+DWORD ReadBinary(HKEY RootKey, LPTSTR ValueName, LPVOID FAR* Value, LPDWORD ValueLength)
 /*
 Routine Description:
     Reads a raw binary value from the registry.
@@ -1349,7 +1349,7 @@ exit:
 }
 
 
-DWORD ReadNewProviderList(HKEY WinsockKey, LPTSTR FAR * NewProviderList)
+DWORD ReadNewProviderList(HKEY WinsockKey, LPTSTR FAR* NewProviderList)
 /*
 Routine Description:
     Reads the list of current WinSock 1.1 providers (helper DLLs).
@@ -1405,7 +1405,7 @@ exit:
 }
 
 
-DWORD ReadOldProviderList(HKEY MigrationKey, LPTSTR FAR * OldProviderList)
+DWORD ReadOldProviderList(HKEY MigrationKey, LPTSTR FAR* OldProviderList)
 /*
 Routine Description:
     Reads the list of currently migrated providers.
@@ -1429,7 +1429,7 @@ Return Value:
 }
 
 
-DWORD ReadKnownStaticProviderList(HKEY MigrationKey, LPTSTR FAR * KnownStaticProviderList)
+DWORD ReadKnownStaticProviderList(HKEY MigrationKey, LPTSTR FAR* KnownStaticProviderList)
 /*
 Routine Description:
     Reads the list of known static provider names.
@@ -1741,7 +1741,7 @@ exit:
 }
 
 
-DWORD ReadProtocolDataFromRegistry(HKEY ProvidersKey, LPTSTR ProviderName, LPPROTOCOL_INFO FAR * RegistryInfo11, LPDWORD RegistryInfo11Length)
+DWORD ReadProtocolDataFromRegistry(HKEY ProvidersKey, LPTSTR ProviderName, LPPROTOCOL_INFO FAR* RegistryInfo11, LPDWORD RegistryInfo11Length)
 /*
 Routine Description:
     Reads the WinSock 1.1 protocol data stored in the provider's migration registry tree.
@@ -1807,7 +1807,7 @@ exit:
 DWORD ReadProtocolDataFromProvider(HKEY ServicesKey,
                                    LPTSTR ProviderName,
                                    LPTSTR ProviderDllPath,
-                                   LPPROTOCOL_INFO FAR * ProtocolInfo11,
+                                   LPPROTOCOL_INFO FAR* ProtocolInfo11,
                                    LPDWORD ProtocolInfo11Length,
                                    LPDWORD ProtocolInfo11Entries
 )
@@ -1992,7 +1992,7 @@ Notes:
 #endif
 
     // Success!
-    *ProtocolInfo11 = protocolInfo11;
+    * ProtocolInfo11 = protocolInfo11;
     *ProtocolInfo11Length = protocolInfo11Length;
     *ProtocolInfo11Entries = (DWORD)numEntries;
 
@@ -2021,7 +2021,7 @@ exit:
 }
 
 
-DWORD ReadProviderSupportedProtocolsFromRegistry(HKEY ParametersKey, LPDWORD FAR * ProtocolList)
+DWORD ReadProviderSupportedProtocolsFromRegistry(HKEY ParametersKey, LPDWORD FAR* ProtocolList)
 /*
 Routine Description:
     Reads a list of supported protocol values from the WinSock 1.1 mapping data stored in the registry.
@@ -2161,7 +2161,7 @@ DWORD BuildWinsock2ProtocolList(LPTSTR ProviderName,
                                 LPTSTR ProviderDllPath,
                                 LPPROTOCOL_INFO ProtocolInfo11,
                                 DWORD ProtocolInfo11Entries,
-                                LPWSAPROTOCOL_INFO FAR * ProtocolInfo2,
+                                LPWSAPROTOCOL_INFO FAR* ProtocolInfo2,
                                 LPDWORD ProtocolInfo2Entries
 )
 /*
@@ -2257,9 +2257,9 @@ Return Value:
         }
 
         // If we made it this far, then either 
-		// a) we couldn't load the helper DLL, 
-		// b) the helper DLL doesn't export the new entrypoint, 
-		// c) the entrypoint failed to return the required info, or d) the
+        // a) we couldn't load the helper DLL, 
+        // b) the helper DLL doesn't export the new entrypoint, 
+        // c) the entrypoint failed to return the required info, or d) the
         // entrypoint returned bogus data causing us to throw an exception when we tried to copy it.
         // In any case, just proceed and construct the new data ourselves.
 
@@ -2777,7 +2777,7 @@ exit:
 }
 
 
-DWORD AppendStringToMultiSz(LPTSTR * MultiSz, LPTSTR String)
+DWORD AppendStringToMultiSz(LPTSTR* MultiSz, LPTSTR String)
 /*
 Routine Description:
     Appends a string to a MULTI_SZ. If this is the first attempt, then the MULTI_SZ is created.

@@ -29,12 +29,10 @@ HRESULT IUnknown_RefreshParent(IUnknown* punk, LPCITEMIDLIST pidl, DWORD dwFlags
 {
     IShellMenu* psm;
     HRESULT hres = IUnknown_QueryService(punk, SID_SMenuBandParent,
-            IID_IShellMenu, (void **)&psm);
-    if (SUCCEEDED(hres))
-    {
+                                         IID_IShellMenu, (void**)&psm);
+    if (SUCCEEDED(hres)) {
         LPITEMIDLIST pidlParent = ILClone(pidl);
-        if (pidlParent)
-        {
+        if (pidlParent) {
             SMDATA smd;
             ILRemoveLastID(pidlParent);
             smd.dwMask = SMDM_SHELLFOLDER;
@@ -69,16 +67,12 @@ void CMenuData::SetSubMenu(IUnknown* punk)
 HRESULT CMenuData::GetSubMenu(const GUID* pguidService, REFIID riid, void** ppv)
 {
     // pguidService is for asking specifically for the Shell Folder portion or the Static portion
-    if (_punkSubmenu)
-    {
-        if (pguidService)
-        {
+    if (_punkSubmenu) {
+        if (pguidService) {
             return IUnknown_QueryService(_punkSubmenu, *pguidService, riid, ppv);
-        }
-        else
+        } else
             return _punkSubmenu->QueryInterface(riid, ppv);
-    }
-    else
+    } else
         return E_NOINTERFACE;
 }
 
@@ -107,8 +101,7 @@ STDMETHODIMP CMenuSFToolbar::QueryInterface(REFIID riid, void** ppvObj)
 STDMETHODIMP CMenuSFToolbar::SetSite(IUnknown* punkSite)
 {
     HRESULT hres = CMenuToolbarBase::SetSite(punkSite);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         _fMulticolumnMB = BOOLIFY(_pcmb->_dwFlags & SMINIT_MULTICOLUMN);
         _fMulticolumn = _fMulticolumnMB;
         _fVertical = _fVerticalMB;
@@ -126,8 +119,7 @@ CMenuSFToolbar::CMenuSFToolbar(CMenuBand* pmb, IShellFolder* psf, LPCITEMIDLIST 
     _hKey = hKey;
 
     // Do we have a place to persist our reorder?
-    if (_hKey == NULL)
-    {
+    if (_hKey == NULL) {
         // No, then don't allow it.
         _fAllowReorder = FALSE;
     }
@@ -173,12 +165,9 @@ void CMenuSFToolbar::v_Close()
     CMenuToolbarBase::EmptyToolbar();
     _UnregisterToolbar();
 
-    if (_hwndPager)
-    {
+    if (_hwndPager) {
         DestroyWindow(_hwndPager);  // Should Destroy Toolbar.
-    }
-    else if (_hwndMB)
-    {
+    } else if (_hwndMB) {
         // In the MultiColumn case, there is no pager so we have to
         // manually destroy the Toolbar
         DestroyWindow(_hwndMB);
@@ -213,21 +202,17 @@ HRESULT CMenuSFToolbar::_LoadOrderStream()
     IStream* pstm;
     HRESULT hres = E_FAIL;
 
-    if (_hKey)
-    {
+    if (_hKey) {
         // We use "Menu" for Backwards compatibility with shdoc401 start menu, but having no
         // sub key is more correct (Other places use it) so on NT5 we use the new method.
         pstm = SHOpenRegStream(_hKey, (_pcmb->_dwFlags & SMINIT_LEGACYMENU) ? TEXT("Menu") : TEXT(""),
-            TEXT("Order"), STGM_READ);
-    }
-    else
-    {
+                               TEXT("Order"), STGM_READ);
+    } else {
         if (S_FALSE == CallCB(NULL, SMC_GETSFOBJECT, (WPARAM)(GUID*)&IID_IStream, (LPARAM)(void**)&pstm))
             pstm = NULL;
     }
 
-    if (pstm)
-    {
+    if (pstm) {
         hres = OrderList_LoadFromStream(pstm, &_hdpaOrder, _psf);
         _fHasOrder = FALSE;
         _fAllowReorder = TRUE;
@@ -235,10 +220,8 @@ HRESULT CMenuSFToolbar::_LoadOrderStream()
         // Check to see if we have a persisted order. If we don't have a persisted order,
         // then all of the items are -1. If just one of those has a number other than
         // -1, then we do have "Order" and should use that instead of alphabetizing.
-        if (_hdpaOrder)
-        {
-            for (int i = 0; !_fHasOrder && i < DPA_GetPtrCount(_hdpaOrder); i++)
-            {
+        if (_hdpaOrder) {
+            for (int i = 0; !_fHasOrder && i < DPA_GetPtrCount(_hdpaOrder); i++) {
                 PORDERITEM poi = (PORDERITEM)DPA_FastGetPtr(_hdpaOrder, i);
                 if (poi->nOrder != MNFOLDER_NORODER)
                     _fHasOrder = TRUE;
@@ -258,40 +241,32 @@ HRESULT CMenuSFToolbar::_SaveOrderStream()
     // It is reasonable to assume that if we don't have an _hdpa we have
     // not filled the toolbar yet. Since we have not filled it, we haven't changed
     // the order, so we don't need to persist out that order information.
-    if(_hdpa)
-    {
+    if (_hdpa) {
         // Always save this information
         _FindMinPromotedItems(TRUE);
 
         // Did we load an order stream when we initialized this pane?
-        if (!_fHasOrder)
-        {
+        if (!_fHasOrder) {
             // No; Then we do not want to persist the order. We will initialize
             // all of the order items to -1. This is backward compatible because
             // IE 4 will merge alphabetically, but revert to a persited order when saving.
-            for (int i = 0; i < DPA_GetPtrCount(_hdpa); i++)
-            {
+            for (int i = 0; i < DPA_GetPtrCount(_hdpa); i++) {
                 PORDERITEM poi = (PORDERITEM)DPA_FastGetPtr(_hdpa, i);
                 poi->nOrder = MNFOLDER_NORODER;
             }
         }
 
-        if (_hKey)
-        {
+        if (_hKey) {
             pstm = SHOpenRegStream(_hKey, (_pcmb->_dwFlags & SMINIT_LEGACYMENU) ? TEXT("Menu") : TEXT(""),
-                TEXT("Order"), STGM_CREATE | STGM_WRITE);
-        }
-        else
-        {
+                                   TEXT("Order"), STGM_CREATE | STGM_WRITE);
+        } else {
             if (S_FALSE == CallCB(NULL, SMC_GETSFOBJECT, (WPARAM)(GUID*)&IID_IStream, (LPARAM)(void**)&pstm))
                 pstm = NULL;
         }
 
-        if (pstm)
-        {
+        if (pstm) {
             hres = OrderList_SaveToStream(pstm, _hdpaOrder ? _hdpaOrder : _hdpa, _psf);
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
                 CallCB(NULL, SMC_SETSFOBJECT, (WPARAM)(GUID*)&IID_IStream, (LPARAM)(void**)&pstm);
             }
             pstm->Release();
@@ -324,12 +299,11 @@ void CMenuSFToolbar::_Dropped(int nIndex, BOOL fDroppedOnSource)
     // menu up after this case.  So to avoid those things at this late date,
     // we're going to cancel the menu after a timeout.)
 
-    IOleCommandTarget * poct;
+    IOleCommandTarget* poct;
 
-    _pcmb->QueryService(SID_SMenuBandTop, IID_IOleCommandTarget, (LPVOID *)&poct);
+    _pcmb->QueryService(SID_SMenuBandTop, IID_IOleCommandTarget, (LPVOID*)&poct);
 
-    if (poct)
-    {
+    if (poct) {
         poct->Exec(&CGID_MenuBand, MBANDCID_ITEMDROPPED, 0, NULL, NULL);
         poct->Release();
     }
@@ -349,7 +323,7 @@ HMENU CMenuSFToolbar::_GetContextMenu(IContextMenu* pcm, int* pid)
     for (int i = 0; i < iCount; i++) {
         TCHAR szCommand[40];
         UINT id = GetMenuItemID(hmenu, i);
-        if (IsInRange(id, *pid, 0x7fff )) {
+        if (IsInRange(id, *pid, 0x7fff)) {
             id -= *pid;
             ContextMenu_GetCommandStringVerb(pcm, id, szCommand, ARRAYSIZE(szCommand));
             if (!lstrcmpi(szCommand, TEXT("properties"))) {
@@ -364,38 +338,36 @@ HMENU CMenuSFToolbar::_GetContextMenu(IContextMenu* pcm, int* pid)
 
 void CMenuSFToolbar::_OnDefaultContextCommand(int idCmd)
 {
-    switch (idCmd)
-    {
+    switch (idCmd) {
     case MNIDM_RESORT:
-        {
-            // We used to blow away the order stream and refill, but since we use the order stream
-            // for calculating the presence of new items, this promoted all of the items were were
-            // sorting.
+    {
+        // We used to blow away the order stream and refill, but since we use the order stream
+        // for calculating the presence of new items, this promoted all of the items were were
+        // sorting.
 
-            HDPA hdpa = _hdpa;
+        HDPA hdpa = _hdpa;
 
-            // For some reason we have an _hdpaOrder, so use that for persisting out
-            // to the registry..
-            if (_hdpaOrder)
-                hdpa = _hdpaOrder;
+        // For some reason we have an _hdpaOrder, so use that for persisting out
+        // to the registry..
+        if (_hdpaOrder)
+            hdpa = _hdpaOrder;
 
-            _SortDPA(hdpa);
-            OrderList_Reorder(hdpa);
-            _fChangedOrder = TRUE;
+        _SortDPA(hdpa);
+        OrderList_Reorder(hdpa);
+        _fChangedOrder = TRUE;
 
-            // This call knows about _hdpa and _hdpaOrder
-            _SaveOrderStream();
-            // MIKESH: this is needed because otherwise FillToolbar will use the current _hdpa
-            // and nothing gets changed...  I think it's because OrderItem_Compare returns failure on some of the pidls
-            CMenuToolbarBase::EmptyToolbar();
-            _SetDirty(TRUE);
-            _LoadOrderStream();
-            if (_fShow)
-            {
-                _FillToolbar();
-            }
-            break;
+        // This call knows about _hdpa and _hdpaOrder
+        _SaveOrderStream();
+        // MIKESH: this is needed because otherwise FillToolbar will use the current _hdpa
+        // and nothing gets changed...  I think it's because OrderItem_Compare returns failure on some of the pidls
+        CMenuToolbarBase::EmptyToolbar();
+        _SetDirty(TRUE);
+        _LoadOrderStream();
+        if (_fShow) {
+            _FillToolbar();
         }
+        break;
+    }
     }
 }
 
@@ -433,18 +405,15 @@ HRESULT CMenuSFToolbar::_GetInfo(LPCITEMIDLIST pidl, SMINFO* psminfo)
 {
     HRESULT hres;
 
-    if (psminfo->dwMask & SMIM_TYPE)
-    {
+    if (psminfo->dwMask & SMIM_TYPE) {
         psminfo->dwType = SMIT_STRING;
     }
 
-    if (psminfo->dwMask & SMIM_FLAGS)
-    {
+    if (psminfo->dwMask & SMIM_FLAGS) {
         psminfo->dwFlags = SMIF_ICON | SMIF_DROPTARGET;
     }
 
-    if (psminfo->dwMask & SMIM_ICON)
-    {
+    if (psminfo->dwMask & SMIM_ICON) {
         psminfo->dwMask &= ~SMIM_ICON;
         psminfo->iIcon = -1;
     }
@@ -466,25 +435,20 @@ HRESULT CMenuSFToolbar::_GetInfo(LPCITEMIDLIST pidl, SMINFO* psminfo)
     hres = _psf->GetAttributesOf(1, &pidl, &dwAttr);
     if (SUCCEEDED(hres) &&
         IsFlagSet(dwAttr, SFGAO_FOLDER) &&
-        !IsFlagSet(dwAttr, SFGAO_BROWSABLE))
-    {
+        !IsFlagSet(dwAttr, SFGAO_BROWSABLE)) {
         // Since SHIsExpandableFolder is such an expensive call, and we only need
         // it for legacy Channels support, only do this call where channels are:
         // Favorites menu and Start Menu | Favorites.
-        if (_dwFlags & SMSET_HASEXPANDABLEFOLDERS)
-        {
+        if (_dwFlags & SMSET_HASEXPANDABLEFOLDERS) {
             // on integrated install, check to see if the item supports
             // is an expandable folder.
-            if (WhichPlatform() == PLATFORM_INTEGRATED)
-            {
+            if (WhichPlatform() == PLATFORM_INTEGRATED) {
 
                 // Yes; but does it also behave like a shortcut?
                 if (SHIsExpandableFolder(_psf, pidl))
                     psminfo->dwFlags |= SMIF_SUBMENU;
 
-            }
-            else if (IsFlagSet(dwAttr, SFGAO_FILESYSTEM))
-            {
+            } else if (IsFlagSet(dwAttr, SFGAO_FILESYSTEM)) {
 
                 // On browse only, we don't rev the shell, so we rely upon
                 // the filesystem bit...
@@ -494,9 +458,7 @@ HRESULT CMenuSFToolbar::_GetInfo(LPCITEMIDLIST pidl, SMINFO* psminfo)
                 psminfo->dwFlags |= SMIF_SUBMENU;
 
             }
-        }
-        else
-        {
+        } else {
             // We're going to assume that if it's a folder, it really is a folder.
             psminfo->dwFlags |= SMIF_SUBMENU;
         }
@@ -518,7 +480,7 @@ Purpose: This function determines the toolbar button style for the
 
 */
 HRESULT CMenuSFToolbar::_TBStyleForPidl(LPCITEMIDLIST pidl,
-                                   DWORD * pdwStyle, DWORD* pdwState, DWORD * pdwMIFFlags, int * piIcon)
+                                        DWORD* pdwStyle, DWORD* pdwState, DWORD* pdwMIFFlags, int* piIcon)
 {
     ASSERT(_pcmb); // if you hit this assert, you haven't initialized yet.. call SetSite first
 
@@ -529,20 +491,17 @@ HRESULT CMenuSFToolbar::_TBStyleForPidl(LPCITEMIDLIST pidl,
     *pdwMIFFlags = 0;
     *piIcon = -1;
 
-    if (pidl)
-    {
+    if (pidl) {
         SMINFO sminfo;
         sminfo.dwMask = SMIM_TYPE | SMIM_FLAGS | SMIM_ICON;
 
-        if (SUCCEEDED(_GetInfo(pidl, &sminfo)))
-        {
+        if (SUCCEEDED(_GetInfo(pidl, &sminfo))) {
             *pdwMIFFlags = sminfo.dwFlags;
 
             if (sminfo.dwFlags & SMIF_ACCELERATOR)
                 dwStyle &= ~TBSTYLE_NOPREFIX;
 
-            if (sminfo.dwType & SMIT_SEPARATOR)
-            {
+            if (sminfo.dwType & SMIT_SEPARATOR) {
                 dwStyle &= ~TBSTYLE_BUTTON;
                 dwStyle |= TBSTYLE_SEP;
             }
@@ -551,8 +510,7 @@ HRESULT CMenuSFToolbar::_TBStyleForPidl(LPCITEMIDLIST pidl,
                 *piIcon = sminfo.iIcon;
 
             if (sminfo.dwFlags & SMIF_DEMOTED &&
-                !_pcmb->_fExpanded)
-            {
+                !_pcmb->_fExpanded) {
                 *pdwState |= TBSTATE_HIDDEN;
                 _fHasDemotedItems = TRUE;
             }
@@ -562,9 +520,7 @@ HRESULT CMenuSFToolbar::_TBStyleForPidl(LPCITEMIDLIST pidl,
 
             hres = S_OK;
         }
-    }
-    else
-    {
+    } else {
         // For null pidls ("empty" menuitems), there is no icon.
         // SMIF_DROPTTARGET is set so the user can drop into an empty submenu.
         *pdwMIFFlags = SMIF_DROPTARGET;
@@ -592,17 +548,14 @@ void CMenuSFToolbar::_FillDPA(HDPA hdpa, HDPA hdpaSort, DWORD dwEnumFlags)
     CallCB(NULL, SMC_BEGINENUM, (WPARAM)&dwEnumFlags, 0);
     CSFToolbar::_FillDPA(hdpa, hdpaSort, dwEnumFlags);
     CallCB(NULL, SMC_ENDENUM, 0, 0);
-    if (0 == DPA_GetPtrCount(hdpa) && _psf)
-    {
+    if (0 == DPA_GetPtrCount(hdpa) && _psf) {
         OrderList_Append(hdpa, NULL, -1);     // Add a bogus pidl
         _fEmpty = TRUE;
         _fHasDemotedItems = FALSE;
         if (_dwFlags & SMSET_NOEMPTY)
             _fDontShowEmpty = TRUE;
 
-    }
-    else
-    {
+    } else {
         _fEmpty = FALSE;
         if (_dwFlags & SMSET_NOEMPTY)
             _fDontShowEmpty = FALSE;
@@ -614,8 +567,7 @@ void CMenuSFToolbar::_AddChevron()
     ASSERT(_pcmb); // if you hit this assert, you haven't initialized yet.. call SetSite first
 
     // Does this menu get a chevron button?
-    if (_fHasDemotedItems && !_pcmb->_fExpanded && _idCmdChevron == -1)
-    {
+    if (_fHasDemotedItems && !_pcmb->_fExpanded && _idCmdChevron == -1) {
         // Yes; (we shouldn't get here if the menu is empty)
         ASSERT(!_fEmpty);
 
@@ -629,8 +581,7 @@ void CMenuSFToolbar::_AddChevron()
 
 void CMenuSFToolbar::_RemoveChevron()
 {
-    if (-1 != _idCmdChevron)
-    {
+    if (-1 != _idCmdChevron) {
         // Yes; remove the chevron
         int iPos = ToolBar_CommandToIndex(_hwndTB, _idCmdChevron);
         InlineDeleteButton(iPos);
@@ -646,8 +597,7 @@ void CMenuSFToolbar::_ToolbarChanged()
     _pcmb->_fForceButtonUpdate = TRUE;
     // We shouldn't change the size of the menubar while we're in the middle
     // of a delete. Wait until we're done...
-    if (!_fPreventToolbarChange && _fShow && !_fEmptyingToolbar)
-    {
+    if (!_fPreventToolbarChange && _fShow && !_fEmptyingToolbar) {
         RECT rcOld;
         RECT rcNew;
         HWND hwndP;
@@ -655,7 +605,7 @@ void CMenuSFToolbar::_ToolbarChanged()
 
 
         // Resize the MenuBar
-        hwndP = _hwndPager ? GetParent(_hwndPager): GetParent(_hwndTB);
+        hwndP = _hwndPager ? GetParent(_hwndPager) : GetParent(_hwndTB);
         GetClientRect(hwndP, &rcOld);
         _pcmb->ResizeMenuBar();
         GetClientRect(hwndP, &rcNew);
@@ -667,11 +617,10 @@ void CMenuSFToolbar::_ToolbarChanged()
 
         // This pane may have changed sizes. If there is a sub menu, then
         // we need to have them reposition themselves
-        if (_pcmb->_fInSubMenu && _pcmb->_pmtbTracked)
-        {
+        if (_pcmb->_fInSubMenu && _pcmb->_pmtbTracked) {
             _pcmb->_pmtbTracked->PositionSubmenu(-1);
             IUnknown_QueryServiceExec(_pcmb->_pmpSubMenu, SID_SMenuBandChild,
-                &CGID_MenuBand, MBANDCID_REPOSITION, 0, NULL, NULL);
+                                      &CGID_MenuBand, MBANDCID_REPOSITION, 0, NULL, NULL);
         }
     }
 }
@@ -684,8 +633,7 @@ void CMenuSFToolbar::_FillToolbar()
     // start menu, and cascade a menu, we empty one toolbar, which causes the
     // other toolbar to get destroyed, unregister itself, flush the change notify
     // queue, causing the original window to empty again... (lamadio) 7.16.98
-    if (_fDirty && !_fEmptyingToolbar)
-    {
+    if (_fDirty && !_fEmptyingToolbar) {
         LPITEMIDLIST pidlItem = NULL;
         IShellMenu* psmSubMenu = NULL;
         // Populating the menu will take a long time since we're hitting
@@ -701,14 +649,12 @@ void CMenuSFToolbar::_FillToolbar()
         // that menu, so we save it away do the fill and put it back in.
         // This is so that if it's displayed we won't collapse it unless absoluley
         // necessary.
-        if (_pcmb->_fInSubMenu && _pcmb->_pmtbTracked == this)
-        {
+        if (_pcmb->_fInSubMenu && _pcmb->_pmtbTracked == this) {
             CMenuData* pdata = (CMenuData*)_IDToPibData(_pcmb->_nItemSubMenu);
 
             // This can be null if the fill toolbar was because you right clicked this item and clicked
             // delete...
-            if (pdata)
-            {
+            if (pdata) {
                 // If we hit this, then _nItemSubMenu is out of sync. Figure out how
                 // that got set to a non-sub menu item...
                 ASSERT(pdata->GetFlags() & SMIF_SUBMENU);
@@ -734,15 +680,13 @@ void CMenuSFToolbar::_FillToolbar()
         _idCmdChevron = -1;
         _AddChevron();
         if (_hwndPager)
-            SendMessage(_hwndPager, PGMP_RECALCSIZE, (WPARAM) 0, (LPARAM) 0);
+            SendMessage(_hwndPager, PGMP_RECALCSIZE, (WPARAM)0, (LPARAM)0);
 
         _fPreventToolbarChange = FALSE;
 
         // Are we lucky?
-        if (pidlItem)
-        {
-            if (psmSubMenu)
-            {
+        if (pidlItem) {
+            if (psmSubMenu) {
                 // BUGBUG(lamadio): Unify this code with _ReBindToFolder.
 
                 // Great, we have all of the information we need. Now see if this pidl wasn't
@@ -750,20 +694,16 @@ void CMenuSFToolbar::_FillToolbar()
                 TBBUTTONINFO tbinfo = {0};
                 tbinfo.dwMask = TBIF_COMMAND | TBIF_LPARAM;
                 LPCITEMIDLIST pcidl = _GetButtonFromPidl(pidlItem, &tbinfo, NULL);
-                if (pcidl)
-                {
+                if (pcidl) {
                     LPITEMIDLIST pidlFull = NULL;
                     IShellFolder* psf;
-                    if(_pasf2)
-                    {
+                    if (_pasf2) {
                         LPITEMIDLIST pidlFolder, pidlChild;
                         _pasf2->UnWrapIDList(pidlItem, 1, NULL, &pidlFolder, &pidlChild, NULL);
                         pidlFull = ILCombine(pidlFolder, pidlChild);
                         ILFree(pidlChild);
                         ILFree(pidlFolder);
-                    }
-                    else
-                    {
+                    } else {
                         pidlFull = ILCombine(_pidl, pcidl);
                     }
 
@@ -772,19 +712,15 @@ void CMenuSFToolbar::_FillToolbar()
 
                     _psf->BindToObject(pidlItem, NULL, IID_IShellFolder, (void**)&psf);
 
-                    if (psf)
-                    {
-                        if (pidlFull)
-                        {
+                    if (psf) {
+                        if (pidlFull) {
                             // Force the New information into the Sub Menu. This will cause a reenum.
-                            if (SUCCEEDED(psmSubMenu->SetShellFolder(psf, pidlFull, NULL, 0)))
-                            {
+                            if (SUCCEEDED(psmSubMenu->SetShellFolder(psf, pidlFull, NULL, 0))) {
                                 // If this Eval fires, then this item was inserted into the
                                 // toolbar with a null pointer, or it was in the process of being
                                 // removed.
                                 CMenuData* pmd = (CMenuData*)tbinfo.lParam;
-                                if (EVAL(pmd))
-                                {
+                                if (EVAL(pmd)) {
                                     // Make sure to store the Sub menu pointer back in the item it came from.
                                     pmd->SetSubMenu(psmSubMenu);
                                     _pcmb->_nItemSubMenu = tbinfo.idCommand;
@@ -796,9 +732,7 @@ void CMenuSFToolbar::_FillToolbar()
                     }
 
                     ILFree(pidlFull);
-                }
-                else
-                {
+                } else {
                     _pcmb->_SubMenuOnSelect(MPOS_CANCELLEVEL);
                 }
                 psmSubMenu->Release();
@@ -835,15 +769,12 @@ void CMenuSFToolbar::_ObtainPIDLName(LPCITEMIDLIST pidl, LPTSTR psz, int cchMax)
     // We overload this function because a NULL pidl is a place hold for
     // (Empty) When there are no items, or the Chevron when there are items.
 
-    if (pidl)
-    {
+    if (pidl) {
         CSFToolbar::_ObtainPIDLName(pidl, psz, cchMax);
-    }
-    else if (_fHasDemotedItems) // Chevron Case.
+    } else if (_fHasDemotedItems) // Chevron Case.
     {
         StrCpyN(psz, TEXT(">>"), cchMax);
-    }
-    else    // Empty Case
+    } else    // Empty Case
     {
         MLLoadString(IDS_EMPTY, psz, cchMax);
     }
@@ -895,16 +826,13 @@ UINT ToolBar_GetVisibleCount(HWND hwnd)
 {
     UINT cVis = 0;
     int cItems = ToolBar_ButtonCount(hwnd) - 1;
-    for (; cItems >= 0; cItems--)
-    {
+    for (; cItems >= 0; cItems--) {
         TBBUTTONINFO tbinfo;
         tbinfo.cbSize = sizeof(tbinfo);
         tbinfo.dwMask = TBIF_BYINDEX | TBIF_STATE;
-        if (ToolBar_GetButtonInfo(hwnd, cItems, &tbinfo))
-        {
-            if (!(tbinfo.fsState & TBSTATE_HIDDEN))
-            {
-                cVis ++;
+        if (ToolBar_GetButtonInfo(hwnd, cItems, &tbinfo)) {
+            if (!(tbinfo.fsState & TBSTATE_HIDDEN)) {
+                cVis++;
             }
         }
     }
@@ -920,20 +848,17 @@ void CMenuSFToolbar::_OnFSNotifyRemove(LPCITEMIDLIST pidl)
     _RemoveChevron();
     // Check to see if this item is a promoted guy...
     LPITEMIDLIST pidlButton = _GetButtonFromPidl(pidl, NULL, &i);
-    if (pidlButton)
-    {
+    if (pidlButton) {
         int idCmd = GetButtonCmd(_hwndMB, i);
 
         // Is he promoted?
-        if (!(v_GetFlags(idCmd) & SMIF_DEMOTED))
-        {
+        if (!(v_GetFlags(idCmd) & SMIF_DEMOTED)) {
             // Yes, then we need to decrement the promoted count because
             // we are removing a promoted guy.
             _cPromotedItems--;
 
             // We should expand if we go to zero
-            if (_cPromotedItems == 0)
-            {
+            if (_cPromotedItems == 0) {
                 // Demote the parent
                 IUnknown_RefreshParent(_pcmb->_punkSite, _pidl, SMINV_DEMOTE | SMINV_NEXTSHOW);
                 Expand(TRUE);
@@ -948,8 +873,7 @@ void CMenuSFToolbar::_OnFSNotifyRemove(LPCITEMIDLIST pidl)
 
     //Oooppsss, we removed the only string. Replace with our "(Empty)"
     // handler....
-    if (0 == DPA_GetPtrCount(_hdpa) && _psf && _fVerticalMB)
-    {
+    if (0 == DPA_GetPtrCount(_hdpa) && _psf && _fVerticalMB) {
         ASSERT(_fEmpty == FALSE);
         // If we are Empty, then we cannot have any demoted items
         // NOTE: We can have no demoted items and not be empty, so one does
@@ -962,8 +886,7 @@ void CMenuSFToolbar::_OnFSNotifyRemove(LPCITEMIDLIST pidl)
     }
 
     if (_dwFlags & SMSET_COLLAPSEONEMPTY &&
-        ToolBar_GetVisibleCount(_hwndMB) == 0)
-    {
+        ToolBar_GetVisibleCount(_hwndMB) == 0) {
         // When we don't want to be shown when empty, collapse.
         _pcmb->_SiteOnSelect(MPOS_FULLCANCEL);
     }
@@ -978,7 +901,7 @@ void CMenuSFToolbar::NegotiateSize()
     RECT rc;
     HWND hwndP;
 
-    hwndP = _hwndPager ? GetParent(_hwndPager): GetParent(_hwndTB);
+    hwndP = _hwndPager ? GetParent(_hwndPager) : GetParent(_hwndTB);
     GetClientRect(hwndP, &rc);
     _pcmb->OnPosRectChangeDB(&rc);
 }
@@ -990,17 +913,16 @@ Purpose: CDelegateDropTarget::DragEnter
        Informs Menuband that a drag has entered it's window.
 
 */
-STDMETHODIMP CMenuSFToolbar::DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+STDMETHODIMP CMenuSFToolbar::DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
     ASSERT(_pcmb); // if you hit this assert, you haven't initialized yet.. call SetSite first
 
     _pcmb->_fDragEntered = TRUE;
-    IOleCommandTarget * poct;
+    IOleCommandTarget* poct;
 
-    _pcmb->QueryService(SID_SMenuBandTop, IID_IOleCommandTarget, (LPVOID *)&poct);
+    _pcmb->QueryService(SID_SMenuBandTop, IID_IOleCommandTarget, (LPVOID*)&poct);
 
-    if (poct)
-    {
+    if (poct) {
         poct->Exec(&CGID_MenuBand, MBANDCID_DRAGENTER, 0, NULL, NULL);
         poct->Release();
     }
@@ -1020,12 +942,11 @@ STDMETHODIMP CMenuSFToolbar::DragLeave(void)
     ASSERT(_pcmb); // if you hit this assert, you haven't initialized yet.. call SetSite first
 
     _pcmb->_fDragEntered = FALSE;
-    IOleCommandTarget * poct;
+    IOleCommandTarget* poct;
 
-    _pcmb->QueryService(SID_SMenuBandTop, IID_IOleCommandTarget, (LPVOID *)&poct);
+    _pcmb->QueryService(SID_SMenuBandTop, IID_IOleCommandTarget, (LPVOID*)&poct);
 
-    if (poct)
-    {
+    if (poct) {
         poct->Exec(&CGID_MenuBand, MBANDCID_DRAGLEAVE, 0, NULL, NULL);
         poct->Release();
     }
@@ -1040,7 +961,7 @@ Purpose: CDelegateDropTarget::HitTestDDT
          Returns the ID to pass to GetObject.
 30
 */
-HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD *pdwEffect)
+HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD* pdwId, DWORD* pdwEffect)
 {
     ASSERT(_pcmb); // if you hit this assert, you haven't initialized yet.. call SetSite first
 
@@ -1056,14 +977,12 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
     // GetObject method will treat all the drops as if we're dropping
     // in b/t the items, even if the cursor is over a menuitem.
 
-    switch (nEvent)
-    {
+    switch (nEvent) {
     case HTDDT_ENTER:
         // OLE is in its modal drag/drop loop, and it has the capture.
         // We shouldn't take the capture back during this time.
         if (!(_pcmb->_dwFlags & SMINIT_RESTRICT_DRAGDROP) &&
-            (S_FALSE == CallCB(NULL, SMC_SFDDRESTRICTED, NULL, NULL)))
-        {
+            (S_FALSE == CallCB(NULL, SMC_SFDDRESTRICTED, NULL, NULL))) {
             // Since we've been entered, set the global state as
             // having the drag. If at some point the whole menu
             // heirarchy does not have the drag inside of it, we want to
@@ -1072,8 +991,7 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
             KillTimer(_hwndMB, MBTIMER_DRAGPOPDOWN);
             g_msgfilter.PreventCapture(TRUE);
             return S_OK;
-        }
-        else
+        } else
             return S_FALSE;
 
     case HTDDT_OVER:
@@ -1085,31 +1003,23 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
 
             POINT pt = *ppt;
             ClientToScreen(_hwndTB, &pt);
-            if (WindowFromPoint(pt) == _hwndPager )
-            {
+            if (WindowFromPoint(pt) == _hwndPager) {
                 iButton = IBHT_PAGER;
-            }
-            else
-            {
+            } else {
                 // Are we sitting BETWEEN buttons?
-                if (ToolBar_InsertMarkHitTest(_hwndTB, ppt, &tbim))
-                {
+                if (ToolBar_InsertMarkHitTest(_hwndTB, ppt, &tbim)) {
                     // Yes.
 
                     // Is this on the source button?
                     if (!(tbim.dwFlags & TBIMHT_BACKGROUND) &&
-                        tbim.iButton == _iDragSource)
-                    {
+                        tbim.iButton == _iDragSource) {
                         iButton = IBHT_SOURCE; // Yes; don't drop on the source button
-                    }
-                    else
-                    {
+                    } else {
                         iButton = tbim.iButton;
                     }
                 }
                 // No we're either sitting on a button or the background. Button?
-                else if (tbim.iButton != -1 && !(tbim.dwFlags & TBIMHT_BACKGROUND))
-                {
+                else if (tbim.iButton != -1 && !(tbim.dwFlags & TBIMHT_BACKGROUND)) {
                     // On a Button. Cool.
                     iButton = tbim.iButton;
                     fOnButton = TRUE;
@@ -1118,11 +1028,10 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
                 // Can this drop target even accept the drop?
                 int idBtn = GetButtonCmd(_hwndTB, tbim.iButton);
                 dwFlags = v_GetFlags(idBtn);
-                if ( _idCmdChevron != idBtn &&
+                if (_idCmdChevron != idBtn &&
                     !(dwFlags & (SMIF_DROPTARGET | SMIF_DROPCASCADE)) ||
                     ((_pcmb->_dwFlags & SMINIT_RESTRICT_DRAGDROP) ||
-                    (S_OK == CallCB(NULL, SMC_SFDDRESTRICTED, NULL, NULL))))
-                {
+                    (S_OK == CallCB(NULL, SMC_SFDDRESTRICTED, NULL, NULL)))) {
                     // No
                     return E_FAIL;
                 }
@@ -1133,8 +1042,7 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
 
     case HTDDT_LEAVE:
         // If the dropped occured in this band, then we don't want to collapse the menu
-        if (!_fHasDrop)
-        {
+        if (!_fHasDrop) {
             // Since we've been left, set the global state. If moving between panes
             // then the pane that will be entered will reset this within the timeout period
             _pcmb->_pmbState->HasDrag(FALSE);
@@ -1144,12 +1052,9 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
         // We can take the capture back anytime now
         g_msgfilter.PreventCapture(FALSE);
 
-        if (!_fVerticalMB)
-        {
+        if (!_fVerticalMB) {
             tbim = _tbim;
-        }
-        else
-        {
+        } else {
             // Turn off the insertion mark
             tbim.iButton = -1;
             tbim.dwFlags = 0;
@@ -1162,8 +1067,7 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
     }
 
     // Did the drop target change?
-    if (tbim.iButton != _tbim.iButton || tbim.dwFlags != _tbim.dwFlags)
-    {
+    if (tbim.iButton != _tbim.iButton || tbim.dwFlags != _tbim.dwFlags) {
         DAD_ShowDragImage(FALSE);
         // Yes
 
@@ -1174,8 +1078,7 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
         // We pop open submenus here during drag and drop.  But only
         // if the button has changed (not the flags).  Otherwise we'd
         // get flashing submenus as the cursor moves w/in a single item.
-        if (tbim.iButton != _tbim.iButton)
-        {
+        if (tbim.iButton != _tbim.iButton) {
             _SetTimer(MBTIMER_DRAGOVER);
             BOOL_PTR fOldAnchor = ToolBar_SetAnchorHighlight(_hwndTB, FALSE);
             ToolBar_SetHotItem(_hwndTB, -1);
@@ -1187,8 +1090,7 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
         // implementations to call our OnChange method when a drop occurs,
         // so don't even show the insert mark.
         // We do not want to display the Insert mark if we do not allow reorder.
-        if ((_fFSNotify || _iDragSource >= 0) && (dwFlags & SMIF_DROPTARGET) && _fAllowReorder)
-        {
+        if ((_fFSNotify || _iDragSource >= 0) && (dwFlags & SMIF_DROPTARGET) && _fAllowReorder) {
             ToolBar_SetInsertMark(_hwndTB, &tbim);
         }
 
@@ -1199,8 +1101,7 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
         DAD_ShowDragImage(TRUE);
     }
 
-    if (!_fVerticalMB && HTDDT_LEAVE == nEvent)
-    {
+    if (!_fVerticalMB && HTDDT_LEAVE == nEvent) {
         // Cursor leaving menuband, reset
         _tbim.iButton = -1;
         _iDragSource = -1;
@@ -1214,20 +1115,18 @@ HRESULT CMenuSFToolbar::HitTestDDT(UINT nEvent, LPPOINT ppt, DWORD *pdwId, DWORD
 Purpose: CDelegateDropTarget::GetObjectDDT
 
 */
-HRESULT CMenuSFToolbar::GetObjectDDT(DWORD dwId, REFIID riid, LPVOID * ppvObj)
+HRESULT CMenuSFToolbar::GetObjectDDT(DWORD dwId, REFIID riid, LPVOID* ppvObj)
 {
     HRESULT hres = E_NOINTERFACE;
     int nID = (int)dwId;
 
     *ppvObj = NULL;
 
-    if (nID == IBHT_PAGER)
-    {
+    if (nID == IBHT_PAGER) {
         SendMessage(_hwndPager, PGM_GETDROPTARGET, 0, (LPARAM)ppvObj);
     }
     // Is the target the source?
-    else if (IBHT_SOURCE != nID && IBHT_BACKGROUND != nID)
-    {
+    else if (IBHT_SOURCE != nID && IBHT_BACKGROUND != nID) {
         // No; does the shellfolder support IDropTarget?
         // We want to pass the subclassed HWND, because all we want the parent of the context menus to be
         // the Subclassed window. This is so we don't loose focus and collapse.
@@ -1248,7 +1147,7 @@ Purpose: CDelegateDropTarget::OnDropDDT
 
 Returns: S_OK if the drop was handled.  Otherwise S_FALSE.
 */
-HRESULT CMenuSFToolbar::OnDropDDT(IDropTarget *pdt, IDataObject *pdtobj, DWORD * pgrfKeyState, POINTL pt, DWORD *pdwEffect)
+HRESULT CMenuSFToolbar::OnDropDDT(IDropTarget* pdt, IDataObject* pdtobj, DWORD* pgrfKeyState, POINTL pt, DWORD* pdwEffect)
 {
     // Since the modal drag-drop loop released the capture, take it
     // back so we behave properly.
@@ -1263,8 +1162,7 @@ HRESULT CMenuSFToolbar::OnDropDDT(IDropTarget *pdt, IDataObject *pdtobj, DWORD *
     // Only send an hwnd to the callback if the drop source is external
     if (!(_pcmb->_dwFlags & SMINIT_RESTRICT_DRAGDROP) &&
         (S_FALSE == CallCB(NULL, SMC_SFDDRESTRICTED, (WPARAM)pdtobj,
-                           (LPARAM)(_iDragSource < 0 ? _hwndMB : NULL)) ))
-    {
+                           (LPARAM)(_iDragSource < 0 ? _hwndMB : NULL)))) {
 
         _RemoveChevron();
         hres = CSFToolbar::OnDropDDT(pdt, pdtobj, pgrfKeyState, pt, pdwEffect);
@@ -1279,10 +1177,8 @@ PIBDATA CMenuSFToolbar::_AddOrderItemTB(PORDERITEM poi, int index, TBBUTTON* ptb
 {
     PIBDATA pibd = CSFToolbar::_AddOrderItemTB(poi, index, ptbb);
 
-    if (pibd)
-    {
-        if (pibd->GetFlags() & SMIF_SUBMENU)
-        {
+    if (pibd) {
+        if (pibd->GetFlags() & SMIF_SUBMENU) {
             _fHasSubMenu = TRUE;
         }
 
@@ -1291,8 +1187,7 @@ PIBDATA CMenuSFToolbar::_AddOrderItemTB(PORDERITEM poi, int index, TBBUTTON* ptb
         //   2) a chevron button
 
         // Are we adding the chevron button?
-        if (!pibd->GetPidl() && _fHasDemotedItems)
-        {
+        if (!pibd->GetPidl() && _fHasDemotedItems) {
             // Yes; the chevron is either the first item in the toolbar or the last item.
             int iPos = (index == 0) ? 0 : ToolBar_ButtonCount(_hwndTB) - 1;
 
@@ -1309,8 +1204,7 @@ BOOL CMenuSFToolbar::_AddPidl(LPITEMIDLIST pidl, int index)
     BOOL bRet;
 
     // Is this item being added to an empty menu?
-    if (_fEmpty)
-    {
+    if (_fEmpty) {
         // Yes; remove the empty menu item
         InlineDeleteButton(0);
         DPA_DeletePtr(_hdpa, 0);
@@ -1321,8 +1215,7 @@ BOOL CMenuSFToolbar::_AddPidl(LPITEMIDLIST pidl, int index)
         bRet = CSFToolbar::_AddPidl(pidl, index);
 
         // Failed to add new item?
-        if (!bRet)
-        {
+        if (!bRet) {
             // Yes; add the empty menu item back
             OrderList_Append(_hdpa, NULL, -1);     // Add a bogus pidl
             _fEmpty = TRUE;
@@ -1331,8 +1224,7 @@ BOOL CMenuSFToolbar::_AddPidl(LPITEMIDLIST pidl, int index)
                 _fDontShowEmpty = TRUE;
         }
 
-    }
-    else
+    } else
         bRet = CSFToolbar::_AddPidl(pidl, index);
 
     return bRet;
@@ -1353,43 +1245,34 @@ BOOL CMenuSFToolbar::_ReBindToFolder(LPCITEMIDLIST pidl)
     TBBUTTONINFO tbinfo = {0};
     tbinfo.dwMask = TBIF_COMMAND | TBIF_LPARAM;
     LPCITEMIDLIST pidlItem = _GetButtonFromPidl(ILFindLastID(pidl), &tbinfo, NULL);
-    if (pidlItem)
-    {
+    if (pidlItem) {
         CMenuData* pmd = (CMenuData*)tbinfo.lParam;
-        if (EVAL(pmd))
-        {
+        if (EVAL(pmd)) {
             IShellFolderBand* psfb;
 
             // We have the Toolbar button into, we should see if it has a sub menu associated with it.
-            if (SUCCEEDED(pmd->GetSubMenu(&SID_MenuShellFolder, IID_IShellFolderBand, (void**)&psfb)))
-            {
+            if (SUCCEEDED(pmd->GetSubMenu(&SID_MenuShellFolder, IID_IShellFolderBand, (void**)&psfb))) {
                 // It does. Then reuse!
                 LPITEMIDLIST pidlFull = NULL;
                 IShellFolder* psf = NULL;
-                if(_pasf2)
-                {
+                if (_pasf2) {
                     LPITEMIDLIST pidlFolder, pidlChild;
                     // Remember: Folder pidls must be unwrapped.
-                   _pasf2->UnWrapIDList(pidlItem, 1, NULL, &pidlFolder, &pidlChild, NULL);
-                   pidlFull = ILCombine(pidlFolder, pidlChild);
-                   ILFree(pidlChild);
-                   ILFree(pidlFolder);
-                }
-                else
-                {
+                    _pasf2->UnWrapIDList(pidlItem, 1, NULL, &pidlFolder, &pidlChild, NULL);
+                    pidlFull = ILCombine(pidlFolder, pidlChild);
+                    ILFree(pidlChild);
+                    ILFree(pidlFolder);
+                } else {
                     // Not a wrapped guy, Sweet!
                     pidlFull = ILCombine(_pidl, pidlItem);
                 }
 
                 _psf->BindToObject(pidlItem, NULL, IID_IShellFolder, (void**)&psf);
 
-                if (psf)
-                {
-                    if (pidlFull)
-                    {
+                if (psf) {
+                    if (pidlFull) {
                         fBound = SUCCEEDED(psfb->InitializeSFB(psf, pidlFull));
-                        if (fBound)
-                        {
+                        if (fBound) {
                             _pcmb->_nItemSubMenu = tbinfo.idCommand;
                         }
                     }
@@ -1413,58 +1296,48 @@ HRESULT CMenuSFToolbar::OnTranslatedChange(LONG lEvent, LPCITEMIDLIST pidl1, LPC
 
     // Deal with SubMenus:
 
-    if (SUCCEEDED(hres))
-    {
-        switch(lEvent)
-        {
+    if (SUCCEEDED(hres)) {
+        switch (lEvent) {
         case SHCNE_RENAMEFOLDER:
-            if (_IsChildID(pidl2, TRUE))
-            {
+            if (_IsChildID(pidl2, TRUE)) {
                 _ReBindToFolder(pidl2);
             }
             break;
 
         case SHCNE_RMDIR:
-            if (_IsChildID(pidl1, TRUE))
-            {
+            if (_IsChildID(pidl1, TRUE)) {
                 _ReBindToFolder(pidl1);
             }
             break;
 
         case SHCNE_EXTENDED_EVENT:
-            {
-                SHChangeDWORDAsIDList UNALIGNED * pdwidl = (SHChangeDWORDAsIDList UNALIGNED *)pidl1;
-                if (pidl2 && _IsChildID(pidl2, TRUE))
-                {
-                    if (!SHChangeMenuWasSentByMe(this, pidl1))
-                    {
-                        DWORD dwFlags = SMINV_NOCALLBACK;   // So that we don't doubly increment
-                        SMDATA smd = {0};
-                        smd.dwMask = SMDM_SHELLFOLDER;
-                        smd.pidlFolder = _pidl;
-                        smd.pidlItem = ILFindLastID(pidl2);
+        {
+            SHChangeDWORDAsIDList UNALIGNED* pdwidl = (SHChangeDWORDAsIDList UNALIGNED*)pidl1;
+            if (pidl2 && _IsChildID(pidl2, TRUE)) {
+                if (!SHChangeMenuWasSentByMe(this, pidl1)) {
+                    DWORD dwFlags = SMINV_NOCALLBACK;   // So that we don't doubly increment
+                    SMDATA smd = {0};
+                    smd.dwMask = SMDM_SHELLFOLDER;
+                    smd.pidlFolder = _pidl;
+                    smd.pidlItem = ILFindLastID(pidl2);
 
 
-                        // Syncronize Promotion state.
-                        if (pdwidl->dwItem1 == SHCNEE_PROMOTEDITEM)
-                        {
-                            dwFlags |= SMINV_PROMOTE;
-                        }
-                        else if (pdwidl->dwItem1 == SHCNEE_DEMOTEDITEM)
-                        {
-                            dwFlags |= SMINV_DEMOTE;
-                        }
+                    // Syncronize Promotion state.
+                    if (pdwidl->dwItem1 == SHCNEE_PROMOTEDITEM) {
+                        dwFlags |= SMINV_PROMOTE;
+                    } else if (pdwidl->dwItem1 == SHCNEE_DEMOTEDITEM) {
+                        dwFlags |= SMINV_DEMOTE;
+                    }
 
 
-                        // Are we actually doing something?
-                        if (SMINV_NOCALLBACK != dwFlags)
-                        {
-                            v_InvalidateItem(&smd, dwFlags);
-                        }
+                    // Are we actually doing something?
+                    if (SMINV_NOCALLBACK != dwFlags) {
+                        v_InvalidateItem(&smd, dwFlags);
                     }
                 }
             }
-            break;
+        }
+        break;
 
 
         default:
@@ -1492,8 +1365,8 @@ HRESULT CMenuSFToolbar::OnChange(LONG lEvent, LPCITEMIDLIST pidl1, LPCITEMIDLIST
 
     SMCSHCHANGENOTIFYSTRUCT shns;
     shns.lEvent = lEvent;
-    shns.pidl1  = pidl1;
-    shns.pidl2  = pidl2;
+    shns.pidl1 = pidl1;
+    shns.pidl2 = pidl2;
     CallCB(NULL, SMC_SHCHANGENOTIFY, NULL, (LPARAM)&shns);  // Ignore return value. Notify only.
 
     // Since we may be removing the selected item, we want the selection to move to the next item
@@ -1513,18 +1386,15 @@ HRESULT CMenuSFToolbar::OnChange(LONG lEvent, LPCITEMIDLIST pidl1, LPCITEMIDLIST
         (pidl2 && _IsChildID(pidl2, FALSE)) ||
         lEvent == SHCNE_UPDATEDIR ||
         (lEvent == SHCNE_EXTENDED_EVENT &&
-         pidl2 == NULL))
-    {
+         pidl2 == NULL)) {
         // We need to forward this down then.
         HRESULT hresInner = _pcmb->ForwardChangeNotify(lEvent, pidl1, pidl2);
 
 
         // Did either of us handle this change?
-        if (SUCCEEDED(hresInner) || SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hresInner) || SUCCEEDED(hres)) {
             hres = S_OK;
-        }
-        else if (lEvent != SHCNE_EXTENDED_EVENT)    // Don't bother with extended events...
+        } else if (lEvent != SHCNE_EXTENDED_EVENT)    // Don't bother with extended events...
         {
             // Ok so neither of us handled this?
             // Must be the SHChangeNotifyCollapsing code that collapses
@@ -1556,21 +1426,17 @@ void CMenuSFToolbar::_OnDragBegin(int iItem, DWORD dwPreferedEffect)
 
 void CMenuSFToolbar::v_SendMenuNotification(UINT idCmd, BOOL fClear)
 {
-    if (fClear)
-    {
+    if (fClear) {
         // If we're clearing, tell the browser
         PostMessage(_pcmb->_pmbState->GetSubclassedHWND(), WM_MENUSELECT,
-            MAKEWPARAM(0, -1), NULL);
+                    MAKEWPARAM(0, -1), NULL);
 
-    }
-    else
-    {
+    } else {
         PIBDATA pibdata = _IDToPibData(idCmd);
         LPCITEMIDLIST pidl;
 
         // Only send notifications for non submenu items
-        if (EVAL(pibdata) && (pidl = pibdata->GetPidl()))
-        {
+        if (EVAL(pibdata) && (pidl = pibdata->GetPidl())) {
             CallCB(pidl, SMC_SFSELECTITEM, 0, 0);
             // Don't free Pidl
         }
@@ -1593,8 +1459,7 @@ LRESULT CMenuSFToolbar::_OnNotify(LPNMHDR pnm)
     LRESULT lres = 0;
 
     // These are notifies we handle even when disengaged from the message hook.
-    switch (pnm->code)
-    {
+    switch (pnm->code) {
     case TBN_DELETINGBUTTON:
         if (_fEmptyingToolbar)
             return 0;
@@ -1609,16 +1474,14 @@ LRESULT CMenuSFToolbar::_OnNotify(LPNMHDR pnm)
     }
 
     // Pager notifications MUST be forwarded even when the message hook is disengaged.
-    if((pnm->code <= PGN_FIRST)  && (pnm->code >= PGN_LAST))
-    {
+    if ((pnm->code <= PGN_FIRST) && (pnm->code >= PGN_LAST)) {
         goto DoNotify;
     }
 
 
     // Is the Global Message filter Disengaged? This will happen when the Subclassed window
     // looses activation to a dialog box of some kind.
-    if (lres == 0 && !g_msgfilter.IsEngaged())
-    {
+    if (lres == 0 && !g_msgfilter.IsEngaged()) {
         // Yes; We've lost activation so we don't want to track like a normal menu...
         // For hot item change, return 1 so that the toolbar does not change the hot item.
         if (pnm->code == TBN_HOTITEMCHANGE && _pcmb->_fMenuMode)
@@ -1629,8 +1492,7 @@ LRESULT CMenuSFToolbar::_OnNotify(LPNMHDR pnm)
     }
 
 DoNotify:
-    switch (pnm->code)
-    {
+    switch (pnm->code) {
     case PGN_SCROLL:
         KillTimer(_hwndMB, MBTIMER_DRAGPOPDOWN);
         if (_pcmb->_fInSubMenu)
@@ -1647,31 +1509,28 @@ DoNotify:
         break;
 
     case TBN_DRAGOUT:
-        {
-            TBNOTIFY *ptbn = (TBNOTIFY*)pnm;
-            if (!_fEmpty && ptbn->iItem != _idCmdChevron &&
-                !(_pcmb->_dwFlags & SMINIT_RESTRICT_DRAGDROP) &&
-                (S_FALSE == CallCB(NULL, SMC_SFDDRESTRICTED, NULL, NULL)))
-            {
+    {
+        TBNOTIFY* ptbn = (TBNOTIFY*)pnm;
+        if (!_fEmpty && ptbn->iItem != _idCmdChevron &&
+            !(_pcmb->_dwFlags & SMINIT_RESTRICT_DRAGDROP) &&
+            (S_FALSE == CallCB(NULL, SMC_SFDDRESTRICTED, NULL, NULL))) {
 
-                // We're now in edit mode
-                _fEditMode = TRUE;
-                _idCmdDragging = ptbn->iItem;
-                _MarkItem(ptbn->iItem);
+            // We're now in edit mode
+            _fEditMode = TRUE;
+            _idCmdDragging = ptbn->iItem;
+            _MarkItem(ptbn->iItem);
 
-                lres = 1;       // Allow the drag to occur
-                goto DoDefault;
-            }
-            else
-                lres = 0;   // Do not allow the drag out.
-        }
-        break;
+            lres = 1;       // Allow the drag to occur
+            goto DoDefault;
+        } else
+            lres = 0;   // Do not allow the drag out.
+    }
+    break;
 
     default:
-DoDefault:
+    DoDefault:
         lres = CMenuToolbarBase::_OnNotify(pnm);
-        if (lres == 0)
-        {
+        if (lres == 0) {
             lres = CSFToolbar::_OnNotify(pnm);
         }
         break;
@@ -1686,12 +1545,11 @@ void CMenuSFToolbar::CreateToolbar(HWND hwndParent)
     ASSERT(_pcmb); // if you hit this assert, you haven't initialized yet.. call SetSite first
 
     CSFToolbar::_CreateToolbar(hwndParent);
-    if (_hwndPager)
-    {
+    if (_hwndPager) {
         SHSetWindowBits(_hwndPager, GWL_STYLE, PGS_DRAGNDROP, PGS_DRAGNDROP);
         SHSetWindowBits(_hwndPager, GWL_STYLE, PGS_AUTOSCROLL, PGS_AUTOSCROLL);
-        SHSetWindowBits(_hwndPager, GWL_STYLE, PGS_HORZ|PGS_VERT,
-           _fVertical ? PGS_VERT : PGS_HORZ);
+        SHSetWindowBits(_hwndPager, GWL_STYLE, PGS_HORZ | PGS_VERT,
+                        _fVertical ? PGS_VERT : PGS_HORZ);
     }
 
     _hwndMB = _hwndTB;
@@ -1748,21 +1606,16 @@ HRESULT CMenuSFToolbar::v_GetState(int idtCmd, LPSMDATA psmd)
         idtCmd = GetButtonCmd(_hwndTB, ToolBar_GetHotItem(_hwndTB));
 
     pdata = (CMenuData*)_IDToPibData(idtCmd);
-    if (EVAL(pdata))
-    {
+    if (EVAL(pdata)) {
         pidl = pdata->GetPidl();
         ASSERT(IS_VALID_PIDL(pidl));
     }
 
-    if (pidl)
-    {
-        if( _pasf2 && S_OK == _pasf2->UnWrapIDList(pidl, 1, &psmd->psf, &psmd->pidlFolder, &psmd->pidlItem, NULL))
-        {
+    if (pidl) {
+        if (_pasf2 && S_OK == _pasf2->UnWrapIDList(pidl, 1, &psmd->psf, &psmd->pidlFolder, &psmd->pidlItem, NULL)) {
             /*NOTHING*/
             ;
-        }
-        else
-        {
+        } else {
             // Then it must be a straight ShellFolder.
             psmd->psf = _psf;
             if (EVAL(psmd->psf))
@@ -1795,8 +1648,7 @@ HRESULT CMenuSFToolbar::CallCB(LPCITEMIDLIST pidl, DWORD dwMsg, WPARAM wParam, L
     // todo: call v_GetState (but need idCmd for pidl)
     smd.dwMask = SMDM_SHELLFOLDER;
 
-    if (pidl)
-    {
+    if (pidl) {
         // We used to unwrap the pidl here in the case of AUGMISF, but why? In the Callback, we only
         // needed the Full pidl for Executing and for Darwin. The unwrap is an expensive call that in
         // the majority case wasn't even used. Put it on the client to unwrap it. Start Menu is the
@@ -1804,9 +1656,7 @@ HRESULT CMenuSFToolbar::CallCB(LPCITEMIDLIST pidl, DWORD dwMsg, WPARAM wParam, L
         smd.psf = _psf;
         smd.pidlFolder = _pidl;
         smd.pidlItem = (LPITEMIDLIST)pidl;
-    }
-    else
-    {
+    } else {
         // Null pidl means tell the callback about me...
         smd.pidlItem = ILClone(ILFindLastID(_pidl));
         smd.pidlFolder = ILClone(_pidl);
@@ -1824,8 +1674,7 @@ HRESULT CMenuSFToolbar::CallCB(LPCITEMIDLIST pidl, DWORD dwMsg, WPARAM wParam, L
 
     hres = _pcmb->_psmcb->CallbackSM(&smd, dwMsg, wParam, lParam);
 
-    if (fDestroy)
-    {
+    if (fDestroy) {
         ATOMICRELEASE(smd.psf);
         ILFree(smd.pidlFolder);
         ILFree(smd.pidlItem);
@@ -1858,21 +1707,16 @@ HRESULT CMenuSFToolbar::v_GetSubMenu(int idCmd, const GUID* pguidService, REFIID
     *ppvObj = NULL;
 
     ASSERT(pdata);
-    if (pdata && pdata->GetFlags() & SMIF_SUBMENU)
-    {
+    if (pdata && pdata->GetFlags() & SMIF_SUBMENU) {
         hres = pdata->GetSubMenu(pguidService, riid, (void**)ppvObj);
-        if ( FAILED(hres) && IsEqualGUID(riid, IID_IShellMenu))
-        {
+        if (FAILED(hres) && IsEqualGUID(riid, IID_IShellMenu)) {
             hres = CallCB(pdata->GetPidl(), SMC_GETSFOBJECT, (WPARAM)&riid, (LPARAM)ppvObj);
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
                 BOOL fCache = TRUE;
-                if (S_OK != hres)
-                {
+                if (S_OK != hres) {
                     hres = E_FAIL;
                     IShellMenu* psm = (IShellMenu*) new CMenuBand();
-                    if (psm)
-                    {
+                    if (psm) {
                         IShellFolder* psf = NULL;
                         LPITEMIDLIST pidlItem = pdata->GetPidl();
                         LPITEMIDLIST pidlFolder = _pidl;
@@ -1886,8 +1730,7 @@ HRESULT CMenuSFToolbar::v_GetSubMenu(int idCmd, const GUID* pguidService, REFIID
                         // my child to have a callback. Use the default.
                         // If they don't handle it, then use their pointer.
                         if (S_FALSE == CallCB(pdata->GetPidl(), SMC_GETSFOBJECT,
-                            (WPARAM)&IID_IShellMenuCallback, (LPARAM)&psmcb))
-                        {
+                                              (WPARAM)&IID_IShellMenuCallback, (LPARAM)&psmcb)) {
                             psmcb = _pcmb->_psmcb;
                             if (psmcb)
                                 psmcb->AddRef();
@@ -1898,10 +1741,8 @@ HRESULT CMenuSFToolbar::v_GetSubMenu(int idCmd, const GUID* pguidService, REFIID
                         // the Augmented ISF.
                         HKEY hMenuKey = _GetKey(pidlItem);
 
-                        if (_pasf2)
-                        {
-                            if (S_OK == _pasf2->UnWrapIDList(pdata->GetPidl(), 1, &psf, &pidlFolder, &pidlItem, NULL))
-                            {
+                        if (_pasf2) {
+                            if (S_OK == _pasf2->UnWrapIDList(pdata->GetPidl(), 1, &psf, &pidlFolder, &pidlItem, NULL)) {
                                 psf->Release(); // I don't need this
                                 psf = NULL;
                                 fDestroy = TRUE;
@@ -1913,12 +1754,11 @@ HRESULT CMenuSFToolbar::v_GetSubMenu(int idCmd, const GUID* pguidService, REFIID
                         // Inherit the flags from the parent...
                         DWORD dwFlags = SMINIT_VERTICAL |
                             (_pcmb->_dwFlags & (SMINIT_RESTRICT_CONTEXTMENU |
-                                                SMINIT_RESTRICT_DRAGDROP    |
+                                                SMINIT_RESTRICT_DRAGDROP |
                                                 SMINIT_MULTICOLUMN));
 
                         LPITEMIDLIST pidlFull = ILCombine(pidlFolder, pidlItem);
-                        if (psf == NULL)
-                        {
+                        if (psf == NULL) {
                             hres = _psf->BindToObject(pidlItem, NULL, IID_IShellFolder, (void**)&psf);
                         }
 
@@ -1936,8 +1776,7 @@ HRESULT CMenuSFToolbar::v_GetSubMenu(int idCmd, const GUID* pguidService, REFIID
                         //      ...Or...
                         // It's not in the filesystem.
 
-                        if (SIL_GetType(pidlItem) & 0x80 || !(dwAttrib & SFGAO_FILESYSTEM))
-                        {
+                        if (SIL_GetType(pidlItem) & 0x80 || !(dwAttrib & SFGAO_FILESYSTEM)) {
                             // We're not going to persist anything
                             RegCloseKey(hMenuKey);
                             hMenuKey = NULL;
@@ -1951,10 +1790,9 @@ HRESULT CMenuSFToolbar::v_GetSubMenu(int idCmd, const GUID* pguidService, REFIID
 
                         psm->Initialize(psmcb, MNFOLDER_IS_PARENT, uIdAncestor, dwFlags);
 
-                        if (psf)
-                        {
+                        if (psf) {
                             psm->SetShellFolder(psf, pidlFull, hMenuKey,
-                                _dwFlags & (SMSET_HASEXPANDABLEFOLDERS | SMSET_USEBKICONEXTRACTION));
+                                                _dwFlags & (SMSET_HASEXPANDABLEFOLDERS | SMSET_USEBKICONEXTRACTION));
                             hres = psm->QueryInterface(riid, ppvObj);
                             psf->Release();
                         }
@@ -1964,18 +1802,15 @@ HRESULT CMenuSFToolbar::v_GetSubMenu(int idCmd, const GUID* pguidService, REFIID
                         if (psmcb)
                             psmcb->Release();
 
-                        if (fDestroy)
-                        {
+                        if (fDestroy) {
                             ILFree(pidlFolder);
                             ILFree(pidlItem);
                         }
                     }
                 }
 
-                if (*ppvObj)
-                {
-                    if (fCache)
-                    {
+                if (*ppvObj) {
+                    if (fCache) {
                         pdata->SetSubMenu((IUnknown*)*ppvObj);
                     }
 
@@ -2011,9 +1846,9 @@ DWORD CMenuSFToolbar::v_GetFlags(int idCmd)
     else
         return 0;
 
-//  BUGBUG (lamadio): Should I query each time? For like Volitile items?
-//    SMINFO SMINFO = {SMIM_FLAGS};
-//    CallCB(pdata->GetPidl(), SMC_GETFSINFO, (WPARAM)idCmd, (LPARAM)&SMINFO);
+    //  BUGBUG (lamadio): Should I query each time? For like Volitile items?
+    //    SMINFO SMINFO = {SMIM_FLAGS};
+    //    CallCB(pdata->GetPidl(), SMC_GETFSINFO, (WPARAM)idCmd, (LPARAM)&SMINFO);
 
 }
 
@@ -2025,15 +1860,12 @@ void CMenuSFToolbar::BroadcastIntelliMenuState(LPCITEMIDLIST pidlItem, BOOL fPro
     LPITEMIDLIST pidlItemUnwrapped;
     LPITEMIDLIST pidlFull;
 
-    if( _pasf2 && S_OK == _pasf2->UnWrapIDList(pidlItem, 1, NULL, &pidlFolder, &pidlItemUnwrapped, NULL))
-    {
+    if (_pasf2 && S_OK == _pasf2->UnWrapIDList(pidlItem, 1, NULL, &pidlFolder, &pidlItemUnwrapped, NULL)) {
 
         pidlFull = ILCombine(pidlFolder, pidlItemUnwrapped);
         ILFree(pidlFolder);
         ILFree(pidlItemUnwrapped);
-    }
-    else
-    {
+    } else {
 
         pidlFull = ILCombine(_pidl, pidlItem);
     }
@@ -2050,16 +1882,14 @@ HRESULT CMenuSFToolbar::v_ExecItem(int idCmd)
 {
     CMenuData* pdata = (CMenuData*)_IDToPibData(idCmd);
     HRESULT hres = E_FAIL;
-    if (pdata && !_fEmpty && idCmd != _idCmdChevron)
-    {
+    if (pdata && !_fEmpty && idCmd != _idCmdChevron) {
         // STRESS: pdata was becomming 0x8 for some reason after the InvokeDefault.
         // I assume that this call was causing a flush, which frees our list of pidls.
         // So, I'm cloning it. I also changed the order, so that we'll just fire the
         // UEM event.
 
         LPITEMIDLIST pidl = ILClone(pdata->GetPidl());
-        if (pidl)
-        {
+        if (pidl) {
             ASSERT(IS_VALID_PIDL(pidl));
 
             SMDATA smd;
@@ -2071,8 +1901,7 @@ HRESULT CMenuSFToolbar::v_ExecItem(int idCmd)
             hres = CallCB(pidl, SMC_SFEXEC, 0, 0);
 
             // Did the Callback handle this execute for us?
-            if (hres == S_FALSE)
-            {
+            if (hres == S_FALSE) {
                 // No, Ok, do it ourselves.
                 hres = SHInvokeDefaultCommand(_hwndTB, _psf, pidl);
             }
@@ -2096,11 +1925,9 @@ HRESULT CMenuSFToolbar::v_GetInfoTip(int idCmd, LPTSTR psz, UINT cch)
 
     hres = CallCB(pdata->GetPidl(), SMC_GETSFINFOTIP, (WPARAM)psz, (LPARAM)cch);
 
-    if (S_FALSE == hres)
-    {
+    if (S_FALSE == hres) {
         hres = E_FAIL;
-        if (GetInfoTip(_psf, pdata->GetPidl(), psz, cch))
-        {
+        if (GetInfoTip(_psf, pdata->GetPidl(), psz, cch)) {
             hres = NOERROR;
         }
     }
@@ -2123,17 +1950,13 @@ void CMenuSFToolbar::v_ForwardMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lPar
     hwndFwd = _hwndPager ? _hwndPager : _hwndTB;
     GetWindowRect(hwndFwd, &rc);
 
-    if (PtInRect(&rc, pt))
-    {
+    if (PtInRect(&rc, pt)) {
         MapWindowPoints(NULL, hwndFwd, &pt, 1);
         HWND hwnd = ChildWindowFromPoint(hwndFwd, pt);
 
-        if (hwnd)
-        {
+        if (hwnd) {
             MapWindowPoints(hwndFwd, hwnd, &pt, 1);
-        }
-        else
-        {
+        } else {
             hwnd = hwndFwd;
         }
 
@@ -2142,10 +1965,9 @@ void CMenuSFToolbar::v_ForwardMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lPar
 }
 
 
-HRESULT CMenuSFToolbar::OnWinEvent(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *plres)
+HRESULT CMenuSFToolbar::OnWinEvent(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* plres)
 {
-    switch(uMsg)
-    {
+    switch (uMsg) {
     case WM_SYSCOLORCHANGE:
         if (_hwndPager)
             Pager_SetBkColor(_hwndPager, GetSysColor(COLOR_MENU));
@@ -2175,16 +1997,13 @@ HRESULT CMenuSFToolbar::GetShellFolder(LPITEMIDLIST* ppidl, REFIID riid, void** 
 {
     HRESULT hres = E_FAIL;
     *ppvObj = NULL;
-    if (_psf)
-    {
+    if (_psf) {
         hres = _psf->QueryInterface(riid, ppvObj);
     }
 
-    if(SUCCEEDED(hres) && ppidl)
-    {
+    if (SUCCEEDED(hres) && ppidl) {
         *ppidl = ILClone(_pidl);
-        if (! *ppidl)
-        {
+        if (!*ppidl) {
             (*(IUnknown**)ppvObj)->Release();
 
             hres = E_FAIL;
@@ -2197,8 +2016,7 @@ HRESULT CMenuSFToolbar::GetShellFolder(LPITEMIDLIST* ppidl, REFIID riid, void** 
 
 LRESULT CMenuSFToolbar::_OnTimer(WPARAM wParam)
 {
-    switch(wParam)
-    {
+    switch (wParam) {
     case MBTIMER_ENDEDIT:
         KillTimer(_hwndTB, wParam);
         _fEditMode = FALSE;
@@ -2218,11 +2036,9 @@ LRESULT CMenuSFToolbar::_OnTimer(WPARAM wParam)
 
 LRESULT CMenuSFToolbar::_OnDropDown(LPNMTOOLBAR pnmtb)
 {
-    if (GetAsyncKeyState(VK_LBUTTON) < 0 && _fEditMode)
-    {
+    if (GetAsyncKeyState(VK_LBUTTON) < 0 && _fEditMode) {
         // Are we in edit mode?
-        if (_fEditMode)
-        {
+        if (_fEditMode) {
             // Yes, mark the item as the item that is subject to moving
             _MarkItem(pnmtb->iItem);
         }
@@ -2243,15 +2059,13 @@ void CMenuSFToolbar::_MarkItem(int idCmd)
     ASSERT(_pcmb); // if you hit this assert, you haven't initialized yet.. call SetSite first
 
     // Un-highlight the previously moved button
-    if (0 <= _pcmb->_nItemMove)
-    {
+    if (0 <= _pcmb->_nItemMove) {
         // Should item move be a member of SFToolbar?
         ToolBar_MarkButton(_hwndTB, _pcmb->_nItemMove, FALSE);
         _pcmb->_nItemMove = -1;
     }
 
-    if (_fEditMode)
-    {
+    if (_fEditMode) {
         _pcmb->_nItemMove = idCmd;
         ToolBar_MarkButton(_hwndTB, _pcmb->_nItemMove, TRUE);
     }
@@ -2260,12 +2074,9 @@ void CMenuSFToolbar::_MarkItem(int idCmd)
 
 STDMETHODIMP CMenuSFToolbar::IsWindowOwner(HWND hwnd)
 {
-    if (_hwndTB == hwnd || _hwndPager == hwnd || HWND_BROADCAST == hwnd)
-    {
+    if (_hwndTB == hwnd || _hwndPager == hwnd || HWND_BROADCAST == hwnd) {
         return S_OK;
-    }
-    else
-    {
+    } else {
         return S_FALSE;
     }
 }
@@ -2273,19 +2084,18 @@ STDMETHODIMP CMenuSFToolbar::IsWindowOwner(HWND hwnd)
 
 void CMenuSFToolbar::SetWindowPos(LPSIZE psize, LPRECT prc, DWORD dwFlags)
 {
-    if (!_hwndPager)
-    {
+    if (!_hwndPager) {
         CMenuToolbarBase::SetWindowPos(psize, prc, dwFlags);
         return;
     }
     DWORD rectWidth = RECTWIDTH(*prc);
 
-    TraceMsg(TF_MENUBAND, "CMSFTB::SetWindowPos %d - (%d,%d,%d,%d)", psize?psize->cx:0,
-        prc->left, prc->top, prc->right, prc->bottom);
+    TraceMsg(TF_MENUBAND, "CMSFTB::SetWindowPos %d - (%d,%d,%d,%d)", psize ? psize->cx : 0,
+             prc->left, prc->top, prc->right, prc->bottom);
 
     ShowWindow(_hwndPager, SW_SHOW);
     ::SetWindowPos(_hwndPager, NULL, prc->left, prc->top,
-        rectWidth, RECTHEIGHT(*prc), SWP_NOZORDER | SWP_NOACTIVATE | dwFlags);
+                   rectWidth, RECTHEIGHT(*prc), SWP_NOZORDER | SWP_NOACTIVATE | dwFlags);
     if (psize)
         SendMessage(_hwndTB, TB_SETBUTTONWIDTH, 0, MAKELONG(psize->cx, psize->cx));
 
@@ -2296,18 +2106,14 @@ void CMenuSFToolbar::SetWindowPos(LPSIZE psize, LPRECT prc, DWORD dwFlags)
 void CMenuSFToolbar::SetParent(HWND hwndParent)
 {
     int nCmdShow = SW_SHOW;
-    if (hwndParent)
-    {
+    if (hwndParent) {
         if (!_hwndTB)
             CreateToolbar(hwndParent);
-        else
-        {
+        else {
             // make sure width is set correctly . . .
             SendMessage(_hwndTB, TB_SETBUTTONWIDTH, 0, MAKELONG(_cxMin, _cxMax));
         }
-    }
-    else
-    {
+    } else {
         // As an optimization, we implement "disowning" ourselves
         // as just moving ourselves offscreen.  The previous parent
         // still owns us.  The parent is invariably the menusite.
@@ -2317,7 +2123,7 @@ void CMenuSFToolbar::SetParent(HWND hwndParent)
     }
 
 
-    HWND hwnd = _hwndPager ? _hwndPager: _hwndTB;
+    HWND hwnd = _hwndPager ? _hwndPager : _hwndTB;
     ::SetParent(hwnd, hwndParent);
     SendMessage(hwnd, TB_SETPARENT, (WPARAM)hwndParent, NULL);
     ShowWindow(hwnd, nCmdShow);
@@ -2343,10 +2149,9 @@ void CMenuSFToolbar::Expand(BOOL fExpand)
 
     int iHotItem = ToolBar_GetHotItem(_hwndMB);
 
-//    SendMessage(_hwndMB, WM_SETREDRAW, FALSE, 0);
+    //    SendMessage(_hwndMB, WM_SETREDRAW, FALSE, 0);
 
-    for (int i = 0; i < iNumButtons; i++)
-    {
+    for (int i = 0; i < iNumButtons; i++) {
         if (!ToolBar_GetButton(_hwndMB, i, &tbb))
             continue;
 
@@ -2357,31 +2162,23 @@ void CMenuSFToolbar::Expand(BOOL fExpand)
         DWORD dwState = tbb.fsState;
         DWORD dwFlags = pmd ? pmd->GetFlags() : 0;
 
-        if (dwFlags & SMIF_DEMOTED)
-        {
+        if (dwFlags & SMIF_DEMOTED) {
             // Are we expanding?
-            if (fExpand)
-            {
+            if (fExpand) {
                 //Yes; Enable the button and remove the hidden state
                 dwState |= TBSTATE_ENABLED;
                 dwState &= ~TBSTATE_HIDDEN;
-            }
-            else
-            {
+            } else {
                 //No; Remove the Enabled state and hide the button
                 dwState |= TBSTATE_HIDDEN;
                 dwState &= ~TBSTATE_ENABLED;
             }
 
             _fHasDemotedItems = TRUE;
-        }
-        else if (dwFlags & SMIF_HIDDEN)
-        {
+        } else if (dwFlags & SMIF_HIDDEN) {
             dwState |= TBSTATE_HIDDEN;
             dwState &= ~TBSTATE_ENABLED;
-        }
-        else if (tbb.idCommand != _idCmdChevron)
-        {
+        } else if (tbb.idCommand != _idCmdChevron) {
             dwState |= TBSTATE_ENABLED;
             dwState &= ~TBSTATE_HIDDEN;
             _cPromotedItems++;
@@ -2395,32 +2192,28 @@ void CMenuSFToolbar::Expand(BOOL fExpand)
     // _fExpand means "Draw as Expanded". We do not want to
     // draw expanded when we have no demoted items.
 
-    _pcmb->_fExpanded = _fHasDemotedItems? fExpand : FALSE;
+    _pcmb->_fExpanded = _fHasDemotedItems ? fExpand : FALSE;
 
-    if (fExpand)
-    {
-        if (_pcmb->_pmbState)
-        {
+    if (fExpand) {
+        if (_pcmb->_pmbState) {
             _pcmb->_pmbState->SetExpand(TRUE);
             _pcmb->_pmbState->HideTooltip(TRUE);
         }
-    }
-    else
-    {
+    } else {
         _AddChevron();
     }
 
     // Have the menubar think about changing its height
     IUnknown_QueryServiceExec(_pcmb->_punkSite, SID_SMenuPopup, &CGID_MENUDESKBAR,
-        MBCID_SETEXPAND, _fHasDemotedItems?(int)_pcmb->_pmbState->GetExpand():FALSE, NULL, NULL);
+                              MBCID_SETEXPAND, _fHasDemotedItems ? (int)_pcmb->_pmbState->GetExpand() : FALSE, NULL, NULL);
 
-//    SendMessage(_hwndMB, WM_SETREDRAW, TRUE, 0);
+    //    SendMessage(_hwndMB, WM_SETREDRAW, TRUE, 0);
     _ToolbarChanged();
     ToolBar_SetHotItem(_hwndMB, iHotItem);
     if (_hwndPager)
         UpdateWindow(_hwndPager);
     UpdateWindow(_hwndTB);
-//    DAD_ShowDragImage(TRUE);
+    //    DAD_ShowDragImage(TRUE);
 }
 
 
@@ -2428,8 +2221,7 @@ void CMenuSFToolbar::GetSize(SIZE* psize)
 {
     CMenuToolbarBase::GetSize(psize);
 
-    if (_fEmpty && _fDontShowEmpty)
-    {
+    if (_fEmpty && _fDontShowEmpty) {
         psize->cy = 0;
         TraceMsg(TF_MENUBAND, "CMSFT::GetSize (%d, %d)", psize->cx, psize->cy);
     }
@@ -2438,21 +2230,17 @@ void CMenuSFToolbar::GetSize(SIZE* psize)
 void CMenuSFToolbar::_RefreshInfo()
 {
     int cButton = ToolBar_ButtonCount(_hwndMB);
-    for (int iButton = 0; iButton < cButton; iButton++)
-    {
+    for (int iButton = 0; iButton < cButton; iButton++) {
         int idCmd = GetButtonCmd(_hwndTB, iButton);
 
-        if (idCmd != _idCmdChevron)
-        {
+        if (idCmd != _idCmdChevron) {
             // Get the information from that button.
             CMenuData* pmd = (CMenuData*)_IDToPibData(idCmd);
 
-            if (pmd)
-            {
+            if (pmd) {
                 SMINFO sminfo;
                 sminfo.dwMask = SMIM_FLAGS;
-                if (SUCCEEDED(_GetInfo(pmd->GetPidl(), &sminfo)))
-                {
+                if (SUCCEEDED(_GetInfo(pmd->GetPidl(), &sminfo))) {
                     pmd->SetFlags(sminfo.dwFlags);
                 }
             }
@@ -2464,35 +2252,28 @@ void CMenuSFToolbar::_FindMinPromotedItems(BOOL fSetOrderStream)
 {
     // We need to iterate through the buttons and set the Promoted flag.
     int cButton = ToolBar_ButtonCount(_hwndMB);
-    for (int iButton = 0; iButton < cButton; iButton++)
-    {
+    for (int iButton = 0; iButton < cButton; iButton++) {
         int idCmd = GetButtonCmd(_hwndTB, iButton);
 
-        if (idCmd != _idCmdChevron)
-        {
+        if (idCmd != _idCmdChevron) {
             // Get the information from that button.
             CMenuData* pmd = (CMenuData*)_IDToPibData(idCmd);
 
-            if (pmd)
-            {
+            if (pmd) {
                 PORDERITEM poi = pmd->GetOrderItem();
 
-                if (fSetOrderStream)
-                {
+                if (fSetOrderStream) {
                     DWORD dwFlags = pmd->GetFlags();
                     OrderItem_SetFlags(poi, dwFlags);
-                }
-                else    // Query the order stream
+                } else    // Query the order stream
                 {
                     DWORD dwFlags = OrderItem_GetFlags(poi);
                     DWORD dwOldFlags = pmd->GetFlags();
 
                     // When reading the flags from the registry, we only care about the demote flag.
-                    if (dwFlags & SMIF_DEMOTED)
-                    {
+                    if (dwFlags & SMIF_DEMOTED) {
                         dwOldFlags |= SMIF_DEMOTED;
-                    }
-                    else if (!(dwOldFlags & SMIF_SUBMENU)) // Don't promote sub menus.
+                    } else if (!(dwOldFlags & SMIF_SUBMENU)) // Don't promote sub menus.
                     {
                         // Force a promote
                         CallCB(pmd->GetPidl(), SMC_PROMOTE, 0, 0);
@@ -2514,8 +2295,7 @@ void CMenuSFToolbar::v_Show(BOOL fShow, BOOL fForceUpdate)
 
     CMenuToolbarBase::v_Show(fShow, fForceUpdate);
 
-    if (fShow)
-    {
+    if (fShow) {
         BOOL fDirty = _fDirty;
         _fClickHandled = FALSE;
         _RegisterToolbar();
@@ -2523,11 +2303,9 @@ void CMenuSFToolbar::v_Show(BOOL fShow, BOOL fForceUpdate)
         _pcmb->SetTracked(NULL);  // Since hot item is NULL
         ToolBar_SetHotItem(_hwndTB, -1);
 
-        if (_fEmpty && (_dwFlags & SMSET_NOEMPTY))
-        {
+        if (_fEmpty && (_dwFlags & SMSET_NOEMPTY)) {
             _fDontShowEmpty = TRUE;
-        }
-        else if (_fRefreshInfo && !fDirty)         // Do we need to refresh our information?
+        } else if (_fRefreshInfo && !fDirty)         // Do we need to refresh our information?
         {
             // Yes;
             _RefreshInfo();
@@ -2550,19 +2328,16 @@ void CMenuSFToolbar::v_Show(BOOL fShow, BOOL fForceUpdate)
         // call for the Dirty case, because Expand does some neat stuff in calculating the
         // number of promoted items. If the state has changed, we want to reflect that.
         BOOL fExpand = _pcmb->_pmbState ? _pcmb->_pmbState->GetExpand() : FALSE;
-        if ((BOOL)_pcmb->_fExpanded != fExpand || fDirty || _fRefreshInfo)
-        {
+        if ((BOOL)_pcmb->_fExpanded != fExpand || fDirty || _fRefreshInfo) {
             fForceUpdate = TRUE;
             Expand(fExpand);
         }
 
         // Only do this in the beginning.
-        if (_fFirstTime)
-        {
+        if (_fFirstTime) {
             CallCB(NULL, SMC_GETMINPROMOTED, 0, (LPARAM)&_cMinPromotedItems);
 
-            if (_cPromotedItems < _cMinPromotedItems)
-            {
+            if (_cPromotedItems < _cMinPromotedItems) {
                 _FindMinPromotedItems(FALSE);
                 Expand(fExpand);
             }
@@ -2572,15 +2347,14 @@ void CMenuSFToolbar::v_Show(BOOL fShow, BOOL fForceUpdate)
         // we need to do this here because the menubar may have changed it's
         // expand state independant of the pane.
         IUnknown_QueryServiceExec(_pcmb->_punkSite, SID_SMenuPopup, &CGID_MENUDESKBAR,
-            MBCID_SETEXPAND, (int)_pcmb->_fExpanded, NULL, NULL);
+                                  MBCID_SETEXPAND, (int)_pcmb->_fExpanded, NULL, NULL);
 
         // If we're dirty, have our parent consider promoting itself if there
         // are promoted items in the menu, or demoting itself if there arn't.
         // Don't worry, the parent won't do anything if it's already in that state.
-        if ( fDirty )
-        {
+        if (fDirty) {
             IUnknown_RefreshParent(_pcmb->_punkSite, _pidl,
-            ((_cPromotedItems == 0)? SMINV_DEMOTE : SMINV_PROMOTE) | SMINV_NEXTSHOW);
+                                   ((_cPromotedItems == 0) ? SMINV_DEMOTE : SMINV_PROMOTE) | SMINV_NEXTSHOW);
         }
 
 
@@ -2592,19 +2366,15 @@ void CMenuSFToolbar::v_Show(BOOL fShow, BOOL fForceUpdate)
         if (fForceUpdate)
             _UpdateButtons();
 
-        if (_fHasDemotedItems)
-        {
-            if (S_OK == CallCB(NULL, SMC_DISPLAYCHEVRONTIP, 0, 0))
-            {
+        if (_fHasDemotedItems) {
+            if (S_OK == CallCB(NULL, SMC_DISPLAYCHEVRONTIP, 0, 0)) {
                 _FlashChevron();
             }
         }
 
         _fFirstTime = FALSE;
         _fRefreshInfo = FALSE;
-    }
-    else
-    {
+    } else {
         KillTimer(_hwndMB, MBTIMER_UEMTIMEOUT);
     }
     _fShowMB = _fShow = fShow;
@@ -2639,10 +2409,8 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
     // Default to not not handling this event.
     HRESULT hres = S_FALSE;
 
-    if (NULL == psmd)
-    {
-        if (dwFlags & SMINV_REFRESH)
-        {
+    if (NULL == psmd) {
+        if (dwFlags & SMINV_REFRESH) {
             // bugbug: Needs to be optimized
             _Refresh();
             hres = S_OK;
@@ -2651,8 +2419,7 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
 
     // CMenuSFToolbar only handles ShellFolder items.
     // Is this a shell folder?
-    else if (psmd->dwMask & SMDM_SHELLFOLDER)
-    {
+    else if (psmd->dwMask & SMDM_SHELLFOLDER) {
         // Yes;
         int i;
         LPITEMIDLIST pidlButton = NULL;
@@ -2663,19 +2430,16 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
         // we may need to translate it to a wrapped pidl.
 
         // Do we have a pidl Translator?
-        if (_ptscn)
-        {
+        if (_ptscn) {
             // Yes;
             LPITEMIDLIST pidlTranslated;
             LPITEMIDLIST pidlDummy = NULL;
             LPITEMIDLIST pidlToTranslate = ILCombine(psmd->pidlFolder, psmd->pidlItem);
-            if (pidlToTranslate)
-            {
+            if (pidlToTranslate) {
                 LONG lEvent = 0, lEvent2;
                 LPITEMIDLIST pidlDummy1, pidlDummy2;
                 if (SUCCEEDED(_ptscn->TranslateIDs(&lEvent, pidlToTranslate, NULL, &pidlTranslated, &pidlDummy,
-                                                   &lEvent2, &pidlDummy1, &pidlDummy2)))
-                {
+                                                   &lEvent2, &pidlDummy1, &pidlDummy2))) {
                     // Get the button in the toolbar that corresponds to this pidl.
                     pidlButton = _GetButtonFromPidl(ILFindLastID(pidlTranslated), NULL, &i);
 
@@ -2695,8 +2459,7 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
 
         // Did we come from a non-augmented shell folder, or
         // did the caller pass a wrapped pidl?
-        if (!pidlButton)
-        {
+        if (!pidlButton) {
             // Seems like it, we'll try to find the pidl they passed in
 
             // Get the button in the toolbar that corresponds to this pidl.
@@ -2704,36 +2467,29 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
         }
 
         // Did we find this pidl in the toolbar?
-        if (pidlButton)
-        {
+        if (pidlButton) {
 
             int idCmd = GetButtonCmd(_hwndTB, i);
 
             // Yes, Get the information from that button.
             CMenuData* pmd = (CMenuData*)_IDToPibData(idCmd);
 
-            if (pmd)
-            {
+            if (pmd) {
                 BOOL fRefresh = FALSE;
                 DWORD dwFlagsUp = dwFlags;
                 DWORD dwOldItemFlags = pmd->GetFlags();
                 DWORD dwNewItemFlags = dwOldItemFlags;
                 if ((dwFlags & SMINV_DEMOTE) &&
-                    (!(dwOldItemFlags & SMIF_DEMOTED) || dwFlags & SMINV_FORCE))
-                {
-                    if (!(dwFlags & SMINV_NOCALLBACK))
-                    {
+                    (!(dwOldItemFlags & SMIF_DEMOTED) || dwFlags & SMINV_FORCE)) {
+                    if (!(dwFlags & SMINV_NOCALLBACK)) {
                         CallCB(pidlButton, SMC_DEMOTE, 0, 0);
                         BroadcastIntelliMenuState(pidlButton, FALSE);
                     }
                     dwNewItemFlags |= SMIF_DEMOTED;
                     dwFlagsUp |= SMINV_DEMOTE;
-                }
-                else if ((dwFlags & SMINV_PROMOTE) &&
-                         ((dwOldItemFlags & SMIF_DEMOTED) || dwFlags & SMINV_FORCE))
-                {
-                    if (!(dwFlags & SMINV_NOCALLBACK))
-                    {
+                } else if ((dwFlags & SMINV_PROMOTE) &&
+                           ((dwOldItemFlags & SMIF_DEMOTED) || dwFlags & SMINV_FORCE)) {
+                    if (!(dwFlags & SMINV_NOCALLBACK)) {
                         CallCB(pidlButton, SMC_PROMOTE, 0, 0);
                         BroadcastIntelliMenuState(pidlButton, TRUE);
                     }
@@ -2745,11 +2501,9 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
                 // Was it promoted and now Demoted or
                 // Was it demoted and now promoted
                 if ((dwNewItemFlags & SMIF_DEMOTED) ^
-                     (dwOldItemFlags & SMIF_DEMOTED))
-                {
+                    (dwOldItemFlags & SMIF_DEMOTED)) {
                     fRefresh = TRUE;
-                    if (dwNewItemFlags & SMIF_DEMOTED)
-                    {
+                    if (dwNewItemFlags & SMIF_DEMOTED) {
                         // Yes; Then decrement the Promoted count
                         _cPromotedItems--;
 
@@ -2757,22 +2511,16 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
                         _fHasDemotedItems = TRUE;
 
                         // Have we dropped off the face of the earth?
-                        if (_cPromotedItems == 0)
-                        {
+                        if (_cPromotedItems == 0) {
                             dwFlagsUp |= SMINV_DEMOTE;
                             Expand(TRUE);
-                        }
-                        else
-                        {
+                        } else {
                             fRefresh = FALSE;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         int cButtons = ToolBar_ButtonCount(_hwndMB);
                         _cPromotedItems++;
-                        if (cButtons == _cPromotedItems)
-                        {
+                        if (cButtons == _cPromotedItems) {
 
                             // if the button count is the number of promoted items,
                             // then we can't have any demoted items
@@ -2791,14 +2539,10 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
                 if (fRefresh || dwFlags & SMINV_FORCE)
                     IUnknown_RefreshParent(_pcmb->_punkSite, _pidl, dwFlagsUp);
 
-                if (dwOldItemFlags != dwNewItemFlags || dwFlags & SMINV_FORCE)
-                {
-                    if (dwFlags & SMINV_NEXTSHOW || !_fShow)
-                    {
+                if (dwOldItemFlags != dwNewItemFlags || dwFlags & SMINV_FORCE) {
+                    if (dwFlags & SMINV_NEXTSHOW || !_fShow) {
                         _fRefreshInfo = TRUE;
-                    }
-                    else
-                    {
+                    } else {
                         // Since we updated the flags, set them into the cache
                         pmd->SetFlags(dwNewItemFlags);
 
@@ -2806,8 +2550,7 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
                         DWORD dwState = ToolBar_GetState(_hwndTB, idCmd);
                         dwState |= TBSTATE_ENABLED;
                         if (dwNewItemFlags & SMIF_DEMOTED &&
-                            !_pcmb->_fExpanded)
-                        {
+                            !_pcmb->_fExpanded) {
                             // No; We're not expanded and this is a demoted item
                             dwState |= TBSTATE_HIDDEN;
                             dwState &= ~TBSTATE_ENABLED;
@@ -2816,9 +2559,7 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
                             // Just in case the chevron is not there, we should
                             // try and add it. This call will never add more than 1
                             _AddChevron();
-                        }
-                        else if (!_fHasDemotedItems)
-                        {
+                        } else if (!_fHasDemotedItems) {
                             _RemoveChevron();
                         }
 
@@ -2841,8 +2582,7 @@ HRESULT CMenuSFToolbar::v_InvalidateItem(LPSMDATA psmd, DWORD dwFlags)
 
 LRESULT CMenuSFToolbar::_DefWindowProc(HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMessage)
-    {
+    switch (uMessage) {
     case WM_GETOBJECT:
         // Yet another poor design choice on the part of the accessibility team.
         // Typically, if you do not answer a WM_* you return 0. They choose 0 as their success
@@ -2871,18 +2611,15 @@ int CMenuSFToolbar::_GetBitmap(int iCommandID, PIBDATA pibdata, BOOL fUseCache)
     if (!pibdata || pibdata->GetNoIcon())
         return -1;
 
-    if (_dwFlags & SMSET_USEBKICONEXTRACTION)
-    {
+    if (_dwFlags & SMSET_USEBKICONEXTRACTION) {
         LPITEMIDLIST pidlItem = pibdata->GetPidl();
         // If the caller is using background icon extraction, we need them to provide a
         // default icon that we are going to display until we get the real one. This is
         // specifically to make favorites fast.
-        if (_iDefaultIconIndex == -1)
-        {
-            TCHAR szIconPath [MAX_PATH];
+        if (_iDefaultIconIndex == -1) {
+            TCHAR szIconPath[MAX_PATH];
 
-            if (S_OK == CallCB(NULL, SMC_DEFAULTICON, (WPARAM)szIconPath, (LPARAM)&iIcon))
-            {
+            if (S_OK == CallCB(NULL, SMC_DEFAULTICON, (WPARAM)szIconPath, (LPARAM)&iIcon)) {
                 _iDefaultIconIndex = Shell_GetCachedImageIndex(szIconPath, iIcon, 0);
             }
         }
@@ -2891,53 +2628,44 @@ int CMenuSFToolbar::_GetBitmap(int iCommandID, PIBDATA pibdata, BOOL fUseCache)
 
         DWORD dwAttrib = 0;
 
-        if (pidlItem && SUCCEEDED(_psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlItem, &dwAttrib)))
-        {
+        if (pidlItem && SUCCEEDED(_psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlItem, &dwAttrib))) {
             if (dwAttrib & SFGAO_FOLDER)
                 iIcon = II_FOLDER;
         }
 
         IShellTaskScheduler* pScheduler = _pcmb->_pmbState->GetScheduler();
 
-        if (pScheduler)
-        {
+        if (pScheduler) {
             IShellFolder* psf = NULL;
             LPITEMIDLIST pidlFolder = _pidl;
             LPITEMIDLIST pidlItemUnwrapped;
 
             // Since this can be an augmented shell folder, we should do the correct thing so that
             // the icon extraction with the full pidl takes place correctly.
-            if( _pasf2 &&
-                S_OK == _pasf2->UnWrapIDList(pidlItem, 1, NULL, &pidlFolder, &pidlItemUnwrapped, NULL))
-            {
+            if (_pasf2 &&
+                S_OK == _pasf2->UnWrapIDList(pidlItem, 1, NULL, &pidlFolder, &pidlItemUnwrapped, NULL)) {
 
                 pidlItem = ILCombine(pidlFolder, pidlItemUnwrapped);
                 ILFree(pidlFolder);
                 ILFree(pidlItemUnwrapped);
-            }
-            else
-            {
+            } else {
                 psf = _psf;
             }
 
             // AddIconTask takes ownership of the pidl when psf is NULL and will free it.
             HRESULT hres = AddIconTask(pScheduler, psf, pidlFolder, pidlItem,
-                s_IconCallback, (LPVOID)_hwndTB, iCommandID, NULL);
+                                       s_IconCallback, (LPVOID)_hwndTB, iCommandID, NULL);
 
             pScheduler->Release();
 
-            if (FAILED(hres))
-            {
+            if (FAILED(hres)) {
                 // If that call failed for some reason, default to the shell32 impl.
                 goto DoSyncMap;
             }
-        }
-        else
+        } else
             goto DoSyncMap;
 
-    }
-    else
-    {
+    } else {
     DoSyncMap:
         iIcon = CSFToolbar::_GetBitmap(iCommandID, pibdata, fUseCache);
     }
@@ -2948,8 +2676,7 @@ int CMenuSFToolbar::_GetBitmap(int iCommandID, PIBDATA pibdata, BOOL fUseCache)
 void CMenuSFToolbar::s_IconCallback(LPVOID pvData, UINT uId, UINT iIconIndex)
 {
     HWND hwnd = (HWND)pvData;
-    if (hwnd && IsWindow(hwnd))
-    {
+    if (hwnd && IsWindow(hwnd)) {
         DAD_ShowDragImage(FALSE);
         SendMessage(hwnd, TB_CHANGEBITMAP, uId, iIconIndex);
         DAD_ShowDragImage(TRUE);

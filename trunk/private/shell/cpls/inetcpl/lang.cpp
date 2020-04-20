@@ -1,4 +1,3 @@
-
 //                     Microsoft Windows                             //
 //              Copyright(c) Microsoft Corp., 1995                   //
 
@@ -31,10 +30,10 @@
 #define RETURN_SETLANG_CLOSEDNORMAL     1
 #define RETURN_SETLANG_CANCELED         0
 
-typedef HRESULT (* PCOINIT) (LPVOID);
-typedef VOID (* PCOUNINIT) (VOID);
-typedef VOID (* PCOMEMFREE) (LPVOID);
-typedef HRESULT (* PCOCREINST) (REFCLSID, LPUNKNOWN, DWORD,     REFIID, LPVOID * );
+typedef HRESULT(*PCOINIT) (LPVOID);
+typedef VOID(*PCOUNINIT) (VOID);
+typedef VOID(*PCOMEMFREE) (LPVOID);
+typedef HRESULT(*PCOCREINST) (REFCLSID, LPUNKNOWN, DWORD, REFIID, LPVOID*);
 
 extern HMODULE hOLE32;
 extern PCOINIT pCoInitialize;
@@ -45,7 +44,7 @@ extern PCOCREINST pCoCreateInstance;
 extern BOOL _StartOLE32();
 
 class CUILangList;
-INT_PTR KickSetLang(HWND hDlg, CUILangList * pLangList);
+INT_PTR KickSetLang(HWND hDlg, CUILangList* pLangList);
 
 static const TCHAR s_szResourceLocale[] = TEXT("ResourceLocale");
 // HKLM\Software\Microsoft\Internet Explorer\International used for url string
@@ -54,7 +53,7 @@ static const TCHAR s_szUrlSPK[]
 static const TCHAR c_szInstall[]
 = TEXT("Software\\Microsoft\\Active Setup\\Installed Components\\{89820200-ECBD-11CF-8B85-00AA005B4383}");
 static const TCHAR c_szLocale[] = TEXT("Locale");
-static const TCHAR s_szLangPackPath[]   = TEXT("Software\\Microsoft\\Internet Explorer");
+static const TCHAR s_szLangPackPath[] = TEXT("Software\\Microsoft\\Internet Explorer");
 static const TCHAR s_szVersion[] = TEXT("LPKInstalled");
 
 typedef struct
@@ -101,7 +100,7 @@ typedef struct tagISO639
 {
     LPCTSTR ISO639;
     LANGID LangID;
-}   ISO639, *LPISO639;
+}   ISO639, * LPISO639;
 
 const ISO639 c_ISO639[] =
 {
@@ -144,17 +143,13 @@ LANGID GetInstallLanguage(void)
     TCHAR szISO639[3];
     DWORD cb;
 
-    if (0 == LangID)
-    {
+    if (0 == LangID) {
         cb = sizeof(szISO639);
-        if (ERROR_SUCCESS == SHGetValue(HKEY_LOCAL_MACHINE, c_szInstall, c_szLocale, NULL, szISO639, &cb))
-        {
+        if (ERROR_SUCCESS == SHGetValue(HKEY_LOCAL_MACHINE, c_szInstall, c_szLocale, NULL, szISO639, &cb)) {
             int i;
 
-            for (i = 0; i < ARRAYSIZE(c_ISO639); i++)
-            {
-                if (!StrCmpNI(szISO639, c_ISO639[i].ISO639, ARRAYSIZE(szISO639)))
-                {
+            for (i = 0; i < ARRAYSIZE(c_ISO639); i++) {
+                if (!StrCmpNI(szISO639, c_ISO639[i].ISO639, ARRAYSIZE(szISO639))) {
                     LangID = c_ISO639[i].LangID;
                     break;
                 }
@@ -171,27 +166,29 @@ LANGID GetInstallLanguage(void)
 class CUILangList
 {
 public:
-    CUILangList() {_iLangIdx = -1; lang = s_arryLangList;
-                   _nLangList = ARRAYSIZE(s_arryLangList);
-                   _fOffice9Installed = -1;};
+    CUILangList() {
+        _iLangIdx = -1; lang = s_arryLangList;
+        _nLangList = ARRAYSIZE(s_arryLangList);
+        _fOffice9Installed = -1;
+    };
 
     void    ValidateLangList();
-    BOOL    IsValidLang(int idx) { return (idx < _nLangList) ? lang[idx].fValid: FALSE; };
+    BOOL    IsValidLang(int idx) { return (idx < _nLangList) ? lang[idx].fValid : FALSE; };
     int     GetCurrentLangIdx();
     void    SetCurrentLangIdx(int idx);
     LPCTSTR GetCurrentLangName();
     LPCTSTR GetLangNameOfIdx(int idx);
-    WORD    GetLangIdOfIdx(int idx) { return (idx < _nLangList) ? lang[idx].wlangid:0; };
+    WORD    GetLangIdOfIdx(int idx) { return (idx < _nLangList) ? lang[idx].wlangid : 0; };
     UINT    GetIds(int idx);
-    int     GetListSize() {return _nLangList;};
+    int     GetListSize() { return _nLangList; };
     BOOL    IsOffice9Installed();
-    static  HRESULT GetLangList(HWND hdlg, CUILangList ** ppLangList);
+    static  HRESULT GetLangList(HWND hdlg, CUILangList** ppLangList);
     static  HRESULT RemoveLangList(HWND hdlg);
 private:
     int _iLangIdx;
     int _nLangList;
     int _fOffice9Installed;
-    LANGLIST *lang;
+    LANGLIST* lang;
 };
 
 // CShutDownProcInfo
@@ -201,7 +198,7 @@ private:
 
 typedef enum
 {
-    PS_UNKNOWN=0,
+    PS_UNKNOWN = 0,
     PS_CANDIDATE,
     PS_TO_BE_SHUTDOWN,
     PS_IGNORE,
@@ -218,13 +215,13 @@ public:
     ~CShutDownProcInfo();
     HRESULT EnsureProcList();
     HRESULT IncreaseProcList();
-    HRESULT NotifyShutDownToFolks(int *nProccess);
+    HRESULT NotifyShutDownToFolks(int* nProccess);
     HRESULT AddToProcList(HWND hwndShutDown);
     HRESULT WaitForOneProcess(int iProc);
     HRESULT WaitForFolksShutDown();
     HRESULT GetRestartAppPath(LPTSTR szPath, int cchPath, int iProc);
     HRESULT RestartFolks();
-    static DWORD CALLBACK ShutDownThreadProc(void *pv);
+    static DWORD CALLBACK ShutDownThreadProc(void* pv);
 protected:
     typedef struct
     {
@@ -232,7 +229,7 @@ protected:
         TCHAR szExeName[32];
         PROCSTATE State;
     } PROCLIST;
-    PROCLIST *_pProcList;
+    PROCLIST* _pProcList;
     int _nAlloced;
     int _iProcList;
     HWND _hdlgParent;
@@ -244,14 +241,12 @@ void IntToHex(OUT LPTSTR sz, IN int cdigit, IN int value)
 {
     int i, idigit;
 
-    if (sz && value > 0 && cdigit > 0)
-    {
+    if (sz && value > 0 && cdigit > 0) {
         // nul terminate the buffer
         sz[cdigit] = TEXT('\0');
 
-        for (i = cdigit-1; i >= 0; i--, value /= 16)
-        {
-            idigit = value%16;
+        for (i = cdigit - 1; i >= 0; i--, value /= 16) {
+            idigit = value % 16;
             if (idigit < 10)
                 sz[i] = (TCHAR)idigit + TEXT('0');
             else
@@ -270,45 +265,41 @@ void CUILangList::ValidateLangList()
     HKEY hKey;
     HRESULT hr;
     TCHAR szValueName[32];
-    WORD aryValidLang[MAX_SATELLITEPACKS +1+1] = {0}; // +1 for install lang,
+    WORD aryValidLang[MAX_SATELLITEPACKS + 1 + 1] = {0}; // +1 for install lang,
                                                       // +1 for terminator
 
-    int  nMaxValidLang = ARRAYSIZE(aryValidLang)-1;   // -1 for terminator
-    WORD *pwValid = aryValidLang;
+    int  nMaxValidLang = ARRAYSIZE(aryValidLang) - 1;   // -1 for terminator
+    WORD* pwValid = aryValidLang;
 
     // make the install language always valid
     *pwValid = GetInstallLanguage();
-    if (*pwValid != 0)
-    {
-       *(pwValid+1) = 0; // terminator
-       pwValid++;
-       nMaxValidLang--;
+    if (*pwValid != 0) {
+        *(pwValid + 1) = 0; // terminator
+        pwValid++;
+        nMaxValidLang--;
     }
 
-    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_INTERNATIONAL, NULL, KEY_READ, &hKey))
-    {
+    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_INTERNATIONAL, NULL, KEY_READ, &hKey)) {
         int i = 0;
         do {
             // see if the value has a match in the list
             DWORD dwType;
-            DWORD cb = ARRAYSIZE(szValueName)-2;
+            DWORD cb = ARRAYSIZE(szValueName) - 2;
 
-            hr = SHEnumValue(hKey, i++, szValueName+2, &cb, &dwType, NULL, NULL);
-            if (SUCCEEDED(hr) && dwType == REG_SZ)
-            {
-                UINT uiInstalled ;
+            hr = SHEnumValue(hKey, i++, szValueName + 2, &cb, &dwType, NULL, NULL);
+            if (SUCCEEDED(hr) && dwType == REG_SZ) {
+                UINT uiInstalled;
 
                 szValueName[0] = TEXT('0');
                 szValueName[1] = TEXT('x');
                 StrToIntEx(szValueName, STIF_SUPPORT_HEX, (LPINT)&uiInstalled);
-                if (uiInstalled > 0)
-                {
-                    *pwValid     = (unsigned short) uiInstalled;
-                    *(pwValid+1) = 0; // terminator
+                if (uiInstalled > 0) {
+                    *pwValid = (unsigned short)uiInstalled;
+                    *(pwValid + 1) = 0; // terminator
                     pwValid++;
                 }
             }
-        } while(hr == ERROR_SUCCESS && i < nMaxValidLang);
+        } while (hr == ERROR_SUCCESS && i < nMaxValidLang);
         RegCloseKey(hKey);
     }
 
@@ -317,34 +308,29 @@ void CUILangList::ValidateLangList()
 
     Assert(sizeof(WORD) == sizeof(WCHAR)); // unix?
 
-    int nValidLang = (int)(pwValid-aryValidLang);
-    for(int idx = 0; idx < GetListSize(); idx++ )
-    {
+    int nValidLang = (int)(pwValid - aryValidLang);
+    for (int idx = 0; idx < GetListSize(); idx++) {
         // abusing the string function but this is a fast way
-        if (StrChrW((WCHAR *)aryValidLang, (WCHAR)lang[idx].wlangid))
-        {
+        if (StrChrW((WCHAR*)aryValidLang, (WCHAR)lang[idx].wlangid)) {
             lang[idx].fValid = TRUE;
-            if(--nValidLang <= 0)
+            if (--nValidLang <= 0)
                 break;
         }
     }
 }
 
 static const TCHAR s_szPropLangList[] = TEXT("langlist");
-HRESULT CUILangList::GetLangList(HWND hdlg, CUILangList ** ppLangList)
+HRESULT CUILangList::GetLangList(HWND hdlg, CUILangList** ppLangList)
 {
-    HRESULT hr=S_OK;
+    HRESULT hr = S_OK;
 
-    CUILangList *pLangList = (CUILangList *)GetProp(hdlg, s_szPropLangList);
-    if (!pLangList)
-    {
+    CUILangList* pLangList = (CUILangList*)GetProp(hdlg, s_szPropLangList);
+    if (!pLangList) {
         pLangList = new CUILangList();
-        if (pLangList)
-        {
+        if (pLangList) {
             pLangList->ValidateLangList();
             SetProp(hdlg, s_szPropLangList, (HANDLE)pLangList);
-        }
-        else
+        } else
             hr = E_FAIL;
     }
 
@@ -358,14 +344,12 @@ HRESULT CUILangList::GetLangList(HWND hdlg, CUILangList ** ppLangList)
 HRESULT CUILangList::RemoveLangList(HWND hdlg)
 {
     HRESULT hr = S_OK;
-    CUILangList *pLangList = (CUILangList *)GetProp(hdlg, s_szPropLangList);
+    CUILangList* pLangList = (CUILangList*)GetProp(hdlg, s_szPropLangList);
 
-    if (pLangList)
-    {
+    if (pLangList) {
         delete pLangList;
         RemoveProp(hdlg, s_szPropLangList);
-    }
-    else
+    } else
         hr = S_FALSE;
 
     return hr;
@@ -373,13 +357,12 @@ HRESULT CUILangList::RemoveLangList(HWND hdlg)
 
 void CUILangList::SetCurrentLangIdx(int idx)
 {
-    TCHAR sz[4+1];
-    if (idx != _iLangIdx)
-    {
+    TCHAR sz[4 + 1];
+    if (idx != _iLangIdx) {
         // the resource id is always 4 digit
         IntToHex(sz, 4, lang[idx].wlangid);
         SHSetValue(HKEY_CURRENT_USER, REGSTR_PATH_INTERNATIONAL,
-                   s_szResourceLocale, REG_SZ, (void *)sz, sizeof(sz));
+                   s_szResourceLocale, REG_SZ, (void*)sz, sizeof(sz));
         _iLangIdx = idx;
     }
 }
@@ -392,8 +375,7 @@ int CUILangList::GetCurrentLangIdx()
     int   isel;
 
     // see if it's cached already
-    if (_iLangIdx == -1)
-    {
+    if (_iLangIdx == -1) {
         // We basically wants what we've set in the registry,
         // but if Office9 is installed we'll show whatever
         // Office sets, and we can't change the Office setting anyway
@@ -402,29 +384,23 @@ int CUILangList::GetCurrentLangIdx()
 
         if (IsOffice9Installed() || IsOS(OS_NT5))
             isel = MLGetUILanguage();
-        else
-        {
+        else {
             DWORD dwcbData = sizeof(sz);
 
-            HRESULT hr =  SHGetValue(HKEY_CURRENT_USER, REGSTR_PATH_INTERNATIONAL,
-                                  s_szResourceLocale, &dwType, (void *)&sz[2], &dwcbData);
+            HRESULT hr = SHGetValue(HKEY_CURRENT_USER, REGSTR_PATH_INTERNATIONAL,
+                                    s_szResourceLocale, &dwType, (void*)&sz[2], &dwcbData);
 
-            if (hr == ERROR_SUCCESS && dwType == REG_SZ)
-            {
+            if (hr == ERROR_SUCCESS && dwType == REG_SZ) {
                 sz[0] = TEXT('0');
                 sz[1] = TEXT('x');
                 StrToIntEx(sz, STIF_SUPPORT_HEX, (LPINT)&isel);
-            }
-            else
-            {
+            } else {
                 isel = GetInstallLanguage();
             }
         }
 
-        for(int i = 0; i < GetListSize(); i++ )
-        {
-            if (isel == lang[i].wlangid)
-            {
+        for (int i = 0; i < GetListSize(); i++) {
+            if (isel == lang[i].wlangid) {
                 _iLangIdx = i;
                 break;
             }
@@ -440,14 +416,12 @@ int CUILangList::GetCurrentLangIdx()
 LPCTSTR CUILangList::GetLangNameOfIdx(int idx)
 {
     LPCTSTR pszRet = NULL;
-    IMultiLanguage2 *pML2;
+    IMultiLanguage2* pML2;
     HRESULT hr;
-    RFC1766INFO Rfc1766Info={0};
+    RFC1766INFO Rfc1766Info = {0};
 
-    if(!hOLE32)
-    {
-        if(!_StartOLE32())
-        {
+    if (!hOLE32) {
+        if (!_StartOLE32()) {
             ASSERT(FALSE);
             return NULL;
         }
@@ -457,14 +431,11 @@ LPCTSTR CUILangList::GetLangNameOfIdx(int idx)
     if (FAILED(hr))
         return NULL;
 
-    hr = pCoCreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, (LPVOID *) &pML2);
+    hr = pCoCreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, (LPVOID*)&pML2);
 
-    if (SUCCEEDED(hr))
-    {
-        if (idx >= 0)
-        {
-            if (!lang[idx].szName[0])
-            {
+    if (SUCCEEDED(hr)) {
+        if (idx >= 0) {
+            if (!lang[idx].szName[0]) {
                 pML2->GetRfc1766Info(lang[idx].wlangid, MLGetUILanguage(), &Rfc1766Info);
                 StrCpyNW(lang[idx].szName, Rfc1766Info.wszLocaleName, ARRAYSIZE(lang[0].szName));
             }
@@ -487,13 +458,12 @@ BOOL CUILangList::IsOffice9Installed()
 {
     DWORD dwVersion;
     DWORD cb = sizeof(dwVersion);
-    if (_fOffice9Installed < 0)
-    {
-        _fOffice9Installed ++;
+    if (_fOffice9Installed < 0) {
+        _fOffice9Installed++;
         if (ERROR_SUCCESS ==
             SHGetValue(HKEY_LOCAL_MACHINE, s_szLangPackPath, s_szVersion, NULL, &dwVersion, &cb)
-          && dwVersion > 0) // magic number - christw tells me so
-            _fOffice9Installed ++;
+            && dwVersion > 0) // magic number - christw tells me so
+            _fOffice9Installed++;
     }
     return (BOOL)_fOffice9Installed;
 }
@@ -501,7 +471,7 @@ BOOL CUILangList::IsOffice9Installed()
 void InitCurrentUILang(HWND hDlg)
 {
     BOOL fChanged = FALSE;
-    CUILangList *pLangList;
+    CUILangList* pLangList;
     LPCTSTR pszLangSel = NULL;
     HRESULT hr;
 
@@ -510,16 +480,14 @@ void InitCurrentUILang(HWND hDlg)
     if (SUCCEEDED(hr))
         pszLangSel = pLangList->GetCurrentLangName();
 
-    if (pszLangSel)
-    {
+    if (pszLangSel) {
         TCHAR szBig[1024], szSmall[256];
 
         GetDlgItemText(hDlg, IDC_LANG_CURSEL, szBig, ARRAYSIZE(szBig));
         if (szBig[0])
             fChanged = (StrStr(szBig, pszLangSel) == NULL);
 
-        if (MLLoadString((fChanged)? IDS_LANG_FUTUREUSE: IDS_LANG_CURRENTUSE, szSmall, ARRAYSIZE(szSmall)) > 0)
-        {
+        if (MLLoadString((fChanged) ? IDS_LANG_FUTUREUSE : IDS_LANG_CURRENTUSE, szSmall, ARRAYSIZE(szSmall)) > 0) {
             wnsprintf(szBig, ARRAYSIZE(szBig), szSmall, pszLangSel);
             Static_SetText(GetDlgItem(hDlg, IDC_LANG_CURSEL), szBig);
         }
@@ -534,17 +502,15 @@ void InitCurrentUILang(HWND hDlg)
 
 void FillAcceptListBox(IN HWND hDlg)
 {
-    IMultiLanguage2 *pML2;
+    IMultiLanguage2* pML2;
     HRESULT hr;
     HKEY hKey;
     DWORD cb;
-    TCHAR sz[MAX_LIST_STRING_LEN], szBuf[MAX_ACCEPT_LANG_LEN], *p1, *p2, *p3;
+    TCHAR sz[MAX_LIST_STRING_LEN], szBuf[MAX_ACCEPT_LANG_LEN], * p1, * p2, * p3;
     HWND hwndList = GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST);
 
-    if(!hOLE32)
-    {
-        if(!_StartOLE32())
-        {
+    if (!hOLE32) {
+        if (!_StartOLE32()) {
             ASSERT(FALSE);
             return;
         }
@@ -553,21 +519,17 @@ void FillAcceptListBox(IN HWND hDlg)
     if (FAILED(hr))
         return;
 
-    hr = pCoCreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, (LPVOID *) &pML2);
-    if (SUCCEEDED(hr))
-    {
-        if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_INTERNATIONAL, NULL, NULL, NULL, KEY_SET_VALUE|KEY_READ, NULL, &hKey, NULL))
-        {
+    hr = pCoCreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, (LPVOID*)&pML2);
+    if (SUCCEEDED(hr)) {
+        if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_INTERNATIONAL, NULL, NULL, NULL, KEY_SET_VALUE | KEY_READ, NULL, &hKey, NULL)) {
             LCID lcid;
             RFC1766INFO Rfc1766Info;
             TCHAR sz1[MAX_LIST_STRING_LEN], sz2[MAX_RFC1766_NAME];
 
             cb = sizeof(szBuf);
-            if (ERROR_SUCCESS == RegQueryValueEx(hKey, REGSTR_VAL_ACCEPT_LANGUAGE, NULL, NULL, (LPBYTE)szBuf, &cb))
-            {
+            if (ERROR_SUCCESS == RegQueryValueEx(hKey, REGSTR_VAL_ACCEPT_LANGUAGE, NULL, NULL, (LPBYTE)szBuf, &cb)) {
                 p1 = p2 = szBuf;
-                while (NULL != *p1)
-                {
+                while (NULL != *p1) {
                     WCHAR wsz[MAX_LIST_STRING_LEN];
                     BOOL bEnd = FALSE;
 
@@ -588,11 +550,9 @@ void FillAcceptListBox(IN HWND hDlg)
                     MultiByteToWideChar(CP_ACP, 0, p1, -1, wsz, MAX_RFC1766_NAME);
 #endif
                     hr = pML2->GetLcidFromRfc1766(&lcid, wsz);
-                    if (SUCCEEDED(hr))
-                    {
+                    if (SUCCEEDED(hr)) {
                         hr = pML2->GetRfc1766Info(lcid, MLGetUILanguage(), &Rfc1766Info);
-                        if (SUCCEEDED(hr))
-                        {
+                        if (SUCCEEDED(hr)) {
 #ifdef UNICODE
                             StrCpyN(sz1, Rfc1766Info.wszLocaleName, ARRAYSIZE(sz1));
 #else
@@ -600,9 +560,7 @@ void FillAcceptListBox(IN HWND hDlg)
 #endif
                             wnsprintf(sz, ARRAYSIZE(sz), FORMAT_STR, sz1, p1);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         MLLoadString(IDS_USER_DEFINED, sz1, ARRAYSIZE(sz1));
                         wnsprintf(sz, ARRAYSIZE(sz), FORMAT_STR, sz1, p1);
                     }
@@ -612,17 +570,14 @@ void FillAcceptListBox(IN HWND hDlg)
                     else
                         p1 = p2 = p2 + 1;
                 }
-            }
-            else
-            {
+            } else {
                 lcid = GetUserDefaultLCID();
 
                 hr = pML2->GetRfc1766Info(lcid, MLGetUILanguage(), &Rfc1766Info);
-                if (SUCCEEDED(hr))
-                {
+                if (SUCCEEDED(hr)) {
 #ifdef UNICODE
-                    StrCpyN(sz1, Rfc1766Info.wszLocaleName,  ARRAYSIZE(sz1));
-                    StrCpyN(sz2, Rfc1766Info.wszRfc1766,  ARRAYSIZE(sz2));
+                    StrCpyN(sz1, Rfc1766Info.wszLocaleName, ARRAYSIZE(sz1));
+                    StrCpyN(sz2, Rfc1766Info.wszRfc1766, ARRAYSIZE(sz2));
 #else
                     WideCharToMultiByte(CP_ACP, 0, Rfc1766Info.wszLocaleName, -1, sz1, MAX_LIST_STRING_LEN, NULL, NULL);
                     WideCharToMultiByte(CP_ACP, 0, Rfc1766Info.wszRfc1766, -1, sz2, MAX_RFC1766_NAME, NULL, NULL);
@@ -680,8 +635,7 @@ void SaveLanguageData(IN HWND hDlg)
     int i, iNumItems, iQ, n;
     TCHAR szBuf[MAX_ACCEPT_LANG_LEN];
 
-    if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_INTERNATIONAL, NULL, NULL, NULL, KEY_WRITE, NULL, &hKey, &dw ))
-    {
+    if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_INTERNATIONAL, NULL, NULL, NULL, KEY_WRITE, NULL, &hKey, &dw)) {
         HWND hwndList = GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST);
 
         iNumItems = ListBox_GetCount(hwndList);
@@ -690,9 +644,8 @@ void SaveLanguageData(IN HWND hDlg)
             ;
 
         szBuf[0] = NULL;
-        for (i = 0; i < iNumItems; i++)
-        {
-            TCHAR sz[MAX_LIST_STRING_LEN], *p1, *p2;
+        for (i = 0; i < iNumItems; i++) {
+            TCHAR sz[MAX_LIST_STRING_LEN], * p1, * p2;
 
             ListBox_GetText(hwndList, i, sz);
             p1 = sz;
@@ -705,8 +658,7 @@ void SaveLanguageData(IN HWND hDlg)
             *p2 = NULL;
             if (0 == i)
                 StrCpyN(szBuf, p1, ARRAYSIZE(szBuf));
-            else
-            {
+            else {
                 TCHAR szF[MAX_ACCEPT_LANG_LEN], szQ[MAX_ACCEPT_LANG_LEN];
 
                 int len = lstrlen(szBuf);
@@ -716,10 +668,10 @@ void SaveLanguageData(IN HWND hDlg)
                 wnsprintf(szF, ARRAYSIZE(szF), TEXT(";q=0.%%0%dd"), n);
                 wnsprintf(szQ, ARRAYSIZE(szQ), szF, ((iNumItems - i) * iQ + (iNumItems / 2)) / iNumItems);
                 len = lstrlen(szBuf);
-                StrCpyN(szBuf + len , szQ, ARRAYSIZE(szBuf) - len);
+                StrCpyN(szBuf + len, szQ, ARRAYSIZE(szBuf) - len);
             }
         }
-        RegSetValueEx(hKey, REGSTR_VAL_ACCEPT_LANGUAGE, NULL, REG_SZ, (LPBYTE)szBuf, (lstrlen(szBuf)+1)*sizeof(TCHAR));
+        RegSetValueEx(hKey, REGSTR_VAL_ACCEPT_LANGUAGE, NULL, REG_SZ, (LPBYTE)szBuf, (lstrlen(szBuf) + 1) * sizeof(TCHAR));
         RegCloseKey(hKey);
     }
 }
@@ -738,7 +690,7 @@ void MoveUpDownListItem(HWND hDlg, HWND hwndList, BOOL bUp)
     ListBox_GetText(hwndList, i, sz);
     ListBox_DeleteString(hwndList, i);
 
-    i += (bUp)? -1: 1;
+    i += (bUp) ? -1 : 1;
     if (i < 0)
         i = 0;
     else if (i >= iNumItems)
@@ -762,7 +714,7 @@ void MoveUpDownListItem(HWND hDlg, HWND hwndList, BOOL bUp)
 
 BOOL FillLanguageListBox(IN HWND hDlg)
 {
-    IMultiLanguage2 *pML2;
+    IMultiLanguage2* pML2;
     HRESULT hr;
     TCHAR sz[MAX_LIST_STRING_LEN], sz1[MAX_LOCALE_NAME], sz2[MAX_RFC1766_NAME];
     HWND hwndEdit = GetDlgItem(hDlg, IDC_LANG_USER_DEFINED_EDIT);
@@ -771,10 +723,8 @@ BOOL FillLanguageListBox(IN HWND hDlg)
 
     SendMessage(hwndEdit, EM_SETLIMITTEXT, 16, 0L); // Set Limit text as 16 characters
 
-    if(!hOLE32)
-    {
-        if(!_StartOLE32())
-        {
+    if (!hOLE32) {
+        if (!_StartOLE32()) {
             ASSERT(FALSE);
             return FALSE;
         }
@@ -783,19 +733,16 @@ BOOL FillLanguageListBox(IN HWND hDlg)
     if (FAILED(hr))
         return FALSE;
 
-    hr = pCoCreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, (LPVOID *) &pML2);
-    if (SUCCEEDED(hr))
-    {
-        IEnumRfc1766 *pEnumRfc1766;
+    hr = pCoCreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, (LPVOID*)&pML2);
+    if (SUCCEEDED(hr)) {
+        IEnumRfc1766* pEnumRfc1766;
         RFC1766INFO Rfc1766Info;
 
-        if (SUCCEEDED(pML2->EnumRfc1766(MLGetUILanguage(), &pEnumRfc1766)))
-        {
-            while (S_OK == pEnumRfc1766->Next(1, &Rfc1766Info, NULL))
-            {
+        if (SUCCEEDED(pML2->EnumRfc1766(MLGetUILanguage(), &pEnumRfc1766))) {
+            while (S_OK == pEnumRfc1766->Next(1, &Rfc1766Info, NULL)) {
 #ifdef UNICODE
                 StrCpyN(sz1, Rfc1766Info.wszLocaleName, ARRAYSIZE(sz1));
-                StrCpyN(sz2, Rfc1766Info.wszRfc1766,  ARRAYSIZE(sz2));
+                StrCpyN(sz2, Rfc1766Info.wszRfc1766, ARRAYSIZE(sz2));
 #else
                 WideCharToMultiByte(CP_ACP, 0, Rfc1766Info.wszLocaleName, -1, sz1, MAX_LOCALE_NAME, NULL, NULL);
                 WideCharToMultiByte(CP_ACP, 0, Rfc1766Info.wszRfc1766, -1, sz2, MAX_RFC1766_NAME, NULL, NULL);
@@ -821,65 +768,56 @@ BOOL FillLanguageListBox(IN HWND hDlg)
 
 void AddLanguage(IN HWND hDlg)
 {
-    int i, j, *pItems, iNumItems, iIndex;
+    int i, j, * pItems, iNumItems, iIndex;
     TCHAR sz[MAX_LIST_STRING_LEN];
     HWND hdlgParent = GetParent(hDlg);
     HWND hwndFrom = GetDlgItem(hDlg, IDC_LANG_AVAILABLE_LIST);
     HWND hwndTo = GetDlgItem(hdlgParent, IDC_LANG_ACCEPT_LIST);
 
     i = ListBox_GetSelCount(hwndFrom);
-    if (0 < i && (pItems = (PINT)LocalAlloc(LPTR, sizeof(int)*i)))
-    {
+    if (0 < i && (pItems = (PINT)LocalAlloc(LPTR, sizeof(int) * i))) {
         ListBox_GetSelItems(hwndFrom, i, pItems);
-        for (j = 0; j < i; j++)
-        {
+        for (j = 0; j < i; j++) {
             ListBox_GetText(hwndFrom, pItems[j], sz);
             ListBox_AddString(hwndTo, sz);
         }
         LocalFree(pItems);
     }
-    if (GetWindowTextLength(GetDlgItem(hDlg, IDC_LANG_USER_DEFINED_EDIT)))
-    {
-        TCHAR *p, sz1[MAX_LIST_STRING_LEN], sz2[MAX_LIST_STRING_LEN];
+    if (GetWindowTextLength(GetDlgItem(hDlg, IDC_LANG_USER_DEFINED_EDIT))) {
+        TCHAR* p, sz1[MAX_LIST_STRING_LEN], sz2[MAX_LIST_STRING_LEN];
         BOOL fValid = TRUE;
 
         GetWindowText(GetDlgItem(hDlg, IDC_LANG_USER_DEFINED_EDIT), sz2, ARRAYSIZE(sz2));
         p = sz2;
-        while (NULL != *p && TRUE == fValid)
-        {
-            switch (*p)
-            {
+        while (NULL != *p && TRUE == fValid) {
+            switch (*p) {
                 // Invalid characters for user-defined string
-                case TEXT(','):
-                case TEXT(';'):
-                case TEXT('['):
-                case TEXT(']'):
-                case TEXT('='):
-                    fValid = FALSE;
-                    break;
+            case TEXT(','):
+            case TEXT(';'):
+            case TEXT('['):
+            case TEXT(']'):
+            case TEXT('='):
+                fValid = FALSE;
+                break;
 
-                default:
-                    p = CharNext(p);
+            default:
+                p = CharNext(p);
             }
         }
-        if (FALSE == fValid)
-        {
+        if (FALSE == fValid) {
             TCHAR szTitle[256], szErr[1024];
 
             MLLoadShellLangString(IDS_USER_DEFINED_ERR, szErr, ARRAYSIZE(szErr));
             GetWindowText(hDlg, szTitle, ARRAYSIZE(szTitle));
             MessageBox(hDlg, szErr, szTitle, MB_OK | MB_ICONHAND);
-        }
-        else
-        {
+        } else {
             MLLoadString(IDS_USER_DEFINED, sz1, ARRAYSIZE(sz1));
             wnsprintf(sz, ARRAYSIZE(sz), FORMAT_STR, sz1, sz2);
             ListBox_AddString(hwndTo, sz);
         }
     }
     iIndex = ListBox_GetCurSel(hwndTo);
-    if (LB_ERR != iIndex)
-    {
+    if (LB_ERR != iIndex) {
         iNumItems = ListBox_GetCount(hwndTo);
         EnableWindow(GetDlgItem(hdlgParent, IDC_LANG_REMOVE_BUTTON), iNumItems > 0);
         EnableWindow(GetDlgItem(hdlgParent, IDC_LANG_MOVE_UP_BUTTON), iIndex > 0);
@@ -902,16 +840,14 @@ int ComboBoxEx_AddString(IN HWND hwndCtl, IN LPCTSTR sz)
     // the list is up to 25 item
     TCHAR szItem[MAX_LOCALE_NAME];
     int i, itemCount = ComboBox_GetCount(hwndCtl);
-    for (i = 0; i < itemCount; i++)
-    {
+    for (i = 0; i < itemCount; i++) {
         ComboBox_GetLBText(hwndCtl, i, szItem);
         if (CompareString(MLGetUILanguage(),
                           0,
                           sz,
                           csz,
                           szItem,
-                          ARRAYSIZE(szItem)) == CSTR_LESS_THAN)
-        {
+                          ARRAYSIZE(szItem)) == CSTR_LESS_THAN) {
             break;
         }
     }
@@ -925,7 +861,7 @@ int ComboBoxEx_AddString(IN HWND hwndCtl, IN LPCTSTR sz)
 #define CP_ARABIC   1256
 #define CP_HEBREW   1255
 
-BOOL FillUILangListBox(IN HWND hDlg, CUILangList *pLangList)
+BOOL FillUILangListBox(IN HWND hDlg, CUILangList* pLangList)
 {
     HWND hwndCombo = GetDlgItem(hDlg, IDC_COMBO_UILANG);
     BOOL bNT5 = IsOS(OS_NT5);
@@ -936,35 +872,29 @@ BOOL FillUILangListBox(IN HWND hDlg, CUILangList *pLangList)
         return FALSE;
 
     // fill the list up.
-    for (int i = 0; i < pLangList->GetListSize(); i++)
-    {
+    for (int i = 0; i < pLangList->GetListSize(); i++) {
         if (!pLangList->IsValidLang(i))
             continue;
 
-        if (!bNT5)
-        {
+        if (!bNT5) {
             LANGID lid = pLangList->GetLangIdOfIdx(i);
 
-            if (dwAcp == CP_THAI || dwAcp == CP_ARABIC || dwAcp == CP_HEBREW)
-            {
+            if (dwAcp == CP_THAI || dwAcp == CP_ARABIC || dwAcp == CP_HEBREW) {
                 // do not support cross codepage PlugUI
                 // on Thai or Middle East platform(Arabic/Hebrew)
                 static DWORD dwDefCP = 0;
 
-                if (dwDefCP == 0)
-                {
-                    TCHAR szLcData[6+1]; // +2 for '0x' +1 for terminator
+                if (dwDefCP == 0) {
+                    TCHAR szLcData[6 + 1]; // +2 for '0x' +1 for terminator
 
-                    GetLocaleInfo( MAKELCID(lid, SUBLANG_NEUTRAL),
-                        LOCALE_IDEFAULTANSICODEPAGE, szLcData, ARRAYSIZE(szLcData));
+                    GetLocaleInfo(MAKELCID(lid, SUBLANG_NEUTRAL),
+                                  LOCALE_IDEFAULTANSICODEPAGE, szLcData, ARRAYSIZE(szLcData));
 
                     dwDefCP = StrToInt(szLcData);
                 }
                 if (dwDefCP != dwAcp && lid != 0x0409 && lid != GetInstallLanguage())
                     continue;
-            }
-            else
-            {
+            } else {
                 // skip Arabic and Hebrew on non-supporting platform
                 if (lid == 0x401 || lid == 0x40d)
                     continue;
@@ -974,11 +904,9 @@ BOOL FillUILangListBox(IN HWND hDlg, CUILangList *pLangList)
         pszLangName = pLangList->GetLangNameOfIdx(i);
 
         // BUGBUG: ComboBox_FindStringExact has problems to handle DBCS Unicode characters
-        if (pszLangName /*&& CB_ERR == ComboBox_FindStringExact(hwndCombo, -1, pszLangName)*/)
-        {
+        if (pszLangName /*&& CB_ERR == ComboBox_FindStringExact(hwndCombo, -1, pszLangName)*/) {
             int ipos = ComboBoxEx_AddString(hwndCombo, pszLangName);
-            if (ipos >= 0)
-            {
+            if (ipos >= 0) {
                 ComboBox_SetItemData(hwndCombo, ipos, i);
             }
         }
@@ -986,8 +914,7 @@ BOOL FillUILangListBox(IN HWND hDlg, CUILangList *pLangList)
 
     // show the current selection
     pszLangName = pLangList->GetCurrentLangName();
-    if (pszLangName)
-    {
+    if (pszLangName) {
         int iPosCurSel = ComboBox_FindStringExact(hwndCombo, -1, pszLangName);
         if (iPosCurSel >= 0)
             ComboBox_SetCurSel(hwndCombo, iPosCurSel);
@@ -1044,14 +971,12 @@ CShutDownProcInfo::~CShutDownProcInfo()
 HRESULT CShutDownProcInfo::EnsureProcList()
 {
     HRESULT hr = S_OK;
-    if (!_pProcList)
-    {
+    if (!_pProcList) {
         // alloc mem for practical # of processes
         _nAlloced = ARRAYSIZE(s_arryClsNames);
-        _pProcList = (PROCLIST *)LocalAlloc(LPTR, sizeof(PROCLIST)*_nAlloced);
+        _pProcList = (PROCLIST*)LocalAlloc(LPTR, sizeof(PROCLIST) * _nAlloced);
     }
-    if (!_pProcList)
-    {
+    if (!_pProcList) {
         _nAlloced = 0;
         hr = E_FAIL;
     }
@@ -1061,19 +986,16 @@ HRESULT CShutDownProcInfo::EnsureProcList()
 HRESULT CShutDownProcInfo::IncreaseProcList()
 {
     HRESULT hr = S_OK;
-    PROCLIST * pl = NULL;
+    PROCLIST* pl = NULL;
     // realloc mem every so often
-    if (_iProcList+1 > _nAlloced)
-    {
-        pl = (PROCLIST *)LocalReAlloc(_pProcList, sizeof(PROCLIST)*(ARRAYSIZE(s_arryClsNames)+_nAlloced),
-                                      LMEM_MOVEABLE | LMEM_ZEROINIT);
-        if (pl)
-        {
+    if (_iProcList + 1 > _nAlloced) {
+        pl = (PROCLIST*)LocalReAlloc(_pProcList, sizeof(PROCLIST) * (ARRAYSIZE(s_arryClsNames) + _nAlloced),
+                                     LMEM_MOVEABLE | LMEM_ZEROINIT);
+        if (pl) {
             _nAlloced += ARRAYSIZE(s_arryClsNames);
-            _pProcList =  pl;
-        }
-        else
-           hr = E_FAIL;
+            _pProcList = pl;
+        } else
+            hr = E_FAIL;
     }
 
     if (hr == S_OK)
@@ -1093,34 +1015,29 @@ HRESULT CShutDownProcInfo::AddToProcList(HWND hwnd)
     HRESULT hr = S_OK;
 
     hr = EnsureProcList();
-    if (SUCCEEDED(hr) && hwnd)
-    {
+    if (SUCCEEDED(hr) && hwnd) {
         DWORD dwPID;
         BOOL  fFoundDup = FALSE;
 
         GetWindowThreadProcessId(hwnd, &dwPID);
 
         // check to see if we already have the PID in the list
-        for (int i=0; i < _iProcList; i++)
-        {
-            if (_pProcList[i].dwPID == dwPID)
-            {
+        for (int i = 0; i < _iProcList; i++) {
+            if (_pProcList[i].dwPID == dwPID) {
                 fFoundDup = TRUE;
                 break;
             }
         }
 
         // add proccess info only if we don't have it already
-        if (!fFoundDup)
-        {
+        if (!fFoundDup) {
             hr = IncreaseProcList();
-            if (SUCCEEDED(hr))
-            {
-                int iCur = _iProcList-1;
+            if (SUCCEEDED(hr)) {
+                int iCur = _iProcList - 1;
 
                 GetExeNameFromPID(dwPID,
-                    _pProcList[iCur].szExeName,
-                    ARRAYSIZE(_pProcList[iCur].szExeName));
+                                  _pProcList[iCur].szExeName,
+                                  ARRAYSIZE(_pProcList[iCur].szExeName));
 
                 _pProcList[iCur].dwPID = dwPID;
                 _pProcList[iCur].State = PS_UNKNOWN;
@@ -1139,10 +1056,9 @@ HRESULT CShutDownProcInfo::AddToProcList(HWND hwnd)
 HRESULT CShutDownProcInfo::WaitForOneProcess(int iProc)
 {
     HRESULT hr = S_OK;
-    if (iProc < _iProcList && _pProcList[iProc].State != PS_SHUTDOWN_OK)
-    {
+    if (iProc < _iProcList && _pProcList[iProc].State != PS_SHUTDOWN_OK) {
         DWORD dwProcessFlags = PROCESS_ALL_ACCESS |
-                               (_fNT ? SYNCHRONIZE : 0 );
+            (_fNT ? SYNCHRONIZE : 0);
 
         HANDLE hProc = OpenProcess(dwProcessFlags,
                                    FALSE,
@@ -1151,14 +1067,12 @@ HRESULT CShutDownProcInfo::WaitForOneProcess(int iProc)
         // pressume it has terminated, get it marked so
         _pProcList[iProc].State = PS_SHUTDOWN_OK;
 
-        if (hProc)
-        {
+        if (hProc) {
             // if the proccess in query is still alive,
             // we'll wait with time out here
 
-            DWORD dwRet = WaitForSingleObject (hProc, SHUTDOWN_TIMEOUT);
-            if (dwRet == WAIT_TIMEOUT)
-            {
+            DWORD dwRet = WaitForSingleObject(hProc, SHUTDOWN_TIMEOUT);
+            if (dwRet == WAIT_TIMEOUT) {
                 _pProcList[iProc].State = PS_WAITING;
             }
 
@@ -1180,19 +1094,16 @@ HRESULT CShutDownProcInfo::WaitForFolksShutDown()
 {
     HRESULT hr = S_OK;
     int    iTry = 0;
-    do
-    {
+    do {
         // pressume all will be fine
         _fAllShutDown = TRUE;
         // waiting loop
-        for (int i = 0; i < _iProcList; i++)
-        {
+        for (int i = 0; i < _iProcList; i++) {
             WaitForOneProcess(i);
             if (_pProcList[i].State != PS_SHUTDOWN_OK)
                 _fAllShutDown = FALSE;
         }
-    }
-    while( !_fAllShutDown && iTry++ < MAXSHUTDOWNTRY  );
+    } while (!_fAllShutDown && iTry++ < MAXSHUTDOWNTRY);
     // BUGBUG: here we should put up a dialog
     //         to ask user if they want to wait
     //         for the apps
@@ -1206,31 +1117,26 @@ HRESULT CShutDownProcInfo::WaitForFolksShutDown()
 //           if a candidate replies with valid value, save the proccess
 //           information for the later restart procedure.
 
-HRESULT CShutDownProcInfo::NotifyShutDownToFolks(int *pnProcess)
+HRESULT CShutDownProcInfo::NotifyShutDownToFolks(int* pnProcess)
 {
     HWND hwndShutDown, hwndAfter;
     PLUGUI_QUERY pq;
     HRESULT hr = S_OK;
     int     nProcToShutDown = 0;
 
-    for (int i = 0; i < ARRAYSIZE(s_arryClsNames); i++)
-    {
+    for (int i = 0; i < ARRAYSIZE(s_arryClsNames); i++) {
         hwndAfter = NULL;
-        while (hwndShutDown = FindWindowEx(NULL, hwndAfter, s_arryClsNames[i], NULL))
-        {
+        while (hwndShutDown = FindWindowEx(NULL, hwndAfter, s_arryClsNames[i], NULL)) {
             pq.uQueryVal = (UINT)SendMessage(hwndShutDown, PUI_OFFICE_COMMAND, PLUGUI_CMD_QUERY, 0);
-            if (pq.uQueryVal)
-            {
-                if(pq.PlugUIInfo.uMajorVersion == OFFICE_VERSION_9)
-                {
+            if (pq.uQueryVal) {
+                if (pq.PlugUIInfo.uMajorVersion == OFFICE_VERSION_9) {
                     PostMessage(hwndShutDown, PUI_OFFICE_COMMAND, (WPARAM)PLUGUI_CMD_SHUTDOWN, 0);
 
                     // store the information about the process which this window belongs to
                     // we only need to remember non OLE processes here for re-starting.
-                    if (!pq.PlugUIInfo.uOleServer)
-                    {
+                    if (!pq.PlugUIInfo.uOleServer) {
                         AddToProcList(hwndShutDown);
-                        nProcToShutDown ++;
+                        nProcToShutDown++;
                     }
                 }
             }
@@ -1255,18 +1161,15 @@ HRESULT CShutDownProcInfo::GetRestartAppPath(LPTSTR szPath, int cchPath, int iPr
 
     ASSERT(szPath && cchPath > 0);
 
-    if (iProc < _iProcList)
-    {
+    if (iProc < _iProcList) {
         _tcscpy(szRegKey, c_szRegAppPaths);
         _tcscat(szRegKey, _pProcList[iProc].szExeName);
 
         DWORD cb = sizeof(szAppPath);
-        if (ERROR_SUCCESS != SHGetValue(HKEY_LOCAL_MACHINE, szRegKey, NULL, NULL, szAppPath, &cb))
-        {
+        if (ERROR_SUCCESS != SHGetValue(HKEY_LOCAL_MACHINE, szRegKey, NULL, NULL, szAppPath, &cb)) {
             szPath[0] = TEXT('0');
             hr = E_FAIL;
-        }
-        else
+        } else
             _tcsncpy(szPath, szAppPath, cchPath);
     }
     return hr;
@@ -1277,35 +1180,31 @@ HRESULT CShutDownProcInfo::RestartFolks()
     HRESULT hr = S_OK;
     PROCESS_INFORMATION pi;
 
-    for (int i = 0; i < _iProcList; i++)
-    {
+    for (int i = 0; i < _iProcList; i++) {
 
         STARTUPINFO si = {0};
 
         si.cb = sizeof(si);
-        if (_pProcList[i].State == PS_SHUTDOWN_OK)
-        {
+        if (_pProcList[i].State == PS_SHUTDOWN_OK) {
             TCHAR szAppPath[MAX_PATH];
             HRESULT hr = GetRestartAppPath(szAppPath, ARRAYSIZE(szAppPath), i);
 
-            if (hr == S_OK)
-            {
+            if (hr == S_OK) {
                 BOOL fLaunchedOK =
-                CreateProcess (szAppPath,               // name of app to launch
-                                NULL,                   // lpCmdLine
-                                NULL,                   // lpProcessAttributes
-                                NULL,                   // lpThreadAttributes
-                                TRUE,                   // bInheritHandles
-                                NORMAL_PRIORITY_CLASS,  // dwCreationFlags
-                                NULL,                   // lpEnvironment
-                                NULL,                   // lpCurrentDirectory
-                                &si,                    // lpStartupInfo
-                                &pi);                   // lpProcessInformation
+                    CreateProcess(szAppPath,               // name of app to launch
+                                  NULL,                   // lpCmdLine
+                                  NULL,                   // lpProcessAttributes
+                                  NULL,                   // lpThreadAttributes
+                                  TRUE,                   // bInheritHandles
+                                  NORMAL_PRIORITY_CLASS,  // dwCreationFlags
+                                  NULL,                   // lpEnvironment
+                                  NULL,                   // lpCurrentDirectory
+                                  &si,                    // lpStartupInfo
+                                  &pi);                   // lpProcessInformation
 
-                if (fLaunchedOK)
-                {
-                    DWORD dwRet = WaitForInputIdle (pi.hProcess,
-                                                    RELAUNCH_TIMEOUT);
+                if (fLaunchedOK) {
+                    DWORD dwRet = WaitForInputIdle(pi.hProcess,
+                                                   RELAUNCH_TIMEOUT);
                     CloseHandle(pi.hProcess);
                     CloseHandle(pi.hThread);
                 }
@@ -1326,30 +1225,28 @@ HRESULT CShutDownProcInfo::RestartFolks()
 //             so we should be able to delete the class instance
 //             in this proc.
 
-DWORD CALLBACK CShutDownProcInfo::ShutDownThreadProc(void *pv)
+DWORD CALLBACK CShutDownProcInfo::ShutDownThreadProc(void* pv)
 {
-    CShutDownProcInfo *pspi = (CShutDownProcInfo *)pv;
+    CShutDownProcInfo* pspi = (CShutDownProcInfo*)pv;
 
-    if (pspi)
-    {
+    if (pspi) {
         HRESULT hr;
         int     nToShutDown;
         // send PUI_OFFICE_COMMAND to corresponding folks...
         hr = pspi->NotifyShutDownToFolks(&nToShutDown);
 
         // and wait until all processes shutdown
-        if (SUCCEEDED(hr) && nToShutDown > 0)
-        {
+        if (SUCCEEDED(hr) && nToShutDown > 0) {
             hr = pspi->WaitForFolksShutDown();
 
             // then restart here
             if (SUCCEEDED(hr))
-               pspi->RestartFolks();
+                pspi->RestartFolks();
         }
 
         // now the parent dialog should go away
         int iret = (nToShutDown > 0) ?
-                   RETURN_SETLANG_ENDLANGDIALOG: RETURN_SETLANG_CLOSEDNORMAL;
+            RETURN_SETLANG_ENDLANGDIALOG : RETURN_SETLANG_CLOSEDNORMAL;
 
         EndDialog(pspi->_hdlgParent, iret);
 
@@ -1367,26 +1264,22 @@ void OpenSatelliteDownloadUrl(HWND hDlg)
     // reg api needs size in byte
     DWORD dwType, dwcbData = sizeof(szSatelliteUrl);
 
-    DWORD dwRet =  SHGetValue(HKEY_LOCAL_MACHINE, REGSTR_PATH_INTERNATIONAL,
-                             NULL, &dwType, (void *)szSatelliteUrl, &dwcbData);
-    if (dwRet != ERROR_SUCCESS || !szSatelliteUrl[0])
-    {
-       // use the hard coded Url instead
-       _tcscpy(szSatelliteUrl, s_szUrlSPK);
+    DWORD dwRet = SHGetValue(HKEY_LOCAL_MACHINE, REGSTR_PATH_INTERNATIONAL,
+                             NULL, &dwType, (void*)szSatelliteUrl, &dwcbData);
+    if (dwRet != ERROR_SUCCESS || !szSatelliteUrl[0]) {
+        // use the hard coded Url instead
+        _tcscpy(szSatelliteUrl, s_szUrlSPK);
     }
 
-    if(!hOLE32)
-    {
-        if(!_StartOLE32())
-        {
+    if (!hOLE32) {
+        if (!_StartOLE32()) {
             ASSERT(FALSE);
             return;
         }
     }
 
     HRESULT hr = pCoInitialize(NULL);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         NavToUrlUsingIE(szSatelliteUrl, TRUE);
         pCoUninitialize();
     }
@@ -1394,36 +1287,34 @@ void OpenSatelliteDownloadUrl(HWND hDlg)
 
 INT_PTR CALLBACK LangMsgDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg)
+    switch (uMsg) {
+    case WM_COMMAND:
     {
-        case WM_COMMAND:
-        {
-            switch (GET_WM_COMMAND_ID(wParam, lParam))
-            {
-                case IDYES:
-                case IDNO:
-                case IDOK:
-                case IDCANCEL:
-                    EndDialog(hDlg, GET_WM_COMMAND_ID(wParam, lParam));
-                    break;
-            }
-            return TRUE;
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
+        case IDYES:
+        case IDNO:
+        case IDOK:
+        case IDCANCEL:
+            EndDialog(hDlg, GET_WM_COMMAND_ID(wParam, lParam));
+            break;
         }
+        return TRUE;
+    }
 
-        case WM_HELP:           // F1
-            ResWinHelp( (HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
-                HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
-            break;
+    case WM_HELP:           // F1
+        ResWinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
+                   HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        break;
 
-        case WM_CONTEXTMENU:    // right mouse click
-            ResWinHelp( (HWND) wParam, IDS_HELPFILE,
-                HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
-            break;
+    case WM_CONTEXTMENU:    // right mouse click
+        ResWinHelp((HWND)wParam, IDS_HELPFILE,
+                   HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        break;
     }
     return FALSE;
 }
 
-BOOL ChangeLanguage(IN HWND hDlg, CUILangList *pLangList)
+BOOL ChangeLanguage(IN HWND hDlg, CUILangList* pLangList)
 {
     HWND hwndCombo = GetDlgItem(hDlg, IDC_COMBO_UILANG);
     int iSel = ComboBox_GetCurSel(hwndCombo);
@@ -1433,30 +1324,24 @@ BOOL ChangeLanguage(IN HWND hDlg, CUILangList *pLangList)
     if (iSel != CB_ERR)
         idxSel = ComboBox_GetItemData(hwndCombo, iSel);
 
-    if ( idxSel != CB_ERR
-        && idxSel < pLangList->GetListSize())
-    {
+    if (idxSel != CB_ERR
+        && idxSel < pLangList->GetListSize()) {
         idxCur = pLangList->GetCurrentLangIdx();
 
-        if (idxCur != idxSel)
-        {
+        if (idxCur != idxSel) {
             INT_PTR iRet = DialogBox(MLGetHinst(), MAKEINTRESOURCE(IDD_LANG_WARNING), hDlg, LangMsgDlgProc);
 
-            if (IDCANCEL != iRet)
-            {
+            if (IDCANCEL != iRet) {
                 pLangList->SetCurrentLangIdx((int)idxSel);
 
-                if (IDYES == iRet)
-                {
-                    CShutDownProcInfo  *pspi = new CShutDownProcInfo(hDlg);
-                    if (!SHCreateThread(pspi->ShutDownThreadProc, (void *)pspi, 0, NULL))
+                if (IDYES == iRet) {
+                    CShutDownProcInfo* pspi = new CShutDownProcInfo(hDlg);
+                    if (!SHCreateThread(pspi->ShutDownThreadProc, (void*)pspi, 0, NULL))
                         delete pspi;
 
                     // returning TRUE to indicate that we do shutdown/restart
                     return TRUE;
-                }
-                else
-                {
+                } else {
                     DialogBox(MLGetHinst(), MAKEINTRESOURCE(IDD_LANG_INFO), hDlg, LangMsgDlgProc);
                 }
             }
@@ -1473,52 +1358,50 @@ BOOL ChangeLanguage(IN HWND hDlg, CUILangList *pLangList)
 
 INT_PTR CALLBACK LangChangeDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CUILangList *pLangList;
-    switch (uMsg)
-    {
-        case WM_INITDIALOG:
-            CUILangList::GetLangList(GetParent(hDlg), &pLangList);
-            return FillUILangListBox(hDlg, pLangList);
+    CUILangList* pLangList;
+    switch (uMsg) {
+    case WM_INITDIALOG:
+        CUILangList::GetLangList(GetParent(hDlg), &pLangList);
+        return FillUILangListBox(hDlg, pLangList);
 
-        case WM_DESTROY:
+    case WM_DESTROY:
+        break;
+
+    case WM_COMMAND:
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
+        case IDC_LANG_ADDSPK:
+            // open url from resource
+            OpenSatelliteDownloadUrl(hDlg);
+            EndDialog(hDlg, RETURN_SETLANG_ENDLANGDIALOG);
+            break;
+        case IDOK:
+            if (!SUCCEEDED(CUILangList::GetLangList(GetParent(hDlg), &pLangList))
+                || !ChangeLanguage(hDlg, pLangList))
+                EndDialog(hDlg, 0);
+
+            // EndDialog() is called in separate thread
+            // when shutdown/restart is done
+
             break;
 
-        case WM_COMMAND:
-            switch(GET_WM_COMMAND_ID(wParam, lParam))
-            {
-                case IDC_LANG_ADDSPK:
-                    // open url from resource
-                    OpenSatelliteDownloadUrl(hDlg);
-                    EndDialog(hDlg, RETURN_SETLANG_ENDLANGDIALOG);
-                    break;
-                case IDOK:
-                    if(!SUCCEEDED(CUILangList::GetLangList(GetParent(hDlg), &pLangList))
-                      || !ChangeLanguage(hDlg, pLangList))
-                      EndDialog(hDlg, 0);
-
-                    // EndDialog() is called in separate thread
-                    // when shutdown/restart is done
-
-                    break;
-
-                case IDCANCEL:
-                    EndDialog(hDlg, 0);
-                    break;
-            }
+        case IDCANCEL:
+            EndDialog(hDlg, 0);
             break;
+        }
+        break;
 
-        case WM_HELP:           // F1
-            ResWinHelp( (HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
-                HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
-            break;
+    case WM_HELP:           // F1
+        ResWinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
+                   HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        break;
 
-        case WM_CONTEXTMENU:    // right mouse click
-            ResWinHelp( (HWND) wParam, IDS_HELPFILE,
-                HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
-            break;
+    case WM_CONTEXTMENU:    // right mouse click
+        ResWinHelp((HWND)wParam, IDS_HELPFILE,
+                   HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        break;
 
-        default:
-            return FALSE;
+    default:
+        return FALSE;
     }
     return TRUE;
 }
@@ -1530,40 +1413,38 @@ INT_PTR CALLBACK LangChangeDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM l
 
 INT_PTR CALLBACK LangAddDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg)
-    {
-        case WM_INITDIALOG:
-            return FillLanguageListBox(hDlg);
+    switch (uMsg) {
+    case WM_INITDIALOG:
+        return FillLanguageListBox(hDlg);
 
-        case WM_DESTROY:
+    case WM_DESTROY:
+        break;
+
+    case WM_COMMAND:
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
+        case IDOK:
+            AddLanguage(hDlg);
+            EndDialog(hDlg, 0);
             break;
 
-        case WM_COMMAND:
-            switch(GET_WM_COMMAND_ID(wParam, lParam))
-            {
-                case IDOK:
-                    AddLanguage(hDlg);
-                    EndDialog(hDlg, 0);
-                    break;
-
-                case IDCANCEL:
-                    EndDialog(hDlg, 0);
-                    break;
-            }
+        case IDCANCEL:
+            EndDialog(hDlg, 0);
             break;
+        }
+        break;
 
-        case WM_HELP:           // F1
-            ResWinHelp( (HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
-                HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
-            break;
+    case WM_HELP:           // F1
+        ResWinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
+                   HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        break;
 
-        case WM_CONTEXTMENU:    // right mouse click
-            ResWinHelp( (HWND) wParam, IDS_HELPFILE,
-                HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
-            break;
+    case WM_CONTEXTMENU:    // right mouse click
+        ResWinHelp((HWND)wParam, IDS_HELPFILE,
+                   HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        break;
 
-        default:
-            return FALSE;
+    default:
+        return FALSE;
     }
     return TRUE;
 }
@@ -1582,100 +1463,94 @@ void LangDlgCleanup(HWND hDlg)
 
 INT_PTR CALLBACK LanguageDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CUILangList *pLangList;
-    switch (uMsg)
-    {
-        case WM_INITDIALOG:
-            return LanguageDlgInit(hDlg);
+    CUILangList* pLangList;
+    switch (uMsg) {
+    case WM_INITDIALOG:
+        return LanguageDlgInit(hDlg);
 
-        case WM_DESTROY:
-            LangDlgCleanup(hDlg);
+    case WM_DESTROY:
+        LangDlgCleanup(hDlg);
+        break;
+
+    case WM_COMMAND:
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
+            HWND hwndList;
+            int iIndex, iNumItems;
+            INT_PTR iret;
+
+        case IDOK:
+            SaveLanguageData(hDlg);
+            EndDialog(hDlg, 0);
             break;
 
-        case WM_COMMAND:
-            switch(GET_WM_COMMAND_ID(wParam, lParam))
-            {
-                HWND hwndList;
-                int iIndex, iNumItems;
-                INT_PTR iret;
+        case IDCANCEL:
+            EndDialog(hDlg, 0);
+            break;
 
-                case IDOK:
-                    SaveLanguageData(hDlg);
-                    EndDialog(hDlg, 0);
-                    break;
+        case IDC_LANG_ADD_BUTTON:
+            DialogBox(MLGetHinst(), MAKEINTRESOURCE(IDD_LANG_ADD), hDlg, LangAddDlgProc);
+            break;
 
-                case IDCANCEL:
-                    EndDialog(hDlg, 0);
-                    break;
-
-                case IDC_LANG_ADD_BUTTON:
-                    DialogBox(MLGetHinst(), MAKEINTRESOURCE(IDD_LANG_ADD), hDlg, LangAddDlgProc);
-                    break;
-
-                case IDC_LANG_UI_PREF:
-                    CUILangList::GetLangList(hDlg, &pLangList);
-                    iret = KickSetLang(hDlg, pLangList);
-                    if (iret == RETURN_SETLANG_ENDLANGDIALOG)
-                    {
-                        // we're outa job
-                        EndDialog(hDlg, 0);
-                    }
-                    else
-                    {
-                        InitCurrentUILang(hDlg);
-                    }
-                    break;
-
-                case IDC_LANG_REMOVE_BUTTON:
-                    hwndList = GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST);
-                    iIndex = ListBox_GetCurSel(hwndList);
-                    ListBox_DeleteString(hwndList, iIndex);
-                    iNumItems = ListBox_GetCount(hwndList);
-                    if (iNumItems == iIndex)
-                        iIndex--;
-                    ListBox_SetCurSel(hwndList, iIndex);
-                    EnableWindow(GetDlgItem(hDlg, IDC_LANG_REMOVE_BUTTON), (iNumItems > 0) && !g_restrict.fInternational);
-                    EnableWindow(GetDlgItem(hDlg, IDC_LANG_MOVE_UP_BUTTON), (iIndex > 0) && !g_restrict.fInternational);
-                    EnableWindow(GetDlgItem(hDlg, IDC_LANG_MOVE_DOWN_BUTTON), (iIndex < iNumItems - 1) && !g_restrict.fInternational);
-
-                    if (NULL == GetFocus()) // This prevent keyboard access disable
-                        SetFocus(hwndList);
-                    break;
-
-                case IDC_LANG_ACCEPT_LIST:
-                    hwndList = GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST);
-                    iIndex = ListBox_GetCurSel(hwndList);
-                    if (0 <= iIndex)
-                    {
-                        iNumItems = ListBox_GetCount(hwndList);
-                        EnableWindow(GetDlgItem(hDlg, IDC_LANG_REMOVE_BUTTON), (iNumItems > 0) && !g_restrict.fInternational);
-                        EnableWindow(GetDlgItem(hDlg, IDC_LANG_MOVE_UP_BUTTON), (iIndex > 0) && !g_restrict.fInternational);
-                        EnableWindow(GetDlgItem(hDlg, IDC_LANG_MOVE_DOWN_BUTTON), (iIndex < iNumItems - 1) && !g_restrict.fInternational);
-                    }
-                    break;
-
-                case IDC_LANG_MOVE_UP_BUTTON:
-                    MoveUpDownListItem(hDlg, GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST), TRUE);
-                    break;
-
-                case IDC_LANG_MOVE_DOWN_BUTTON:
-                    MoveUpDownListItem(hDlg, GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST), FALSE);
-                    break;
+        case IDC_LANG_UI_PREF:
+            CUILangList::GetLangList(hDlg, &pLangList);
+            iret = KickSetLang(hDlg, pLangList);
+            if (iret == RETURN_SETLANG_ENDLANGDIALOG) {
+                // we're outa job
+                EndDialog(hDlg, 0);
+            } else {
+                InitCurrentUILang(hDlg);
             }
             break;
 
-        case WM_HELP:           // F1
-            ResWinHelp( (HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
-                HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        case IDC_LANG_REMOVE_BUTTON:
+            hwndList = GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST);
+            iIndex = ListBox_GetCurSel(hwndList);
+            ListBox_DeleteString(hwndList, iIndex);
+            iNumItems = ListBox_GetCount(hwndList);
+            if (iNumItems == iIndex)
+                iIndex--;
+            ListBox_SetCurSel(hwndList, iIndex);
+            EnableWindow(GetDlgItem(hDlg, IDC_LANG_REMOVE_BUTTON), (iNumItems > 0) && !g_restrict.fInternational);
+            EnableWindow(GetDlgItem(hDlg, IDC_LANG_MOVE_UP_BUTTON), (iIndex > 0) && !g_restrict.fInternational);
+            EnableWindow(GetDlgItem(hDlg, IDC_LANG_MOVE_DOWN_BUTTON), (iIndex < iNumItems - 1) && !g_restrict.fInternational);
+
+            if (NULL == GetFocus()) // This prevent keyboard access disable
+                SetFocus(hwndList);
             break;
 
-        case WM_CONTEXTMENU:    // right mouse click
-            ResWinHelp( (HWND) wParam, IDS_HELPFILE,
-                HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        case IDC_LANG_ACCEPT_LIST:
+            hwndList = GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST);
+            iIndex = ListBox_GetCurSel(hwndList);
+            if (0 <= iIndex) {
+                iNumItems = ListBox_GetCount(hwndList);
+                EnableWindow(GetDlgItem(hDlg, IDC_LANG_REMOVE_BUTTON), (iNumItems > 0) && !g_restrict.fInternational);
+                EnableWindow(GetDlgItem(hDlg, IDC_LANG_MOVE_UP_BUTTON), (iIndex > 0) && !g_restrict.fInternational);
+                EnableWindow(GetDlgItem(hDlg, IDC_LANG_MOVE_DOWN_BUTTON), (iIndex < iNumItems - 1) && !g_restrict.fInternational);
+            }
             break;
 
-        default:
-            return FALSE;
+        case IDC_LANG_MOVE_UP_BUTTON:
+            MoveUpDownListItem(hDlg, GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST), TRUE);
+            break;
+
+        case IDC_LANG_MOVE_DOWN_BUTTON:
+            MoveUpDownListItem(hDlg, GetDlgItem(hDlg, IDC_LANG_ACCEPT_LIST), FALSE);
+            break;
+        }
+        break;
+
+    case WM_HELP:           // F1
+        ResWinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
+                   HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        break;
+
+    case WM_CONTEXTMENU:    // right mouse click
+        ResWinHelp((HWND)wParam, IDS_HELPFILE,
+                   HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        break;
+
+    default:
+        return FALSE;
     }
     return TRUE;
 }
@@ -1703,13 +1578,11 @@ void KickLanguageDialog(HWND hDlg)
     BOOL fLaunchedOnBrowser = FALSE;
 
     // this tells me whether we got invoked from Tools->Internet Options...
-    if (g_szCurrentURL[0])
-    {
+    if (g_szCurrentURL[0]) {
         fLaunchedOnBrowser = TRUE;
     }
 
-    if (fLaunchedOnBrowser)
-    {
+    if (fLaunchedOnBrowser) {
         TCHAR szCommandLine[MAX_PATH];
         TCHAR szTitle[MAX_PATH];
 
@@ -1718,8 +1591,7 @@ void KickLanguageDialog(HWND hDlg)
         StrCpy(szCommandLine, s_szRunDll32);
         StrCat(szCommandLine, s_szKickLangDialog);
 
-        if (GetWindowText(hwndParent, szTitle, ARRAYSIZE(szTitle)) > 0)
-        {
+        if (GetWindowText(hwndParent, szTitle, ARRAYSIZE(szTitle)) > 0) {
             StrCat(szCommandLine, TEXT(" "));
             StrCat(szCommandLine, szTitle);
         }
@@ -1730,24 +1602,22 @@ void KickLanguageDialog(HWND hDlg)
 
         si.cb = sizeof(si);
         BOOL fLaunchedOK =
-        CreateProcess (szCommandLine,          // name of app to launch
-                       NULL,                   // lpCmdLine
-                       NULL,                   // lpProcessAttributes
-                       NULL,                   // lpThreadAttributes
-                       TRUE,                   // bInheritHandles
-                       NORMAL_PRIORITY_CLASS,  // dwCreationFlags
-                       NULL,                   // lpEnvironment
-                       NULL,                   // lpCurrentDirectory
-                       &si,                    // lpStartupInfo
-                       &pi);                   // lpProcessInformation
+            CreateProcess(szCommandLine,          // name of app to launch
+                          NULL,                   // lpCmdLine
+                          NULL,                   // lpProcessAttributes
+                          NULL,                   // lpThreadAttributes
+                          TRUE,                   // bInheritHandles
+                          NORMAL_PRIORITY_CLASS,  // dwCreationFlags
+                          NULL,                   // lpEnvironment
+                          NULL,                   // lpCurrentDirectory
+                          &si,                    // lpStartupInfo
+                          &pi);                   // lpProcessInformation
 #else
         char szAnsiPath[MAX_PATH];
         SHUnicodeToAnsi(szCommandLine, szAnsiPath, ARRAYSIZE(szAnsiPath));
         WinExec(szAnsiPath, SW_SHOWNORMAL);
 #endif
-    }
-    else
-    {
+    } else {
         DialogBox(MLGetHinst(), MAKEINTRESOURCE(IDD_LANG), hDlg, LanguageDlgProc);
     }
 }
@@ -1763,7 +1633,7 @@ static const TCHAR s_szOfficeInstallRoot[] = TEXT("Software\\Microsoft\\Office\\
 static const TCHAR s_szPath[] = TEXT("Path");
 static const TCHAR s_szSetLangExe[] = TEXT("setlang.exe");
 
-INT_PTR KickSetLang(HWND hDlg, CUILangList *pLangList)
+INT_PTR KickSetLang(HWND hDlg, CUILangList* pLangList)
 {
     BOOL fOfficeSetLangInstalled = FALSE;
     INT_PTR iret;
@@ -1771,46 +1641,40 @@ INT_PTR KickSetLang(HWND hDlg, CUILangList *pLangList)
     TCHAR szSetLangPath[MAX_PATH];
 
     // try to get Office's setlang path
-    if(pLangList && pLangList->IsOffice9Installed())
-    {
+    if (pLangList && pLangList->IsOffice9Installed()) {
         DWORD cb = sizeof(szSetLangPath);
         if (ERROR_SUCCESS ==
-            SHGetValue(HKEY_LOCAL_MACHINE, s_szOfficeInstallRoot, s_szPath, NULL, szSetLangPath, &cb))
-        {
+            SHGetValue(HKEY_LOCAL_MACHINE, s_szOfficeInstallRoot, s_szPath, NULL, szSetLangPath, &cb)) {
             StrCat(szSetLangPath, s_szSetLangExe);
             if (PathFileExists(szSetLangPath) == TRUE)
                 fOfficeSetLangInstalled = TRUE;
         }
     }
 
-    if (fOfficeSetLangInstalled)
-    {
+    if (fOfficeSetLangInstalled) {
         PROCESS_INFORMATION pi;
         STARTUPINFO si = {0};
 
         si.cb = sizeof(si);
         BOOL fLaunchedOK = CreateProcess(
-                              szSetLangPath,     // name of app to launch
-                                       NULL,     // lpCmdLine
-                                       NULL,     // lpProcessAttributes
-                                       NULL,     // lpThreadAttributes
-                                       TRUE,     // bInheritHandles
-                      NORMAL_PRIORITY_CLASS,     // dwCreationFlags
-                                       NULL,     // lpEnvironment
-                                       NULL,     // lpCurrentDirectory
-                                       &si,      // lpStartupInfo
-                                       &pi);     // lpProcessInformation
-        // just wait a while
-        if (fLaunchedOK)
-        {
-            WaitForInputIdle (pi.hProcess, RELAUNCH_TIMEOUT);
+            szSetLangPath,     // name of app to launch
+            NULL,     // lpCmdLine
+            NULL,     // lpProcessAttributes
+            NULL,     // lpThreadAttributes
+            TRUE,     // bInheritHandles
+            NORMAL_PRIORITY_CLASS,     // dwCreationFlags
+            NULL,     // lpEnvironment
+            NULL,     // lpCurrentDirectory
+            &si,      // lpStartupInfo
+            &pi);     // lpProcessInformation
+// just wait a while
+        if (fLaunchedOK) {
+            WaitForInputIdle(pi.hProcess, RELAUNCH_TIMEOUT);
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
         }
         iret = RETURN_SETLANG_ENDLANGDIALOG;
-    }
-    else
-    {
+    } else {
         iret = DialogBox(MLGetHinst(), MAKEINTRESOURCE(IDD_LANG_CHANGE), hDlg, LangChangeDlgProc);
     }
 
@@ -1823,7 +1687,7 @@ INT_PTR KickSetLang(HWND hDlg, CUILangList *pLangList)
 //       mainly because we don't have Wide wrapper mechanism for rundll32
 //       function on win95
 
-extern void GetRestrictFlags(RESTRICT_FLAGS *pRestrict);
+extern void GetRestrictFlags(RESTRICT_FLAGS* pRestrict);
 void CALLBACK OpenLanguageDialog(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, int nCmdShow)
 {
     // hinst is ignored because we set it at our LibMain()
@@ -1831,11 +1695,10 @@ void CALLBACK OpenLanguageDialog(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, 
 
     GetRestrictFlags(&g_restrict);
     icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
-    icex.dwICC  = ICC_USEREX_CLASSES|ICC_NATIVEFNTCTL_CLASS;
+    icex.dwICC = ICC_USEREX_CLASSES | ICC_NATIVEFNTCTL_CLASS;
     InitCommonControlsEx(&icex);
 
-    if (lpszCmdLine && *lpszCmdLine)
-    {
+    if (lpszCmdLine && *lpszCmdLine) {
         HWND hwndParent = FindWindowA(NULL, lpszCmdLine);
         if (hwndParent)
             hwnd = hwndParent;

@@ -18,34 +18,34 @@
 #include "global.hxx"
 #include "cryptreg.h"
 
-char    *ppszDlls[] =
-                {
-                    "wintrust.dll",
-                    "mssign32.dll",
-                    "cryptui.dll",
-                    "cryptnet.dll",
-                    "cryptext.dll",
-                    "xenroll.dll",
+char* ppszDlls[] =
+{
+    "wintrust.dll",
+    "mssign32.dll",
+    "cryptui.dll",
+    "cryptnet.dll",
+    "cryptext.dll",
+    "xenroll.dll",
 
-                    NULL
-                };
+    NULL
+};
 
 POLSET   psPolicySettings[] =
-                {
-                    WTPF_IGNOREREVOKATION,      TRUE,
-                    WTPF_IGNOREREVOCATIONONTS,  TRUE,
+{
+    WTPF_IGNOREREVOKATION,      TRUE,
+    WTPF_IGNOREREVOCATIONONTS,  TRUE,
 
-                    0, 0
-                };
+    0, 0
+};
 
-char    *ppszOldHKLMRegistryKeys[] =
-                {
-                    "SOFTWARE\\Microsoft\\Cryptography\\Providers\\Subject",
+char* ppszOldHKLMRegistryKeys[] =
+{
+    "SOFTWARE\\Microsoft\\Cryptography\\Providers\\Subject",
 
-                    NULL
-                };
+    NULL
+};
 
-void DeleteKeys(HKEY hKeyParent, char *pszKey);
+void DeleteKeys(HKEY hKeyParent, char* pszKey);
 
 
 #define PKIREG_WINLOGON_EXT_PREFIX \
@@ -55,7 +55,7 @@ void RegisterWinlogonExtension(
     IN LPCSTR pszSubKey,
     IN LPCSTR pszDll,
     IN LPCSTR pszProc
-    )
+)
 {
     HKEY  hKey;
     DWORD dwDisposition;
@@ -65,54 +65,50 @@ void RegisterWinlogonExtension(
     DWORD cchKey;
 
 
-    if ( FIsWinNT5() == FALSE )
-    {
+    if (FIsWinNT5() == FALSE) {
         return;
     }
 
     cchKey = strlen(PKIREG_WINLOGON_EXT_PREFIX) + strlen(pszSubKey) + 1;
     __try {
-        pszKey = (LPSTR) _alloca(cchKey);
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
+        pszKey = (LPSTR)_alloca(cchKey);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         return;
     }
 
     strcpy(pszKey, PKIREG_WINLOGON_EXT_PREFIX);
     strcat(pszKey, pszSubKey);
 
-    if ( RegCreateKeyExA(HKEY_LOCAL_MACHINE, pszKey, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) != ERROR_SUCCESS )
-    {
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, pszKey, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) != ERROR_SUCCESS) {
         return;
     }
 
     dwValue = 0;
-    RegSetValueExA( hKey, "Asynchronous", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof( dwValue ) );
-    RegSetValueExA( hKey, "Impersonate", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof( dwValue ) );
+    RegSetValueExA(hKey, "Asynchronous", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(dwValue));
+    RegSetValueExA(hKey, "Impersonate", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(dwValue));
 
-    RegSetValueExA( hKey, "DllName", 0, REG_EXPAND_SZ, (LPBYTE) pszDll, strlen(pszDll) + 1 );
-    RegSetValueExA( hKey, "Logoff", 0, REG_SZ, (LPBYTE) pszProc, strlen(pszProc) + 1 );
+    RegSetValueExA(hKey, "DllName", 0, REG_EXPAND_SZ, (LPBYTE)pszDll, strlen(pszDll) + 1);
+    RegSetValueExA(hKey, "Logoff", 0, REG_SZ, (LPBYTE)pszProc, strlen(pszProc) + 1);
 
-    RegCloseKey( hKey );
+    RegCloseKey(hKey);
 }
 
 HRESULT RegisterCryptoDlls(BOOL fSetFlags)
 {
-    char    **ppszDll;
+    char** ppszDll;
 
     BOOL    fRet;
 
-    fRet    = TRUE;
+    fRet = TRUE;
     ppszDll = ppszDlls;
 
-    while (*ppszDll)
-    {
+    while (*ppszDll) {
         fRet &= _LoadAndRegister(*ppszDll, FALSE);
 
         ppszDll++;
     }
 
-    if (fSetFlags)
-    {
+    if (fSetFlags) {
         fRet &= _AdjustPolicyFlags(psPolicySettings);
     }
 
@@ -120,22 +116,22 @@ HRESULT RegisterCryptoDlls(BOOL fSetFlags)
 
     // vsrevoke.dll
     CryptUnregisterDefaultOIDFunction(
-            X509_ASN_ENCODING,
-            CRYPT_OID_VERIFY_REVOCATION_FUNC,
-            L"vsrevoke.dll"
-            );
+        X509_ASN_ENCODING,
+        CRYPT_OID_VERIFY_REVOCATION_FUNC,
+        L"vsrevoke.dll"
+    );
 
     // msctl.dll
     CryptUnregisterDefaultOIDFunction(
-            X509_ASN_ENCODING,
-            CRYPT_OID_VERIFY_CTL_USAGE_FUNC,
-            L"msctl.dll"
-            );
+        X509_ASN_ENCODING,
+        CRYPT_OID_VERIFY_CTL_USAGE_FUNC,
+        L"msctl.dll"
+    );
 
     RegisterWinlogonExtension("crypt32chain", "crypt32.dll",
-        "ChainWlxLogoffEvent");
+                              "ChainWlxLogoffEvent");
     RegisterWinlogonExtension("cryptnet", "cryptnet.dll",
-        "CryptnetWlxLogoffEvent");
+                              "CryptnetWlxLogoffEvent");
 
     return((fRet) ? S_OK : S_FALSE);
 
@@ -143,15 +139,14 @@ HRESULT RegisterCryptoDlls(BOOL fSetFlags)
 
 HRESULT UnregisterCryptoDlls(void)
 {
-    char    **ppszDll;
+    char** ppszDll;
 
     BOOL    fRet;
 
-    fRet    = TRUE;
+    fRet = TRUE;
     ppszDll = ppszDlls;
 
-    while (*ppszDll)
-    {
+    while (*ppszDll) {
         fRet &= _LoadAndRegister(*ppszDll, TRUE);
 
         ppszDll++;
@@ -162,12 +157,11 @@ HRESULT UnregisterCryptoDlls(void)
 
 void CleanupRegistry(void)
 {
-    char    **ppszKeys;
+    char** ppszKeys;
 
-    ppszKeys    = ppszOldHKLMRegistryKeys;
+    ppszKeys = ppszOldHKLMRegistryKeys;
 
-    while (*ppszKeys)
-    {
+    while (*ppszKeys) {
 
         DeleteKeys(HKEY_LOCAL_MACHINE, *ppszKeys);
 
@@ -175,15 +169,13 @@ void CleanupRegistry(void)
     }
 }
 
-void DeleteKeys(HKEY hKeyParent, char *pszKey)
+void DeleteKeys(HKEY hKeyParent, char* pszKey)
 {
     HKEY    hKey;
     char    szSubKey[REG_MAX_KEY_NAME];
 
-    if (RegOpenKeyEx(hKeyParent, pszKey, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
-    {
-        while (RegEnumKey(hKey, 0, &szSubKey[0], REG_MAX_KEY_NAME) == ERROR_SUCCESS)
-        {
+    if (RegOpenKeyEx(hKeyParent, pszKey, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        while (RegEnumKey(hKey, 0, &szSubKey[0], REG_MAX_KEY_NAME) == ERROR_SUCCESS) {
             // WARNING:  recursive!
             DeleteKeys(hKey, &szSubKey[0]);
         }
@@ -194,9 +186,9 @@ void DeleteKeys(HKEY hKeyParent, char *pszKey)
 }
 
 
-typedef HRESULT (WINAPI *DllRegisterServer)(void);
+typedef HRESULT(WINAPI* DllRegisterServer)(void);
 
-BOOL _LoadAndRegister(char *pszDll, BOOL fUnregister)
+BOOL _LoadAndRegister(char* pszDll, BOOL fUnregister)
 {
     DllRegisterServer   pfn;
     HINSTANCE           hDll;
@@ -204,41 +196,37 @@ BOOL _LoadAndRegister(char *pszDll, BOOL fUnregister)
 
     fRet = TRUE;
 
-    if (!(hDll = LoadLibrary(pszDll)))
-    {
+    if (!(hDll = LoadLibrary(pszDll))) {
         goto LoadLibraryFail;
     }
 
-    if (!(pfn = (DllRegisterServer)GetProcAddress(hDll, (fUnregister) ? "DllUnregisterServer" : "DllRegisterServer")))
-    {
+    if (!(pfn = (DllRegisterServer)GetProcAddress(hDll, (fUnregister) ? "DllUnregisterServer" : "DllRegisterServer"))) {
         goto ProcAddressFail;
     }
 
-    if ((*pfn)() != S_OK)
-    {
+    if ((*pfn)() != S_OK) {
         goto DllRegisterFailed;
     }
 
-    CommonReturn:
-        if (hDll)
-        {
-            FreeLibrary(hDll);
-        }
-        return(fRet);
+CommonReturn:
+    if (hDll) {
+        FreeLibrary(hDll);
+    }
+    return(fRet);
 
-    ErrorReturn:
-        fRet = FALSE;
-        goto CommonReturn;
+ErrorReturn:
+    fRet = FALSE;
+    goto CommonReturn;
 
     TRACE_ERROR_EX(DBG_SS, LoadLibraryFail);
     TRACE_ERROR_EX(DBG_SS, ProcAddressFail);
     TRACE_ERROR_EX(DBG_SS, DllRegisterFailed);
 }
 
-BOOL _AdjustPolicyFlags(POLSET *pPolSet)
+BOOL _AdjustPolicyFlags(POLSET* pPolSet)
 {
     DWORD   dwPolSettings;
-    POLSET  *pPol;
+    POLSET* pPol;
 
     dwPolSettings = 0;
 
@@ -247,21 +235,16 @@ BOOL _AdjustPolicyFlags(POLSET *pPolSet)
 
     //  only do this if we aren't set yet.
 
-    if (dwPolSettings != 0)
-    {
+    if (dwPolSettings != 0) {
         return(TRUE);
     }
 
     pPol = pPolSet;
 
-    while (pPol->dwSetting > 0)
-    {
-        if (pPol->fOn)
-        {
+    while (pPol->dwSetting > 0) {
+        if (pPol->fOn) {
             dwPolSettings |= pPol->dwSetting;
-        }
-        else
-        {
+        } else {
             dwPolSettings &= ~(pPol->dwSetting);
         }
 

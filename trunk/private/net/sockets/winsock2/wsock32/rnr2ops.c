@@ -54,7 +54,7 @@ DWORD   g_NbtFirst = 0;
 
 #define DONBTFIRST 1
 
-extern DWORD AllocateUnicodeString(IN     LPSTR   lpAnsi, IN OUT PWCHAR *lppUnicode);
+extern DWORD AllocateUnicodeString(IN     LPSTR   lpAnsi, IN OUT PWCHAR* lppUnicode);
 
 
 // Function prototypes
@@ -62,8 +62,8 @@ PVOID AllocLocal(DWORD dwSize);
 DWORD RnRGetPortByType(IN LPGUID lpServiceType, IN DWORD dwType);
 WORD GetDnsQueryTypeFromGuid(IN  LPGUID gdType);
 INT RnR2AddServiceType(IN  PWSASERVICECLASSINFOW psci);
-struct servent * CopyServEntry(struct servent * phent, PBYTE pbAllocated, LONG lSizeOf, PLONG plTaken, BOOL fOffsets);
-struct hostent * CopyHostEntry(struct hostent * phent, PBYTE pbAllocated, LONG  lSizeOf, PLONG plTaken, BOOL  fOffsets, BOOL  fUnicode);
+struct servent* CopyServEntry(struct servent* phent, PBYTE pbAllocated, LONG lSizeOf, PLONG plTaken, BOOL fOffsets);
+struct hostent* CopyHostEntry(struct hostent* phent, PBYTE pbAllocated, LONG  lSizeOf, PLONG plTaken, BOOL  fOffsets, BOOL  fUnicode);
 PDNS_RNR_CONTEXT RnR2GetContext(HANDLE hContext);
 PDNS_RNR_CONTEXT RnR2MakeContext(IN HANDLE hContext, IN DWORD  dwExtra);
 INT WINAPI NSPLookupServiceBegin(IN  LPGUID lpProviderId,
@@ -105,14 +105,14 @@ DWORD PackCsAddr(
     BOOL   fReversi
 );
 
-BOOL IsLocalQuery(struct hostent *, DWORD, char *);
-struct servent * _pgetservebyport(IN const int port, IN const char *name);
-struct servent * _pgetservebyname(IN const char *name, IN const char *proto);
-struct hostent * _pgethostbyaddr(IN const char *addr, IN int len, IN int type, IN DWORD dwControlFlags, IN DWORD NbtFirst, OUT PBOOL pfUnicodeQuery);
-struct hostent * myhostent(void);
-struct hostent * myhostent_W(void);
-struct hostent * dnshostent(void);
-DWORD GetServerAndProtocolsFromString(PWCHAR lpszString, LPGUID lpType, struct servent ** pServEnt);
+BOOL IsLocalQuery(struct hostent*, DWORD, char*);
+struct servent* _pgetservebyport(IN const int port, IN const char* name);
+struct servent* _pgetservebyname(IN const char* name, IN const char* proto);
+struct hostent* _pgethostbyaddr(IN const char* addr, IN int len, IN int type, IN DWORD dwControlFlags, IN DWORD NbtFirst, OUT PBOOL pfUnicodeQuery);
+struct hostent* myhostent(void);
+struct hostent* myhostent_W(void);
+struct hostent* dnshostent(void);
+DWORD GetServerAndProtocolsFromString(PWCHAR lpszString, LPGUID lpType, struct servent** pServEnt);
 
 #define ALL_LUP_FLAGS   (LUP_DEEP                 | \
                         LUP_CONTAINERS            | \
@@ -167,9 +167,9 @@ LPWSTR pszFullName = NULL;
 
 #define FreeLocal(x)    FREE_HEAP(x)
 
-struct hostent * _gethtbyname(IN char *name);
-struct hostent * localhostent();
-struct hostent * localhostent_W();
+struct hostent* _gethtbyname(IN char* name);
+struct hostent* localhostent();
+struct hostent* localhostent_W();
 
 NSP_ROUTINE nsrVector = {
     sizeof(NSP_ROUTINE),
@@ -187,7 +187,7 @@ NSP_ROUTINE nsrVector = {
 
 // Function Bodies
 
-VOID SaveAnswer(querybuf * query, int len, PDNS_RNR_CONTEXT pdrc)
+VOID SaveAnswer(querybuf* query, int len, PDNS_RNR_CONTEXT pdrc)
 {
     WS2LOG_F1("rnr2ops.c - SaveAnswer");
 
@@ -299,7 +299,7 @@ Return:
 }
 
 
-VOID TryDns(PDNS_RNR_CONTEXT pdrc, struct hostent ** pphostEntry, PCHAR pszName, DWORD dwControlFlags, PBOOL pfHaveGlobalLock)
+VOID TryDns(PDNS_RNR_CONTEXT pdrc, struct hostent** pphostEntry, PCHAR pszName, DWORD dwControlFlags, PBOOL pfHaveGlobalLock)
 /*
 Routine Description:
     Called to try to resolve pszName using DNS.
@@ -311,14 +311,14 @@ Routine Description:
 Returns: All side effects. If it succeeds, pphostEntry will by filled in.
 --*/
 {
-    struct hostent * hostEntry = 0;
+    struct hostent* hostEntry = 0;
 
     WS2LOG_F1("rnr2ops.c - TryDns");
 
     if (DoDnsProvider(pdrc)) {
         WORD         wType = GetDnsQueryTypeFromGuid(&pdrc->gdType);
         PDNS_MSG_BUF pMsg = NULL;
-        PDNS_MSG_BUF * ppMsg = NULL;
+        PDNS_MSG_BUF* ppMsg = NULL;
 
         if (wType != DNS_TYPE_A &&
             wType != DNS_TYPE_ATMA &&
@@ -337,7 +337,7 @@ Returns: All side effects. If it succeeds, pphostEntry will by filled in.
 
         if (pMsg && pdrc->DnsRR) {
             SWAP_COUNT_BYTES(&pMsg->MessageHead);
-            SaveAnswer((querybuf *)&pMsg->MessageHead, pMsg->MessageLength, pdrc);
+            SaveAnswer((querybuf*)&pMsg->MessageHead, pMsg->MessageLength, pdrc);
         }
 
         if (pMsg) {
@@ -357,7 +357,7 @@ Returns: All side effects. If it succeeds, pphostEntry will by filled in.
 }
 
 
-VOID TryNbt(PDNS_RNR_CONTEXT pdrc, struct hostent ** pphostEntry, PCHAR pszOemName, PCHAR pszAnsiName)
+VOID TryNbt(PDNS_RNR_CONTEXT pdrc, struct hostent** pphostEntry, PCHAR pszOemName, PCHAR pszAnsiName)
 /*
 Routine Description:
    Called to resolve pszName using NetBT.
@@ -367,7 +367,7 @@ Routine Description:
 Returns: All side effects. If it succeeds, pphostEntry will by filled in.
 --*/
 {
-    struct hostent * hostEntry = 0;
+    struct hostent* hostEntry = 0;
 
     WS2LOG_F1("rnr2ops.c - TryNbt");
 
@@ -383,11 +383,11 @@ Returns: All side effects. If it succeeds, pphostEntry will by filled in.
 DWORD GetServerAndProtocolsFromString(
     IN      PWCHAR              lpszString,
     IN      LPGUID              lpType,
-    OUT     struct servent **   ppServEnt
+    OUT     struct servent** ppServEnt
 )
 {
     DWORD   nProt;
-    struct  servent * pservent = NULL;
+    struct  servent* pservent = NULL;
 
     WS2LOG_F1("rnr2ops.c - GetServerAndProtocolsFromString");
 
@@ -654,7 +654,7 @@ DWORD PackCsAddr(IN PHOSTENT HostEntry,
             } else {
                 // Fill in the remote address with the actual address, both port and IP address.
                 sockaddrIn->sin_port = htons(Port);
-                sockaddrIn->sin_addr.s_addr = *((long *)(HostEntry->h_addr_list[i]));
+                sockaddrIn->sin_addr.s_addr = *((long*)(HostEntry->h_addr_list[i]));
 
                 // Lastly, fill in the protocol information.
                 if (IsTcp) {
@@ -685,7 +685,7 @@ DWORD PackCsAddr(IN PHOSTENT HostEntry,
 }
 
 
-BOOL IsLocalQuery(struct hostent * pHost, DWORD dwIp, char * name)
+BOOL IsLocalQuery(struct hostent* pHost, DWORD dwIp, char* name)
 {
     BOOL fReturn = FALSE;
 
@@ -710,7 +710,7 @@ BOOL IsLocalQuery(struct hostent * pHost, DWORD dwIp, char * name)
             iter++;
         }
     } else {
-        char ** ppHostAliases = pHost->h_aliases;
+        char** ppHostAliases = pHost->h_aliases;
 
         if (DnsNameCompare(pHost->h_name, name))
             fReturn = TRUE;
@@ -1032,9 +1032,9 @@ Routine Description:
     DWORD dwTcpPort, dwUdpPort;
     DWORD dwHostLen;
     DWORD dwLocalFlags = 0;
-    WCHAR * pwszServiceName = lpqsRestrictions->lpszServiceInstanceName;
-    WCHAR *wszString = NULL;
-    struct servent * sent;
+    WCHAR* pwszServiceName = lpqsRestrictions->lpszServiceInstanceName;
+    WCHAR* wszString = NULL;
+    struct servent* sent;
     int iResult = SOCKET_ERROR;
 
     WS2LOG_F1("rnr2ops.c - NSPLookupServiceBegin");
@@ -1101,10 +1101,10 @@ Routine Description:
         } else if ((dwLocalFlags & REVERSELOOK) && lpqsRestrictions->lpcsaBuffer && (lpqsRestrictions->dwNumberOfCsAddrs == 1)) {
             // there had better be an address in the CSADDR
 
-            struct sockaddr_in * psock;
+            struct sockaddr_in* psock;
             PCHAR pszAddr;
 
-            psock = (struct  sockaddr_in *) lpqsRestrictions->lpcsaBuffer->RemoteAddr.lpSockaddr;
+            psock = (struct  sockaddr_in*)lpqsRestrictions->lpcsaBuffer->RemoteAddr.lpSockaddr;
             pszAddr = inet_ntoa(psock->sin_addr);
             if (!pszAddr) {
                 goto badparm;
@@ -1292,7 +1292,7 @@ INT WINAPI NSPLookupServiceNext(
     PINT local_addr_list[MAXADDRS + 1];
     INT LocalAddress;
     WSAQUERYSETW wsaqDummy;
-    struct servent * sent = 0;
+    struct servent* sent = 0;
     WCHAR  szComputerName[(DNS_MAX_LABEL_LENGTH * 2) + 2];
     BOOL fHaveGlobalLock = FALSE;
     BOOL fUnicodeQuery = FALSE;
@@ -1435,7 +1435,7 @@ INT WINAPI NSPLookupServiceNext(
             hostEntry = &LocalHostEntry;
             hostEntry->h_name = pAnsiName;
             hostEntry->h_aliases = 0;
-            hostEntry->h_addr_list = (PCHAR *)local_addr_list;
+            hostEntry->h_addr_list = (PCHAR*)local_addr_list;
             local_addr_list[0] = &LocalAddress;
             LocalAddress = 0;
             local_addr_list[1] = 0;
@@ -1480,7 +1480,7 @@ INT WINAPI NSPLookupServiceNext(
                 if (fUnicodeQuery) {
                     WORD wType = GetDnsQueryTypeFromGuid(&pdrc->gdType);
                     PDNS_MSG_BUF pMsg = NULL;
-                    PDNS_MSG_BUF * ppMsg = NULL;
+                    PDNS_MSG_BUF* ppMsg = NULL;
 
                     if (wType == DNS_TYPE_AAAA) {
                         ppMsg = &pMsg;
@@ -1508,7 +1508,7 @@ INT WINAPI NSPLookupServiceNext(
 
                     if (pMsg && pdrc->DnsRR) {
                         SWAP_COUNT_BYTES(&pMsg->MessageHead);
-                        SaveAnswer((querybuf *)&pMsg->MessageHead, pMsg->MessageLength, pdrc);
+                        SaveAnswer((querybuf*)&pMsg->MessageHead, pMsg->MessageLength, pdrc);
                     }
 
                     if (pMsg) {
@@ -1756,7 +1756,7 @@ INT WINAPI NSPLookupServiceNext(
                     err = WSAEFAULT;
                 } else {
                     RtlCopyMemory(pBuff, pszName, dwLen);
-                    lpqsResults->lpszServiceInstanceName = (WCHAR *)pBuff;
+                    lpqsResults->lpszServiceInstanceName = (WCHAR*)pBuff;
                     pBuff += dwLen;
                 }
             } else {
@@ -1771,7 +1771,7 @@ INT WINAPI NSPLookupServiceNext(
                     err = WSAEFAULT;
                 } else {
                     RtlCopyMemory(pBuff, pszString, dwLen);
-                    lpqsResults->lpszServiceInstanceName = (WCHAR *)pBuff;
+                    lpqsResults->lpszServiceInstanceName = (WCHAR*)pBuff;
                     pBuff += dwLen;
                 }
                 FREE_HEAP(pszString);
@@ -1918,7 +1918,7 @@ INT WINAPI NSPStartup(IN     LPGUID        lpProviderId, IN OUT LPNSP_ROUTINE lp
     InterlockedIncrement(&lStartupCount);
 
     if (!szLocalComputerName[0]) {
-        struct hostent * myent = myhostent_W();
+        struct hostent* myent = myhostent_W();
         LPWSTR pszDot, pszDest;
         DWORD  dwLen;
         HKEY   Key;
@@ -1985,7 +1985,7 @@ INT WINAPI NSPStartup(IN     LPGUID        lpProviderId, IN OUT LPNSP_ROUTINE lp
 // They are called only once each, and therefore could have been in-line, but doing it this way makes it easier to read.
 // The extra cost is small, so readbility won out.
 // Now if C had an inline directive ...
-DWORD GetAliasSize(PCHAR * pal, PDWORD pdwCount, BOOL fUnicode)
+DWORD GetAliasSize(PCHAR* pal, PDWORD pdwCount, BOOL fUnicode)
 {
     DWORD dwSize;
 
@@ -2010,10 +2010,10 @@ DWORD GetAliasSize(PCHAR * pal, PDWORD pdwCount, BOOL fUnicode)
 }
 
 
-DWORD GetAddrSize(struct hostent * ph, PDWORD pdwAddCount)
+DWORD GetAddrSize(struct hostent* ph, PDWORD pdwAddCount)
 {
     DWORD dwSize = sizeof(PCHAR);
-    PCHAR * paddr;
+    PCHAR* paddr;
 
     *pdwAddCount = 1;
     for (paddr = ph->h_addr_list; *paddr; paddr++) {
@@ -2028,13 +2028,13 @@ DWORD GetAddrSize(struct hostent * ph, PDWORD pdwAddCount)
 
 // Turn a list of addresses into a list of offsets
 
-VOID FixList(PCHAR ** List, PCHAR Base)
+VOID FixList(PCHAR** List, PCHAR Base)
 {
-    PCHAR * Addr = *List;
+    PCHAR* Addr = *List;
 
     WS2LOG_F1("rnr2ops.c - FixList");
 
-    *List = (PCHAR *)((PCHAR)*List - Base);
+    *List = (PCHAR*)((PCHAR)*List - Base);
 
     while (*Addr) {
         *Addr = (PCHAR)((PCHAR)*Addr - Base);
@@ -2057,10 +2057,10 @@ VOID FixList(PCHAR ** List, PCHAR Base)
 //   0 -- insufficient memory to do the copy
 //   != 0 -- the address of the new hostent
 
-struct hostent * CopyHostEntry(struct hostent * phent, PBYTE pbAllocated, LONG lSizeOf, PLONG plTaken, BOOL fOffsets, BOOL fUnicode)
+struct hostent* CopyHostEntry(struct hostent* phent, PBYTE pbAllocated, LONG lSizeOf, PLONG plTaken, BOOL fOffsets, BOOL fUnicode)
 {
     PBYTE pb;
-    struct hostent * ph;
+    struct hostent* ph;
     DWORD dwSize, dwAddCount, dwAlCount;
     DWORD dwNameLen = 0;
 
@@ -2093,10 +2093,10 @@ struct hostent * CopyHostEntry(struct hostent * phent, PBYTE pbAllocated, LONG l
     *plTaken = (LONG)dwSize;
 
     if (pb) {
-        PCHAR *pcs, *pcd;
+        PCHAR* pcs, * pcd;
 
-        ph = (struct hostent *)pb;
-        ph->h_addr_list = (PCHAR *)(ph + 1);
+        ph = (struct hostent*)pb;
+        ph->h_addr_list = (PCHAR*)(ph + 1);
         ph->h_aliases = &ph->h_addr_list[dwAddCount];
         pb = (PBYTE)&ph->h_aliases[dwAlCount];
 
@@ -2169,10 +2169,10 @@ struct hostent * CopyHostEntry(struct hostent * phent, PBYTE pbAllocated, LONG l
 
 
 // Copy a servent. Same comments as apply above for hostent copying
-struct servent * CopyServEntry(struct servent * sent, PBYTE pbAllocated, LONG lSizeOf, PLONG plTaken, BOOL fOffsets)
+struct servent* CopyServEntry(struct servent* sent, PBYTE pbAllocated, LONG lSizeOf, PLONG plTaken, BOOL fOffsets)
 {
     PBYTE pb;
-    struct servent * ps;
+    struct servent* ps;
     DWORD dwSize, dwAlCount, dwNameSize;
 
     WS2LOG_F1("rnr2ops.c - CopyServEntry");
@@ -2197,10 +2197,10 @@ struct servent * CopyServEntry(struct servent * sent, PBYTE pbAllocated, LONG lS
     *plTaken = (LONG)dwSize;
 
     if (pb) {
-        PCHAR *pcs, *pcd;
+        PCHAR* pcs, * pcd;
 
-        ps = (struct servent *)pb;
-        ps->s_aliases = (PCHAR *)(ps + 1);
+        ps = (struct servent*)pb;
+        ps->s_aliases = (PCHAR*)(ps + 1);
         pb = (PBYTE)&ps->s_aliases[dwAlCount];
 
         // copy the basic structure

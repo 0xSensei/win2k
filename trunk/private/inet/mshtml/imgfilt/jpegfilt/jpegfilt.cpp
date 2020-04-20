@@ -20,7 +20,7 @@
 #define IID_DEFINED
 #include "Include\JPEGFilt.ic"
 
-HRESULT WriteMIMEKeys(LPCSTR lpszCLSID, LPSTR lpszMIME, int nBytes, BYTE * pbID);
+HRESULT WriteMIMEKeys(LPCSTR lpszCLSID, LPSTR lpszMIME, int nBytes, BYTE* pbID);
 
 
 #pragma warning( disable: 4505 )
@@ -37,17 +37,14 @@ END_OBJECT_MAP()
 extern "C"
 BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /*lpReserved*/)
 {
-    if (dwReason == DLL_PROCESS_ATTACH)
-    {
-      ATLTRACE( "JPEGFilt.dll attach\n" );
+    if (dwReason == DLL_PROCESS_ATTACH) {
+        ATLTRACE("JPEGFilt.dll attach\n");
         _Module.Init(ObjectMap, hInstance);
         DisableThreadLibraryCalls(hInstance);
-    }
-    else if (dwReason == DLL_PROCESS_DETACH)
-   {
+    } else if (dwReason == DLL_PROCESS_DETACH) {
         _Module.Term();
-      ATLTRACE( "JPEGFilt.dll detach\n" );
-   }
+        ATLTRACE("JPEGFilt.dll detach\n");
+    }
 
     return TRUE;    // ok
 }
@@ -57,7 +54,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /*lpReserved*/)
 
 STDAPI DllCanUnloadNow(void)
 {
-    return (_Module.GetLockCount()==0) ? S_OK : S_FALSE;
+    return (_Module.GetLockCount() == 0) ? S_OK : S_FALSE;
 }
 
 
@@ -68,10 +65,10 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
     return _Module.GetClassObject(rclsid, riid, ppv);
 }
 
-BYTE byID[] = {   0x02, 0x00, 0x00, 0x00,                    // length
+BYTE byID[] = {0x02, 0x00, 0x00, 0x00,                    // length
                      0xFF,0xFF,   // mask
                      0xFF,0xD8,   // data
-                   };
+};
 
 
 STDAPI ie3_DllRegisterServer(void)
@@ -104,7 +101,7 @@ STDAPI ie3_DllUnregisterServer(void)
 char szDatabase[] = "MIME\\Database\\Content Type\\";
 char szBits[] = "Bits";
 
-HRESULT WriteMIMEKeys(LPCSTR lpszCLSID, LPSTR lpszMIME, int nBytes, BYTE * pbID)
+HRESULT WriteMIMEKeys(LPCSTR lpszCLSID, LPSTR lpszMIME, int nBytes, BYTE* pbID)
 {
     char szBuf[MAX_PATH];
     HKEY hkey, hkey2;
@@ -114,7 +111,7 @@ HRESULT WriteMIMEKeys(LPCSTR lpszCLSID, LPSTR lpszMIME, int nBytes, BYTE * pbID)
     lstrcat(szBuf, lpszMIME);
     RegCreateKeyEx(HKEY_CLASSES_ROOT, szBuf, 0, NULL, 0, KEY_WRITE, NULL, &hkey, &dw);
 
-    RegSetValueEx(hkey, "Image Filter CLSID", 0, REG_SZ, (LPBYTE)lpszCLSID, lstrlen(lpszCLSID)+1);
+    RegSetValueEx(hkey, "Image Filter CLSID", 0, REG_SZ, (LPBYTE)lpszCLSID, lstrlen(lpszCLSID) + 1);
 
     RegCreateKeyEx(hkey, szBits, 0, NULL, 0, KEY_WRITE, NULL, &hkey2, &dw);
     RegSetValueEx(hkey2, "0", 0, REG_BINARY, pbID, nBytes);
@@ -169,7 +166,7 @@ ie4_DllUnregisterServer(void)
     if (pfnReg == NULL)
         return E_FAIL;
 
-    hr = (*pfnReg)( _Module.GetResourceInstance(), "UnReg", NULL);
+    hr = (*pfnReg)(_Module.GetResourceInstance(), "UnReg", NULL);
 
     UnloadAdvPack();
 

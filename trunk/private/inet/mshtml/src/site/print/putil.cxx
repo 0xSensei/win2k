@@ -1,5 +1,3 @@
-
-
 //  File:       print.cxx
 
 //  Contents:   Print/PageSetup dialog helpers
@@ -146,19 +144,19 @@ MtDefine(GetNextToken_ppchOut, Printing, "GetNextToken *ppchOut")
 
 extern DWORD g_dwPlatformID;
 
-static int GetNextToken(const TCHAR *pchIn, TCHAR **ppchOut);
+static int GetNextToken(const TCHAR* pchIn, TCHAR** ppchOut);
 #ifndef WIN16
-static HRESULT ReadURLFromFile(TCHAR *pchFileName, TCHAR **ppchURL);
+static HRESULT ReadURLFromFile(TCHAR* pchFileName, TCHAR** ppchURL);
 #endif
 
 // helpers for the string manipulation stuff in PrintHTML
 
 static const TCHAR g_achURLDelimiter[] = TEXT("");
-static const TCHAR g_achURLPrefix[]    = TEXT("url:");
-static const UINT  g_uiURLPrefixLen    = sizeof(g_achURLPrefix) - 1;
+static const TCHAR g_achURLPrefix[] = TEXT("url:");
+static const UINT  g_uiURLPrefixLen = sizeof(g_achURLPrefix) - 1;
 
 #ifdef WIN16
-static HRESULT GetPrintFileName(HWND hwnd, WCHAR *pchFileName);
+static HRESULT GetPrintFileName(HWND hwnd, WCHAR* pchFileName);
 #endif // WIN16
 
 extern CCriticalSection    g_csFile;
@@ -171,7 +169,7 @@ extern TCHAR               g_achSavePath[];
 
 
 static const DRIVERPRINTMODE s_aPrintDriverPrintModes[] =
-{ { "WinFax"               , PRINTMODE_NO_TRANSPARENCY },
+{{ "WinFax"               , PRINTMODE_NO_TRANSPARENCY },
   { "OLFAXDRV"             , PRINTMODE_NO_TRANSPARENCY },
   { "NEC  SuperScript 860" , PRINTMODE_NO_TRANSPARENCY },
   { "NEC  SuperScript 1260", PRINTMODE_NO_TRANSPARENCY }
@@ -181,8 +179,8 @@ static const DRIVERPRINTMODE s_aPrintDriverPrintModes[] =
 void
 WriteHeaderFooter(
     HKEY keyPS,
-    TCHAR * pszHeader,
-    TCHAR * pszFooter)
+    TCHAR* pszHeader,
+    TCHAR* pszFooter)
 {
     TCHAR   achEmpty[2] = _T("");
     int     iLen;
@@ -198,33 +196,33 @@ WriteHeaderFooter(
 
     iLen = _tcslen(pszHeader);
 #ifdef _UNICODE
-        iLen *= sizeof(TCHAR);
+    iLen *= sizeof(TCHAR);
 #endif
-    hr = RegSetValueEx(keyPS,_T("header"),0,REG_SZ,(const byte*)pszHeader,iLen);
+    hr = RegSetValueEx(keyPS, _T("header"), 0, REG_SZ, (const byte*)pszHeader, iLen);
 
     iLen = _tcslen(pszFooter);
 #ifdef _UNICODE
-        iLen *= sizeof(TCHAR);
+    iLen *= sizeof(TCHAR);
 #endif
-    hr = RegSetValueEx(keyPS,_T("footer"),0,REG_SZ,(const byte*)pszFooter,iLen);
+    hr = RegSetValueEx(keyPS, _T("footer"), 0, REG_SZ, (const byte*)pszFooter, iLen);
 }
 
 
 void
-ConvDoubleToTCHAR(double value,TCHAR* pString)
+ConvDoubleToTCHAR(double value, TCHAR* pString)
 {
     Assert(pString);
     if (pString == NULL)
         return;
-    long   lint,lfract;
+    long   lint, lfract;
     lint = value;
-    lfract = (value-lint)*100000.0;
-    wsprintf(pString,_T("%lu.%5lu"),lint,lfract);
+    lfract = (value - lint) * 100000.0;
+    wsprintf(pString, _T("%lu.%5lu"), lint, lfract);
 }
 
 
 void
-ConvTCHARToDouble(double* pValue,TCHAR* pString)
+ConvTCHARToDouble(double* pValue, TCHAR* pString)
 {
     Assert(pString);
     double d = 0.0;
@@ -237,23 +235,20 @@ ConvTCHARToDouble(double* pValue,TCHAR* pString)
     int    i;
     int    iChar = 0;
 
-    for (i=0;i<iLen;i++,p++)
+    for (i = 0; i < iLen; i++, p++)
         if (*p != _T(' '))
             break;
-    for (;i<iLen;i++,p++)
-    {
+    for (; i < iLen; i++, p++) {
         iChar = *p;
         if ((iChar < _T('0')) || (iChar > _T('9')))
             break;
-        d = d*10.0 + (iChar - _T('0'));
+        d = d * 10.0 + (iChar - _T('0'));
     }
-    if (iChar == _T('.'))
-    {
+    if (iChar == _T('.')) {
         p++;
         i++;
         dFract = 10.0;
-        for (;i<iLen;i++,p++)
-        {
+        for (; i < iLen; i++, p++) {
             iChar = *p;
             if ((iChar < _T('0')) || (iChar > _T('9')))
                 break;
@@ -267,15 +262,15 @@ ConvTCHARToDouble(double* pValue,TCHAR* pString)
 
 
 HRESULT
-WriteMargin(HKEY keyPS,TCHAR* pValueName,LONG margin)
+WriteMargin(HKEY keyPS, TCHAR* pValueName, LONG margin)
 {
 #define MARGINLENGTH 32
     TCHAR   achMargin[MARGINLENGTH];
     double  dwork = margin;
 
     dwork /= 1000.0;    // in inch
-    ConvDoubleToTCHAR(dwork,achMargin);
-    return RegSetValueEx(keyPS,pValueName,0,REG_SZ,(const byte*)achMargin,(_tcslen(achMargin)+1)*sizeof(TCHAR));
+    ConvDoubleToTCHAR(dwork, achMargin);
+    return RegSetValueEx(keyPS, pValueName, 0, REG_SZ, (const byte*)achMargin, (_tcslen(achMargin) + 1) * sizeof(TCHAR));
 }
 
 
@@ -284,62 +279,58 @@ WriteMargins(
     HKEY keyPS,
     RECT* prtMargins)
 {
-    WriteMargin(keyPS,_T("margin_top"),prtMargins->top);
-    WriteMargin(keyPS,_T("margin_bottom"),prtMargins->bottom);
-    WriteMargin(keyPS,_T("margin_left"),prtMargins->left);
-    WriteMargin(keyPS,_T("margin_right"),prtMargins->right);
+    WriteMargin(keyPS, _T("margin_top"), prtMargins->top);
+    WriteMargin(keyPS, _T("margin_bottom"), prtMargins->bottom);
+    WriteMargin(keyPS, _T("margin_left"), prtMargins->left);
+    WriteMargin(keyPS, _T("margin_right"), prtMargins->right);
 }
 
 
 void
-ReadHeaderOrFooter(HKEY hfKey,const TCHAR* pValueName,TCHAR* pHeaderFooter)
+ReadHeaderOrFooter(HKEY hfKey, const TCHAR* pValueName, TCHAR* pHeaderFooter)
 {
-    DWORD   dwLength        = 0;
+    DWORD   dwLength = 0;
 
     Assert(pValueName);
-    _tcscpy(pHeaderFooter,_T(""));
+    _tcscpy(pHeaderFooter, _T(""));
     // first try the new style : "header", "footer"
     if (RegQueryValueEx(
-                hfKey,
-                pValueName,
-                NULL,
-                NULL,
-                NULL,
-                &dwLength) == ERROR_SUCCESS)
-    {
-        if (dwLength > 0)
-        {
-                RegQueryValueEx(hfKey,pValueName,NULL,NULL,
-                                (LPBYTE)pHeaderFooter,&dwLength);
+        hfKey,
+        pValueName,
+        NULL,
+        NULL,
+        NULL,
+        &dwLength) == ERROR_SUCCESS) {
+        if (dwLength > 0) {
+            RegQueryValueEx(hfKey, pValueName, NULL, NULL,
+                            (LPBYTE)pHeaderFooter, &dwLength);
         }
     }
 }
 
 void
-ReadMargin(HKEY hfKey,TCHAR* pValueName,LONG* pmargin)
+ReadMargin(HKEY hfKey, TCHAR* pValueName, LONG* pmargin)
 {
     Assert(pmargin);
     if (pmargin == NULL)
         return;
 #define MARGINLENGTH    32
-    DWORD   dwLength        = 0;
+    DWORD   dwLength = 0;
     TCHAR   achMargin[MARGINLENGTH];
     double  dwork;
 
     if (RegQueryValueEx(
-                hfKey,
-                pValueName,
-                NULL,
-                NULL,
-                NULL,
-                &dwLength) == ERROR_SUCCESS)
-    {
-        if (dwLength > 0)
-        {
+        hfKey,
+        pValueName,
+        NULL,
+        NULL,
+        NULL,
+        &dwLength) == ERROR_SUCCESS) {
+        if (dwLength > 0) {
             if (dwLength > MARGINLENGTH)
                 dwLength = MARGINLENGTH;
-            RegQueryValueEx(hfKey,pValueName,NULL,NULL,(LPBYTE)achMargin,&dwLength);
-            ConvTCHARToDouble(&dwork,achMargin);
+            RegQueryValueEx(hfKey, pValueName, NULL, NULL, (LPBYTE)achMargin, &dwLength);
+            ConvTCHARToDouble(&dwork, achMargin);
 
             *pmargin = 1000 * dwork;    // in inch
         }
@@ -347,7 +338,7 @@ ReadMargin(HKEY hfKey,TCHAR* pValueName,LONG* pmargin)
 }
 
 void
-ReadMargins(HKEY hfKey,RECT* prtMargins)
+ReadMargins(HKEY hfKey, RECT* prtMargins)
 {
     Assert(prtMargins);
     if (prtMargins == NULL)
@@ -356,23 +347,22 @@ ReadMargins(HKEY hfKey,RECT* prtMargins)
     prtMargins->bottom = 750;
     prtMargins->left = 750;
     prtMargins->right = 750;
-    ReadMargin(hfKey,_T("margin_top"),&(prtMargins->top));
-    ReadMargin(hfKey,_T("margin_bottom"),&(prtMargins->bottom));
-    ReadMargin(hfKey,_T("margin_left"),&(prtMargins->left));
-    ReadMargin(hfKey,_T("margin_right"),&(prtMargins->right));
+    ReadMargin(hfKey, _T("margin_top"), &(prtMargins->top));
+    ReadMargin(hfKey, _T("margin_bottom"), &(prtMargins->bottom));
+    ReadMargin(hfKey, _T("margin_left"), &(prtMargins->left));
+    ReadMargin(hfKey, _T("margin_right"), &(prtMargins->right));
 }
 
 HRESULT
-GetParamFromEvent(BSTR pchDispName, VARIANT *pvar, VARTYPE vartype, IHTMLEventObj* pEventObj)
+GetParamFromEvent(BSTR pchDispName, VARIANT* pvar, VARTYPE vartype, IHTMLEventObj* pEventObj)
 {
     HRESULT         hr;
     DISPID          dispid;
     DISPPARAMS      dispparams = {NULL, NULL, 0, 0};
-    IDispatchEx   * pDispatchEx = NULL;
+    IDispatchEx* pDispatchEx = NULL;
 
     Assert(pchDispName && pvar && pEventObj);
-    if (!pchDispName || !pvar || !pEventObj)
-    {
+    if (!pchDispName || !pvar || !pEventObj) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
@@ -384,26 +374,25 @@ GetParamFromEvent(BSTR pchDispName, VARIANT *pvar, VARTYPE vartype, IHTMLEventOb
         goto Cleanup;
 
     hr = pDispatchEx->GetDispID(
-            pchDispName,
-            fdexNameCaseSensitive,
-            &dispid);
+        pchDispName,
+        fdexNameCaseSensitive,
+        &dispid);
     if (hr)
         goto Cleanup;
 
     hr = pDispatchEx->InvokeEx(
-            dispid,
-            LOCALE_USER_DEFAULT,
-            DISPATCH_PROPERTYGET,
-            &dispparams,
-            pvar,
-            NULL,
-            NULL);
+        dispid,
+        LOCALE_USER_DEFAULT,
+        DISPATCH_PROPERTYGET,
+        &dispparams,
+        pvar,
+        NULL,
+        NULL);
     if (hr)
         goto Cleanup;
 
     Assert(V_VT(pvar) == vartype);
-    if (V_VT(pvar) != vartype)
-    {
+    if (V_VT(pvar) != vartype) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
@@ -426,11 +415,11 @@ Cleanup:
 HWND
 FixupHwndOwner(HWND hwndOwner)
 {
-    return (   hwndOwner
+    return (hwndOwner
             || g_dwPlatformID != VER_PLATFORM_WIN32_NT
             || g_dwPlatformVersion < 0x50000)
-           ? hwndOwner
-           : GetDesktopWindow();
+        ? hwndOwner
+        : GetDesktopWindow();
 }
 
 
@@ -459,11 +448,11 @@ FixupHwndOwner(HWND hwndOwner)
 // BUGBUG (cthrash) we currently cannot set headers/footers.
 
 #ifdef WIN16
-BOOL DlgPage_RunDialog(PAGESETUPDLG *ppsd);
+BOOL DlgPage_RunDialog(PAGESETUPDLG* ppsd);
 #endif // WIN16
 
 HRESULT
-FormsPageSetup(PRINTINFOBAG *pPrintInfoBag, HWND hwndOwner, CDoc* pDoc)
+FormsPageSetup(PRINTINFOBAG* pPrintInfoBag, HWND hwndOwner, CDoc* pDoc)
 {
     HRESULT         hr = E_FAIL;
     PAGESETUPDLG    pagesetupdlg;
@@ -473,8 +462,8 @@ FormsPageSetup(PRINTINFOBAG *pPrintInfoBag, HWND hwndOwner, CDoc* pDoc)
     BOOL            fMetricUnits = FALSE;
 
 #ifndef WIN16
-    IHTMLEventObj * pEventObj = NULL;
-    IHTMLWindow2  * pOmWindow = NULL;
+    IHTMLEventObj* pEventObj = NULL;
+    IHTMLWindow2* pOmWindow = NULL;
     EVENTPARAM      param(pDoc, TRUE);
     TCHAR           achHeader[1024];
     TCHAR           achFooter[1024];
@@ -483,32 +472,30 @@ FormsPageSetup(PRINTINFOBAG *pPrintInfoBag, HWND hwndOwner, CDoc* pDoc)
     if (!pDoc)
         goto Cleanup;
 
-    _tcscpy(achHeader,_T(""));
-    _tcscpy(achFooter,_T(""));
+    _tcscpy(achHeader, _T(""));
+    _tcscpy(achFooter, _T(""));
 
     // Set up expandos
     param.SetType(_T("pagesetup"));
-    param.pagesetupParams.pchPagesetupHeader    = achHeader;
-    param.pagesetupParams.pchPagesetupFooter    = achFooter;
-    param.pagesetupParams.lPagesetupDlg         = (LONG_PTR)&pagesetupdlg;
+    param.pagesetupParams.pchPagesetupHeader = achHeader;
+    param.pagesetupParams.pchPagesetupFooter = achFooter;
+    param.pagesetupParams.lPagesetupDlg = (LONG_PTR)&pagesetupdlg;
 #endif // !WIN16
 
     hwndOwner = FixupHwndOwner(hwndOwner);
 
     // Fill out PAGESETUPDLG structure
-    ZeroMemory(&pagesetupdlg, sizeof (pagesetupdlg));
+    ZeroMemory(&pagesetupdlg, sizeof(pagesetupdlg));
     pagesetupdlg.lStructSize = sizeof(pagesetupdlg);
     pagesetupdlg.hwndOwner = hwndOwner;
     pagesetupdlg.hDevMode = pPrintInfoBag->hDevMode;
     pagesetupdlg.hDevNames = pPrintInfoBag->hDevNames;
 
-    if (pPrintInfoBag->ptPaperSize.x     != -1)
-    {
+    if (pPrintInfoBag->ptPaperSize.x != -1) {
         pagesetupdlg.ptPaperSize = pPrintInfoBag->ptPaperSize;
     }
 
-    if (pPrintInfoBag->rtMargin.left != -1)
-    {
+    if (pPrintInfoBag->rtMargin.left != -1) {
 #ifndef WIN16
         pagesetupdlg.Flags |= PSD_MARGINS;
 #endif // !WIN16
@@ -516,41 +503,38 @@ FormsPageSetup(PRINTINFOBAG *pPrintInfoBag, HWND hwndOwner, CDoc* pDoc)
     }
 
     if (GetRegPrintOptionsKey(PRINTOPTSUBKEY_PAGESETUP, &keyPageSetup)
-            == ERROR_SUCCESS)
-    {
+        == ERROR_SUCCESS) {
 #ifndef WIN16
-        ReadHeaderOrFooter(keyPageSetup,_T("header"),achHeader);
-        ReadHeaderOrFooter(keyPageSetup,_T("footer"),achFooter);
+        ReadHeaderOrFooter(keyPageSetup, _T("header"), achHeader);
+        ReadHeaderOrFooter(keyPageSetup, _T("footer"), achFooter);
 #endif // !WIN16
-        ReadMargins(keyPageSetup,&(pagesetupdlg.rtMargin));
+        ReadMargins(keyPageSetup, &(pagesetupdlg.rtMargin));
         RegCloseKey(keyPageSetup);
     }
 
 #ifdef WIN16
     pagesetupdlg.lCustData = (LPARAM)pPrintInfoBag;
     pagesetupdlg.hInstance = g_hInstResource;
-    if (!DlgPage_RunDialog(&pagesetupdlg))
-    {
+    if (!DlgPage_RunDialog(&pagesetupdlg)) {
         hr = E_FAIL;
         goto Cleanup;
     }
 #else
 
-    Verify( CommCtrlNativeFontSupport() );
+    Verify(CommCtrlNativeFontSupport());
 
 #ifdef UNIX
     pagesetupdlg.Flags |= PD_SHOWHELP;
 #endif // UNIX
 
     fMetricUnits = (GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_IMEASURE, achLocale, iLocale)
-                   && achLocale[0] == TCHAR('0'));
-    if (fMetricUnits)
-    {
+                    && achLocale[0] == TCHAR('0'));
+    if (fMetricUnits) {
         // Margins from PrintInfoBag are in 1/1000 inches and need to be converted
         // to 1/100 mm.
-        pagesetupdlg.rtMargin.left   = MulDivQuick(pagesetupdlg.rtMargin.left  , 2540, 1000);
-        pagesetupdlg.rtMargin.right  = MulDivQuick(pagesetupdlg.rtMargin.right , 2540, 1000);
-        pagesetupdlg.rtMargin.top    = MulDivQuick(pagesetupdlg.rtMargin.top   , 2540, 1000);
+        pagesetupdlg.rtMargin.left = MulDivQuick(pagesetupdlg.rtMargin.left, 2540, 1000);
+        pagesetupdlg.rtMargin.right = MulDivQuick(pagesetupdlg.rtMargin.right, 2540, 1000);
+        pagesetupdlg.rtMargin.top = MulDivQuick(pagesetupdlg.rtMargin.top, 2540, 1000);
         pagesetupdlg.rtMargin.bottom = MulDivQuick(pagesetupdlg.rtMargin.bottom, 2540, 1000);
     }
 
@@ -564,8 +548,7 @@ FormsPageSetup(PRINTINFOBAG *pPrintInfoBag, HWND hwndOwner, CDoc* pDoc)
     V_UNKNOWN(&varIn) = pEventObj;
 
     // Query host to show dialog
-    if (pDoc->_pHostUICommandHandler && !pDoc->_fOutlook98)
-    {
+    if (pDoc->_pHostUICommandHandler && !pDoc->_fOutlook98) {
         hr = pDoc->_pHostUICommandHandler->Exec(
             &CGID_DocHostCommandHandler,
             OLECMDID_SHOWPAGESETUP,
@@ -579,11 +562,10 @@ FormsPageSetup(PRINTINFOBAG *pPrintInfoBag, HWND hwndOwner, CDoc* pDoc)
 
     // Otherwise show it ourselves.
     pDoc->EnsureBackupUIHandler();
-    if (pDoc->_pBackupHostUIHandler)
-    {
-        IOleCommandTarget * pBackupHostUICommandHandler;
+    if (pDoc->_pBackupHostUIHandler) {
+        IOleCommandTarget* pBackupHostUICommandHandler;
         hr = pDoc->_pBackupHostUIHandler->QueryInterface(IID_IOleCommandTarget,
-            (void **) &pBackupHostUICommandHandler);
+                                                         (void**)&pBackupHostUICommandHandler);
         if (hr)
             goto Cleanup;
 
@@ -605,18 +587,16 @@ UIHandled:
     pPrintInfoBag->hDevNames = pagesetupdlg.hDevNames;
     pPrintInfoBag->ptPaperSize = pagesetupdlg.ptPaperSize;
 
-    if (fMetricUnits)
-    {
+    if (fMetricUnits) {
         // Margins from Page Setup dialog are in 1/100 mm and need to be converted
         // to 1/1000 inches.
-        pagesetupdlg.rtMargin.left   = MulDivQuick(pagesetupdlg.rtMargin.left  , 1000, 2540);
-        pagesetupdlg.rtMargin.right  = MulDivQuick(pagesetupdlg.rtMargin.right , 1000, 2540);
-        pagesetupdlg.rtMargin.top    = MulDivQuick(pagesetupdlg.rtMargin.top   , 1000, 2540);
+        pagesetupdlg.rtMargin.left = MulDivQuick(pagesetupdlg.rtMargin.left, 1000, 2540);
+        pagesetupdlg.rtMargin.right = MulDivQuick(pagesetupdlg.rtMargin.right, 1000, 2540);
+        pagesetupdlg.rtMargin.top = MulDivQuick(pagesetupdlg.rtMargin.top, 1000, 2540);
         pagesetupdlg.rtMargin.bottom = MulDivQuick(pagesetupdlg.rtMargin.bottom, 1000, 2540);
     }
 
-    if (GetRegPrintOptionsKey(PRINTOPTSUBKEY_PAGESETUP,&keyPageSetup) == ERROR_SUCCESS)
-    {
+    if (GetRegPrintOptionsKey(PRINTOPTSUBKEY_PAGESETUP, &keyPageSetup) == ERROR_SUCCESS) {
 
 #ifndef WIN16
         // Attempt to read the header/footer from the event object
@@ -624,16 +604,15 @@ UIHandled:
         VARIANT         varfooter;
 
         if (!GetParamFromEvent(L"pagesetupHeader", &varheader, VT_BSTR, pEventObj) &&
-            !GetParamFromEvent(L"pagesetupFooter", &varfooter, VT_BSTR, pEventObj))
-        {
-            WriteHeaderFooter(keyPageSetup,V_BSTR(&varheader),V_BSTR(&varfooter));
+            !GetParamFromEvent(L"pagesetupFooter", &varfooter, VT_BSTR, pEventObj)) {
+            WriteHeaderFooter(keyPageSetup, V_BSTR(&varheader), V_BSTR(&varfooter));
         }
 
         VariantClear(&varheader);
         VariantClear(&varfooter);
 #endif // !WIN16
 
-        WriteMargins(keyPageSetup,&(pagesetupdlg.rtMargin));
+        WriteMargins(keyPageSetup, &(pagesetupdlg.rtMargin));
         RegCloseKey(keyPageSetup);
     }
     pPrintInfoBag->rtMargin = pagesetupdlg.rtMargin;
@@ -673,7 +652,7 @@ BOOL DlgPrnt_RunDialog(PRINTDLG* lppd, BOOL bSetup);
 
 HRESULT
 FormsPrint(
-    PRINTINFOBAG * pPrintInfoBag,
+    PRINTINFOBAG* pPrintInfoBag,
     HWND hwndOwner,
     CDoc* pDoc,
     BOOL  fInitDefaults)
@@ -682,10 +661,10 @@ FormsPrint(
     PRINTDLG    printdlg;
 
 #ifdef WIN16
-    BOOL WINAPI (*fnPD)(LPPRINTDLG) = UNICODE_FN(PrintDlg);
+    BOOL WINAPI(*fnPD)(LPPRINTDLG) = UNICODE_FN(PrintDlg);
 #else
-    IHTMLEventObj * pEventObj = NULL;
-    IHTMLWindow2  * pOmWindow = NULL;
+    IHTMLEventObj* pEventObj = NULL;
+    IHTMLWindow2* pOmWindow = NULL;
     EVENTPARAM      param(pDoc, TRUE);
     TCHAR           achPrintToFileName[MAX_PATH];
     VARIANT         varIn;
@@ -696,19 +675,19 @@ FormsPrint(
     // Set up expandos
     param.SetType(_T("print"));
     param.printParams.fPrintRootDocumentHasFrameset = pPrintInfoBag->fRootDocumentHasFrameset;
-    param.printParams.fPrintAreRatingsEnabled       = (AreRatingsEnabled()== S_OK);
-    param.printParams.fPrintActiveFrame             = pPrintInfoBag->fPrintActiveFrame;
-    param.printParams.fPrintLinked                  = pPrintInfoBag->fPrintLinked;
-    param.printParams.fPrintSelection               = pPrintInfoBag->fPrintSelection;
-    param.printParams.fPrintAsShown                 = pPrintInfoBag->fPrintAsShown;
-    param.printParams.fPrintShortcutTable           = pPrintInfoBag->fShortcutTable;
-    param.printParams.iPrintFontScaling             = pPrintInfoBag->iFontScaling;
-    param.printParams.lPrintDlg                     = (LONG_PTR) &printdlg;
+    param.printParams.fPrintAreRatingsEnabled = (AreRatingsEnabled() == S_OK);
+    param.printParams.fPrintActiveFrame = pPrintInfoBag->fPrintActiveFrame;
+    param.printParams.fPrintLinked = pPrintInfoBag->fPrintLinked;
+    param.printParams.fPrintSelection = pPrintInfoBag->fPrintSelection;
+    param.printParams.fPrintAsShown = pPrintInfoBag->fPrintAsShown;
+    param.printParams.fPrintShortcutTable = pPrintInfoBag->fShortcutTable;
+    param.printParams.iPrintFontScaling = pPrintInfoBag->iFontScaling;
+    param.printParams.lPrintDlg = (LONG_PTR)&printdlg;
 
     // BUGBUG - peterlee 8/6/98
     // need way to access CBodyLayout::SetFocusRect from shdocvw
     // this is just a placehold until that glorious day
-    param.printParams.pPrintBodyActiveTarget        = NULL;
+    param.printParams.pPrintBodyActiveTarget = NULL;
 
     // Get previous save path
     {
@@ -726,31 +705,28 @@ FormsPrint(
     hwndOwner = FixupHwndOwner(hwndOwner);
 
     // Fill out PRINTDLG structure
-    ZeroMemory( &printdlg, sizeof(printdlg) );
+    ZeroMemory(&printdlg, sizeof(printdlg));
     printdlg.lStructSize = sizeof(printdlg);
     printdlg.hwndOwner = hwndOwner;
 
 
 
     //  Check if we have a selection
-    printdlg.Flags                |= (!pPrintInfoBag->fPrintSelection ? PD_NOSELECTION : 0);
-    printdlg.Flags                |= (pPrintInfoBag->fCollate ? PD_COLLATE : 0);
-    printdlg.Flags                |= (pPrintInfoBag->fPagesSelected? PD_PAGENUMS : 0);
-    printdlg.Flags                |= (pPrintInfoBag->fPrintToFile ? PD_PRINTTOFILE : 0);
+    printdlg.Flags |= (!pPrintInfoBag->fPrintSelection ? PD_NOSELECTION : 0);
+    printdlg.Flags |= (pPrintInfoBag->fCollate ? PD_COLLATE : 0);
+    printdlg.Flags |= (pPrintInfoBag->fPagesSelected ? PD_PAGENUMS : 0);
+    printdlg.Flags |= (pPrintInfoBag->fPrintToFile ? PD_PRINTTOFILE : 0);
 
-    printdlg.nFromPage            = pPrintInfoBag->nFromPage;
-    printdlg.nToPage              = pPrintInfoBag->nToPage;
-    if (fInitDefaults)
-    {
+    printdlg.nFromPage = pPrintInfoBag->nFromPage;
+    printdlg.nToPage = pPrintInfoBag->nToPage;
+    if (fInitDefaults) {
         // this indicates we only want to retrieve the defaults,
         // not to bring up the dialog
 
-        printdlg.hDevMode     = 0;
-        printdlg.hDevNames    = 0;
-        printdlg.Flags        |= PD_RETURNDEFAULT | PD_RETURNDC;
-    }
-    else
-    {
+        printdlg.hDevMode = 0;
+        printdlg.hDevNames = 0;
+        printdlg.Flags |= PD_RETURNDEFAULT | PD_RETURNDC;
+    } else {
         printdlg.hDevMode = pPrintInfoBag->hDevMode;
         printdlg.hDevNames = pPrintInfoBag->hDevNames;
         printdlg.hDC = pPrintInfoBag->hdc;
@@ -761,11 +737,9 @@ FormsPrint(
     printdlg.nMinPage = 1;
     printdlg.nMaxPage = USHRT_MAX;
     printdlg.nCopies = pPrintInfoBag->nCopies;
-    if (pPrintInfoBag->fCollate && printdlg.hDevMode)
-    {
-        void * p = GlobalLock(printdlg.hDevMode);
-        if (p)
-        {
+    if (pPrintInfoBag->fCollate && printdlg.hDevMode) {
+        void* p = GlobalLock(printdlg.hDevMode);
+        if (p) {
 #ifndef WIN16
             if (g_fUnicodePlatform)
                 ((DEVMODEW*)p)->dmCopies = pPrintInfoBag->nCopies;
@@ -777,13 +751,13 @@ FormsPrint(
 #endif // !WIN16
         }
         GlobalUnlock(printdlg.hDevMode);
-    }
+        }
 
 #ifdef WIN16
     printdlg.hInstance = g_hInstResource;
     hr = DlgPrnt_RunDialog(&printdlg, FALSE) ? S_OK : E_FAIL;
 #else
-    Verify( CommCtrlNativeFontSupport() );
+    Verify(CommCtrlNativeFontSupport());
 
     // Pass event object pointer to UI handler
     if (pDoc->get_parentWindow(&pOmWindow))
@@ -795,8 +769,7 @@ FormsPrint(
     V_UNKNOWN(&varIn) = pEventObj;
 
     // Query host to show dialog
-    if (pDoc->_pHostUICommandHandler && !pDoc->_fOutlook98)
-    {
+    if (pDoc->_pHostUICommandHandler && !pDoc->_fOutlook98) {
         hr = pDoc->_pHostUICommandHandler->Exec(
             &CGID_DocHostCommandHandler,
             OLECMDID_SHOWPRINT,
@@ -804,18 +777,17 @@ FormsPrint(
             &varIn,
             NULL);
 
-        if (   hr != OLECMDERR_E_NOTSUPPORTED
+        if (hr != OLECMDERR_E_NOTSUPPORTED
             && hr != OLECMDERR_E_UNKNOWNGROUP
             && hr != E_NOTIMPL)
             goto UIHandled;
     }
 
     pDoc->EnsureBackupUIHandler();
-    if (pDoc->_pBackupHostUIHandler)
-    {
-        IOleCommandTarget * pBackupHostUICommandHandler;
+    if (pDoc->_pBackupHostUIHandler) {
+        IOleCommandTarget* pBackupHostUICommandHandler;
         hr = pDoc->_pBackupHostUIHandler->QueryInterface(IID_IOleCommandTarget,
-            (void **) &pBackupHostUICommandHandler);
+                                                         (void**)&pBackupHostUICommandHandler);
         if (hr)
             goto Cleanup;
 
@@ -852,17 +824,15 @@ UIHandled:
 #endif
 
 #ifdef UNIX
-    if (GetParamFromEvent(L"printdmOrientation", &var, VT_INT, pEventObj))
-    {
-         LPDEVMODE pDM;
-         pDM= NULL;
+    if (GetParamFromEvent(L"printdmOrientation", &var, VT_INT, pEventObj)) {
+        LPDEVMODE pDM;
+        pDM = NULL;
 
-         if ((pPrintInfoBag->hDevMode) &&
-             (pDM = (LPDEVMODE)GlobalLock(pPrintInfoBag->hDevMode)))
-         {
-             pDM->dmOrientation = V_INT(&var);
-             GlobalUnlock(pPrintInfoBag->hDevMode);
-         }
+        if ((pPrintInfoBag->hDevMode) &&
+            (pDM = (LPDEVMODE)GlobalLock(pPrintInfoBag->hDevMode))) {
+            pDM->dmOrientation = V_INT(&var);
+            GlobalUnlock(pPrintInfoBag->hDevMode);
+        }
     }
 #endif // UNIX
 
@@ -874,7 +844,7 @@ UIHandled:
 
     // bugbug       when execute the print script ncopies is sometimes 0
     if (pPrintInfoBag->nCopies < 1)
-         pPrintInfoBag->nCopies = 1;
+        pPrintInfoBag->nCopies = 1;
 
     pPrintInfoBag->fCollate = (!!(printdlg.Flags & PD_COLLATE));
     pPrintInfoBag->fPagesSelected = (!!(printdlg.Flags & PD_PAGENUMS));
@@ -885,8 +855,7 @@ UIHandled:
     pPrintInfoBag->nToPage = printdlg.nToPage;
     pPrintInfoBag->hdc = printdlg.hDC;
 
-    if (pPrintInfoBag->fPrintToFile)
-    {
+    if (pPrintInfoBag->fPrintToFile) {
 #ifndef WIN16
         // assume failure, treating as canceling
         hr = S_FALSE;
@@ -897,19 +866,15 @@ UIHandled:
 
         if ((ptfOk) &&
             !GetParamFromEvent(L"printToFileName", &var, VT_BSTR, pEventObj) &&
-            V_BSTR(&var))
-        {
-            TCHAR * pchFullPath = V_BSTR(&var);
+            V_BSTR(&var)) {
+            TCHAR* pchFullPath = V_BSTR(&var);
             _tcscpy(pPrintInfoBag->achPrintToFileName, pchFullPath);
 
             // get path only
-            WCHAR * pchShortName = wcsrchr(pchFullPath, L'\\');
-            if (pchShortName)
-            {
+            WCHAR* pchShortName = wcsrchr(pchFullPath, L'\\');
+            if (pchShortName) {
                 *(pchShortName + 1) = 0;
-            }
-            else
-            {
+            } else {
                 *pchFullPath = 0;
             }
 
@@ -927,7 +892,7 @@ UIHandled:
         // this is the only place where we can make this modal
         // we then store this in the printinfo struct
         hr = GetPrintFileName(hwndOwner, pPrintInfoBag->achPrintToFileName);
-        if (hr!=S_OK)
+        if (hr != S_OK)
             hr = S_FALSE;       // treat as cancelling
 #endif
     }
@@ -942,7 +907,7 @@ Cleanup:
 #endif // !WIN16
 
     RRETURN1(hr, S_FALSE);
-}
+    }
 
 
 
@@ -964,18 +929,18 @@ HRESULT
 InitPrintHandles(
     HGLOBAL hDevMode,
     HGLOBAL hDevNames,
-    DVTARGETDEVICE ** pptd,
-    HDC * phic,
-    DWORD * pdwPrintMode,
-    HDC * phdc)
+    DVTARGETDEVICE** pptd,
+    HDC* phic,
+    DWORD* pdwPrintMode,
+    HDC* phdc)
 {
     HRESULT hr = S_OK;
-    LPDEVMODE pDM = (LPDEVMODE)GlobalLock( hDevMode );  // See 2 "IMPORTANT" comments below.
+    LPDEVMODE pDM = (LPDEVMODE)GlobalLock(hDevMode);  // See 2 "IMPORTANT" comments below.
 #ifndef WIN16
-    LPDEVMODEA pDMA = (LPDEVMODEA) pDM;
+    LPDEVMODEA pDMA = (LPDEVMODEA)pDM;
 #endif // !WIN16
-    LPDEVNAMES pDN = (LPDEVNAMES)GlobalLock( hDevNames );
-    DVTARGETDEVICE * ptd = NULL;
+    LPDEVNAMES pDN = (LPDEVNAMES)GlobalLock(hDevNames);
+    DVTARGETDEVICE* ptd = NULL;
     WORD nMaxOffset;
     DWORD dwDevNamesSize, dwDevModeSize, dwPtdSize;
     int nNameLength;
@@ -987,37 +952,33 @@ InitPrintHandles(
     // converted only the hDevNames parameter and NOT hDevMode (NOT!!!) to have TCHAR
     // members.
 
-    if (!pDM || !pDN)
-    {
+    if (!pDM || !pDN) {
         hr = E_FAIL;
         goto CleanupTargetDevice;
     }
 
-    nMaxOffset = max( pDN->wDriverOffset, pDN->wDeviceOffset );
-    nMaxOffset = max( nMaxOffset, pDN->wOutputOffset );
+    nMaxOffset = max(pDN->wDriverOffset, pDN->wDeviceOffset);
+    nMaxOffset = max(nMaxOffset, pDN->wOutputOffset);
 
-    nNameLength = _tcslen( (TCHAR *)pDN + nMaxOffset );
+    nNameLength = _tcslen((TCHAR*)pDN + nMaxOffset);
 
     // dw* are in bytes, not TCHARS
 
     dwDevNamesSize = sizeof(TCHAR) * ((DWORD)nMaxOffset + nNameLength + 1);
 #ifndef WIN16
     dwDevModeSize = g_fUnicodePlatform ? ((DWORD)pDM->dmSize + pDM->dmDriverExtra)
-                                       : ((DWORD)pDMA->dmSize + pDMA->dmDriverExtra);
+        : ((DWORD)pDMA->dmSize + pDMA->dmDriverExtra);
 #else
     dwDevModeSize = (DWORD)pDM->dmSize + pDM->dmDriverExtra;
 #endif // !WIN16
 
     dwPtdSize = sizeof(DWORD) + dwDevNamesSize + dwDevModeSize;
 
-    ptd = (DVTARGETDEVICE *)CoTaskMemAlloc( dwPtdSize );
-    if (!ptd)
-    {
+    ptd = (DVTARGETDEVICE*)CoTaskMemAlloc(dwPtdSize);
+    if (!ptd) {
         hr = E_OUTOFMEMORY;
         goto CleanupTargetDevice;
-    }
-    else
-    {
+    } else {
         ptd->tdSize = dwPtdSize;
 
         // This is an ugly trick.  ptd->tdDriverNameOffset and pDN happen
@@ -1025,7 +986,7 @@ InitPrintHandles(
         // Remember, I didn't write this -- this code is based on the OLE2 SDK.
 
         // Offsets are in characters, not bytes.
-        memcpy( &ptd->tdDriverNameOffset, pDN, dwDevNamesSize );
+        memcpy(&ptd->tdDriverNameOffset, pDN, dwDevNamesSize);
         ptd->tdDriverNameOffset *= sizeof(TCHAR);
         ptd->tdDriverNameOffset += sizeof(DWORD);
         ptd->tdDeviceNameOffset *= sizeof(TCHAR);
@@ -1039,8 +1000,8 @@ InitPrintHandles(
         // be tricky because of potential and common discrepancies between the
         // value of the dmSize member and sizeof(DEVMODE).  (25155)
 
-        memcpy( (BYTE *)&ptd->tdDriverNameOffset + dwDevNamesSize,
-                pDM, dwDevModeSize );
+        memcpy((BYTE*)&ptd->tdDriverNameOffset + dwDevNamesSize,
+               pDM, dwDevModeSize);
 
         ptd->tdExtDevmodeOffset = sizeof(DWORD) + dwDevNamesSize;
 
@@ -1049,29 +1010,25 @@ InitPrintHandles(
 
     // 25436: Do we need to have the driver download fonts as bitmaps in order to
     // avoid HP PCL driver bug on Win9x.
-    if (   !g_fUnicodePlatform && ptd && phdc && *phdc && pDMA
+    if (!g_fUnicodePlatform && ptd && phdc && *phdc && pDMA
         && ((DWORD)pDMA->dmSize >= offsetof(DEVMODEA, dmTTOption) + sizeof(short)) // Make sure devmode structure is long enough.  This might be the case on some very old drivers or hp deskjets.
-        && (pDMA->dmTTOption == DMTT_DOWNLOAD || pDMA->dmTTOption == DMTT_DOWNLOAD_OUTLINE) ) // Not in DMTT_BITMAP mode, rather in font download mode (PCL driver unlike postscript).
+        && (pDMA->dmTTOption == DMTT_DOWNLOAD || pDMA->dmTTOption == DMTT_DOWNLOAD_OUTLINE)) // Not in DMTT_BITMAP mode, rather in font download mode (PCL driver unlike postscript).
     {
-        LPWSTR pchDeviceName = (TCHAR*) (((BYTE*)ptd) + ptd->tdDeviceNameOffset);
+        LPWSTR pchDeviceName = (TCHAR*)(((BYTE*)ptd) + ptd->tdDeviceNameOffset);
         HANDLE hPrinter = 0;
 
         OpenPrinter(pchDeviceName, &hPrinter, NULL);
-        if (hPrinter)
-        {
+        if (hPrinter) {
             DWORD  cbBuf = sizeof(DRIVER_INFO_1) + MAX_PATH, cbNeeded = 0;
-            LPBYTE pDriverInfo = (LPBYTE) CoTaskMemAlloc(sizeof(DRIVER_INFO_1) + MAX_PATH);
+            LPBYTE pDriverInfo = (LPBYTE)CoTaskMemAlloc(sizeof(DRIVER_INFO_1) + MAX_PATH);
 
-            if (pDriverInfo)
-            {
-                if (GetPrinterDriverA(hPrinter, NULL, 1, pDriverInfo, cbBuf, &cbNeeded))
-                {
+            if (pDriverInfo) {
+                if (GetPrinterDriverA(hPrinter, NULL, 1, pDriverInfo, cbBuf, &cbNeeded)) {
                     // HP Printers: First two letters of driver name have to be HP
-                    LPSTR pchDriverName = ((DRIVER_INFO_1A *) pDriverInfo)->pName;
-                    if (!strncmp("HP", pchDriverName, 2))
-                    {
+                    LPSTR pchDriverName = ((DRIVER_INFO_1A*)pDriverInfo)->pName;
+                    if (!strncmp("HP", pchDriverName, 2)) {
                         pDMA->dmTTOption = DMTT_BITMAP;
-                        LONG lOutput = DocumentProperties(0, hPrinter, pchDeviceName, NULL, (PDEVMODEW) pDMA, DM_IN_BUFFER);
+                        LONG lOutput = DocumentProperties(0, hPrinter, pchDeviceName, NULL, (PDEVMODEW)pDMA, DM_IN_BUFFER);
                         if (lOutput)
                             fReplaceDC = TRUE;
                     }
@@ -1086,55 +1043,48 @@ InitPrintHandles(
 
 CleanupTargetDevice:
 
-    if (pDM) GlobalUnlock( hDevMode );
-    if (pDN) GlobalUnlock( hDevNames );
+    if (pDM) GlobalUnlock(hDevMode);
+    if (pDN) GlobalUnlock(hDevNames);
 
-    if (fReplaceDC && phdc)
-    {
+    if (fReplaceDC && phdc) {
         HDC hdc = CreateDCFromDevNames(hDevNames, hDevMode);
-        if (hdc)
-        {
+        if (hdc) {
             DeleteDC(*phdc);
             *phdc = hdc;
         }
     }
 
 #ifndef WIN16
-    if (!hr && ptd && phic)
-    {
+    if (!hr && ptd && phic) {
         // Compute the IC, bail if we fail.
-        *phic = ::CreateICForPrintingInternal( (LPCTSTR)((char *)ptd + ptd->tdDriverNameOffset),
-                         (LPCTSTR)((char *)ptd + ptd->tdDeviceNameOffset),
-                         (LPCTSTR)((char *)ptd + ptd->tdPortNameOffset),
-                         (DEVMODE *)((char *)ptd + ptd->tdExtDevmodeOffset) );
-        if (!(*phic))
-        {
+        *phic = ::CreateICForPrintingInternal((LPCTSTR)((char*)ptd + ptd->tdDriverNameOffset),
+                                              (LPCTSTR)((char*)ptd + ptd->tdDeviceNameOffset),
+                                              (LPCTSTR)((char*)ptd + ptd->tdPortNameOffset),
+                                              (DEVMODE*)((char*)ptd + ptd->tdExtDevmodeOffset));
+        if (!(*phic)) {
             hr = E_FAIL;
             goto Cleanup;
         }
     }
 #endif // ndef WIN16
 
-    if (pdwPrintMode && ptd)
-    {
+    if (pdwPrintMode && ptd) {
 #ifdef UNIX // IEUNIX: We don't need this. It's used for winfax.
-        *pdwPrintMode = 0;
+        * pdwPrintMode = 0;
 #else
         HANDLE   hPrinter = 0;
         BOOL     fRet = FALSE;
         DWORD    cbBuf = sizeof(DRIVER_INFO_1) + MAX_PATH, cbNeeded = 0;
-        LPBYTE   pDriverInfo = (LPBYTE) CoTaskMemAlloc(sizeof(DRIVER_INFO_1) + MAX_PATH);
+        LPBYTE   pDriverInfo = (LPBYTE)CoTaskMemAlloc(sizeof(DRIVER_INFO_1) + MAX_PATH);
         int      cDriverCount;
-        char   * pchDriverName = NULL;
+        char* pchDriverName = NULL;
 
         *pdwPrintMode = 0;
 
-        if (pDriverInfo)
-        {
-            fRet = OpenPrinter((TCHAR*) (((BYTE*)ptd) + ptd->tdDeviceNameOffset), &hPrinter, NULL);
+        if (pDriverInfo) {
+            fRet = OpenPrinter((TCHAR*)(((BYTE*)ptd) + ptd->tdDeviceNameOffset), &hPrinter, NULL);
 
-            if (fRet && hPrinter)
-            {
+            if (fRet && hPrinter) {
                 fRet = GetPrinterDriverA(hPrinter,
                                          NULL,
                                          1,
@@ -1142,14 +1092,11 @@ CleanupTargetDevice:
                                          cbBuf,
                                          &cbNeeded);
                 ClosePrinter(hPrinter);
-                if (fRet)
-                {
-                    pchDriverName = ((DRIVER_INFO_1A *) pDriverInfo)->pName;
+                if (fRet) {
+                    pchDriverName = ((DRIVER_INFO_1A*)pDriverInfo)->pName;
 
-                    for (cDriverCount = ARRAY_SIZE(s_aPrintDriverPrintModes) - 1 ; cDriverCount >= 0 ; cDriverCount--)
-                    {
-                        if (!strcmp(s_aPrintDriverPrintModes[cDriverCount].achDriverName,pchDriverName))
-                        {
+                    for (cDriverCount = ARRAY_SIZE(s_aPrintDriverPrintModes) - 1; cDriverCount >= 0; cDriverCount--) {
+                        if (!strcmp(s_aPrintDriverPrintModes[cDriverCount].achDriverName, pchDriverName)) {
                             *pdwPrintMode = s_aPrintDriverPrintModes[cDriverCount].dwPrintMode;
                             break;
                         }
@@ -1178,13 +1125,13 @@ Cleanup:
 
 
 void
-DeinitPrintHandles(DVTARGETDEVICE * ptd, HDC hic)
+DeinitPrintHandles(DVTARGETDEVICE* ptd, HDC hic)
 {
     if (ptd)
-        CoTaskMemFree( ptd );
+        CoTaskMemFree(ptd);
 
     if (hic)
-        DeleteDC( hic );
+        DeleteDC(hic);
 }
 
 
@@ -1207,29 +1154,26 @@ DeinitPrintHandles(DVTARGETDEVICE * ptd, HDC hic)
 
 
 void
-GetDefaultMargin(HKEY keyOldValues,TCHAR* pMarginName,TCHAR* pMarginValue,DWORD* pcbMargin,DWORD dwMarginConst)
+GetDefaultMargin(HKEY keyOldValues, TCHAR* pMarginName, TCHAR* pMarginValue, DWORD* pcbMargin, DWORD dwMarginConst)
 {
     DWORD   dwValueType;
     HRESULT result = E_FAIL;
 
-    if (keyOldValues != NULL)
-    {
-        result = RegQueryValueEx(keyOldValues,pMarginName,NULL,&dwValueType,
-                                 (BYTE*)pMarginValue,pcbMargin);
+    if (keyOldValues != NULL) {
+        result = RegQueryValueEx(keyOldValues, pMarginName, NULL, &dwValueType,
+                                 (BYTE*)pMarginValue, pcbMargin);
 
     }
 
-    if (result != ERROR_SUCCESS)
-    {
+    if (result != ERROR_SUCCESS) {
         // try the resource file
-        *pcbMargin = LoadString(GetResourceHInst(),dwMarginConst,pMarginValue,*pcbMargin);
+        *pcbMargin = LoadString(GetResourceHInst(), dwMarginConst, pMarginValue, *pcbMargin);
         if (*pcbMargin > 0)
             result = ERROR_SUCCESS;
     }
 
-    if (result != ERROR_SUCCESS)
-    {
-        _tcscpy(pMarginValue,_T("0.750000"));
+    if (result != ERROR_SUCCESS) {
+        _tcscpy(pMarginValue, _T("0.750000"));
         *pcbMargin = sizeof(_T("0.750000"));
     }
 }
@@ -1255,16 +1199,15 @@ GetDefaultHeaderFooterFromResource(const DWORD HeaderFooterConst,
 {
     int cbLen;
 
-    cbLen = LoadString(GetResourceHInst(),HeaderFooterConst,pDefaultHeaderFooter,*pcbDefaultHeaderFooter);
-    if (cbLen > 0)
-    {
+    cbLen = LoadString(GetResourceHInst(), HeaderFooterConst, pDefaultHeaderFooter, *pcbDefaultHeaderFooter);
+    if (cbLen > 0) {
 #ifdef UNICODE
         cbLen *= sizeof(TCHAR);
         *pcbDefaultHeaderFooter = cbLen;
 #endif //UNICODE
     };
     return cbLen;
-};
+    };
 
 
 
@@ -1302,47 +1245,42 @@ GetDefaultHeaderFooter(HKEY keyOldValues,
     DWORD   cbRight = MAXDEFAULTLENGTH;
     TCHAR   Name[MAXDEFAULTLENGTH];
 
-    if (keyOldValues != NULL)
-    {
-        _tcscpy(Name,pValueName);
-        _tcscat(Name,_T("_left"));
-        result = RegQueryValueEx(keyOldValues,Name,NULL,&dwValueType,
-                                 (BYTE*)&Left,&cbLeft);
+    if (keyOldValues != NULL) {
+        _tcscpy(Name, pValueName);
+        _tcscat(Name, _T("_left"));
+        result = RegQueryValueEx(keyOldValues, Name, NULL, &dwValueType,
+                                 (BYTE*)&Left, &cbLeft);
         if (result != ERROR_SUCCESS)
             cbLeft = 0;
-        _tcscpy(Name,pValueName);
-        _tcscat(Name,_T("_right"));
-        result2 = RegQueryValueEx(keyOldValues,Name,NULL,&dwValueType,
-                                (BYTE*)&Right,&cbRight);
+        _tcscpy(Name, pValueName);
+        _tcscat(Name, _T("_right"));
+        result2 = RegQueryValueEx(keyOldValues, Name, NULL, &dwValueType,
+                                  (BYTE*)&Right, &cbRight);
         if (result2 != ERROR_SUCCESS)
             cbRight = 0;
     }
-    if ((result == ERROR_SUCCESS) || (result2 == ERROR_SUCCESS))
-    {
-            _tcscpy(pDefault,Left);
-            _tcscat(pDefault,_T("&b"));
-            _tcscat(pDefault,Right);
+    if ((result == ERROR_SUCCESS) || (result2 == ERROR_SUCCESS)) {
+        _tcscpy(pDefault, Left);
+        _tcscat(pDefault, _T("&b"));
+        _tcscat(pDefault, Right);
 #ifndef UNIX
-            // cbleft and cbright both includes zero, we need only one
-            *pcbDefault = cbLeft + cbRight + sizeof(_T("&b")) - 1;
+        // cbleft and cbright both includes zero, we need only one
+        * pcbDefault = cbLeft + cbRight + sizeof(_T("&b")) - 1;
 #else
-            *pcbDefault = (_tcslen(pDefault)+1) * sizeof(TCHAR);
+        * pcbDefault = (_tcslen(pDefault) + 1) * sizeof(TCHAR);
 #endif
-    }
-    else
-    {
-        if (!GetDefaultHeaderFooterFromResource(dwResourceID,pDefault,pcbDefault))
-        {
-                _tcscpy(pDefault,pDefaultLiteral);
-                *pcbDefault     = (_tcslen(pDefaultLiteral) + 1) * sizeof(TCHAR);
+    } else {
+        if (!GetDefaultHeaderFooterFromResource(dwResourceID, pDefault, pcbDefault)) {
+            _tcscpy(pDefault, pDefaultLiteral);
+            *pcbDefault = (_tcslen(pDefaultLiteral) + 1) * sizeof(TCHAR);
         };
     }
 }
 
 void
-GetDefaultHeader(HKEY keyOldValues,TCHAR* pDefaultHeader,DWORD* pcbDefaultHeader)
+GetDefaultHeader(HKEY keyOldValues, TCHAR* pDefaultHeader, DWORD* pcbDefaultHeader)
 {
-    GetDefaultHeaderFooter(keyOldValues,_T("header"),pDefaultHeader,pcbDefaultHeader,IDS_DEFAULTHEADER,_T("&w&bPage &p of &P"));
+    GetDefaultHeaderFooter(keyOldValues, _T("header"), pDefaultHeader, pcbDefaultHeader, IDS_DEFAULTHEADER, _T("&w&bPage &p of &P"));
 };
 
 
@@ -1359,9 +1297,9 @@ GetDefaultHeader(HKEY keyOldValues,TCHAR* pDefaultHeader,DWORD* pcbDefaultHeader
 
 
 void
-GetDefaultFooter(HKEY keyOldValues,TCHAR* pDefaultFooter, DWORD* pcbDefaultFooter)
+GetDefaultFooter(HKEY keyOldValues, TCHAR* pDefaultFooter, DWORD* pcbDefaultFooter)
 {
-    GetDefaultHeaderFooter(keyOldValues,_T("footer"),pDefaultFooter,pcbDefaultFooter,IDS_DEFAULTFOOTER,_T("&u&b&d"));
+    GetDefaultHeaderFooter(keyOldValues, _T("footer"), pDefaultFooter, pcbDefaultFooter, IDS_DEFAULTFOOTER, _T("&u&b&d"));
 };
 
 
@@ -1378,9 +1316,9 @@ GetDefaultFooter(HKEY keyOldValues,TCHAR* pDefaultFooter, DWORD* pcbDefaultFoote
 
 
 HRESULT
-GetOldPageSetupValues(HKEY keyExplorer,HKEY * pkeyPrintOptions)
+GetOldPageSetupValues(HKEY keyExplorer, HKEY* pkeyPrintOptions)
 {
-    #define MAXHEADERFOOTERLEN 80
+#define MAXHEADERFOOTERLEN 80
     DWORD   dwDisposition;
     HKEY    keyOldValues;
     TCHAR   DefaultHeader[MAXHEADERFOOTERLEN];
@@ -1395,16 +1333,15 @@ GetOldPageSetupValues(HKEY keyExplorer,HKEY * pkeyPrintOptions)
     DWORD   cbMarginLeft = MAXHEADERFOOTERLEN;
     TCHAR   DefaultMarginRight[MAXHEADERFOOTERLEN];
     DWORD   cbMarginRight = MAXHEADERFOOTERLEN;
-    HRESULT hr=S_OK;
+    HRESULT hr = S_OK;
 
     // Check the IE30 values
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Software\\Microsoft\\Internet Explorer\\PageSetup"),0, KEY_ALL_ACCESS, &keyOldValues) != ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Software\\Microsoft\\Internet Explorer\\PageSetup"), 0, KEY_ALL_ACCESS, &keyOldValues) != ERROR_SUCCESS) {
         keyOldValues = NULL;
     }
 
-    GetDefaultHeader(keyOldValues,(TCHAR*)&DefaultHeader,&cbHeader);
-    GetDefaultFooter(keyOldValues,(TCHAR*)&DefaultFooter,&cbFooter);
+    GetDefaultHeader(keyOldValues, (TCHAR*)&DefaultHeader, &cbHeader);
+    GetDefaultFooter(keyOldValues, (TCHAR*)&DefaultFooter, &cbFooter);
     GetDefaultMargin(keyOldValues, _T("margin_bottom"), (TCHAR*)&DefaultMarginBottom, &cbMarginBottom, IDS_DEFAULTMARGINBOTTOM);
     GetDefaultMargin(keyOldValues, _T("margin_top"), (TCHAR*)&DefaultMarginTop, &cbMarginTop, IDS_DEFAULTMARGINTOP);
     GetDefaultMargin(keyOldValues, _T("margin_left"), (TCHAR*)&DefaultMarginLeft, &cbMarginLeft, IDS_DEFAULTMARGINLEFT);
@@ -1413,17 +1350,16 @@ GetOldPageSetupValues(HKEY keyExplorer,HKEY * pkeyPrintOptions)
     RegCloseKey(keyOldValues);
     keyOldValues = NULL;
 
-    if (RegCreateKeyEx(keyExplorer, _T("PageSetup"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, pkeyPrintOptions, &dwDisposition) == ERROR_SUCCESS)
-    {
-    // create header,footer
-    hr = RegSetValueEx(*pkeyPrintOptions, _T("header"), 0, REG_SZ, (CONST BYTE*)&DefaultHeader, cbHeader);
-    hr = RegSetValueEx(*pkeyPrintOptions, _T("footer"), 0, REG_SZ, (CONST BYTE*)&DefaultFooter, cbFooter);
+    if (RegCreateKeyEx(keyExplorer, _T("PageSetup"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, pkeyPrintOptions, &dwDisposition) == ERROR_SUCCESS) {
+        // create header,footer
+        hr = RegSetValueEx(*pkeyPrintOptions, _T("header"), 0, REG_SZ, (CONST BYTE*) & DefaultHeader, cbHeader);
+        hr = RegSetValueEx(*pkeyPrintOptions, _T("footer"), 0, REG_SZ, (CONST BYTE*) & DefaultFooter, cbFooter);
 
-    // create margins
-    hr = RegSetValueEx(*pkeyPrintOptions, _T("margin_bottom"), 0, REG_SZ, (CONST BYTE*)DefaultMarginBottom, cbMarginBottom);
-    hr = RegSetValueEx(*pkeyPrintOptions, _T("margin_left"), 0, REG_SZ, (CONST BYTE*)DefaultMarginLeft, cbMarginLeft);
-    hr = RegSetValueEx(*pkeyPrintOptions, _T("margin_right"), 0, REG_SZ, (CONST BYTE*)DefaultMarginRight, cbMarginRight);
-    hr = RegSetValueEx(*pkeyPrintOptions, _T("margin_top"), 0, REG_SZ, (CONST BYTE*)DefaultMarginTop, cbMarginTop);
+        // create margins
+        hr = RegSetValueEx(*pkeyPrintOptions, _T("margin_bottom"), 0, REG_SZ, (CONST BYTE*)DefaultMarginBottom, cbMarginBottom);
+        hr = RegSetValueEx(*pkeyPrintOptions, _T("margin_left"), 0, REG_SZ, (CONST BYTE*)DefaultMarginLeft, cbMarginLeft);
+        hr = RegSetValueEx(*pkeyPrintOptions, _T("margin_right"), 0, REG_SZ, (CONST BYTE*)DefaultMarginRight, cbMarginRight);
+        hr = RegSetValueEx(*pkeyPrintOptions, _T("margin_top"), 0, REG_SZ, (CONST BYTE*)DefaultMarginTop, cbMarginTop);
 
     };
     return hr;
@@ -1454,19 +1390,16 @@ GetOldPageSetupValues(HKEY keyExplorer,HKEY * pkeyPrintOptions)
 
 
 HRESULT
-GetRegPrintOptionsKey(PRINTOPTIONS_SUBKEY PrintSubKey, HKEY * pkeyPrintOptions)
+GetRegPrintOptionsKey(PRINTOPTIONS_SUBKEY PrintSubKey, HKEY* pkeyPrintOptions)
 {
     HKEY     keyExplorer;
     HRESULT  hr = E_FAIL;
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, _T("Software\\Microsoft\\Internet Explorer"), 0, KEY_ALL_ACCESS, &keyExplorer) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, _T("Software\\Microsoft\\Internet Explorer"), 0, KEY_ALL_ACCESS, &keyExplorer) == ERROR_SUCCESS) {
         LPTSTR szSubKey = (PrintSubKey == PRINTOPTSUBKEY_MAIN ? _T("Main") : _T("PageSetup"));
 
-        if (RegOpenKeyEx(keyExplorer, szSubKey, 0, KEY_ALL_ACCESS, pkeyPrintOptions) == ERROR_SUCCESS)
-        {
-            if (StrCmpIC(szSubKey, _T("PageSetup")) == 0)
-            {
+        if (RegOpenKeyEx(keyExplorer, szSubKey, 0, KEY_ALL_ACCESS, pkeyPrintOptions) == ERROR_SUCCESS) {
+            if (StrCmpIC(szSubKey, _T("PageSetup")) == 0) {
 
                 //  For the PageSetup key, we do some additional checks to make
                 //  sure that (at least) the header and footer keys exist.
@@ -1475,24 +1408,17 @@ GetRegPrintOptionsKey(PRINTOPTIONS_SUBKEY PrintSubKey, HKEY * pkeyPrintOptions)
                 DWORD dwT;
 
                 if ((RegQueryValueEx(*pkeyPrintOptions, _T("Header"), 0, NULL, NULL, &dwT) == ERROR_SUCCESS) &&
-                    (RegQueryValueEx(*pkeyPrintOptions, _T("Footer"), 0, NULL, NULL, &dwT) == ERROR_SUCCESS))
-                {
+                    (RegQueryValueEx(*pkeyPrintOptions, _T("Footer"), 0, NULL, NULL, &dwT) == ERROR_SUCCESS)) {
                     // the header and footer keys exist, we're fine
                     hr = S_OK;
-                }
-                else
-                {
+                } else {
                     // whoops.  fall back...
                     hr = GetOldPageSetupValues(keyExplorer, pkeyPrintOptions);
                 }
-            }
-            else
+            } else
                 hr = S_OK;
-        }
-        else
-        {
-            if (StrCmpIC(szSubKey, _T("PageSetup")) == 0)
-            {
+        } else {
+            if (StrCmpIC(szSubKey, _T("PageSetup")) == 0) {
                 hr = GetOldPageSetupValues(keyExplorer, pkeyPrintOptions);
             }
         }
@@ -1538,39 +1464,36 @@ OptionRoot(PRINTOPTION PrintOption)
 
 
 
-CStr *
+CStr*
 GetRegPrintOptionString(PRINTOPTION PrintOption)
 {
     HKEY    hkeyRoot;
     DWORD   dwLength = 0;
-    CStr *  pstr = NULL;
+    CStr* pstr = NULL;
 
     if (GetRegPrintOptionsKey(OptionRoot(PrintOption), &hkeyRoot) != S_OK)
         goto Cleanup;
 
     if (RegQueryValueEx(
-                hkeyRoot,
-                OptionKey(PrintOption),
-                0,
-                NULL,
-                NULL,
-                &dwLength) == ERROR_SUCCESS)
-    {
-        if (dwLength > 0)
-        {
+        hkeyRoot,
+        OptionKey(PrintOption),
+        0,
+        NULL,
+        NULL,
+        &dwLength) == ERROR_SUCCESS) {
+        if (dwLength > 0) {
             pstr = new CStr;
 
-            if (SUCCEEDED(pstr->ReAlloc(dwLength)))
-            {
-                        RegQueryValueEx(
-                                hkeyRoot,
-                                OptionKey(PrintOption),
-                                NULL,
-                                NULL,
-                                (LPBYTE) LPTSTR(*pstr),
-                                &dwLength);
+            if (SUCCEEDED(pstr->ReAlloc(dwLength))) {
+                RegQueryValueEx(
+                    hkeyRoot,
+                    OptionKey(PrintOption),
+                    NULL,
+                    NULL,
+                    (LPBYTE)LPTSTR(*pstr),
+                    &dwLength);
 
-                        pstr->SetLengthNoAlloc(dwLength);
+                pstr->SetLengthNoAlloc(dwLength);
             }
         }
     }
@@ -1583,7 +1506,7 @@ Cleanup:
 
 
 HRESULT
-SetRegPrintOptionString(PRINTOPTION PrintOption, TCHAR * psz)
+SetRegPrintOptionString(PRINTOPTION PrintOption, TCHAR* psz)
 {
     HRESULT hr = E_FAIL;
     HKEY    hkeyRoot;
@@ -1591,8 +1514,7 @@ SetRegPrintOptionString(PRINTOPTION PrintOption, TCHAR * psz)
     if (GetRegPrintOptionsKey(OptionRoot(PrintOption), &hkeyRoot) != S_OK)
         goto Cleanup;
 
-    if (RegSetValueEx(hkeyRoot, OptionKey(PrintOption), 0, REG_SZ, (const BYTE *) psz, _tcslen(psz)) == ERROR_SUCCESS)
-    {
+    if (RegSetValueEx(hkeyRoot, OptionKey(PrintOption), 0, REG_SZ, (const BYTE*)psz, _tcslen(psz)) == ERROR_SUCCESS) {
         hr = S_OK;
     }
 
@@ -1617,15 +1539,13 @@ GetRegPrintOptionBool(PRINTOPTION PrintOption)
         goto Cleanup;
 
     if (RegQueryValueEx(
-                hkeyRoot,
-                OptionKey(PrintOption),
-                0,
-                NULL,
-                (LPBYTE) ach,
-                &dwLength) == ERROR_SUCCESS)
-    {
-        if (dwLength)
-        {
+        hkeyRoot,
+        OptionKey(PrintOption),
+        0,
+        NULL,
+        (LPBYTE)ach,
+        &dwLength) == ERROR_SUCCESS) {
+        if (dwLength) {
             fRet = !_tcsicmp(ach, _T("yes"));
         }
     }
@@ -1646,8 +1566,7 @@ SetRegPrintOptionBool(PRINTOPTION PrintOption, BOOL f)
     if (GetRegPrintOptionsKey(OptionRoot(PrintOption), &hkeyRoot) != S_OK)
         goto Cleanup;
 
-    if (RegSetValueEx(hkeyRoot, OptionKey(PrintOption), 0, REG_SZ, (const BYTE *)(f ? _T("yes") :  _T("no")), f ? 3 : 2) == ERROR_SUCCESS)
-    {
+    if (RegSetValueEx(hkeyRoot, OptionKey(PrintOption), 0, REG_SZ, (const BYTE*)(f ? _T("yes") : _T("no")), f ? 3 : 2) == ERROR_SUCCESS) {
         hr = S_OK;
     }
 
@@ -1668,41 +1587,38 @@ Cleanup:
 //  Returns:    index in stringnothing
 
 
-int GetNextToken(const TCHAR *pchIn, TCHAR **ppchOut)
+int GetNextToken(const TCHAR* pchIn, TCHAR** ppchOut)
 {
-    int i = 0, j = 0, len ;
+    int i = 0, j = 0, len;
 
-    *ppchOut = 0 ;
+    *ppchOut = 0;
 
-    if (!pchIn)
-    {
+    if (!pchIn) {
         return 0;
     }
 
-    while ( pchIn[i] && pchIn[i] != '"' )
-        i++ ;
+    while (pchIn[i] && pchIn[i] != '"')
+        i++;
 
-    if ( !pchIn[i] )
-        return 0 ;
+    if (!pchIn[i])
+        return 0;
 
-    j=i+1 ;
-    while ( pchIn[j] && pchIn[j] != '"' )
-        j++ ;
+    j = i + 1;
+    while (pchIn[j] && pchIn[j] != '"')
+        j++;
 
-    if ( j > i + 1 )
-    {
-        len = j - i - 1 ;
-        *ppchOut = (TCHAR*) new(Mt(GetNextToken_ppchOut)) TCHAR[(len+1)];
-        if ( !(*ppchOut) )
-            return 0 ;
+    if (j > i + 1) {
+        len = j - i - 1;
+        *ppchOut = (TCHAR*) new(Mt(GetNextToken_ppchOut)) TCHAR[(len + 1)];
+        if (!(*ppchOut))
+            return 0;
 
-        _tcsncpy(*ppchOut,&pchIn[i+1],len);
-        (*ppchOut)[len] = '\0' ;
-    }
-    else
-        return 0 ;
+        _tcsncpy(*ppchOut, &pchIn[i + 1], len);
+        (*ppchOut)[len] = '\0';
+    } else
+        return 0;
 
-    return j ;
+    return j;
 }
 
 
@@ -1737,30 +1653,28 @@ int GetNextToken(const TCHAR *pchIn, TCHAR **ppchOut)
 
 
 HRESULT
-ParseCMDLine(const TCHAR *pchIn, TCHAR **ppchURL, HGLOBAL *pHDevNames, HGLOBAL *pHDevMode, HDC *pHDC)
+ParseCMDLine(const TCHAR* pchIn, TCHAR** ppchURL, HGLOBAL* pHDevNames, HGLOBAL* pHDevMode, HDC* pHDC)
 {
     HRESULT hr = S_OK;
-    TCHAR   *pchPrinter;
-    TCHAR   *pchPort;
-    TCHAR   *pchDriver;
+    TCHAR* pchPrinter;
+    TCHAR* pchPort;
+    TCHAR* pchDriver;
     int     index;
     LPDEVNAMES  pDevNames;
 
-    *ppchURL        = 0;
-    *pHDevNames     = 0;
-    pchPrinter      = 0;
-    pchDriver       = 0;
-    pchPort         = 0;
+    *ppchURL = 0;
+    *pHDevNames = 0;
+    pchPrinter = 0;
+    pchDriver = 0;
+    pchPort = 0;
 
-    if (!pchIn)
-    {
+    if (!pchIn) {
         goto Cleanup;
     }
 
     index = GetNextToken(pchIn, ppchURL);
 
-    if (index == 0)
-    {
+    if (index == 0) {
         // this was not a cmd line string, get out
         goto Cleanup;
     }
@@ -1769,8 +1683,7 @@ ParseCMDLine(const TCHAR *pchIn, TCHAR **ppchURL, HGLOBAL *pHDevNames, HGLOBAL *
     // an URL file, so get the data out if that is the case
 
     if (_tcsstr(*ppchURL, TEXT(".url"))
-        || _tcsstr(*ppchURL, TEXT(".URL")))
-    {
+        || _tcsstr(*ppchURL, TEXT(".URL"))) {
 #ifndef WIN16
         // we need to get the string out of the file....
         hr = ReadURLFromFile(*ppchURL, ppchURL);
@@ -1780,18 +1693,15 @@ ParseCMDLine(const TCHAR *pchIn, TCHAR **ppchURL, HGLOBAL *pHDevNames, HGLOBAL *
     }
 
 
-    if (pchIn[++index])
-    {
+    if (pchIn[++index]) {
         // wait...there is more
         index += GetNextToken(&pchIn[index], &pchPrinter);
 
-        if (pchIn[++index])
-        {
+        if (pchIn[++index]) {
             // wait...there is more
             index += GetNextToken(&pchIn[index], &pchDriver);
 
-            if (pchIn[++index])
-            {
+            if (pchIn[++index]) {
                 // wait...there is more
                 index += GetNextToken(&pchIn[index], &pchPort);
             }
@@ -1799,46 +1709,40 @@ ParseCMDLine(const TCHAR *pchIn, TCHAR **ppchURL, HGLOBAL *pHDevNames, HGLOBAL *
     }
 
 
-    if (pchPrinter)
-    {
+    if (pchPrinter) {
         // allocate a devnames structure....
         index = 3 + _tcslen(pchPrinter) +
             (pchDriver ? _tcslen(pchDriver) : 0) +
-            (pchPort ? _tcslen(pchPort) :0 );
+            (pchPort ? _tcslen(pchPort) : 0);
 
         index *= sizeof(TCHAR);
 
         // this global alloc call does a ZEROINIT
 
         *pHDevNames = GlobalAlloc(GHND, sizeof(DEVNAMES) + index);
-        if (*pHDevNames)
-        {
-            pDevNames = (LPDEVNAMES) GlobalLock(*pHDevNames);
-            if (pDevNames)
-            {
+        if (*pHDevNames) {
+            pDevNames = (LPDEVNAMES)GlobalLock(*pHDevNames);
+            if (pDevNames) {
                 pDevNames->wDriverOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
-                _tcscpy(((TCHAR*)pDevNames+pDevNames->wDriverOffset), pchDriver);
-                if (pchPrinter)
-                {
+                _tcscpy(((TCHAR*)pDevNames + pDevNames->wDriverOffset), pchDriver);
+                if (pchPrinter) {
                     pDevNames->wDeviceOffset = pDevNames->wDriverOffset + _tcslen(pchDriver) + 1;
-                    _tcscpy(((TCHAR*)pDevNames+pDevNames->wDeviceOffset), pchPrinter);
+                    _tcscpy(((TCHAR*)pDevNames + pDevNames->wDeviceOffset), pchPrinter);
                 }
 
-                if (pchPort)
-                {
-                    pDevNames->wOutputOffset= pDevNames->wDeviceOffset ?
-                                                  pDevNames->wDeviceOffset + _tcslen(pchPrinter)+1 :
-                                                  pDevNames->wDriverOffset + _tcslen(pchDriver)+1;
+                if (pchPort) {
+                    pDevNames->wOutputOffset = pDevNames->wDeviceOffset ?
+                        pDevNames->wDeviceOffset + _tcslen(pchPrinter) + 1 :
+                        pDevNames->wDriverOffset + _tcslen(pchDriver) + 1;
 
-                    _tcscpy(((TCHAR*)pDevNames+pDevNames->wOutputOffset), pchPort);
+                    _tcscpy(((TCHAR*)pDevNames + pDevNames->wOutputOffset), pchPort);
                 }
 
                 GlobalUnlock(*pHDevNames);
 
 #ifndef WIN16
                 // Do we have to retrieve a devmode handle?
-                if (pHDevMode)
-                {
+                if (pHDevMode) {
                     // BUGBUG: Do we need the code in this if-body?  If we don't end up needing this code,
                     // delete it as well as the wrapper of DocumentProperties in src\core\wrappers\winspool.cxx .
                     // We don't need this code iff pHDevMode is always NULL.
@@ -1847,12 +1751,10 @@ ParseCMDLine(const TCHAR *pchIn, TCHAR **ppchURL, HGLOBAL *pHDevNames, HGLOBAL *
                     HANDLE  hPrinter;
 
                     // Obtain hDevMode.
-                    if (OpenPrinter(pchPrinter, &hPrinter, NULL))
-                    {
+                    if (OpenPrinter(pchPrinter, &hPrinter, NULL)) {
                         LONG lSize = DocumentProperties(0, hPrinter, pchPrinter, NULL, NULL, 0);
 
-                        if (lSize < sizeof(DEVMODE))
-                        {
+                        if (lSize < sizeof(DEVMODE)) {
                             Assert(!"Memory size suggested by DocumentProperties is smaller than DEVMODE");
 
                             lSize = sizeof(DEVMODE);
@@ -1860,25 +1762,20 @@ ParseCMDLine(const TCHAR *pchIn, TCHAR **ppchURL, HGLOBAL *pHDevNames, HGLOBAL *
 
                         *pHDevMode = GlobalAlloc(GHND, lSize);
 
-                        if (*pHDevMode)
-                        {
-                            pDevMode = (LPDEVMODE) GlobalLock(*pHDevMode);
+                        if (*pHDevMode) {
+                            pDevMode = (LPDEVMODE)GlobalLock(*pHDevMode);
 
-                            if (pDevMode)
-                            {
+                            if (pDevMode) {
                                 DocumentProperties(0, hPrinter, pchPrinter, pDevMode, NULL, DM_OUT_BUFFER);
 
                                 // Do we have to retrieve a device context handle?
-                                if (pHDC)
-                                {
+                                if (pHDC) {
                                     // Obtain hdc.
                                     *pHDC = CreateDCForPrintingInternal(pchDriver, pchPrinter, NULL, pDevMode);
                                 }
 
                                 GlobalUnlock(*pHDevMode);
-                            }
-                            else
-                            {
+                            } else {
                                 // error case
                                 GlobalFree(*pHDevMode);
                                 *pHDevMode = 0;
@@ -1889,9 +1786,7 @@ ParseCMDLine(const TCHAR *pchIn, TCHAR **ppchURL, HGLOBAL *pHDevNames, HGLOBAL *
                     }
                 }
 #endif // !WIN16
-            }
-            else
-            {
+            } else {
                 // error case
                 GlobalFree(*pHDevNames);
                 *pHDevNames = 0;
@@ -1914,10 +1809,10 @@ Cleanup:
 #ifdef WIN16
 HDC WINAPI
 CreateDCForPrintingInternal(
-        LPCWSTR             lpszDriver,
-        LPCWSTR             lpszDevice,
-        LPCWSTR             lpszOutput,
-        CONST DEVMODE *    lpInitData);
+    LPCWSTR             lpszDriver,
+    LPCWSTR             lpszDevice,
+    LPCWSTR             lpszOutput,
+    CONST DEVMODE* lpInitData);
 #endif // WIN16
 
 
@@ -1932,38 +1827,34 @@ CreateDCForPrintingInternal(
 
 HDC CreateDCFromDevNames(HGLOBAL hDevNames, HGLOBAL hDevMode)
 {
-    HDC hdc=0;
-    LPDEVNAMES  pDevNames=0;
-    LPDEVMODE   pDevMode=0;
+    HDC hdc = 0;
+    LPDEVNAMES  pDevNames = 0;
+    LPDEVMODE   pDevMode = 0;
 
 
-    if (!hDevNames)
-    {
+    if (!hDevNames) {
         goto Cleanup;
     }
 
-    pDevNames = (LPDEVNAMES) GlobalLock(hDevNames);
+    pDevNames = (LPDEVNAMES)GlobalLock(hDevNames);
     if (!pDevNames)
         goto Cleanup;
 
-    if (hDevMode)
-    {
-        pDevMode = (LPDEVMODE) GlobalLock(hDevMode);
+    if (hDevMode) {
+        pDevMode = (LPDEVMODE)GlobalLock(hDevMode);
     }
 
     hdc = CreateDCForPrintingInternal((LPCTSTR)pDevNames + pDevNames->wDriverOffset,
-                     (LPCTSTR)pDevNames + pDevNames->wDeviceOffset,
-                     (LPCTSTR)pDevNames + pDevNames->wOutputOffset,
-                     pDevMode);
+                                      (LPCTSTR)pDevNames + pDevNames->wDeviceOffset,
+                                      (LPCTSTR)pDevNames + pDevNames->wOutputOffset,
+                                      pDevMode);
 
 
 Cleanup:
-    if (pDevNames)
-    {
+    if (pDevNames) {
         GlobalUnlock(hDevNames);
     }
-    if (pDevMode)
-    {
+    if (pDevMode) {
         GlobalUnlock(hDevMode);
     }
     return hdc;
@@ -2006,15 +1897,13 @@ int WINAPI PrintHTML(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpURLToPrint, i
 
         CEnsureThreadState  cets;
         TCHAR               achBuff[pdlUrlLen];
-        CDoc                *pTempDoc=0;
+        CDoc* pTempDoc = 0;
 
-        if (FAILED(cets._hr))
-        {
+        if (FAILED(cets._hr)) {
             goto Cleanup;
         }
 
-        if (!lpURLToPrint)
-        {
+        if (!lpURLToPrint) {
             goto Cleanup;
         }
 
@@ -2029,29 +1918,25 @@ int WINAPI PrintHTML(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpURLToPrint, i
 
         pTempDoc = new CDoc(0);
 
-        if (!pTempDoc)
-        {
+        if (!pTempDoc) {
             goto Cleanup;
         }
 
-        if (FAILED(pTempDoc->Init()))
-        {
+        if (FAILED(pTempDoc->Init())) {
             goto Cleanup;
         }
 #ifndef UNIX
-                // if we got that far, all that's left to do is to convert the string...
-        memset(achBuff, 0, pdlUrlLen*sizeof(TCHAR));
-        if (MultiByteToWideChar(CP_ACP, 0, (const char*)lpURLToPrint, -1,achBuff, pdlUrlLen-1))
-        {
-            hr = pTempDoc->DoPrint(achBuff,0,PRINT_WAITFORCOMPLETION | PRINT_RELEASESPOOLER | PRINT_PARSECMD | PRINT_NOGLOBALWINDOW);
+        // if we got that far, all that's left to do is to convert the string...
+        memset(achBuff, 0, pdlUrlLen * sizeof(TCHAR));
+        if (MultiByteToWideChar(CP_ACP, 0, (const char*)lpURLToPrint, -1, achBuff, pdlUrlLen - 1)) {
+            hr = pTempDoc->DoPrint(achBuff, 0, PRINT_WAITFORCOMPLETION | PRINT_RELEASESPOOLER | PRINT_PARSECMD | PRINT_NOGLOBALWINDOW);
         }
 #else
-        hr = pTempDoc->DoPrint(lpURLToPrint,0,PRINT_WAITFORCOMPLETION | PRINT_RELEASESPOOLER | PRINT_PARSECMD | PRINT_NOGLOBALWINDOW);
+        hr = pTempDoc->DoPrint(lpURLToPrint, 0, PRINT_WAITFORCOMPLETION | PRINT_RELEASESPOOLER | PRINT_PARSECMD | PRINT_NOGLOBALWINDOW);
 #endif // UNIX
 
     Cleanup:
-        if (pTempDoc)
-        {
+        if (pTempDoc) {
             pTempDoc->Release();
         }
 
@@ -2059,7 +1944,7 @@ int WINAPI PrintHTML(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpURLToPrint, i
 
     CoUninitialize();
 
-    return (hr==S_OK);
+    return (hr == S_OK);
 }
 
 
@@ -2070,29 +1955,23 @@ int WINAPI PrintHTML(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpURLToPrint, i
 
 
 //  Member:     ReadURLFromFile
-
 //  Synopsis:   helper to read the URL out of a shortcut file
-
-//  Returns:
-
-
-HRESULT ReadURLFromFile(TCHAR *pchFileName, TCHAR **ppchURL)
+HRESULT ReadURLFromFile(TCHAR* pchFileName, TCHAR** ppchURL)
 {
     HRESULT  hr = E_FAIL;
-    IPersistFile *pPF = 0;
-    IUniformResourceLocator * pUR = 0;
-    TCHAR *pchNew = 0;
+    IPersistFile* pPF = 0;
+    IUniformResourceLocator* pUR = 0;
+    TCHAR* pchNew = 0;
 
-    if (!*ppchURL)
-    {
+    if (!*ppchURL) {
         goto Cleanup;
     }
 
-    hr = CoCreateInstance(CLSID_InternetShortcut, NULL, CLSCTX_INPROC_SERVER, IID_IPersistFile, (void **)&pPF);
+    hr = CoCreateInstance(CLSID_InternetShortcut, NULL, CLSCTX_INPROC_SERVER, IID_IPersistFile, (void**)&pPF);
     if (hr)
         goto Cleanup;
 
-    hr = pPF->Load(pchFileName,0);
+    hr = pPF->Load(pchFileName, 0);
     if (hr)
         goto Cleanup;
 
@@ -2101,14 +1980,12 @@ HRESULT ReadURLFromFile(TCHAR *pchFileName, TCHAR **ppchURL)
         goto Cleanup;
 
     hr = pUR->GetURL(&pchNew);
-    if (!hr)
-    {
+    if (!hr) {
         // If pre-allocated buffer is too small, re-alloc it.
-        size_t  ilen  =  _tcslen(pchNew);
-        if  (_tcslen(*ppchURL)  <  ilen)
-        {
-            delete  *ppchURL;
-            *ppchURL  =  new  TCHAR[ilen  +  1];
+        size_t  ilen = _tcslen(pchNew);
+        if (_tcslen(*ppchURL) < ilen) {
+            delete* ppchURL;
+            *ppchURL = new  TCHAR[ilen + 1];
         }
         _tcscpy(*ppchURL, pchNew);
     }
@@ -2123,48 +2000,39 @@ Cleanup:
 #endif // ndef WIN16
 
 
-
-
 #ifdef WIN16
 UINT APIENTRY PrintToFileHookProc(HWND hdlg,
-                              UINT uiMsg,
-                              WPARAM wParam,
-                              LPARAM lParam)
+                                  UINT uiMsg,
+                                  WPARAM wParam,
+                                  LPARAM lParam)
 {
-    switch (uiMsg)
+    switch (uiMsg) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
-        {
-            int      cbLen;
-            TCHAR    achOK[MAX_PATH];
+        int      cbLen;
+        TCHAR    achOK[MAX_PATH];
 
-            // change "save" to "ok"
-            cbLen = LoadString(GetResourceHInst(),IDS_PRINTTOFILE_OK,achOK,MAX_PATH);
-            if (cbLen < 1)
-                _tcscpy(achOK,_T("OK"));
+        // change "save" to "ok"
+        cbLen = LoadString(GetResourceHInst(), IDS_PRINTTOFILE_OK, achOK, MAX_PATH);
+        if (cbLen < 1)
+            _tcscpy(achOK, _T("OK"));
 
-    //        SetDlgItemText(hdlg, IDOK, _T("OK"));
-            SetDlgItemText(hdlg, IDOK, achOK);
+        //        SetDlgItemText(hdlg, IDOK, _T("OK"));
+        SetDlgItemText(hdlg, IDOK, achOK);
 
-            // ...and, finally force us into foreground (needed for Win95, Bug : 13368)
-            ::SetForegroundWindow(hdlg);
-            break;
-        }
+        // ...and, finally force us into foreground (needed for Win95, Bug : 13368)
+        ::SetForegroundWindow(hdlg);
+        break;
+    }
     }
     return FALSE;
 }
 
 
-
-
 //  Member:     GetPrintFileName
-
 //  Synopsis:   Opens up the customized save file dialog and gets
 //              a filename for the printoutput
-//  Returns:
-
-
-HRESULT GetPrintFileName(HWND hwnd, TCHAR *pchFileName)
+HRESULT GetPrintFileName(HWND hwnd, TCHAR* pchFileName)
 {
     OPENFILENAME    openfilename;
     int             cbLen;
@@ -2175,39 +2043,35 @@ HRESULT GetPrintFileName(HWND hwnd, TCHAR *pchFileName)
 
     HRESULT         hr = E_FAIL;
 
-    memset(&openfilename,0,sizeof(openfilename));
+    memset(&openfilename, 0, sizeof(openfilename));
     openfilename.lStructSize = sizeof(openfilename);
     openfilename.hwndOwner = hwnd;
 
-    cbLen = LoadString(GetResourceHInst(),IDS_PRINTTOFILE_TITLE,achTitlePrintInto,MAX_PATH);
+    cbLen = LoadString(GetResourceHInst(), IDS_PRINTTOFILE_TITLE, achTitlePrintInto, MAX_PATH);
     Assert(cbLen && "could not load the resource");
 
     if (cbLen > 0)
         openfilename.lpstrTitle = achTitlePrintInto;
 
     // guarantee trailing 0 to terminate the filter string
-    memset(achFilter, 0, sizeof(TCHAR)*MAX_PATH);
-    cbLen = LoadString(GetResourceHInst(),IDS_PRINTTOFILE_SPEC,achFilter,MAX_PATH-2);
+    memset(achFilter, 0, sizeof(TCHAR) * MAX_PATH);
+    cbLen = LoadString(GetResourceHInst(), IDS_PRINTTOFILE_SPEC, achFilter, MAX_PATH - 2);
     Assert(cbLen && "could not load the resource");
 
-    if (cbLen>0)
-    {
-        for (; cbLen >= 0; cbLen--)
-        {
-            if (achFilter[cbLen]==_T(','))
-            {
+    if (cbLen > 0) {
+        for (; cbLen >= 0; cbLen--) {
+            if (achFilter[cbLen] == _T(',')) {
                 achFilter[cbLen] = 0;
             }
         }
     }
 
-
     openfilename.nMaxFileTitle = _tcslen(openfilename.lpstrTitle);
-    _tcscpy(achFilePrintInto,_T(""));
+    _tcscpy(achFilePrintInto, _T(""));
     openfilename.lpstrFile = achFilePrintInto;
     openfilename.nMaxFile = MAX_PATH;
     openfilename.Flags = OFN_NOREADONLYRETURN | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT |
-                        OFN_ENABLEHOOK | OFN_NOCHANGEDIR;
+        OFN_ENABLEHOOK | OFN_NOCHANGEDIR;
     openfilename.lpfnHook = PrintToFileHookProc;
     openfilename.lpstrFilter = achFilter;
     openfilename.nFilterIndex = 1;
@@ -2219,28 +2083,22 @@ HRESULT GetPrintFileName(HWND hwnd, TCHAR *pchFileName)
         openfilename.lpstrInitialDir = *achPath ? achPath : NULL;
     }
 
-    if (GetSaveFileName(&openfilename))
-    {
+    if (GetSaveFileName(&openfilename)) {
         LOCK_SECTION(g_csFile);
 
         _tcscpy(g_achSavePath, openfilename.lpstrFile);
 
-        TCHAR * pchShortName =_tcsrchr(g_achSavePath, _T('\\'));
+        TCHAR* pchShortName = _tcsrchr(g_achSavePath, _T('\\'));
 
-        if (pchShortName)
-        {
+        if (pchShortName) {
             *(pchShortName + 1) = 0;
-        }
-        else
-        {
+        } else {
             *g_achSavePath = 0;
         }
 
         _tcscpy(pchFileName, achFilePrintInto);
         hr = S_OK;
-    }
-    else
-    {
+    } else {
         WHEN_DBG(DWORD dwError = CommDlgExtendedError();)
     }
 
@@ -2249,70 +2107,55 @@ HRESULT GetPrintFileName(HWND hwnd, TCHAR *pchFileName)
 #endif
 
 
-
-
 //  Member:     VerifyPrintFileName
-
 //  Synopsis:   Verifies that the given filename does not yet exists
 //              If it does it modifes the passed in name
 //              like: print.ps will be print.1 to print.xxx
 //  Returns:    S_OK if everything is fine
-
-
-HRESULT VerifyPrintFileName(TCHAR *pchFileName)
+HRESULT VerifyPrintFileName(TCHAR* pchFileName)
 {
-    int         iCounter=1;
+    int         iCounter = 1;
     HRESULT     hr = E_FAIL;
     TCHAR       achNr[MAX_PATH];
     TCHAR       achFileName[MAX_PATH];
     char        achTemp[MAX_PATH];
     HFILE       hFile;
     OFSTRUCT    ofstruct;
-    TCHAR       *pchFound;
-    TCHAR       *pchTmp;
+    TCHAR* pchFound;
+    TCHAR* pchTmp;
 
     _tcscpy(achFileName, pchFileName);
-    while (hr == E_FAIL)
-    {
-        if (MbcsFromUnicode(achTemp, MAX_PATH, achFileName)==0)
+    while (hr == E_FAIL) {
+        if (MbcsFromUnicode(achTemp, MAX_PATH, achFileName) == 0)
             return S_FALSE;
 
         hFile = OpenFile(achTemp, &ofstruct, OF_EXIST);
-        if (hFile == -1)
-        {
+        if (hFile == -1) {
             hr = S_OK;
-        }
-        else if (iCounter < 9999)
-        {
+        } else if (iCounter < 9999) {
             // try to find the extension dot...
             pchFound = achFileName;
-            while (pchFound && (pchTmp = _tcschr(pchFound, '.')) != NULL)
-            {
+            while (pchFound && (pchTmp = _tcschr(pchFound, '.')) != NULL) {
                 pchFound = ++pchTmp;
             }
 
             // now we are either at the last dot, or the first character (if there was no dot)
-            if (pchFound != achFileName)
-            {
+            if (pchFound != achFileName) {
                 // slam a null in the dot position
-                *(--pchFound)= 0;
+                *(--pchFound) = 0;
             }
             // append a dot
             _tcscat(achFileName, TEXT("."));
 
             // now append a number
-
             _itot(iCounter, achNr, 10);
             _tcscat(achFileName, achNr);
             iCounter++;
-        }
-        else
-        {
+        } else {
             hr = S_FALSE;
         }
     }
-    if (hr==S_OK)
-    {
+    if (hr == S_OK) {
         _tcscpy(pchFileName, achFileName);
     }
 
@@ -2321,7 +2164,7 @@ HRESULT VerifyPrintFileName(TCHAR *pchFileName)
 
 
 UINT
-GetHTMLTempFileName(const TCHAR *pchPathName, const TCHAR *pchPrefixString, UINT uUnique, TCHAR *pchTempFileName, UINT uAttempts)
+GetHTMLTempFileName(const TCHAR* pchPathName, const TCHAR* pchPrefixString, UINT uUnique, TCHAR* pchTempFileName, UINT uAttempts)
 {
     unsigned int nTempFileLength = 0;
     TCHAR        achTMPFileName[MAX_PATH];
@@ -2331,7 +2174,7 @@ GetHTMLTempFileName(const TCHAR *pchPathName, const TCHAR *pchPrefixString, UINT
 
     Assert(pchPathName && pchPrefixString && pchTempFileName);
 
-    dwRet = GetTempFileName( pchPathName, pchPrefixString, uUnique, achTMPFileName );
+    dwRet = GetTempFileName(pchPathName, pchPrefixString, uUnique, achTMPFileName);
     if (!dwRet)
         goto Cleanup;
 
@@ -2339,32 +2182,25 @@ GetHTMLTempFileName(const TCHAR *pchPathName, const TCHAR *pchPrefixString, UINT
     nTempFileLength = _tcslen(pchTempFileName);
 
     if ((nTempFileLength >= 4)
-        && !_tcsicmp(pchTempFileName + nTempFileLength - 4, _T(".TMP")))
-    {
+        && !_tcsicmp(pchTempFileName + nTempFileLength - 4, _T(".TMP"))) {
         // Replace the extension.
         _tcscpy(pchTempFileName + nTempFileLength - 3, _T("HTM"));
 
         dwHTMFileExists = SearchPath(pchPathName, pchTempFileName + _tcslen(pchPathName), NULL, 0, NULL, &pDummy);
 
-        if (dwHTMFileExists <= 0)
-        {
+        if (dwHTMFileExists <= 0) {
             // We are going to use the HTM file because no file with this name exists.
             // Delete the .TMP file because we will be using the .HTM filename instead.
             DeleteFile(achTMPFileName);
-        }
-        else
-        {
+        } else {
             // The same filename with an HTM extension already exists.
-            if (uAttempts > 0)
-            {
-                dwRet = GetHTMLTempFileName( pchPathName, pchPrefixString, uUnique, pchTempFileName, uAttempts-1 );
+            if (uAttempts > 0) {
+                dwRet = GetHTMLTempFileName(pchPathName, pchPrefixString, uUnique, pchTempFileName, uAttempts - 1);
 
                 // If this isn't our first attempt, make sure we delete the previous TMP-file
                 // now.  (We kept this file to make sure we just picked a different one above.)
                 DeleteFile(achTMPFileName);
-            }
-            else
-            {
+            } else {
                 // Use the TMP file because the same filename with an HTM extension
                 // already exists and we have exhausted our attempt quota.
                 _tcscpy(pchTempFileName, achTMPFileName);
@@ -2373,20 +2209,16 @@ GetHTMLTempFileName(const TCHAR *pchPathName, const TCHAR *pchPrefixString, UINT
     }
 
 Cleanup:
-
     return dwRet;
 }
 
 PRINTINFOBAG::PRINTINFOBAG(void)
 {
     HKEY    keyPageSetup = NULL;
-    if (GetRegPrintOptionsKey(PRINTOPTSUBKEY_PAGESETUP, &keyPageSetup) == ERROR_SUCCESS)
-    {
-        ReadMargins(keyPageSetup,&(rtMargin));
+    if (GetRegPrintOptionsKey(PRINTOPTSUBKEY_PAGESETUP, &keyPageSetup) == ERROR_SUCCESS) {
+        ReadMargins(keyPageSetup, &(rtMargin));
         RegCloseKey(keyPageSetup);
-    }
-    else
-    {
+    } else {
         rtMargin.left = rtMargin.top = rtMargin.right = rtMargin.bottom = 750; // in 1/1000 inch (3/4'')
     }
 }

@@ -1,16 +1,6 @@
-
-
 //  Microsoft Windows
 //  Copyright (C) Microsoft Corporation, 1992 - 1995.
-
 //  File:       notifctn.cxx
-
-//  Contents:
-
-//  Classes:
-
-//  Functions:
-
 //  History:    11-21-1996   JohannP (Johann Posch)   Created
 
 
@@ -19,7 +9,7 @@
 
 // the NotificationMgr is a process variable
 
-CNotificationMgr            *g_pCNotificationMgr        = 0;
+CNotificationMgr* g_pCNotificationMgr = 0;
 // some areas need single access
 CMutexSem                    g_mxsCNotfMgr;
 
@@ -27,21 +17,21 @@ CMutexSem                    g_mxsCNotfMgr;
 #define SZNOTF_ROOT         c_pszRegKeyRoot
 #define SZNOTF_SCHEDITEMS   "SchedItems 0.6\\"
 
-const CHAR c_pszRegKeyRoot[]          = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\";
-const CHAR c_pszRegKeyDestination[]   = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\Destination 0.6\\";
-const CHAR c_pszRegKeyPackage[]       = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\Package 0.6\\";
-const CHAR c_pszRegKeyRunningItem[]   = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\RunningItem 0.6\\";
-const CHAR c_pszRegKeyRunningDest[]   = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\RunningDest 0.6\\";
+const CHAR c_pszRegKeyRoot[] = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\";
+const CHAR c_pszRegKeyDestination[] = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\Destination 0.6\\";
+const CHAR c_pszRegKeyPackage[] = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\Package 0.6\\";
+const CHAR c_pszRegKeyRunningItem[] = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\RunningItem 0.6\\";
+const CHAR c_pszRegKeyRunningDest[] = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\RunningDest 0.6\\";
 const CHAR c_pszRegKeyScheduleGroup[] = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\ScheduleGroup 0.6\\";
 
-const CHAR c_pszRegKeyPackageDelete[]       = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\Package 0.6";
-const CHAR c_pszRegKeyRunningDestDelete[]   = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\RunningDest 0.6";
+const CHAR c_pszRegKeyPackageDelete[] = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\Package 0.6";
+const CHAR c_pszRegKeyRunningDestDelete[] = "Software\\Microsoft\\Windows\\CurrentVersion\\NotificationMgr\\RunningDest 0.6";
 
 
 
 extern COleAutDll   g_OleAutDll;
 CHAR c_rgszRegKey[SZREGSETTING_MAX] = {0};
-const CHAR * c_pszRegKey = c_rgszRegKey;
+const CHAR* c_pszRegKey = c_rgszRegKey;
 
 
 TASK_TRIGGER TaskTriggerDefDisabled =
@@ -65,20 +55,17 @@ TASK_TRIGGER TaskTriggerDefDisabled =
 
 PTASK_TRIGGER GetDefTaskTrigger(BOOL fRand)
 {
-    PTASK_TRIGGER  pTT = (TASK_TRIGGER *)&TaskTriggerDefDisabled;
+    PTASK_TRIGGER  pTT = (TASK_TRIGGER*)&TaskTriggerDefDisabled;
 
-    if (fRand)
-    {
+    if (fRand) {
         DWORD dwRandTime = GetRandTime(RANDOM_TIME_START, RANDOM_TIME_END, RANDOM_TIME_INC);
         pTT->wRandomMinutesInterval = RANDOM_TIME_INC;
-        pTT->wStartHour             = (UINT)(dwRandTime / 60);
-        pTT->wStartMinute           = (UINT)(dwRandTime % 60);
-    }
-    else
-    {
+        pTT->wStartHour = (UINT)(dwRandTime / 60);
+        pTT->wStartMinute = (UINT)(dwRandTime % 60);
+    } else {
         pTT->wRandomMinutesInterval = 0;
-        pTT->wStartHour             = 0;
-        pTT->wStartMinute           = 0;
+        pTT->wStartHour = 0;
+        pTT->wStartMinute = 0;
     }
 
     return pTT;
@@ -102,8 +89,7 @@ PTASK_TRIGGER GetDefTaskTrigger(BOOL fRand)
 void NotificationMgrUnInit()
 {
     DUMP_ALLOC_TRACK();
-    if (g_pCSchedListAgent)
-    {
+    if (g_pCSchedListAgent) {
         g_pCSchedListAgent->Uninitialize();
     }
 }
@@ -127,61 +113,53 @@ void NotificationMgrUnInit()
 //  Notes:
 
 
-HRESULT CreateNotificationMgr(DWORD dwId, REFCLSID rclsid, IUnknown *pUnkOuter, REFIID riid, IUnknown **ppUnk)
+HRESULT CreateNotificationMgr(DWORD dwId, REFCLSID rclsid, IUnknown* pUnkOuter, REFIID riid, IUnknown** ppUnk)
 {
     NotfDebugOut((DEB_MGR, "API _IN CreateNotificationMgr\n"));
     HRESULT hr = NOERROR;
     CLock lck(g_mxsCNotfMgr);
 
-    INotificationMgr *pNotificationMgr= 0;
-    CDeliverAgentStart  * pDelAgent = GetDeliverAgentStart();
-    CScheduleAgent      * pSchAgent = GetScheduleAgent();
+    INotificationMgr* pNotificationMgr = 0;
+    CDeliverAgentStart* pDelAgent = GetDeliverAgentStart();
+    CScheduleAgent* pSchAgent = GetScheduleAgent();
 
-    do
-    {
-        if (!pDelAgent || !pSchAgent)
-        {
+    do {
+        if (!pDelAgent || !pSchAgent) {
             hr = E_OUTOFMEMORY;
             break;
         }
 
-        if (pUnkOuter)
-        {
+        if (pUnkOuter) {
             hr = CLASS_E_NOAGGREGATION;
             break;
         }
 
-        if (g_pCNotificationMgr == 0)
-        {
+        if (g_pCNotificationMgr == 0) {
             g_pCNotificationMgr = new CNotificationMgr(*pDelAgent, *pSchAgent);
 
-            if (g_pCNotificationMgr)
-            {
+            if (g_pCNotificationMgr) {
                 HRESULT hr1;
                 // make sure the default items are avaiable
                 g_pCNotificationMgr->CreateDefaultScheduleGroups(0);
                 // make sure destination are registered
-                g_pCNotificationMgr->UnPersistDestinationItem(0,0,0);
+                g_pCNotificationMgr->UnPersistDestinationItem(0, 0, 0);
                 // now reload all the peristed packages
-                hr1 = g_pCNotificationMgr->UnPersistScheduleItem(0,0,0);
+                hr1 = g_pCNotificationMgr->UnPersistScheduleItem(0, 0, 0);
             }
         }
 
-        if (g_pCNotificationMgr)
-        {
+        if (g_pCNotificationMgr) {
             pNotificationMgr = g_pCNotificationMgr;
-        }
-        else
-        {
+        } else {
             hr = E_OUTOFMEMORY;
         }
 
         BREAK_ONERROR(hr);
 
-        IScheduleGroup *pSchGroup = 0;
+        IScheduleGroup* pSchGroup = 0;
         NOTIFICATIONCOOKIE GroupCookie;
 
-        hr = g_pCNotificationMgr->QueryInterface(riid, (LPVOID *)ppUnk);
+        hr = g_pCNotificationMgr->QueryInterface(riid, (LPVOID*)ppUnk);
 
         break;
 
@@ -208,36 +186,29 @@ HRESULT CreateNotificationMgr(DWORD dwId, REFCLSID rclsid, IUnknown *pUnkOuter, 
 //  Notes:
 
 
-STDMETHODIMP CNotificationMgr::QueryInterface(REFIID riid, void **ppvObj)
+STDMETHODIMP CNotificationMgr::QueryInterface(REFIID riid, void** ppvObj)
 {
-    VDATEPTROUT(ppvObj, void *);
+    VDATEPTROUT(ppvObj, void*);
     VDATETHIS(this);
     HRESULT hr = NOERROR;
 
     NotfDebugOut((DEB_PACKAGE, "%p _IN CNotificationMgr::QueryInterface\n", this));
 
     *ppvObj = NULL;
-    if ((riid == IID_IUnknown) || (riid == IID_INotificationMgr) )
-    {
+    if ((riid == IID_IUnknown) || (riid == IID_INotificationMgr)) {
         *ppvObj = this;
         AddRef();
-    }
-    else if (riid == IID_INotificationProcessMgr0)
-    {
-        *ppvObj = (INotificationProcessMgr0 *)this;
+    } else if (riid == IID_INotificationProcessMgr0) {
+        *ppvObj = (INotificationProcessMgr0*)this;
         AddRef();
-    }
-    else if (riid == IID_INotificationSink)
-    {
-        *ppvObj = (INotificationSink *)this;
+    } else if (riid == IID_INotificationSink) {
+        *ppvObj = (INotificationSink*)this;
         AddRef();
-    }
-    else
-    {
+    } else {
         hr = E_NOINTERFACE;
     }
 
-    NotfDebugOut((DEB_PACKAGE, "%p OUT CNotificationMgr::QueryInterface (hr:%lx\n", this,hr));
+    NotfDebugOut((DEB_PACKAGE, "%p OUT CNotificationMgr::QueryInterface (hr:%lx\n", this, hr));
     return hr;
 }
 
@@ -262,7 +233,7 @@ STDMETHODIMP_(ULONG) CNotificationMgr::AddRef(void)
 
     LONG lRet = ++_CRefs;
 
-    NotfDebugOut((DEB_PACKAGE, "%p OUT CNotificationMgr::AddRef (cRefs:%ld)\n", this,lRet));
+    NotfDebugOut((DEB_PACKAGE, "%p OUT CNotificationMgr::AddRef (cRefs:%ld)\n", this, lRet));
     return lRet;
 }
 
@@ -287,15 +258,14 @@ STDMETHODIMP_(ULONG) CNotificationMgr::Release(void)
 
     LONG lRet = --_CRefs;
 
-    if (_CRefs == 0)
-    {
+    if (_CRefs == 0) {
         // this is global
         //delete this;
     }
     // the refcount of this object should never go to zero
     NotfAssert((lRet > 0));
 
-    NotfDebugOut((DEB_PACKAGE, "%p OUT CNotificationMgr::Release (cRefs:%ld)\n",this,lRet));
+    NotfDebugOut((DEB_PACKAGE, "%p OUT CNotificationMgr::Release (cRefs:%ld)\n", this, lRet));
     return lRet;
 }
 
@@ -329,35 +299,32 @@ STDMETHODIMP CNotificationMgr::RegisterNotificationSink(
     PNOTIFICATIONTYPE   pNotificationIDs,
     PNOTIFICATIONCOOKIE pRegisterCookie,
     DWORD               dwReserved
-    )
+)
 {
 
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::RegisterNotificationSink\n", this));
     HRESULT hr = NOERROR;
 
-    if (    !pRegisterCookie
-         || (!pDestID && !pNotificationIDs)
-         || (   !cNotifications
-             || !pNotificationIDs)
-       )
-    {
+    if (!pRegisterCookie
+        || (!pDestID && !pNotificationIDs)
+        || (!cNotifications
+            || !pNotificationIDs)
+        ) {
         // sink can be registered for completion reports
         hr = E_INVALIDARG;
-    }
-    else
-    {
+    } else {
         hr = _rDeliverAgent.Register(
-                                pNotfctnSink,
-                                pDestID,
-                                asMode,
-                                cNotifications,
-                                pNotificationIDs,
-                                pRegisterCookie,
-                                dwReserved
-                                );
+            pNotfctnSink,
+            pDestID,
+            asMode,
+            cNotifications,
+            pNotificationIDs,
+            pRegisterCookie,
+            dwReserved
+        );
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RegisterNotificationSink (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RegisterNotificationSink (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -380,21 +347,18 @@ STDMETHODIMP CNotificationMgr::RegisterNotificationSink(
 
 STDMETHODIMP CNotificationMgr::UnregisterNotificationSink(
     PNOTIFICATIONCOOKIE     pRegisterCookie
-    )
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::UnregisterNotificationSink\n", this));
     HRESULT hr = NOERROR;
 
-    if (!pRegisterCookie)
-    {
+    if (!pRegisterCookie) {
         hr = E_INVALIDARG;
-    }
-    else
-    {
+    } else {
         hr = _rDeliverAgent.Unregister(pRegisterCookie);
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::UnregisterNotificationSink (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::UnregisterNotificationSink (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -425,37 +389,31 @@ STDMETHODIMP CNotificationMgr::CreateNotification(
     // the pUnkOuter for aggregation
     LPUNKNOWN           pUnkOuter,
     // the new object just created
-    LPNOTIFICATION     *ppNotification,
+    LPNOTIFICATION* ppNotification,
     DWORD               dwReserved
-    )
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::CreateNotification\n", this));
     HRESULT hr = NOERROR;
 
     NotfAssert((ppNotification));
 
-    if (!ppNotification)
-    {
+    if (!ppNotification) {
         hr = E_INVALIDARG;
-    }
-    else if (pUnkOuter)
-    {
+    } else if (pUnkOuter) {
         hr = CLASS_E_NOAGGREGATION;
-    }
-    else
-    {
-        CNotfctnObj *pPropMap = 0;
+    } else {
+        CNotfctnObj* pPropMap = 0;
         *ppNotification = 0;
         NOTIFICATIONTYPE nofctnType = rNotificationType;
 
-        hr = CNotfctnObj::Create((PNOTIFICATIONTYPE) &nofctnType, &pPropMap);
-        if (hr == NOERROR)
-        {
+        hr = CNotfctnObj::Create((PNOTIFICATIONTYPE)&nofctnType, &pPropMap);
+        if (hr == NOERROR) {
             *ppNotification = pPropMap;
         }
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::CreateNotification (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::CreateNotification (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -482,46 +440,42 @@ STDMETHODIMP CNotificationMgr::FindNotification(
     // the new object just created
     PNOTIFICATIONITEM   pNotificationItem,
     DWORD               dwMode
-    )
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::FindNotification\n", this));
     HRESULT hr = E_INVALIDARG;
 
-    do
-    {
-        if (   !pNotificatioCookie
+    do {
+        if (!pNotificatioCookie
             || !pNotificationItem
-            )
-        {
+            ) {
             break;
         }
 
-        CSchedListAgent *pCSchAgent = _rScheduleAgent.GetSchedListAgent();
-        if (!pCSchAgent)
-        {
+        CSchedListAgent* pCSchAgent = _rScheduleAgent.GetSchedListAgent();
+        if (!pCSchAgent) {
             hr = E_FAIL;
             break;
         }
-        CPackage *pCPackage = 0;
+        CPackage* pCPackage = 0;
         hr = pCSchAgent->FindPackage(
-                                     pNotificatioCookie
-                                     ,&pCPackage
-                                     ,0
-                                     );
-        if (hr != NOERROR)
-        {
+            pNotificatioCookie
+            , &pCPackage
+            , 0
+        );
+        if (hr != NOERROR) {
             break;
         }
         NotfAssert((pCPackage));
 
-        hr = pCPackage->GetNotificationItem(pNotificationItem,(ENUM_FLAGS)dwMode);
+        hr = pCPackage->GetNotificationItem(pNotificationItem, (ENUM_FLAGS)dwMode);
 
         RELEASE(pCPackage);
 
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::FindNotification (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::FindNotification (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -546,85 +500,77 @@ STDMETHODIMP CNotificationMgr::FindNotification(
 
 
 STDMETHODIMP CNotificationMgr::DeliverNotification(
-                    // the notificationid and object
-                    LPNOTIFICATION      pNotification,
-                    // destination
-                    REFCLSID            rNotificationDest,
-                    // deliver mode - group and schedule data
-                    DELIVERMODE         deliverMode,
-                    // info about who the sender
-                    LPNOTIFICATIONSINK  pReportNotfctnSink,     // can be null - see mode
-                    // the notification update interface
-                    LPNOTIFICATIONREPORT *ppNotfctnReport,
-                    //DWORD               dwReserved
-                    PTASK_DATA          pTaskData
-                    )
+    // the notificationid and object
+    LPNOTIFICATION      pNotification,
+    // destination
+    REFCLSID            rNotificationDest,
+    // deliver mode - group and schedule data
+    DELIVERMODE         deliverMode,
+    // info about who the sender
+    LPNOTIFICATIONSINK  pReportNotfctnSink,     // can be null - see mode
+    // the notification update interface
+    LPNOTIFICATIONREPORT* ppNotfctnReport,
+    //DWORD               dwReserved
+    PTASK_DATA          pTaskData
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::DeliverNotification (DELIVERMODE:%lX)\n", this, deliverMode));
     HRESULT hr = E_INVALIDARG;
 
 
-    do
-    {
-        if (   (deliverMode & ~DELIVERMODE_ALL)
+    do {
+        if ((deliverMode & ~DELIVERMODE_ALL)
             || IS_BAD_NULL_INTERFACE(pNotification)
             || IS_BAD_INTERFACE(pReportNotfctnSink)
             || IS_BAD_WRITEPTR(ppNotfctnReport, sizeof(LPNOTIFICATIONREPORT))
-           )
-        {
+            ) {
             break;
         }
 
         // Validate task data
-        if(FAILED(hr = ValidateTaskData(pTaskData)))
-        {
+        if (FAILED(hr = ValidateTaskData(pTaskData))) {
             break;
         }
 
-        if ((deliverMode & DM_DELIVER_DEFAULT_PROCESS)  && (!IsThereADefaultProcess()))
-        {
+        if ((deliverMode & DM_DELIVER_DEFAULT_PROCESS) && (!IsThereADefaultProcess())) {
             hr = E_FAIL;
             break;
         }
 
-        CPackage *pCPackage = 0;
+        CPackage* pCPackage = 0;
         hr = CPackage::CreateDeliver(
-                                NULL,                    // class of sender
-                                pReportNotfctnSink,      // can be null - see mode
-                                pNotification,
-                                deliverMode,
-                                0, //pGroupCookie,
-                                0, //pTasktrigger,
-                                pTaskData,
-                                rNotificationDest,
-                                &pCPackage,
-                                PF_DELIVERED
-                                );
+            NULL,                    // class of sender
+            pReportNotfctnSink,      // can be null - see mode
+            pNotification,
+            deliverMode,
+            0, //pGroupCookie,
+            0, //pTasktrigger,
+            pTaskData,
+            rNotificationDest,
+            &pCPackage,
+            PF_DELIVERED
+        );
 
         BREAK_ONERROR(hr)
 #if 0
-        if (hr == S_FALSE)      //  Is running already.
-        {
-            hr = E_FAIL;
-            break;
-        }
+            if (hr == S_FALSE)      //  Is running already.
+            {
+                hr = E_FAIL;
+                break;
+            }
 #endif
 
         NotfAssert((pCPackage));
 
-        if (   (ppNotfctnReport)
-            && pCPackage->IsReportRequired() )
-        {
+        if ((ppNotfctnReport)
+            && pCPackage->IsReportRequired()) {
             *ppNotfctnReport = pCPackage->GetNotificationReportSender(TRUE);
-            NotfAssert(( *ppNotfctnReport ));
+            NotfAssert((*ppNotfctnReport));
         }
 
-        if (deliverMode & (DM_DELIVER_DELAYED | DM_THROTTLE_MODE | DM_DELIVER_LAST_DELAYED) )
-        {
+        if (deliverMode & (DM_DELIVER_DELAYED | DM_THROTTLE_MODE | DM_DELIVER_LAST_DELAYED)) {
             hr = _rScheduleAgent.HandlePackage(pCPackage);
-        }
-        else
-        {
+        } else {
             hr = _rDeliverAgent.HandlePackage(pCPackage);
         }
 
@@ -636,7 +582,7 @@ STDMETHODIMP CNotificationMgr::DeliverNotification(
     } while (TRUE);
 
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::DeliverNotification (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::DeliverNotification (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -665,83 +611,74 @@ STDMETHODIMP CNotificationMgr::DeliverNotification(
 
 
 STDMETHODIMP CNotificationMgr::ScheduleNotification(
-                // the notificationid and object
-                LPNOTIFICATION      pNotification,
-                // destination
-                REFCLSID            rNotificationDest,
-                // deliver mode - group and schedule data
-                PTASK_TRIGGER       pTasktrigger,
-                // flags which go with the TaskTrigger
-                PTASK_DATA          pTaskData,
-                // the mode how it should be delivered
-                DELIVERMODE         deliverMode,
-                // info about who the sender
-                LPCLSID             pClsidSender,           // class of sender can be NULL
-                LPNOTIFICATIONSINK  pReportNotfctnSink,     // can be null - see mode
-                // the notification update interface
-                LPNOTIFICATIONREPORT *ppNotfctnReport,
-                //the cookie of the new notification
-                PNOTIFICATIONCOOKIE pNotificationCookie,
-                // reserved dword
-                DWORD               dwReserved
-                )
+    // the notificationid and object
+    LPNOTIFICATION      pNotification,
+    // destination
+    REFCLSID            rNotificationDest,
+    // deliver mode - group and schedule data
+    PTASK_TRIGGER       pTasktrigger,
+    // flags which go with the TaskTrigger
+    PTASK_DATA          pTaskData,
+    // the mode how it should be delivered
+    DELIVERMODE         deliverMode,
+    // info about who the sender
+    LPCLSID             pClsidSender,           // class of sender can be NULL
+    LPNOTIFICATIONSINK  pReportNotfctnSink,     // can be null - see mode
+    // the notification update interface
+    LPNOTIFICATIONREPORT* ppNotfctnReport,
+    //the cookie of the new notification
+    PNOTIFICATIONCOOKIE pNotificationCookie,
+    // reserved dword
+    DWORD               dwReserved
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::ScheduleNotification\n", this));
     HRESULT hr;
 
-    if (   !pNotification
+    if (!pNotification
         || !pTasktrigger
         || (deliverMode & ~DELIVERMODE_ALL)
-       )
-    {
+        ) {
         // need notification, TaskTrigger and can not be delivered imemediately
         hr = E_INVALIDARG;
-    }
-    else
-    {
+    } else {
 
-        do
-        {
+        do {
             // validate task trigger
-            if(FAILED(hr = ValidateTrigger(pTasktrigger)))
-            {
+            if (FAILED(hr = ValidateTrigger(pTasktrigger))) {
                 break;
             }
 
             // validate task data
-            if(FAILED(hr = ValidateTaskData(pTaskData)))
-            {
+            if (FAILED(hr = ValidateTaskData(pTaskData))) {
                 break;
             }
 
-            if (deliverMode & DM_THROTTLE_MODE)
-            {
+            if (deliverMode & DM_THROTTLE_MODE) {
                 deliverMode |= DM_NEED_COMPLETIONREPORT;
                 // need a notification sink
 
-                if (!pReportNotfctnSink)
-                {
+                if (!pReportNotfctnSink) {
                     // used the default one
-                    pReportNotfctnSink = (INotificationSink *)this;
+                    pReportNotfctnSink = (INotificationSink*)this;
                     pReportNotfctnSink->AddRef();
                 }
             }
 
-            CPackage *pCPackage = 0;
+            CPackage* pCPackage = 0;
             hr = CPackage::CreateDeliver(
-                                    pClsidSender,            // class of sender
-                                    pReportNotfctnSink,      // can be null - see mode
-                                    pNotification,
-                                    deliverMode,
-                                    0,              //pGroupCookie,
-                                    pTasktrigger,   //pTasktrigger,
-                                    pTaskData,
-                                    rNotificationDest,
-                                    &pCPackage,
-                                    PF_SCHEDULED
-                                    );
-            if (hr != NOERROR)
-            {
+                pClsidSender,            // class of sender
+                pReportNotfctnSink,      // can be null - see mode
+                pNotification,
+                deliverMode,
+                0,              //pGroupCookie,
+                pTasktrigger,   //pTasktrigger,
+                pTaskData,
+                rNotificationDest,
+                &pCPackage,
+                PF_SCHEDULED
+            );
+            if (hr != NOERROR) {
                 break;
             }
 
@@ -749,25 +686,21 @@ STDMETHODIMP CNotificationMgr::ScheduleNotification(
             //need to have a valid task trigger now
             NotfAssert((pCPackage->GetTaskTrigger()));
 
-            if (pNotificationCookie)
-            {
+            if (pNotificationCookie) {
                 *pNotificationCookie = pCPackage->GetNotificationCookie();
             }
 
-            if (   (ppNotfctnReport)
-                && pCPackage->IsReportRequired() )
-            {
+            if ((ppNotfctnReport)
+                && pCPackage->IsReportRequired()) {
                 *ppNotfctnReport = pCPackage->GetNotificationReportSender(TRUE);
-                NotfAssert(( *ppNotfctnReport ));
+                NotfAssert((*ppNotfctnReport));
             }
 
-            if (hr == NOERROR)
-            {
+            if (hr == NOERROR) {
                 hr = _rScheduleAgent.HandlePackage(pCPackage);
             }
 
-            if (deliverMode & DM_DELIVER_DEFAULT_PROCESS)
-            {
+            if (deliverMode & DM_DELIVER_DEFAULT_PROCESS) {
                 PostSyncDefProcNotifications();
             }
             GetGlobalNotfMgr()->SetLastUpdateDate(pCPackage);
@@ -779,11 +712,11 @@ STDMETHODIMP CNotificationMgr::ScheduleNotification(
             NotfAssert((!pCPackage));
 
             break;
-        } while ( TRUE );
+        } while (TRUE);
 
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::ScheduleNotification (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::ScheduleNotification (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -812,68 +745,61 @@ STDMETHODIMP CNotificationMgr::ScheduleNotification(
 
 
 STDMETHODIMP CNotificationMgr::UpdateNotification(
-                //the cookie of the new notification
-                PNOTIFICATIONCOOKIE pNotificationCookie,
-                // deliver mode - group and schedule data
-                PTASK_TRIGGER       pTasktrigger,
-                // flags which go with the TaskTrigger
-                PTASK_DATA          pTaskData,
-                // the mode how it should be delivered
-                DELIVERMODE         deliverMode,
-                // info about who the sender
-                // reserved dword
-                DWORD               dwReserved
-                )
+    //the cookie of the new notification
+    PNOTIFICATIONCOOKIE pNotificationCookie,
+    // deliver mode - group and schedule data
+    PTASK_TRIGGER       pTasktrigger,
+    // flags which go with the TaskTrigger
+    PTASK_DATA          pTaskData,
+    // the mode how it should be delivered
+    DELIVERMODE         deliverMode,
+    // info about who the sender
+    // reserved dword
+    DWORD               dwReserved
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::UpdateNotification\n", this));
     HRESULT hr = E_NOTIMPL;
 
-    do
-    {
-        if (   IS_BAD_NULL_READPTR(pNotificationCookie, sizeof(NOTIFICATIONCOOKIE))
+    do {
+        if (IS_BAD_NULL_READPTR(pNotificationCookie, sizeof(NOTIFICATIONCOOKIE))
             || IS_BAD_NULL_READPTR(pTasktrigger, sizeof(TASK_TRIGGER))
             || (deliverMode & ~DELIVERMODE_ALL)
             || IS_BAD_READPTR(pTaskData, sizeof(TASK_DATA))
-           )
-        {
+            ) {
             // need notification, TaskTrigger and can not be delivered imemediately
             hr = E_INVALIDARG;
             break;
         }
 
         // validate task trigger
-        if(FAILED(hr = ValidateTrigger(pTasktrigger)))
-        {
+        if (FAILED(hr = ValidateTrigger(pTasktrigger))) {
             break;
         }
 
         // validate task data
-        if(FAILED(hr = ValidateTaskData(pTaskData)))
-        {
+        if (FAILED(hr = ValidateTaskData(pTaskData))) {
             break;
         }
 
-        CPackage *pCPackage = 0;
+        CPackage* pCPackage = 0;
         hr = _rScheduleAgent.FindPackage(
-                              pNotificationCookie
-                             ,&pCPackage
-                             ,LM_LOCALCOPY
-                             );
-        if (FAILED(hr) || (!(pCPackage->GetDeliverMode() & DM_DELIVER_DEFAULT_PROCESS)))
-        {
-            if (pCPackage)
-            {
+            pNotificationCookie
+            , &pCPackage
+            , LM_LOCALCOPY
+        );
+        if (FAILED(hr) || (!(pCPackage->GetDeliverMode() & DM_DELIVER_DEFAULT_PROCESS))) {
+            if (pCPackage) {
                 RELEASE(pCPackage);
             }
             hr = _rScheduleAgent.RevokePackage(
-                                  pNotificationCookie
-                                 ,&pCPackage
-                                 ,0
-                                 );
+                pNotificationCookie
+                , &pCPackage
+                , 0
+            );
         }
 
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
             TNotfAssert((!pCPackage));
             break;
         }
@@ -886,8 +812,7 @@ STDMETHODIMP CNotificationMgr::UpdateNotification(
 
         hr = _rScheduleAgent.HandlePackage(pCPackage);
 
-        if (deliverMode & DM_DELIVER_DEFAULT_PROCESS)
-        {
+        if (deliverMode & DM_DELIVER_DEFAULT_PROCESS) {
             PostSyncDefProcNotifications();
         }
         GetGlobalNotfMgr()->SetLastUpdateDate(pCPackage);
@@ -895,9 +820,9 @@ STDMETHODIMP CNotificationMgr::UpdateNotification(
         RELEASE(pCPackage);
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::UpdateNotification (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::UpdateNotification (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -918,50 +843,41 @@ STDMETHODIMP CNotificationMgr::UpdateNotification(
 
 
 STDMETHODIMP CNotificationMgr::RevokeNotification(
-                        PNOTIFICATIONCOOKIE     pNotificationCookie,
-                        PNOTIFICATIONITEM       pNotificationItem,
-                        DWORD                   dwMode
-                        )
+    PNOTIFICATIONCOOKIE     pNotificationCookie,
+    PNOTIFICATIONITEM       pNotificationItem,
+    DWORD                   dwMode
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::RevokeNotification\n", this));
     HRESULT hr = E_NOTIMPL;
 
-    CPackage *pCPackage = NULL,
-             *pPkgTmp = NULL;
+    CPackage* pCPackage = NULL,
+        * pPkgTmp = NULL;
 
-    if (   (pNotificationItem)
-        && (pNotificationItem->cbSize < sizeof(NOTIFICATIONITEM)))
-    {
+    if ((pNotificationItem)
+        && (pNotificationItem->cbSize < sizeof(NOTIFICATIONITEM))) {
         hr = E_INVALIDARG;
-    }
-    else if (pNotificationItem)
-    {
-        hr = _rScheduleAgent.RevokePackage(pNotificationCookie,&pCPackage,dwMode);
-        if (hr == NOERROR)
-        {
+    } else if (pNotificationItem) {
+        hr = _rScheduleAgent.RevokePackage(pNotificationCookie, &pCPackage, dwMode);
+        if (hr == NOERROR) {
             NotfAssert((pCPackage));
-            hr = pCPackage->GetNotificationItem(pNotificationItem,(ENUM_FLAGS)dwMode);
+            hr = pCPackage->GetNotificationItem(pNotificationItem, (ENUM_FLAGS)dwMode);
             RELEASE(pCPackage);
-        }
-        else
-        {
+        } else {
             NotfAssert((!pCPackage));
         }
-    }
-    else
-    {
-        hr = _rScheduleAgent.RevokePackage(pNotificationCookie, NULL,dwMode);
+    } else {
+        hr = _rScheduleAgent.RevokePackage(pNotificationCookie, NULL, dwMode);
     }
 
     HRESULT hr1 = GetThrottleListAgent()->FindPackage(pNotificationCookie, &pPkgTmp, 0);
-    if (SUCCEEDED(hr1) && pPkgTmp)
-    {
+    if (SUCCEEDED(hr1) && pPkgTmp) {
         DWORD dwState = pPkgTmp->GetNotificationState();
         pPkgTmp->SetNotificationState(dwState | PF_REVOKED);
         RELEASE(pPkgTmp);
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RevokeNotification (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RevokeNotification (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -981,58 +897,51 @@ STDMETHODIMP CNotificationMgr::RevokeNotification(
 
 
 STDMETHODIMP CNotificationMgr::GetEnumNotification(
-                        DWORD                   grfFlags,
-                        LPENUMNOTIFICATION     *ppEnumNotification
-                        )
+    DWORD                   grfFlags,
+    LPENUMNOTIFICATION* ppEnumNotification
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::RevokeItem\n", this));
 
     HRESULT hr = E_FAIL;
 
-    do
-    {
-        if (!ppEnumNotification)
-        {
+    do {
+        if (!ppEnumNotification) {
             hr = E_INVALIDARG;
             break;
         }
 
         *ppEnumNotification = 0;
 
-        CListAgent *pCListAgent = 0;
-        if (   (grfFlags & EF_NOTIFICATION_THROTTLED)
-            || (grfFlags & EF_NOTIFICATION_SUSPENDED) )
-        {
+        CListAgent* pCListAgent = 0;
+        if ((grfFlags & EF_NOTIFICATION_THROTTLED)
+            || (grfFlags & EF_NOTIFICATION_SUSPENDED)) {
             pCListAgent = GetThrottleListAgent();
-        }
-        else
-        {
+        } else {
             pCListAgent = _rScheduleAgent.GetSchedListAgent();
         }
         // should never happen
         NotfAssert((pCListAgent));
-        if (!pCListAgent)
-        {
+        if (!pCListAgent) {
             break;
         }
 
-        CEnumNotification *pCEnum = 0;
+        CEnumNotification* pCEnum = 0;
         hr = CEnumNotification::Create(
-                                   pCListAgent
-                                  ,(ENUM_FLAGS)grfFlags
-                                  ,&pCEnum
-                                  );
+            pCListAgent
+            , (ENUM_FLAGS)grfFlags
+            , &pCEnum
+        );
 
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
             break;
         }
-        *ppEnumNotification = (IEnumNotification *)pCEnum;
+        *ppEnumNotification = (IEnumNotification*)pCEnum;
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RevokeItem (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RevokeItem (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1058,41 +967,38 @@ STDMETHODIMP CNotificationMgr::CreateScheduleGroup(
     // the group creation flags
     DWORD               grfGroupCreateFlags,
     // the new group
-    LPSCHEDULEGROUP    *ppSchGroup,
+    LPSCHEDULEGROUP* ppSchGroup,
     // the cookie of the group
     PNOTIFICATIONCOOKIE pGroupCookie,
     DWORD               dwReserved
-    )
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::CreateScheduleGroup\n", this));
     HRESULT hr = E_INVALIDARG;
 
-    do
-    {
-        if (!ppSchGroup || !pGroupCookie)
-        {
+    do {
+        if (!ppSchGroup || !pGroupCookie) {
             break;
         }
 
-        CScheduleGroup *pCSchedGroup = 0;
+        CScheduleGroup* pCSchedGroup = 0;
 
         hr = CScheduleGroup::Create(
-                                 grfGroupCreateFlags
-                                ,&pCSchedGroup
-                                ,pGroupCookie
-                                ,dwReserved
-                                );
-        if (hr != NOERROR)
-        {
+            grfGroupCreateFlags
+            , &pCSchedGroup
+            , pGroupCookie
+            , dwReserved
+        );
+        if (hr != NOERROR) {
             break;
         }
 
-        *ppSchGroup = (IScheduleGroup *)pCSchedGroup;
+        *ppSchGroup = (IScheduleGroup*)pCSchedGroup;
 
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::CreateScheduleGroup (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::CreateScheduleGroup (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1115,35 +1021,33 @@ STDMETHODIMP CNotificationMgr::CreateScheduleGroup(
 
 STDMETHODIMP CNotificationMgr::FindScheduleGroup(
     PNOTIFICATIONCOOKIE pGroupCookie,
-    LPSCHEDULEGROUP    *ppSchGroup,
+    LPSCHEDULEGROUP* ppSchGroup,
     // the cookie of the group
     DWORD               dwReserved
-    )
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::FindScheduleGroup\n", this));
 
     HRESULT hr = E_INVALIDARG;
 
-    CScheduleGroup *pCSchedGroup = 0;
+    CScheduleGroup* pCSchedGroup = 0;
 
-    do
-    {
-        if (   !pGroupCookie
+    do {
+        if (!pGroupCookie
             || !ppSchGroup
-            )
-        {
+            ) {
             break;
         }
 
         hr = CScheduleGroup::LoadPersistedGroup(
-                                 c_pszRegKeyScheduleGroup
-                                ,pGroupCookie
-                                ,0
-                                ,&pCSchedGroup
-                                );
+            c_pszRegKeyScheduleGroup
+            , pGroupCookie
+            , 0
+            , &pCSchedGroup
+        );
         BREAK_ONERROR(hr);
 
-        *ppSchGroup = (IScheduleGroup *)pCSchedGroup;
+        *ppSchGroup = (IScheduleGroup*)pCSchedGroup;
 
         // the group is addref'd
         pCSchedGroup = 0;
@@ -1151,12 +1055,11 @@ STDMETHODIMP CNotificationMgr::FindScheduleGroup(
         break;
     } while (TRUE);
 
-    if (pCSchedGroup)
-    {
+    if (pCSchedGroup) {
         pCSchedGroup->Release();
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::FindScheduleGroup (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::FindScheduleGroup (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1180,53 +1083,47 @@ STDMETHODIMP CNotificationMgr::FindScheduleGroup(
 STDMETHODIMP CNotificationMgr::RevokeScheduleGroup(
     // cookie of group to be revoked
     PNOTIFICATIONCOOKIE pGroupCookie,
-    LPSCHEDULEGROUP    *ppSchGroup,
+    LPSCHEDULEGROUP* ppSchGroup,
     DWORD               dwReserved
-    )
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::RevokeScheduleGroup\n", this));
     HRESULT hr = E_INVALIDARG;
 
-    do
-    {
-        if (!pGroupCookie)
-        {
+    do {
+        if (!pGroupCookie) {
             break;
         }
 
-        if (IsPredefinedScheduleGroup(*pGroupCookie))
-        {
+        if (IsPredefinedScheduleGroup(*pGroupCookie)) {
             // can not revoke a predefined group
             break;
         }
 
-        CScheduleGroup *pCSchedGroup = 0;
+        CScheduleGroup* pCSchedGroup = 0;
 
         hr = CScheduleGroup::LoadPersistedGroup(
-                                 c_pszRegKeyScheduleGroup
-                                ,pGroupCookie
-                                ,0
-                                ,&pCSchedGroup
-                                );
+            c_pszRegKeyScheduleGroup
+            , pGroupCookie
+            , 0
+            , &pCSchedGroup
+        );
         BREAK_ONERROR(hr);
 
         hr = pCSchedGroup->ChangeAttributes(NULL        // PTASK_TRIGGER       pTaskTrigger,
-                                         ,0             // DWORD               pTaskData,
-                                         ,pGroupCookie  // PNOTIFICATIONCOOKIE pGroupCookie,
-                                         ,0             // PGROUPINFO          pGroupInfo
-                                         ,(GROUPMODE)0  // GROUPMODE           grfGroupMode)
-                                         );
+                                            , 0             // DWORD               pTaskData,
+                                            , pGroupCookie  // PNOTIFICATIONCOOKIE pGroupCookie,
+                                            , 0             // PGROUPINFO          pGroupInfo
+                                            , (GROUPMODE)0  // GROUPMODE           grfGroupMode)
+        );
         // ignore error
 
         hr = pCSchedGroup->RemovePersist(c_pszRegKeyScheduleGroup);
         BREAK_ONERROR(hr);
 
-        if (ppSchGroup)
-        {
+        if (ppSchGroup) {
             *ppSchGroup = pCSchedGroup;
-        }
-        else
-        {
+        } else {
             pCSchedGroup->Release();
         }
 
@@ -1234,7 +1131,7 @@ STDMETHODIMP CNotificationMgr::RevokeScheduleGroup(
     } while (TRUE);
 
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RevokeScheduleGroup (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RevokeScheduleGroup (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1256,45 +1153,41 @@ STDMETHODIMP CNotificationMgr::RevokeScheduleGroup(
 
 STDMETHODIMP CNotificationMgr::GetEnumScheduleGroup(
     DWORD                    grfFlags,
-    LPENUMSCHEDULEGROUP     *ppEnumScheduleGroup
-    )
+    LPENUMSCHEDULEGROUP* ppEnumScheduleGroup
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::GetEnumScheduleGroup\n", this));
     HRESULT hr = E_FAIL;
 
-    do
-    {
-        if (!ppEnumScheduleGroup)
-        {
+    do {
+        if (!ppEnumScheduleGroup) {
             hr = E_INVALIDARG;
             break;
         }
 
-        CSchedListAgent *pCSchAgent = _rScheduleAgent.GetSchedListAgent();
+        CSchedListAgent* pCSchAgent = _rScheduleAgent.GetSchedListAgent();
         // should never happen
         NotfAssert((pCSchAgent));
-        if (!pCSchAgent)
-        {
+        if (!pCSchAgent) {
             break;
         }
 
-        CEnumSchedGroup *pCEnum = 0;
+        CEnumSchedGroup* pCEnum = 0;
         hr = CEnumSchedGroup::Create(
-                                   pCSchAgent
-                                  ,(ENUM_FLAGS)grfFlags
-                                  ,&pCEnum
-                                  );
+            pCSchAgent
+            , (ENUM_FLAGS)grfFlags
+            , &pCEnum
+        );
 
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
             break;
         }
         *ppEnumScheduleGroup = pCEnum;
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::GetEnumScheduleGroup (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::GetEnumScheduleGroup (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1322,34 +1215,31 @@ STDMETHODIMP CNotificationMgr::SetMode(
     // initialization mode
     NOTIFICATIONMGRMODE     NotificationMgrMode,
     // out previous default notification mgr
-    LPCLSID                *pClsIDPre,
+    LPCLSID* pClsIDPre,
     // a reserved again
     DWORD                   dwReserved
-    )
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::SetMode\n", this));
     HRESULT hr = E_FAIL;
 
-    do
-    {
-        if (   (NotificationMgrMode != NM_DEFAULT_PROCESS)
+    do {
+        if ((NotificationMgrMode != NM_DEFAULT_PROCESS)
             || (rClsID == CLSID_NULL)
-            || dwReserved)
-        {
+            || dwReserved) {
             hr = E_INVALIDARG;
             break;
         }
-        if (g_pGlobalNotfMgr)
-        {
+        if (g_pGlobalNotfMgr) {
             CDestinationPort cDefDest(GetThreadNotificationWnd());
             hr = g_pGlobalNotfMgr->SetDefaultDestinationPort(cDefDest, 0);
-            HRESULT hr1 = g_pCNotificationMgr->UnPersistScheduleItem(0,0,0);
+            HRESULT hr1 = g_pCNotificationMgr->UnPersistScheduleItem(0, 0, 0);
         }
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::SetMode (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::SetMode (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1376,23 +1266,20 @@ STDMETHODIMP  CNotificationMgr::OnNotification(
     // the report sink if - can be NULL
     LPNOTIFICATIONREPORT    pNotfctnReport,
     DWORD                   dwReserved
-    )
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::OnNotification\n", this));
 
     HRESULT hr = E_FAIL;
 
-    if (   !pNotification
-        )
-    {
+    if (!pNotification
+        ) {
         hr = E_INVALIDARG;
-    }
-    else
-    {
+    } else {
 
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::OnNotification (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::OnNotification (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1420,31 +1307,29 @@ STDMETHODIMP CNotificationMgr::DeliverReport(
     // the cookie of the object the notification is targeted too
     PNOTIFICATIONCOOKIE     pRunningNotfCookie,
     DWORD                   dwReserved
-    )
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::DeliverReport\n", this));
 
     HRESULT hr = E_FAIL;
-    CPackage *pCPackage = 0;
-    CPackage *pCPackageRunning = 0;
+    CPackage* pCPackage = 0;
+    CPackage* pCPackageRunning = 0;
 
-    do
-    {
+    do {
 
-        if (   !pNotification
+        if (!pNotification
             || !pRunningNotfCookie
-            || *pRunningNotfCookie == COOKIE_NULL)
-        {
+            || *pRunningNotfCookie == COOKIE_NULL) {
             hr = E_INVALIDARG;
             break;
         }
 
-        CNotificationReport *pRprtNew = 0;
+        CNotificationReport* pRprtNew = 0;
         BOOL fLocal = TRUE;
 
         // find the package in the throttle list if local
-        CThrottleListAgent *pThrottleListAgent = GetThrottleListAgent();
-        CSchedListAgent *pCSchAgent = _rScheduleAgent.GetSchedListAgent();
+        CThrottleListAgent* pThrottleListAgent = GetThrottleListAgent();
+        CSchedListAgent* pCSchAgent = _rScheduleAgent.GetSchedListAgent();
 
         if (!pCSchAgent || !pThrottleListAgent) {
             hr = E_FAIL;
@@ -1453,13 +1338,13 @@ STDMETHODIMP CNotificationMgr::DeliverReport(
 
         NotfAssert((pThrottleListAgent));
         hr = pThrottleListAgent->FindPackage(
-                                     pRunningNotfCookie
-                                     ,&pCPackageRunning
-                                     ,LM_LOCALCOPY
-                                     );
+            pRunningNotfCookie
+            , &pCPackageRunning
+            , LM_LOCALCOPY
+        );
 
-        if (hr == NOERROR)  {
-            if(!pCPackageRunning->GetNotificationSinkDest())    {
+        if (hr == NOERROR) {
+            if (!pCPackageRunning->GetNotificationSinkDest()) {
                 DWORD   dwState = 0;
                 dwState = pCPackageRunning->GetNotificationState();
 
@@ -1468,38 +1353,35 @@ STDMETHODIMP CNotificationMgr::DeliverReport(
                 hr = pNotification->GetNotificationInfo(&ntType,
                                                         NULL, NULL,
                                                         NULL, NULL);
-                if ((hr == NOERROR) && (ntType == NOTIFICATIONTYPE_TASKS_ABORT))
-                {
-                    if (!(dwState & (PF_RUNNING | PF_SUSPENDED)))  {
+                if ((hr == NOERROR) && (ntType == NOTIFICATIONTYPE_TASKS_ABORT)) {
+                    if (!(dwState & (PF_RUNNING | PF_SUSPENDED))) {
                         dwState &= ~PF_DELIVERED;
 
                         // deliver the completion report notification to the sender
 
-                        if (    pCPackageRunning->GetNotificationReport()
-                            &&  (pCPackageRunning->GetDeliverMode() & (DM_NEED_COMPLETIONREPORT | DM_NEED_PROGRESSREPORT)) )
-                        {
+                        if (pCPackageRunning->GetNotificationReport()
+                            && (pCPackageRunning->GetDeliverMode() & (DM_NEED_COMPLETIONREPORT | DM_NEED_PROGRESSREPORT))) {
                             LPNOTIFICATION pNotification = 0;
 
                             hr = GetNotificationMgr()->CreateNotification(
-                                             NOTIFICATIONTYPE_TASKS_COMPLETED
-                                            ,0
-                                            ,0
-                                            ,&pNotification
-                                            ,0);
-                            if (hr == NOERROR)
-                            {
+                                NOTIFICATIONTYPE_TASKS_COMPLETED
+                                , 0
+                                , 0
+                                , &pNotification
+                                , 0);
+                            if (hr == NOERROR) {
                                 WriteGUID(pNotification, WZ_COOKIE, pRunningNotfCookie);
 
-                                pCPackageRunning->GetNotificationReport()->DeliverUpdate(pNotification, 0 , 0);
+                                pCPackageRunning->GetNotificationReport()->DeliverUpdate(pNotification, 0, 0);
                                 pNotification->Release();
                                 pNotification = NULL;
                             }
                         }
 
                         hr = pThrottleListAgent->RevokePackage(
-                                                        pRunningNotfCookie,
-                                                        0,
-                                                        1);
+                            pRunningNotfCookie,
+                            0,
+                            1);
                         //  BUGBUG.
                         //  Should we break or continue (so we can delete the
                         //  globally running one)?
@@ -1514,44 +1396,41 @@ STDMETHODIMP CNotificationMgr::DeliverReport(
             }
         }
 
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)) {
             hr = pCSchAgent->FindPackage(
-                                         pRunningNotfCookie
-                                         ,&pCPackageRunning
-                                         ,LM_LOCALCOPY
-                                         );
+                pRunningNotfCookie
+                , &pCPackageRunning
+                , LM_LOCALCOPY
+            );
         }
 
-        if (   (hr == NOERROR)
-            && (!pCPackageRunning->GetNotificationSinkDest() ))
-        {
+        if ((hr == NOERROR)
+            && (!pCPackageRunning->GetNotificationSinkDest())) {
             RELEASE(pCPackageRunning);
             pCPackageRunning = 0;
             hr = E_FAIL;
         }
 
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)) {
             fLocal = FALSE;
             hr = pCSchAgent->FindPackage(
-                                         pRunningNotfCookie
-                                         ,&pCPackageRunning
-                                         ,0
-                                         );
+                pRunningNotfCookie
+                , &pCPackageRunning
+                , 0
+            );
 
         }
 
-        if (hr != NOERROR)  {
+        if (hr != NOERROR) {
             break;
         }
 
         NotfAssert((pCPackageRunning));
 
-        if (!fLocal)    {
-            CDestinationPort & rCDest = pCPackageRunning->GetCDestPort();
-            NotfAssert(( rCDest.GetPort() != GetThreadNotificationWnd() ));
-            if (!IsWindow(rCDest.GetPort()))    {
+        if (!fLocal) {
+            CDestinationPort& rCDest = pCPackageRunning->GetCDestPort();
+            NotfAssert((rCDest.GetPort() != GetThreadNotificationWnd()));
+            if (!IsWindow(rCDest.GetPort())) {
                 RELEASE(pCPackageRunning);
                 pCPackageRunning = 0;
                 hr = E_FAIL;
@@ -1559,8 +1438,7 @@ STDMETHODIMP CNotificationMgr::DeliverReport(
             }
         }
 
-        if ( !(pCPackageRunning->GetNotificationState() & (PF_RUNNING | PF_SUSPENDED) ) )
-        {
+        if (!(pCPackageRunning->GetNotificationState() & (PF_RUNNING | PF_SUSPENDED))) {
             // not running or supended - nothing to do
             hr = E_FAIL;
             break;
@@ -1572,42 +1450,39 @@ STDMETHODIMP CNotificationMgr::DeliverReport(
 
         DWORD dwNotfState = pCPackageRunning->GetNotificationState();
         //  Set the XProcess flag;
-        if (!fLocal)    {
+        if (!fLocal) {
             pCPackageRunning->SetNotificationState(dwNotfState | PF_CROSSPROCESS);
         }
 
         BREAK_ONERROR(hr);
 
-        if (!pRprtNew)
-        {
+        if (!pRprtNew) {
             hr = E_FAIL;
             break;
         }
 
         hr = CPackage::CreateUpdate(
-                                pRprtNew,
-                                pNotification,
-                                0, //deliverMode,
-                                dwReserved,
-                                &pCPackage
-                                );
+            pRprtNew,
+            pNotification,
+            0, //deliverMode,
+            dwReserved,
+            &pCPackage
+        );
 
 
-        if (hr == NOERROR)
-        {
+        if (hr == NOERROR) {
             NotfAssert((pCPackage));
 
-            if (fLocal)
-            {
-                INotificationSink *pNotfSinkDest = pCPackageRunning->GetNotificationSinkDest();
+            if (fLocal) {
+                INotificationSink* pNotfSinkDest = pCPackageRunning->GetNotificationSinkDest();
                 //NotfAssert((pNotfSinkDest));
                 pCPackage->SetNotificationSinkDest(pNotfSinkDest);
-            } else  {
-                dwNotfState = pCPackage->GetNotificationState()|PF_CROSSPROCESS;
+            } else {
+                dwNotfState = pCPackage->GetNotificationState() | PF_CROSSPROCESS;
                 pCPackage->SetNotificationState(dwNotfState);
                 pCPackage->SetDestID(pCPackageRunning->GetDestID());
-                CDestinationPort &rCDest = pCPackageRunning->GetCDestPort();
-                pCPackage->SetDestPort(rCDest.GetPort(), rCDest.GetDestThreadId() );
+                CDestinationPort& rCDest = pCPackageRunning->GetCDestPort();
+                pCPackage->SetDestPort(rCDest.GetPort(), rCDest.GetDestThreadId());
             }
 
             RELEASE(pCPackageRunning);
@@ -1617,29 +1492,24 @@ STDMETHODIMP CNotificationMgr::DeliverReport(
 
             RELEASE(pCPackage);
             pCPackage = 0;
-        }
-        else
-        {
+        } else {
             RELEASE(pCPackageRunning);
             pCPackageRunning = 0;
         }
         NotfAssert((!pCPackage));
 
         break;
-    }
-    while (TRUE);
+    } while (TRUE);
 
-    if (pCPackageRunning)
-    {
+    if (pCPackageRunning) {
         RELEASE(pCPackageRunning);
     }
 
-    if (pCPackage)
-    {
+    if (pCPackage) {
         RELEASE(pCPackage);
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::DeliverReport (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::DeliverReport (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1664,49 +1534,46 @@ STDMETHODIMP CNotificationMgr::DeliverReport(
 
 
 STDMETHODIMP CNotificationMgr::RegisterThrottleNotificationType(
-        ULONG               cItems,
-        PTHROTTLEITEM       pThrottleItems,
-        ULONG              *pcItemsOut,
-        PTHROTTLEITEM      *ppThrottleItemsOut,
-        DWORD               dwMode,
-        DWORD               dwReserved
-        )
+    ULONG               cItems,
+    PTHROTTLEITEM       pThrottleItems,
+    ULONG* pcItemsOut,
+    PTHROTTLEITEM* ppThrottleItemsOut,
+    DWORD               dwMode,
+    DWORD               dwReserved
+)
 {
     NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::RegisterThrottleNotificationType\n", this));
 
     HRESULT hr = E_FAIL;
-    CPackage *pCPackage = 0;
-    CPackage *pCPackageRunning = 0;
+    CPackage* pCPackage = 0;
+    CPackage* pCPackageRunning = 0;
 
-    do
-    {
+    do {
 
-        if (   !cItems
+        if (!cItems
             || !pThrottleItems
             || dwMode
             || dwReserved
-            )
-        {
+            ) {
             hr = E_INVALIDARG;
             break;
         }
 
-        NotfAssert(( GetGlobalNotfMgr() ));
+        NotfAssert((GetGlobalNotfMgr()));
 
         hr = GetGlobalNotfMgr()->RegisterThrottleNotificationType(
-                                                            cItems,
-                                                            pThrottleItems,
-                                                            pcItemsOut,
-                                                            ppThrottleItemsOut,
-                                                            dwMode,
-                                                            dwReserved);
+            cItems,
+            pThrottleItems,
+            pcItemsOut,
+            ppThrottleItemsOut,
+            dwMode,
+            dwReserved);
 
         break;
-    }
-    while (TRUE);
+    } while (TRUE);
 
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RegisterThrottleNotificationType (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::RegisterThrottleNotificationType (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1726,13 +1593,13 @@ STDMETHODIMP CNotificationMgr::RegisterThrottleNotificationType(
 
 
 HRESULT CNotificationMgr::UnPersistScheduleItem(
-                                                LPCSTR pszWhere,
-                                                LPSTR pszSubKeyIn,
-                                                DWORD dwMode)
+    LPCSTR pszWhere,
+    LPSTR pszSubKeyIn,
+    DWORD dwMode)
 {
-    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::UnPersistScheduleItem\n",this));
+    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::UnPersistScheduleItem\n", this));
     HRESULT hr = E_INVALIDARG;
-    CPackage *pCPkg = 0;
+    CPackage* pCPkg = 0;
     HKEY      hKey = 0;
 
     // construct the new location
@@ -1740,19 +1607,15 @@ HRESULT CNotificationMgr::UnPersistScheduleItem(
     //strcpy((LPSTR)c_pszRegKey,SZNOTF_ROOT);
     //strcat((LPSTR)c_pszRegKey,SZNOTF_SCHEDITEMS);
 
-    if (c_rgszRegKey[0] == '\0')
-    {
-        strcpy(c_rgszRegKey,SZNOTF_ROOT);
-        strcat(c_rgszRegKey,SZNOTF_SCHEDITEMS);
+    if (c_rgszRegKey[0] == '\0') {
+        strcpy(c_rgszRegKey, SZNOTF_ROOT);
+        strcat(c_rgszRegKey, SZNOTF_SCHEDITEMS);
         c_pszRegKey = c_rgszRegKey;
     }
 
-    if ((GetGlobalNotfMgr()->GetProcessId() > 1) && !AreWeTheDefaultProcess())
-    {
+    if ((GetGlobalNotfMgr()->GetProcessId() > 1) && !AreWeTheDefaultProcess()) {
         // nothing to do - items already reloaded
-    }
-    else do
-    {
+    } else do {
         // now reload all the peristed packages
 
         long  lRes;
@@ -1761,15 +1624,14 @@ HRESULT CNotificationMgr::UnPersistScheduleItem(
         CHAR  szLocation[SZREGSETTING_MAX];
         CHAR  szValue[SZREGVALUE_MAX];
 
-        strcpy(szLocation,SZNOTF_ROOT);
-        strcat(szLocation,SZNOTF_SCHEDITEMS);
+        strcpy(szLocation, SZNOTF_ROOT);
+        strcat(szLocation, SZNOTF_SCHEDITEMS);
 
 
         lRes = RegCreateKeyEx(HKEY_CURRENT_USER, c_pszRegKey, 0, NULL, 0, HKEY_READ_WRITE_ACCESS, NULL, &hKey, &dwDisposition);
 
         // loop over all elements and schedule the elements
-        while ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes))
-        {
+        while ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes)) {
             DWORD dwType;
             DWORD dwNameLen;
 
@@ -1777,20 +1639,17 @@ HRESULT CNotificationMgr::UnPersistScheduleItem(
             lRes = RegEnumKey(hKey, dwIndex, szValue, dwNameLen);
             dwIndex++;
 
-            if ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes))
-            {
+            if ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes)) {
                 NotfAssert((pCPkg == 0));
-                hr = CPackage::LoadFromPersist(szLocation,szValue, 0, &pCPkg);
-                if (hr == NOERROR)
-                {
+                hr = CPackage::LoadFromPersist(szLocation, szValue, 0, &pCPkg);
+                if (hr == NOERROR) {
                     NotfAssert((pCPkg));
                     hr = E_FAIL;
 
                     // update state
-                    if (   (pCPkg->GetNotificationState() & PF_WAITING)
+                    if ((pCPkg->GetNotificationState() & PF_WAITING)
                         && (SUCCEEDED(ValidateTrigger(pCPkg->GetTaskTrigger())))
-                        && ( (pCPkg->GetPackageType() != PT_REPORT_TO_DEST) && (pCPkg->GetPackageType() != PT_REPORT_TO_SENDER)) )
-                    {
+                        && ((pCPkg->GetPackageType() != PT_REPORT_TO_DEST) && (pCPkg->GetPackageType() != PT_REPORT_TO_SENDER))) {
                         pCPkg->SetNotificationState(PF_SCHEDULED | PF_WAITING | PF_READY);
 
                         //  Nuke the running cookie and dest port.
@@ -1804,21 +1663,18 @@ HRESULT CNotificationMgr::UnPersistScheduleItem(
 
                 // delete the item in case of error
 
-                if (hr != NOERROR)
-                {
+                if (hr != NOERROR) {
                     char szKeyToDelete[1024];
                     strcpy(szKeyToDelete, szLocation);
                     strcat(szKeyToDelete, szValue);
-                    lRes = RegDeleteKey(HKEY_CURRENT_USER,szKeyToDelete);
-                    if (lRes == ERROR_SUCCESS)
-                    {
+                    lRes = RegDeleteKey(HKEY_CURRENT_USER, szKeyToDelete);
+                    if (lRes == ERROR_SUCCESS) {
                         dwIndex--;
                     }
                 }
             }
 
-            if (pCPkg)
-            {
+            if (pCPkg) {
                 RELEASE(pCPkg);
                 pCPkg = 0;
             }
@@ -1828,13 +1684,11 @@ HRESULT CNotificationMgr::UnPersistScheduleItem(
         break;
     } while (TRUE);
 
-    if (pCPkg)
-    {
+    if (pCPkg) {
         RELEASE(pCPkg);
     }
 
-    if (hKey)
-    {
+    if (hKey) {
         RegCloseKey(hKey);
     }
 
@@ -1860,9 +1714,9 @@ HRESULT CNotificationMgr::UnPersistScheduleItem(
 
 
 HRESULT CNotificationMgr::ReadRegSetting(LPCSTR pszRoot, LPCSTR pszKey,
-                                         LPSTR pszValue, DWORD dwSize,CLSID *pclsid)
+                                         LPSTR pszValue, DWORD dwSize, CLSID* pclsid)
 {
-    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::::ReadRegSetting (pszRoot:%s)\n", this,pszRoot));
+    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::::ReadRegSetting (pszRoot:%s)\n", this, pszRoot));
     HRESULT hr = E_FAIL;
     NotfAssert((pszRoot && pszKey));
 
@@ -1871,18 +1725,14 @@ HRESULT CNotificationMgr::ReadRegSetting(LPCSTR pszRoot, LPCSTR pszKey,
     DWORD dwValueLen = SZREGVALUE_MAX;
 
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, pszRoot, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, pszRoot, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS) {
         DWORD dwType;
-        if (RegQueryValueEx(hKey, pszKey, NULL, &dwType, (LPBYTE)szValue, &dwValueLen) == ERROR_SUCCESS)
-        {
-            if (pszValue && (dwValueLen <= dwSize))
-            {
-                strcpy(pszValue,szValue);
+        if (RegQueryValueEx(hKey, pszKey, NULL, &dwType, (LPBYTE)szValue, &dwValueLen) == ERROR_SUCCESS) {
+            if (pszValue && (dwValueLen <= dwSize)) {
+                strcpy(pszValue, szValue);
                 hr = NOERROR;
             }
-            if (pclsid)
-            {
+            if (pclsid) {
                 hr = CLSIDFromStringA(szValue, pclsid);
             }
         }
@@ -1890,7 +1740,7 @@ HRESULT CNotificationMgr::ReadRegSetting(LPCSTR pszRoot, LPCSTR pszKey,
         RegCloseKey(hKey);
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::ReadRegSetting (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::ReadRegSetting (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1914,9 +1764,9 @@ HRESULT CNotificationMgr::ReadRegSetting(LPCSTR pszRoot, LPCSTR pszKey,
 
 
 HRESULT CNotificationMgr::WriteRegSetting(LPCSTR pszRoot, LPCSTR pszKey,
-                                          LPSTR pszValue, DWORD dwSize, CLSID *pclsid)
+                                          LPSTR pszValue, DWORD dwSize, CLSID* pclsid)
 {
-    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::::WriteRegSetting (pszRoot:%s)\n", this,pszRoot));
+    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::::WriteRegSetting (pszRoot:%s)\n", this, pszRoot));
     HRESULT hr = E_FAIL;
     NotfAssert((pszRoot && pszKey));
     DWORD dwDisposition;
@@ -1926,32 +1776,26 @@ HRESULT CNotificationMgr::WriteRegSetting(LPCSTR pszRoot, LPCSTR pszKey,
     char szValue[SZREGVALUE_MAX];
     DWORD dwValueLen = SZREGVALUE_MAX;
 
-    if (RegCreateKeyEx(HKEY_CURRENT_USER, pszRoot, 0, NULL, 0, HKEY_READ_WRITE_ACCESS,NULL, &hKey,&dwDisposition) == ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, pszRoot, 0, NULL, 0, HKEY_READ_WRITE_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS) {
         DWORD dwError = 1;
-        if (pszValue)
-        {
-            dwError = RegSetValueEx(hKey, pszKey, NULL, REG_SZ,(const BYTE *)pszValue, dwSize);
-        }
-        else if (pclsid)
-        {
+        if (pszValue) {
+            dwError = RegSetValueEx(hKey, pszKey, NULL, REG_SZ, (const BYTE*)pszValue, dwSize);
+        } else if (pclsid) {
             pszValue = StringAFromCLSID(pclsid);
-            if (pszValue)
-            {
-                dwSize =  strlen(pszValue);
-                dwError = RegSetValueEx(hKey, pszKey, NULL, REG_SZ,(const BYTE *)pszValue, dwSize);
+            if (pszValue) {
+                dwSize = strlen(pszValue);
+                dwError = RegSetValueEx(hKey, pszKey, NULL, REG_SZ, (const BYTE*)pszValue, dwSize);
                 delete pszValue;
             }
         }
-        if (dwError == ERROR_SUCCESS)
-        {
+        if (dwError == ERROR_SUCCESS) {
             hr = NOERROR;
         }
 
         RegCloseKey(hKey);
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::WriteRegSetting (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::WriteRegSetting (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1972,25 +1816,23 @@ HRESULT CNotificationMgr::WriteRegSetting(LPCSTR pszRoot, LPCSTR pszKey,
 //  Notes:
 
 
-HRESULT CNotificationMgr::DeletRegSetting(LPCSTR pszRoot, LPCSTR pszKey,LPSTR pszValue)
+HRESULT CNotificationMgr::DeletRegSetting(LPCSTR pszRoot, LPCSTR pszKey, LPSTR pszValue)
 {
-    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::DeletRegSetting (pszRoot:%s)\n", this,pszRoot));
+    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::DeletRegSetting (pszRoot:%s)\n", this, pszRoot));
     HRESULT hr = E_FAIL;
     HKEY hKey = NULL;
     DWORD   dwDisposition;
 
     NotfAssert((pszRoot && pszKey));
-    if (RegCreateKeyEx(HKEY_CURRENT_USER,pszRoot,0,NULL,0,HKEY_READ_WRITE_ACCESS, NULL,&hKey,&dwDisposition) == ERROR_SUCCESS)
-    {
-        if (RegDeleteKey(hKey, pszKey) == ERROR_SUCCESS)
-        {
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, pszRoot, 0, NULL, 0, HKEY_READ_WRITE_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS) {
+        if (RegDeleteKey(hKey, pszKey) == ERROR_SUCCESS) {
             hr = NOERROR;
         }
 
         RegCloseKey(hKey);
     }
 
-    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::DeletRegSetting (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_MGR, "%p OUT CNotificationMgr::DeletRegSetting (hr:%lx)\n", this, hr));
     return hr;
 }
 #ifdef _unused_
@@ -2011,46 +1853,41 @@ HRESULT CNotificationMgr::DeletRegSetting(LPCSTR pszRoot, LPCSTR pszKey,LPSTR ps
 //  Notes:
 
 
-HRESULT UnPersistScheduleItem(LPCSTR pszStr, CNotificationMgr *pNotMgr, DWORD dwMode)
+HRESULT UnPersistScheduleItem(LPCSTR pszStr, CNotificationMgr* pNotMgr, DWORD dwMode)
 {
     NotfDebugOut((DEB_MGR, "API _IN UnPersistScheduleItem\n"));
     HRESULT hr = E_INVALIDARG;
-    CPackage *pCPkg = 0;
+    CPackage* pCPkg = 0;
     HKEY            hKey = 0;
     const cbStrKeyLen = 256;
 
-    do
-    {
-        if (   !pszStr
-               || !pNotMgr)
-        {
+    do {
+        if (!pszStr
+            || !pNotMgr) {
             BREAK_ONERROR(hr);
         }
 
 
-        long   lRes, lCookie, lCount=0;
+        long   lRes, lCookie, lCount = 0;
         DWORD  dwDisposition, dwIndex = 0, dwType, dwNameLen;
         CHAR   pszValueName[cbStrKeyLen];
 
         lRes = RegCreateKeyEx(HKEY_CURRENT_USER, c_pszRegKey, 0, NULL, 0, HKEY_READ_WRITE_ACCESS, NULL, &hKey, &dwDisposition);
-        if (lRes != ERROR_SUCCESS)
-        {
+        if (lRes != ERROR_SUCCESS) {
             hKey = 0;
             break;
         }
 
-        while (ERROR_NO_MORE_ITEMS != lRes)
-        {
+        while (ERROR_NO_MORE_ITEMS != lRes) {
             dwNameLen = cbStrKeyLen;
             lRes = RegEnumValue(hKey, dwIndex, pszValueName, &dwNameLen,
                                 NULL, &dwType, NULL, NULL);
             dwIndex++;
 
-            if (ERROR_NO_MORE_ITEMS != lRes)
-            {
+            if (ERROR_NO_MORE_ITEMS != lRes) {
                 NotfAssert((pCPkg == 0));
 
-                hr = CPackage::LoadFromPersist(c_pszRegKey,pszValueName, 0, &pCPkg);
+                hr = CPackage::LoadFromPersist(c_pszRegKey, pszValueName, 0, &pCPkg);
                 BREAK_ONERROR(hr);
 
                 NOTIFICATIONITEM nfItem;
@@ -2062,25 +1899,23 @@ HRESULT UnPersistScheduleItem(LPCSTR pszStr, CNotificationMgr *pNotMgr, DWORD dw
                 BREAK_ONERROR(hr);
 
                 hr = pNotMgr->ScheduleNotification(
-                        nfItem.pNotification                        // LPNOTIFICATION   pNotification,
-                       ,nfItem.clsidDest                            // REFDESTID           rNotificationDest,
-                       ,&nfItem.TaskTrigger                         // PTASK_TRIGGER       pTasktrigger,
-                       ,&nfItem.TaskData                       // DWORD               pTaskData,
-                       ,pCPkg->GetDeliverMode()                     // DELIVERMODE         deliverMode,
-                       ,&nfItem.clsidSender                         // LPCLSID             pClsidSender,           // class of sender can be NUL
-                       ,0                                           // LPNOTIFICATIONSINK  pReportNotfctnSink,     // can be null - see mode
-                       ,0                                           // LPNOTIFICATIONREPORT *ppNotfctnReport,
-                       ,0                                           // PNOTIFICATIONCOOKIE pNotificationCookie,
-                       ,0                                           // DWORD               dwReserved
-                       );
-                if (nfItem.pNotification)
-                {
+                    nfItem.pNotification                        // LPNOTIFICATION   pNotification,
+                    , nfItem.clsidDest                            // REFDESTID           rNotificationDest,
+                    , &nfItem.TaskTrigger                         // PTASK_TRIGGER       pTasktrigger,
+                    , &nfItem.TaskData                       // DWORD               pTaskData,
+                    , pCPkg->GetDeliverMode()                     // DELIVERMODE         deliverMode,
+                    , &nfItem.clsidSender                         // LPCLSID             pClsidSender,           // class of sender can be NUL
+                    , 0                                           // LPNOTIFICATIONSINK  pReportNotfctnSink,     // can be null - see mode
+                    , 0                                           // LPNOTIFICATIONREPORT *ppNotfctnReport,
+                    , 0                                           // PNOTIFICATIONCOOKIE pNotificationCookie,
+                    , 0                                           // DWORD               dwReserved
+                );
+                if (nfItem.pNotification) {
                     nfItem.pNotification->Release();
                 }
             }
 
-            if (pCPkg)
-            {
+            if (pCPkg) {
                 RELEASE(pCPkg);
                 pCPkg = 0;
             }
@@ -2090,13 +1925,11 @@ HRESULT UnPersistScheduleItem(LPCSTR pszStr, CNotificationMgr *pNotMgr, DWORD dw
         break;
     } while (TRUE);
 
-    if (pCPkg)
-    {
+    if (pCPkg) {
         RELEASE(pCPkg);
     }
 
-    if (hKey)
-    {
+    if (hKey) {
         RegCloseKey(hKey);
     }
 
@@ -2121,33 +1954,31 @@ HRESULT UnPersistScheduleItem(LPCSTR pszStr, CNotificationMgr *pNotMgr, DWORD dw
 
 
 HRESULT CNotificationMgr::UnPersistDestinationItem(
-                                                   LPCSTR pszWhere,
-                                                   LPSTR pszSubKeyIn,
-                                                   DWORD dwMode)
+    LPCSTR pszWhere,
+    LPSTR pszSubKeyIn,
+    DWORD dwMode)
 {
-    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::UnPersistDestinationItem\n",this));
+    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::UnPersistDestinationItem\n", this));
     HRESULT hr = NOERROR;
-    CDestination *pCDest = 0;
+    CDestination* pCDest = 0;
     HKEY      hKey = 0;
     DWORD dwValueLen = SZREGVALUE_MAX;
     char szValue[SZREGVALUE_MAX];
 
-    do
-    {
+    do {
         long   lRes;
         DWORD  dwDisposition, dwIndex = 0;
         CHAR   szLocation[SZREGSETTING_MAX];
 
         // construct the new location
-        strcpy(szLocation,SZNOTF_ROOT);
-        strcat(szLocation,SZNOTF_DESTINATION);
-        strcat(szLocation,"\\");
+        strcpy(szLocation, SZNOTF_ROOT);
+        strcat(szLocation, SZNOTF_DESTINATION);
+        strcat(szLocation, "\\");
 
         lRes = RegCreateKeyEx(HKEY_CURRENT_USER, szLocation, 0, NULL, 0, HKEY_READ_WRITE_ACCESS, NULL, &hKey, &dwDisposition);
 
         // loop over all elements and pass on the items to the deliver agent
-        while ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes))
-        {
+        while ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes)) {
             DWORD dwType;
             DWORD dwNameLen;
 
@@ -2156,21 +1987,19 @@ HRESULT CNotificationMgr::UnPersistDestinationItem(
                                 NULL, &dwType, NULL, NULL);
             dwIndex++;
 
-            if ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes))
-            {
+            if ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes)) {
                 NotfAssert((pCDest == 0));
 
                 hr = CDestination::LoadFromPersist(szLocation, szValue, 0, &pCDest);
 
-                if (hr == NOERROR)
-                {
+                if (hr == NOERROR) {
                     NotfAssert((pCDest));
 
                     DESTINATIONDATA destData;
 
                     pCDest->GetDestinationData(&destData);
 
-                    NotfAssert(( pCDest->GetNotfTypes() ));
+                    NotfAssert((pCDest->GetNotfTypes()));
 
 
                     // turn of the persist flag - no need to repersist again
@@ -2178,21 +2007,20 @@ HRESULT CNotificationMgr::UnPersistDestinationItem(
                     destData.NotfctnSinkMode &= ~NM_PERMANENT;
 
                     hr = _rDeliverAgent.Register(
-                                             0   //pNotfctnSink,
-                                            ,&destData.NotificationDest  //pDestID,
-                                            ,destData.NotfctnSinkMode    //asMode,
-                                            ,destData.cNotifications    //cNotifications,
-                                            ,pCDest->GetNotfTypes()     //pNotificationIDs,
-                                            ,&destData.RegisterCookie    //pRegisterCookie,
-                                            ,destData.dwReserved        //dwReserved
-                                            );
+                        0   //pNotfctnSink,
+                        , &destData.NotificationDest  //pDestID,
+                        , destData.NotfctnSinkMode    //asMode,
+                        , destData.cNotifications    //cNotifications,
+                        , pCDest->GetNotfTypes()     //pNotificationIDs,
+                        , &destData.RegisterCookie    //pRegisterCookie,
+                        , destData.dwReserved        //dwReserved
+                    );
 
                 }
 
             }
 
-            if (pCDest)
-            {
+            if (pCDest) {
                 pCDest->Release();
                 pCDest = 0;
             }
@@ -2202,13 +2030,11 @@ HRESULT CNotificationMgr::UnPersistDestinationItem(
         break;
     } while (TRUE);
 
-    if (pCDest)
-    {
+    if (pCDest) {
         pCDest->Release();
     }
 
-    if (hKey)
-    {
+    if (hKey) {
         RegCloseKey(hKey);
     }
 
@@ -2233,19 +2059,18 @@ HRESULT CNotificationMgr::UnPersistDestinationItem(
 
 HRESULT CNotificationMgr::CreateDefaultScheduleGroups(DWORD dwMode)
 {
-    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::CreateDefaultScheduleGroups\n",this));
+    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::CreateDefaultScheduleGroups\n", this));
     HRESULT hr = NOERROR;
     TASK_TRIGGER TaskTrigger;
-    IScheduleGroup *pSchGroup = 0;
+    IScheduleGroup* pSchGroup = 0;
     // make sur the default items are avaiable
 
     HRESULT hr1 = FindScheduleGroup(
-                        (LPCLSID)&NOTFCOOKIE_SCHEDULE_GROUP_DAILY,
-                        &pSchGroup,
-                        0
-                       );
-    if (hr1 != NOERROR)
-    {
+        (LPCLSID)&NOTFCOOKIE_SCHEDULE_GROUP_DAILY,
+        &pSchGroup,
+        0
+    );
+    if (hr1 != NOERROR) {
         TaskTrigger = *GetDefTaskTrigger(TRUE);
 
         TaskTrigger.rgFlags = 0;
@@ -2256,30 +2081,26 @@ HRESULT CNotificationMgr::CreateDefaultScheduleGroups(DWORD dwMode)
         NotfAssert((TaskTrigger.Type.Daily.DaysInterval == 1));
 
         LPWSTR pwzName = GetResourceString(ID_SCHEDULE_GROUP_DAILY);
-        if (pwzName)
-        {
+        if (pwzName) {
             hr1 = CScheduleGroup::CreateDefScheduleGroup(
-                            (REFIID)NOTFCOOKIE_SCHEDULE_GROUP_DAILY,
-                            &TaskTrigger,
-                            //SCHEDULE_GROUP_NAME_DAILY
-                            pwzName
-                            );
+                (REFIID)NOTFCOOKIE_SCHEDULE_GROUP_DAILY,
+                &TaskTrigger,
+                //SCHEDULE_GROUP_NAME_DAILY
+                pwzName
+            );
         }
         delete pwzName;
-    }
-    else
-    {
+    } else {
         NotfAssert((pSchGroup));
         pSchGroup->Release();
     }
     hr1 = FindScheduleGroup(
-                        (LPCLSID)&NOTFCOOKIE_SCHEDULE_GROUP_WEEKLY,
-                        &pSchGroup,
-                        0
-                       );
+        (LPCLSID)&NOTFCOOKIE_SCHEDULE_GROUP_WEEKLY,
+        &pSchGroup,
+        0
+    );
 
-    if (hr1 != NOERROR)
-    {
+    if (hr1 != NOERROR) {
         TaskTrigger = *GetDefTaskTrigger(TRUE);
 
         TaskTrigger.rgFlags = 0;
@@ -2288,30 +2109,26 @@ HRESULT CNotificationMgr::CreateDefaultScheduleGroups(DWORD dwMode)
         TaskTrigger.Type.Weekly.rgfDaysOfTheWeek = TASK_MONDAY;
 
         LPWSTR pwzName = GetResourceString(ID_SCHEDULE_GROUP_WEEKLY);
-        if (pwzName)
-        {
+        if (pwzName) {
             hr1 = CScheduleGroup::CreateDefScheduleGroup(
-                        (REFIID)NOTFCOOKIE_SCHEDULE_GROUP_WEEKLY,
-                        &TaskTrigger,
-                        pwzName
-                        );
+                (REFIID)NOTFCOOKIE_SCHEDULE_GROUP_WEEKLY,
+                &TaskTrigger,
+                pwzName
+            );
         }
         delete pwzName;
-    }
-    else
-    {
+    } else {
         NotfAssert((pSchGroup));
         pSchGroup->Release();
     }
 
     hr1 = FindScheduleGroup(
-                        (LPCLSID)&NOTFCOOKIE_SCHEDULE_GROUP_MONTHLY,
-                        &pSchGroup,
-                        0
-                        );
+        (LPCLSID)&NOTFCOOKIE_SCHEDULE_GROUP_MONTHLY,
+        &pSchGroup,
+        0
+    );
 
-    if (hr1 != NOERROR)
-    {
+    if (hr1 != NOERROR) {
         TaskTrigger = *GetDefTaskTrigger(TRUE);
 
         TaskTrigger.rgFlags = 0;
@@ -2320,50 +2137,43 @@ HRESULT CNotificationMgr::CreateDefaultScheduleGroups(DWORD dwMode)
         TaskTrigger.Type.MonthlyDate.rgfMonths = 0x0FFF;     // TASK_JANUARY -> TASK_DECEMBER
 
         LPWSTR pwzName = GetResourceString(ID_SCHEDULE_GROUP_MONTHLY);
-        if (pwzName)
-        {
+        if (pwzName) {
 
             hr1 = CScheduleGroup::CreateDefScheduleGroup(
-                        (REFIID)NOTFCOOKIE_SCHEDULE_GROUP_MONTHLY,
-                        &TaskTrigger,
-                        pwzName
-                        );
+                (REFIID)NOTFCOOKIE_SCHEDULE_GROUP_MONTHLY,
+                &TaskTrigger,
+                pwzName
+            );
         }
         delete pwzName;
-    }
-    else
-    {
+    } else {
         NotfAssert((pSchGroup));
         pSchGroup->Release();
     }
 
 
     hr1 = FindScheduleGroup(
-                        (LPCLSID)&NOTFCOOKIE_SCHEDULE_GROUP_MANUAL,
-                        &pSchGroup,
-                        0
-                        );
+        (LPCLSID)&NOTFCOOKIE_SCHEDULE_GROUP_MANUAL,
+        &pSchGroup,
+        0
+    );
 
-    if (hr1 != NOERROR)
-    {
+    if (hr1 != NOERROR) {
         TaskTrigger = *GetDefTaskTrigger();
 
         TaskTrigger.rgFlags = TASK_TRIGGER_FLAG_DISABLED;
         TaskTrigger.TriggerType = (TASK_TRIGGER_TYPE)TASK_TRIGGER_FLAG_DISABLED;
 
         LPWSTR pwzName = GetResourceString(ID_SCHEDULE_GROUP_MANUAL);
-        if (pwzName)
-        {
+        if (pwzName) {
             hr1 = CScheduleGroup::CreateDefScheduleGroup(
-                                (REFIID)NOTFCOOKIE_SCHEDULE_GROUP_MANUAL,
-                                &TaskTrigger,
-                                pwzName
-                                );
+                (REFIID)NOTFCOOKIE_SCHEDULE_GROUP_MANUAL,
+                &TaskTrigger,
+                pwzName
+            );
         }
         delete pwzName;
-    }
-    else
-    {
+    } else {
         NotfAssert((pSchGroup));
         pSchGroup->Release();
     }
@@ -2374,25 +2184,23 @@ HRESULT CNotificationMgr::CreateDefaultScheduleGroups(DWORD dwMode)
 }
 
 HRESULT CNotificationMgr::UnPersistRunningItems(
-                                                LPCSTR pszWhere,
-                                                LPSTR pszSubKeyIn,
-                                                DWORD dwMode,
-                                                CPackage *prgCSchdGrp[],
-                                                ULONG cElements,
-                                                ULONG *pcElementFilled
-                                                )
+    LPCSTR pszWhere,
+    LPSTR pszSubKeyIn,
+    DWORD dwMode,
+    CPackage* prgCSchdGrp[],
+    ULONG cElements,
+    ULONG* pcElementFilled
+)
 {
-    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::UnPersistScheduleItem\n",NULL));
+    NotfDebugOut((DEB_MGR, "%p _IN CNotificationMgr::UnPersistScheduleItem\n", NULL));
     HRESULT hr = E_INVALIDARG;
-    CPackage *pCSchGrp = 0;
+    CPackage* pCSchGrp = 0;
     HKEY      hKey = 0;
-    if (!pszWhere)
-    {
+    if (!pszWhere) {
         pszWhere = c_pszRegKeyScheduleGroup;
     }
 
-    do
-    {
+    do {
         // now reload all the peristed packages
         long  lRes;
         DWORD dwDisposition, dwIndex = 0;
@@ -2404,8 +2212,7 @@ HRESULT CNotificationMgr::UnPersistRunningItems(
         lRes = RegCreateKeyEx(HKEY_CURRENT_USER, pszWhere, 0, NULL, 0, HKEY_READ_WRITE_ACCESS, NULL, &hKey, &dwDisposition);
 
         // loop over all elements and schedule the elements
-        while ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes))
-        {
+        while ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes)) {
             DWORD dwType;
             DWORD dwNameLen;
 
@@ -2414,14 +2221,12 @@ HRESULT CNotificationMgr::UnPersistRunningItems(
                                 NULL, &dwType, NULL, NULL);
             dwIndex++;
 
-            if ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes))
-            {
+            if ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes)) {
                 NotfAssert((pCSchGrp == 0));
 
-                hr = CPackage::LoadFromPersist(pszWhere,szValue, 0, &pCSchGrp);
+                hr = CPackage::LoadFromPersist(pszWhere, szValue, 0, &pCSchGrp);
 
-                if (hr == NOERROR)
-                {
+                if (hr == NOERROR) {
                     NotfAssert((pCSchGrp));
                     prgCSchdGrp[i] = pCSchGrp;
                     i++;
@@ -2429,8 +2234,7 @@ HRESULT CNotificationMgr::UnPersistRunningItems(
                 }
             }
 
-            if (pCSchGrp)
-            {
+            if (pCSchGrp) {
                 pCSchGrp->Release();
                 pCSchGrp = 0;
             }
@@ -2442,13 +2246,11 @@ HRESULT CNotificationMgr::UnPersistRunningItems(
         break;
     } while (TRUE);
 
-    if (pCSchGrp)
-    {
+    if (pCSchGrp) {
         pCSchGrp->Release();
     }
 
-    if (hKey)
-    {
+    if (hKey) {
         RegCloseKey(hKey);
     }
 

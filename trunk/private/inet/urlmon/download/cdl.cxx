@@ -14,8 +14,8 @@
 #include "shlobj.h"
 #include "helpers.hxx"
 
-typedef HRESULT (WINAPI *REMOVECONTROLBYNAME)(LPCTSTR lpszFile, LPCTSTR lpszCLSID, LPCTSTR lpszTypeLibID, BOOL bForceRemove = FALSE, DWORD dwIsDistUnit = FALSE);
-typedef BOOL (*pfnSfcIsFileProtected)(HANDLE RpcHandle,LPCWSTR ProtFileName);
+typedef HRESULT(WINAPI* REMOVECONTROLBYNAME)(LPCTSTR lpszFile, LPCTSTR lpszCLSID, LPCTSTR lpszTypeLibID, BOOL bForceRemove = FALSE, DWORD dwIsDistUnit = FALSE);
+typedef BOOL(*pfnSfcIsFileProtected)(HANDLE RpcHandle, LPCWSTR ProtFileName);
 
 extern LCID g_lcidBrowser;     // default to english
 
@@ -24,19 +24,19 @@ extern char g_szPlatform[]; // platform specific string for location of file
 extern char g_szOMNIPROX[]; // name of the omniprox dll
 extern HINSTANCE g_hInst;
 
-const static char *sz_USE_CODE_URL = "CODEBASE";
+const static char* sz_USE_CODE_URL = "CODEBASE";
 const static char szCLSID[] = "CLSID";
 const static char szVersion[] = "Version";
 
-const static char *szTHISCAB = "thiscab";
-const static char *szIGNORE = "ignore";
+const static char* szTHISCAB = "thiscab";
+const static char* szIGNORE = "ignore";
 
 extern LPCSTR szWinNT;
 extern LPCSTR szWin95;
 
 extern LPCSTR szPlatform;
 
-extern char *g_szProcessorTypes[];
+extern char* g_szProcessorTypes[];
 
 extern CRunSetupHook g_RunSetupHook;
 
@@ -55,7 +55,7 @@ LONG InitializeRandomSeed()
 
 
 //  Synopsys:   Generate random number based on seed. (copied from crt)
-int randnum (void)
+int randnum(void)
 {
     static long holdrand = InitializeRandomSeed();
     return(holdrand = ((holdrand * 214013L + 2531011L) >> 16) & RANDNUM_MAX);
@@ -65,7 +65,7 @@ int randnum (void)
 // %%Function: CCodeDownload::CCodeDownload
 //  CCodeDownload (main class tracking as a whole)
 //  It has the client's BSC and creates a CClBinding for client.
-CCodeDownload::CCodeDownload(LPCWSTR szDistUnit, LPCWSTR szURL, LPCWSTR szType, LPCWSTR szExt, DWORD dwFileVersionMS, DWORD dwFileVersionLS, HRESULT *phr)
+CCodeDownload::CCodeDownload(LPCWSTR szDistUnit, LPCWSTR szURL, LPCWSTR szType, LPCWSTR szExt, DWORD dwFileVersionMS, DWORD dwFileVersionLS, HRESULT* phr)
 {
     DllAddRef();
     m_szLastMod[0] = '\0';
@@ -103,10 +103,10 @@ CCodeDownload::CCodeDownload(LPCWSTR szDistUnit, LPCWSTR szURL, LPCWSTR szType, 
     m_pCurCode = m_pAddCodeSection = NULL;
 
     if (szURL) {
-        DWORD len = lstrlenW(szURL) +1;
+        DWORD len = lstrlenW(szURL) + 1;
 
         if (len <= INTERNET_MAX_URL_LENGTH) {
-            m_url = new WCHAR [len]; // make private copy
+            m_url = new WCHAR[len]; // make private copy
 
             if (m_url)
                 StrCpyW(m_url, szURL);
@@ -120,9 +120,9 @@ CCodeDownload::CCodeDownload(LPCWSTR szDistUnit, LPCWSTR szURL, LPCWSTR szType, 
     }
 
     if (szDistUnit) {
-        DWORD len = lstrlenW(szDistUnit) +1;
+        DWORD len = lstrlenW(szDistUnit) + 1;
 
-        m_szDistUnit = new WCHAR [len]; // make private copy
+        m_szDistUnit = new WCHAR[len]; // make private copy
 
         if (m_szDistUnit)
             StrCpyW(m_szDistUnit, szDistUnit);
@@ -134,9 +134,9 @@ CCodeDownload::CCodeDownload(LPCWSTR szDistUnit, LPCWSTR szURL, LPCWSTR szType, 
     m_pi.hThread = INVALID_HANDLE_VALUE;
 
     if (szExt) {
-        DWORD len = lstrlenW(szExt) +1;
+        DWORD len = lstrlenW(szExt) + 1;
 
-        m_szExt = new WCHAR [len]; // make private copy
+        m_szExt = new WCHAR[len]; // make private copy
 
         if (m_szExt)
             StrCpyW(m_szExt, szExt);
@@ -145,9 +145,9 @@ CCodeDownload::CCodeDownload(LPCWSTR szDistUnit, LPCWSTR szURL, LPCWSTR szType, 
     }
 
     if (szType) {
-        DWORD len = lstrlenW(szType) +1;
+        DWORD len = lstrlenW(szType) + 1;
 
-        m_szType = new WCHAR [len]; // make private copy
+        m_szType = new WCHAR[len]; // make private copy
 
         if (m_szType)
             StrCpyW(m_szType, szType);
@@ -163,7 +163,7 @@ CCodeDownload::CCodeDownload(LPCWSTR szDistUnit, LPCWSTR szURL, LPCWSTR szType, 
     m_pbEtag = NULL;
     m_pbJavaTrust = NULL;
     m_debuglog = CDLDebugLog::MakeDebugLog();
-    if(! m_debuglog)
+    if (!m_debuglog)
         *phr = E_OUTOFMEMORY;
     else
         m_debuglog->Init(this);
@@ -187,8 +187,8 @@ CCodeDownload::~CCodeDownload()
     LISTPOSITION pos = m_pClientbinding.GetHeadPosition();
     int iNum = m_pClientbinding.GetCount();
 
-    for (int i=0; i < iNum; i++) {
-        CClBinding *pbinding = m_pClientbinding.GetNext(pos); // pass ref!
+    for (int i = 0; i < iNum; i++) {
+        CClBinding* pbinding = m_pClientbinding.GetNext(pos); // pass ref!
         pbinding->ReleaseClient();
         pbinding->Release();
     }
@@ -197,8 +197,8 @@ CCodeDownload::~CCodeDownload()
     pos = m_ModuleUsage.GetHeadPosition();
     iNum = m_ModuleUsage.GetCount();
 
-    for (i=0; i < iNum; i++) {
-        CModuleUsage *pModuleUsage = m_ModuleUsage.GetNext(pos); // pass ref!
+    for (i = 0; i < iNum; i++) {
+        CModuleUsage* pModuleUsage = m_ModuleUsage.GetNext(pos); // pass ref!
         delete pModuleUsage;
     }
     m_ModuleUsage.RemoveAll(); // init to NULL
@@ -208,7 +208,7 @@ CCodeDownload::~CCodeDownload()
     pos = m_pDependencies.GetHeadPosition();
     iNum = m_pDependencies.GetCount();
 
-    for (i=0; i < iNum; i++) {
+    for (i = 0; i < iNum; i++) {
         LPWSTR szDistUnit = m_pDependencies.GetNext(pos);
         delete szDistUnit;
     }
@@ -249,8 +249,7 @@ CCodeDownload::~CCodeDownload()
         delete m_pbJavaTrust;
     }
 
-    if(m_debuglog)
-    {
+    if (m_debuglog) {
         m_debuglog->Release();
         m_debuglog = NULL;
     }
@@ -259,30 +258,28 @@ CCodeDownload::~CCodeDownload()
         FreeLibrary(m_hModSFC);
     }
 
-    if(m_wszZIDll)
-        delete [] m_wszZIDll;
+    if (m_wszZIDll)
+        delete[] m_wszZIDll;
 }  // ~CCodeDownload
 
 
 // Remove the old log and set a new one
 // If debuglog is NULL, starts a new log
-void CCodeDownload::SetDebugLog(CDLDebugLog * debuglog)
+void CCodeDownload::SetDebugLog(CDLDebugLog* debuglog)
 {
-    CDLDebugLog * pdlNew = NULL;
+    CDLDebugLog* pdlNew = NULL;
 
-    if(debuglog)
+    if (debuglog)
         pdlNew = debuglog;
-    else
-    {
+    else {
         pdlNew = CDLDebugLog::MakeDebugLog();
-        if(!pdlNew)
+        if (!pdlNew)
             // Out of Memory
             return;
         pdlNew->Init(this);
     }
 
-    if(pdlNew)
-    {
+    if (pdlNew) {
         m_debuglog->Release();
         pdlNew->AddRef();
         m_debuglog = pdlNew;
@@ -293,7 +290,7 @@ void CCodeDownload::SetDebugLog(CDLDebugLog * debuglog)
 
 HRESULT
 CCodeDownload::CreateClientBinding(
-    CClBinding **ppClientBinding,
+    CClBinding** ppClientBinding,
     IBindCtx* pClientBC,
     IBindStatusCallback* pClientbsc,
     REFCLSID rclsid,
@@ -301,7 +298,7 @@ CCodeDownload::CreateClientBinding(
     LPVOID pvReserved,
     REFIID riid,
     BOOL fAddHead,
-    IInternetHostSecurityManager *pHostSecurityManager)
+    IInternetHostSecurityManager* pHostSecurityManager)
 {
     HRESULT hr = S_OK;
 
@@ -310,7 +307,7 @@ CCodeDownload::CreateClientBinding(
 
     // make an IBinding for the client
     // this gets passed on the OnstartBinding of first download as parameter for clientbsc::OnstartBinding
-    CClBinding *pClientbinding= new CClBinding(this, pClientbsc, pClientBC, rclsid, dwClsContext, pvReserved, riid, pHostSecurityManager);
+    CClBinding* pClientbinding = new CClBinding(this, pClientbsc, pClientBC, rclsid, dwClsContext, pvReserved, riid, pHostSecurityManager);
     if (pClientbinding) {
         if (fAddHead) {
             m_pClientbinding.AddHead(pClientbinding);
@@ -318,7 +315,7 @@ CCodeDownload::CreateClientBinding(
             m_pClientbinding.AddTail(pClientbinding);
         }
     } else {
-        hr =  E_OUTOFMEMORY;
+        hr = E_OUTOFMEMORY;
     }
 
     *ppClientBinding = pClientbinding;
@@ -327,11 +324,11 @@ CCodeDownload::CreateClientBinding(
 }
 
 
-HRESULT CCodeDownload::AbortBinding( CClBinding *pbinding)
+HRESULT CCodeDownload::AbortBinding(CClBinding* pbinding)
 {
     IBindStatusCallback* pbsc;
     int iNumBindings = m_pClientbinding.GetCount();
-    ICodeInstall *pCodeInstall;
+    ICodeInstall* pCodeInstall;
     HRESULT hr = S_OK;
     LISTPOSITION curpos;
 
@@ -381,15 +378,15 @@ Exit:
 //          Any other error: fatal error: fail
 HRESULT
 CCodeDownload::PiggybackDupRequest(
-    IBindStatusCallback *pDupClientBSC,
-    IBindCtx *pbc,
+    IBindStatusCallback* pDupClientBSC,
+    IBindCtx* pbc,
     REFCLSID rclsid,
     DWORD dwClsContext,
     LPVOID pvReserved,
     REFIID riid)
 {
     HRESULT hr = S_OK;
-    CClBinding *pClientBinding = NULL;
+    CClBinding* pClientBinding = NULL;
 
     Assert(m_pClientbinding.GetCount() > 0);
     if (m_pClientbinding.GetCount() <= 0) {
@@ -397,7 +394,7 @@ CCodeDownload::PiggybackDupRequest(
         goto Exit;
     }
 
-    hr = CreateClientBinding( &pClientBinding, pbc, pDupClientBSC, rclsid, dwClsContext, pvReserved, riid, FALSE /* fAddHead */, NULL);
+    hr = CreateClientBinding(&pClientBinding, pbc, pDupClientBSC, rclsid, dwClsContext, pvReserved, riid, FALSE /* fAddHead */, NULL);
     if (SUCCEEDED(hr)) {
         Assert(pClientBinding);
 
@@ -439,10 +436,10 @@ HRESULT CCodeDownload::AnyCodeDownloadsInThread()
 HRESULT CCodeDownload::IsDuplicateJavaSetup(LPCWSTR szPackage)
 {
     HRESULT hr = S_FALSE;       // assume not found
-    CDownload *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
 
     LISTPOSITION curpos = m_pDownloads.GetHeadPosition();
-    for (int i=0; i < m_pDownloads.GetCount(); i++) {
+    for (int i = 0; i < m_pDownloads.GetCount(); i++) {
         pdlCur = m_pDownloads.GetNext(curpos);
         if (pdlCur->FindJavaSetup(szPackage) != NULL) {
             hr = S_OK;
@@ -460,10 +457,10 @@ HRESULT CCodeDownload::IsDuplicateJavaSetup(LPCWSTR szPackage)
 HRESULT CCodeDownload::IsDuplicateHook(LPCSTR szHook)
 {
     HRESULT hr = S_FALSE;       // assume not found
-    CDownload *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
 
     LISTPOSITION curpos = m_pDownloads.GetHeadPosition();
-    for (int i=0; i < m_pDownloads.GetCount(); i++) {
+    for (int i = 0; i < m_pDownloads.GetCount(); i++) {
         pdlCur = m_pDownloads.GetNext(curpos);
         if (pdlCur->FindHook(szHook) != NULL) {
             hr = S_OK;
@@ -480,18 +477,17 @@ HRESULT SetComponentDeclined(LPCWSTR pwszDistUnit, LPSTR pszSecId)
     HRESULT hr = S_FALSE;   // assume need to fault in
     LPSTR pszDistUnit = NULL;
     LONG    lResult = ERROR_SUCCESS;
-    HKEY    hkeyDec    = NULL;
+    HKEY    hkeyDec = NULL;
     DWORD   dwSize;
     DWORD   dwValue;
     LPSTR szNull = "";
-    char szKey[MAX_PATH*2];
+    char szKey[MAX_PATH * 2];
 
-    if (FAILED((hr=::Unicode2Ansi(pwszDistUnit, &pszDistUnit))))
-    {
+    if (FAILED((hr = ::Unicode2Ansi(pwszDistUnit, &pszDistUnit)))) {
         goto Exit;
     }
 
-    lstrcpyn(szKey, REGKEY_DECLINED_COMPONENTS, MAX_PATH*2);
+    lstrcpyn(szKey, REGKEY_DECLINED_COMPONENTS, MAX_PATH * 2);
 
 #ifndef ENABLE_PERSIST_DECLINED_COMPONNETS
     if (RegOpenKeyEx(HKEY_CURRENT_USER, szKey, 0, KEY_WRITE, &hkeyDec) != ERROR_SUCCESS) {
@@ -505,18 +501,17 @@ HRESULT SetComponentDeclined(LPCWSTR pwszDistUnit, LPSTR pszSecId)
     }
 #endif
 
-    StrCatBuff(szKey, "\\", MAX_PATH*2);
-    StrCatBuff(szKey, pszDistUnit, MAX_PATH*2);
+    StrCatBuff(szKey, "\\", MAX_PATH * 2);
+    StrCatBuff(szKey, pszDistUnit, MAX_PATH * 2);
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, szKey, 0, KEY_WRITE, &hkeyDec) != ERROR_SUCCESS)
-    {
-        if ((lResult = RegCreateKey( HKEY_CURRENT_USER, szKey, &hkeyDec)) != ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, szKey, 0, KEY_WRITE, &hkeyDec) != ERROR_SUCCESS) {
+        if ((lResult = RegCreateKey(HKEY_CURRENT_USER, szKey, &hkeyDec)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
         }
     }
 
-    if (((lResult = RegSetValueEx (hkeyDec, pszSecId, 0, REG_SZ, (unsigned char *)szNull, 1))) != ERROR_SUCCESS) {
+    if (((lResult = RegSetValueEx(hkeyDec, pszSecId, 0, REG_SZ, (unsigned char*)szNull, 1))) != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lResult);
     }
 
@@ -540,7 +535,7 @@ CCodeDownload::SetUserDeclined()
     int i;
     BYTE pbSecIdDocBase[INTERNET_MAX_URL_LENGTH];
     DWORD dwSecIdDocBase = INTERNET_MAX_URL_LENGTH;
-    IInternetHostSecurityManager *pHostSecurityManager = GetClientBinding()->GetHostSecurityManager();
+    IInternetHostSecurityManager* pHostSecurityManager = GetClientBinding()->GetHostSecurityManager();
 
 
     if (!pHostSecurityManager) {
@@ -565,41 +560,41 @@ CCodeDownload::SetUserDeclined()
     }
 
     if (GetMainDistUnit()) {
-        hr = SetComponentDeclined(GetMainDistUnit(), (char *)pbSecIdDocBase);
+        hr = SetComponentDeclined(GetMainDistUnit(), (char*)pbSecIdDocBase);
 
         if (FAILED(hr))
             goto Exit;
     }
 
     if (GetMainType()) {
-        hr = SetComponentDeclined(GetMainType(), (char *)pbSecIdDocBase);
+        hr = SetComponentDeclined(GetMainType(), (char*)pbSecIdDocBase);
 
         if (FAILED(hr))
             goto Exit;
     }
 
     if (GetMainExt()) {
-        hr = SetComponentDeclined(GetMainExt(), (char *)pbSecIdDocBase);
+        hr = SetComponentDeclined(GetMainExt(), (char*)pbSecIdDocBase);
 
         if (FAILED(hr))
             goto Exit;
     }
 
-    for (i=0; i < iNum; i++) {
+    for (i = 0; i < iNum; i++) {
 
-        CClBinding *pbinding = m_pClientbinding.GetNext(pos); // pass ref!
+        CClBinding* pbinding = m_pClientbinding.GetNext(pos); // pass ref!
         LPOLESTR pwszClsid;
 
         pwszClsid = NULL;
 
-        if (!IsEqualGUID(pbinding->GetClsid() , CLSID_NULL)) {
+        if (!IsEqualGUID(pbinding->GetClsid(), CLSID_NULL)) {
 
-            hr=StringFromCLSID(pbinding->GetClsid(), &pwszClsid);
+            hr = StringFromCLSID(pbinding->GetClsid(), &pwszClsid);
 
             if (FAILED(hr))
                 goto Exit;
 
-            hr = SetComponentDeclined(pwszClsid, (char *)pbSecIdDocBase);
+            hr = SetComponentDeclined(pwszClsid, (char*)pbSecIdDocBase);
             SAFEDELETE(pwszClsid);
 
             if (FAILED(hr))
@@ -613,14 +608,14 @@ Exit:
 
 BOOL IsDeclined(
     LPCWSTR pwszDistUnit,
-    IInternetHostSecurityManager *pHostSecurityManager)
+    IInternetHostSecurityManager* pHostSecurityManager)
 {
     BOOL bDeclined = FALSE;
     LPSTR pszDistUnit = NULL;
     BYTE pbSecIdDocBase[INTERNET_MAX_URL_LENGTH];
     DWORD dwSecIdDocBase = INTERNET_MAX_URL_LENGTH;
     HRESULT hr = S_OK;
-    char szKey[MAX_PATH*2];
+    char szKey[MAX_PATH * 2];
 
 
     Assert(pHostSecurityManager);
@@ -640,17 +635,15 @@ BOOL IsDeclined(
         pbSecIdDocBase[dwSecIdDocBase - sizeof(DWORD)] = '\0';
     }
 
-    lstrcpyn(szKey, REGKEY_DECLINED_COMPONENTS, MAX_PATH*2);
+    lstrcpyn(szKey, REGKEY_DECLINED_COMPONENTS, MAX_PATH * 2);
 
-    if (SUCCEEDED(::Unicode2Ansi(pwszDistUnit, &pszDistUnit)))
-    {
-        StrCatBuff(szKey, "\\", MAX_PATH*2);
-        StrCatBuff(szKey, pszDistUnit, MAX_PATH*2);
+    if (SUCCEEDED(::Unicode2Ansi(pwszDistUnit, &pszDistUnit))) {
+        StrCatBuff(szKey, "\\", MAX_PATH * 2);
+        StrCatBuff(szKey, pszDistUnit, MAX_PATH * 2);
 
         SAFEDELETE(pszDistUnit);
 
-        if (SHRegGetUSValue( szKey, (char *)pbSecIdDocBase, NULL, NULL, NULL, 0,NULL,0) == ERROR_SUCCESS)
-        {
+        if (SHRegGetUSValue(szKey, (char*)pbSecIdDocBase, NULL, NULL, NULL, 0, NULL, 0) == ERROR_SUCCESS) {
             bDeclined = TRUE;
         }
     }
@@ -667,8 +660,8 @@ CCodeDownload::HasUserDeclined(
     LPCWSTR szDistUnit,
     LPCWSTR szType,
     LPCWSTR szExt,
-    IBindStatusCallback *pClientBSC,
-    IInternetHostSecurityManager *pHostSecurityManager)
+    IBindStatusCallback* pClientBSC,
+    IInternetHostSecurityManager* pHostSecurityManager)
 {
 
     HRESULT hr = S_OK;
@@ -685,9 +678,9 @@ CCodeDownload::HasUserDeclined(
 
         if (!(grfBINDF & BINDF_RESYNCHRONIZE)) {    // User has hit refresh
 
-            if ((szDistUnit && IsDeclined(szDistUnit,pHostSecurityManager)) ||
-                (szType && IsDeclined(szType,pHostSecurityManager)) ||
-                (szExt && IsDeclined(szExt,pHostSecurityManager))) {
+            if ((szDistUnit && IsDeclined(szDistUnit, pHostSecurityManager)) ||
+                (szType && IsDeclined(szType, pHostSecurityManager)) ||
+                (szExt && IsDeclined(szExt, pHostSecurityManager))) {
 
                 hr = INET_E_CODE_DOWNLOAD_DECLINED;
 
@@ -717,13 +710,13 @@ CCodeDownload::HandleDuplicateCodeDownloads(
     LPVOID pvReserved,
     REFIID riid,
     IBindCtx* pbc,
-    IBindStatusCallback *pDupClientBSC,
+    IBindStatusCallback* pDupClientBSC,
     DWORD dwFlags,
-    IInternetHostSecurityManager *pHostSecurityManager)
+    IInternetHostSecurityManager* pHostSecurityManager)
 {
     HRESULT hr = S_OK;
     LISTPOSITION curpos;
-    CCodeDownload *pcdl;
+    CCodeDownload* pcdl;
     int iNumCDL;
     int i;
 
@@ -737,7 +730,7 @@ CCodeDownload::HandleDuplicateCodeDownloads(
     // we will skip this check only when the user hits refresh on a page
 
     if (!(dwFlags & CD_FLAGS_SKIP_DECLINED_LIST_CHECK)) {
-        hr = HasUserDeclined(szDistUnit, szType, szExt,pDupClientBSC,pHostSecurityManager);
+        hr = HasUserDeclined(szDistUnit, szType, szExt, pDupClientBSC, pHostSecurityManager);
         if (FAILED(hr))
             goto Exit;
     }
@@ -746,22 +739,22 @@ CCodeDownload::HandleDuplicateCodeDownloads(
     curpos = tls->pCodeDownloadList->GetHeadPosition();
 
     // walk thru all the code downloads in the thread and check for DUPs
-    for (i=0; i < iNumCDL; i++) {
+    for (i = 0; i < iNumCDL; i++) {
 
         pcdl = tls->pCodeDownloadList->GetNext(curpos);
 
-        BOOL bNullClsid = IsEqualGUID(rclsid , CLSID_NULL);
+        BOOL bNullClsid = IsEqualGUID(rclsid, CLSID_NULL);
 
         if (bNullClsid) {
 
             // handle dups based on TYPE and Ext
-            if (! ( ( szDistUnit && pcdl->GetMainDistUnit() &&
-                    (StrCmpIW(szDistUnit, pcdl->GetMainDistUnit()) == 0)) ||
-                    ( szType && pcdl->GetMainType() &&
-                    (StrCmpIW(szType, pcdl->GetMainType()) == 0)) ||
-                    ( szExt && pcdl->GetMainExt() &&
-                    (StrCmpIW(szExt, pcdl->GetMainExt()) == 0))
-                   ) ) {
+            if (!((szDistUnit && pcdl->GetMainDistUnit() &&
+                   (StrCmpIW(szDistUnit, pcdl->GetMainDistUnit()) == 0)) ||
+                  (szType && pcdl->GetMainType() &&
+                   (StrCmpIW(szType, pcdl->GetMainType()) == 0)) ||
+                  (szExt && pcdl->GetMainExt() &&
+                   (StrCmpIW(szExt, pcdl->GetMainExt()) == 0))
+                  )) {
 
                 // no match by type or ext
 
@@ -770,22 +763,22 @@ CCodeDownload::HandleDuplicateCodeDownloads(
 
             // found match, fall thru to piggyback
 
-        } else if (IsEqualGUID(rclsid , pcdl->GetClsid())) {
+        } else if (IsEqualGUID(rclsid, pcdl->GetClsid())) {
 
             if (szURL) {
 
-                if(StrCmpIW(szURL, pcdl->GetMainURL()) != 0) {
+                if (StrCmpIW(szURL, pcdl->GetMainURL()) != 0) {
                     pcdl->m_debuglog->DebugOut(DEB_CODEDL, FALSE, ID_CDLDBG_OBJ_TAG_MIXED_USAGE,
-                                  (pcdl->GetClsid()).Data1,szURL, pcdl->GetMainURL());
+                                               (pcdl->GetClsid()).Data1, szURL, pcdl->GetMainURL());
 
                 }
 
             } else {
 
-                if(pcdl->GetMainURL() != NULL) {
+                if (pcdl->GetMainURL() != NULL) {
 
                     pcdl->m_debuglog->DebugOut(DEB_CODEDL, FALSE, ID_CDLDBG_OBJ_TAG_MIXED_USAGE,
-                    (pcdl->GetClsid()).Data1, pcdl->GetMainURL(), NULL);
+                                               (pcdl->GetClsid()).Data1, pcdl->GetMainURL(), NULL);
 
                 }
             }
@@ -794,11 +787,11 @@ CCodeDownload::HandleDuplicateCodeDownloads(
 
         } else if (szURL && (pcdl->GetMainURL() != NULL)) {
 
-                if (StrCmpIW(szURL, pcdl->GetMainURL()) != 0) {
-                    continue;
-                }
+            if (StrCmpIW(szURL, pcdl->GetMainURL()) != 0) {
+                continue;
+            }
 
-                // found matching CODEBASE, fall thru to piggyback
+            // found matching CODEBASE, fall thru to piggyback
 
         } else {
             continue;
@@ -807,7 +800,7 @@ CCodeDownload::HandleDuplicateCodeDownloads(
         // found DUP!
         if (pcdl->GetState() != CDL_Completed) {
             hr = pcdl->PiggybackDupRequest(pDupClientBSC, pbc,
-                rclsid, dwClsContext, pvReserved, riid);
+                                           rclsid, dwClsContext, pvReserved, riid);
 
             if (hr == S_OK) {
                 // piggy back was successful
@@ -844,7 +837,7 @@ CCodeDownload::SetWaitingForEXE(
         len = lstrlen(szEXE);
 
     if (len) {
-        m_szWaitForEXE = new CHAR [len + 1];
+        m_szWaitForEXE = new CHAR[len + 1];
     } else {
         return E_INVALIDARG;
     }
@@ -889,8 +882,8 @@ CCodeDownload::RegisterOmniDll(
         goto Exit;
     }
 
-    if ( (lpfnDllRegisterServer = (POMNIPROX_REGISTER)GetProcAddress( hMod,
-                        "DllRegisterOmniServer")) == NULL) {
+    if ((lpfnDllRegisterServer = (POMNIPROX_REGISTER)GetProcAddress(hMod,
+                                                                    "DllRegisterOmniServer")) == NULL) {
         hr = HRESULT_FROM_WIN32(GetLastError());
     }
 
@@ -904,7 +897,7 @@ Exit:
     return hr;
 }
 
-typedef HRESULT (STDAPICALLTYPE *LPFNREGSVR)();
+typedef HRESULT(STDAPICALLTYPE* LPFNREGSVR)();
 
 
 // %%Function: CCodeDownload::RegisterPEDll
@@ -916,7 +909,7 @@ CCodeDownload::RegisterPEDll(
     HMODULE hMod;
     LPFNREGSVR lpRegSvrFn;
     HRESULT hr = S_OK;
-    IActiveXSafetyProvider *pProvider;
+    IActiveXSafetyProvider* pProvider;
 
     if ((hr = IsRegisterableDLL(lpSrcFileName)) != S_OK) {
 
@@ -945,7 +938,7 @@ CCodeDownload::RegisterPEDll(
         }
 
 
-        lpRegSvrFn = (LPFNREGSVR) GetProcAddress(hMod, "DllRegisterServer");
+        lpRegSvrFn = (LPFNREGSVR)GetProcAddress(hMod, "DllRegisterServer");
         if (lpRegSvrFn == NULL) {
             hr = HRESULT_FROM_WIN32(GetLastError());
         }
@@ -977,9 +970,9 @@ CCodeDownload::RegisterWx86Dll(
     HRESULT hr = S_OK;
     LPWSTR  lpwSrcFileName;
 
-    typedef HMODULE (*pfnLoadFn)(LPCWSTR name, DWORD dwFlags);
-    typedef PVOID (*pfnThunkFn)(PVOID pvAddress, PVOID pvCbDispatch, BOOLEAN fNativeToX86);
-    typedef BOOL (*pfnUnloadFn)(HMODULE hMod);
+    typedef HMODULE(*pfnLoadFn)(LPCWSTR name, DWORD dwFlags);
+    typedef PVOID(*pfnThunkFn)(PVOID pvAddress, PVOID pvCbDispatch, BOOLEAN fNativeToX86);
+    typedef BOOL(*pfnUnloadFn)(HMODULE hMod);
     pfnLoadFn pfnLoad;
     pfnThunkFn pfnThunk;
     pfnUnloadFn pfnUnload;
@@ -1011,7 +1004,7 @@ CCodeDownload::RegisterWx86Dll(
 
     // assuming oleinitialze
 
-    if (FAILED((hr=::Ansi2Unicode(lpSrcFileName, &lpwSrcFileName)))) {
+    if (FAILED((hr = ::Ansi2Unicode(lpSrcFileName, &lpwSrcFileName)))) {
         goto Exit1;
     }
 
@@ -1024,8 +1017,8 @@ CCodeDownload::RegisterWx86Dll(
 
     delete lpwSrcFileName;
 
-    if ( (lpfnDllRegisterServerX86 = GetProcAddress( hMod,
-                        "DllRegisterServer")) == NULL) {
+    if ((lpfnDllRegisterServerX86 = GetProcAddress(hMod,
+                                                   "DllRegisterServer")) == NULL) {
         hr = HRESULT_FROM_WIN32(GetLastError());
     }
 
@@ -1037,7 +1030,7 @@ CCodeDownload::RegisterWx86Dll(
         lpfnDllRegisterServer = (FARPROC)(*pfnThunk)(lpfnDllRegisterServerX86,
                                                      (PVOID)0,
                                                      TRUE
-                                                    );
+                                                     );
         if (lpfnDllRegisterServer == (FARPROC)-1) {
 
             // Something went wrong.  Possibly out-of-memory.
@@ -1068,12 +1061,12 @@ HRESULT CCodeDownload::DelayRegisterOCX(LPCSTR pszSrcFileName, FILEXTN extn)
     HKEY hKeyRunOnce = NULL;
     int line = 0;
     char szPath[MAX_PATH];
-    char lpszCmdLine[2*MAX_PATH];
+    char lpszCmdLine[2 * MAX_PATH];
     char lpSrcFileName[MAX_PATH];
     char szTgtFileName[MAX_PATH];
     DWORD   dwTmp;
-    const char *szICDRUNONCE = "ICDRegOCX%d";
-    const char *szICDRUNDLL="rundll32.exe advpack.dll,RegisterOCX %s";
+    const char* szICDRUNONCE = "ICDRegOCX%d";
+    const char* szICDRUNDLL = "rundll32.exe advpack.dll,RegisterOCX %s";
 
     // See comment in UpdateFileList to see why this is necessary
     // The reason we do this here is the same, except we need to use
@@ -1081,22 +1074,19 @@ HRESULT CCodeDownload::DelayRegisterOCX(LPCSTR pszSrcFileName, FILEXTN extn)
     if (g_bRunOnWin95) {
         OemToChar(pszSrcFileName, lpSrcFileName);
         lstrcpy(szTgtFileName, lpSrcFileName);
-    }
-    else {
+    } else {
         lstrcpy(szTgtFileName, pszSrcFileName);
     }
 
-    if ( RegCreateKeyEx( HKEY_LOCAL_MACHINE, REGSTR_PATH_RUNONCE, (ULONG)0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyRunOnce, &dwTmp ) != ERROR_SUCCESS ) {
+    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_RUNONCE, (ULONG)0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyRunOnce, &dwTmp) != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(GetLastError());
         goto Exit;
     }
 
     // Check if key already exists -- if so, go with next number.
-    for (;;)
-    {
-        wsprintf( szPath, szICDRUNONCE, line++ );
-        if ( RegQueryValueEx( hKeyRunOnce, szPath, 0, NULL, NULL, &dwTmp ) != ERROR_SUCCESS )
-        {
+    for (;;) {
+        wsprintf(szPath, szICDRUNONCE, line++);
+        if (RegQueryValueEx(hKeyRunOnce, szPath, 0, NULL, NULL, &dwTmp) != ERROR_SUCCESS) {
             break;
         }
     }
@@ -1113,22 +1103,22 @@ HRESULT CCodeDownload::DelayRegisterOCX(LPCSTR pszSrcFileName, FILEXTN extn)
         // Run the RISC rundll32.exe but specify the fully-qualified name of
         // the x86 advpack.dll installed in %windir%\sys32x86.  RISC rundll32
         // is Wx86-aware and will load and run the x86 DLL.
-        wsprintf( lpszCmdLine, "rundll32.exe %s\advpack.dll,RegisterOCX %s", szSysDirX86, szTgtFileName );
+        wsprintf(lpszCmdLine, "rundll32.exe %s\advpack.dll,RegisterOCX %s", szSysDirX86, szTgtFileName);
     } else {
-        wsprintf( lpszCmdLine, szICDRUNDLL, szTgtFileName );
+        wsprintf(lpszCmdLine, szICDRUNDLL, szTgtFileName);
     }
 #else
-    wsprintf( lpszCmdLine, szICDRUNDLL, szTgtFileName );
+    wsprintf(lpszCmdLine, szICDRUNDLL, szTgtFileName);
 #endif
 
-    if ( RegSetValueEx( hKeyRunOnce, szPath, 0, REG_SZ, (CONST UCHAR *) lpszCmdLine, lstrlen(lpszCmdLine)+1 ) != ERROR_SUCCESS ) {
+    if (RegSetValueEx(hKeyRunOnce, szPath, 0, REG_SZ, (CONST UCHAR*) lpszCmdLine, lstrlen(lpszCmdLine) + 1) != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(GetLastError());
         goto Exit;
     }
 
 Exit:
-    if ( hKeyRunOnce != NULL ) {
-        RegCloseKey( hKeyRunOnce );
+    if (hKeyRunOnce != NULL) {
+        RegCloseKey(hKeyRunOnce);
     }
 
     return hr;
@@ -1142,8 +1132,8 @@ HRESULT CCodeDownload::InstallOCX(LPCSTR lpSrcFileName, FILEXTN extn, BOOL bLoca
     HMODULE hMod;
     FARPROC lpfnDllRegisterServer;
     HRESULT hr = S_OK;
-    const static char *szREGSVR = " /RegServer";
-    char szCmdLine[MAX_PATH+sizeof(szREGSVR)];
+    const static char* szREGSVR = " /RegServer";
+    char szCmdLine[MAX_PATH + sizeof(szREGSVR)];
     STARTUPINFO si;
     DWORD dwResult;
     DWORD dwMachineType = 0;
@@ -1163,16 +1153,15 @@ HRESULT CCodeDownload::InstallOCX(LPCSTR lpSrcFileName, FILEXTN extn, BOOL bLoca
         si.cb = sizeof(si);
 
         if (!CreateProcess(NULL,
-                szCmdLine,
-                0,                  // security
-                0,                  // security
-                FALSE,              // Don't inherit my handles!
-                0,                  // Creation flags
-                NULL,               // env = inherit
-                NULL,               // cur dir. = inherit
-                &si,                // no startup info
-                &m_pi))
-            {
+                           szCmdLine,
+                           0,                  // security
+                           0,                  // security
+                           FALSE,              // Don't inherit my handles!
+                           0,                  // Creation flags
+                           NULL,               // env = inherit
+                           NULL,               // cur dir. = inherit
+                           &si,                // no startup info
+                           &m_pi)) {
             hr = HRESULT_FROM_WIN32(GetLastError());
         } else {
             hr = SetWaitingForEXE(lpSrcFileName, !bLocalServer);
@@ -1227,9 +1216,9 @@ HRESULT CCodeDownload::UpdateZeroImpactCache()
     LONG lRes = 0;
     int iRes = 0;
     BOOL bHaveszDll = FALSE;
-    const TCHAR * szDirectoryValueName = TEXT("Directory");
-    const TCHAR * szContainsClassesKeyName = TEXT("Contains\\Classes");
-    const TCHAR * szZeroImpactValueName = TEXT("ZeroImpact");
+    const TCHAR* szDirectoryValueName = TEXT("Directory");
+    const TCHAR* szContainsClassesKeyName = TEXT("Contains\\Classes");
+    const TCHAR* szZeroImpactValueName = TEXT("ZeroImpact");
     TCHAR szClassString[MAX_PATH];
     DWORD dwDummy = 0;
 
@@ -1237,18 +1226,16 @@ HRESULT CCodeDownload::UpdateZeroImpactCache()
     LPWSTR pwzClassString = GetClientBinding()->GetClassString();
 
     // **Begin writing zero impact values to the registry**
-    if(! m_szDistUnit || ! m_szDistUnit[0] || ! m_szCacheDir || ! m_szCacheDir[0])
-    {
+    if (!m_szDistUnit || !m_szDistUnit[0] || !m_szCacheDir || !m_szCacheDir[0]) {
         hr = E_INVALIDARG;
         goto Exit;
     }
 
     // buffer overflow protection
-    if(MAX_VERSIONLENGTH + lstrlenW(m_szDistUnit) + lstrlen(REGKEY_ZEROIMPACT_DIRS) + 3 > MAX_PATH)
+    if (MAX_VERSIONLENGTH + lstrlenW(m_szDistUnit) + lstrlen(REGKEY_ZEROIMPACT_DIRS) + 3 > MAX_PATH)
         return E_UNEXPECTED;
 
-    if(! GetStringFromVersion(szVersion, m_dwFileVersionMS, m_dwFileVersionLS, '_'))
-    {
+    if (!GetStringFromVersion(szVersion, m_dwFileVersionMS, m_dwFileVersionLS, '_')) {
         // no good version string, there's nothing we can do
         hr = E_UNEXPECTED;
         goto Exit;
@@ -1259,88 +1246,71 @@ HRESULT CCodeDownload::UpdateZeroImpactCache()
 
     // If the key does not exist (should have been created in update dist unit) create it
     lRes = RegOpenKey(HKEY_LOCAL_MACHINE, szKeyName, &hkey);
-    if(lRes != ERROR_SUCCESS)
-    {
+    if (lRes != ERROR_SUCCESS) {
         lRes = RegCreateKey(HKEY_LOCAL_MACHINE, szKeyName, &hkey);
-        if(lRes != ERROR_SUCCESS)
-        {
+        if (lRes != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lRes);
             goto Exit;
         }
     }
 
     // set its Directory value to the cache dir
-    lRes = RegSetValueEx(hkey, szDirectoryValueName, 0, REG_SZ, (BYTE *) m_szCacheDir, (lstrlen(m_szCacheDir) + 1)*sizeof(CHAR));
-    if(lRes != ERROR_SUCCESS)
-    {
+    lRes = RegSetValueEx(hkey, szDirectoryValueName, 0, REG_SZ, (BYTE*)m_szCacheDir, (lstrlen(m_szCacheDir) + 1) * sizeof(CHAR));
+    if (lRes != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lRes);
         goto Exit;
     }
 
     // mark it as zeroimpact
     dwDummy = 0;
-    lRes = RegSetValueEx(hkey, szZeroImpactValueName, 0, REG_DWORD, (BYTE *) &dwDummy, sizeof(DWORD));
-    if(lRes != ERROR_SUCCESS)
-    {
+    lRes = RegSetValueEx(hkey, szZeroImpactValueName, 0, REG_DWORD, (BYTE*)&dwDummy, sizeof(DWORD));
+    if (lRes != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lRes);
         goto Exit;
     }
 
     // now set the dll name, if it exists
     bHaveszDll = FALSE;
-    if (!GetClientBinding()->GetZIDll())
-    {
+    if (!GetClientBinding()->GetZIDll()) {
         // Not existant?  Try to recover it from the file in the cache directory
         HRESULT hr1 = S_OK;
         int iBufLen = MAX_PATH;
         hr1 = ZIGetDllName(m_szCacheDir, m_szDistUnit, pwzClassString, m_dwFileVersionMS, m_dwFileVersionLS, szDll, &iBufLen);
-        if ((hr1 == S_OK) && (MultiByteToWideChar(CP_ACP, 0, szDll, -1, wszDll, MAX_PATH) != 0))
-        {
+        if ((hr1 == S_OK) && (MultiByteToWideChar(CP_ACP, 0, szDll, -1, wszDll, MAX_PATH) != 0)) {
             GetClientBinding()->SetZIDll(wszDll);
             bHaveszDll = TRUE;
         }
-    }
-    else
-    {
+    } else {
         // It exists, try to convert it to a TCHAR to write to the registry
-        iRes = WideCharToMultiByte(CP_ACP, 0, GetClientBinding()->GetZIDll(), -1, szDll, MAX_PATH, 0,0);
-        if(iRes == 0)
-        {
+        iRes = WideCharToMultiByte(CP_ACP, 0, GetClientBinding()->GetZIDll(), -1, szDll, MAX_PATH, 0, 0);
+        if (iRes == 0) {
             hr = HRESULT_FROM_WIN32(GetLastError());
             goto Exit; // bad translation
         }
         bHaveszDll = TRUE;
     }
 
-    if (pwzClassString)
-    {
-        iRes = WideCharToMultiByte(CP_ACP, 0, pwzClassString, -1, szClassString, MAX_PATH, 0,0);
+    if (pwzClassString) {
+        iRes = WideCharToMultiByte(CP_ACP, 0, pwzClassString, -1, szClassString, MAX_PATH, 0, 0);
     }
-    if (pwzClassString && iRes != 0)
-    {
+    if (pwzClassString && iRes != 0) {
         // If we have a dll string to write to the registry...
-        if(bHaveszDll)
-        {
+        if (bHaveszDll) {
             lRes = RegCreateKey(hkey, szContainsClassesKeyName, &hkeyClasses);
-            if(lRes != ERROR_SUCCESS)
-            {
+            if (lRes != ERROR_SUCCESS) {
                 hr = HRESULT_FROM_WIN32(lRes);
                 goto Exit;
             }
 
-            lRes = RegSetValueEx(hkeyClasses, szClassString, 0, REG_SZ, (BYTE *)szDll, (lstrlen(szDll) + 1)*sizeof(TCHAR));
-            if(FAILED(HRESULT_FROM_WIN32(lRes)))
-            {
+            lRes = RegSetValueEx(hkeyClasses, szClassString, 0, REG_SZ, (BYTE*)szDll, (lstrlen(szDll) + 1) * sizeof(TCHAR));
+            if (FAILED(HRESULT_FROM_WIN32(lRes))) {
                 hr = HRESULT_FROM_WIN32(lRes);
                 goto Exit;
             }
-        }
-        else
-        {
+        } else {
             // make sure no values from a previous install exist
             lRes = RegOpenKey(HKEY_LOCAL_MACHINE, szContainsClassesKeyName, &hkeyClasses);
-            if(lRes != ERROR_SUCCESS)
-            {
+            if (lRes != ERROR_SUCCESS) {
                 hr = HRESULT_FROM_WIN32(lRes);
                 goto Exit;
             }
@@ -1351,9 +1321,9 @@ HRESULT CCodeDownload::UpdateZeroImpactCache()
     //BUGBUG: enumerate through files to add them to contains\files for removal by ocxcache?
 
 Exit:
-    if(hkeyClasses)
+    if (hkeyClasses)
         RegCloseKey(hkeyClasses);
-    if(hkey)
+    if (hkey)
         RegCloseKey(hkey);
     return hr;
 }
@@ -1365,7 +1335,7 @@ HRESULT CCodeDownload::HandleUnSafeAbort()
     HRESULT hr = S_FALSE;
     ICodeInstall* pCodeInstall = GetICodeInstall();
 
-    if(WaitingForEXE()) { // Did the setup start a self-registering EXE?
+    if (WaitingForEXE()) { // Did the setup start a self-registering EXE?
 
         // we are waiting for an EXE to complete self-registering
         // notify client of condition and maybe it wants to
@@ -1401,7 +1371,7 @@ HRESULT CCodeDownload::HandleUnSafeAbort()
         SetNotWaitingForEXE();
 
         m_hr = E_ABORT;
-        CCDLPacket *pPkt= new CCDLPacket(CODE_DOWNLOAD_SETUP, this, 0);
+        CCDLPacket* pPkt = new CCDLPacket(CODE_DOWNLOAD_SETUP, this, 0);
 
         if (pPkt) {
             hr = pPkt->Post();
@@ -1414,7 +1384,7 @@ HRESULT CCodeDownload::HandleUnSafeAbort()
 
     if (pCodeInstall) {
         hr = pCodeInstall->OnCodeInstallProblem(CIP_UNSAFE_TO_ABORT,
-                                NULL, NULL, 0);
+                                                NULL, NULL, 0);
     } else {
         hr = E_ABORT;
     }
@@ -1445,7 +1415,7 @@ HRESULT CCodeDownload::SelfRegEXETimeout()
         // the EXE has not yet completed.
         // just wait for it till we get it or client calls
         // IClientBinding::Abort()
-        CCDLPacket *pPkt= new CCDLPacket(CODE_DOWNLOAD_WAIT_FOR_EXE, this,0);
+        CCDLPacket* pPkt = new CCDLPacket(CODE_DOWNLOAD_WAIT_FOR_EXE, this, 0);
 
         if (pPkt) {
             hr = pPkt->Post();
@@ -1483,7 +1453,7 @@ HRESULT CCodeDownload::SelfRegEXETimeout()
     }
 
     m_hr = hr;
-    CCDLPacket *pPkt= new CCDLPacket(CODE_DOWNLOAD_SETUP, this, 0);
+    CCDLPacket* pPkt = new CCDLPacket(CODE_DOWNLOAD_SETUP, this, 0);
 
     if (pPkt) {
         hr = pPkt->Post();
@@ -1501,7 +1471,7 @@ HRESULT CCodeDownload::SetManifest(FILEXTN extn, LPCSTR szManifest)
 {
     HRESULT hr = S_OK;
 
-    LPSTR szFile = new char [lstrlen(szManifest)+1];
+    LPSTR szFile = new char[lstrlen(szManifest) + 1];
     if (!szFile) {
         hr = E_OUTOFMEMORY;
         goto Exit;
@@ -1535,26 +1505,25 @@ BOOL CCodeDownload::VersionFromManifest(LPSTR szVersionInManifest)
 
 
 // %%Function: CCodeDownload::ProcessJavaManifest
-HRESULT CCodeDownload::ProcessJavaManifest(IXMLElement *pJava, const char *szOSD, char *szOSDBaseName, CDownload *pdl)
+HRESULT CCodeDownload::ProcessJavaManifest(IXMLElement* pJava, const char* szOSD, char* szOSDBaseName, CDownload* pdl)
 {
     HRESULT hr = S_OK;
-    IXMLElement *pPackage = NULL, *pElemTmp = NULL, *pConfig = NULL;
-    CDownload *pdlCur = NULL;
+    IXMLElement* pPackage = NULL, * pElemTmp = NULL, * pConfig = NULL;
+    CDownload* pdlCur = NULL;
     LPWSTR szPackageName = NULL;
     char szPackageVersion[MAX_PATH];
     DWORD dwVersionMS = 0, dwVersionLS = 0, dwJavaFlags = 0;
     int nLastPackage, nLastConfig;
-    CCodeBaseHold *pcbh = NULL;
+    CCodeBaseHold* pcbh = NULL;
     char szPackageURLA[INTERNET_MAX_URL_LENGTH];
-    char *pBaseFileName = NULL;
+    char* pBaseFileName = NULL;
     LPWSTR pszNameSpace = NULL;
-    CList<CCodeBaseHold *, CCodeBaseHold *>    *pcbhList = NULL;
+    CList<CCodeBaseHold*, CCodeBaseHold*>* pcbhList = NULL;
     BOOL bDestroyPCBHList = FALSE;
     int iCount = 0;
 
     if (!pdl->HasJavaPermissions()) {
-        if (IsSilentMode())
-        {
+        if (IsSilentMode()) {
             SetBitsInCache();
         } else {
             hr = TRUST_E_FAIL;
@@ -1569,7 +1538,7 @@ HRESULT CCodeDownload::ProcessJavaManifest(IXMLElement *pJava, const char *szOSD
     // while more packages
 
     nLastPackage = -1;
-    while( (GetNextChildTag(pJava, DU_TAG_PACKAGE, &pPackage, nLastPackage)) == S_OK) {
+    while ((GetNextChildTag(pJava, DU_TAG_PACKAGE, &pPackage, nLastPackage)) == S_OK) {
         SAFEDELETE(szPackageName);
 
         // process package
@@ -1638,7 +1607,7 @@ HRESULT CCodeDownload::ProcessJavaManifest(IXMLElement *pJava, const char *szOSD
                 DestroyPCBHList(pcbhList);
                 SAFEDELETE(pcbhList);
             }
-            pcbhList = new CList<CCodeBaseHold *, CCodeBaseHold *>;
+            pcbhList = new CList<CCodeBaseHold*, CCodeBaseHold*>;
             if (pcbhList == NULL) {
                 hr = E_OUTOFMEMORY;
                 goto Exit;
@@ -1650,19 +1619,18 @@ HRESULT CCodeDownload::ProcessJavaManifest(IXMLElement *pJava, const char *szOSD
 #ifdef WX86
                                       , GetMultiArch()
 #endif
-                                      ) == S_OK) {
+            ) == S_OK) {
 
                 iCount = pcbhList->GetCount();
                 if (iCount) {
                     pcbh = pcbhList->GetHead();
                     pcbh->dwFlags |= CBH_FLAGS_DOWNLOADED;
-                }
-                else {
+                } else {
                     pcbh = NULL;
                 }
 
                 if (pcbh && pcbh->wszCodeBase) {
-                    WideCharToMultiByte(CP_ACP, 0, pcbh->wszCodeBase, -1, szPackageURLA, sizeof(szPackageURLA),NULL, NULL);
+                    WideCharToMultiByte(CP_ACP, 0, pcbh->wszCodeBase, -1, szPackageURLA, sizeof(szPackageURLA), NULL, NULL);
                     FILEXTN extn = ::GetExtnAndBaseFileName(szPackageURLA, &pBaseFileName);
                     if (extn != FILEXTN_CAB) {
                         hr = E_INVALIDARG;
@@ -1692,11 +1660,11 @@ HRESULT CCodeDownload::ProcessJavaManifest(IXMLElement *pJava, const char *szOSD
                             AddDownloadToList(pdlCur);
 
                             {
-                            BOOL bSetOnStack = SetOnStack();
-                            bDestroyPCBHList = FALSE;
-                            hr = pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS| BINDF_ASYNCSTORAGE), pcbhList);
-                            if (bSetOnStack)
-                                ResetOnStack();
+                                BOOL bSetOnStack = SetOnStack();
+                                bDestroyPCBHList = FALSE;
+                                hr = pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS | BINDF_ASYNCSTORAGE), pcbhList);
+                                if (bSetOnStack)
+                                    ResetOnStack();
                             }
                         }
                     }
@@ -1722,10 +1690,10 @@ HRESULT CCodeDownload::ProcessJavaManifest(IXMLElement *pJava, const char *szOSD
 
         goto nextPackage;
 
-addPackage:
+    addPackage:
         hr = pdlCur->AddJavaSetup(szPackageName, pszNameSpace, pPackage, dwVersionMS, dwVersionLS, dwJavaFlags);
 
-nextPackage:
+    nextPackage:
         SAFERELEASE(pPackage);
         SAFERELEASE(pConfig);
 
@@ -1749,30 +1717,30 @@ Exit:
 // %%Function: CCodeDownload::ProcessDependency
 //    Processes <dependency> tag and spins off any dependency code downloads
 //    as appropriate.
-HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
+HRESULT CCodeDownload::ProcessDependency(CDownload* pdl, IXMLElement* pDepend)
 {
     HRESULT              hr = S_OK;
     int                  nLast2, nLast3;
     BOOL                 fAssert = FALSE, fInstall = FALSE;
-    IXMLElement         *pSoftDist2 = NULL, *pLang = NULL, *pConfig = NULL;
+    IXMLElement* pSoftDist2 = NULL, * pLang = NULL, * pConfig = NULL;
     LPWSTR               szDistUnit = NULL;
     LPWSTR               pwszURL = NULL;
     LPSTR                szLanguages = NULL;
     LPSTR                pBaseFileName = NULL;
-    WCHAR                szCDLURL[2*INTERNET_MAX_URL_LENGTH];
-    WCHAR                wszURLBuf[2*INTERNET_MAX_URL_LENGTH];
+    WCHAR                szCDLURL[2 * INTERNET_MAX_URL_LENGTH];
+    WCHAR                wszURLBuf[2 * INTERNET_MAX_URL_LENGTH];
     WCHAR                szResult[INTERNET_MAX_URL_LENGTH];
     DWORD                dwSize = 0;
     DWORD                dwVersionMS = 0, dwVersionLS = 0, dwStyle;
-    CDownload           *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
     CLSID                inclsid = CLSID_NULL;
-    CCodeBaseHold       *pcbh = NULL;
+    CCodeBaseHold* pcbh = NULL;
     CLocalComponentInfo  lci;
     int                  i, iCount = 0, iLen = 0;
     LISTPOSITION         lpos = 0;
-    CCodeBaseHold       *pcbhCur = NULL;
+    CCodeBaseHold* pcbhCur = NULL;
     LPWSTR               pwszStr = NULL;
-    CList<CCodeBaseHold *, CCodeBaseHold *>    *pcbhList = NULL;
+    CList<CCodeBaseHold*, CCodeBaseHold*>* pcbhList = NULL;
     BOOL bDestroyPCBHList = FALSE;
     LPWSTR pwszVersion = NULL;
 
@@ -1817,7 +1785,7 @@ HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
 
         // get STYLE attribute
         if (SUCCEEDED(GetAttributeA(pSoftDist2, DU_ATTRIB_STYLE, szStyle, MAX_PATH))) {
-            (void) GetStyleFromString(szStyle, &dwStyle);
+            (void)GetStyleFromString(szStyle, &dwStyle);
         } else
             dwStyle = STYLE_MSICD;
 
@@ -1840,7 +1808,7 @@ HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
         }
 
         // minimal check for circular dependency
-        if (StrCmpIW(szDistUnit, m_szDistUnit)==0) {
+        if (StrCmpIW(szDistUnit, m_szDistUnit) == 0) {
             hr = HRESULT_FROM_WIN32(ERROR_CIRCULAR_DEPENDENCY);
             goto Exit;
         }
@@ -1853,7 +1821,7 @@ HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
                 DestroyPCBHList(pcbhList);
                 SAFEDELETE(pcbhList);
             }
-            pcbhList = new CList<CCodeBaseHold *, CCodeBaseHold *>;
+            pcbhList = new CList<CCodeBaseHold*, CCodeBaseHold*>;
             if (pcbhList == NULL) {
                 hr = E_OUTOFMEMORY;
                 goto Exit;
@@ -1866,15 +1834,14 @@ HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
 #ifdef WX86
                                        , GetMultiArch()
 #endif
-                                      );
+            );
 
             if (SUCCEEDED(hr)) {
                 iCount = pcbhList->GetCount();
                 if (iCount) {
                     pcbh = pcbhList->GetHead();
                     pcbh->dwFlags |= CBH_FLAGS_DOWNLOADED;
-                }
-                else {
+                } else {
                     pcbh = NULL;
                 }
             }
@@ -1887,7 +1854,7 @@ HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
                 FILEXTN extn = FILEXTN_CAB;
 
                 if (pcbh && pcbh->wszCodeBase && pcbh->bHREF) {
-                    WideCharToMultiByte(CP_ACP, 0, pcbh->wszCodeBase, -1, szPackageURLA, INTERNET_MAX_URL_LENGTH,NULL, NULL);
+                    WideCharToMultiByte(CP_ACP, 0, pcbh->wszCodeBase, -1, szPackageURLA, INTERNET_MAX_URL_LENGTH, NULL, NULL);
                     extn = ::GetExtnAndBaseFileName(szPackageURLA, &pBaseFileName);
                 }
 
@@ -1907,14 +1874,13 @@ HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
                     StrCatW(szCDLURL, L";codebase=");
                     if (SUCCEEDED(GetContextMoniker()->GetDisplayName(NULL, NULL, &pwszURL))) {
                         dwSize = INTERNET_MAX_URL_LENGTH;
-                        if(FAILED(UrlCombineW(pwszURL, pcbh->wszCodeBase, szResult, &dwSize, 0))) {
+                        if (FAILED(UrlCombineW(pwszURL, pcbh->wszCodeBase, szResult, &dwSize, 0))) {
                             hr = E_UNEXPECTED;
                             goto Exit;
                         }
                         StrCatW(szCDLURL, szResult);
                         SAFEDELETE(pwszURL);
-                    }
-                    else {
+                    } else {
                         // A context moniker should always exist if we
                         // are looking at a dependency.
                         hr = E_UNEXPECTED;
@@ -1958,8 +1924,7 @@ HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
                             SAFEDELETE(pcbhCur->wszCodeBase);
                             pcbhCur->wszCodeBase = pwszStr;
                             SAFEDELETE(pwszURL);
-                        }
-                        else {
+                        } else {
                             hr = E_UNEXPECTED;
                             goto Exit;
                         }
@@ -1987,15 +1952,15 @@ HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
                     goto Exit;
 
                 {
-                BOOL bSetOnStack = SetOnStack();
-                bDestroyPCBHList = FALSE;
-                hr = pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS| BINDF_ASYNCSTORAGE), pcbhList);
-                if (bSetOnStack)
-                    ResetOnStack();
+                    BOOL bSetOnStack = SetOnStack();
+                    bDestroyPCBHList = FALSE;
+                    hr = pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS | BINDF_ASYNCSTORAGE), pcbhList);
+                    if (bSetOnStack)
+                        ResetOnStack();
                 }
 
                 // this is an indication "cdl://" is not installed.
-                CHECK_ERROR_EXIT((hr != E_NOINTERFACE),ID_CDLDBG_CDL_HANDLER_MISSING);
+                CHECK_ERROR_EXIT((hr != E_NOINTERFACE), ID_CDLDBG_CDL_HANDLER_MISSING);
 
                 if (FAILED(hr))
                     goto Exit;
@@ -2009,7 +1974,7 @@ HRESULT CCodeDownload::ProcessDependency(CDownload *pdl, IXMLElement *pDepend)
         if (SUCCEEDED(hr))
             hr = HRESULT_FROM_WIN32(ERROR_APP_WRONG_OS);
 
-nextDepend:
+    nextDepend:
         SAFERELEASE(pLang);
         SAFERELEASE(pSoftDist2);
         SAFEDELETE(szDistUnit);
@@ -2033,10 +1998,10 @@ Exit:
 // %%Function: CCodeDownload::ExtractInnerCAB
 //    We have a nested CAB, extract its contents into temporary directory (do not process any OSD, INF files for this).
 //    If duplicate files exist we ignore since this is a design error.
-HRESULT CCodeDownload::ExtractInnerCAB(CDownload *pdl, LPSTR szCABFile)
+HRESULT CCodeDownload::ExtractInnerCAB(CDownload* pdl, LPSTR szCABFile)
 {
     HRESULT hr = S_OK;
-    SESSION *psess;
+    SESSION* psess;
     CHAR szTempCABFile[MAX_PATH];
 
     psess = new SESSION;
@@ -2045,11 +2010,11 @@ HRESULT CCodeDownload::ExtractInnerCAB(CDownload *pdl, LPSTR szCABFile)
         goto Exit;
     }
 
-    psess->pFileList        = NULL;
-    psess->cFiles           = 0;
-    psess->cbCabSize        = 0;
+    psess->pFileList = NULL;
+    psess->cFiles = 0;
+    psess->cbCabSize = 0;
     psess->flags = SESSION_FLAG_ENUMERATE | SESSION_FLAG_EXTRACT_ALL;
-    lstrcpy(psess->achLocation,pdl->GetSession()->achLocation);
+    lstrcpy(psess->achLocation, pdl->GetSession()->achLocation);
     psess->pFilesToExtract = NULL;
 
     if (!catDirAndFile(szTempCABFile, MAX_PATH, psess->achLocation, szCABFile)) {
@@ -2062,9 +2027,9 @@ HRESULT CCodeDownload::ExtractInnerCAB(CDownload *pdl, LPSTR szCABFile)
     if (psess->pFileList && SUCCEEDED(hr)) {
         // add extracted files to download list for cleanup purposes
         PFNAME pfl = psess->pFileList;
-        SESSION *psessdl = pdl->GetSession();
+        SESSION* psessdl = pdl->GetSession();
         while (pfl->pNextName) {
-            pfl=pfl->pNextName;
+            pfl = pfl->pNextName;
         }
         pfl->pNextName = psessdl->pFileList;
         psessdl->pFileList = psess->pFileList;
@@ -2079,7 +2044,7 @@ Exit:
 // %%Function: CCodeDownload::ProcessNativeCode
 //    Processes <nativecode> tag and spins off any dependency code downloads
 //    as appropriate.
-HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCode)
+HRESULT CCodeDownload::ProcessNativeCode(CDownload* pdl, IXMLElement* pNativeCode)
 {
     HRESULT     hr = S_OK;
     int         iCount;
@@ -2090,22 +2055,21 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
     };
     char szTempFile[INTERNET_MAX_URL_LENGTH];
     LPSTR szCodeBase = NULL, szNativeName = NULL, pBaseFileName = NULL, szTempDir = NULL;
-    CCodeBaseHold *pcbh = NULL;
+    CCodeBaseHold* pcbh = NULL;
     int nLast2, nLast3;
     DWORD dwVersionMS = 0, dwVersionLS = 0;
     CLSID clsid = CLSID_NULL;
-    IXMLElement *pCode = NULL, *pElemTmp = NULL, *pConfig = NULL;
+    IXMLElement* pCode = NULL, * pElemTmp = NULL, * pConfig = NULL;
     BOOL fSetupInf = FALSE;
     CLocalComponentInfo lci;
-    CSetup *pSetup = NULL;
+    CSetup* pSetup = NULL;
     ICodeInstall* pCodeInstall = GetICodeInstall();
     BOOL bSystem = FALSE;
-    CList<CCodeBaseHold *, CCodeBaseHold *>     *pcbhList = NULL;
+    CList<CCodeBaseHold*, CCodeBaseHold*>* pcbhList = NULL;
     BOOL bDestroyPCBHList = FALSE;
 
     if (!pdl->HasAllActiveXPermissions()) {
-        if (IsSilentMode())
-        {
+        if (IsSilentMode()) {
             SetBitsInCache();
         } else {
             hr = TRUST_E_FAIL;
@@ -2124,31 +2088,28 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
 
         // get CLSID attribute
         hr = GetAttributeA(pCode, DU_ATTRIB_CLSID, szCLSID, MAX_PATH);
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             // convert CLSID attribute
             hr = ConvertFriendlyANSItoCLSID(szCLSID, &clsid);
-            CHECK_ERROR_EXIT(SUCCEEDED(hr),ID_CDLDBG_NATIVECODE_SYNTAX);
-        }
-        else
-        {
+            CHECK_ERROR_EXIT(SUCCEEDED(hr), ID_CDLDBG_NATIVECODE_SYNTAX);
+        } else {
             clsid = CLSID_NULL;
             szCLSID[0] = '\0';
         }
 
         // get NAME attribute
         hr = DupAttribute(pCode, DU_ATTRIB_NAME, &szName);
-        CHECK_ERROR_EXIT(SUCCEEDED(hr),ID_CDLDBG_NATIVECODE_SYNTAX);
+        CHECK_ERROR_EXIT(SUCCEEDED(hr), ID_CDLDBG_NATIVECODE_SYNTAX);
 
         // use "NAME" attribute as file name to OCX/INF/DLL
         if (FAILED(hr = Unicode2Ansi(szName, &szNativeName)))
-             break;
+            break;
 
         // get VERSION attribute
         if (SUCCEEDED(GetAttributeA(pCode, DU_ATTRIB_VERSION, szVersion, MAX_PATH))) {
             // convert VERSION string
             hr = GetVersionFromString(szVersion, &dwVersionMS, &dwVersionLS);
-            CHECK_ERROR_EXIT(SUCCEEDED(hr),ID_CDLDBG_NATIVECODE_SYNTAX);
+            CHECK_ERROR_EXIT(SUCCEEDED(hr), ID_CDLDBG_NATIVECODE_SYNTAX);
         } else {
             dwVersionMS = 0;
             dwVersionLS = 0;
@@ -2166,8 +2127,7 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
 
         // Never skip installing an object if this download is zero impact.  ALL files should be copied
         // to the zero impact directory.
-        if(! IsZeroImpact())
-        {
+        if (!IsZeroImpact()) {
             HRESULT    hrExact;
             HRESULT    hrAny;
 
@@ -2230,7 +2190,7 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
                     if (m_hModSFC) {
                         pfn = (pfnSfcIsFileProtected)GetProcAddress(m_hModSFC, "SfcIsFileProtected");
                         if (pfn) {
-                            bIsProtectedFile = (*pfn)(NULL,wzFileName);
+                            bIsProtectedFile = (*pfn)(NULL, wzFileName);
                         }
                     }
 
@@ -2252,7 +2212,7 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
                 DestroyPCBHList(pcbhList);
                 SAFEDELETE(pcbhList);
             }
-            pcbhList = new CList<CCodeBaseHold *, CCodeBaseHold *>;
+            pcbhList = new CList<CCodeBaseHold*, CCodeBaseHold*>;
             if (pcbhList == NULL) {
                 hr = E_OUTOFMEMORY;
                 goto Exit;
@@ -2264,7 +2224,7 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
 #ifdef WX86
                                        , GetMultiArch()
 #endif
-                                      );
+            );
 
             SAFERELEASE(pConfig);
 
@@ -2277,14 +2237,13 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
                 if (iCount) {
                     pcbh = pcbhList->GetHead();
                     pcbh->dwFlags |= CBH_FLAGS_DOWNLOADED;
-                }
-                else {
+                } else {
                     pcbh = NULL;
                 }
 
                 if (pcbh) {
                     if (FAILED(hr = Unicode2Ansi(pcbh->wszCodeBase, &szCodeBase)))
-                            break;
+                        break;
 
                     if (!pcbh->bHREF) {
                         // CODEBASE FILENAME= has precedence over NAME="" for file name.
@@ -2302,21 +2261,21 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
                         }
                         SAFEDELETE(szCodeBase);
 
-                        szCodeBase = new char[lstrlenA(szTHISCAB)+1];
+                        szCodeBase = new char[lstrlenA(szTHISCAB) + 1];
                         if (!szCodeBase) {
-                             hr = E_OUTOFMEMORY;
-                             break;
+                            hr = E_OUTOFMEMORY;
+                            break;
                         }
                         lstrcpyA(szCodeBase, szTHISCAB);
                     }
                 } else {
                     // No FILENAME field, szNativeName=NAME & szCodeBase=thiscab
-                    szCodeBase = new char[lstrlenA(szTHISCAB)+1];
+                    szCodeBase = new char[lstrlenA(szTHISCAB) + 1];
                     if (!szCodeBase) {
                         hr = E_OUTOFMEMORY;
                         break;
                     }
-                    lstrcpyA(szCodeBase,szTHISCAB);
+                    lstrcpyA(szCodeBase, szTHISCAB);
                 }
 
                 FILEXTN extn = ::GetExtnAndBaseFileName(szNativeName, &pBaseFileName);
@@ -2324,7 +2283,7 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
                 //BUGBUG: Should we limit ourselves to at most one INF file per OSD?
                 if ((!pcbh || !pcbh->bHREF) && extn == FILEXTN_INF) {
                     // File is in temporary directory somewhere,  We extract Temp
-                    if (!catDirAndFile(szTempFile, MAX_PATH, (char *)szTempDir, szNativeName)) {
+                    if (!catDirAndFile(szTempFile, MAX_PATH, (char*)szTempDir, szNativeName)) {
                         hr = E_FAIL;
                         goto Exit;
                     }
@@ -2339,8 +2298,8 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
                         // if ICodeInstall available
                         WCHAR szBuf[MAX_PATH];
 
-                        MultiByteToWideChar(CP_ACP, 0, (lci.szExistingFileName[0])?lci.szExistingFileName:szNativeName, -1, szBuf, MAX_PATH);
-                        hr = pCodeInstall->OnCodeInstallProblem( CIP_OLDER_VERSION_EXISTS, NULL, szBuf, 0);
+                        MultiByteToWideChar(CP_ACP, 0, (lci.szExistingFileName[0]) ? lci.szExistingFileName : szNativeName, -1, szBuf, MAX_PATH);
+                        hr = pCodeInstall->OnCodeInstallProblem(CIP_OLDER_VERSION_EXISTS, NULL, szBuf, 0);
                         if (FAILED(hr)) {
                             if (hr == E_ABORT)
                                 hr = HRESULT_FROM_WIN32(ERROR_CANCELLED);
@@ -2390,7 +2349,7 @@ HRESULT CCodeDownload::ProcessNativeCode(CDownload *pdl, IXMLElement *pNativeCod
         if (SUCCEEDED(hr))
             hr = HRESULT_FROM_WIN32(ERROR_APP_WRONG_OS);
 
-nextNativeCode:
+    nextNativeCode:
         SAFERELEASE(pCode);
         SAFERELEASE(pConfig);
     }
@@ -2410,18 +2369,18 @@ Exit:
 
 
 // %%Function: CCodeDownload::ParseOSD
-HRESULT CCodeDownload::ParseOSD(const char *szOSD, char *szOSDBaseName, CDownload *pdl)
+HRESULT CCodeDownload::ParseOSD(const char* szOSD, char* szOSDBaseName, CDownload* pdl)
 {
     HRESULT hr = S_OK;
-    IXMLElement *pSoftDist = NULL, *pDepend = NULL, *pJava = NULL, *pNativeCode = NULL, *pTitle = NULL, *pExpire = NULL, *pZeroImpact = NULL, *pSystemTag = NULL, *pSXS = NULL;
+    IXMLElement* pSoftDist = NULL, * pDepend = NULL, * pJava = NULL, * pNativeCode = NULL, * pTitle = NULL, * pExpire = NULL, * pZeroImpact = NULL, * pSystemTag = NULL, * pSXS = NULL;
     LPSTR pBaseFileName = NULL, lpTmpDir = NULL;
     DWORD len = 0;
     int nLast, nLast2, nLast3;
     BOOL bSetupInf = FALSE;
 
     // create a CSetup OBJ and add it to the CDownload obj
-    CSetup *pSetup = new CSetup(szOSD, szOSDBaseName, FILEXTN_OSD, NULL, &hr);
-    if(!pSetup) {
+    CSetup* pSetup = new CSetup(szOSD, szOSDBaseName, FILEXTN_OSD, NULL, &hr);
+    if (!pSetup) {
         hr = E_OUTOFMEMORY;
     }
     if (FAILED(hr))
@@ -2470,12 +2429,12 @@ HRESULT CCodeDownload::ParseOSD(const char *szOSD, char *szOSDBaseName, CDownloa
         BSTR bstrExpire = NULL;
         hr = pExpire->get_text(&bstrExpire);
         if (SUCCEEDED(hr)) {
-            OLECHAR *pch = bstrExpire;
+            OLECHAR* pch = bstrExpire;
 
             m_dwExpire = 0;
 
-            for ( ; *pch && m_dwExpire <= MAX_EXPIRE_DAYS; pch++ ) {
-                if ( (*pch >= TEXT('0') && *pch <= TEXT('9')) )
+            for (; *pch && m_dwExpire <= MAX_EXPIRE_DAYS; pch++) {
+                if ((*pch >= TEXT('0') && *pch <= TEXT('9')))
                     m_dwExpire = m_dwExpire * 10 + *pch - TEXT('0');
                 else
                     break;
@@ -2493,8 +2452,7 @@ HRESULT CCodeDownload::ParseOSD(const char *szOSD, char *szOSDBaseName, CDownloa
     // Only one osd is allowed per code download, so setting the ZeroImpactness
     // of this code download based on this one osd file is OK
     // This check should be made before any native code checks (code path change if zero impact)
-    if(GetFirstChildTag(pSoftDist, DU_TAG_ZEROIMPACT, &pZeroImpact) == S_OK)
-    {
+    if (GetFirstChildTag(pSoftDist, DU_TAG_ZEROIMPACT, &pZeroImpact) == S_OK) {
         this->SetZeroImpact(TRUE);
 
         // If zero impact, the requested version is not needed, write over it with the
@@ -2596,23 +2554,22 @@ HRESULT CCodeDownload::AddDistUnitList(LPWSTR szDistUnit)
 }
 
 
-HRESULT CCodeDownload::SetupInf(const char *szInf, char *szInfBaseName, CDownload *pdl)
+HRESULT CCodeDownload::SetupInf(const char* szInf, char* szInfBaseName, CDownload* pdl)
 {
     HRESULT hr = S_OK;
     CSetup* pSetup = NULL;
     int nBuffSize = MAX_INF_SECTIONS_SIZE;
     char lpSections[MAX_INF_SECTIONS_SIZE];
-    const static char *szAddCodeSection = "Add.Code";
-    const static char *szHooksSection = "Setup Hooks";
-    const static char *szUninstallOld = "UninstallOld";
-    static char *szDefault = "";
+    const static char* szAddCodeSection = "Add.Code";
+    const static char* szHooksSection = "Setup Hooks";
+    const static char* szUninstallOld = "UninstallOld";
+    static char* szDefault = "";
     DWORD len;
 
     SetHaveInf();
 
     if (!pdl->HasAllActiveXPermissions()) {
-        if (IsSilentMode())
-        {
+        if (IsSilentMode()) {
             SetBitsInCache();
         } else {
             hr = TRUST_E_FAIL;
@@ -2622,7 +2579,7 @@ HRESULT CCodeDownload::SetupInf(const char *szInf, char *szInfBaseName, CDownloa
 
     pdl->SetDLState(DLSTATE_INF_PROCESSING);
     Assert(m_szInf == NULL);
-    m_szInf = new char [lstrlen(szInf)+1];
+    m_szInf = new char[lstrlen(szInf) + 1];
     if (!m_szInf) {
         hr = E_OUTOFMEMORY;
         goto Exit;
@@ -2636,7 +2593,7 @@ HRESULT CCodeDownload::SetupInf(const char *szInf, char *szInfBaseName, CDownloa
 
     // create a CSetup OBJ and add it to the CDownload obj
     pSetup = new CSetup(szInf, szInfBaseName, FILEXTN_INF, NULL, &hr);
-    if(!pSetup) {
+    if (!pSetup) {
         hr = E_OUTOFMEMORY;
     }
     if (FAILED(hr))
@@ -2672,18 +2629,18 @@ HRESULT CCodeDownload::SetupInf(const char *szInf, char *szInfBaseName, CDownloa
             goto Exit;
         }
     } else {
-        m_pCurCode = m_pAddCodeSection = new char [len + 1];
+        m_pCurCode = m_pAddCodeSection = new char[len + 1];
         memcpy(m_pAddCodeSection, lpSections, len);
         m_pAddCodeSection[len] = '\0';
     }
 
     if (!m_bExactVersion) {
-        m_bUninstallOld=GetPrivateProfileInt(szAddCodeSection, szUninstallOld, 0, m_szInf);
+        m_bUninstallOld = GetPrivateProfileInt(szAddCodeSection, szUninstallOld, 0, m_szInf);
     }
 
 Exit:
     if (SUCCEEDED(hr)) {
-        CCDLPacket *pPkt= new CCDLPacket(CODE_DOWNLOAD_PROCESS_INF, this, (DWORD_PTR)pdl);
+        CCDLPacket* pPkt = new CCDLPacket(CODE_DOWNLOAD_PROCESS_INF, this, (DWORD_PTR)pdl);
         if (pPkt) {
             hr = pPkt->Post();
         } else {
@@ -2703,7 +2660,7 @@ Exit:
 //      E_XXX: any other error
 BOOL CCodeDownload::IsSectionInINF(LPCSTR lpCurCode)
 {
-    const char *szDefault = "";
+    const char* szDefault = "";
     DWORD len;
 #define FAKE_BUF_SIZE   3
     char szBuf[FAKE_BUF_SIZE];
@@ -2720,7 +2677,7 @@ BOOL CCodeDownload::IsSectionInINF(LPCSTR lpCurCode)
 
 void CCodeDownload::CodeDownloadDebugOut(int iOption, BOOL fOperationFailed, UINT iResId, ...)
 {
-    static char             szDebugString[INTERNET_MAX_URL_LENGTH*5];
+    static char             szDebugString[INTERNET_MAX_URL_LENGTH * 5];
     static char             szFormatString[MAX_DEBUG_FORMAT_STRING_LENGTH];
     va_list                 args;
 
@@ -2743,7 +2700,7 @@ void CCodeDownload::CodeDownloadDebugOut(int iOption, BOOL fOperationFailed, UIN
 HRESULT CCodeDownload::GetSatelliteName(LPSTR lpCurCode)
 {
     HRESULT hr = S_OK;
-    const char *szDefault = "";
+    const char* szDefault = "";
     DWORD len;
 #define FAKE_BUF_SIZE   3
     char szBuf[FAKE_BUF_SIZE];
@@ -2768,19 +2725,19 @@ HRESULT CCodeDownload::GetSatelliteName(LPSTR lpCurCode)
 
     // BEGIN NOTE: add vars and values in matching order
     // add a var by adding a new define VAR_NEW_VAR = NUM_VARS++
-    const char *szVars[] = {
+    const char* szVars[] = {
 #define VAR_LANG        0       // 3 letter lang extension
         "%LANG%",
 #define NUM_VARS            1
         ""
     };
 
-    const char *szValues[NUM_VARS + 1];
+    const char* szValues[NUM_VARS + 1];
     szValues[VAR_LANG] = szExtension;
     szValues[NUM_VARS] = NULL;
     // END NOTE: add vars and values in matching order
 
-    UINT uLocaleTest=0;
+    UINT uLocaleTest = 0;
     uLocaleTest = (LOWORD(m_lcid) & (~(~0 << 4) << 0)) >> 0;
 
     // obtain the 3 character Lang abbreviation for the
@@ -2802,7 +2759,7 @@ HRESULT CCodeDownload::GetSatelliteName(LPSTR lpCurCode)
 
     // vars are expanded correctly (S_OK) or
     // no vars got expanded.(S_FALSE) maybe we could try the section as is
-    if ( IsSectionInINF(lpCurCode)) {
+    if (IsSectionInINF(lpCurCode)) {
         // satellite found!
         m_debuglog->DebugOut(DEB_CODEDL, TRUE, ID_CDLDBG_SATELLITE_FOUND, lpCurCode);
         hr = S_OK;
@@ -2822,7 +2779,7 @@ HRESULT CCodeDownload::GetSatelliteName(LPSTR lpCurCode)
 
     // expand the variables names with new value
     hr = CSetupHook::ExpandCommandLine(m_pCurCode, lpCurCode, MAX_PATH, szVars, szValues);
-    if (FAILED(hr) || (hr == S_FALSE))  { // failed or no vars
+    if (FAILED(hr) || (hr == S_FALSE)) { // failed or no vars
         m_debuglog->DebugOut(DEB_CODEDL, TRUE, ID_CDLDBG_ERR_NO_SECTION, m_pCurCode, szExtension);
         if (hr == S_FALSE)
             hr = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
@@ -2830,7 +2787,7 @@ HRESULT CCodeDownload::GetSatelliteName(LPSTR lpCurCode)
     }
 
     // try the INF section again
-    if ( !IsSectionInINF(lpCurCode)) {
+    if (!IsSectionInINF(lpCurCode)) {
         m_debuglog->DebugOut(DEB_CODEDL, TRUE, ID_CDLDBG_ERR_NO_SECTION, m_pCurCode, szExtension);
 
         // no section for this language. This is OK skip the file
@@ -2855,8 +2812,8 @@ Exit:
 //      E_XXX: any other error
 HRESULT CCodeDownload::GetInfCodeLocation(LPCSTR lpCurCode, LPSTR szURL)
 {
-    const static char *szLoc = "File";
-    static char *szDefault = "";
+    const static char* szLoc = "File";
+    static char* szDefault = "";
     HRESULT hr = S_OK;
 
     Assert(m_szInf);
@@ -2867,8 +2824,8 @@ HRESULT CCodeDownload::GetInfCodeLocation(LPCSTR lpCurCode, LPSTR szURL)
     // this is needed to skip some files for some
     // platforms
 #ifdef WX86
-    char *szPreferredArch;
-    char *szAlternateArch;
+    char* szPreferredArch;
+    char* szAlternateArch;
     HRESULT hrArch;
 
     GetMultiArch()->SelectArchitecturePreferences(g_szPlatform, "file-win32-x86", &szPreferredArch, &szAlternateArch);
@@ -2914,21 +2871,21 @@ HRESULT CCodeDownload::GetInfCodeLocation(LPCSTR lpCurCode, LPSTR szURL)
 HRESULT CCodeDownload::GetInfSectionInfo(
     LPSTR lpCurCode,
     LPSTR szURL,
-    LPCLSID *plpClsid,
+    LPCLSID* plpClsid,
     LPDWORD pdwFileVersionMS,
     LPDWORD pdwFileVersionLS,
-    DESTINATION_DIR *pdest,
+    DESTINATION_DIR* pdest,
     LPDWORD pdwRegisterServer,
     LPDWORD pdwCopyFlags,
-    BOOL *pbDestDir
+    BOOL* pbDestDir
 )
 {
-    const static char *szFileVersion = "FileVersion";
-    const static char *szDest = "DestDir";
-    const static char *szRegisterServerOverride = "RegisterServer";
-    const static char *szCopyFlags = "CopyFlags";
-    const static char *szForceDestDir = "ForceDestDir";
-    static char *szDefault = "";
+    const static char* szFileVersion = "FileVersion";
+    const static char* szDest = "DestDir";
+    const static char* szRegisterServerOverride = "RegisterServer";
+    const static char* szCopyFlags = "CopyFlags";
+    const static char* szForceDestDir = "ForceDestDir";
+    static char* szDefault = "";
     DWORD len;
     HRESULT hr = S_OK;
     char szBuf[MAX_PATH];
@@ -2937,7 +2894,7 @@ HRESULT CCodeDownload::GetInfSectionInfo(
     if (hr != S_OK)
         goto Exit;
 
-    hr =  GetInfCodeLocation( lpCurCode, szURL);
+    hr = GetInfCodeLocation(lpCurCode, szURL);
     if (hr != S_OK)
         goto Exit;
 
@@ -2950,24 +2907,24 @@ HRESULT CCodeDownload::GetInfSectionInfo(
     }
 
     // get CopyFlags if any
-    *pdwCopyFlags=GetPrivateProfileInt(lpCurCode, szCopyFlags, 0, m_szInf);
+    *pdwCopyFlags = GetPrivateProfileInt(lpCurCode, szCopyFlags, 0, m_szInf);
 
     // get version string
-    if (!(len =GetPrivateProfileString(lpCurCode, szFileVersion, szDefault, szBuf, MAX_PATH, m_szInf))) {
+    if (!(len = GetPrivateProfileString(lpCurCode, szFileVersion, szDefault, szBuf, MAX_PATH, m_szInf))) {
         // if no version specified, local copy is always OK!
         szBuf[0] = '\0';
     }
 
-    if ( FAILED(GetVersionFromString(szBuf, pdwFileVersionMS, pdwFileVersionLS))){
+    if (FAILED(GetVersionFromString(szBuf, pdwFileVersionMS, pdwFileVersionLS))) {
         hr = HRESULT_FROM_WIN32(GetLastError());
         goto Exit;
     }
 
-    *pdest=(DESTINATION_DIR)GetPrivateProfileInt(lpCurCode, szDest, 0, m_szInf);// get Destination dir if suggested
-    *pbDestDir=GetPrivateProfileInt(lpCurCode, szForceDestDir, 0, m_szInf);// get ForceDestDir flag
+    *pdest = (DESTINATION_DIR)GetPrivateProfileInt(lpCurCode, szDest, 0, m_szInf);// get Destination dir if suggested
+    *pbDestDir = GetPrivateProfileInt(lpCurCode, szForceDestDir, 0, m_szInf);// get ForceDestDir flag
 
     // get clsid string
-    if (!(len = GetPrivateProfileString(lpCurCode, szCLSID, szDefault, szBuf, MAX_PATH, m_szInf))){
+    if (!(len = GetPrivateProfileString(lpCurCode, szCLSID, szDefault, szBuf, MAX_PATH, m_szInf))) {
         // if no clsid specified, not a control, just a plain dll?
         *plpClsid = NULL;
         goto Exit;
@@ -2980,13 +2937,13 @@ Exit:
 }
 
 
-HRESULT CCodeDownload::StartDownload(LPSTR szCurCode, CDownload *pdl, LPSTR szURL, DESTINATION_DIR dest, LPSTR szDestDir, DWORD dwRegisterServer, DWORD dwCopyFlags, CList<CCodeBaseHold *, CCodeBaseHold *> *pcbhList)
+HRESULT CCodeDownload::StartDownload(LPSTR szCurCode, CDownload* pdl, LPSTR szURL, DESTINATION_DIR dest, LPSTR szDestDir, DWORD dwRegisterServer, DWORD dwCopyFlags, CList<CCodeBaseHold*, CCodeBaseHold*>* pcbhList)
 {
     FILEXTN extn;
-    char *pBaseFileName;
+    char* pBaseFileName;
     HRESULT hr = NO_ERROR;
     WCHAR szBuf[INTERNET_MAX_URL_LENGTH];
-    CDownload *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
     CSetup* pSetup = NULL;
     BOOL bDestroyList = TRUE;
 
@@ -3042,12 +2999,12 @@ HRESULT CCodeDownload::StartDownload(LPSTR szCurCode, CDownload *pdl, LPSTR szUR
         AddDownloadToList(pdlCur);
 
         {
-        BOOL bSetOnStack = SetOnStack();
-        hr = (pcbhList == NULL) ? (pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS| BINDF_ASYNCSTORAGE))) : (pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS| BINDF_ASYNCSTORAGE), pcbhList));
-        bDestroyList = FALSE;
+            BOOL bSetOnStack = SetOnStack();
+            hr = (pcbhList == NULL) ? (pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS | BINDF_ASYNCSTORAGE))) : (pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS | BINDF_ASYNCSTORAGE), pcbhList));
+            bDestroyList = FALSE;
 
-        if (bSetOnStack)
-            ResetOnStack();
+            if (bSetOnStack)
+                ResetOnStack();
         }
 
         if (FAILED(hr)) {
@@ -3065,7 +3022,7 @@ HRESULT CCodeDownload::StartDownload(LPSTR szCurCode, CDownload *pdl, LPSTR szUR
 
         // download the CODE=URL (ie. CAB or INF file first)
         pdlCur = new CDownload(szBuf, extn, &hr);
-        if (!pdlCur){
+        if (!pdlCur) {
             hr = E_OUTOFMEMORY;
         }
 
@@ -3075,8 +3032,8 @@ HRESULT CCodeDownload::StartDownload(LPSTR szCurCode, CDownload *pdl, LPSTR szUR
         AddDownloadToList(pdlCur);
 
         // create a CSetup OBJ and add it to the CDownload obj
-        pSetup = new CSetup(NULL, szCurCode, extn, szDestDir, &hr,dest);
-        if(!pSetup) {
+        pSetup = new CSetup(NULL, szCurCode, extn, szDestDir, &hr, dest);
+        if (!pSetup) {
             hr = E_OUTOFMEMORY;
             goto Exit;
         } else if (FAILED(hr)) {
@@ -3084,20 +3041,20 @@ HRESULT CCodeDownload::StartDownload(LPSTR szCurCode, CDownload *pdl, LPSTR szUR
             goto Exit;
         }
 
-        pSetup->SetCopyFlags (dwCopyFlags);
+        pSetup->SetCopyFlags(dwCopyFlags);
 
         if (dwRegisterServer) {
-            pSetup->SetUserOverrideRegisterServer(dwRegisterServer&CST_FLAG_REGISTERSERVER);
+            pSetup->SetUserOverrideRegisterServer(dwRegisterServer & CST_FLAG_REGISTERSERVER);
         }
 
         pdlCur->AddSetupToList(pSetup);
 
         {
-        BOOL bSetOnStack = SetOnStack();
-        hr = (pcbhList == NULL) ? (pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS| BINDF_ASYNCSTORAGE))) : (pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS| BINDF_ASYNCSTORAGE), pcbhList));
-        bDestroyList = FALSE;
-        if (bSetOnStack)
-            ResetOnStack();
+            BOOL bSetOnStack = SetOnStack();
+            hr = (pcbhList == NULL) ? (pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS | BINDF_ASYNCSTORAGE))) : (pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS | BINDF_ASYNCSTORAGE), pcbhList));
+            bDestroyList = FALSE;
+            if (bSetOnStack)
+                ResetOnStack();
         }
 
         if (FAILED(hr)) {
@@ -3176,11 +3133,11 @@ FileVersion=1,0,0,143
 //        Make a new CDownload for this
 //        start off download
 //        make CSetup
-VOID CCodeDownload::ProcessInf(CDownload *pdl)
+VOID CCodeDownload::ProcessInf(CDownload* pdl)
 {
     char szURL[INTERNET_MAX_URL_LENGTH];
-    static char *szDefault = "";
-    const static char *szHOOK = "Hook";
+    static char* szDefault = "";
+    const static char* szHOOK = "Hook";
     char szCurCode[MAX_PATH];
 
     DWORD len = 0;
@@ -3193,7 +3150,7 @@ VOID CCodeDownload::ProcessInf(CDownload *pdl)
     LPCLSID lpclsid = &clsid;
 
     HRESULT hr = NO_ERROR;
-    char * pFileName = NULL;
+    char* pFileName = NULL;
 
     DWORD dwRegisterServer = 0;
     DWORD dwCopyFlags = 0;
@@ -3202,7 +3159,7 @@ VOID CCodeDownload::ProcessInf(CDownload *pdl)
     CLocalComponentInfo lci;
     ICodeInstall* pCodeInstall = GetICodeInstall();
 
-    if ( pdl->GetDLState() == DLSTATE_ABORT) {
+    if (pdl->GetDLState() == DLSTATE_ABORT) {
         hr = E_ABORT;
         goto PI_Exit;           // all done
     }
@@ -3211,7 +3168,7 @@ VOID CCodeDownload::ProcessInf(CDownload *pdl)
         goto PI_Exit;           // all done
     }
 
-    hr = GetInfSectionInfo( szCurCode, szURL, &lpclsid, &dwFileVersionMS, &dwFileVersionLS, &dest, &dwRegisterServer, &dwCopyFlags, &bForceDestDir);
+    hr = GetInfSectionInfo(szCurCode, szURL, &lpclsid, &dwFileVersionMS, &dwFileVersionLS, &dest, &dwRegisterServer, &dwCopyFlags, &bForceDestDir);
     if (hr != S_OK)
         goto PI_Exit;
 
@@ -3245,7 +3202,7 @@ VOID CCodeDownload::ProcessInf(CDownload *pdl)
             }
 
             if (lci.szExistingFileName[0])
-                hr= QueueModuleUsage(lci.szExistingFileName, MU_CLIENT);
+                hr = QueueModuleUsage(lci.szExistingFileName, MU_CLIENT);
 
             goto PI_Exit;
         }
@@ -3266,7 +3223,7 @@ VOID CCodeDownload::ProcessInf(CDownload *pdl)
             }
 
             if (lci.szExistingFileName[0])
-                hr= QueueModuleUsage(lci.szExistingFileName, MU_CLIENT);
+                hr = QueueModuleUsage(lci.szExistingFileName, MU_CLIENT);
 
             goto PI_Exit;
         }
@@ -3285,7 +3242,7 @@ VOID CCodeDownload::ProcessInf(CDownload *pdl)
             if (m_hModSFC) {
                 pfn = (pfnSfcIsFileProtected)GetProcAddress(m_hModSFC, "SfcIsFileProtected");
                 if (pfn) {
-                    bIsProtectedFile = (*pfn)(NULL,wzFileName);
+                    bIsProtectedFile = (*pfn)(NULL, wzFileName);
                 }
             }
 
@@ -3318,8 +3275,8 @@ VOID CCodeDownload::ProcessInf(CDownload *pdl)
         // if ICodeInstall available
         WCHAR szBuf[MAX_PATH];
 
-        MultiByteToWideChar(CP_ACP, 0, (lci.szExistingFileName[0])?lci.szExistingFileName:szCurCode, -1, szBuf, MAX_PATH);
-        hr = pCodeInstall->OnCodeInstallProblem( CIP_OLDER_VERSION_EXISTS, NULL, szBuf, 0);
+        MultiByteToWideChar(CP_ACP, 0, (lci.szExistingFileName[0]) ? lci.szExistingFileName : szCurCode, -1, szBuf, MAX_PATH);
+        hr = pCodeInstall->OnCodeInstallProblem(CIP_OLDER_VERSION_EXISTS, NULL, szBuf, 0);
         // hr == E_ABORT: abort whole download
         if (FAILED(hr)) {
             if (hr == E_ABORT)
@@ -3330,7 +3287,7 @@ VOID CCodeDownload::ProcessInf(CDownload *pdl)
         }
     }
 
-    hr = StartDownload( szCurCode, pdl, szURL, dest, ((bForceDestDir) ? (NULL) : (lci.lpDestDir)), dwRegisterServer, dwCopyFlags);
+    hr = StartDownload(szCurCode, pdl, szURL, dest, ((bForceDestDir) ? (NULL) : (lci.lpDestDir)), dwRegisterServer, dwCopyFlags);
 
 PI_Exit:
     if (SUCCEEDED(hr)) {
@@ -3340,16 +3297,16 @@ PI_Exit:
             len = 0;
 
         if (len) {
-            m_pCurCode += (len+1); // next
+            m_pCurCode += (len + 1); // next
 
             // skip side by side
             while (!StrCmpI(m_pCurCode, INF_TAG_UNINSTALL_OLD)) {
                 len = lstrlen(m_pCurCode);
-                m_pCurCode += (len+1);
+                m_pCurCode += (len + 1);
             }
 
             if (*m_pCurCode) {
-                CCDLPacket *pPkt= new CCDLPacket(CODE_DOWNLOAD_PROCESS_INF, this, (DWORD_PTR)pdl);
+                CCDLPacket* pPkt = new CCDLPacket(CODE_DOWNLOAD_PROCESS_INF, this, (DWORD_PTR)pdl);
                 if (pPkt) {
                     hr = pPkt->Post();
                 } else {
@@ -3365,7 +3322,7 @@ PI_Exit:
     }
 
     if (FAILED(hr)) {
-        m_debuglog->DebugOut(DEB_CODEDL, TRUE, ID_CDLDBG_PROCESSINF_FAILED, hr, (m_pCurCode && *m_pCurCode)?m_pCurCode:"Setup Hooks");
+        m_debuglog->DebugOut(DEB_CODEDL, TRUE, ID_CDLDBG_PROCESSINF_FAILED, hr, (m_pCurCode && *m_pCurCode) ? m_pCurCode : "Setup Hooks");
 
         // done with this CDownload. Mark it ready for setup
         pdl->SetDLState(DLSTATE_DONE);
@@ -3385,7 +3342,7 @@ HRESULT CCodeDownload::QueueModuleUsage(LPCSTR szFileName, LONG muFlags)
 {
     HRESULT hr = S_OK;
 
-    CModuleUsage *pModuleUsage = new CModuleUsage(szFileName, muFlags, &hr);
+    CModuleUsage* pModuleUsage = new CModuleUsage(szFileName, muFlags, &hr);
 
     if (!pModuleUsage) {
         hr = E_OUTOFMEMORY;
@@ -3405,7 +3362,7 @@ Exit:
 HRESULT CCodeDownload::UpdateModuleUsage()
 {
     HRESULT hr = S_OK;
-    char *lpClientName = NULL;
+    char* lpClientName = NULL;
     LPOLESTR pwcsClsid = (LPOLESTR)GetMainDistUnit();
     LISTPOSITION curpos;
     int i, iNumClients;
@@ -3413,19 +3370,18 @@ HRESULT CCodeDownload::UpdateModuleUsage()
 
     Assert(pwcsClsid);
 
-    if (FAILED((hr=::Unicode2Ansi(pwcsClsid, &lpClientName))))
-    {
+    if (FAILED((hr = ::Unicode2Ansi(pwcsClsid, &lpClientName)))) {
         goto Exit;
     }
 
     curpos = m_ModuleUsage.GetHeadPosition();
     iNumClients = m_ModuleUsage.GetCount();
-    for (i=0; i < iNumClients; i++) {
+    for (i = 0; i < iNumClients; i++) {
         (m_ModuleUsage.GetNext(curpos))->Update(lpClientName);
     }
 
 Exit:
-    if (pwcsClsid && (pwcsClsid != GetMainDistUnit()) )
+    if (pwcsClsid && (pwcsClsid != GetMainDistUnit()))
         delete pwcsClsid;
 
     if (lpClientName)
@@ -3435,20 +3391,20 @@ Exit:
 }
 
 
-HRESULT CCodeDownload::ProcessHookSection(LPCSTR lpCurHook, CDownload *pdl)
+HRESULT CCodeDownload::ProcessHookSection(LPCSTR lpCurHook, CDownload* pdl)
 {
     HRESULT hr = S_OK;
     char szURL[INTERNET_MAX_URL_LENGTH];
     WCHAR szBuf[INTERNET_MAX_URL_LENGTH];
     char szCmdLine[1024];
     char szInfSection[MAX_PATH];
-    const static char *szINFNAME = "InfFile";
-    const static char *szINFSECTION = "InfSection";
-    const static char *szCMDLINE = "Run";
-    static char *szDefault = "";
+    const static char* szINFNAME = "InfFile";
+    const static char* szINFSECTION = "InfSection";
+    const static char* szCMDLINE = "Run";
+    static char* szDefault = "";
     DWORD flags = 0;
-    CDownload *pdlCur = pdl;
-    char *pBaseFileName = NULL;
+    CDownload* pdlCur = pdl;
+    char* pBaseFileName = NULL;
 
     // Get cmd line for hook if any
     szCmdLine[0] = '\0';
@@ -3498,10 +3454,10 @@ HRESULT CCodeDownload::ProcessHookSection(LPCSTR lpCurHook, CDownload *pdl)
             AddDownloadToList(pdlCur);
 
             {
-            BOOL bSetOnStack = SetOnStack();
-            hr = pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS| BINDF_ASYNCSTORAGE));
-            if (bSetOnStack)
-                ResetOnStack();
+                BOOL bSetOnStack = SetOnStack();
+                hr = pdlCur->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS | BINDF_ASYNCSTORAGE));
+                if (bSetOnStack)
+                    ResetOnStack();
             }
 
             if (FAILED(hr)) {
@@ -3510,12 +3466,12 @@ HRESULT CCodeDownload::ProcessHookSection(LPCSTR lpCurHook, CDownload *pdl)
         }
     }
 
-    if ( !szCmdLine[0] )
+    if (!szCmdLine[0])
         ::GetExtnAndBaseFileName(m_szInf, &pBaseFileName);
 
     Assert(pdlCur);
 
-    hr = pdlCur->AddHook(lpCurHook, (szCmdLine[0])?szCmdLine:pBaseFileName, (szInfSection[0])?szInfSection:NULL, flags);
+    hr = pdlCur->AddHook(lpCurHook, (szCmdLine[0]) ? szCmdLine : pBaseFileName, (szInfSection[0]) ? szInfSection : NULL, flags);
 
 Exit:
     return hr;
@@ -3523,19 +3479,19 @@ Exit:
 
 
 // %%Function: CCodeDownload::ProcessHooks
-HRESULT CCodeDownload::ProcessHooks(CDownload *pdl)
+HRESULT CCodeDownload::ProcessHooks(CDownload* pdl)
 {
     HRESULT hr = S_OK;
     int nBuffSize = MAX_INF_SECTIONS_SIZE;
     char lpSections[MAX_INF_SECTIONS_SIZE];
-    const static char *szHooksSection = "Setup Hooks";
-    static char *szDefault = "";
-    char *lpCurHook = NULL;
+    const static char* szHooksSection = "Setup Hooks";
+    static char* szDefault = "";
+    char* lpCurHook = NULL;
     DWORD len;
 
     len = GetPrivateProfileString(szHooksSection, NULL, szDefault, lpSections, nBuffSize, m_szInf);
     if (len) {
-        for (lpCurHook =lpSections;*lpCurHook; lpCurHook+= (lstrlen(lpCurHook)+1)) {
+        for (lpCurHook = lpSections; *lpCurHook; lpCurHook += (lstrlen(lpCurHook) + 1)) {
             hr = ProcessHookSection(lpCurHook, pdl);
             if (FAILED(hr))
                 break;
@@ -3569,15 +3525,15 @@ HRESULT CCodeDownload::ProcessHooks(CDownload *pdl)
 // CCodeDownload::Complete than proceeds to walk thru all its download objs
 // calling DoSetup which in turn causes CSetup::DoSetup() to get invoked
 // for every CSetup.
-VOID CCodeDownload::CompleteOne(CDownload *pdl, HRESULT hrOSB, HRESULT hrStatus, HRESULT hrResponseHdr, LPCWSTR szError)
+VOID CCodeDownload::CompleteOne(CDownload* pdl, HRESULT hrOSB, HRESULT hrStatus, HRESULT hrResponseHdr, LPCWSTR szError)
 {
-    CDownload *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
     HRESULT hr = S_OK;
     HGLOBAL hPostData = NULL;
     WCHAR szURL[INTERNET_MAX_URL_LENGTH];
     FILEXTN extn = FILEXTN_UNKNOWN;
     LPWSTR lpDownloadURL;
-    CDownload *pdlNew;
+    CDownload* pdlNew;
     DWORD cbPostData = 0;
     BOOL fWaitForAbortCompletion = FALSE;
     LISTPOSITION curpos;
@@ -3628,25 +3584,25 @@ VOID CCodeDownload::CompleteOne(CDownload *pdl, HRESULT hrOSB, HRESULT hrStatus,
     // client did an IBinding::Abort().
 
     if (SUCCEEDED(hrResponseHdr) && SUCCEEDED(hrStatus)) {
-            // here if the current download was completely successful
-            // if all downloads are done then call DoSetup()
+        // here if the current download was completely successful
+        // if all downloads are done then call DoSetup()
 
-            if (WeAreReadyToSetup()) {              // more processing left?
-                                                    // no, enter setup phase
+        if (WeAreReadyToSetup()) {              // more processing left?
+                                                // no, enter setup phase
 
-                CCDLPacket *pPkt= new CCDLPacket(CODE_DOWNLOAD_SETUP, this, 0);
-                if (pPkt) {
-                    hr = pPkt->Post();
-                } else {
-                    hr = E_OUTOFMEMORY;
-                }
-
-                if (FAILED(hr)) {
-                    goto Complete_failed;
-                }
+            CCDLPacket* pPkt = new CCDLPacket(CODE_DOWNLOAD_SETUP, this, 0);
+            if (pPkt) {
+                hr = pPkt->Post();
+            } else {
+                hr = E_OUTOFMEMORY;
             }
 
-            goto Exit;
+            if (FAILED(hr)) {
+                goto Complete_failed;
+            }
+        }
+
+        goto Exit;
     }
 
     if (hrStatus == E_ABORT) {
@@ -3701,14 +3657,14 @@ VOID CCodeDownload::CompleteOne(CDownload *pdl, HRESULT hrOSB, HRESULT hrStatus,
         // OK all tries failed at the top level
         // were we monkeying around for the very LATEST version
         // when in fact there was a local version already?
-        if ( NeedLatestVersion() && m_plci->IsPresent()) {
-                Assert(WeAreReadyToSetup());
+        if (NeedLatestVersion() && m_plci->IsPresent()) {
+            Assert(WeAreReadyToSetup());
 
-                hr = S_OK;                        // no, fake a success
-                SetFakeSuccess();
-                CompleteAll(hr, NULL);            // and instantiate the object
+            hr = S_OK;                        // no, fake a success
+            SetFakeSuccess();
+            CompleteAll(hr, NULL);            // and instantiate the object
 
-                goto Exit;
+            goto Exit;
 
         } else {
             goto Complete_failed;
@@ -3722,9 +3678,9 @@ VOID CCodeDownload::CompleteOne(CDownload *pdl, HRESULT hrOSB, HRESULT hrStatus,
         hr = E_OUTOFMEMORY;
         goto Complete_failed;
     } else if (FAILED(hr)) {
-                delete pdlNew;
-                goto Complete_failed;
-            }
+        delete pdlNew;
+        goto Complete_failed;
+    }
 
     AddDownloadToList(pdlNew);
 
@@ -3734,10 +3690,10 @@ VOID CCodeDownload::CompleteOne(CDownload *pdl, HRESULT hrOSB, HRESULT hrStatus,
     }
 
     {
-    BOOL bSetOnStack = SetOnStack();
-    hr = pdlNew->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS| BINDF_ASYNCSTORAGE));
-    if (bSetOnStack)
-        ResetOnStack();
+        BOOL bSetOnStack = SetOnStack();
+        hr = pdlNew->DoDownload(&m_pmkContext, (BINDF_ASYNCHRONOUS | BINDF_ASYNCSTORAGE));
+        if (bSetOnStack)
+            ResetOnStack();
     }
 
     if (SUCCEEDED(hr)) {
@@ -3769,7 +3725,7 @@ Complete_failed:
     fWaitForAbortCompletion = FALSE;
 
     curpos = m_pDownloads.GetHeadPosition();
-    for (i=0; !IsOnStack() && ( i < m_pDownloads.GetCount()); i++) {
+    for (i = 0; !IsOnStack() && (i < m_pDownloads.GetCount()); i++) {
         pdlCur = m_pDownloads.GetNext(curpos);
         if (!pdlCur->IsSignalled(this)) {
             // packet processing pending for this state. we will check for
@@ -3803,12 +3759,12 @@ Exit:
 BOOL CCodeDownload::WeAreReadyToSetup()
 {
     BOOL fReady = TRUE;
-    CDownload *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
 
     LISTPOSITION curpos = m_pDownloads.GetHeadPosition();
-    for (int i=0; i < m_pDownloads.GetCount(); i++) {
+    for (int i = 0; i < m_pDownloads.GetCount(); i++) {
         pdlCur = m_pDownloads.GetNext(curpos);
-        if (! (( pdlCur->GetDLState() == DLSTATE_READY_TO_SETUP) || ( pdlCur->GetDLState() == DLSTATE_DONE)) ) {
+        if (!((pdlCur->GetDLState() == DLSTATE_READY_TO_SETUP) || (pdlCur->GetDLState() == DLSTATE_DONE))) {
             fReady = FALSE;
             break;
         }
@@ -3823,8 +3779,8 @@ HRESULT CCodeDownload::ResolveCacheDirNameConflicts()
 {
     HRESULT hr = S_OK;
     char szDir[MAX_PATH];
-    static char *szCONFLICT = "CONFLICT";
-    CDownload *pdlCur = NULL;
+    static char* szCONFLICT = "CONFLICT";
+    CDownload* pdlCur = NULL;
     int n = 1;
 
     if (m_szCacheDir)       // the non-zeroness of this is also used by DoSetup
@@ -3840,9 +3796,9 @@ HRESULT CCodeDownload::ResolveCacheDirNameConflicts()
 
     do {
         LISTPOSITION curpos = m_pDownloads.GetHeadPosition();
-        for (int i=0; i < m_pDownloads.GetCount(); i++) {
+        for (int i = 0; i < m_pDownloads.GetCount(); i++) {
             pdlCur = m_pDownloads.GetNext(curpos);
-            if ( (hr = pdlCur->CheckForNameCollision(m_szCacheDir)) != S_OK)
+            if ((hr = pdlCur->CheckForNameCollision(m_szCacheDir)) != S_OK)
                 break;
         }
 
@@ -3854,7 +3810,7 @@ HRESULT CCodeDownload::ResolveCacheDirNameConflicts()
         }
 
         // current m_szCacheDir did not work, try next conflict.<n> dir
-        wsprintf(szDir,"%s\\%s.%d", g_szOCXCacheDir, szCONFLICT, n++);
+        wsprintf(szDir, "%s\\%s.%d", g_szOCXCacheDir, szCONFLICT, n++);
 
         m_szCacheDir = szDir;
     } while (GetFileAttributes(szDir) != -1); // while conflict dirs exist
@@ -3868,7 +3824,7 @@ HRESULT CCodeDownload::ResolveCacheDirNameConflicts()
     }
 
 Alloc_new:
-    m_szCacheDir = new char [lstrlen(szDir)+1];
+    m_szCacheDir = new char[lstrlen(szDir) + 1];
     if (m_szCacheDir) {
         lstrcpy(m_szCacheDir, szDir);
     } else {
@@ -3890,14 +3846,14 @@ HRESULT CCodeDownload::SetupZeroImpactDir()
     TCHAR szZIDirectory[MAX_PATH];
     HRESULT hr = S_OK;
 
-    if(! m_szDistUnit || ! m_szDistUnit[0])
+    if (!m_szDistUnit || !m_szDistUnit[0])
         return E_INVALIDARG;
     // Will enter this function many times over the course of a code download setup cache the cachedir
-    if(m_szCacheDir && m_szCacheDir[0])
+    if (m_szCacheDir && m_szCacheDir[0])
         return S_OK;
 
     // buffer overflow protection
-    if(lstrlenW(m_szDistUnit) + lstrlen(GetZeroImpactRootDir()) + MAX_VERSIONLENGTH +3 > MAX_PATH)
+    if (lstrlenW(m_szDistUnit) + lstrlen(GetZeroImpactRootDir()) + MAX_VERSIONLENGTH + 3 > MAX_PATH)
         return E_UNEXPECTED;
 
     // Get the DistUnit!Version directory
@@ -3907,29 +3863,24 @@ HRESULT CCodeDownload::SetupZeroImpactDir()
 
     // Create the directory GetZeroImpactRootDir()\DistUnit!Version
     // If the directory already exists, well and good
-    if(GetFileAttributes(szZIDirectory) == -1)
-    {
-        if(! CreateDirectory(szZIDirectory, NULL))
-        {
+    if (GetFileAttributes(szZIDirectory) == -1) {
+        if (!CreateDirectory(szZIDirectory, NULL)) {
             hr = HRESULT_FROM_WIN32(GetLastError());
             return hr;
         }
     }
 
     // Copy the destdir to the cache dir
-    if(m_szCacheDir)
-    {
-        delete [] m_szCacheDir;
+    if (m_szCacheDir) {
+        delete[] m_szCacheDir;
         m_szCacheDir = NULL;
     }
     m_szCacheDir = new TCHAR[lstrlen(szZIDirectory) + 1];
-    if(! m_szCacheDir)
-    {
+    if (!m_szCacheDir) {
         hr = E_OUTOFMEMORY;
         return hr;
     }
-    if(! lstrcpy(m_szCacheDir, szZIDirectory))
-    {
+    if (!lstrcpy(m_szCacheDir, szZIDirectory)) {
         hr = GetLastError();
         return hr;
     }
@@ -3944,7 +3895,7 @@ HRESULT CCodeDownload::SetupZeroImpactDir()
 VOID CCodeDownload::DoSetup()
 {
     HRESULT hr = S_OK;
-    CDownload *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
     int nSetupsPerCall = 0;
     HRESULT hr1 = S_OK;
     CUrlMkTls tls(hr1); // hr1 passed by reference!
@@ -3981,11 +3932,11 @@ VOID CCodeDownload::DoSetup()
         CLSID myclsid = GetClsid();
         CLocalComponentInfo lci;
 
-        if ((SUCCEEDED(GetClsidFromExtOrMime( GetClsid(), myclsid, GetMainExt(), GetMainType(), &pPluginFileName)))) {
-            if (IsControlLocallyInstalled(pPluginFileName, (pPluginFileName)?(LPCLSID)&GetClsid():&myclsid, GetMainDistUnit(), 0, 0, &lci, NULL) == S_OK) {
+        if ((SUCCEEDED(GetClsidFromExtOrMime(GetClsid(), myclsid, GetMainExt(), GetMainType(), &pPluginFileName)))) {
+            if (IsControlLocallyInstalled(pPluginFileName, (pPluginFileName) ? (LPCLSID)&GetClsid() : &myclsid, GetMainDistUnit(), 0, 0, &lci, NULL) == S_OK) {
                 HMODULE                   hMod;
-                CHAR                     *szDU = NULL;
-                REMOVECONTROLBYNAME pfn =  NULL;
+                CHAR* szDU = NULL;
+                REMOVECONTROLBYNAME pfn = NULL;
 
                 hMod = LoadLibrary("OCCACHE.DLL");
                 if (hMod) {
@@ -4002,7 +3953,7 @@ VOID CCodeDownload::DoSetup()
         }
     }
 
-    if(this->IsZeroImpact())
+    if (this->IsZeroImpact())
         hr = SetupZeroImpactDir();
     else
         hr = ResolveCacheDirNameConflicts();
@@ -4016,9 +3967,9 @@ VOID CCodeDownload::DoSetup()
 
     //  we can start processing CSetup
     curpos = m_pDownloads.GetHeadPosition();
-    for (i=0; i < m_pDownloads.GetCount(); i++) {
+    for (i = 0; i < m_pDownloads.GetCount(); i++) {
         pdlCur = m_pDownloads.GetNext(curpos);
-        if ( (pdlCur->GetDLState() == DLSTATE_READY_TO_SETUP) || (pdlCur->GetDLState() == DLSTATE_SETUP)) {
+        if ((pdlCur->GetDLState() == DLSTATE_READY_TO_SETUP) || (pdlCur->GetDLState() == DLSTATE_SETUP)) {
             // serialize all setups in this thread
             hr = AcquireSetupCookie();
             if (FAILED(hr)) {
@@ -4039,7 +3990,7 @@ VOID CCodeDownload::DoSetup()
                 // setup in that. This will give a chance for our client
                 // to process messages.
 
-                CCDLPacket *pPkt= new CCDLPacket(CODE_DOWNLOAD_SETUP,this,S_OK);
+                CCDLPacket* pPkt = new CCDLPacket(CODE_DOWNLOAD_SETUP, this, S_OK);
                 if (pPkt) {
                     hr = pPkt->Post();
                 } else {
@@ -4052,13 +4003,10 @@ VOID CCodeDownload::DoSetup()
                 goto Exit;
             }
 
-            if(this->IsZeroImpact())
-            {
+            if (this->IsZeroImpact()) {
                 // make all the downloads of a ZeroImpact CodeDownload be zeroimpact before they setup
                 pdlCur->SetZeroImpact(TRUE);
-            }
-            else if (m_bExactVersion)
-            {
+            } else if (m_bExactVersion) {
                 pdlCur->SetExactVersion(TRUE);
             }
 
@@ -4066,12 +4014,12 @@ VOID CCodeDownload::DoSetup()
             if (FAILED(hr))
                 break;
 
-            if(WaitingForEXE()) { // Did the setup start a self-registering EXE?
+            if (WaitingForEXE()) { // Did the setup start a self-registering EXE?
 
                 // if we are waiting for an EXE to complete self registeration,
                 // we can't proceed unless it completes. So kick off a
                 // packet for waiting for the EXE to complete.
-                CCDLPacket *pPkt= new CCDLPacket(CODE_DOWNLOAD_WAIT_FOR_EXE, this,0);
+                CCDLPacket* pPkt = new CCDLPacket(CODE_DOWNLOAD_WAIT_FOR_EXE, this, 0);
                 if (pPkt) {
                     hr = pPkt->Post();
                 } else {
@@ -4084,10 +4032,10 @@ VOID CCodeDownload::DoSetup()
                 goto Exit;
             }
 
-            if ( (pdlCur->GetDLState() == DLSTATE_READY_TO_SETUP) || (pdlCur->GetDLState() == DLSTATE_SETUP)) {
+            if ((pdlCur->GetDLState() == DLSTATE_READY_TO_SETUP) || (pdlCur->GetDLState() == DLSTATE_SETUP)) {
                 // more setup work left in pdlCur
                 // wait to get to this and other pieces in next msg
-                CCDLPacket *pPkt= new CCDLPacket(CODE_DOWNLOAD_SETUP,this,S_OK);
+                CCDLPacket* pPkt = new CCDLPacket(CODE_DOWNLOAD_SETUP, this, S_OK);
                 if (pPkt) {
                     hr = pPkt->Post();
                 } else {
@@ -4126,15 +4074,15 @@ HRESULT CCodeDownload::UpdateJavaList(HKEY hkeyContains)
     HRESULT hr = S_OK;
     HKEY hkeyJava = 0;
     LPSTR lpVersion = "";
-    CDownload *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
     int iNumJava = 0;
     int i;
-    const static char *szJAVA = "Java";
+    const static char* szJAVA = "Java";
     LONG lResult = ERROR_SUCCESS;
 
     //  count total number of Java setups if any
     LISTPOSITION curpos = m_pDownloads.GetHeadPosition();
-    for (i=0; i < m_pDownloads.GetCount(); i++) {
+    for (i = 0; i < m_pDownloads.GetCount(); i++) {
         pdlCur = m_pDownloads.GetNext(curpos);
         iNumJava += (pdlCur->GetJavaSetupList())->GetCount();
     }
@@ -4143,20 +4091,20 @@ HRESULT CCodeDownload::UpdateJavaList(HKEY hkeyContains)
         goto Exit;
 
     // open/create the Contains\Java key for this dist unit.
-    if (RegOpenKeyEx( hkeyContains, szJAVA, 0, KEY_ALL_ACCESS, &hkeyJava) != ERROR_SUCCESS) {
-        if ((lResult = RegCreateKey( hkeyContains, szJAVA, &hkeyJava)) != ERROR_SUCCESS) {
+    if (RegOpenKeyEx(hkeyContains, szJAVA, 0, KEY_ALL_ACCESS, &hkeyJava) != ERROR_SUCCESS) {
+        if ((lResult = RegCreateKey(hkeyContains, szJAVA, &hkeyJava)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
-            }
+        }
     }
 
     curpos = m_pDownloads.GetHeadPosition();
-    for (i=0; i < m_pDownloads.GetCount(); i++) {
+    for (i = 0; i < m_pDownloads.GetCount(); i++) {
         pdlCur = m_pDownloads.GetNext(curpos);
         LISTPOSITION curJavapos = (pdlCur->GetJavaSetupList())->GetHeadPosition();
         iNumJava = (pdlCur->GetJavaSetupList())->GetCount();
-        for (int j=0; j < iNumJava; j++) {
-            CJavaSetup *pJavaSetup = (pdlCur->GetJavaSetupList())->GetNext(curJavapos);
+        for (int j = 0; j < iNumJava; j++) {
+            CJavaSetup* pJavaSetup = (pdlCur->GetJavaSetupList())->GetNext(curJavapos);
             LPCWSTR szPkg = pJavaSetup->GetPackageName();
             LPCWSTR szNameSpace = pJavaSetup->GetNameSpace();
             char szPkgA[MAX_PATH];
@@ -4167,7 +4115,7 @@ HRESULT CCodeDownload::UpdateJavaList(HKEY hkeyContains)
                 WideCharToMultiByte(CP_ACP, 0, szNameSpace, -1, szNameSpaceA, MAX_PATH, NULL, NULL);
 
             if (szNameSpace == NULL) { // global namespace if not specified
-                if ( (lResult = ::RegSetValueEx(hkeyJava, szPkgA, NULL, REG_SZ, (unsigned char *)lpVersion, 1)) != ERROR_SUCCESS) {
+                if ((lResult = ::RegSetValueEx(hkeyJava, szPkgA, NULL, REG_SZ, (unsigned char*)lpVersion, 1)) != ERROR_SUCCESS) {
                     hr = HRESULT_FROM_WIN32(lResult);
                     goto Exit;
                 }
@@ -4177,13 +4125,13 @@ HRESULT CCodeDownload::UpdateJavaList(HKEY hkeyContains)
 
                 HKEY hkeyNameSpace = 0;
                 // open/create the Contains\Java\<namespace> key
-                if (RegOpenKeyEx( hkeyJava, szNameSpaceA, 0, KEY_ALL_ACCESS, &hkeyNameSpace) != ERROR_SUCCESS) {
-                    if ((lResult = RegCreateKey( hkeyJava, szNameSpaceA, &hkeyNameSpace)) != ERROR_SUCCESS){
+                if (RegOpenKeyEx(hkeyJava, szNameSpaceA, 0, KEY_ALL_ACCESS, &hkeyNameSpace) != ERROR_SUCCESS) {
+                    if ((lResult = RegCreateKey(hkeyJava, szNameSpaceA, &hkeyNameSpace)) != ERROR_SUCCESS) {
                         hr = HRESULT_FROM_WIN32(lResult);
                         goto Exit;
                     }
                 }
-                if ((lResult=RegSetValueEx(hkeyNameSpace, szPkgA, NULL, REG_SZ, (unsigned char *)lpVersion, 1)) != ERROR_SUCCESS) {
+                if ((lResult = RegSetValueEx(hkeyNameSpace, szPkgA, NULL, REG_SZ, (unsigned char*)lpVersion, 1)) != ERROR_SUCCESS) {
                     hr = HRESULT_FROM_WIN32(lResult);
                     goto Exit;
                 }
@@ -4206,21 +4154,21 @@ HRESULT CCodeDownload::UpdateFileList(HKEY hkeyContains)
     HKEY hkeyFiles = 0;
     LPSTR lpVersion = "";
     LONG lResult = ERROR_SUCCESS;
-    const static char * szFILES = "Files";
+    const static char* szFILES = "Files";
     int iNumFiles = m_ModuleUsage.GetCount();
     int i;
     LISTPOSITION curpos = m_ModuleUsage.GetHeadPosition();
     char szAnsiFileName[MAX_PATH];
 
     // open/create the Contains\Files key for this dist unit.
-    if (RegOpenKeyEx( hkeyContains, szFILES, 0, KEY_ALL_ACCESS, &hkeyFiles) != ERROR_SUCCESS) {
-        if (iNumFiles && (lResult = RegCreateKey( hkeyContains, szFILES, &hkeyFiles)) != ERROR_SUCCESS) {
+    if (RegOpenKeyEx(hkeyContains, szFILES, 0, KEY_ALL_ACCESS, &hkeyFiles) != ERROR_SUCCESS) {
+        if (iNumFiles && (lResult = RegCreateKey(hkeyContains, szFILES, &hkeyFiles)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
-            }
+        }
     }
 
-    if ( hkeyFiles) {
+    if (hkeyFiles) {
         int iValue = 0;
         DWORD dwType = REG_SZ;
         DWORD dwValueSize = MAX_PATH;
@@ -4240,7 +4188,7 @@ HRESULT CCodeDownload::UpdateFileList(HKEY hkeyContains)
         }
     }
 
-    for (i=0; i < iNumFiles; i++) {
+    for (i = 0; i < iNumFiles; i++) {
         LPCSTR szFileName = (m_ModuleUsage.GetNext(curpos))->GetFileName();
         char szShortFileName[MAX_PATH];
 #ifdef SHORTEN
@@ -4263,7 +4211,7 @@ HRESULT CCodeDownload::UpdateFileList(HKEY hkeyContains)
             lstrcpy(szShortFileName, szAnsiFileName);
         }
 
-        if ( (lResult = ::RegSetValueEx(hkeyFiles, szShortFileName, NULL, REG_SZ, (unsigned char *)lpVersion, 1)) != ERROR_SUCCESS) {
+        if ((lResult = ::RegSetValueEx(hkeyFiles, szShortFileName, NULL, REG_SZ, (unsigned char*)lpVersion, 1)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
         }
@@ -4281,7 +4229,7 @@ HRESULT CCodeDownload::UpdateDependencyList(HKEY hkeyContains)
     HKEY hkeyDU = 0;
     LPSTR lpVersion = "";
     LONG lResult = ERROR_SUCCESS;
-    const static char * szDU = "Distribution Units";
+    const static char* szDU = "Distribution Units";
     int iNumFiles;
     int i;
     LISTPOSITION curpos;
@@ -4294,8 +4242,8 @@ HRESULT CCodeDownload::UpdateDependencyList(HKEY hkeyContains)
 
     RegDeleteKey(hkeyContains, szDU);   // delete old version dependencies
 
-    for (i=0; i < iNumFiles; i++) {
-        CDownload *pdl = m_pDownloads.GetNext(curpos);
+    for (i = 0; i < iNumFiles; i++) {
+        CDownload* pdl = m_pDownloads.GetNext(curpos);
         if (pdl->UsingCdlProtocol() && pdl->GetDLState() == DLSTATE_DONE) {
             AddDistUnitList(pdl->GetDistUnitName());
         }
@@ -4307,7 +4255,7 @@ HRESULT CCodeDownload::UpdateDependencyList(HKEY hkeyContains)
     if (!iNumFiles)
         goto Exit;
 
-    for (i=0; i < iNumFiles; i++) {
+    for (i = 0; i < iNumFiles; i++) {
         wszDistUnit = m_pDependencies.GetNext(curpos);
         if (wszDistUnit) {
             SAFEDELETE(szDistUnit);
@@ -4317,14 +4265,14 @@ HRESULT CCodeDownload::UpdateDependencyList(HKEY hkeyContains)
             }
 
             if (fFirstDependency) {
-                if ((lResult = RegCreateKey( hkeyContains, szDU, &hkeyDU)) != ERROR_SUCCESS) {
+                if ((lResult = RegCreateKey(hkeyContains, szDU, &hkeyDU)) != ERROR_SUCCESS) {
                     hr = HRESULT_FROM_WIN32(lResult);
                     goto Exit;
                 }
                 fFirstDependency = FALSE;
             }
 
-            if ( (lResult = ::RegSetValueEx(hkeyDU, szDistUnit, NULL, REG_SZ, (unsigned char *)lpVersion, 1)) != ERROR_SUCCESS) {
+            if ((lResult = ::RegSetValueEx(hkeyDU, szDistUnit, NULL, REG_SZ, (unsigned char*)lpVersion, 1)) != ERROR_SUCCESS) {
                 hr = HRESULT_FROM_WIN32(lResult);
                 goto Exit;
             }
@@ -4339,10 +4287,10 @@ Exit:
 
 
 // %%Function: CCodeDownload::UpdateLanguageCheck()
-HRESULT CCodeDownload::UpdateLanguageCheck(CLocalComponentInfo *plci)
+HRESULT CCodeDownload::UpdateLanguageCheck(CLocalComponentInfo* plci)
 {
     HRESULT hr = S_OK;
-    BOOL bNullClsid = IsEqualGUID(GetClsid() , CLSID_NULL);
+    BOOL bNullClsid = IsEqualGUID(GetClsid(), CLSID_NULL);
     HKEY hkeyCheckPeriod = 0;
     HKEY hkeyClsid = 0;
     HKEY hkeyEmbedding = 0;
@@ -4352,32 +4300,30 @@ HRESULT CCodeDownload::UpdateLanguageCheck(CLocalComponentInfo *plci)
     LPSTR pszClsid = NULL;
     FILETIME ftnow;
     SYSTEMTIME st;
-    const char *szCHECKPERIOD = "LanguageCheckPeriod";
-    const char *szLASTCHECKEDHI = "LastCheckedHi";
+    const char* szCHECKPERIOD = "LanguageCheckPeriod";
+    const char* szLASTCHECKEDHI = "LastCheckedHi";
 
     if (bNullClsid)
         goto Exit;
 
     // return if we can't get a valid string representation of the CLSID
-    if (FAILED((hr=StringFromCLSID(GetClsid(), &pwcsClsid))))
+    if (FAILED((hr = StringFromCLSID(GetClsid(), &pwcsClsid))))
         goto Exit;
 
     Assert(pwcsClsid != NULL);
 
     // Open root HKEY_CLASSES_ROOT\CLSID key
     lResult = ::RegOpenKeyEx(HKEY_CLASSES_ROOT, "CLSID", 0, KEY_READ, &hkeyClsid);
-    if (lResult == ERROR_SUCCESS)
-    {
-        if (FAILED((hr=::Unicode2Ansi(pwcsClsid, &pszClsid))))
-        {
+    if (lResult == ERROR_SUCCESS) {
+        if (FAILED((hr = ::Unicode2Ansi(pwcsClsid, &pszClsid)))) {
             goto Exit;
         }
 
         // Open the key for this embedding:
         lResult = ::RegOpenKeyEx(hkeyClsid, pszClsid, 0, KEY_ALL_ACCESS, &hkeyEmbedding);
         if (lResult == ERROR_SUCCESS) {
-            if ((lResult = RegOpenKeyEx( hkeyEmbedding, szCHECKPERIOD, 0, KEY_ALL_ACCESS, &hkeyCheckPeriod)) != ERROR_SUCCESS) {
-                if ((lResult = RegCreateKey( hkeyEmbedding, szCHECKPERIOD, &hkeyCheckPeriod)) != ERROR_SUCCESS) {
+            if ((lResult = RegOpenKeyEx(hkeyEmbedding, szCHECKPERIOD, 0, KEY_ALL_ACCESS, &hkeyCheckPeriod)) != ERROR_SUCCESS) {
+                if ((lResult = RegCreateKey(hkeyEmbedding, szCHECKPERIOD, &hkeyCheckPeriod)) != ERROR_SUCCESS) {
                     hr = HRESULT_FROM_WIN32(lResult);
                     goto Exit;
                 }
@@ -4386,17 +4332,17 @@ HRESULT CCodeDownload::UpdateLanguageCheck(CLocalComponentInfo *plci)
             GetSystemTime(&st);
             SystemTimeToFileTime(&st, &ftnow);
 
-            RegSetValueEx(hkeyCheckPeriod, szLASTCHECKEDHI, NULL, REG_DWORD, (unsigned char *)&ftnow.dwHighDateTime, sizeof(DWORD));
+            RegSetValueEx(hkeyCheckPeriod, szLASTCHECKEDHI, NULL, REG_DWORD, (unsigned char*)&ftnow.dwHighDateTime, sizeof(DWORD));
         }
     }
 
 Exit:
     SAFEDELETE(pwcsClsid);
-    SAFEDELETE (pszClsid);
+    SAFEDELETE(pszClsid);
 
-    SAFEREGCLOSEKEY (hkeyClsid);
-    SAFEREGCLOSEKEY (hkeyEmbedding);
-    SAFEREGCLOSEKEY (hkeyCheckPeriod);
+    SAFEREGCLOSEKEY(hkeyClsid);
+    SAFEREGCLOSEKEY(hkeyEmbedding);
+    SAFEREGCLOSEKEY(hkeyCheckPeriod);
 
     return hr;
 }
@@ -4405,29 +4351,29 @@ Exit:
 // %%Function: CCodeDownload::UpdateDistUnit()
 //        Add proper entries to the registry and register control to
 //        WebCheck so that control gets updated periodically.
-HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
+HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo* plci)
 {
     HRESULT hr = S_OK;
     LONG lResult = ERROR_SUCCESS;
-    HKEY hkeyDist =0;
+    HKEY hkeyDist = 0;
     HKEY hkeyThisDist = 0;
     HKEY hkeyDownloadInfo = 0;
     HKEY hkeyContains = 0;
     HKEY hkeyVersion = 0;
-    const static char * szInstalledVersion = "InstalledVersion";
-    const static char * szAvailableVersion = "AvailableVersion";
-    const static char * szDownloadInfo = "DownloadInformation";
-    const static char * szCODEBASE = "CODEBASE";
-    const static char * szContains = "Contains";
-    const static char * szLOCALINF = "INF";
-    const static char * szLOCALOSD = "OSD";
-    const static char * szLASTMODIFIED = "LastModified";
-    const static char * szETAG = "Etag";
-    const static char * szINSTALLER = "Installer";
-    const static char * szExpire = "Expire";
-    const static char * szMSICD = "MSICD";
-    const static char * szPrecache = "Precache";
-    const static char * szSYSTEM = "SystemComponent";
+    const static char* szInstalledVersion = "InstalledVersion";
+    const static char* szAvailableVersion = "AvailableVersion";
+    const static char* szDownloadInfo = "DownloadInformation";
+    const static char* szCODEBASE = "CODEBASE";
+    const static char* szContains = "Contains";
+    const static char* szLOCALINF = "INF";
+    const static char* szLOCALOSD = "OSD";
+    const static char* szLASTMODIFIED = "LastModified";
+    const static char* szETAG = "Etag";
+    const static char* szINSTALLER = "Installer";
+    const static char* szExpire = "Expire";
+    const static char* szMSICD = "MSICD";
+    const static char* szPrecache = "Precache";
+    const static char* szSYSTEM = "SystemComponent";
     LPSTR pszDist = NULL;
     LPSTR pszURL = NULL;
     LPWSTR pwszURL = NULL;
@@ -4435,21 +4381,20 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
     DWORD dwExpire;
     char szDistDotVersion[MAX_PATH];
 
-    if ((lResult = RegOpenKeyEx( HKEY_LOCAL_MACHINE, REGSTR_PATH_DIST_UNITS, 0, KEY_ALL_ACCESS, &hkeyDist)) != ERROR_SUCCESS) {
-        if ((lResult = RegCreateKey( HKEY_LOCAL_MACHINE, REGSTR_PATH_DIST_UNITS, &hkeyDist)) != ERROR_SUCCESS) {
+    if ((lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_DIST_UNITS, 0, KEY_ALL_ACCESS, &hkeyDist)) != ERROR_SUCCESS) {
+        if ((lResult = RegCreateKey(HKEY_LOCAL_MACHINE, REGSTR_PATH_DIST_UNITS, &hkeyDist)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
         }
     }
 
-    if (FAILED((hr=::Unicode2Ansi(m_szDistUnit, &pszDist))))
-    {
+    if (FAILED((hr = ::Unicode2Ansi(m_szDistUnit, &pszDist)))) {
         goto Exit;
     }
 
-    if(GetContextMoniker()) {
+    if (GetContextMoniker()) {
         if (SUCCEEDED(hr = GetContextMoniker()->GetDisplayName(NULL, NULL, &pwszURL))) {
-            hr = Unicode2Ansi( pwszURL, &pszURL);
+            hr = Unicode2Ansi(pwszURL, &pszURL);
         }
 
         if (FAILED(hr)) {
@@ -4459,50 +4404,47 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
 
     // open/create the dist unit key for this dist unit.
     // If this is zero impact, the key needs to be distunit!version
-    if(IsZeroImpact())
-    {
+    if (IsZeroImpact()) {
         // BUGBUG: we do this twice (version is recalculated below: extra work
         // Did it this way to minimize zero-impact impact (heh, heh)
         GetStringFromVersion(szVersionBuf, m_dwFileVersionMS, m_dwFileVersionLS, '_');
         wsprintf(szDistDotVersion, "%s!%s", pszDist, szVersionBuf);
 
-        if (RegOpenKeyEx( hkeyDist, szDistDotVersion, 0, KEY_ALL_ACCESS, &hkeyThisDist) != ERROR_SUCCESS) {
-            if ((lResult = RegCreateKey( hkeyDist, szDistDotVersion, &hkeyThisDist)) != ERROR_SUCCESS) {
+        if (RegOpenKeyEx(hkeyDist, szDistDotVersion, 0, KEY_ALL_ACCESS, &hkeyThisDist) != ERROR_SUCCESS) {
+            if ((lResult = RegCreateKey(hkeyDist, szDistDotVersion, &hkeyThisDist)) != ERROR_SUCCESS) {
                 hr = HRESULT_FROM_WIN32(lResult);
                 goto Exit;
-                }
+            }
         }
-    }
-    else
-    {
-        if (RegOpenKeyEx( hkeyDist, pszDist, 0, KEY_ALL_ACCESS, &hkeyThisDist) != ERROR_SUCCESS) {
-            if ((lResult = RegCreateKey( hkeyDist, pszDist, &hkeyThisDist)) != ERROR_SUCCESS) {
+    } else {
+        if (RegOpenKeyEx(hkeyDist, pszDist, 0, KEY_ALL_ACCESS, &hkeyThisDist) != ERROR_SUCCESS) {
+            if ((lResult = RegCreateKey(hkeyDist, pszDist, &hkeyThisDist)) != ERROR_SUCCESS) {
                 hr = HRESULT_FROM_WIN32(lResult);
                 goto Exit;
-                }
+            }
         }
     }
 
-    if (m_szDisplayName && ((lResult = ::RegSetValueEx(hkeyThisDist, NULL, NULL, REG_SZ, (unsigned char *)m_szDisplayName, lstrlen(m_szDisplayName)+1)) != ERROR_SUCCESS)){
+    if (m_szDisplayName && ((lResult = ::RegSetValueEx(hkeyThisDist, NULL, NULL, REG_SZ, (unsigned char*)m_szDisplayName, lstrlen(m_szDisplayName) + 1)) != ERROR_SUCCESS)) {
         hr = HRESULT_FROM_WIN32(lResult);
         goto Exit;
     }
 
-    lResult = ::RegSetValueEx(hkeyThisDist, szSYSTEM, NULL, REG_DWORD, (unsigned char *)&m_dwSystemComponent, sizeof(DWORD));
+    lResult = ::RegSetValueEx(hkeyThisDist, szSYSTEM, NULL, REG_DWORD, (unsigned char*)&m_dwSystemComponent, sizeof(DWORD));
     if (lResult != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lResult);
         goto Exit;
     }
 
-    lResult = ::RegSetValueEx(hkeyThisDist, szINSTALLER, NULL, REG_SZ, (unsigned char *)szMSICD, sizeof(szMSICD)+1);
+    lResult = ::RegSetValueEx(hkeyThisDist, szINSTALLER, NULL, REG_SZ, (unsigned char*)szMSICD, sizeof(szMSICD) + 1);
     if (lResult != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lResult);
         goto Exit;
     }
 
     // if the OSD told us an expire interval, or the PE specifies it.
-    if ( m_dwExpire != 0xFFFFFFFF || (plci->szExistingFileName[0] && WantsAutoExpire( plci->szExistingFileName, &m_dwExpire )) ) {
-        lResult = ::RegSetValueEx(hkeyThisDist, szExpire, NULL, REG_DWORD, (unsigned char *)&m_dwExpire, sizeof(DWORD));
+    if (m_dwExpire != 0xFFFFFFFF || (plci->szExistingFileName[0] && WantsAutoExpire(plci->szExistingFileName, &m_dwExpire))) {
+        lResult = ::RegSetValueEx(hkeyThisDist, szExpire, NULL, REG_DWORD, (unsigned char*)&m_dwExpire, sizeof(DWORD));
         if (lResult != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
@@ -4510,15 +4452,15 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
     }
 
     // open/create the download info key for this dist unit.
-    if (RegOpenKeyEx( hkeyThisDist, szDownloadInfo, 0, KEY_ALL_ACCESS, &hkeyDownloadInfo) != ERROR_SUCCESS) {
-        if ((lResult = RegCreateKey( hkeyThisDist, szDownloadInfo, &hkeyDownloadInfo)) != ERROR_SUCCESS) {
+    if (RegOpenKeyEx(hkeyThisDist, szDownloadInfo, 0, KEY_ALL_ACCESS, &hkeyDownloadInfo) != ERROR_SUCCESS) {
+        if ((lResult = RegCreateKey(hkeyThisDist, szDownloadInfo, &hkeyDownloadInfo)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
-            }
+        }
     }
 
     // set download info params
-    if (pszURL && (lResult = ::RegSetValueEx(hkeyDownloadInfo, szCODEBASE, NULL, REG_SZ, (unsigned char *)pszURL, lstrlen(pszURL)+1)) != ERROR_SUCCESS) {
+    if (pszURL && (lResult = ::RegSetValueEx(hkeyDownloadInfo, szCODEBASE, NULL, REG_SZ, (unsigned char*)pszURL, lstrlen(pszURL) + 1)) != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lResult);
         goto Exit;
     }
@@ -4527,9 +4469,9 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
         char szOldManifest[MAX_PATH];
         DWORD Size = MAX_PATH;
         DWORD dwType;
-        DWORD lResult = ::RegQueryValueEx(hkeyDownloadInfo, szLOCALINF, NULL, &dwType, (unsigned char *)szOldManifest, &Size);
+        DWORD lResult = ::RegQueryValueEx(hkeyDownloadInfo, szLOCALINF, NULL, &dwType, (unsigned char*)szOldManifest, &Size);
         if (lResult == ERROR_SUCCESS) {
-            if (!(GetMainInf() && (lstrcmpi(GetMainInf(), szOldManifest) == 0)) ) {
+            if (!(GetMainInf() && (lstrcmpi(GetMainInf(), szOldManifest) == 0))) {
                 // there is an old entry, clean up the entry and also the file
                 // before upgrading to newer version
                 DeleteFile(szOldManifest);
@@ -4539,9 +4481,9 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
         }
 
         Size = MAX_PATH;
-        lResult = ::RegQueryValueEx(hkeyDownloadInfo, szLOCALOSD, NULL, &dwType, (unsigned char *)szOldManifest, &Size);
+        lResult = ::RegQueryValueEx(hkeyDownloadInfo, szLOCALOSD, NULL, &dwType, (unsigned char*)szOldManifest, &Size);
         if (lResult == ERROR_SUCCESS) {
-            if (!(GetOSD() && (lstrcmpi(GetOSD(), szOldManifest) == 0)) ) {
+            if (!(GetOSD() && (lstrcmpi(GetOSD(), szOldManifest) == 0))) {
                 // there is an old entry, clean up the entry and also the file before upgrading to newer version
                 DeleteFile(szOldManifest);
                 if (!GetOSD())
@@ -4549,12 +4491,12 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
             }
         }
 
-        if (GetOSD() &&  (lResult = ::RegSetValueEx(hkeyDownloadInfo, szLOCALOSD, NULL, REG_SZ, (unsigned char *)GetOSD(), lstrlen(GetOSD())+1)) != ERROR_SUCCESS) {
+        if (GetOSD() && (lResult = ::RegSetValueEx(hkeyDownloadInfo, szLOCALOSD, NULL, REG_SZ, (unsigned char*)GetOSD(), lstrlen(GetOSD()) + 1)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
         }
 
-        if (GetMainInf() && (lResult = ::RegSetValueEx(hkeyDownloadInfo, szLOCALINF, NULL, REG_SZ, (unsigned char *)GetMainInf(), lstrlen(GetMainInf())+1)) != ERROR_SUCCESS) {
+        if (GetMainInf() && (lResult = ::RegSetValueEx(hkeyDownloadInfo, szLOCALINF, NULL, REG_SZ, (unsigned char*)GetMainInf(), lstrlen(GetMainInf()) + 1)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
         }
@@ -4570,13 +4512,13 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
                 plci->dwLocFVLS = 1;
             }
 
-            wsprintf(szVersionBuf, "%d,%d,%d,%d", (plci->dwLocFVMS & 0xffff0000)>>16, (plci->dwLocFVMS & 0xffff), (plci->dwLocFVLS & 0xffff0000)>>16, (plci->dwLocFVLS & 0xffff));
+            wsprintf(szVersionBuf, "%d,%d,%d,%d", (plci->dwLocFVMS & 0xffff0000) >> 16, (plci->dwLocFVMS & 0xffff), (plci->dwLocFVLS & 0xffff0000) >> 16, (plci->dwLocFVLS & 0xffff));
         } else {
             // use the version number in the HTML or
             // the one called by the code download delivery agent
             // if present
             if (m_dwFileVersionMS | m_dwFileVersionLS) {
-                wsprintf(szVersionBuf, "%d,%d,%d,%d", (m_dwFileVersionMS & 0xffff0000)>>16, (m_dwFileVersionMS & 0xffff), (m_dwFileVersionLS & 0xffff0000)>>16, (m_dwFileVersionLS & 0xffff));
+                wsprintf(szVersionBuf, "%d,%d,%d,%d", (m_dwFileVersionMS & 0xffff0000) >> 16, (m_dwFileVersionMS & 0xffff), (m_dwFileVersionLS & 0xffff0000) >> 16, (m_dwFileVersionLS & 0xffff));
             } else {
                 lstrcpy(szVersionBuf, "-1,-1,-1,-1");
             }
@@ -4584,33 +4526,32 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
     }
 
     if (BitsInCache()) {
-        if (RegOpenKeyEx( hkeyThisDist, szAvailableVersion, 0, KEY_ALL_ACCESS, &hkeyVersion) != ERROR_SUCCESS) {
-            if ((lResult = RegCreateKey( hkeyThisDist, szAvailableVersion, &hkeyVersion)) != ERROR_SUCCESS) {
+        if (RegOpenKeyEx(hkeyThisDist, szAvailableVersion, 0, KEY_ALL_ACCESS, &hkeyVersion) != ERROR_SUCCESS) {
+            if ((lResult = RegCreateKey(hkeyThisDist, szAvailableVersion, &hkeyVersion)) != ERROR_SUCCESS) {
                 hr = HRESULT_FROM_WIN32(lResult);
                 goto Exit;
-                }
+            }
         }
 
         // record result of caching bits.
 
         HRESULT hrRecord = m_hr;
 
-        if (m_hr == TRUST_E_FAIL || m_hr == TRUST_E_SUBJECT_NOT_TRUSTED)
-        {
+        if (m_hr == TRUST_E_FAIL || m_hr == TRUST_E_SUBJECT_NOT_TRUSTED) {
             hrRecord = ERROR_IO_INCOMPLETE;
         }
 
-        lResult = ::RegSetValueEx(hkeyVersion, szPrecache, NULL, REG_DWORD, (unsigned char *)&hrRecord, sizeof(DWORD));
+        lResult = ::RegSetValueEx(hkeyVersion, szPrecache, NULL, REG_DWORD, (unsigned char*)&hrRecord, sizeof(DWORD));
         if (lResult != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
         }
     } else {
-        if (RegOpenKeyEx( hkeyThisDist, szInstalledVersion, 0, KEY_ALL_ACCESS, &hkeyVersion) != ERROR_SUCCESS) {
-            if ((lResult = RegCreateKey( hkeyThisDist, szInstalledVersion, &hkeyVersion)) != ERROR_SUCCESS) {
+        if (RegOpenKeyEx(hkeyThisDist, szInstalledVersion, 0, KEY_ALL_ACCESS, &hkeyVersion) != ERROR_SUCCESS) {
+            if ((lResult = RegCreateKey(hkeyThisDist, szInstalledVersion, &hkeyVersion)) != ERROR_SUCCESS) {
                 hr = HRESULT_FROM_WIN32(lResult);
                 goto Exit;
-                }
+            }
         }
 
         // when we install a real version take out the
@@ -4618,7 +4559,7 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
         RegDeleteKey(hkeyThisDist, szAvailableVersion);
     }
 
-    lResult = ::RegSetValueEx(hkeyVersion, NULL, NULL, REG_SZ, (unsigned char *)szVersionBuf, lstrlen(szVersionBuf)+1);
+    lResult = ::RegSetValueEx(hkeyVersion, NULL, NULL, REG_SZ, (unsigned char*)szVersionBuf, lstrlen(szVersionBuf) + 1);
     if (lResult != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lResult);
         goto Exit;
@@ -4630,12 +4571,12 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
         goto Exit;
     }
 
-    if (GetLastMod() && (lResult = ::RegSetValueEx(hkeyVersion, szLASTMODIFIED, NULL, REG_SZ, (unsigned char *)GetLastMod(), lstrlen(GetLastMod())+1)) != ERROR_SUCCESS) {
+    if (GetLastMod() && (lResult = ::RegSetValueEx(hkeyVersion, szLASTMODIFIED, NULL, REG_SZ, (unsigned char*)GetLastMod(), lstrlen(GetLastMod()) + 1)) != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lResult);
         goto Exit;
     }
 
-    if (GetEtag() && (lResult = ::RegSetValueEx(hkeyVersion, szETAG, NULL, REG_SZ, (unsigned char *)GetEtag(), lstrlen(GetEtag())+1)) != ERROR_SUCCESS) {
+    if (GetEtag() && (lResult = ::RegSetValueEx(hkeyVersion, szETAG, NULL, REG_SZ, (unsigned char*)GetEtag(), lstrlen(GetEtag()) + 1)) != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lResult);
         goto Exit;
     }
@@ -4645,11 +4586,11 @@ HRESULT CCodeDownload::UpdateDistUnit(CLocalComponentInfo *plci)
     // save away the manifest location/name
 
     // open/create the Contains key for this dist unit.
-    if (RegOpenKeyEx( hkeyThisDist, szContains, 0, KEY_ALL_ACCESS, &hkeyContains) != ERROR_SUCCESS) {
-        if ((lResult = RegCreateKey( hkeyThisDist, szContains, &hkeyContains)) != ERROR_SUCCESS) {
+    if (RegOpenKeyEx(hkeyThisDist, szContains, 0, KEY_ALL_ACCESS, &hkeyContains) != ERROR_SUCCESS) {
+        if ((lResult = RegCreateKey(hkeyThisDist, szContains, &hkeyContains)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
-            }
+        }
     }
 
     hr = UpdateFileList(hkeyContains);
@@ -4674,7 +4615,7 @@ Exit:
 }
 
 
-typedef BOOL (WINAPI *SHRESTARTDIALOG)( HWND, LPTSTR, DWORD );
+typedef BOOL(WINAPI* SHRESTARTDIALOG)(HWND, LPTSTR, DWORD);
 
 
 HRESULT DoReboot(HWND hWndParent)
@@ -4686,18 +4627,18 @@ HRESULT DoReboot(HWND hWndParent)
 
     SHRESTARTDIALOG          pfSHRESTARTDIALOG = NULL;
 
-    if ( ( hShell32Lib = LoadLibrary( "shell32.dll" ) ) != NULL )  {
-        if ( !( pfSHRESTARTDIALOG = (SHRESTARTDIALOG) GetProcAddress( hShell32Lib, MAKEINTRESOURCE(SHRESTARTDIALOG_ORDINAL)) ) ) {
+    if ((hShell32Lib = LoadLibrary("shell32.dll")) != NULL) {
+        if (!(pfSHRESTARTDIALOG = (SHRESTARTDIALOG)GetProcAddress(hShell32Lib, MAKEINTRESOURCE(SHRESTARTDIALOG_ORDINAL)))) {
             hr = HRESULT_FROM_WIN32(GetLastError());
         } else {
             pfSHRESTARTDIALOG(hWndParent, NULL, EWX_REBOOT);
         }
-    } else  {
+    } else {
         hr = HRESULT_FROM_WIN32(GetLastError());
     }
 
     if (hShell32Lib)
-        FreeLibrary( hShell32Lib );
+        FreeLibrary(hShell32Lib);
 
     return hr;
 }
@@ -4713,7 +4654,7 @@ VOID CCodeDownload::CompleteAll(HRESULT hr, LPCWSTR szError)
     LISTPOSITION curpos;
     int iNumClients;
     int i;
-//  TCHAR szBuffer[MAX_FORMAT_MESSAGE_BUFFER_LEN];
+    //  TCHAR szBuffer[MAX_FORMAT_MESSAGE_BUFFER_LEN];
     LPTSTR szBuffer = NULL;
     DWORD dwFMResult = 0;
     BOOL bForceWriteLog = FALSE;
@@ -4721,8 +4662,8 @@ VOID CCodeDownload::CompleteAll(HRESULT hr, LPCWSTR szError)
     TCHAR szDll[MAX_PATH];
     BOOL            bLogGenOk = FALSE;
     OSVERSIONINFO   osvi;
-    WCHAR          *pwszOSBErrMsg = NULL;
-    char           *pszExactErrMsg = NULL;
+    WCHAR* pwszOSBErrMsg = NULL;
+    char* pszExactErrMsg = NULL;
     char            szDPFPath[MAX_PATH];
 
     Assert(GetState() != CDL_Completed);
@@ -4740,16 +4681,16 @@ VOID CCodeDownload::CompleteAll(HRESULT hr, LPCWSTR szError)
     LPSTR pPluginFileName = NULL;
     CLSID myclsid = GetClsid();
 
-    if ((SUCCEEDED(GetClsidFromExtOrMime( GetClsid(), myclsid, GetMainExt(), GetMainType(), &pPluginFileName)))) {
+    if ((SUCCEEDED(GetClsidFromExtOrMime(GetClsid(), myclsid, GetMainExt(), GetMainType(), &pPluginFileName)))) {
         // get current version, pass 0, 1 to goose IsControl
         // into filling in the version data, otherwise UpdateDistUnit
         // will put a funny version in the registry ( which is better than bug 12081
 
         //BUGBUG: make sure this call does the right things with zero impact
-        IsControlLocallyInstalled(pPluginFileName, (pPluginFileName)?(LPCLSID)&GetClsid():&myclsid, GetMainDistUnit(), 0, 1, &lci, NULL);
+        IsControlLocallyInstalled(pPluginFileName, (pPluginFileName) ? (LPCLSID)&GetClsid() : &myclsid, GetMainDistUnit(), 0, 1, &lci, NULL);
     }
 
-    if ( m_plci->bForceLangGetLatest || (lci.bForceLangGetLatest && SUCCEEDED(hr)) ) {
+    if (m_plci->bForceLangGetLatest || (lci.bForceLangGetLatest && SUCCEEDED(hr))) {
         hr = UpdateLanguageCheck(&lci);
     }
 
@@ -4762,22 +4703,20 @@ VOID CCodeDownload::CompleteAll(HRESULT hr, LPCWSTR szError)
         }
     }
 
-    if ( !FakeSuccess() && (SUCCEEDED(hr) || BitsInCache())) {
+    if (!FakeSuccess() && (SUCCEEDED(hr) || BitsInCache())) {
         UpdateDistUnit(&lci);
     }
 
     if (IsZeroImpact()) {    // Register this download as zero impact, and remember the dll name for bubbling upwards
-        if(SUCCEEDED(hr)) {  // should be done after UpdateDistUnit
+        if (SUCCEEDED(hr)) {  // should be done after UpdateDistUnit
             UpdateZeroImpactCache();
 
-            if (GetClientBinding()->GetZIDll())
-            {
+            if (GetClientBinding()->GetZIDll()) {
                 wsprintf(szDll, TEXT("%s\\%ls"), m_szCacheDir, GetClientBinding()->GetZIDll());
                 if (MultiByteToWideChar(CP_ACP, 0, szDll, -1, wszDll, MAX_PATH) == 0) {
                     wszDll[0] = L'\0';
                 }
-            }
-            else {
+            } else {
                 wszDll[0] = L'\0';
             }
         }
@@ -4793,8 +4732,8 @@ VOID CCodeDownload::CompleteAll(HRESULT hr, LPCWSTR szError)
         } else {
             ICodeInstall* pCodeInstall = GetICodeInstall();
             if (pCodeInstall)
-                pCodeInstall->OnCodeInstallProblem( CIP_NEED_REBOOT, NULL, NULL, 0);
-       }
+                pCodeInstall->OnCodeInstallProblem(CIP_NEED_REBOOT, NULL, NULL, 0);
+        }
     }
 
     iNumClients = m_pClientbinding.GetCount();
@@ -4803,9 +4742,9 @@ VOID CCodeDownload::CompleteAll(HRESULT hr, LPCWSTR szError)
     // ClientBSC::OnObjectAvailable with requested obj
     if (SUCCEEDED(hr) && NeedObject() && hr != ERROR_IO_INCOMPLETE) {
         curpos = m_pClientbinding.GetHeadPosition();
-        for (i=0; i < iNumClients; i++) {
+        for (i = 0; i < iNumClients; i++) {
             hr = (m_pClientbinding.GetNext(curpos))->InstantiateObjectAndReport(this);
-            if(FAILED(hr)) {
+            if (FAILED(hr)) {
                 bLogGenOk = GenerateErrStrings(hr, &pszExactErrMsg, &pwszOSBErrMsg);
                 if (!bLogGenOk) {
                     pwszOSBErrMsg = NULL;
@@ -4816,7 +4755,7 @@ VOID CCodeDownload::CompleteAll(HRESULT hr, LPCWSTR szError)
     } else {
         // call OnStopBinding for all BSCs (since we either do not need
         // an instantiated object or we don't have one to give)
-        if(FAILED(hr)) {
+        if (FAILED(hr)) {
             bLogGenOk = GenerateErrStrings(hr, &pszExactErrMsg, &pwszOSBErrMsg);
             if (!bLogGenOk) {
                 pwszOSBErrMsg = NULL;
@@ -4826,24 +4765,24 @@ VOID CCodeDownload::CompleteAll(HRESULT hr, LPCWSTR szError)
 
         // call client's onstopbinding
         curpos = m_pClientbinding.GetHeadPosition();
-        for (i=0; i < iNumClients; i++) {
+        for (i = 0; i < iNumClients; i++) {
             ((m_pClientbinding.GetNext(curpos))->GetAssBSC())->OnStopBinding(hr, pwszOSBErrMsg);
         }
         SAFEDELETE(pwszOSBErrMsg);
 
-        m_debuglog->DebugOut(DEB_CODEDL, hr != S_OK, ID_CDLDBG_ONSTOPBINDING_CALLED, hr, (hr == S_OK)?TEXT(" (SUCCESS)"):TEXT(" (FAILED)"), (GetClsid()).Data1, GetMainURL(), GetMainType(), GetMainExt());
+        m_debuglog->DebugOut(DEB_CODEDL, hr != S_OK, ID_CDLDBG_ONSTOPBINDING_CALLED, hr, (hr == S_OK) ? TEXT(" (SUCCESS)") : TEXT(" (FAILED)"), (GetClsid()).Data1, GetMainURL(), GetMainType(), GetMainExt());
     }
 
     if (m_hKeySearchPath) {
-        if (RegQueryValueEx(m_hKeySearchPath,"ForceCodeDownloadLog", NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-             bForceWriteLog = TRUE;
+        if (RegQueryValueEx(m_hKeySearchPath, "ForceCodeDownloadLog", NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+            bForceWriteLog = TRUE;
     }
 
     if (bForceWriteLog || (hr != S_OK && hr != ERROR_IO_INCOMPLETE)) {
         // BUGBUG: move these into .rc
         if (!bLogGenOk && (HRESULT_FACILITY(hr) == FACILITY_CERT)) {
             DumpDebugLog(szCacheFileName, "Trust verification failed!!", hr);
-        } else if (!bLogGenOk && (hr==HRESULT_FROM_WIN32(ERROR_EXE_MACHINE_TYPE_MISMATCH))) {
+        } else if (!bLogGenOk && (hr == HRESULT_FROM_WIN32(ERROR_EXE_MACHINE_TYPE_MISMATCH))) {
             DumpDebugLog(szCacheFileName, "Incompatible Binary for your platform", hr);
         } else if (bLogGenOk) {
             DumpDebugLog(szCacheFileName, pszExactErrMsg, hr);
@@ -4878,13 +4817,13 @@ VOID CCodeDownload::CompleteAll(HRESULT hr, LPCWSTR szError)
 //        hr: HRESULT of binding operation
 //    Returns:
 //        TRUE if successful
-BOOL CCodeDownload::GenerateErrStrings(HRESULT hr, char **ppszErrMsg, WCHAR **ppwszError)
+BOOL CCodeDownload::GenerateErrStrings(HRESULT hr, char** ppszErrMsg, WCHAR** ppwszError)
 {
     DWORD                  dwFMResult;
     LPCTSTR                pszSavedErrMsg = NULL;
-    TCHAR                 *szBuf = NULL;
-    char                  *szURL = NULL;
-    char                  *pszErrorMessage = NULL;
+    TCHAR* szBuf = NULL;
+    char* szURL = NULL;
+    char* pszErrorMessage = NULL;
     char                   szErrString[MAX_DEBUG_STRING_LENGTH];
     char                   szDetails[MAX_DEBUG_STRING_LENGTH];
     int                    iSize = 0;
@@ -4932,14 +4871,12 @@ BOOL CCodeDownload::GenerateErrStrings(HRESULT hr, char **ppszErrMsg, WCHAR **pp
 
             lstrcpy(*ppszErrMsg, szBuf);
             LocalFree(szBuf);
-        }
-        else {
+        } else {
             char szUnknown[MAX_DEBUG_FORMAT_STRING_LENGTH];
 
             if (!dwFMResult && HRESULT_FACILITY(hr) == FACILITY_SETUPAPI) {
                 LoadString(g_hInst, ID_CDLDBG_UNKNOWN_SETUP_ERROR, szUnknown, MAX_DEBUG_FORMAT_STRING_LENGTH);
-            }
-            else {
+            } else {
                 LoadString(g_hInst, ID_CDLDBG_UNKNOWN_ERROR, szUnknown, MAX_DEBUG_FORMAT_STRING_LENGTH);
             }
 
@@ -4960,7 +4897,7 @@ BOOL CCodeDownload::GenerateErrStrings(HRESULT hr, char **ppszErrMsg, WCHAR **pp
     LoadString(g_hInst, ID_CDLDBG_ERROR_STRING, szErrString, MAX_DEBUG_STRING_LENGTH);
     LoadString(g_hInst, ID_CDLDBG_DETAILS_STRING, szDetails, MAX_DEBUG_STRING_LENGTH);
 
-    szURL = (char *)m_debuglog->GetUrlName();
+    szURL = (char*)m_debuglog->GetUrlName();
     ASSERT(szURL[0] != '\0');
 
     iSize = lstrlen(*ppszErrMsg) + lstrlen(szErrString) + lstrlen(szDetails) + lstrlen(szURL) + 1;
@@ -4984,7 +4921,7 @@ Exit:
 
 // %%Function: CCodeDownload::DumpDebugLog()
 //   Output the debug error log. This log is written as a cache entry.
-void CCodeDownload::DumpDebugLog(char *szCacheFileName, LPTSTR szErrorMsg, HRESULT hrError)
+void CCodeDownload::DumpDebugLog(char* szCacheFileName, LPTSTR szErrorMsg, HRESULT hrError)
 {
     m_debuglog->DumpDebugLog(szCacheFileName, MAX_PATH, szErrorMsg, hrError);
 }
@@ -5001,7 +4938,7 @@ STDMETHODIMP_(ULONG) CCodeDownload::Release()
 //        Caller of this function cannot rely on accessing any data
 //        other than locals on their stack.
 {
-    CDownload *pdlCur;
+    CDownload* pdlCur;
     HRESULT hr = S_OK;
 
     Assert(m_cRef > 0);
@@ -5013,7 +4950,7 @@ STDMETHODIMP_(ULONG) CCodeDownload::Release()
     // release all CDownload objs
 
     LISTPOSITION curpos = m_pDownloads.GetHeadPosition();
-    for (int i=0; i < m_pDownloads.GetCount(); i++) {
+    for (int i = 0; i < m_pDownloads.GetCount(); i++) {
 
         pdlCur = m_pDownloads.GetNext(curpos);
 
@@ -5091,7 +5028,7 @@ inline VOID
 #else
 VOID
 #endif /* !unix */
-CCodeDownload::AddDownloadToList(CDownload *pdl)
+CCodeDownload::AddDownloadToList(CDownload* pdl)
 {
     pdl->AddParent(this);
 
@@ -5111,9 +5048,9 @@ CCodeDownload::AddDownloadToList(CDownload *pdl)
 //          else
 //              no match, or dups in other code downloads, download your own
 HRESULT
-CCodeDownload::FindCABInDownloadList(LPCWSTR szURL, CDownload* pdlHint, CDownload **ppdlMatch)
+CCodeDownload::FindCABInDownloadList(LPCWSTR szURL, CDownload* pdlHint, CDownload** ppdlMatch)
 {
-    CDownload *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
     HRESULT hr = S_OK;
     IMoniker* pmk = NULL;
     int i;
@@ -5124,11 +5061,11 @@ CCodeDownload::FindCABInDownloadList(LPCWSTR szURL, CDownload* pdlHint, CDownloa
     // create a moniker for the URL passed in and then we can pmk->IsEqual
     // with every other CDownload's moniker.
 
-    IBindHost *pBH = GetClientBinding()->GetIBindHost();
+    IBindHost* pBH = GetClientBinding()->GetIBindHost();
     if (pBH) {
         hr = pBH->CreateMoniker((LPWSTR)szURL, pdlHint->GetBindCtx(), &pmk, 0);
     } else {
-        hr =  CreateURLMoniker(m_pmkContext, szURL, &pmk);
+        hr = CreateURLMoniker(m_pmkContext, szURL, &pmk);
     }
 
 
@@ -5149,7 +5086,7 @@ CCodeDownload::FindCABInDownloadList(LPCWSTR szURL, CDownload* pdlHint, CDownloa
 
     // hint failed, try the whole list
     curpos = m_pDownloads.GetHeadPosition();
-    for (i=0; i < m_pDownloads.GetCount(); i++) {
+    for (i = 0; i < m_pDownloads.GetCount(); i++) {
         pdlCur = m_pDownloads.GetNext(curpos);
         if (pdlCur == pdlHint) // already tried the pdlHint, don't retry
             continue;
@@ -5180,14 +5117,14 @@ Exit:
 //  Returns:
 //      hr = ERROR
 //      hr = S_OK pdlCur?(match found):(no match found, do your own download)
-HRESULT CCodeDownload::FindDupCABInThread(IMoniker *pmk, CDownload **ppdlMatch)
+HRESULT CCodeDownload::FindDupCABInThread(IMoniker* pmk, CDownload** ppdlMatch)
 {
-    CDownload *pdlCur = NULL;
+    CDownload* pdlCur = NULL;
     HRESULT hr = S_OK;
     LISTPOSITION curposCDL, curposDL;
-    CCodeDownload *pcdl;
+    CCodeDownload* pcdl;
     int iNumCDL;
-    int i,j;
+    int i, j;
 
     CUrlMkTls tls(hr); // hr passed by reference!
 
@@ -5198,7 +5135,7 @@ HRESULT CCodeDownload::FindDupCABInThread(IMoniker *pmk, CDownload **ppdlMatch)
     curposCDL = tls->pCodeDownloadList->GetHeadPosition();
 
     // walk thru all the code downloads in the thread and check for DUPs
-    for (i=0; i < iNumCDL; i++) {
+    for (i = 0; i < iNumCDL; i++) {
 
         pcdl = tls->pCodeDownloadList->GetNext(curposCDL);
 
@@ -5208,7 +5145,7 @@ HRESULT CCodeDownload::FindDupCABInThread(IMoniker *pmk, CDownload **ppdlMatch)
         // look into this CCodeDownload tree for dup
 
         curposDL = pcdl->m_pDownloads.GetHeadPosition();
-        for (j=0; j < pcdl->m_pDownloads.GetCount(); j++) {
+        for (j = 0; j < pcdl->m_pDownloads.GetCount(); j++) {
 
             pdlCur = pcdl->m_pDownloads.GetNext(curposDL);
 
@@ -5254,9 +5191,9 @@ CCodeDownload::InitLastModifiedFromDistUnit()
     WIN32_FIND_DATA fd;
     HANDLE hf;
 
-    IsDistUnitLocallyInstalled( m_szDistUnit, 0, 0, m_plci, NULL, NULL, 0);
+    IsDistUnitLocallyInstalled(m_szDistUnit, 0, 0, m_plci, NULL, NULL, 0);
 
-    if (!m_plci->GetLastModifiedTime() ) {
+    if (!m_plci->GetLastModifiedTime()) {
 
         if ((hf = FindFirstFile(m_plci->szExistingFileName, &fd)) != INVALID_HANDLE_VALUE) {
             memcpy(&(m_plci->ftLastModified), &(fd.ftLastWriteTime), sizeof(FILETIME));
@@ -5290,10 +5227,10 @@ CCodeDownload::InitLastModifiedFromDistUnit()
 
 HRESULT
 CCodeDownload::DoCodeDownload(
-    CLocalComponentInfo *plci,
+    CLocalComponentInfo* plci,
     DWORD flags)
 {
-    CDownload *pdl = NULL;
+    CDownload* pdl = NULL;
     HRESULT hr = NOERROR;
     FILEXTN extn = FILEXTN_UNKNOWN;
     WCHAR szURL[INTERNET_MAX_URL_LENGTH];
@@ -5317,7 +5254,7 @@ CCodeDownload::DoCodeDownload(
     bopts.cbStruct = sizeof(BIND_OPTS2);
 
     if (SUCCEEDED(GetClientBC()->GetBindOptions(&bopts)) &&
-        (bopts.cbStruct == sizeof(BIND_OPTS2)) ) {
+        (bopts.cbStruct == sizeof(BIND_OPTS2))) {
 
         m_lcid = bopts.locale;  // else user default lcid is already in
     }
@@ -5329,8 +5266,8 @@ CCodeDownload::DoCodeDownload(
 
         WCHAR szBuf[MAX_PATH];
         MultiByteToWideChar(CP_ACP, 0, m_plci->szExistingFileName, -1, szBuf, MAX_PATH);
-        hr = pCodeInstall->OnCodeInstallProblem( CIP_OLDER_VERSION_EXISTS,
-                    NULL, szBuf, 0);
+        hr = pCodeInstall->OnCodeInstallProblem(CIP_OLDER_VERSION_EXISTS,
+                                                NULL, szBuf, 0);
 
         // hr == E_ABORT: abort whole download
         if (FAILED(hr)) {
@@ -5350,7 +5287,7 @@ CCodeDownload::DoCodeDownload(
     // we need local version modified time only when doing GetLatest and
     // only for the top most file
     if (NeedLatestVersion() && m_plci->szExistingFileName[0] &&
-            !m_plci->GetLastModifiedTime() ) {
+        !m_plci->GetLastModifiedTime()) {
 
         InitLastModifiedFromDistUnit();
 
@@ -5361,9 +5298,9 @@ CCodeDownload::DoCodeDownload(
 
     // get the first site to try downloading from
     hr = GetNextOnInternetSearchPath(GetClsid(), &hPostData, &cbPostData, szURL,
-            INTERNET_MAX_URL_LENGTH, &lpDownloadURL, &extn);
+                                     INTERNET_MAX_URL_LENGTH, &lpDownloadURL, &extn);
 
-    if ( FAILED(hr))
+    if (FAILED(hr))
         goto CD_Exit;
 
     // download the CODE=URL (ie. CAB or INF file first)
@@ -5393,7 +5330,7 @@ CCodeDownload::DoCodeDownload(
     // the OnStopBinding a must if an OnStartBinding has been issued.
 
     hr = pdl->DoDownload(&m_pmkContext,
-                        (BINDF_ASYNCHRONOUS| BINDF_ASYNCSTORAGE));
+                         (BINDF_ASYNCHRONOUS | BINDF_ASYNCSTORAGE));
 
     if (hr == MK_S_ASYNCHRONOUS) {
         SetState(CDL_Downloading);
@@ -5417,14 +5354,14 @@ CD_Exit:
 // %%Function: CCodeDownload::SetupCODEUrl
 
 HRESULT
-CCodeDownload::SetupCODEUrl(LPWSTR *ppDownloadURL, FILEXTN *pextn)
+CCodeDownload::SetupCODEUrl(LPWSTR* ppDownloadURL, FILEXTN* pextn)
 {
-    char *pBaseFileName = NULL;
+    char* pBaseFileName = NULL;
     char szBuf[INTERNET_MAX_URL_LENGTH];
 
     WideCharToMultiByte(CP_ACP, 0, m_url, -1, szBuf,
-        INTERNET_MAX_URL_LENGTH, 0,0);
-    *pextn = GetExtnAndBaseFileName( szBuf, &pBaseFileName);
+                        INTERNET_MAX_URL_LENGTH, 0, 0);
+    *pextn = GetExtnAndBaseFileName(szBuf, &pBaseFileName);
 
     *ppDownloadURL = m_url;
     SetUsedCodeURL();
@@ -5438,8 +5375,8 @@ CCodeDownload::SetupCODEUrl(LPWSTR *ppDownloadURL, FILEXTN *pextn)
 HRESULT
 CCodeDownload::GetNextComponent(
     LPSTR szURL,
-    LPSTR *ppCur
-    )
+    LPSTR* ppCur
+)
 {
     HRESULT hr = S_OK;
     LPSTR pch = *ppCur;
@@ -5485,7 +5422,7 @@ CCodeDownload::GetNextComponent(
     *pchOut = '\0';
 
     if (*pch)
-        *ppCur = pch+1; // skip the COMP_DELIMITER
+        *ppCur = pch + 1; // skip the COMP_DELIMITER
     else
         *ppCur = pch;
 
@@ -5499,13 +5436,13 @@ Exit:
 HRESULT
 CCodeDownload::GetNextOnInternetSearchPath(
     REFCLSID rclsid,
-    HGLOBAL *phPostData,
-    DWORD *pcbPostData,
+    HGLOBAL* phPostData,
+    DWORD* pcbPostData,
     LPWSTR szURL,
     DWORD dwSize,
-    LPWSTR *ppDownloadURL,
-    FILEXTN *pextn
-    )
+    LPWSTR* ppDownloadURL,
+    FILEXTN* pextn
+)
 {
 
     LONG lResult;
@@ -5514,7 +5451,7 @@ CCodeDownload::GetNextOnInternetSearchPath(
     DWORD dwType;
     char szBuf[INTERNET_MAX_URL_LENGTH];
     DWORD cb;
-    static char *szISP = "CodeBaseSearchPath";
+    static char* szISP = "CodeBaseSearchPath";
 
     char szClsid[MAX_PATH];
     char szID[MAX_PATH];
@@ -5524,24 +5461,23 @@ CCodeDownload::GetNextOnInternetSearchPath(
     BOOL bMimeType = FALSE;
 
     // Ignore Internet Search path if set.
-    if (UseCodebaseOnly())
-    {
-        SetupCODEUrl(ppDownloadURL,pextn);
+    if (UseCodebaseOnly()) {
+        SetupCODEUrl(ppDownloadURL, pextn);
         goto Exit;
     }
 
     if (!m_hKeySearchPath) {
 
         lResult = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_IE_SETTINGS, 0,
-                        KEY_READ, &m_hKeySearchPath);
+                                 KEY_READ, &m_hKeySearchPath);
 
         if (lResult == ERROR_SUCCESS) {
 
             // get size reqd to store away entire searchpath
             lResult = ::SHQueryValueEx(m_hKeySearchPath, szISP, NULL, &dwType,
-                                /* get size */ NULL, &Size);
+                                       /* get size */ NULL, &Size);
 
-            if ( lResult == ERROR_SUCCESS) {
+            if (lResult == ERROR_SUCCESS) {
 
                 if (Size == 0) {
                     // we don't check the CODE url in the case where there is a
@@ -5556,11 +5492,11 @@ CCodeDownload::GetNextOnInternetSearchPath(
 
                 // alloc memory
                 Size++;
-                m_pSearchPath = new char [Size];
+                m_pSearchPath = new char[Size];
                 if (m_pSearchPath) {
                     lResult = ::SHQueryValueEx(m_hKeySearchPath, szISP, NULL,
-                                    &dwType, (unsigned char *)m_pSearchPath,
-                                    &Size);
+                                               &dwType, (unsigned char*)m_pSearchPath,
+                                               &Size);
                     Assert(lResult == ERROR_SUCCESS);
                     m_pSearchPathNextComp = m_pSearchPath;
                 } else {
@@ -5577,7 +5513,7 @@ CCodeDownload::GetNextOnInternetSearchPath(
             }
 
             // no searchpath, use CODE=<url> in OBJECT tag
-            SetupCODEUrl(ppDownloadURL,pextn);
+            SetupCODEUrl(ppDownloadURL, pextn);
             goto Exit;
         }
     }
@@ -5595,7 +5531,7 @@ CCodeDownload::GetNextOnInternetSearchPath(
             }
 
             // use code=<url> in OBJECT tag
-            SetupCODEUrl(ppDownloadURL,pextn);
+            SetupCODEUrl(ppDownloadURL, pextn);
             goto Exit;
 
         } else {
@@ -5614,7 +5550,7 @@ CCodeDownload::GetNextOnInternetSearchPath(
 
     if (GetMainDistUnit()) {
 
-        WideCharToMultiByte(CP_ACP, 0, GetMainDistUnit(), -1, szClsid, MAX_PATH, 0,0);
+        WideCharToMultiByte(CP_ACP, 0, GetMainDistUnit(), -1, szClsid, MAX_PATH, 0, 0);
         wsprintf(szID, "CLSID=%s", szClsid);
 
     } else {
@@ -5624,7 +5560,7 @@ CCodeDownload::GetNextOnInternetSearchPath(
         if (GetMainType()) {
 
             // type available
-            WideCharToMultiByte(CP_ACP, 0, GetMainType(), -1, szClsid, MAX_PATH, 0,0);
+            WideCharToMultiByte(CP_ACP, 0, GetMainType(), -1, szClsid, MAX_PATH, 0, 0);
             wsprintf(szID, "MIMETYPE=%s", szClsid);
             bMimeType = TRUE;
 
@@ -5633,7 +5569,7 @@ CCodeDownload::GetNextOnInternetSearchPath(
             // ext
             Assert(GetMainExt());
 
-            WideCharToMultiByte(CP_ACP, 0, GetMainExt(), -1, szClsid, MAX_PATH, 0,0);
+            WideCharToMultiByte(CP_ACP, 0, GetMainExt(), -1, szClsid, MAX_PATH, 0, 0);
             wsprintf(szID, "EXTENSION=%s", szClsid);
         }
 
@@ -5644,11 +5580,11 @@ CCodeDownload::GetNextOnInternetSearchPath(
     // compute increased size if Version is specified.
     if (m_dwFileVersionMS || m_dwFileVersionLS) {
 
-        wsprintf(szNeedVersion, "&%s=%d,%d,%d,%d",szVersion,
-                    (m_dwFileVersionMS & 0xffff0000)>>16,
-                    (m_dwFileVersionMS & 0xffff),
-                    (m_dwFileVersionLS & 0xffff0000)>>16,
-                    (m_dwFileVersionLS & 0xffff));
+        wsprintf(szNeedVersion, "&%s=%d,%d,%d,%d", szVersion,
+                 (m_dwFileVersionMS & 0xffff0000) >> 16,
+                 (m_dwFileVersionMS & 0xffff),
+                 (m_dwFileVersionLS & 0xffff0000) >> 16,
+                 (m_dwFileVersionLS & 0xffff));
 
         cb += lstrlen(szNeedVersion);
     }
@@ -5663,22 +5599,22 @@ CCodeDownload::GetNextOnInternetSearchPath(
         cb += lstrlen(szHackMimeType);
     }
 
-    hPostData = GlobalAlloc(GPTR, cb+1 ); // + 1 for null term
+    hPostData = GlobalAlloc(GPTR, cb + 1); // + 1 for null term
 
     if (!hPostData) {
         hr = HRESULT_FROM_WIN32(GetLastError()); // typically, E_OUTOFMEMORY
         goto ReleaseAndExit;
     }
 
-    lstrcpy((char *)hPostData, szID);
+    lstrcpy((char*)hPostData, szID);
 
     if (m_dwFileVersionMS || m_dwFileVersionLS)
-        lstrcat( (char *)hPostData, szNeedVersion);
+        lstrcat((char*)hPostData, szNeedVersion);
 
     if (bMimeType)
-        lstrcat( (char *)hPostData, szHackMimeType);
+        lstrcat((char*)hPostData, szHackMimeType);
 
-    Assert(cb == (DWORD)lstrlen((char *)hPostData));
+    Assert(cb == (DWORD)lstrlen((char*)hPostData));
 
     *pcbPostData = cb;
 
@@ -5705,10 +5641,10 @@ CCodeDownload::IsPackageLocallyInstalled(LPCWSTR szPackageName, LPCWSTR szNameSp
 
 // %%Function: CCodeDownload::DestroyPCBHList
 
-void CCodeDownload::DestroyPCBHList(CList<CCodeBaseHold *, CCodeBaseHold *> *pcbhList)
+void CCodeDownload::DestroyPCBHList(CList<CCodeBaseHold*, CCodeBaseHold*>* pcbhList)
 {
     LISTPOSITION               lpos = 0;
-    CCodeBaseHold             *pcbh = NULL;
+    CCodeBaseHold* pcbh = NULL;
 
     if (pcbhList) {
         lpos = pcbhList->GetHeadPosition();
@@ -5731,8 +5667,7 @@ HRESULT CCodeDownload::SetCatalogFile(LPSTR szCatalogFile)
     m_szCatalogFile = new char[lstrlen(szCatalogFile) + 1];
     if (m_szCatalogFile == NULL) {
         hr = E_OUTOFMEMORY;
-    }
-    else {
+    } else {
         lstrcpy(m_szCatalogFile, szCatalogFile);
     }
 
@@ -5746,29 +5681,27 @@ LPSTR CCodeDownload::GetCatalogFile()
 {
     HRESULT                  hr = S_OK;
     LPSTR                    szCatalogFile = NULL;
-    CClBinding              *pBinding = NULL;
-    IBindStatusCallback     *pBSC = NULL;
-    IServiceProvider        *pServProv = NULL;
+    CClBinding* pBinding = NULL;
+    IBindStatusCallback* pBSC = NULL;
+    IServiceProvider* pServProv = NULL;
     LPCATALOGFILEINFO        pcfi = NULL;
 
     if (m_szCatalogFile) {
         szCatalogFile = m_szCatalogFile;
-    }
-    else {
+    } else {
         pBinding = m_pClientbinding.GetHead();
         if (pBinding) {
             pBSC = pBinding->GetAssBSC();
             if (pBSC) {
-                hr = pBSC->QueryInterface(IID_ICatalogFileInfo, (void **)&pcfi);
+                hr = pBSC->QueryInterface(IID_ICatalogFileInfo, (void**)&pcfi);
                 if (SUCCEEDED(hr)) {
                     pcfi->GetCatalogFile(&szCatalogFile);
                     m_szCatalogFile = szCatalogFile;
                     SAFERELEASE(pcfi);
-                }
-                else {
-                    hr = pBSC->QueryInterface(IID_IServiceProvider, (void **)&pServProv);
+                } else {
+                    hr = pBSC->QueryInterface(IID_IServiceProvider, (void**)&pServProv);
                     if (SUCCEEDED(hr)) {
-                        hr = pServProv->QueryService(IID_ICatalogFileInfo, IID_ICatalogFileInfo, (void **)&pcfi);
+                        hr = pServProv->QueryService(IID_ICatalogFileInfo, IID_ICatalogFileInfo, (void**)&pcfi);
                         if (SUCCEEDED(hr)) {
                             pcfi->GetCatalogFile(&szCatalogFile);
                             m_szCatalogFile = szCatalogFile;
@@ -5819,8 +5752,7 @@ HRESULT CCodeDownload::SetMainCABJavaTrustPermissions(PJAVA_TRUST pbJavaTrust)
             }
             memcpy(m_pbJavaTrust->pbJavaPermissions, pbJavaTrust->pbJavaPermissions,
                    m_pbJavaTrust->cbJavaPermissions);
-        }
-        else {
+        } else {
             m_pbJavaTrust->pbJavaPermissions = NULL;
         }
 
@@ -5833,8 +5765,7 @@ HRESULT CCodeDownload::SetMainCABJavaTrustPermissions(PJAVA_TRUST pbJavaTrust)
             }
             memcpy(m_pbJavaTrust->pbSigner, pbJavaTrust->pbSigner,
                    m_pbJavaTrust->cbSigner);
-        }
-        else {
+        } else {
             m_pbJavaTrust->pbSigner = NULL;
         }
 
@@ -5871,11 +5802,11 @@ PJAVA_TRUST CCodeDownload::GetJavaTrust()
 
 
 
-HRESULT ProcessImplementation(IXMLElement *pConfig,
-                              CList<CCodeBaseHold *, CCodeBaseHold *> *pcbhList,
+HRESULT ProcessImplementation(IXMLElement* pConfig,
+                              CList<CCodeBaseHold*, CCodeBaseHold*>* pcbhList,
                               LCID lcidOverride,
 #ifdef WX86
-                              CMultiArch *MultiArch,
+                              CMultiArch* MultiArch,
 #endif
                               LPWSTR szBaseURL)
 {
@@ -5887,13 +5818,13 @@ HRESULT ProcessImplementation(IXMLElement *pConfig,
     BOOL fFoundAnyConfig = FALSE;
     BOOL fFoundAnyOS = FALSE, fFoundMatchingOS = FALSE;
     BOOL fFoundAnyProc = FALSE, fFoundMatchingProc = FALSE;
-    IXMLElement *pCodeBase = NULL, *pLang = NULL, *pOS = NULL;
-    IXMLElement *pOSVersion = NULL, *pProcessor = NULL;
+    IXMLElement* pCodeBase = NULL, * pLang = NULL, * pOS = NULL;
+    IXMLElement* pOSVersion = NULL, * pProcessor = NULL;
     HRESULT hr = S_FALSE;               // default: failed configuration match
     BOOL bSetMainCodeBase = FALSE;
 #ifdef WX86
-    char *szPreferredArch;
-    char *szAlternateArch;
+    char* szPreferredArch;
+    char* szAlternateArch;
     HRESULT hrArch;
 #endif
 
@@ -5922,8 +5853,8 @@ HRESULT ProcessImplementation(IXMLElement *pConfig,
 
                 if ((lcidOverride == g_lcidBrowser) ||
                     (FAILED(CheckLanguage(g_lcidBrowser, szLang)))) {
-                        hr = S_FALSE;
-                        goto Exit;
+                    hr = S_FALSE;
+                    goto Exit;
 
                 }
             }
@@ -5944,7 +5875,7 @@ HRESULT ProcessImplementation(IXMLElement *pConfig,
 
         if (SUCCEEDED(GetAttributeA(pOS, DU_ATTRIB_VALUE, szOS, MAX_PATH))) {
 
-            if (lstrcmpi(szOS, (const char *) (g_fRunningOnNT) ? szWinNT : szWin95) == 0) {
+            if (lstrcmpi(szOS, (const char*)(g_fRunningOnNT) ? szWinNT : szWin95) == 0) {
 
                 if (GetFirstChildTag(pOS, DU_TAG_OSVERSION, &pOSVersion) == S_OK) {
 
@@ -5953,8 +5884,8 @@ HRESULT ProcessImplementation(IXMLElement *pConfig,
                         DWORD dwVersionMS = 0, dwVersionLS = 0;
 
                         if (SUCCEEDED(GetVersionFromString(szOSVersion, &dwVersionMS, &dwVersionLS))) {
-                            if (!((osvi.dwMajorVersion < (dwVersionMS>>16)) || (osvi.dwMajorVersion == (dwVersionMS>>16) &&
-                                 (osvi.dwMinorVersion < (dwVersionMS & 0xFFFF))) )) {
+                            if (!((osvi.dwMajorVersion < (dwVersionMS >> 16)) || (osvi.dwMajorVersion == (dwVersionMS >> 16) &&
+                                                                                  (osvi.dwMinorVersion < (dwVersionMS & 0xFFFF))))) {
                                 fFoundMatchingOS = TRUE;
                                 break;
                             }
@@ -5988,10 +5919,10 @@ HRESULT ProcessImplementation(IXMLElement *pConfig,
     fFoundMatchingProc = FALSE;
 #ifdef WX86
     MultiArch->SelectArchitecturePreferences(
-                g_szProcessorTypes[g_CPUType],
-                g_szProcessorTypes[PROCESSOR_ARCHITECTURE_INTEL],
-                &szPreferredArch,
-                &szAlternateArch);
+        g_szProcessorTypes[g_CPUType],
+        g_szProcessorTypes[PROCESSOR_ARCHITECTURE_INTEL],
+        &szPreferredArch,
+        &szAlternateArch);
 #endif
 
     while (GetNextChildTag(pConfig, DU_TAG_PROCESSOR, &pProcessor, nLastProc) == S_OK) {
@@ -6014,7 +5945,7 @@ HRESULT ProcessImplementation(IXMLElement *pConfig,
                 }
             }
 #else
-            if (lstrcmpi(g_szProcessorTypes[g_CPUType],szProcessor) == 0) {
+            if (lstrcmpi(g_szProcessorTypes[g_CPUType], szProcessor) == 0) {
                 fFoundMatchingProc = TRUE;
                 break;
             }
@@ -6036,7 +5967,7 @@ HRESULT ProcessImplementation(IXMLElement *pConfig,
 
         hr = ProcessCodeBaseList(pCodeBase, pcbhList, szBaseURL);
         if (!bSetMainCodeBase) {
-            CCodeBaseHold           *pcbhMain;
+            CCodeBaseHold* pcbhMain;
 
             pcbhMain = pcbhList->GetHead();
             if (pcbhMain) {
@@ -6067,14 +5998,14 @@ Exit:
     return hr;
 }
 
-HRESULT ProcessCodeBaseList(IXMLElement *pCodeBase,
-                            CList<CCodeBaseHold *, CCodeBaseHold *> *pcbhList,
+HRESULT ProcessCodeBaseList(IXMLElement* pCodeBase,
+                            CList<CCodeBaseHold*, CCodeBaseHold*>* pcbhList,
                             LPWSTR szBaseURL)
 {
     HRESULT                           hr = S_OK;
     DWORD                             dwSize = 0;
-    CCodeBaseHold                    *pcbh = NULL;
-    CCodeBaseHold                    *pcbhCur = NULL;
+    CCodeBaseHold* pcbh = NULL;
+    CCodeBaseHold* pcbhCur = NULL;
     LISTPOSITION                      lpos = 0;
     LPINTERNET_CACHE_ENTRY_INFO       lpCacheEntryInfo = NULL;
     LPSTR                             szCodeBase = NULL;
@@ -6175,10 +6106,8 @@ HRESULT ProcessCodeBaseList(IXMLElement *pCodeBase,
             dwSize = MAX_CACHE_ENTRY_INFO_SIZE;
 
             if (pcbhCur != NULL) {
-                if (SUCCEEDED(Unicode2Ansi(pcbhCur->wszCodeBase,
-                              &szCodeBase))) {
-                    if (GetUrlCacheEntryInfo(szCodeBase, lpCacheEntryInfo,
-                                             &dwSize)) {
+                if (SUCCEEDED(Unicode2Ansi(pcbhCur->wszCodeBase, &szCodeBase))) {
+                    if (GetUrlCacheEntryInfo(szCodeBase, lpCacheEntryInfo, &dwSize)) {
                         iLastIndexInCache = i;
                     }
                     SAFEDELETE(szCodeBase);
@@ -6202,18 +6131,15 @@ HRESULT ProcessCodeBaseList(IXMLElement *pCodeBase,
                 iIndex = (iLastIndexInCache + 1) + (randnum() % (iCount - iLastIndexInCache));
                 if (iIndex == iCount) {
                     pcbhList->AddTail(pcbh);
-                }
-                else {
+                } else {
                     lpos = pcbhList->FindIndex(iIndex);
                     pcbhList->InsertBefore(lpos, pcbh);
                 }
             }
-        }
-        else {
+        } else {
             pcbhList->AddTail(pcbh);
         }
-    }
-    else {
+    } else {
         // Not random, just ad as tail
         pcbhList->AddTail(pcbh);
     }
@@ -6251,7 +6177,6 @@ HRESULT CMultiArch::RequireAlternateArch()
 {
     if (m_RequiredArch != PROCESSOR_ARCHITECTURE_UNKNOWN &&
         m_RequiredArch != PROCESSOR_ARCHITECTURE_INTEL) {
-
         // The required arch has already been set for this download.
         // The download to change the required arch in the middle or
         // else a control and its support pieces may end up getting
@@ -6268,11 +6193,11 @@ HRESULT CMultiArch::RequireAlternateArch()
 
 VOID
 CMultiArch::SelectArchitecturePreferences(
-    char *szNativeArch,
-    char *szIntelArch,
-    char **pszPreferredArch,
-    char **pszAlternateArch
-    )
+    char* szNativeArch,
+    char* szIntelArch,
+    char** pszPreferredArch,
+    char** pszAlternateArch
+)
 {
     if (g_fWx86Present) {
         switch (m_RequiredArch) {
@@ -6282,14 +6207,12 @@ CMultiArch::SelectArchitecturePreferences(
             *pszPreferredArch = szIntelArch;
             *pszAlternateArch = NULL;
             break;
-
         case PROCESSOR_ARCHITECTURE_UNKNOWN:
             // No binaries downloaded so far.  Prefer native and fallback
             // to i386
             *pszPreferredArch = szNativeArch;
             *pszAlternateArch = szIntelArch;
             break;
-
         default:
             // A native binary has already been downloaded.  Only download
             // native binaries now.

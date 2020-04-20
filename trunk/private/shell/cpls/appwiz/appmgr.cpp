@@ -30,37 +30,31 @@ CShellAppManager::CShellAppManager() : _cRef(1)
     InitializeCriticalSection(&_cs);
 
     HDCA hdca = DCA_Create();
-    if (hdca)
-    {
+    if (hdca) {
         // Enumerate all of the Application Publishers
         DCA_AddItemsFromKey(hdca, HKEY_LOCAL_MACHINE, REGSTR_PATH_APPPUBLISHER);
-        if (DCA_GetItemCount(hdca) > 0)
-        {
+        if (DCA_GetItemCount(hdca) > 0) {
             _Lock();
             // Create our internal list of IAppPublisher *
             _hdpaPub = DPA_Create(4);
 
-            if(_hdpaPub)
-            {
+            if (_hdpaPub) {
                 int idca;
-                for (idca = 0; idca < DCA_GetItemCount(hdca); idca++)
-                {
-                    IAppPublisher * pap;
-                    if (FAILED(DCA_CreateInstance(hdca, idca, IID_IAppPublisher, (LPVOID *) &pap)))
+                for (idca = 0; idca < DCA_GetItemCount(hdca); idca++) {
+                    IAppPublisher* pap;
+                    if (FAILED(DCA_CreateInstance(hdca, idca, IID_IAppPublisher, (LPVOID*)&pap)))
                         continue;
 
                     ASSERT(IS_VALID_CODE_PTR(pap, IAppPublisher));
 
-                    if (DPA_AppendPtr(_hdpaPub, pap) == DPA_ERR)
-                    {
+                    if (DPA_AppendPtr(_hdpaPub, pap) == DPA_ERR) {
                         pap->Release();
                         break;
                     }
                 }
 
                 // if we have no pointers in this array, don't bother create one
-                if (DPA_GetPtrCount(_hdpaPub) == 0)
-                {
+                if (DPA_GetPtrCount(_hdpaPub) == 0) {
                     DPA_Destroy(_hdpaPub);
                     _hdpaPub = NULL;
                 }
@@ -72,24 +66,20 @@ CShellAppManager::CShellAppManager() : _cRef(1)
     }
 
 
-    if (IsTerminalServicesRunning())
-    {
+    if (IsTerminalServicesRunning()) {
         // Hack for MSI work on Terminal Server
         HKEY hkeyMsiHack = NULL;
         DWORD lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, c_szTSMsiHackKey, 0, KEY_QUERY_VALUE | KEY_SET_VALUE, &hkeyMsiHack);
-        if (lRet == ERROR_FILE_NOT_FOUND)
-        {
+        if (lRet == ERROR_FILE_NOT_FOUND) {
             lRet = RegCreateKeyEx(HKEY_LOCAL_MACHINE, c_szTSMsiHackKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE | KEY_SET_VALUE, NULL, &hkeyMsiHack, NULL);
         }
 
-        if (lRet == ERROR_SUCCESS)
-        {
+        if (lRet == ERROR_SUCCESS) {
             DWORD dwType = 0;
             DWORD dwTSMsiHack = 0;
             DWORD cbSize = SIZEOF(dwTSMsiHack);
 
-            if ((ERROR_SUCCESS != RegQueryValueEx(hkeyMsiHack, c_szTSMsiHackValue, 0, &dwType, (LPBYTE)&dwTSMsiHack, &cbSize)) || (dwType != REG_DWORD) || (dwTSMsiHack != 1))
-            {
+            if ((ERROR_SUCCESS != RegQueryValueEx(hkeyMsiHack, c_szTSMsiHackValue, 0, &dwType, (LPBYTE)&dwTSMsiHack, &cbSize)) || (dwType != REG_DWORD) || (dwTSMsiHack != 1)) {
                 dwTSMsiHack = 1;
                 if (RegSetValueEx(hkeyMsiHack, c_szTSMsiHackValue, 0, REG_DWORD, (LPBYTE)&dwTSMsiHack, SIZEOF(dwTSMsiHack)) == ERROR_SUCCESS)
                     _bCreatedTSMsiHack = TRUE;
@@ -105,13 +95,11 @@ CShellAppManager::CShellAppManager() : _cRef(1)
 // destructor
 CShellAppManager::~CShellAppManager()
 {
-    if (_bCreatedTSMsiHack)
-    {
+    if (_bCreatedTSMsiHack) {
         ASSERT(IsTerminalServicesRunning());
         HKEY hkeyMsiHack;
         DWORD lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, c_szTSMsiHackKey, 0, KEY_SET_VALUE, &hkeyMsiHack);
-        if (ERROR_SUCCESS == lRet)
-        {
+        if (ERROR_SUCCESS == lRet) {
             RegDeleteValue(hkeyMsiHack, c_szTSMsiHackValue);
             RegCloseKey(hkeyMsiHack);
         }
@@ -133,7 +121,7 @@ CShellAppManager::~CShellAppManager()
 
 
 // Recursively destroys a GUIDLIST
-void CShellAppManager::_DestroyGuidList(GUIDLIST * pGuidList)
+void CShellAppManager::_DestroyGuidList(GUIDLIST* pGuidList)
 {
     ASSERT(IS_VALID_WRITE_PTR(pGuidList, GUIDLIST));
     if (pGuidList->pNextGuid)
@@ -142,7 +130,7 @@ void CShellAppManager::_DestroyGuidList(GUIDLIST * pGuidList)
     LocalFree(pGuidList);
 }
 
-void CShellAppManager::_DestroyCategoryItem(CATEGORYITEM * pci)
+void CShellAppManager::_DestroyCategoryItem(CATEGORYITEM* pci)
 {
     ASSERT(IS_VALID_WRITE_PTR(pci, CATEGORYITEM));
     if (pci->pszDescription)
@@ -159,9 +147,8 @@ void CShellAppManager::_DestroyInternalCategoryList()
 
     ASSERT(IS_VALID_HANDLE(_hdsaCategoryList, DSA));
     int idsa;
-    for (idsa = 0; idsa < DSA_GetItemCount(_hdsaCategoryList); idsa++)
-    {
-        CATEGORYITEM * pci = (CATEGORYITEM *)DSA_GetItemPtr(_hdsaCategoryList, idsa);
+    for (idsa = 0; idsa < DSA_GetItemCount(_hdsaCategoryList); idsa++) {
+        CATEGORYITEM* pci = (CATEGORYITEM*)DSA_GetItemPtr(_hdsaCategoryList, idsa);
         if (pci)
             _DestroyCategoryItem(pci);
     }
@@ -175,9 +162,8 @@ void CShellAppManager::_DestroyAppPublisherList()
     ASSERT(0 < _cRefLock);
     ASSERT(IS_VALID_HANDLE(_hdpaPub, DPA));
     int idpa;
-    for (idpa = 0; idpa < DPA_GetPtrCount(_hdpaPub); idpa++)
-    {
-        IAppPublisher * pap = (IAppPublisher *)DPA_GetPtr(_hdpaPub, idpa);
+    for (idpa = 0; idpa < DPA_GetPtrCount(_hdpaPub); idpa++) {
+        IAppPublisher* pap = (IAppPublisher*)DPA_GetPtr(_hdpaPub, idpa);
         if (EVAL(pap))
             pap->Release();
     }
@@ -187,7 +173,7 @@ void CShellAppManager::_DestroyAppPublisherList()
 }
 
 // IShellAppManager::QueryInterface
-HRESULT CShellAppManager::QueryInterface(REFIID riid, LPVOID * ppvOut)
+HRESULT CShellAppManager::QueryInterface(REFIID riid, LPVOID* ppvOut)
 {
     static const QITAB qit[] = {
         QITABENT(CShellAppManager, IShellAppManager),                  // IID_IShellAppManager
@@ -220,31 +206,29 @@ ULONG CShellAppManager::Release()
 void CShellAppManager::_Lock(void)
 {
     EnterCriticalSection(&_cs);
-    DEBUG_CODE( _cRefLock++; )
+    DEBUG_CODE(_cRefLock++; )
 }
 
 void CShellAppManager::_Unlock(void)
 {
-    DEBUG_CODE( _cRefLock--; )
-    LeaveCriticalSection(&_cs);
+    DEBUG_CODE(_cRefLock--; )
+        LeaveCriticalSection(&_cs);
 }
 
 
-STDMETHODIMP CShellAppManager::GetNumberofInstalledApps(DWORD * pdwResult)
+STDMETHODIMP CShellAppManager::GetNumberofInstalledApps(DWORD* pdwResult)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP CShellAppManager::EnumInstalledApps(IEnumInstalledApps ** ppeia)
+STDMETHODIMP CShellAppManager::EnumInstalledApps(IEnumInstalledApps** ppeia)
 {
     HRESULT hres = E_FAIL;
-    CEnumInstalledApps * peia = new CEnumInstalledApps();
-    if (peia)
-    {
-        *ppeia = SAFECAST(peia, IEnumInstalledApps *);
+    CEnumInstalledApps* peia = new CEnumInstalledApps();
+    if (peia) {
+        *ppeia = SAFECAST(peia, IEnumInstalledApps*);
         hres = S_OK;
-    }
-    else
+    } else
         hres = E_OUTOFMEMORY;
 
     return hres;
@@ -252,7 +236,7 @@ STDMETHODIMP CShellAppManager::EnumInstalledApps(IEnumInstalledApps ** ppeia)
 
 
 #ifndef DOWNLEVEL_PLATFORM
-HRESULT CShellAppManager::_AddCategoryToList(APPCATEGORYINFO * pai, IAppPublisher * pap)
+HRESULT CShellAppManager::_AddCategoryToList(APPCATEGORYINFO* pai, IAppPublisher* pap)
 {
     // The caller must enter the lock first
     ASSERT(0 < _cRefLock);
@@ -263,56 +247,49 @@ HRESULT CShellAppManager::_AddCategoryToList(APPCATEGORYINFO * pai, IAppPublishe
     ASSERT(IS_VALID_CODE_PTR(pap, IAppPublisher));
 
     // Allocate a GUIDLIST item first
-    GUIDLIST * pgl  = (GUIDLIST *)LocalAlloc(LPTR, SIZEOF(GUIDLIST));
+    GUIDLIST* pgl = (GUIDLIST*)LocalAlloc(LPTR, SIZEOF(GUIDLIST));
     if (!pgl)
         return E_OUTOFMEMORY;
 
-    pgl->CatGuid    = pai->AppCategoryId;
+    pgl->CatGuid = pai->AppCategoryId;
     pgl->papSupport = pap;
 
     // Search in the CategoryList
     int idsa;
-    for (idsa = 0; idsa < DSA_GetItemCount(_hdsaCategoryList); idsa++)
-    {
-        CATEGORYITEM * pci = (CATEGORYITEM *)DSA_GetItemPtr(_hdsaCategoryList, idsa);
+    for (idsa = 0; idsa < DSA_GetItemCount(_hdsaCategoryList); idsa++) {
+        CATEGORYITEM* pci = (CATEGORYITEM*)DSA_GetItemPtr(_hdsaCategoryList, idsa);
 
-        if (pci)
-        {
+        if (pci) {
             // If we find an empty spot, fill it
-            if (pci->pszDescription == NULL)
-            {
+            if (pci->pszDescription == NULL) {
                 CATEGORYITEM ci = {0};
                 ci.pszDescription = StrDupW(pai->pszDescription);
-                ci.pGuidList    = pgl;
+                ci.pGuidList = pgl;
 
-                pgl->pNextGuid  = NULL;
+                pgl->pNextGuid = NULL;
 
-                if (DSA_InsertItem(_hdsaCategoryList, idsa, &ci) == -1)
-                {
+                if (DSA_InsertItem(_hdsaCategoryList, idsa, &ci) == -1) {
                     LocalFree(ci.pszDescription);
                     break;
                 }
             }
             // If we find an entry with the same description text, add our GUID to the GuidList
-            else if(!lstrcmpi(pai->pszDescription, pci->pszDescription))
-            {
-                pgl->pNextGuid  = pci->pGuidList;
-                pci->pGuidList  = pgl;
+            else if (!lstrcmpi(pai->pszDescription, pci->pszDescription)) {
+                pgl->pNextGuid = pci->pGuidList;
+                pci->pGuidList = pgl;
                 break;
             }
-        }
-        else
+        } else
             ASSERT(0);
     }
 
     // We ran out of items in the list, and didn't run into an identical category string
-    if (idsa == DSA_GetItemCount(_hdsaCategoryList))
-    {
+    if (idsa == DSA_GetItemCount(_hdsaCategoryList)) {
         CATEGORYITEM ci = {0};
         ci.pszDescription = StrDupW(pai->pszDescription);
-        ci.pGuidList    = pgl;
+        ci.pGuidList = pgl;
 
-        pgl->pNextGuid  = NULL;
+        pgl->pNextGuid = NULL;
         if (DSA_AppendItem(_hdsaCategoryList, &ci) == -1)
             LocalFree(ci.pszDescription);
     }
@@ -335,24 +312,19 @@ HRESULT CShellAppManager::_BuildInternalCategoryList()
     ASSERT(_hdsaCategoryList == NULL);
 
     // Is the structure automatically filled with zero?
-    _hdsaCategoryList =  DSA_Create(SIZEOF(CATEGORYITEM), CATEGORYLIST_GROW);
+    _hdsaCategoryList = DSA_Create(SIZEOF(CATEGORYITEM), CATEGORYLIST_GROW);
 
-    if (_hdsaCategoryList)
-    {
+    if (_hdsaCategoryList) {
         int idpa;
-        for (idpa = 0; idpa < DPA_GetPtrCount(_hdpaPub); idpa++)
-        {
-            IAppPublisher * pap = (IAppPublisher *)DPA_GetPtr(_hdpaPub, idpa);
+        for (idpa = 0; idpa < DPA_GetPtrCount(_hdpaPub); idpa++) {
+            IAppPublisher* pap = (IAppPublisher*)DPA_GetPtr(_hdpaPub, idpa);
             ASSERT(pap);
 
-            if (pap)
-            {
+            if (pap) {
                 UINT i;
                 APPCATEGORYINFOLIST AppCatList;
-                if (SUCCEEDED(pap->GetCategories(&AppCatList)))
-                {
-                    if ((AppCatList.cCategory > 0) && AppCatList.pCategoryInfo)
-                    {
+                if (SUCCEEDED(pap->GetCategories(&AppCatList))) {
+                    if ((AppCatList.cCategory > 0) && AppCatList.pCategoryInfo) {
                         for (i = 0; i < AppCatList.cCategory; i++)
                             _AddCategoryToList(&AppCatList.pCategoryInfo[i], pap);
 
@@ -378,29 +350,22 @@ HRESULT CShellAppManager::_CompileCategoryList(PSHELLAPPCATEGORYLIST psacl)
     ASSERT(IS_VALID_READ_PTR(psacl, SHELLAPPCATEGORYLIST));
 
     // Don't do anything if we have an empty list
-    if (_hdsaCategoryList && (DSA_GetItemCount(_hdsaCategoryList) > 0))
-    {
-        psacl->pCategory = (PSHELLAPPCATEGORY) SHAlloc(DSA_GetItemCount(_hdsaCategoryList) * SIZEOF(SHELLAPPCATEGORY));
-        if (psacl->pCategory)
-        {
+    if (_hdsaCategoryList && (DSA_GetItemCount(_hdsaCategoryList) > 0)) {
+        psacl->pCategory = (PSHELLAPPCATEGORY)SHAlloc(DSA_GetItemCount(_hdsaCategoryList) * SIZEOF(SHELLAPPCATEGORY));
+        if (psacl->pCategory) {
             int idsa;
-            for (idsa = 0; idsa < DSA_GetItemCount(_hdsaCategoryList); idsa++)
-            {
-                CATEGORYITEM * pci = (CATEGORYITEM *)DSA_GetItemPtr(_hdsaCategoryList, idsa);
-                if (pci && pci->pszDescription)
-                {
-                    if (SUCCEEDED(SHStrDup(pci->pszDescription, &psacl->pCategory[idsa].pszCategory)))
-                    {
+            for (idsa = 0; idsa < DSA_GetItemCount(_hdsaCategoryList); idsa++) {
+                CATEGORYITEM* pci = (CATEGORYITEM*)DSA_GetItemPtr(_hdsaCategoryList, idsa);
+                if (pci && pci->pszDescription) {
+                    if (SUCCEEDED(SHStrDup(pci->pszDescription, &psacl->pCategory[idsa].pszCategory))) {
                         ASSERT(IS_VALID_STRING_PTR(psacl->pCategory[idsa].pszCategory, -1));
                         psacl->cCategories++;
-                    }
-                    else
+                    } else
                         break;
                 }
             }
             hres = S_OK;
-        }
-        else
+        } else
             hres = E_OUTOFMEMORY;
     }
 
@@ -413,8 +378,7 @@ STDMETHODIMP CShellAppManager::GetPublishedAppCategories(PSHELLAPPCATEGORYLIST p
 {
 #ifndef DOWNLEVEL_PLATFORM
     HRESULT hres = E_INVALIDARG;
-    if (psacl)
-    {
+    if (psacl) {
         ASSERT(IS_VALID_READ_PTR(psacl, SHELLAPPCATEGORYLIST));
         ZeroMemory(psacl, SIZEOF(SHELLAPPCATEGORYLIST));
 
@@ -423,8 +387,7 @@ STDMETHODIMP CShellAppManager::GetPublishedAppCategories(PSHELLAPPCATEGORYLIST p
 
         _Lock();
         // Do we have any app publishers in our list at all
-        if (_hdpaPub)
-        {
+        if (_hdpaPub) {
             if (_hdsaCategoryList == NULL)
                 _BuildInternalCategoryList();
 
@@ -439,17 +402,15 @@ STDMETHODIMP CShellAppManager::GetPublishedAppCategories(PSHELLAPPCATEGORYLIST p
 }
 
 #ifndef DOWNLEVEL_PLATFORM
-GUIDLIST * CShellAppManager::_FindGuidListForCategory(LPCWSTR pszDescription)
+GUIDLIST* CShellAppManager::_FindGuidListForCategory(LPCWSTR pszDescription)
 {
     // The caller must enter the lock first
     ASSERT(0 < _cRefLock);
 
-    if (_hdsaCategoryList)
-    {
+    if (_hdsaCategoryList) {
         int idsa;
-        for (idsa = 0; idsa < DSA_GetItemCount(_hdsaCategoryList); idsa++)
-        {
-            CATEGORYITEM * pci = (CATEGORYITEM *)DSA_GetItemPtr(_hdsaCategoryList, idsa);
+        for (idsa = 0; idsa < DSA_GetItemCount(_hdsaCategoryList); idsa++) {
+            CATEGORYITEM* pci = (CATEGORYITEM*)DSA_GetItemPtr(_hdsaCategoryList, idsa);
             if (pci && pci->pszDescription && !lstrcmpi(pszDescription, pci->pszDescription))
                 return pci->pGuidList;
         }
@@ -461,7 +422,7 @@ GUIDLIST * CShellAppManager::_FindGuidListForCategory(LPCWSTR pszDescription)
 extern void _DestroyHdpaEnum(HDPA hdpaEnum);
 
 // IShellAppManager::EnumPublishedApps
-STDMETHODIMP CShellAppManager::EnumPublishedApps(LPCWSTR pszCategory, IEnumPublishedApps ** ppepa)
+STDMETHODIMP CShellAppManager::EnumPublishedApps(LPCWSTR pszCategory, IEnumPublishedApps** ppepa)
 {
 #ifndef DOWNLEVEL_PLATFORM
     HRESULT hres = E_OUTOFMEMORY;
@@ -471,24 +432,18 @@ STDMETHODIMP CShellAppManager::EnumPublishedApps(LPCWSTR pszCategory, IEnumPubli
     // hdpaEnum is the list of IEnumPublishedApp * we pass to the constructor of CShellEnumPublishedApps
     HDPA hdpaEnum = DPA_Create(4);
 
-    if (hdpaEnum)
-    {
+    if (hdpaEnum) {
         // If no category is required, we enumerate all
-        if (pszCategory == NULL)
-        {
+        if (pszCategory == NULL) {
             _Lock();
-            if (_hdpaPub)
-            {
+            if (_hdpaPub) {
                 int idpa;
-                for (idpa = 0; idpa < DPA_GetPtrCount(_hdpaPub); idpa++)
-                {
-                    IAppPublisher * pap = (IAppPublisher *)DPA_GetPtr(_hdpaPub, idpa);
-                    IEnumPublishedApps * pepa;
-                    if (pap && SUCCEEDED(pap->EnumApps(NULL, &pepa)))
-                    {
+                for (idpa = 0; idpa < DPA_GetPtrCount(_hdpaPub); idpa++) {
+                    IAppPublisher* pap = (IAppPublisher*)DPA_GetPtr(_hdpaPub, idpa);
+                    IEnumPublishedApps* pepa;
+                    if (pap && SUCCEEDED(pap->EnumApps(NULL, &pepa))) {
                         ASSERT(IS_VALID_CODE_PTR(pepa, IEnumPublishedApps));
-                        if (DPA_AppendPtr(hdpaEnum, pepa) == DPA_ERR)
-                        {
+                        if (DPA_AppendPtr(hdpaEnum, pepa) == DPA_ERR) {
                             pepa->Release();
                             break;
                         }
@@ -496,26 +451,21 @@ STDMETHODIMP CShellAppManager::EnumPublishedApps(LPCWSTR pszCategory, IEnumPubli
                 }
             }
             _Unlock();
-        }
-        else
-        {
+        } else {
             _Lock();
             // If there is no Category list, let's build one
             if (_hdsaCategoryList == NULL)
                 _BuildInternalCategoryList();
 
             // Otherwise we find the GuidList and enumerate all the guys in the list
-            GUIDLIST * pgl = _FindGuidListForCategory(pszCategory);
+            GUIDLIST* pgl = _FindGuidListForCategory(pszCategory);
 
-            while (pgl && pgl->papSupport)
-            {
+            while (pgl && pgl->papSupport) {
                 ASSERT(IS_VALID_READ_PTR(pgl, GUIDLIST) && IS_VALID_CODE_PTR(pgl->papSupport, IAppPulisher));
-                IEnumPublishedApps * pepa;
-                if (SUCCEEDED(pgl->papSupport->EnumApps(&pgl->CatGuid, &pepa)))
-                {
+                IEnumPublishedApps* pepa;
+                if (SUCCEEDED(pgl->papSupport->EnumApps(&pgl->CatGuid, &pepa))) {
                     ASSERT(IS_VALID_CODE_PTR(pepa, IEnumPublishedApps));
-                    if (DPA_AppendPtr(hdpaEnum, pepa) == DPA_ERR)
-                    {
+                    if (DPA_AppendPtr(hdpaEnum, pepa) == DPA_ERR) {
                         pepa->Release();
                         break;
                     }
@@ -530,14 +480,11 @@ STDMETHODIMP CShellAppManager::EnumPublishedApps(LPCWSTR pszCategory, IEnumPubli
 
     // Even if we have no enumerators we return success and pass back an empty enumerator
 
-    CShellEnumPublishedApps * psepa = new CShellEnumPublishedApps(hdpaEnum);
-    if (psepa)
-    {
-        *ppepa = SAFECAST(psepa, IEnumPublishedApps *);
+    CShellEnumPublishedApps* psepa = new CShellEnumPublishedApps(hdpaEnum);
+    if (psepa) {
+        *ppepa = SAFECAST(psepa, IEnumPublishedApps*);
         hres = S_OK;
-    }
-    else
-    {
+    } else {
         hres = E_OUTOFMEMORY;
         if (hdpaEnum)
             _DestroyHdpaEnum(hdpaEnum);
@@ -566,9 +513,8 @@ STDAPI CShellAppManager_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk, LP
 
     HRESULT hres = E_OUTOFMEMORY;
     CShellAppManager* pObj = new CShellAppManager();
-    if (pObj)
-    {
-        *ppunk = SAFECAST(pObj, IShellAppManager *);
+    if (pObj) {
+        *ppunk = SAFECAST(pObj, IShellAppManager*);
         hres = S_OK;
     }
 

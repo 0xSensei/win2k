@@ -14,36 +14,36 @@ BOOLEAN AdjustPrivilege(PSTR    SecurityNameString)
 {
     HANDLE              TokenHandle;
     LUID_AND_ATTRIBUTES LuidAndAttributes;
-//    PSTR                SecurityNameString;
+    //    PSTR                SecurityNameString;
 
     TOKEN_PRIVILEGES    TokenPrivileges;
     TOKEN_PRIVILEGES    PreviousTokenPrivileges;
     DWORD               ReturnLength;
 
-    if( !OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &TokenHandle ) ) {
-        printf( "OpenProcessToken failed \n" );
-        return( FALSE );
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &TokenHandle)) {
+        printf("OpenProcessToken failed \n");
+        return(FALSE);
     }
 
-//    SecurityNameString = SE_RESTORE_NAME; // SE_SECURITY_NAME;
-    if( !LookupPrivilegeValue( NULL, SecurityNameString, &( LuidAndAttributes.Luid ) ) ) {
-        printf( "LookupPrivilegeValue failed, Error = %#x \n", GetLastError() );
-        return( FALSE );
+    //    SecurityNameString = SE_RESTORE_NAME; // SE_SECURITY_NAME;
+    if (!LookupPrivilegeValue(NULL, SecurityNameString, &(LuidAndAttributes.Luid))) {
+        printf("LookupPrivilegeValue failed, Error = %#x \n", GetLastError());
+        return(FALSE);
     }
 
     LuidAndAttributes.Attributes = SE_PRIVILEGE_ENABLED;
     TokenPrivileges.PrivilegeCount = 1;
     TokenPrivileges.Privileges[0] = LuidAndAttributes;
-    if( !AdjustTokenPrivileges( TokenHandle, FALSE, &TokenPrivileges, 0, NULL, NULL ) ) {
-        printf( "AdjustTokenPrivileges failed, Error = %#x \n", GetLastError() );
-        return( FALSE );
+    if (!AdjustTokenPrivileges(TokenHandle, FALSE, &TokenPrivileges, 0, NULL, NULL)) {
+        printf("AdjustTokenPrivileges failed, Error = %#x \n", GetLastError());
+        return(FALSE);
     }
 
-    if( GetLastError() != NO_ERROR ) {
-        return( FALSE );
+    if (GetLastError() != NO_ERROR) {
+        return(FALSE);
     }
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -88,198 +88,198 @@ INT __cdecl main()
     PWSTR       File2 = L"d:\\File2";
     DWORD       Disposition;
 
-/*
-    Key = NULL;
-    Status = RegOpenKeyExW( HKEY_CURRENT_USER, L"", 0, MAXIMUM_ALLOWED, &Key );
-*/
+    /*
+        Key = NULL;
+        Status = RegOpenKeyExW( HKEY_CURRENT_USER, L"", 0, MAXIMUM_ALLOWED, &Key );
+    */
 
-//    AdjustPrivilege( SE_BACKUP_NAME );
-//    AdjustPrivilege( SE_RESTORE_NAME );
+    //    AdjustPrivilege( SE_BACKUP_NAME );
+    //    AdjustPrivilege( SE_RESTORE_NAME );
 
-    NotificationEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
-    if( NotificationEvent == NULL ) {
-        printf( "CreateEvent failed, ErrorCode = %d \n", GetLastError() );
+    NotificationEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (NotificationEvent == NULL) {
+        printf("CreateEvent failed, ErrorCode = %d \n", GetLastError());
     }
 
-    Status = RegOpenKeyExW( HKEY_CURRENT_USER, TESTKEY_FULL_NAME, 0, MAXIMUM_ALLOWED, &TestKeyHandle );
-    if( Status != 0 ) {
-        printf( "RegOpenKeyExW failed, Status = %d \n", Status );
+    Status = RegOpenKeyExW(HKEY_CURRENT_USER, TESTKEY_FULL_NAME, 0, MAXIMUM_ALLOWED, &TestKeyHandle);
+    if (Status != 0) {
+        printf("RegOpenKeyExW failed, Status = %d \n", Status);
     } else {
-        printf( "RegOpenKeyExW succeeded \n" );
+        printf("RegOpenKeyExW succeeded \n");
     }
 
-    Status = RegOpenKeyW( HKEY_CURRENT_USER, ENVIRONMENT_NAME, &EnvironmentHandle );
-    if( Status != 0 ) {
-        printf( "RegOpenKeyW failed, Status = %d \n", Status );
+    Status = RegOpenKeyW(HKEY_CURRENT_USER, ENVIRONMENT_NAME, &EnvironmentHandle);
+    if (Status != 0) {
+        printf("RegOpenKeyW failed, Status = %d \n", Status);
     } else {
-        printf( "RegOpenKeyW succeeded \n" );
+        printf("RegOpenKeyW succeeded \n");
     }
 
-    Status = RegCreateKeyExW( TestKeyHandle, KEY1_NAME, NULL, NULL, REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &Key1Handle, &Disposition );
-    if( Status != 0 ) {
-        printf( "RegCreateKeyExW failed, Status = %d \n", Status );
+    Status = RegCreateKeyExW(TestKeyHandle, KEY1_NAME, NULL, NULL, REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &Key1Handle, &Disposition);
+    if (Status != 0) {
+        printf("RegCreateKeyExW failed, Status = %d \n", Status);
     } else {
-        printf( "RegCreateKeyExW succeeded \n" );
+        printf("RegCreateKeyExW succeeded \n");
     }
 
-    Status = RegCreateKeyW( TestKeyHandle, KEY2_NAME, &Key2Handle );
-    if( Status != 0 ) {
-        printf( "RegCreateKeyW failed, Status = %d \n", Status );
+    Status = RegCreateKeyW(TestKeyHandle, KEY2_NAME, &Key2Handle);
+    if (Status != 0) {
+        printf("RegCreateKeyW failed, Status = %d \n", Status);
     } else {
-        printf( "RegCreateKeyW succeeded \n" );
+        printf("RegCreateKeyW succeeded \n");
     }
 
-    Status = RegSetValueExW( Key1Handle, VALUE_NAME, NULL, REG_SZ, ValueData, sizeof( ValueData ) );
-    if( Status != 0 ) {
-        printf( "RegSetValueExW failed, Status = %d \n", Status );
+    Status = RegSetValueExW(Key1Handle, VALUE_NAME, NULL, REG_SZ, ValueData, sizeof(ValueData));
+    if (Status != 0) {
+        printf("RegSetValueExW failed, Status = %d \n", Status);
     } else {
-        printf( "RegSetValueExW succeeded \n" );
+        printf("RegSetValueExW succeeded \n");
     }
 
-    Status = RegSetValueW( Key1Handle, NULL, REG_SZ, ValueData, sizeof( ValueData ) );
-    if( Status != 0 ) {
-        printf( "RegSetValueW failed, Status = %d \n", Status );
+    Status = RegSetValueW(Key1Handle, NULL, REG_SZ, ValueData, sizeof(ValueData));
+    if (Status != 0) {
+        printf("RegSetValueW failed, Status = %d \n", Status);
     } else {
-        printf( "RegSetValueW succeeded \n" );
+        printf("RegSetValueW succeeded \n");
     }
 
-    Status = RegFlushKey( Key1Handle );
-    if( Status != 0 ) {
-        printf( "RegFlushKey failed, Status = %d \n", Status );
+    Status = RegFlushKey(Key1Handle);
+    if (Status != 0) {
+        printf("RegFlushKey failed, Status = %d \n", Status);
     } else {
-        printf( "RegFlushKey succeeded \n" );
+        printf("RegFlushKey succeeded \n");
     }
 
-    DataSize = sizeof( BufferForValueEntryData );
-    memset( BufferForValueEntryData, '\0', DataSize );
-    Status = RegQueryValueExW( Key1Handle, VALUE_NAME, NULL, &DataType, BufferForValueEntryData, &DataSize );
-    if( Status != 0 ) {
-        printf( "RegQueryValueExW failed, Status = %d \n", Status );
+    DataSize = sizeof(BufferForValueEntryData);
+    memset(BufferForValueEntryData, '\0', DataSize);
+    Status = RegQueryValueExW(Key1Handle, VALUE_NAME, NULL, &DataType, BufferForValueEntryData, &DataSize);
+    if (Status != 0) {
+        printf("RegQueryValueExW failed, Status = %d \n", Status);
     } else {
-        printf( "RegQueryValueExW succeeded \n" );
+        printf("RegQueryValueExW succeeded \n");
     }
 
-    DataSize = sizeof( BufferForValueEntryData );
-    memset( BufferForValueEntryData, '\0', DataSize );
-    Status = RegQueryValueW( Key1Handle, NULL, BufferForValueEntryData, &DataSize );
-    if( Status != 0 ) {
-        printf( "RegQueryValueW failed, Status = %d \n", Status );
+    DataSize = sizeof(BufferForValueEntryData);
+    memset(BufferForValueEntryData, '\0', DataSize);
+    Status = RegQueryValueW(Key1Handle, NULL, BufferForValueEntryData, &DataSize);
+    if (Status != 0) {
+        printf("RegQueryValueW failed, Status = %d \n", Status);
     } else {
-        printf( "RegQueryValueW succeeded \n" );
+        printf("RegQueryValueW succeeded \n");
     }
 
-    DataSize = sizeof( BufferForValueEntryData );
-    memset( BufferForValueEntryData, 'X', DataSize );
-    NameSize = sizeof( BufferForValueEntryName );
-    memset( BufferForValueEntryName, 'X', NameSize );
-    Status = RegEnumValueW( Key1Handle, 0, BufferForValueEntryName, &NameSize, NULL, &DataType, BufferForValueEntryData, &DataSize );
-    if( Status != 0 ) {
-        printf( "RegEnumValueW failed, Status = %d \n", Status );
+    DataSize = sizeof(BufferForValueEntryData);
+    memset(BufferForValueEntryData, 'X', DataSize);
+    NameSize = sizeof(BufferForValueEntryName);
+    memset(BufferForValueEntryName, 'X', NameSize);
+    Status = RegEnumValueW(Key1Handle, 0, BufferForValueEntryName, &NameSize, NULL, &DataType, BufferForValueEntryData, &DataSize);
+    if (Status != 0) {
+        printf("RegEnumValueW failed, Status = %d \n", Status);
     } else {
-        printf( "RegEnumValueW succeeded \n" );
+        printf("RegEnumValueW succeeded \n");
     }
 
-    NameSize = sizeof( BufferForKeyName );
-    ClassSize = sizeof( BufferForKeyClass );
-    Status = RegEnumKeyExW( TestKeyHandle, 0, BufferForKeyName, &NameSize, NULL, BufferForKeyClass, &ClassSize, &ftLastWriteTime );
-    if( Status != 0 ) {
-        printf( "RegEnumKeyExW failed, Status = %d \n", Status );
+    NameSize = sizeof(BufferForKeyName);
+    ClassSize = sizeof(BufferForKeyClass);
+    Status = RegEnumKeyExW(TestKeyHandle, 0, BufferForKeyName, &NameSize, NULL, BufferForKeyClass, &ClassSize, &ftLastWriteTime);
+    if (Status != 0) {
+        printf("RegEnumKeyExW failed, Status = %d \n", Status);
     } else {
-        printf( "RegEnumKeyExW succeeded \n" );
+        printf("RegEnumKeyExW succeeded \n");
     }
 
-    NameSize = sizeof( BufferForKeyName );
-    Status = RegEnumKeyW( TestKeyHandle, 0, BufferForKeyName, &NameSize );
-    if( Status != 0 ) {
-    printf( "RegEnumKeyW failed, Status = %d \n", Status );
+    NameSize = sizeof(BufferForKeyName);
+    Status = RegEnumKeyW(TestKeyHandle, 0, BufferForKeyName, &NameSize);
+    if (Status != 0) {
+        printf("RegEnumKeyW failed, Status = %d \n", Status);
     } else {
-    printf( "RegEnumKeyW succeeded \n" );
+        printf("RegEnumKeyW succeeded \n");
     }
 
-    ClassSize = sizeof( BufferForKeyClass );
-    Status = RegQueryInfoKeyW( Key1Handle,
-                               BufferForKeyClass,
-                               &ClassSize,
-                               NULL,
-                               &cSubKeys,
-                               &cbMaxSubkey,
-                               &cbMaxClass,
-                               &cValues,
-                               &vbMaxValueName,
-                               &cbMaxValueData,
-                               &cbSecurityDescriptor,
-                               &ftLastWriteTime );
-    if( Status != 0 ) {
-        printf( "RegQueryInfoKeyW failed, Status = %d \n", Status );
+    ClassSize = sizeof(BufferForKeyClass);
+    Status = RegQueryInfoKeyW(Key1Handle,
+                              BufferForKeyClass,
+                              &ClassSize,
+                              NULL,
+                              &cSubKeys,
+                              &cbMaxSubkey,
+                              &cbMaxClass,
+                              &cValues,
+                              &vbMaxValueName,
+                              &cbMaxValueData,
+                              &cbSecurityDescriptor,
+                              &ftLastWriteTime);
+    if (Status != 0) {
+        printf("RegQueryInfoKeyW failed, Status = %d \n", Status);
     } else {
-        printf( "RegQueryInfoKeyW succeeded \n" );
+        printf("RegQueryInfoKeyW succeeded \n");
     }
 
-    Status = RegGetKeySecurity( Key1Handle, DACL_SECURITY_INFORMATION, ( PSECURITY_DESCRIPTOR )BufferForSecurityDescriptor, &cbSecurityDescriptor );
-    if( Status != 0 ) {
-        printf( "RegGetKeySecurity failed, Status = %d \n", Status );
+    Status = RegGetKeySecurity(Key1Handle, DACL_SECURITY_INFORMATION, (PSECURITY_DESCRIPTOR)BufferForSecurityDescriptor, &cbSecurityDescriptor);
+    if (Status != 0) {
+        printf("RegGetKeySecurity failed, Status = %d \n", Status);
     } else {
-        printf( "RegGetKeySecurity succeeded \n" );
+        printf("RegGetKeySecurity succeeded \n");
     }
 
-    Status = RegSetKeySecurity( Key1Handle, DACL_SECURITY_INFORMATION, ( PSECURITY_DESCRIPTOR )BufferForSecurityDescriptor );
-    if( Status != 0 ) {
-        printf( "RegSetKeySecurity failed, Status = %d \n", Status );
+    Status = RegSetKeySecurity(Key1Handle, DACL_SECURITY_INFORMATION, (PSECURITY_DESCRIPTOR)BufferForSecurityDescriptor);
+    if (Status != 0) {
+        printf("RegSetKeySecurity failed, Status = %d \n", Status);
     } else {
-        printf( "RegSetKeySecurity succeeded \n" );
+        printf("RegSetKeySecurity succeeded \n");
     }
 
-/*
-    Status = RegSaveKeyW( Key1Handle, File1, NULL );
-    if( Status != 0 ) {
-        printf( "RegSaveKeyW failed, Status = %d \n", Status );
+    /*
+        Status = RegSaveKeyW( Key1Handle, File1, NULL );
+        if( Status != 0 ) {
+            printf( "RegSaveKeyW failed, Status = %d \n", Status );
+        } else {
+            printf( "RegSaveKeyW succeeded \n" );
+        }
+
+        Status = RegRestoreKeyW( Key2Handle, File1, 0 );
+        if( Status != 0 ) {
+            printf( "RegRestoreKeyW failed, Status = %d \n", Status );
+        } else {
+            printf( "RegRestoreKeyW succeeded \n" );
+        }
+    */
+
+    Status = RegDeleteValueW(Key1Handle, VALUE_NAME);
+    if (Status != 0) {
+        printf("RegDeleteValueW failed, Status = %d \n", Status);
     } else {
-        printf( "RegSaveKeyW succeeded \n" );
+        printf("RegDeleteValueW succeeded \n");
     }
 
-    Status = RegRestoreKeyW( Key2Handle, File1, 0 );
-    if( Status != 0 ) {
-        printf( "RegRestoreKeyW failed, Status = %d \n", Status );
+    Status = RegCloseKey(Key1Handle);
+    if (Status != 0) {
+        printf("RegCloseKey failed, Status = %d \n", Status);
     } else {
-        printf( "RegRestoreKeyW succeeded \n" );
-    }
-*/
-
-    Status = RegDeleteValueW( Key1Handle, VALUE_NAME );
-    if( Status != 0 ) {
-        printf( "RegDeleteValueW failed, Status = %d \n", Status );
-    } else {
-        printf( "RegDeleteValueW succeeded \n" );
+        printf("RegCloseKey succeeded \n");
     }
 
-    Status = RegCloseKey( Key1Handle );
-    if( Status != 0 ) {
-        printf( "RegCloseKey failed, Status = %d \n", Status );
+    Status = RegDeleteKeyW(TestKeyHandle, KEY1_NAME);
+    if (Status != 0) {
+        printf("RegCloseKey failed, Status = %d \n", Status);
     } else {
-        printf( "RegCloseKey succeeded \n" );
+        printf("RegCloseKey succeeded \n");
     }
 
-    Status = RegDeleteKeyW( TestKeyHandle, KEY1_NAME );
-    if( Status != 0 ) {
-        printf( "RegCloseKey failed, Status = %d \n", Status );
+    Status = RegNotifyChangeKeyValue(HKEY_CURRENT_USER,
+                                     TRUE,
+                                     REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_ATTRIBUTES | REG_NOTIFY_CHANGE_LAST_SET | REG_NOTIFY_CHANGE_SECURITY,
+                                     NotificationEvent,
+                                     TRUE);
+    if (Status != 0) {
+        printf("RegNotifyChangeKeyValue failed, Status = %d \n", Status);
     } else {
-        printf( "RegCloseKey succeeded \n" );
-    }
-
-    Status = RegNotifyChangeKeyValue( HKEY_CURRENT_USER,
-                                      TRUE,
-                                      REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_ATTRIBUTES | REG_NOTIFY_CHANGE_LAST_SET | REG_NOTIFY_CHANGE_SECURITY,
-                                      NotificationEvent,
-                                      TRUE );
-    if( Status != 0 ) {
-        printf( "RegNotifyChangeKeyValue failed, Status = %d \n", Status );
-    } else {
-        printf( "RegNotifyChangeKeyValue succeeded \n" );
+        printf("RegNotifyChangeKeyValue succeeded \n");
     }
 
     //  Cleanup
-    CloseHandle( NotificationEvent );
-//    DeleteFileW( File1 );
-    RegCloseKey( Key2Handle );
-    RegDeleteKeyW( TestKeyHandle, KEY2_NAME );
+    CloseHandle(NotificationEvent);
+    //    DeleteFileW( File1 );
+    RegCloseKey(Key2Handle);
+    RegDeleteKeyW(TestKeyHandle, KEY2_NAME);
 }

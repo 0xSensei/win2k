@@ -1,5 +1,3 @@
-
-
 //  Microsoft Windows
 //  Copyright (C) Microsoft Corporation, 1992 - 1995
 
@@ -74,8 +72,8 @@ MtDefine(CDocReadContextMenuExtFromRegistry_pCME, Locals, "CDoc::ReadContextMenu
 
 void
 OPTIONSETTINGS::Init(
-    TCHAR *psz,
-    BOOL fUseCodePageBasedFontLinkingArg )
+    TCHAR* psz,
+    BOOL fUseCodePageBasedFontLinkingArg)
 {
     _tcscpy(achKeyPath, psz);
     fSettingsRead = FALSE;
@@ -83,7 +81,7 @@ OPTIONSETTINGS::Init(
     sBaselineFontDefault = BASELINEFONTDEFAULT;
 
     memset(alatmProporitionalFonts, -1, sizeof(alatmProporitionalFonts));
-    memset(alatmFixedPitchFonts,    -1, sizeof(alatmFixedPitchFonts));
+    memset(alatmFixedPitchFonts, -1, sizeof(alatmFixedPitchFonts));
 }
 
 
@@ -104,7 +102,7 @@ CODEPAGESETTINGS::SetDefaults(
     sBaselineFontDefault = sOptionSettingsBaselineFontDefault;
     uiFamilyCodePage = uiFamilyCodePageDefault;
     latmFixedFontFace = -1;
-    latmPropFontFace  = -1;
+    latmPropFontFace = -1;
 }
 
 
@@ -117,63 +115,62 @@ CODEPAGESETTINGS::SetDefaults(
 
 
 void
-OPTIONSETTINGS::SetDefaults( )
+OPTIONSETTINGS::SetDefaults()
 {
-    colorBack            = OLECOLOR_FROM_SYSCOLOR(COLOR_WINDOW);
-    colorText            = OLECOLOR_FROM_SYSCOLOR(COLOR_WINDOWTEXT);
-    colorAnchor          = RGB(0, 0, 0xFF);
-    colorAnchorVisited   = RGB(0x80, 0, 0x80);
-    colorAnchorHovered   = RGB(0, 0, 0x80);
+    colorBack = OLECOLOR_FROM_SYSCOLOR(COLOR_WINDOW);
+    colorText = OLECOLOR_FROM_SYSCOLOR(COLOR_WINDOWTEXT);
+    colorAnchor = RGB(0, 0, 0xFF);
+    colorAnchorVisited = RGB(0x80, 0, 0x80);
+    colorAnchorHovered = RGB(0, 0, 0x80);
 
-    fUseDlgColors        = TRUE;
-    fExpandAltText       = FALSE;
-    fShowImages          = TRUE;
+    fUseDlgColors = TRUE;
+    fExpandAltText = FALSE;
+    fShowImages = TRUE;
 #ifndef NO_AVI
-    fShowVideos          = TRUE;
+    fShowVideos = TRUE;
 #endif // ndef NO_AVI
-    fPlaySounds          = TRUE;
-    fPlayAnimations      = TRUE;
-    fUseStylesheets      = TRUE;
-    fSmoothScrolling     = TRUE;
+    fPlaySounds = TRUE;
+    fPlayAnimations = TRUE;
+    fUseStylesheets = TRUE;
+    fSmoothScrolling = TRUE;
     fShowImagePlaceholder = FALSE;
-    fShowFriendlyUrl     = FALSE;
-    fSmartDithering      = TRUE;
-    fAlwaysUseMyColors   = FALSE;
+    fShowFriendlyUrl = FALSE;
+    fSmartDithering = TRUE;
+    fAlwaysUseMyColors = FALSE;
     fAlwaysUseMyFontSize = FALSE;
     fAlwaysUseMyFontFace = FALSE;
-    fUseMyStylesheet     = FALSE;
-    fUseHoverColor       = FALSE;
+    fUseMyStylesheet = FALSE;
+    fUseHoverColor = FALSE;
     fDisableScriptDebugger = TRUE;
-    fMoveSystemCaret     = FALSE;
-    fHaveAcceptLanguage  = FALSE;
-    fCpAutoDetect        = FALSE;
-    fAllowCutCopyPaste   = FALSE;
+    fMoveSystemCaret = FALSE;
+    fHaveAcceptLanguage = FALSE;
+    fCpAutoDetect = FALSE;
+    fAllowCutCopyPaste = FALSE;
 
-    nAnchorUnderline     = ANCHORUNDERLINE_YES;
+    nAnchorUnderline = ANCHORUNDERLINE_YES;
 
     // HACKHACK (johnv) For japanese, default to Autodetect.  This hack
     // can be removed once setup does its job properly.
-    codepageDefault      = (g_cpDefault == 932) ? CP_AUTO_JP : g_cpDefault;
+    codepageDefault = (g_cpDefault == 932) ? CP_AUTO_JP : g_cpDefault;
 
-    dwMaxStatements      = CDoc::RUNAWAY_SCRIPT_STATEMENTCOUNT;
+    dwMaxStatements = CDoc::RUNAWAY_SCRIPT_STATEMENTCOUNT;
 
-    dwRtfConverterf      = RTFCONVF_ENABLED;    // enabled, but not for dbcs
+    dwRtfConverterf = RTFCONVF_ENABLED;    // enabled, but not for dbcs
 
-    dwMiscFlags          = 0;
+    dwMiscFlags = 0;
 
     dwNoChangingWallpaper = 0;
 
     // Free the context menu extension array
     {
-        CONTEXTMENUEXT **   ppCME;
+        CONTEXTMENUEXT** ppCME;
         int                 n;
 
         for (ppCME = aryContextMenuExts,
              n = aryContextMenuExts.Size();
              n;
-             n--, ppCME++)
-        {
-            delete *ppCME;
+             n--, ppCME++) {
+            delete* ppCME;
         }
 
         aryContextMenuExts.DeleteAll();
@@ -196,9 +193,9 @@ CDoc::EnsureOptionSettings()
 {
     HRESULT             hr = S_OK;
     int                 c;
-    OPTIONSETTINGS   *  pOS;
-    OPTIONSETTINGS   ** ppOS;
-    TCHAR             * pstr=NULL;
+    OPTIONSETTINGS* pOS;
+    OPTIONSETTINGS** ppOS;
+    TCHAR* pstr = NULL;
     BOOL                fUseCodePageBasedFontLinking;
 
     static TCHAR pszDefaultKey[] = _T("Software\\Microsoft\\Internet Explorer");
@@ -207,13 +204,11 @@ CDoc::EnsureOptionSettings()
     if (_pOptionSettings)
         return S_OK;
 
-    if (_pHostUIHandler)
-    {
+    if (_pHostUIHandler) {
         _pHostUIHandler->GetOptionKeyPath(&pstr, 0);
     }
 
-    if (!pstr)
-    {
+    if (!pstr) {
         pstr = pszDefaultKey;
     }
 
@@ -226,10 +221,8 @@ CDoc::EnsureOptionSettings()
     for (c = TLS(optionSettingsInfo.pcache).Size(),
          ppOS = TLS(optionSettingsInfo.pcache);
          c > 0;
-         c--, ppOS++)
-    {
-        if (!StrCmpC((*ppOS)->achKeyPath, pstr))
-        {
+         c--, ppOS++) {
+        if (!StrCmpC((*ppOS)->achKeyPath, pstr)) {
             _pOptionSettings = *ppOS;
             goto Cleanup;
         }
@@ -240,9 +233,8 @@ CDoc::EnsureOptionSettings()
     // OPTIONSETTINGS has one character already in it, which accounts for a
     // NULL terminator.
 
-    pOS = new ( _tcslen(pstr) * sizeof(TCHAR) ) OPTIONSETTINGS;
-    if (!pOS)
-    {
+    pOS = new (_tcslen(pstr) * sizeof(TCHAR)) OPTIONSETTINGS;
+    if (!pOS) {
         hr = E_OUTOFMEMORY;
         goto Cleanup;
     }
@@ -251,16 +243,15 @@ CDoc::EnsureOptionSettings()
     // we need to employ some trickery to get the old font regkey values.
 
     fUseCodePageBasedFontLinking = 0 != (_dwFlagsHostInfo & DOCHOSTUIFLAG_CODEPAGELINKEDFONTS);
-    if (!fUseCodePageBasedFontLinking)
-    {
+    if (!fUseCodePageBasedFontLinking) {
         fUseCodePageBasedFontLinking = _fOE4;
     }
 
     MemSetName((pOS, "OPTIONSETTINGS object, index %d",
-                    TLS(optionSettingsInfo.pcache).Size()));
+                TLS(optionSettingsInfo.pcache).Size()));
 
     pOS->Init(pstr, fUseCodePageBasedFontLinking);
-    pOS->SetDefaults( );
+    pOS->SetDefaults();
 
     hr = TLS(optionSettingsInfo.pcache).Append(pOS);
     if (hr)
@@ -289,24 +280,22 @@ Cleanup:
 
 
 HRESULT
-CDoc::EnsureCodepageSettings( UINT uiFamilyCodePage )
+CDoc::EnsureCodepageSettings(UINT uiFamilyCodePage)
 {
     HRESULT            hr = S_OK;
     int                n;
-    CODEPAGESETTINGS** ppCS, *pCS;
+    CODEPAGESETTINGS** ppCS, * pCS;
 
     // Make sure we have a valid _pOptionSettings object
-    Assert( _pOptionSettings );
+    Assert(_pOptionSettings);
 
     // The first step is to look up the entry in the codepage cache
 
     for (n = _pOptionSettings->aryCodepageSettingsCache.Size(),
-                ppCS = _pOptionSettings->aryCodepageSettingsCache;
-                n > 0;
-                n--, ppCS++)
-    {
-        if ( (*ppCS)->uiFamilyCodePage == uiFamilyCodePage )
-        {
+         ppCS = _pOptionSettings->aryCodepageSettingsCache;
+         n > 0;
+         n--, ppCS++) {
+        if ((*ppCS)->uiFamilyCodePage == uiFamilyCodePage) {
             _pCodepageSettings = *ppCS;
             goto Cleanup;
         }
@@ -314,16 +303,15 @@ CDoc::EnsureCodepageSettings( UINT uiFamilyCodePage )
 
     // We're out of luck, need to read in the codepage setting from the registry
 
-    pCS = (CODEPAGESETTINGS *) MemAlloc(Mt(CodePageSettings), sizeof(CODEPAGESETTINGS) );
-    if (!pCS)
-    {
+    pCS = (CODEPAGESETTINGS*)MemAlloc(Mt(CodePageSettings), sizeof(CODEPAGESETTINGS));
+    if (!pCS) {
         hr = E_OUTOFMEMORY;
         goto Cleanup;
     }
     MemSetName((pCS, "CODEPAGESETTINGS"));
 
-    pCS->Init( );
-    pCS->SetDefaults( uiFamilyCodePage, _pOptionSettings->sBaselineFontDefault );
+    pCS->Init();
+    pCS->SetDefaults(uiFamilyCodePage, _pOptionSettings->sBaselineFontDefault);
 
     hr = _pOptionSettings->aryCodepageSettingsCache.Append(pCS);
     if (hr)
@@ -358,7 +346,7 @@ CDoc::RtfConverterEnabled()
 
     return (dwConvf & RTFCONVF_ENABLED) &&
         ((dwConvf & RTFCONVF_DBCSENABLED) ||
-        (GetCPInfo(g_cpDefault, &cpinfo) && cpinfo.MaxCharSize == 1));
+         (GetCPInfo(g_cpDefault, &cpinfo) && cpinfo.MaxCharSize == 1));
 }
 #endif // ndef NO_RTF
 
@@ -397,29 +385,29 @@ struct SAVEDSETTINGS
 };
 
 static void
-SaveSettings(OPTIONSETTINGS *pOptionSettings,
-             CODEPAGESETTINGS *pCodepageSettings,
-             SAVEDSETTINGS *pSavedSettings)
+SaveSettings(OPTIONSETTINGS* pOptionSettings,
+             CODEPAGESETTINGS* pCodepageSettings,
+             SAVEDSETTINGS* pSavedSettings)
 {
     memset(pSavedSettings, 0, sizeof(SAVEDSETTINGS));
-    pSavedSettings->colorBack             = pOptionSettings->colorBack;
-    pSavedSettings->colorText             = pOptionSettings->colorText;
-    pSavedSettings->colorAnchor           = pOptionSettings->colorAnchor;
-    pSavedSettings->colorAnchorVisited    = pOptionSettings->colorAnchorVisited;
-    pSavedSettings->colorAnchorHovered    = pOptionSettings->colorAnchorHovered;
-    pSavedSettings->nAnchorUnderline      = pOptionSettings->nAnchorUnderline;
-    pSavedSettings->fAlwaysUseMyColors    = pOptionSettings->fAlwaysUseMyColors;
-    pSavedSettings->fAlwaysUseMyFontSize  = pOptionSettings->fAlwaysUseMyFontSize;
-    pSavedSettings->fAlwaysUseMyFontFace  = pOptionSettings->fAlwaysUseMyFontFace;
-    pSavedSettings->fUseMyStylesheet      = pOptionSettings->fUseMyStylesheet;
-    pSavedSettings->bCharSet              = pCodepageSettings->bCharSet;
-    pSavedSettings->latmFixedFontFace     = pCodepageSettings->latmFixedFontFace;
-    pSavedSettings->latmPropFontFace      = pCodepageSettings->latmPropFontFace;
-    pSavedSettings->sBaselineFontDefault  = pCodepageSettings->sBaselineFontDefault;
+    pSavedSettings->colorBack = pOptionSettings->colorBack;
+    pSavedSettings->colorText = pOptionSettings->colorText;
+    pSavedSettings->colorAnchor = pOptionSettings->colorAnchor;
+    pSavedSettings->colorAnchorVisited = pOptionSettings->colorAnchorVisited;
+    pSavedSettings->colorAnchorHovered = pOptionSettings->colorAnchorHovered;
+    pSavedSettings->nAnchorUnderline = pOptionSettings->nAnchorUnderline;
+    pSavedSettings->fAlwaysUseMyColors = pOptionSettings->fAlwaysUseMyColors;
+    pSavedSettings->fAlwaysUseMyFontSize = pOptionSettings->fAlwaysUseMyFontSize;
+    pSavedSettings->fAlwaysUseMyFontFace = pOptionSettings->fAlwaysUseMyFontFace;
+    pSavedSettings->fUseMyStylesheet = pOptionSettings->fUseMyStylesheet;
+    pSavedSettings->bCharSet = pCodepageSettings->bCharSet;
+    pSavedSettings->latmFixedFontFace = pCodepageSettings->latmFixedFontFace;
+    pSavedSettings->latmPropFontFace = pCodepageSettings->latmPropFontFace;
+    pSavedSettings->sBaselineFontDefault = pCodepageSettings->sBaselineFontDefault;
 }
 
 HRESULT
-CDoc::UpdateFromRegistry(DWORD dwFlags, BOOL *pfNeedLayout)
+CDoc::UpdateFromRegistry(DWORD dwFlags, BOOL* pfNeedLayout)
 {
     CODEPAGE        codepage;
     BOOL            fFirstTime = !_pOptionSettings;
@@ -430,10 +418,8 @@ CDoc::UpdateFromRegistry(DWORD dwFlags, BOOL *pfNeedLayout)
     if (!fFirstTime && !(dwFlags & REGUPDATE_REFRESH))
         return S_OK;
 
-    if (pfNeedLayout)
-    {
-        if (!_pOptionSettings)
-        {
+    if (pfNeedLayout) {
+        if (!_pOptionSettings) {
             // We assume that in this context, the caller is interested
             // only in whether or not we want to relayout, and not to
             // force us to read in registry settings.
@@ -444,7 +430,7 @@ CDoc::UpdateFromRegistry(DWORD dwFlags, BOOL *pfNeedLayout)
     }
 
     // First read in the standard option settings
-    IGNORE_HR( ReadOptionSettingsFromRegistry( dwFlags ) );
+    IGNORE_HR(ReadOptionSettingsFromRegistry(dwFlags));
 
     if (g_fTerminalServer)
         _pOptionSettings->fSmoothScrolling = FALSE;
@@ -453,15 +439,14 @@ CDoc::UpdateFromRegistry(DWORD dwFlags, BOOL *pfNeedLayout)
     // We don't want (for example) images in an HTA to fail to appear due to
     // custom internet options settings...
 
-    if (_fTrustedDoc)
-    {
-        _pOptionSettings->fShowImages      = TRUE;
+    if (_fTrustedDoc) {
+        _pOptionSettings->fShowImages = TRUE;
 #ifndef NO_AVI
-        _pOptionSettings->fShowVideos      = TRUE;
+        _pOptionSettings->fShowVideos = TRUE;
 #endif // ndef NO_AVI
-        _pOptionSettings->fPlaySounds      = TRUE;
-        _pOptionSettings->fPlayAnimations  = TRUE;
-        _pOptionSettings->fSmartDithering  = TRUE;
+        _pOptionSettings->fPlaySounds = TRUE;
+        _pOptionSettings->fPlayAnimations = TRUE;
+        _pOptionSettings->fSmartDithering = TRUE;
     }
 
     _dwMiscFlags() = _pOptionSettings->dwMiscFlags;
@@ -469,24 +454,22 @@ CDoc::UpdateFromRegistry(DWORD dwFlags, BOOL *pfNeedLayout)
     // If we are getting settings for the first time, use the default
     //  codepage.  Otherwise, read based on our current setting.
     codepage = _pCodepageSettings ? _codepage :
-                                    _pOptionSettings->codepageDefault;
-    IGNORE_HR( ReadCodepageSettingsFromRegistry( codepage, WindowsCodePageFromCodePage( codepage ), dwFlags ) );
+        _pOptionSettings->codepageDefault;
+    IGNORE_HR(ReadCodepageSettingsFromRegistry(codepage, WindowsCodePageFromCodePage(codepage), dwFlags));
 
-    if (_pCodepageSettings)
-    {
+    if (_pCodepageSettings) {
         // Set the baseline font only the first time we read from the registry
 #ifdef UNIX
         if (g_SelectedFontSize != -1) // Copy the previous selected font size.
             _sBaselineFont = _pCodepageSettings->sBaselineFontDefault = g_SelectedFontSize;
-    else
+        else
 #endif
-        _sBaselineFont = _pCodepageSettings->sBaselineFontDefault;
+            _sBaselineFont = _pCodepageSettings->sBaselineFontDefault;
     }
 
     // Print documents obtain their font size when they were enqueued which is
     // cached in the printinfobag.
-    if (IsPrintDoc())
-    {
+    if (IsPrintDoc()) {
         _sBaselineFont = (SHORT)DYNCAST(CPrintDoc, GetRootDoc())->_PrintInfoBag.iFontScaling;
     }
 
@@ -499,12 +482,11 @@ CDoc::UpdateFromRegistry(DWORD dwFlags, BOOL *pfNeedLayout)
         TCHAR achLang[256];
         DWORD cchLang = ARRAY_SIZE(achLang);
         _pOptionSettings->fHaveAcceptLanguage = (GetAcceptLanguages(achLang, &cchLang) == S_OK)
-                                                && (_pOptionSettings->cstrLang.Set(achLang, cchLang) == S_OK);
+            && (_pOptionSettings->cstrLang.Set(achLang, cchLang) == S_OK);
     }
 #endif
 
-    if (pfNeedLayout)
-    {
+    if (pfNeedLayout) {
         SaveSettings(_pOptionSettings, _pCodepageSettings, &savedSettings2);
         *pfNeedLayout = !!memcmp(&savedSettings1, &savedSettings2, sizeof(SAVEDSETTINGS));
     }
@@ -550,7 +532,7 @@ enum RKI_TYPE
 
 struct REGKEYINFORMATION
 {
-    TCHAR *   pszName;            // Name of the value or key
+    TCHAR* pszName;            // Name of the value or key
     BYTE      rkiType;            // Type of entry
     size_t    cbOffset;           // Offset of member to store data in
     size_t    cbOffsetCondition;  // Offset of member that must be false (true only
@@ -565,14 +547,14 @@ struct REGKEYINFORMATION
 
 HRESULT
 ReadSettingsFromRegistry(
-    TCHAR * pchKeyPath,
+    TCHAR* pchKeyPath,
     const REGKEYINFORMATION* pAryKeys, int iKeyCount,
     void* pBase, DWORD dwFlags, BOOL fSettingsRead,
-    void* pUserData )
+    void* pUserData)
 {
     LONG                lRet;
     HKEY                hKeyRoot = NULL;
-    HKEY                hKeySub  = NULL;
+    HKEY                hKeySub = NULL;
     int                 i;
     DWORD               dwType;
     DWORD               dwSize;
@@ -582,69 +564,60 @@ ReadSettingsFromRegistry(
     // Note we access dwDataBuf as a byte array through bDataBuf
     // but DWORD align it by declaring it a DWORD array (dwDataBuf).
 
-    DWORD               dwDataBuf[pdlUrlLen / sizeof(DWORD) +1 ];
-    BYTE              * bDataBuf = (BYTE*) dwDataBuf;
+    DWORD               dwDataBuf[pdlUrlLen / sizeof(DWORD) + 1];
+    BYTE* bDataBuf = (BYTE*)dwDataBuf;
 
     TCHAR               achCustomKey[64], * pch;
-    BYTE              * pbData;
+    BYTE* pbData;
     BYTE                bCondition;
     BOOL                fUpdateLocalState;
-    const REGKEYINFORMATION * prki;
-    LONG              * pl;
+    const REGKEYINFORMATION* prki;
+    LONG* pl;
 
-    Assert( pBase );
+    Assert(pBase);
 
     // Do not re-read unless explictly asked to do so.
-    if( fSettingsRead && !(dwFlags & REGUPDATE_REFRESH) )
+    if (fSettingsRead && !(dwFlags & REGUPDATE_REFRESH))
         return S_OK;
 
     // Always read local settings at least once
-    fUpdateLocalState = !fSettingsRead || (dwFlags & REGUPDATE_OVERWRITELOCALSTATE );
+    fUpdateLocalState = !fSettingsRead || (dwFlags & REGUPDATE_OVERWRITELOCALSTATE);
 
     // Get a registry key handle
 
     lRet = RegOpenKeyEx(HKEY_CURRENT_USER, pchKeyPath, 0, KEY_READ, &hKeyRoot);
-    if( lRet != ERROR_SUCCESS )
+    if (lRet != ERROR_SUCCESS)
         return S_FALSE;
 
-    for (i = 0; i < iKeyCount; i++)
-    {
+    for (i = 0; i < iKeyCount; i++) {
         prki = &pAryKeys[i];
         // Do not update local state unless asked to do so.
-        if( !fUpdateLocalState && prki->fLocalState )
+        if (!fUpdateLocalState && prki->fLocalState)
             continue;
-        switch (prki->rkiType)
-        {
+        switch (prki->rkiType) {
         case RKI_KEY:
         case RKI_CPKEY:
-            if (!prki->pszName)
-            {
+            if (!prki->pszName) {
                 hKeySub = hKeyRoot;
-            }
-            else
-            {
-                if (hKeySub && (hKeySub != hKeyRoot))
-                {
+            } else {
+                if (hKeySub && (hKeySub != hKeyRoot)) {
                     RegCloseKey(hKeySub);
                     hKeySub = NULL;
                 }
 
-                if (prki->rkiType == RKI_CPKEY)
-                {
+                if (prki->rkiType == RKI_CPKEY) {
                     // N.B. (johnv) It is assumed here that pUserData points
                     // to a codepage if we are looking for codepage settings.
                     // RKI_CPKEY entries are per family codepage.
 
                     Assert(pUserData);
 
-                    Format( 0, achCustomKey, ARRAY_SIZE( achCustomKey ),
-                            prki->pszName,
-                            *(DWORD*)pUserData );
+                    Format(0, achCustomKey, ARRAY_SIZE(achCustomKey),
+                           prki->pszName,
+                           *(DWORD*)pUserData);
 
                     pch = achCustomKey;
-                }
-                else
-                {
+                } else {
                     pch = prki->pszName;
                 }
 
@@ -654,14 +627,12 @@ ReadSettingsFromRegistry(
                                     KEY_READ,
                                     &hKeySub);
 
-                if (lRet != ERROR_SUCCESS)
-                {
+                if (lRet != ERROR_SUCCESS) {
                     // We couldn't get this key, skip it.
                     i++;
                     while (i < iKeyCount &&
                            pAryKeys[i].rkiType != RKI_KEY &&
-                           pAryKeys[i].rkiType != RKI_CPKEY )
-                    {
+                           pAryKeys[i].rkiType != RKI_CPKEY) {
                         i++;
                     }
 
@@ -684,25 +655,19 @@ ReadSettingsFromRegistry(
                                    bDataBuf,
                                    &dwSize);
 
-            if (lRet == ERROR_SUCCESS)
-            {
+            if (lRet == ERROR_SUCCESS) {
                 short s;
 
-                if (dwType == REG_BINARY)
-                {
-                    s = (short)*(BYTE *)bDataBuf;
-                }
-                else if (dwType == REG_DWORD)
-                {
-                    s = (short)*(DWORD *)bDataBuf;
-                }
-                else
-                {
+                if (dwType == REG_BINARY) {
+                    s = (short)*(BYTE*)bDataBuf;
+                } else if (dwType == REG_DWORD) {
+                    s = (short)*(DWORD*)bDataBuf;
+                } else {
                     break;
                 }
 
-                *(short*)((BYTE *)pBase + prki->cbOffset) =
-                    min( short(BASELINEFONTMAX), max( short(BASELINEFONTMIN), s ) );
+                *(short*)((BYTE*)pBase + prki->cbOffset) =
+                    min(short(BASELINEFONTMAX), max(short(BASELINEFONTMIN), s));
             }
             break;
 
@@ -717,30 +682,22 @@ ReadSettingsFromRegistry(
                                    bDataBuf,
                                    &dwSize);
 
-            if (lRet == ERROR_SUCCESS)
-            {
-                pbData = (BYTE*)((BYTE *)pBase + prki->cbOffset);
+            if (lRet == ERROR_SUCCESS) {
+                pbData = (BYTE*)((BYTE*)pBase + prki->cbOffset);
 
-                if (dwType == REG_DWORD)
-                {
+                if (dwType == REG_DWORD) {
                     *pbData = (*(DWORD*)bDataBuf != 0);
-                }
-                else if (dwType == REG_SZ)
-                {
-                    TCHAR ch = *(TCHAR *)bDataBuf;
+                } else if (dwType == REG_SZ) {
+                    TCHAR ch = *(TCHAR*)bDataBuf;
 
                     if (ch == _T('1') ||
                         ch == _T('y') ||
-                        ch == _T('Y'))
-                    {
+                        ch == _T('Y')) {
                         *pbData = TRUE;
-                    }
-                    else
-                    {
+                    } else {
                         *pbData = FALSE;
                     }
-                } else if (dwType == REG_BINARY)
-                {
+                } else if (dwType == REG_BINARY) {
                     *pbData = (*(BYTE*)bDataBuf != 0);
                 }
 
@@ -759,11 +716,10 @@ ReadSettingsFromRegistry(
                                    bDataBuf,
                                    &dwSize);
 
-            pl = (LONG *)((BYTE *)pBase + prki->cbOffset);
+            pl = (LONG*)((BYTE*)pBase + prki->cbOffset);
 
-            if (lRet == ERROR_SUCCESS && dwType == REG_SZ && *(TCHAR *)bDataBuf)
-            {
-                *pl = fc().GetAtomFromFaceName((TCHAR *)bDataBuf);
+            if (lRet == ERROR_SUCCESS && dwType == REG_SZ && *(TCHAR*)bDataBuf) {
+                *pl = fc().GetAtomFromFaceName((TCHAR*)bDataBuf);
             }
             break;
 
@@ -772,9 +728,8 @@ ReadSettingsFromRegistry(
 
             dwSize = MAX_REG_VALUE_LENGTH;
 
-            bCondition = *(BYTE*)((BYTE *)pBase + prki->cbOffsetCondition);
-            if (prki->cbOffsetCondition && bCondition)
-            {
+            bCondition = *(BYTE*)((BYTE*)pBase + prki->cbOffsetCondition);
+            if (prki->cbOffsetCondition && bCondition) {
 
                 // The appropriate flag is set that says we should not pay
                 // attention to this value, so just skip it and keep the
@@ -790,10 +745,8 @@ ReadSettingsFromRegistry(
                                    bDataBuf,
                                    &dwSize);
 
-            if (lRet == ERROR_SUCCESS)
-            {
-                if (dwType == REG_SZ)
-                {
+            if (lRet == ERROR_SUCCESS) {
+                if (dwType == REG_SZ) {
 
                     // Crack the registry format for colors which is a string
                     // of the form "R,G,B" where R, G, and B are decimal
@@ -801,20 +754,19 @@ ReadSettingsFromRegistry(
 
 
                     DWORD   colors[3];
-                    TCHAR * pchStart  = (TCHAR*)bDataBuf;
-                    TCHAR * pchEnd;
+                    TCHAR* pchStart = (TCHAR*)bDataBuf;
+                    TCHAR* pchEnd;
                     int     i;
 
-                    pbData = (BYTE*)((BYTE *)pBase + prki->cbOffset);
+                    pbData = (BYTE*)((BYTE*)pBase + prki->cbOffset);
 
-                    for (i = 0; i < 3; i++)
-                    {
+                    for (i = 0; i < 3; i++) {
                         colors[i] = wcstol(pchStart, &pchEnd, 10);
 
                         if (*pchEnd == _T('\0') && i != 2)
                             break;
 
-                        pchStart  = pchEnd + 1;
+                        pchStart = pchEnd + 1;
                     }
 
                     if (i != 3) // We didn't get all the colors. Abort.
@@ -838,9 +790,8 @@ ReadSettingsFromRegistry(
                                    bDataBuf,
                                    &dwSize);
 
-            if (lRet == ERROR_SUCCESS && dwType == REG_BINARY)
-            {
-                *(CODEPAGE*)((BYTE *)pBase + prki->cbOffset) = *(CODEPAGE *)bDataBuf;
+            if (lRet == ERROR_SUCCESS && dwType == REG_BINARY) {
+                *(CODEPAGE*)((BYTE*)pBase + prki->cbOffset) = *(CODEPAGE*)bDataBuf;
             }
             break;
 
@@ -856,9 +807,8 @@ ReadSettingsFromRegistry(
                                    bDataBuf,
                                    &dwSize);
 
-            if (lRet == ERROR_SUCCESS && dwType == REG_BINARY)
-            {
-                *(BYTE*)((BYTE *)pBase + prki->cbOffset) = (BYTE) !! (*((DWORD*)bDataBuf));
+            if (lRet == ERROR_SUCCESS && dwType == REG_BINARY) {
+                *(BYTE*)((BYTE*)pBase + prki->cbOffset) = (BYTE)!!(*((DWORD*)bDataBuf));
             }
             break;
 
@@ -874,9 +824,8 @@ ReadSettingsFromRegistry(
                                    bDataBuf,
                                    &dwSize);
 
-            if (lRet == ERROR_SUCCESS && (dwType == REG_BINARY || dwType == REG_DWORD))
-            {
-                *(DWORD*)((BYTE *)pBase + prki->cbOffset) = *(DWORD*)bDataBuf;
+            if (lRet == ERROR_SUCCESS && (dwType == REG_BINARY || dwType == REG_DWORD)) {
+                *(DWORD*)((BYTE*)pBase + prki->cbOffset) = *(DWORD*)bDataBuf;
             }
             break;
 
@@ -892,15 +841,13 @@ ReadSettingsFromRegistry(
                                    bDataBuf,
                                    &dwSize);
 
-            if (lRet == ERROR_SUCCESS && dwType == REG_SZ)
-            {
+            if (lRet == ERROR_SUCCESS && dwType == REG_SZ) {
                 int nAnchorunderline = ANCHORUNDERLINE_YES;
 
-                LPTSTR pchBuffer = (TCHAR *)bDataBuf;
-                Assert (pchBuffer != NULL);
+                LPTSTR pchBuffer = (TCHAR*)bDataBuf;
+                Assert(pchBuffer != NULL);
 
-                if (pchBuffer)
-                {
+                if (pchBuffer) {
                     if (_tcsicmp(pchBuffer, _T("yes")) == 0)
                         nAnchorunderline = ANCHORUNDERLINE_YES;
                     else if (_tcsicmp(pchBuffer, _T("no")) == 0)
@@ -909,7 +856,7 @@ ReadSettingsFromRegistry(
                         nAnchorunderline = ANCHORUNDERLINE_HOVER;
                 }
 
-                *(int*)((BYTE *)pBase + prki->cbOffset) = nAnchorunderline;
+                *(int*)((BYTE*)pBase + prki->cbOffset) = nAnchorunderline;
 
             }
             break;
@@ -918,10 +865,9 @@ ReadSettingsFromRegistry(
             Assert(hKeySub);
 
             dwSize = 0;
-            bCondition = *(BYTE*)((BYTE *)pBase + prki->cbOffsetCondition);
+            bCondition = *(BYTE*)((BYTE*)pBase + prki->cbOffsetCondition);
 
-            if ((prki->cbOffsetCondition && bCondition) || !prki->cbOffsetCondition)
-            {
+            if ((prki->cbOffsetCondition && bCondition) || !prki->cbOffsetCondition) {
 
                 // The appropriate flag is set that says we should pay
                 // attention to this value or the flag is 0, then do it
@@ -936,8 +882,7 @@ ReadSettingsFromRegistry(
                                        NULL,
                                        &dwSize);
 
-                if (lRet == ERROR_SUCCESS)
-                {
+                if (lRet == ERROR_SUCCESS) {
                     lRet = RegQueryValueEx(hKeySub,
                                            prki->pszName,
                                            0,
@@ -945,9 +890,8 @@ ReadSettingsFromRegistry(
                                            bDataBuf,
                                            &dwSize);
 
-                    if (lRet == ERROR_SUCCESS && dwType == REG_SZ)
-                    {
-                        ((CStr *)((BYTE *)pBase + prki->cbOffset))->Set((LPCTSTR)bDataBuf);
+                    if (lRet == ERROR_SUCCESS && dwType == REG_SZ) {
+                        ((CStr*)((BYTE*)pBase + prki->cbOffset))->Set((LPCTSTR)bDataBuf);
                     }
                 }
             }
@@ -963,7 +907,7 @@ ReadSettingsFromRegistry(
     if (hKeySub && (hKeySub != hKeyRoot))
         RegCloseKey(hKeySub);
 
-    RegCloseKey( hKeyRoot );
+    RegCloseKey(hKeyRoot);
 
     return S_OK;
 }
@@ -985,18 +929,18 @@ HRESULT
 CDoc::ReadCodepageSettingsFromRegistry(
     CODEPAGE cp,
     UINT uiFamilyCodePage,
-    DWORD dwFlags )
+    DWORD dwFlags)
 {
     HRESULT    hr = S_OK;
     SCRIPT_ID  sid = RegistryAppropriateSidFromSid(DefaultSidForCodePage(uiFamilyCodePage));
 
-    Assert( uiFamilyCodePage != CP_UNDEFINED && uiFamilyCodePage != CP_ACP );
+    Assert(uiFamilyCodePage != CP_UNDEFINED && uiFamilyCodePage != CP_ACP);
 
-    hr = THR( EnsureCodepageSettings( uiFamilyCodePage ) );
-    if( hr )
+    hr = THR(EnsureCodepageSettings(uiFamilyCodePage));
+    if (hr)
         goto Cleanup;
 
-    _pOptionSettings->ReadCodepageSettingsFromRegistry( _pCodepageSettings, dwFlags, sid );
+    _pOptionSettings->ReadCodepageSettingsFromRegistry(_pCodepageSettings, dwFlags, sid);
 
     // Remember if we were autodetected
     _fCodePageWasAutoDetect = _codepage == CP_AUTO_JP;
@@ -1006,7 +950,7 @@ CDoc::ReadCodepageSettingsFromRegistry(
     _codepageFamily = uiFamilyCodePage;
 
 Cleanup:
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
@@ -1018,10 +962,10 @@ Cleanup:
 
 
 void
-   OPTIONSETTINGS::ReadCodepageSettingsFromRegistry(
-    CODEPAGESETTINGS * pCS,
+OPTIONSETTINGS::ReadCodepageSettingsFromRegistry(
+    CODEPAGESETTINGS* pCS,
     DWORD dwFlags,
-    SCRIPT_ID sid )
+    SCRIPT_ID sid)
 {
     static const REGKEYINFORMATION aScriptBasedFontKeys[] =
     {
@@ -1043,48 +987,45 @@ void
     // (CP_UCS_2,!sidAsciiLatin), on the other hand, is for codepageless fontlinking.  In OE, we obviously
     // can't use codepage-based fontlinking; use instead IE5 fontlinking.
 
-    fUseCodePageBasedFontLinking &=    sid == sidAsciiLatin
-                                    || sid == sidLatin
-                                    || DefaultCharSetFromScriptAndCharset(sid, DEFAULT_CHARSET) != DEFAULT_CHARSET;
+    fUseCodePageBasedFontLinking &= sid == sidAsciiLatin
+        || sid == sidLatin
+        || DefaultCharSetFromScriptAndCharset(sid, DEFAULT_CHARSET) != DEFAULT_CHARSET;
 
     DWORD dwArg = fUseCodePageBasedFontLinking ? DWORD(pCS->uiFamilyCodePage) : DWORD(sid);
 
-    IGNORE_HR( ReadSettingsFromRegistry( achKeyPath,
-                                         fUseCodePageBasedFontLinking ? aCodePageBasedFontKeys : aScriptBasedFontKeys,
-                                         ARRAY_SIZE(aCodePageBasedFontKeys),
-                                         pCS,
-                                         dwFlags,
-                                         pCS->fSettingsRead,
-                                         (void *)&dwArg ) );
+    IGNORE_HR(ReadSettingsFromRegistry(achKeyPath,
+                                       fUseCodePageBasedFontLinking ? aCodePageBasedFontKeys : aScriptBasedFontKeys,
+                                       ARRAY_SIZE(aCodePageBasedFontKeys),
+                                       pCS,
+                                       dwFlags,
+                                       pCS->fSettingsRead,
+                                       (void*)&dwArg));
 
     // Determine the appropriate GDI charset
 
-    pCS->bCharSet = DefaultCharSetFromScriptAndCodePage( sid, pCS->uiFamilyCodePage );
+    pCS->bCharSet = DefaultCharSetFromScriptAndCodePage(sid, pCS->uiFamilyCodePage);
 
     // Do a little fixup on the fonts if not present.  Note that we avoid
     // doing this in CODEPAGESETTINGS::SetDefault as this could be expensive
     // and often unnecessary.
 
-    if (   pCS->latmFixedFontFace == -1
-           || pCS->latmPropFontFace == -1)
-    {
+    if (pCS->latmFixedFontFace == -1
+        || pCS->latmPropFontFace == -1) {
         SCRIPTINFO si;
         HRESULT hr;
 
-        hr = THR( MlangGetDefaultFont( sid, &si ) );
+        hr = THR(MlangGetDefaultFont(sid, &si));
 
-        if (pCS->latmFixedFontFace == -1)
-        {
+        if (pCS->latmFixedFontFace == -1) {
             pCS->latmFixedFontFace = OK(hr)
-                                     ? fc().GetAtomFromFaceName(si.wszFixedWidthFont)
-                                     : 0; // 'System'
+                ? fc().GetAtomFromFaceName(si.wszFixedWidthFont)
+                : 0; // 'System'
         }
 
-        if (pCS->latmPropFontFace == -1)
-        {
+        if (pCS->latmPropFontFace == -1) {
             pCS->latmPropFontFace = OK(hr)
-                                    ? fc().GetAtomFromFaceName(si.wszProportionalFont)
-                                    : 0; // 'System'
+                ? fc().GetAtomFromFaceName(si.wszProportionalFont)
+                : 0; // 'System'
         }
     }
 
@@ -1104,10 +1045,10 @@ void
 
 
 HRESULT
-CDoc::ReadContextMenuExtFromRegistry( DWORD dwFlags /* = 0 */)
+CDoc::ReadContextMenuExtFromRegistry(DWORD dwFlags /* = 0 */)
 {
     HRESULT             hr = S_OK;
-    CONTEXTMENUEXT *    pCME = NULL;
+    CONTEXTMENUEXT* pCME = NULL;
     int                 nExtMax, nExtCur;
     HKEY                hKeyRoot = NULL;
     HKEY                hKeyMenuExt = NULL;
@@ -1119,16 +1060,15 @@ CDoc::ReadContextMenuExtFromRegistry( DWORD dwFlags /* = 0 */)
     BYTE                bDataBuf[pdlUrlLen];
 
     // Do not re-read unless explictly asked to do so.
-    if( _pOptionSettings->fSettingsRead && !(dwFlags & REGUPDATE_REFRESH) )
+    if (_pOptionSettings->fSettingsRead && !(dwFlags & REGUPDATE_REFRESH))
         return S_OK;
 
 
     //  Open up our root key
 
     lRegRet = RegOpenKeyEx(HKEY_CURRENT_USER, _pOptionSettings->achKeyPath,
-                        0, KEY_READ, &hKeyRoot);
-    if( lRegRet != ERROR_SUCCESS )
-    {
+                           0, KEY_READ, &hKeyRoot);
+    if (lRegRet != ERROR_SUCCESS) {
         hr = S_FALSE;
         goto Cleanup;
     }
@@ -1138,8 +1078,7 @@ CDoc::ReadContextMenuExtFromRegistry( DWORD dwFlags /* = 0 */)
 
     lRegRet = RegOpenKeyEx(hKeyRoot, _T("MenuExt"),
                            0, KEY_READ, &hKeyMenuExt);
-    if( lRegRet != ERROR_SUCCESS )
-    {
+    if (lRegRet != ERROR_SUCCESS) {
         hr = S_FALSE;
         goto Cleanup;
     }
@@ -1149,33 +1088,29 @@ CDoc::ReadContextMenuExtFromRegistry( DWORD dwFlags /* = 0 */)
 
     nExtMax = IDM_MENUEXT_LAST__ - IDM_MENUEXT_FIRST__;
     hr = _pOptionSettings->aryContextMenuExts.EnsureSize(nExtMax);
-    if(hr)
+    if (hr)
         goto Cleanup;
 
 
     // add an entry for each sub key
 
 
-    for(nExtCur = 0; nExtCur < nExtMax; nExtCur++)
-    {
-        lRegRet = RegEnumKey(hKeyMenuExt, nExtCur, achSubName, MAX_PATH+1);
-        if(lRegRet != ERROR_SUCCESS)
-        {
+    for (nExtCur = 0; nExtCur < nExtMax; nExtCur++) {
+        lRegRet = RegEnumKey(hKeyMenuExt, nExtCur, achSubName, MAX_PATH + 1);
+        if (lRegRet != ERROR_SUCCESS) {
             break;
         }
 
         // Open the sub key
         lRegRet = RegOpenKeyEx(hKeyMenuExt, achSubName, 0, KEY_READ, &hKeySub);
-        if(lRegRet != ERROR_SUCCESS)
-        {
+        if (lRegRet != ERROR_SUCCESS) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
         // we have a key so create an extension object
         pCME = new(Mt(CDocReadContextMenuExtFromRegistry_pCME)) CONTEXTMENUEXT;
-        if(!pCME)
-        {
+        if (!pCME) {
             hr = E_OUTOFMEMORY;
             goto Cleanup;
         }
@@ -1188,8 +1123,7 @@ CDoc::ReadContextMenuExtFromRegistry( DWORD dwFlags /* = 0 */)
         bDataBuf[0] = 0;
         lRegRet = RegQueryValueEx(hKeySub, NULL,
                                   0, &dwType, bDataBuf, &dwSize);
-        if(lRegRet == ERROR_SUCCESS && dwType == REG_SZ)
-        {
+        if (lRegRet == ERROR_SUCCESS && dwType == REG_SZ) {
             pCME->cstrActionUrl.Set((LPCTSTR)bDataBuf);
         }
 
@@ -1197,9 +1131,8 @@ CDoc::ReadContextMenuExtFromRegistry( DWORD dwFlags /* = 0 */)
         dwSize = sizeof(DWORD);
         lRegRet = RegQueryValueEx(hKeySub, _T("Flags"),
                                   0, &dwType, bDataBuf, &dwSize);
-        if(lRegRet == ERROR_SUCCESS &&
-           (dwType == REG_DWORD || dwType == REG_BINARY) )
-        {
+        if (lRegRet == ERROR_SUCCESS &&
+            (dwType == REG_DWORD || dwType == REG_BINARY)) {
             pCME->dwFlags = *((DWORD*)bDataBuf);
         }
 
@@ -1207,20 +1140,16 @@ CDoc::ReadContextMenuExtFromRegistry( DWORD dwFlags /* = 0 */)
         dwSize = sizeof(DWORD);
         lRegRet = RegQueryValueEx(hKeySub, _T("Contexts"),
                                   NULL, &dwType, bDataBuf, &dwSize);
-        if(lRegRet == ERROR_SUCCESS &&
-           (dwType == REG_DWORD || dwType == REG_BINARY) )
-        {
+        if (lRegRet == ERROR_SUCCESS &&
+            (dwType == REG_DWORD || dwType == REG_BINARY)) {
             pCME->dwContexts = *((DWORD*)bDataBuf);
         }
 
         // check to make sure we have a good extension
-        if(pCME->cstrMenuValue.Length() != 0 &&
-           pCME->cstrActionUrl.Length() != 0)
-        {
+        if (pCME->cstrMenuValue.Length() != 0 &&
+            pCME->cstrActionUrl.Length() != 0) {
             _pOptionSettings->aryContextMenuExts.Append(pCME);
-        }
-        else
-        {
+        } else {
             delete pCME;
         }
 
@@ -1230,8 +1159,7 @@ CDoc::ReadContextMenuExtFromRegistry( DWORD dwFlags /* = 0 */)
     }
 
     // delete the context menu so that these changes will be relfected
-    if(IsMenu(TLS(hMenuCtx_Browse)))
-    {
+    if (IsMenu(TLS(hMenuCtx_Browse))) {
         DestroyMenu(TLS(hMenuCtx_Browse));
         TLS(hMenuCtx_Browse) = NULL;
     }
@@ -1239,13 +1167,13 @@ CDoc::ReadContextMenuExtFromRegistry( DWORD dwFlags /* = 0 */)
 Cleanup:
     delete pCME;
 
-    if(hKeySub)
+    if (hKeySub)
         RegCloseKey(hKeySub);
 
-    if(hKeyMenuExt)
+    if (hKeyMenuExt)
         RegCloseKey(hKeyMenuExt);
 
-    if(hKeyRoot)
+    if (hKeyRoot)
         RegCloseKey(hKeyRoot);
 
     RRETURN1(hr, S_FALSE);
@@ -1264,7 +1192,7 @@ Cleanup:
 
 
 HRESULT
-CDoc::ReadOptionSettingsFromRegistry( DWORD dwFlags )
+CDoc::ReadOptionSettingsFromRegistry(DWORD dwFlags)
 {
     HRESULT hr = S_OK;
 
@@ -1326,7 +1254,7 @@ CDoc::ReadOptionSettingsFromRegistry( DWORD dwFlags )
     // keys in windows location
 
 
-    static TCHAR achWindowsSettingsPath [] = _T("Software\\Microsoft\\Windows\\CurrentVersion");
+    static TCHAR achWindowsSettingsPath[] = _T("Software\\Microsoft\\Windows\\CurrentVersion");
 
     static const REGKEYINFORMATION aOptionKeys2[] =
     {
@@ -1341,42 +1269,40 @@ CDoc::ReadOptionSettingsFromRegistry( DWORD dwFlags )
         goto Cleanup;
 
     // Make sure we get back the default windows colors, etc.
-    if(dwFlags & REGUPDATE_REFRESH)
+    if (dwFlags & REGUPDATE_REFRESH)
         _pOptionSettings->SetDefaults();
-    IGNORE_HR( ReadSettingsFromRegistry(
+    IGNORE_HR(ReadSettingsFromRegistry(
         _pOptionSettings->achKeyPath,
         aOptionKeys,
         ARRAY_SIZE(aOptionKeys),
         _pOptionSettings,
         dwFlags,
         _pOptionSettings->fSettingsRead,
-        (void *)&_pOptionSettings->codepageDefault ) );
+        (void*)&_pOptionSettings->codepageDefault));
 
-    IGNORE_HR( ReadSettingsFromRegistry(
+    IGNORE_HR(ReadSettingsFromRegistry(
         achWindowsSettingsPath,
         aOptionKeys2,
         ARRAY_SIZE(aOptionKeys2),
         _pOptionSettings, dwFlags,
-        _pOptionSettings->fSettingsRead, NULL ) );
+        _pOptionSettings->fSettingsRead, NULL));
 
     // Look at the registry for context menu extensions
-    IGNORE_HR( ReadContextMenuExtFromRegistry( dwFlags ) );
+    IGNORE_HR(ReadContextMenuExtFromRegistry(dwFlags));
 
     _pOptionSettings->fSettingsRead = TRUE;
 
 #ifdef WIN16_NEVER
     // BUGWIN16: the Flag in OPTIONSETTINGS just went away ??!! in beta2 Trident code !!
     // Make sure that we have enough memory to run Java
-    if (_pOptionSettings->fRunJava && (DetectPhysicalMem() < MIN_JAVA_MEMORY))
-    {
+    if (_pOptionSettings->fRunJava && (DetectPhysicalMem() < MIN_JAVA_MEMORY)) {
         _pOptionSettings->fRunJava = FALSE;
 
         // Update the registry to disable java
         HKEY    hkey;
         DWORD dw;
 
-        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_INTERNETSETTINGS, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &dw) == ERROR_SUCCESS)
-        {
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_INTERNETSETTINGS, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &dw) == ERROR_SUCCESS) {
             dw = FALSE;
             RegSetValueEx(hkey, REGSTR_VAL_SECURITYJAVA, 0, REGSTR_VAL_SECURITYJAVA_TYPE, (LPBYTE)&dw, sizeof(dw));
         }
@@ -1385,7 +1311,7 @@ CDoc::ReadOptionSettingsFromRegistry( DWORD dwFlags )
 
 
 Cleanup:
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
@@ -1399,27 +1325,25 @@ Cleanup:
 
 
 void
-DeinitOptionSettings( THREADSTATE* pts )
+DeinitOptionSettings(THREADSTATE* pts)
 {
     int c, n;
-    OPTIONSETTINGS ** ppOS;
-    CODEPAGESETTINGS ** ppCS;
-    CONTEXTMENUEXT **   ppCME;
+    OPTIONSETTINGS** ppOS;
+    CODEPAGESETTINGS** ppCS;
+    CONTEXTMENUEXT** ppCME;
 
     // Free all entries in the options cache
     for (c = pts->optionSettingsInfo.pcache.Size(),
          ppOS = pts->optionSettingsInfo.pcache;
          c;
-         c--, ppOS++)
-    {
+         c--, ppOS++) {
         (*ppOS)->cstrUserStylesheet.Free();
 
         // Free all entries in the codepage settings cache
         for (ppCS = (*ppOS)->aryCodepageSettingsCache,
-            n = (*ppOS)->aryCodepageSettingsCache.Size();
-            n;
-            n--, ppCS++ )
-        {
+             n = (*ppOS)->aryCodepageSettingsCache.Size();
+             n;
+             n--, ppCS++) {
             MemFree(*ppCS);
         }
 
@@ -1427,9 +1351,8 @@ DeinitOptionSettings( THREADSTATE* pts )
         for (ppCME = (*ppOS)->aryContextMenuExts,
              n = (*ppOS)->aryContextMenuExts.Size();
              n;
-             n--, ppCME++)
-        {
-            delete *ppCME;
+             n--, ppCME++) {
+            delete* ppCME;
         }
 
         delete (*ppOS);

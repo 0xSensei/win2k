@@ -122,9 +122,9 @@ PRIVATE
 DWORD
 CreateTableFromRegistryList(
     IN LPSTR   lpszParameter,       // wininet registry parameter
-    OUT LPSTR   *lplpszList,        // Delimited List
-    OUT LPSTR   **lplprgszTable,    // Pointer table pointing into the list
-    OUT DWORD   **lplpdwTableSizes, // Pointer to table containing sizes of string elements
+    OUT LPSTR* lplpszList,        // Delimited List
+    OUT LPSTR** lplprgszTable,    // Pointer table pointing into the list
+    OUT DWORD** lplpdwTableSizes, // Pointer to table containing sizes of string elements
     OUT LPDWORD lpdwCount           // count of elements in the table
 );
 
@@ -133,7 +133,7 @@ DWORD
 CreateStringArrayFromDelimitedList(
     IN  LPSTR   lpszDelimitedList,
     IN  LPSTR   lpszDelimiters,
-    IN  LPSTR   *lprgszStringArray,
+    IN  LPSTR* lprgszStringArray,
     OUT LPDWORD lpdwCount
 );
 
@@ -320,7 +320,7 @@ Return Value:
     // invent something
 
 
-    static HKEY KeysToTry[2] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
+    static HKEY KeysToTry[2] = {HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE};
     int i;
 
 
@@ -362,13 +362,11 @@ Return Value:
                              ));
 
                 error = ERROR_SUCCESS;
-            }
-            else {
+            } else {
                 // BUGBUG - what's the required length?
                 error = GetLastError();
             }
-        }
-        else {
+        } else {
             // Win95 & Win32s: have to do something different
         }
 
@@ -384,8 +382,7 @@ Return Value:
 
                 *Length = sizeof(DEFAULT_EMAIL_NAME) - 1;
                 error = ERROR_SUCCESS;
-            }
-            else {
+            } else {
 
 
                 // failure - returned length is the required buffer size
@@ -658,8 +655,7 @@ Return Value:
                                    ParameterName,
                                    ParameterValue
         );
-    }
-    else {
+    } else {
         error = ERROR_SUCCESS;
     }
 
@@ -921,8 +917,7 @@ Return Value:
                              KEY_QUERY_VALUE,
                              &clientKey
         );
-    }
-    else if (clientKey == NULL) {
+    } else if (clientKey == NULL) {
         error = ERROR_PATH_NOT_FOUND;
     }
 
@@ -1022,8 +1017,7 @@ Return Value:
                              KEY_QUERY_VALUE,
                              &clientKey
         );
-    }
-    else if (clientKey == NULL) {
+    } else if (clientKey == NULL) {
         error = ERROR_PATH_NOT_FOUND;
     }
 
@@ -1412,8 +1406,7 @@ Return Value:
                          ));
 
             error = ERROR_PATH_NOT_FOUND;
-        }
-        else {
+        } else {
             *ParameterValue = value;
         }
     }
@@ -1514,8 +1507,7 @@ GetFileExtensionFromMimeType(
                      lpszMimeKey,
                      0,
                      KEY_QUERY_VALUE,
-                     &hKey) == ERROR_SUCCESS)
-    {
+                     &hKey) == ERROR_SUCCESS) {
         DWORD dwType, dwError = RegQueryValueEx(hKey,
                                                 EXTENSION_VALUE,
                                                 NULL,
@@ -1596,9 +1588,9 @@ PRIVATE
 DWORD
 CreateTableFromRegistryList(
     IN LPSTR   lpszParameter,       // wininet registry parameter
-    OUT LPSTR   *lplpszList,        // Delimited List
-    OUT LPSTR   **lplprgszTable,    // Pointer table pointing into the list
-    OUT DWORD   **lplpdwTableSizes, // Pointer to table containing sizes of string elements
+    OUT LPSTR* lplpszList,        // Delimited List
+    OUT LPSTR** lplprgszTable,    // Pointer table pointing into the list
+    OUT DWORD** lplpdwTableSizes, // Pointer to table containing sizes of string elements
     OUT LPDWORD lpdwCount           // count of elements in the table
 )
 
@@ -1679,7 +1671,7 @@ Return Value:
     // let us allocate an array of pointers
 
 
-    if (!(*lplprgszTable = (LPSTR *)ALLOCATE_MEMORY(LPTR, *lpdwCount * sizeof(LPSTR)))) {
+    if (!(*lplprgszTable = (LPSTR*)ALLOCATE_MEMORY(LPTR, *lpdwCount * sizeof(LPSTR)))) {
         error = ERROR_NOT_ENOUGH_MEMORY;
         goto bailout;
     }
@@ -1696,7 +1688,7 @@ Return Value:
         goto bailout;
     }
 
-    *lplpdwTableSizes = (LPDWORD)ALLOCATE_MEMORY(LPTR, (sizeof(DWORD)*(*lpdwCount)));
+    *lplpdwTableSizes = (LPDWORD)ALLOCATE_MEMORY(LPTR, (sizeof(DWORD) * (*lpdwCount)));
 
     if (*lplpdwTableSizes == NULL) {
         error = ERROR_NOT_ENOUGH_MEMORY;
@@ -1734,7 +1726,7 @@ DWORD
 CreateStringArrayFromDelimitedList(
     IN  LPSTR   lpszDelimitedList,
     IN  LPSTR   lpszDelimiters,
-    IN  LPSTR   *lprgszStringArray,
+    IN  LPSTR* lprgszStringArray,
     OUT LPDWORD lpdwCount
 )
 {
@@ -1788,7 +1780,7 @@ CreateStringArrayFromDelimitedList(
             lprgszStringArray[*lpdwCount] = lpStart;
         }
 
-        ++*lpdwCount;
+        ++* lpdwCount;
 
     }
 done:
@@ -1800,7 +1792,7 @@ done:
 typedef struct {
     LIST_ENTRY entry;
     HKEY hkey;
-    char * file;
+    char* file;
     int line;
     char name[1];
 } DBGREGKEYINFO;
@@ -1815,14 +1807,14 @@ VOID DbgRegKey_Terminate(VOID) {
     TerminateSerializedList(&DbgRegKeyList);
 }
 
-void regkey_add(const char * name, HKEY hkey, char * file, int line) {
+void regkey_add(const char* name, HKEY hkey, char* file, int line) {
 
     if (!name) {
         name = "";
     }
 
     int len = lstrlen(name);
-    DBGREGKEYINFO * p = (DBGREGKEYINFO *)ALLOCATE_FIXED_MEMORY(sizeof(DBGREGKEYINFO) + len);
+    DBGREGKEYINFO* p = (DBGREGKEYINFO*)ALLOCATE_FIXED_MEMORY(sizeof(DBGREGKEYINFO) + len);
 
     if (p) {
         //dprintf("Wininet.DbgRegKey: adding %q\n", name);
@@ -1837,21 +1829,21 @@ void regkey_add(const char * name, HKEY hkey, char * file, int line) {
 void regkey_remove(HKEY hkey) {
     LockSerializedList(&DbgRegKeyList);
 
-    DBGREGKEYINFO * p = (DBGREGKEYINFO *)HeadOfSerializedList(&DbgRegKeyList);
+    DBGREGKEYINFO* p = (DBGREGKEYINFO*)HeadOfSerializedList(&DbgRegKeyList);
 
-    while (p != (DBGREGKEYINFO *)SlSelf(&DbgRegKeyList)) {
+    while (p != (DBGREGKEYINFO*)SlSelf(&DbgRegKeyList)) {
         if (p->hkey == hkey) {
             RemoveFromSerializedList(&DbgRegKeyList, (PLIST_ENTRY)p);
             //dprintf("Wininet.DbgRegKey: removing %q\n", p->name);
             FREE_MEMORY(p);
             break;
         }
-        p = (DBGREGKEYINFO *)p->entry.Flink;
+        p = (DBGREGKEYINFO*)p->entry.Flink;
     }
     UnlockSerializedList(&DbgRegKeyList);
 }
 
-char * regkey_name(HKEY hkey, const char * subname) {
+char* regkey_name(HKEY hkey, const char* subname) {
     switch ((INT_PTR)hkey) {
     case (INT_PTR)HKEY_CLASSES_ROOT:
         return NEW_STRING("HKEY_CLASSES_ROOT");
@@ -1875,19 +1867,19 @@ char * regkey_name(HKEY hkey, const char * subname) {
         return NEW_STRING("HKEY_DYN_DATA");
     }
 
-    char * name = NULL;
+    char* name = NULL;
 
     LockSerializedList(&DbgRegKeyList);
 
-    DBGREGKEYINFO * p = (DBGREGKEYINFO *)HeadOfSerializedList(&DbgRegKeyList);
+    DBGREGKEYINFO* p = (DBGREGKEYINFO*)HeadOfSerializedList(&DbgRegKeyList);
 
-    while (p != (DBGREGKEYINFO *)SlSelf(&DbgRegKeyList)) {
+    while (p != (DBGREGKEYINFO*)SlSelf(&DbgRegKeyList)) {
         if (p->hkey == hkey) {
 
             int len = lstrlen(p->name);
             int slen = lstrlen(subname);
 
-            name = (char *)ALLOCATE_FIXED_MEMORY(len + 1 + slen + 1);
+            name = (char*)ALLOCATE_FIXED_MEMORY(len + 1 + slen + 1);
             if (name) {
                 memcpy(name, p->name, len);
                 name[len] = '\\';
@@ -1895,14 +1887,14 @@ char * regkey_name(HKEY hkey, const char * subname) {
             }
             break;
         }
-        p = (DBGREGKEYINFO *)p->entry.Flink;
+        p = (DBGREGKEYINFO*)p->entry.Flink;
     }
     UnlockSerializedList(&DbgRegKeyList);
 
     return name;
 }
 
-void regkey_freename(char * name) {
+void regkey_freename(char* name) {
     if (name) {
         FREE_MEMORY(name);
     }
@@ -1913,11 +1905,11 @@ DbgRegOpenKey(
     IN HKEY hKey,
     IN LPCTSTR lpszSubKey,
     OUT PHKEY phkResult,
-    char * file,
+    char* file,
     int line
 )
 {
-    char * keyname = regkey_name(hKey, lpszSubKey);
+    char* keyname = regkey_name(hKey, lpszSubKey);
     LONG rc = RegOpenKey(hKey, lpszSubKey, phkResult);
 
     if (rc == 0) {
@@ -1934,11 +1926,11 @@ DbgRegOpenKeyEx(
     IN DWORD ulOptions,
     IN REGSAM samDesired,
     OUT PHKEY phkResult,
-    char * file,
+    char* file,
     int line
 )
 {
-    char * keyname = regkey_name(hKey, lpSubKey);
+    char* keyname = regkey_name(hKey, lpSubKey);
     LONG rc = RegOpenKeyEx(hKey, lpSubKey, ulOptions, samDesired, phkResult);
 
     if (rc == 0) {
@@ -1959,11 +1951,11 @@ DbgRegCreateKeyEx(
     IN LPSECURITY_ATTRIBUTES lpSecurityAttributes,
     OUT PHKEY phkResult,
     OUT LPDWORD lpdwDisposition,
-    char * file,
+    char* file,
     int line
 )
 {
-    char * keyname = regkey_name(hKey, lpSubKey);
+    char* keyname = regkey_name(hKey, lpSubKey);
     LONG rc = RegCreateKeyEx(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
     if (rc == 0) {
         regkey_add(keyname, *phkResult, file, line);

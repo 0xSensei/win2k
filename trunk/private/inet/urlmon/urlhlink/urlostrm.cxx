@@ -144,14 +144,14 @@
 #define MEMPRINTF(x) DPRINTF(x)
 #endif
 
-void dprintf( char * format, ... )
+void dprintf(char* format, ...)
 {
     char out[1024];
     va_list marker;
     va_start(marker, format);
     wvsprintf(out, format, marker);
     va_end(marker);
-    OutputDebugString( out );
+    OutputDebugString(out);
 }
 
 
@@ -174,30 +174,30 @@ void dprintf( char * format, ... )
 static HANDLE   g_hHeap;
 
 #ifdef _DEBUG
-    // Uncomment the line below for Debug spew of memory stuff
+// Uncomment the line below for Debug spew of memory stuff
 //#define MONITER_MEMALLOC 1
 #endif
 
 #ifdef _DEBUG
-static void * _cdecl
-operator new( size_t size )
+static void* _cdecl
+operator new(size_t size)
 {
-    if( !g_hHeap )
+    if (!g_hHeap)
         g_hHeap = ::GetProcessHeap();
 
     // Heap alloc is the fastest gun in the west
     // for the type of allocations we do here.
-    void * p = HeapAlloc(g_hHeap, 0, size);
+    void* p = HeapAlloc(g_hHeap, 0, size);
 
-    MEMPRINTF( ("operator new(%d) returns(%#08X)\n",size, DWORD(p)) );
+    MEMPRINTF(("operator new(%d) returns(%#08X)\n", size, DWORD(p)));
 
     return(p);
 }
 
 static void _cdecl
-operator delete ( void *ptr)
+operator delete (void* ptr)
 {
-    MEMPRINTF( ("operator delete(%#08X)\n", DWORD(ptr) ) );
+    MEMPRINTF(("operator delete(%#08X)\n", DWORD(ptr)));
 
     HeapFree(g_hHeap, 0, ptr);
 }
@@ -216,28 +216,28 @@ operator delete ( void *ptr)
 
 class CBuffer
 {
-  public:
+public:
     CBuffer(ULONG cBytes);
     ~CBuffer();
 
-    void *GetBuffer();
+    void* GetBuffer();
 
-  private:
-    void *      m_pBuf;
+private:
+    void* m_pBuf;
     // we'll use this temp buffer for small cases.
 
     char        m_szTmpBuf[120];
-    unsigned    m_fHeapAlloc:1;
+    unsigned    m_fHeapAlloc : 1;
 };
 
 inline
 CBuffer::CBuffer(ULONG cBytes)
 {
-   if( !g_hHeap )
+    if (!g_hHeap)
         g_hHeap = ::GetProcessHeap();
 
-   m_pBuf = (cBytes <= 120) ? m_szTmpBuf : HeapAlloc(g_hHeap, 0, cBytes);
-   m_fHeapAlloc = (cBytes > 120);
+    m_pBuf = (cBytes <= 120) ? m_szTmpBuf : HeapAlloc(g_hHeap, 0, cBytes);
+    m_fHeapAlloc = (cBytes > 120);
 }
 
 inline
@@ -247,7 +247,7 @@ CBuffer::~CBuffer()
 }
 
 inline
-void * CBuffer::GetBuffer()
+void* CBuffer::GetBuffer()
 {
     return m_pBuf;
 }
@@ -300,43 +300,42 @@ void * CBuffer::GetBuffer()
 // flags and screamer features.
 
 static HRESULT
-GetRegDword( HKEY mainkey, LPCTSTR subkey, LPCTSTR valueName, DWORD * result )
+GetRegDword(HKEY mainkey, LPCTSTR subkey, LPCTSTR valueName, DWORD* result)
 {
     HKEY    hkey = 0;
     DWORD       dwDisposition;
 
     LONG dwResult = RegCreateKeyEx(
-                         mainkey, subkey,
-                        0, // DWORD  Reserved,  // reserved
-                        0, // LPTSTR  lpClass,  // address of class string
-                        REG_OPTION_NON_VOLATILE, // DWORD  dwOptions,   // special options flag
-                        KEY_ALL_ACCESS, // REGSAM  samDesired,  // desired security access
-                        0, // LPSECURITY_ATTRIBUTES  lpSecurityAttributes,      // address of key security structure
-                        &hkey, // PHKEY  phkResult,     // address of buffer for opened handle
-                        &dwDisposition // LPDWORD  lpdwDisposition      // address of disposition value buffer
-                       );
+        mainkey, subkey,
+        0, // DWORD  Reserved,  // reserved
+        0, // LPTSTR  lpClass,  // address of class string
+        REG_OPTION_NON_VOLATILE, // DWORD  dwOptions,   // special options flag
+        KEY_ALL_ACCESS, // REGSAM  samDesired,  // desired security access
+        0, // LPSECURITY_ATTRIBUTES  lpSecurityAttributes,      // address of key security structure
+        &hkey, // PHKEY  phkResult,     // address of buffer for opened handle
+        &dwDisposition // LPDWORD  lpdwDisposition      // address of disposition value buffer
+    );
 
     HRESULT hr = dwResult == ERROR_SUCCESS ? NOERROR : E_FAIL;
-    if( SUCCEEDED(hr) )
-    {
+    if (SUCCEEDED(hr)) {
         DWORD dwType;
         DWORD dwSize = sizeof(DWORD);
         DWORD dwSavedResult = *result;
 
         dwResult = RegQueryValueEx(
-                        hkey,   // handle of key to query
-                        valueName,
-                        0, // LPDWORD  lpReserved,      // reserved
-                        &dwType, // LPDWORD  lpType,    // address of buffer for value type
-                        (LPBYTE)result, // LPBYTE  lpData,      // address of data buffer
-                        &dwSize // LPDWORD  lpcbData    // address of data buffer size
-                        );
+            hkey,   // handle of key to query
+            valueName,
+            0, // LPDWORD  lpReserved,      // reserved
+            &dwType, // LPDWORD  lpType,    // address of buffer for value type
+            (LPBYTE)result, // LPBYTE  lpData,      // address of data buffer
+            &dwSize // LPDWORD  lpcbData    // address of data buffer size
+        );
         hr = dwResult == ERROR_SUCCESS ? NOERROR : E_FAIL;
-        if( FAILED(hr) )
+        if (FAILED(hr))
             *result = dwSavedResult;
     }
 
-    if( hkey )
+    if (hkey)
         RegCloseKey(hkey);
 
     return(hr);
@@ -344,49 +343,49 @@ GetRegDword( HKEY mainkey, LPCTSTR subkey, LPCTSTR valueName, DWORD * result )
 
 
 static HRESULT
-GetDLMRegDWord( LPCTSTR valueName, DWORD * result  )
+GetDLMRegDWord(LPCTSTR valueName, DWORD* result)
 {
-    return(GetRegDword( HKEY_LOCAL_MACHINE,
-                        _TEXT("Software\\Microsoft\\DownloadManager"),
-                        valueName,
-                        result ) );
+    return(GetRegDword(HKEY_LOCAL_MACHINE,
+                       _TEXT("Software\\Microsoft\\DownloadManager"),
+                       valueName,
+                       result));
 }
 
 
 static HRESULT
-MyCreateFile( LPCWSTR filename, HANDLE & hfile )
+MyCreateFile(LPCWSTR filename, HANDLE& hfile)
 {
     // BUGBUG: in retrospect this should be a ansi function
     // not a wide string one.
 
     HRESULT hr = NOERROR;
 
-/*
-    MAKE_ANSI( filename );
+    /*
+        MAKE_ANSI( filename );
 
-    hfile = ::CreateFileA(
-                          ANSI_NAME(filename), // LPCTSTR  lpFileName,    // pointer to name of the file
-                          GENERIC_WRITE, // DWORD  dwDesiredAccess,       // access (read-write) mode
-                          0, // DWORD  dwShareMode,       // share mode
-                          0, // LPSECURITY_ATTRIBUTES  lpSecurityAttributes,      // pointer to security descriptor
-                          CREATE_ALWAYS, // DWORD  dwCreationDistribution,        // how to create
-                          FILE_ATTRIBUTE_NORMAL, //DWORD  dwFlagsAndAttributes,   // file attributes
-                          0  // HANDLE  hTemplateFile   // handle to file with attributes to copy
-                         );
-*/
+        hfile = ::CreateFileA(
+                              ANSI_NAME(filename), // LPCTSTR  lpFileName,    // pointer to name of the file
+                              GENERIC_WRITE, // DWORD  dwDesiredAccess,       // access (read-write) mode
+                              0, // DWORD  dwShareMode,       // share mode
+                              0, // LPSECURITY_ATTRIBUTES  lpSecurityAttributes,      // pointer to security descriptor
+                              CREATE_ALWAYS, // DWORD  dwCreationDistribution,        // how to create
+                              FILE_ATTRIBUTE_NORMAL, //DWORD  dwFlagsAndAttributes,   // file attributes
+                              0  // HANDLE  hTemplateFile   // handle to file with attributes to copy
+                             );
+    */
     hfile = CreateFileWrapW(
-                filename,
-                GENERIC_WRITE,
-                0,
-                0,
-                CREATE_ALWAYS,
-                FILE_ATTRIBUTE_NORMAL,
-                0
-        );
+        filename,
+        GENERIC_WRITE,
+        0,
+        0,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        0
+    );
 
     // Our code likes HRESULT style error handling
 
-    if( hfile == INVALID_HANDLE_VALUE )
+    if (hfile == INVALID_HANDLE_VALUE)
         hr = MK_E_CANTOPENFILE;
 
     return(hr);
@@ -409,56 +408,56 @@ MyCreateFile( LPCWSTR filename, HANDLE & hfile )
 
     // State flags
 
-class CBaseBSCB :   public IBindStatusCallbackMsg,
-                    public IServiceProvider
+class CBaseBSCB : public IBindStatusCallbackMsg,
+    public IServiceProvider
 {
 public:
 
-    CBaseBSCB( IUnknown * caller, DWORD bscof, LPUOSCALLBACK callback );
+    CBaseBSCB(IUnknown* caller, DWORD bscof, LPUOSCALLBACK callback);
     virtual ~CBaseBSCB();
 
-    STDMETHOD(KickOffDownload)( LPCWSTR szURL );
+    STDMETHOD(KickOffDownload)(LPCWSTR szURL);
 
     // IUnknown
-    STDMETHOD(QueryInterface)(REFIID riid, void **ppvObjOut);
+    STDMETHOD(QueryInterface)(REFIID riid, void** ppvObjOut);
 
     IMPLEMENT_REFCOUNT(CBaseBSCB);
 
     // IBindStatusCallback
 
     STDMETHODIMP OnStartBinding(
-         DWORD grfBSCOption,
-         IBinding  *pib);
+        DWORD grfBSCOption,
+        IBinding* pib);
 
     STDMETHODIMP GetPriority(
-         LONG  *pnPriority);
+        LONG* pnPriority);
 
     STDMETHODIMP OnLowResource(
-         DWORD reserved);
+        DWORD reserved);
 
     STDMETHODIMP OnProgress(
-         ULONG ulProgress,
-         ULONG ulProgressMax,
-         ULONG ulStatusCode,
-         LPCWSTR szStatusText);
+        ULONG ulProgress,
+        ULONG ulProgressMax,
+        ULONG ulStatusCode,
+        LPCWSTR szStatusText);
 
     STDMETHODIMP OnDataAvailable(
-         DWORD       grfBSCF,
-         DWORD       dwSize,
-         FORMATETC  *pformatetc,
-         STGMEDIUM  *pstgmed);
+        DWORD       grfBSCF,
+        DWORD       dwSize,
+        FORMATETC* pformatetc,
+        STGMEDIUM* pstgmed);
 
     STDMETHODIMP OnStopBinding(
-         HRESULT hresult,
-         LPCWSTR szError);
+        HRESULT hresult,
+        LPCWSTR szError);
 
     STDMETHODIMP GetBindInfo(
-         DWORD  *grfBINDF,
-         BINDINFO  *pbindinfo);
+        DWORD* grfBINDF,
+        BINDINFO* pbindinfo);
 
     STDMETHODIMP OnObjectAvailable(
-         REFIID riid,
-         IUnknown  *punk);
+        REFIID riid,
+        IUnknown* punk);
 
     STDMETHODIMP MessagePending(
         DWORD  dwPendingType,
@@ -468,9 +467,9 @@ public:
     // IServiceProvider
 
     STDMETHODIMP QueryService(
-            REFGUID rsid,
-            REFIID iid,
-            void **ppvObj);
+        REFGUID rsid,
+        REFIID iid,
+        void** ppvObj);
 
 
     //  Local methods
@@ -479,31 +478,31 @@ public:
     BOOL    IsAborted();
     BOOL    DownloadDone();
     HRESULT FinalResult();
-    void    SetEncodingFlags( ULONG flags );
+    void    SetEncodingFlags(ULONG flags);
 
-    IUnknown * Caller();
+    IUnknown* Caller();
 
     // I guess at one point I thought it would be cool
     // to make all of these inlines and isolated from
     // the core functionality.
 
-    HRESULT SignalOnData( DWORD flags, ULONG size, FORMATETC  *pformatetc);
-    HRESULT SignalOnProgress( ULONG status, ULONG size, ULONG maxSize, LPCWSTR msg );
-    HRESULT SignalOnStopBinding( HRESULT hr, LPCWSTR msg );
+    HRESULT SignalOnData(DWORD flags, ULONG size, FORMATETC* pformatetc);
+    HRESULT SignalOnProgress(ULONG status, ULONG size, ULONG maxSize, LPCWSTR msg);
+    HRESULT SignalOnStopBinding(HRESULT hr, LPCWSTR msg);
 
-    HRESULT SignalOnStartBinding( DWORD grfBSCOption, IBinding  *pib);
+    HRESULT SignalOnStartBinding(DWORD grfBSCOption, IBinding* pib);
     HRESULT SignalOnGetPriority(LONG*);
     HRESULT SignalOnLowResource(DWORD);
-    HRESULT SignalGetBindInfo(DWORD  *grfBINDF,BINDINFO  *pbindinfo);
+    HRESULT SignalGetBindInfo(DWORD* grfBINDF, BINDINFO* pbindinfo);
 
     virtual void    Neutralize();
 
     ULONG               m_ref;
     LPUOSCALLBACK       m_callback;
-    IUnknown *          m_caller;
-    IBinding *          m_binding;
-    IServiceProvider *  m_callbackServiceProvider;
-    IBindStatusCallbackMsg *_pBSCBMsg;
+    IUnknown* m_caller;
+    IBinding* m_binding;
+    IServiceProvider* m_callbackServiceProvider;
+    IBindStatusCallbackMsg* _pBSCBMsg;
     BOOL                m_bInAbort : 1;
     BOOL                m_bInCache : 1;
     BOOL                m_bCheckedForServiceProvider : 1;
@@ -512,7 +511,7 @@ public:
 
     // See notes above about IStream usage
 
-    IStream *           m_UserStream;
+    IStream* m_UserStream;
 
     ULONG               m_maxSize;
     DWORD               m_bscoFlags;
@@ -522,60 +521,60 @@ public:
 
 
 
-    /*  INLINES            */
+/*  INLINES            */
 
 
-inline void     CBaseBSCB::Abort()      { m_bInAbort = 1; }
-inline BOOL     CBaseBSCB::IsAborted()  { return(m_bInAbort); }
-inline HRESULT  CBaseBSCB::FinalResult(){ return( m_finalResult ); }
-inline IUnknown*CBaseBSCB::Caller()     { return( m_caller ); }
-inline void     CBaseBSCB::SetEncodingFlags( ULONG flags ) { m_encoding = flags; }
+inline void     CBaseBSCB::Abort() { m_bInAbort = 1; }
+inline BOOL     CBaseBSCB::IsAborted() { return(m_bInAbort); }
+inline HRESULT  CBaseBSCB::FinalResult() { return(m_finalResult); }
+inline IUnknown* CBaseBSCB::Caller() { return(m_caller); }
+inline void     CBaseBSCB::SetEncodingFlags(ULONG flags) { m_encoding = flags; }
 
 inline HRESULT
-CBaseBSCB::SignalOnData( DWORD flags, ULONG size, FORMATETC  *pformatetc )
+CBaseBSCB::SignalOnData(DWORD flags, ULONG size, FORMATETC* pformatetc)
 {
-        HRESULT hr=NOERROR;
+    HRESULT hr = NOERROR;
 
-        if(m_bscoFlags!=URLOSTRM_NOTIFY_ONDATA)
+    if (m_bscoFlags != URLOSTRM_NOTIFY_ONDATA)
         return(hr);
 
-        STGMEDIUM stg;
+    STGMEDIUM stg;
 
-        stg.tymed = TYMED_ISTREAM;
-        stg.pstm  = m_UserStream;
-        stg.pUnkForRelease = NULL;
+    stg.tymed = TYMED_ISTREAM;
+    stg.pstm = m_UserStream;
+    stg.pUnkForRelease = NULL;
 
-        if(m_callback)
-                hr=m_callback->OnDataAvailable(flags,size,pformatetc,&stg);
+    if (m_callback)
+        hr = m_callback->OnDataAvailable(flags, size, pformatetc, &stg);
 
-        return(hr);
+    return(hr);
 }
 
 inline HRESULT
-CBaseBSCB::SignalOnProgress( ULONG status, ULONG size, ULONG maxSize, LPCWSTR msg )
+CBaseBSCB::SignalOnProgress(ULONG status, ULONG size, ULONG maxSize, LPCWSTR msg)
 {
-    if( !m_callback )
+    if (!m_callback)
         return(NOERROR);
 
-    if( size && !maxSize )
+    if (size && !maxSize)
         maxSize = size;
 
-    if( maxSize > m_maxSize )
+    if (maxSize > m_maxSize)
         m_maxSize = maxSize;
 
-    HRESULT hr = m_callback->OnProgress( size, m_maxSize, status, msg );
+    HRESULT hr = m_callback->OnProgress(size, m_maxSize, status, msg);
 
     return(hr);
 }
 
 
 inline HRESULT
-CBaseBSCB::SignalOnStopBinding( HRESULT hres, LPCWSTR msg )
+CBaseBSCB::SignalOnStopBinding(HRESULT hres, LPCWSTR msg)
 {
-    if( !m_callback )
+    if (!m_callback)
         return(NOERROR);
 
-    HRESULT hr = m_callback->OnStopBinding( hres, msg );
+    HRESULT hr = m_callback->OnStopBinding(hres, msg);
 
     return(hr);
 }
@@ -583,71 +582,71 @@ CBaseBSCB::SignalOnStopBinding( HRESULT hres, LPCWSTR msg )
 
 
 inline HRESULT
-CBaseBSCB::SignalOnStartBinding( DWORD grfBSCOption, IBinding  *pib)
+CBaseBSCB::SignalOnStartBinding(DWORD grfBSCOption, IBinding* pib)
 {
-    if( !m_callback )
+    if (!m_callback)
         return(NOERROR);
-    return( m_callback->OnStartBinding(grfBSCOption,pib) );
+    return(m_callback->OnStartBinding(grfBSCOption, pib));
 }
 
 
 inline HRESULT
-CBaseBSCB:: SignalOnGetPriority(LONG* lng)
+CBaseBSCB::SignalOnGetPriority(LONG* lng)
 {
-    if( !m_callback )
+    if (!m_callback)
         return(E_NOTIMPL);
     return(m_callback->GetPriority(lng));
 }
 
 inline HRESULT
-CBaseBSCB:: SignalOnLowResource(DWORD dw)
+CBaseBSCB::SignalOnLowResource(DWORD dw)
 {
-    if( !m_callback )
-        return( NOERROR );
-    return( m_callback->OnLowResource(dw) );
+    if (!m_callback)
+        return(NOERROR);
+    return(m_callback->OnLowResource(dw));
 }
 
 inline HRESULT
-CBaseBSCB::SignalGetBindInfo(DWORD *grfBINDF, BINDINFO * pbindinfo)
+CBaseBSCB::SignalGetBindInfo(DWORD* grfBINDF, BINDINFO* pbindinfo)
 {
-    if( !m_callback )
+    if (!m_callback)
         return(E_NOTIMPL);
-    return( m_callback->GetBindInfo(grfBINDF, pbindinfo) );
+    return(m_callback->GetBindInfo(grfBINDF, pbindinfo));
 }
 
 
 
-    /*  OUT-OF-LINES       */
+/*  OUT-OF-LINES       */
 
 
 
 // Do nothing CTOR
 CBaseBSCB::CBaseBSCB
 (
-    IUnknown *      caller,
+    IUnknown* caller,
     DWORD               bscof,
     LPUOSCALLBACK       callback
 )
 {
-    m_binding       = 0;
-    m_ref               = 0;
-    m_bInAbort      = 0;
+    m_binding = 0;
+    m_ref = 0;
+    m_bInAbort = 0;
     m_bCheckedForServiceProvider = 0;
-    m_bInCache      = 0;
-    m_readSoFar     = 0;
-    m_UserStream    = 0;
-    m_encoding      = 0;
-    m_bscoFlags    = bscof;
+    m_bInCache = 0;
+    m_readSoFar = 0;
+    m_UserStream = 0;
+    m_encoding = 0;
+    m_bscoFlags = bscof;
     m_callbackServiceProvider = 0;
     m_szCacheFileName[0] = NULL;
-        m_finalResult   = S_OK;
+    m_finalResult = S_OK;
 
     _pBSCBMsg = 0;
 
-    if( (m_callback = callback) != 0 )
+    if ((m_callback = callback) != 0)
         m_callback->AddRef();
 
-    if( (m_caller = caller) != 0 )
+    if ((m_caller = caller) != 0)
         caller->AddRef();
 }
 
@@ -660,33 +659,27 @@ CBaseBSCB::~CBaseBSCB()
 void
 CBaseBSCB::Neutralize()
 {
-    if( m_binding )
-    {
+    if (m_binding) {
         m_binding->Release();
         m_binding = 0;
     }
-    if( m_caller )
-    {
+    if (m_caller) {
         m_caller->Release();
         m_caller = 0;
     }
-    if( m_callback )
-    {
+    if (m_callback) {
         m_callback->Release();
         m_callback = 0;
     }
-    if( m_callbackServiceProvider )
-    {
+    if (m_callbackServiceProvider) {
         m_callbackServiceProvider->Release();
         m_callbackServiceProvider = 0;
     }
-    if( m_UserStream )
-    {
+    if (m_UserStream) {
         m_UserStream->Release();
         m_UserStream = 0;
     }
-    if (_pBSCBMsg)
-    {
+    if (_pBSCBMsg) {
         _pBSCBMsg->Release();
     }
 }
@@ -695,36 +688,33 @@ CBaseBSCB::Neutralize()
 STDMETHODIMP
 CBaseBSCB::QueryInterface
 (
-    const GUID &iid,
-    void **     ppv
+    const GUID& iid,
+    void** ppv
 )
 {
-    CHECK_METHOD(CBaseBSCB::QueryInterface, ("") );
+    CHECK_METHOD(CBaseBSCB::QueryInterface, (""));
 
-    if (iid==IID_IUnknown || iid==IID_IBindStatusCallback)
-    {
-        *ppv =(IBindStatusCallback*)this;
+    if (iid == IID_IUnknown || iid == IID_IBindStatusCallback) {
+        *ppv = (IBindStatusCallback*)this;
         AddRef();
         return(NOERROR);
     }
 
 
-    if( iid==IID_IServiceProvider)
-    {
-        *ppv =(IServiceProvider*)this;
+    if (iid == IID_IServiceProvider) {
+        *ppv = (IServiceProvider*)this;
         AddRef();
         return(NOERROR);
     }
 
-    if (iid==IID_IBindStatusCallbackMsg)
-    {
-        *ppv =(IBindStatusCallbackMsg*)this;
+    if (iid == IID_IBindStatusCallbackMsg) {
+        *ppv = (IBindStatusCallbackMsg*)this;
         AddRef();
         return(NOERROR);
     }
 
 
-    return( E_NOINTERFACE );
+    return(E_NOINTERFACE);
 }
 
 // IServiceProvider::QueryService
@@ -733,46 +723,43 @@ CBaseBSCB::QueryService
 (
     REFGUID rsid,
     REFIID iid,
-    void **ppvObj
+    void** ppvObj
 )
 {
-    CHECK_METHOD(CBaseBSCB::QueryService, ("") );
+    CHECK_METHOD(CBaseBSCB::QueryService, (""));
 
     HRESULT hr = E_NOINTERFACE;
 
-    if (iid==IID_IBindStatusCallback)
-    {
-        *ppvObj =(IBindStatusCallbackMsg*)this;
+    if (iid == IID_IBindStatusCallback) {
+        *ppvObj = (IBindStatusCallbackMsg*)this;
         AddRef();
         return(NOERROR);
     }
 
 
-    if( m_callback )
-        hr = m_callback->QueryInterface( iid, ppvObj );
+    if (m_callback)
+        hr = m_callback->QueryInterface(iid, ppvObj);
 
-    if( FAILED(hr) && !m_callbackServiceProvider && !m_bCheckedForServiceProvider )
-    {
-       m_bCheckedForServiceProvider = 1;
+    if (FAILED(hr) && !m_callbackServiceProvider && !m_bCheckedForServiceProvider) {
+        m_bCheckedForServiceProvider = 1;
 
-       if( m_callback )
-       {
+        if (m_callback) {
             hr = m_callback->QueryInterface
-                                (
-                                  IID_IServiceProvider,
-                                  (void**)&m_callbackServiceProvider
-                                );
-       }
+            (
+                IID_IServiceProvider,
+                (void**)&m_callbackServiceProvider
+            );
+        }
 
-        if( SUCCEEDED(hr) && m_callbackServiceProvider )
-            hr = m_callbackServiceProvider->QueryService(rsid,iid,ppvObj);
+        if (SUCCEEDED(hr) && m_callbackServiceProvider)
+            hr = m_callbackServiceProvider->QueryService(rsid, iid, ppvObj);
         else
             hr = E_NOINTERFACE; // BUGBUG: what's that error code again?
     }
 
     HANDLE_ABORT(hr);
 
-    return( hr );
+    return(hr);
 }
 
 
@@ -781,30 +768,29 @@ STDMETHODIMP
 CBaseBSCB::OnStartBinding
 (
     DWORD       grfBSCOption,
-    IBinding   *pib
+    IBinding* pib
 )
 {
-    CHECK_METHOD(CBaseBSCB::OnStartBinding, ("flags: %#08x, IBinding: %#08x",grfBSCOption,pib) );
+    CHECK_METHOD(CBaseBSCB::OnStartBinding, ("flags: %#08x, IBinding: %#08x", grfBSCOption, pib));
 
     CHECK_INTERFACE(pib);
 
-    HRESULT hr = SignalOnStartBinding(grfBSCOption,pib);
+    HRESULT hr = SignalOnStartBinding(grfBSCOption, pib);
 
     // smooth over user's e_not_implemented for when we
     // return to urlmon
 
-    if( hr == E_NOTIMPL )
+    if (hr == E_NOTIMPL)
         hr = NOERROR;
     else
         HANDLE_ABORT(hr);
 
-    if( SUCCEEDED(hr) )
-    {
+    if (SUCCEEDED(hr)) {
         pib->AddRef();
         m_binding = pib;
     }
 
-    return( hr );
+    return(hr);
 }
 
 
@@ -812,10 +798,10 @@ CBaseBSCB::OnStartBinding
 STDMETHODIMP
 CBaseBSCB::GetPriority
 (
-    LONG  *pnPriority
+    LONG* pnPriority
 )
 {
-    CHECK_METHOD(CBaseBSCB::GetPriority, ("pnPriority: %#08x", pnPriority) );
+    CHECK_METHOD(CBaseBSCB::GetPriority, ("pnPriority: %#08x", pnPriority));
     CHECK_POINTER(pnPriority);
 
     if (!pnPriority)
@@ -823,38 +809,35 @@ CBaseBSCB::GetPriority
 
     HRESULT hr = SignalOnGetPriority(pnPriority);
 
-    if( hr == E_NOTIMPL )
-    {
+    if (hr == E_NOTIMPL) {
         // only override if caller doesn't implement.
         *pnPriority = NORMAL_PRIORITY_CLASS;
         hr = NOERROR;
-    }
-    else
-    {
+    } else {
         HANDLE_ABORT(hr);
     }
 
-    return( hr );
+    return(hr);
 
 }
 
 
 // IBindStatusCallback::OnLowResource
 STDMETHODIMP
-CBaseBSCB::OnLowResource( DWORD rsv)
+CBaseBSCB::OnLowResource(DWORD rsv)
 {
-    CHECK_METHOD(CBaseBSCB::OnLowResource, ("resv: %#08x",rsv) );
+    CHECK_METHOD(CBaseBSCB::OnLowResource, ("resv: %#08x", rsv));
 
     HRESULT hr = SignalOnLowResource(rsv);
 
     // Keep downloading...
 
-    if( hr == E_NOTIMPL )
+    if (hr == E_NOTIMPL)
         hr = NOERROR;
     else
         HANDLE_ABORT(hr);
 
-    return( hr );
+    return(hr);
 }
 
 
@@ -866,25 +849,24 @@ CBaseBSCB::OnStopBinding
     LPCWSTR szError
 )
 {
-    CHECK_METHOD(CBaseBSCB::OnStopBinding, ("%#08X %ws", hresult, szError ? szError : L"[no error]" )  );
+    CHECK_METHOD(CBaseBSCB::OnStopBinding, ("%#08X %ws", hresult, szError ? szError : L"[no error]"));
 
     // Store the hresult so we can return it to caller in the
     // blocking/sync case.
 
-    HRESULT hr = SignalOnStopBinding( m_finalResult = hresult, szError );
+    HRESULT hr = SignalOnStopBinding(m_finalResult = hresult, szError);
 
-    if( m_binding )
-    {
+    if (m_binding) {
         m_binding->Release();
         m_binding = 0;
     }
 
-    if( hr == E_NOTIMPL )
+    if (hr == E_NOTIMPL)
         hr = NOERROR;
     else
         HANDLE_ABORT(hr);
 
-    return( hr );
+    return(hr);
 }
 
 
@@ -893,25 +875,23 @@ CBaseBSCB::OnStopBinding
 STDMETHODIMP
 CBaseBSCB::GetBindInfo
 (
-    DWORD  *    grfBINDF,
-    BINDINFO*   pbindinfo
+    DWORD* grfBINDF,
+    BINDINFO* pbindinfo
 )
 {
-    CHECK_METHOD(CBaseBSCB::GetBindInfo, ("grfBINDF: %#08x, pbinfinfo ",grfBINDF) );
+    CHECK_METHOD(CBaseBSCB::GetBindInfo, ("grfBINDF: %#08x, pbinfinfo ", grfBINDF));
 
     CHECK_POINTER(grfBINDF);
     CHECK_POINTER(pbindinfo);
 
     *grfBINDF = 0;
 
-    HRESULT hr = SignalGetBindInfo(grfBINDF,pbindinfo);
+    HRESULT hr = SignalGetBindInfo(grfBINDF, pbindinfo);
 
-    if( SUCCEEDED(hr) || (hr == E_NOTIMPL) )
-    {
+    if (SUCCEEDED(hr) || (hr == E_NOTIMPL)) {
         // Let the derived class choose the bind flags
 
-        if(m_encoding)
-        {
+        if (m_encoding) {
             *grfBINDF |= m_encoding;
             pbindinfo->grfBindInfoF |= m_encoding;
         }
@@ -921,7 +901,7 @@ CBaseBSCB::GetBindInfo
 
     HANDLE_ABORT(hr);
 
-    return( hr );
+    return(hr);
 }
 
 
@@ -930,11 +910,11 @@ STDMETHODIMP
 CBaseBSCB::OnObjectAvailable
 (
     REFIID riid,
-    IUnknown  *punk
+    IUnknown* punk
 )
 {
     // This should never be called
-    CHECK_METHOD(CBaseBSCB::OnObjectAvailable, ("!") );
+    CHECK_METHOD(CBaseBSCB::OnObjectAvailable, ("!"));
     UOSASSERT(0 && "This should never be called");
     return(NOERROR);
 }
@@ -948,7 +928,7 @@ CBaseBSCB::OnProgress
     LPCWSTR szStatusText
 )
 {
-    CHECK_METHOD(CBaseBSCB::OnProgress, ("!") );
+    CHECK_METHOD(CBaseBSCB::OnProgress, ("!"));
 
     // URL moniker has a habit of passing ZERO
     // into ulProgressMax. So.. let's at least
@@ -959,19 +939,19 @@ CBaseBSCB::OnProgress
     // This is useful information for the IStream implementation
 
 
-    if( ulStatusCode == BINDSTATUS_USINGCACHEDCOPY )
+    if (ulStatusCode == BINDSTATUS_USINGCACHEDCOPY)
         m_bInCache = TRUE;
 
     HRESULT hr;
 
-    hr = SignalOnProgress( ulStatusCode, ulProgress, ulProgressMax, szStatusText );
+    hr = SignalOnProgress(ulStatusCode, ulProgress, ulProgressMax, szStatusText);
 
-    if( hr == E_NOTIMPL )
+    if (hr == E_NOTIMPL)
         hr = NOERROR;
     else
         HANDLE_ABORT(hr);
 
-    return( hr );
+    return(hr);
 }
 
 // IBindStatusCallback::OnDataAvailable.
@@ -981,59 +961,53 @@ CBaseBSCB::OnDataAvailable
 (
     DWORD           grfBSCF,
     DWORD           dwSize,
-    FORMATETC  *pformatetc,
-    STGMEDIUM  *pstgmed
+    FORMATETC* pformatetc,
+    STGMEDIUM* pstgmed
 )
 {
     CHECK_METHOD(CBaseBSCB::OnDataAvailable,
-                                ("Flags: %x, dwSize: %d", grfBSCF, dwSize) );
+                 ("Flags: %x, dwSize: %d", grfBSCF, dwSize));
 
     HRESULT hr = NOERROR;
 
     // N.B Assumption here is that the pstgmed->pstm will always be the same
 
-     if( !m_UserStream )
-     {
-            // We need to bump the refcount every time we
-            // copy and store the pointer.
+    if (!m_UserStream) {
+        // We need to bump the refcount every time we
+        // copy and store the pointer.
 
         m_UserStream = pstgmed->pstm;
         m_UserStream->AddRef();
-     }
+    }
 
-     if (*m_szCacheFileName == NULL)
-     {
-         STATSTG statstg;
-         DWORD dwVal = 0;
+    if (*m_szCacheFileName == NULL) {
+        STATSTG statstg;
+        DWORD dwVal = 0;
 
-         if (m_UserStream->Stat(&statstg,dwVal) == S_OK)
-         {
-             if (0==WideCharToMultiByte(  CP_ACP, 0, statstg.pwcsName, lstrlenW(statstg.pwcsName)+1, m_szCacheFileName,
-                         MAX_PATH, NULL, NULL))
-             {
-                   m_szCacheFileName[0] = NULL;
-             }
-             if (statstg.pwcsName)
-             {
-                 CoTaskMemFree(statstg.pwcsName);
-                 statstg.pwcsName = NULL;
-             }
-         }
-         else
+        if (m_UserStream->Stat(&statstg, dwVal) == S_OK) {
+            if (0 == WideCharToMultiByte(CP_ACP, 0, statstg.pwcsName, lstrlenW(statstg.pwcsName) + 1, m_szCacheFileName,
+                                         MAX_PATH, NULL, NULL)) {
+                m_szCacheFileName[0] = NULL;
+            }
+            if (statstg.pwcsName) {
+                CoTaskMemFree(statstg.pwcsName);
+                statstg.pwcsName = NULL;
+            }
+        } else
             m_szCacheFileName[0] = NULL;
-     }
+    }
 
-    hr = SignalOnData( grfBSCF, dwSize, pformatetc );
+    hr = SignalOnData(grfBSCF, dwSize, pformatetc);
 
     // Tell the blocking state machine we are have data.
     // ClearState( WAITING_FOR_DATA );
 
-    if( hr == E_NOTIMPL )
+    if (hr == E_NOTIMPL)
         hr = NOERROR;
     else
         HANDLE_ABORT(hr);
 
-    return( hr );
+    return(hr);
 }
 
 // IBindStatusCallback::MessagePending.
@@ -1043,93 +1017,84 @@ STDMETHODIMP CBaseBSCB::MessagePending(DWORD  dwPendingType, DWORD  dwPendingRec
     MSG msg;
     HRESULT hr = NOERROR;
 
-    if (m_callback && !_pBSCBMsg)
-    {
-        hr = m_callback->QueryInterface(IID_IBindStatusCallbackMsg, (void **) &_pBSCBMsg);
+    if (m_callback && !_pBSCBMsg) {
+        hr = m_callback->QueryInterface(IID_IBindStatusCallbackMsg, (void**)&_pBSCBMsg);
     }
 
-    if (_pBSCBMsg && hr == NOERROR )
-    {
-        hr = _pBSCBMsg->MessagePending(dwPendingType, dwPendingRecursion, dwReserved );
+    if (_pBSCBMsg && hr == NOERROR) {
+        hr = _pBSCBMsg->MessagePending(dwPendingType, dwPendingRecursion, dwReserved);
     }
 
     return hr;
 }
 
 HRESULT
-CBaseBSCB::KickOffDownload( LPCWSTR szURL )
+CBaseBSCB::KickOffDownload(LPCWSTR szURL)
 {
     HRESULT                 hr;
-    IOleObject *        pOleObject = 0;
-    IServiceProvider *  pServiceProvider = 0;
+    IOleObject* pOleObject = 0;
+    IServiceProvider* pServiceProvider = 0;
     BOOL                bUseCaller = (Caller() != 0);
-    IMoniker *          pmkr = 0;
-    IBindCtx *          pBndCtx = 0;
+    IMoniker* pmkr = 0;
+    IBindCtx* pBndCtx = 0;
 
     CHECK_POINTER(szURL);
     UOSASSERT(*szURL);
 
 
-    IStream * pstrm = 0;
+    IStream* pstrm = 0;
 
     // Don't bother if we don't have a caller...
 
-    if( bUseCaller )
-    {
+    if (bUseCaller) {
         // By convention the we give the caller first crack at service
         // provider. The assumption here is that if they implement it
         // they have the decency to forward QS's to their container.
 
-        hr = Caller()->QueryInterface( IID_IServiceProvider,
-                                        (void**)&pServiceProvider );
+        hr = Caller()->QueryInterface(IID_IServiceProvider,
+                                      (void**)&pServiceProvider);
 
-        if( FAILED(hr) )
-        {
+        if (FAILED(hr)) {
             // Ok, now try the 'slow way' : maybe the object is an 'OLE' object
             // that knows about it's client site:
 
-            hr = Caller()->QueryInterface( IID_IOleObject, (void**)&pOleObject );
+            hr = Caller()->QueryInterface(IID_IOleObject, (void**)&pOleObject);
 
-            if( SUCCEEDED(hr) )
-            {
-                IOleClientSite * pClientSite = 0;
+            if (SUCCEEDED(hr)) {
+                IOleClientSite* pClientSite = 0;
 
                 hr = pOleObject->GetClientSite(&pClientSite);
 
-                if( SUCCEEDED(hr) )
-                {
+                if (SUCCEEDED(hr)) {
                     // Now see if we have a service provider at that site
                     hr = pClientSite->QueryInterface
-                                            ( IID_IServiceProvider,
-                                            (void**)&pServiceProvider );
+                    (IID_IServiceProvider,
+                     (void**)&pServiceProvider);
                 }
 
-                if( pClientSite )
+                if (pClientSite)
                     pClientSite->Release();
-            }
-            else
-            {
+            } else {
                 // Ok, it's not an OLE object, maybe it's one of these
                 // new fangled 'ObjectWithSites':
 
-                IObjectWithSite * pObjWithSite = 0;
+                IObjectWithSite* pObjWithSite = 0;
 
-                hr = Caller()->QueryInterface( IID_IObjectWithSite,
-                                                    (void**)&pObjWithSite );
+                hr = Caller()->QueryInterface(IID_IObjectWithSite,
+                                              (void**)&pObjWithSite);
 
-                if( SUCCEEDED(hr) )
-                {
+                if (SUCCEEDED(hr)) {
                     // Now see if we have a service provider at that site
 
                     hr = pObjWithSite->GetSite(IID_IServiceProvider,
-                                                (void**)&pServiceProvider);
+                                               (void**)&pServiceProvider);
                 }
 
-                if( pObjWithSite )
+                if (pObjWithSite)
                     pObjWithSite->Release();
 
             }
-            if( pOleObject )
+            if (pOleObject)
                 pOleObject->Release();
 
         }
@@ -1138,86 +1103,79 @@ CBaseBSCB::KickOffDownload( LPCWSTR szURL )
         //  this may be too harsh and we should loop on client sites
         // until we get to the top...
 
-        if( !pServiceProvider )
+        if (!pServiceProvider)
             hr = E_UNEXPECTED;
 
-        IBindHost * pBindHost = 0;
+        IBindHost* pBindHost = 0;
 
         // Ok, we have a service provider, let's see if BindHost is
         // available. (Here there is some upward delegation going on
         // via service provider).
 
-        if( SUCCEEDED(hr) )
-            hr = pServiceProvider->QueryService( SID_SBindHost, IID_IBindHost,
-                                                        (void**)&pBindHost );
+        if (SUCCEEDED(hr))
+            hr = pServiceProvider->QueryService(SID_SBindHost, IID_IBindHost,
+                                                (void**)&pBindHost);
 
-        if( pServiceProvider )
+        if (pServiceProvider)
             pServiceProvider->Release();
 
         pmkr = 0;
 
-        if( pBindHost )
-        {
+        if (pBindHost) {
             // This allows the container to actually drive the download
             // by creating it's own moniker.
 
-            hr = pBindHost->CreateMoniker( LPOLESTR(szURL),NULL, &pmkr,0 );
+            hr = pBindHost->CreateMoniker(LPOLESTR(szURL), NULL, &pmkr, 0);
 
 
 
-            if( SUCCEEDED(hr) )
-            {
+            if (SUCCEEDED(hr)) {
                 // This allows containers to hook the download for
                 // doing progress and aborting
 
-                hr = pBindHost->MonikerBindToStorage(pmkr, NULL, this, IID_IStream,(void**)&pstrm);
+                hr = pBindHost->MonikerBindToStorage(pmkr, NULL, this, IID_IStream, (void**)&pstrm);
             }
 
             pBindHost->Release();
-        }
-        else
-        {
+        } else {
             bUseCaller = 0;
         }
     }
 
-    if( !bUseCaller )
-    {
+    if (!bUseCaller) {
         // If you are here, then either the caller didn't pass
         // a 'caller' pointer or the caller is not in a BindHost
         // friendly environment.
 
-        hr = ::CreateURLMoniker( 0, szURL, &pmkr );
+        hr = ::CreateURLMoniker(0, szURL, &pmkr);
 
-        if( SUCCEEDED(hr) )
-            hr = ::CreateBindCtx( 0, &pBndCtx );
+        if (SUCCEEDED(hr))
+            hr = ::CreateBindCtx(0, &pBndCtx);
 
-                if( SUCCEEDED(hr) )
-                {
-                // Register US (not the caller) as the callback. This allows
-        // us to hook all notfiications from URL moniker and filter
-        // and manipulate to our satifisfaction.
-                         hr = ::RegisterBindStatusCallback( pBndCtx, this, 0, 0L );
-                }
+        if (SUCCEEDED(hr)) {
+            // Register US (not the caller) as the callback. This allows
+    // us to hook all notfiications from URL moniker and filter
+    // and manipulate to our satifisfaction.
+            hr = ::RegisterBindStatusCallback(pBndCtx, this, 0, 0L);
+        }
 
-            if( SUCCEEDED(hr) )
-                {
-                        hr = pmkr->BindToStorage( pBndCtx, NULL, IID_IStream, (void**)&pstrm );
+        if (SUCCEEDED(hr)) {
+            hr = pmkr->BindToStorage(pBndCtx, NULL, IID_IStream, (void**)&pstrm);
 
-                        // Smooth out the error code
-                if( IS_E_PENDING(hr) )
-                            hr = S_OK;
-                }
+            // Smooth out the error code
+            if (IS_E_PENDING(hr))
+                hr = S_OK;
+        }
 
     }
 
-    if( pstrm )
+    if (pstrm)
         pstrm->Release();
 
-    if( pmkr )
+    if (pmkr)
         pmkr->Release();
 
-    if( pBndCtx )
+    if (pBndCtx)
         pBndCtx->Release();
 
     return(hr);
@@ -1236,33 +1194,33 @@ CBaseBSCB::KickOffDownload( LPCWSTR szURL )
 class CPullDownload : public CBaseBSCB
 {
 public:
-    CPullDownload( IUnknown * caller, DWORD bscof, LPUOSCALLBACK callback );
+    CPullDownload(IUnknown* caller, DWORD bscof, LPUOSCALLBACK callback);
     STDMETHODIMP GetBindInfo(
-         DWORD  *grfBINDF,
-         BINDINFO  *pbindinfo);
+        DWORD* grfBINDF,
+        BINDINFO* pbindinfo);
 };
 
 inline
-CPullDownload::CPullDownload( IUnknown * caller, DWORD bscof, LPUOSCALLBACK callback )
-    : CBaseBSCB(caller,bscof,callback)
+CPullDownload::CPullDownload(IUnknown* caller, DWORD bscof, LPUOSCALLBACK callback)
+    : CBaseBSCB(caller, bscof, callback)
 {
 }
 
 STDMETHODIMP
 CPullDownload::GetBindInfo
 (
-        DWORD  *        grfBINDF,
-    BINDINFO  * pbindinfo
+    DWORD* grfBINDF,
+    BINDINFO* pbindinfo
 )
 {
     // pointers are validated in base class
 
-        HRESULT hr = CBaseBSCB::GetBindInfo( grfBINDF, pbindinfo );
+    HRESULT hr = CBaseBSCB::GetBindInfo(grfBINDF, pbindinfo);
 
-        if( SUCCEEDED(hr))
-                *grfBINDF = BINDF_ASYNCSTORAGE | BINDF_PULLDATA | BINDF_ASYNCHRONOUS;
+    if (SUCCEEDED(hr))
+        *grfBINDF = BINDF_ASYNCSTORAGE | BINDF_PULLDATA | BINDF_ASYNCHRONOUS;
 
-        return(hr);
+    return(hr);
 }
 
 
@@ -1282,11 +1240,11 @@ CPullDownload::GetBindInfo
 class CPushDownload : public CBaseBSCB
 {
 public:
-    CPushDownload( IUnknown * caller, DWORD bscof, LPUOSCALLBACK callback );
+    CPushDownload(IUnknown* caller, DWORD bscof, LPUOSCALLBACK callback);
     ~CPushDownload();
     STDMETHODIMP GetBindInfo(
-         DWORD  *grfBINDF,
-         BINDINFO  *pbindinfo);
+        DWORD* grfBINDF,
+        BINDINFO* pbindinfo);
 protected:
 
     // CBaseBSCB
@@ -1298,19 +1256,19 @@ protected:
 
     STDMETHODIMP OnDataAvailable
     (
-         DWORD          grfBSCF,
-         DWORD          dwSize,
-         FORMATETC *    pFmtetc,
-         STGMEDIUM *    pstgmed
-    ) ;
+        DWORD          grfBSCF,
+        DWORD          dwSize,
+        FORMATETC* pFmtetc,
+        STGMEDIUM* pstgmed
+    );
 
 private:
     HRESULT CleanupPush();
 };
 
 
-CPushDownload::CPushDownload( IUnknown * caller, DWORD bscof, LPUOSCALLBACK callback )
-    : CBaseBSCB(caller,bscof, callback)
+CPushDownload::CPushDownload(IUnknown* caller, DWORD bscof, LPUOSCALLBACK callback)
+    : CBaseBSCB(caller, bscof, callback)
 {
 }
 
@@ -1338,16 +1296,15 @@ CPushDownload::CleanupPush()
 STDMETHODIMP
 CPushDownload::OnDataAvailable
 (
-     DWORD              grfBSCF,
-     DWORD              dwSize,
-     FORMATETC *    pFmtetc,
-     STGMEDIUM *    pstgmed
+    DWORD              grfBSCF,
+    DWORD              dwSize,
+    FORMATETC* pFmtetc,
+    STGMEDIUM* pstgmed
 )
 {
     HRESULT hr = NOERROR;
 
-    if( SUCCEEDED(hr) &&  pstgmed->pstm )
-    {
+    if (SUCCEEDED(hr) && pstgmed->pstm) {
 
         m_UserStream = pstgmed->pstm;
 
@@ -1357,8 +1314,8 @@ CPushDownload::OnDataAvailable
 
     }
 
-    if( SUCCEEDED(hr) || IS_E_PENDING(hr) )
-        hr = CBaseBSCB::OnDataAvailable(grfBSCF,dwSize,pFmtetc,pstgmed);
+    if (SUCCEEDED(hr) || IS_E_PENDING(hr))
+        hr = CBaseBSCB::OnDataAvailable(grfBSCF, dwSize, pFmtetc, pstgmed);
 
     return(hr);
 }
@@ -1366,17 +1323,17 @@ CPushDownload::OnDataAvailable
 STDMETHODIMP
 CPushDownload::GetBindInfo
 (
-        DWORD  *        grfBINDF,
-    BINDINFO  * pbindinfo
+    DWORD* grfBINDF,
+    BINDINFO* pbindinfo
 )
 {
 
-        HRESULT hr = CBaseBSCB::GetBindInfo( grfBINDF, pbindinfo );
+    HRESULT hr = CBaseBSCB::GetBindInfo(grfBINDF, pbindinfo);
 
-        // PushDownload can not be ASYNC
-        *grfBINDF = 0;
+    // PushDownload can not be ASYNC
+    *grfBINDF = 0;
 
-        return(hr);
+    return(hr);
 }
 
 
@@ -1387,24 +1344,24 @@ CPushDownload::GetBindInfo
 class CBlockDownload : public CPushDownload
 {
 public:
-    CBlockDownload( IUnknown * caller, DWORD bscof, LPUOSCALLBACK callback );
+    CBlockDownload(IUnknown* caller, DWORD bscof, LPUOSCALLBACK callback);
     ~CBlockDownload();
     STDMETHODIMP GetBindInfo(
-         DWORD  *grfBINDF,
-         BINDINFO  *pbindinfo);
-    HRESULT GetStream( IStream ** ppStream );
+        DWORD* grfBINDF,
+        BINDINFO* pbindinfo);
+    HRESULT GetStream(IStream** ppStream);
 };
 
 
 inline
-CBlockDownload::CBlockDownload( IUnknown * caller, DWORD bscof, LPUOSCALLBACK callback )
-    : CPushDownload(caller,bscof, callback)
+CBlockDownload::CBlockDownload(IUnknown* caller, DWORD bscof, LPUOSCALLBACK callback)
+    : CPushDownload(caller, bscof, callback)
 {
 
 }
 
 template <class T> inline
-HRESULT CheckThis( T * AThisPtr )
+HRESULT CheckThis(T* AThisPtr)
 {
     CHECK_INTERFACE(AThisPtr);
     return(NOERROR);
@@ -1416,7 +1373,7 @@ CBlockDownload::~CBlockDownload()
 }
 
 HRESULT
-CBlockDownload::GetStream( IStream ** ppStream )
+CBlockDownload::GetStream(IStream** ppStream)
 {
     // REMEMBER: If you get this pointer and return it
     // to caller YOU MUST add ref it before handing
@@ -1424,25 +1381,24 @@ CBlockDownload::GetStream( IStream ** ppStream )
 
     HRESULT hr = E_FAIL;
 
-    if( m_UserStream )
-    {
+    if (m_UserStream) {
         *ppStream = m_UserStream;
         hr = S_OK;
     }
 
-    return( hr );
+    return(hr);
 }
 
 STDMETHODIMP
 CBlockDownload::GetBindInfo
 (
-    DWORD      * grfBINDF,
-    BINDINFO  * pbindinfo
+    DWORD* grfBINDF,
+    BINDINFO* pbindinfo
 )
 {
-        HRESULT hr = CBaseBSCB::GetBindInfo( grfBINDF, pbindinfo );
+    HRESULT hr = CBaseBSCB::GetBindInfo(grfBINDF, pbindinfo);
 
-        return(hr);
+    return(hr);
 }
 
 
@@ -1458,28 +1414,28 @@ CBlockDownload::GetBindInfo
 class CFileDownload : public CBaseBSCB
 {
 public:
-        CFileDownload( IUnknown * caller, DWORD bscof, LPUOSCALLBACK callback, LPCWSTR szFileName=0);
-        ~CFileDownload();
+    CFileDownload(IUnknown* caller, DWORD bscof, LPUOSCALLBACK callback, LPCWSTR szFileName = 0);
+    ~CFileDownload();
     void SetFileName(LPCWSTR);
 
     STDMETHODIMP OnDataAvailable(
-             DWORD grfBSCF,
-             DWORD dwSize,
-             FORMATETC  *pformatetc,
-             STGMEDIUM  *pstgmed);
+        DWORD grfBSCF,
+        DWORD dwSize,
+        FORMATETC* pformatetc,
+        STGMEDIUM* pstgmed);
 
     STDMETHODIMP GetBindInfo(
-             DWORD  *grfBINDF,
-             BINDINFO  *pbindinfo);
+        DWORD* grfBINDF,
+        BINDINFO* pbindinfo);
 
-    STDMETHOD(KickOffDownload)( LPCWSTR szURL );
+    STDMETHOD(KickOffDownload)(LPCWSTR szURL);
 
     virtual void Neutralize();
 
 private:
     HRESULT Cleanup();
 
-    unsigned char * m_buffer;
+    unsigned char* m_buffer;
     unsigned long   m_bufsize;
     HANDLE          m_file;
     LPCWSTR         m_filename;
@@ -1498,67 +1454,65 @@ CFileDownload::SetFileName(LPCWSTR newFileName)
 
 CFileDownload::CFileDownload
 (
-        IUnknown *              caller,
-        DWORD                   bscof,
-        LPUOSCALLBACK            callback,
-        LPCWSTR                 szFileName
+    IUnknown* caller,
+    DWORD                   bscof,
+    LPUOSCALLBACK            callback,
+    LPCWSTR                 szFileName
 )
-        : CBaseBSCB(caller, bscof, callback)
+    : CBaseBSCB(caller, bscof, callback)
 {
-        m_buffer   = 0;
-        m_bufsize  = 0;
-        m_file     = INVALID_HANDLE_VALUE;
-        m_filename = szFileName;
+    m_buffer = 0;
+    m_bufsize = 0;
+    m_file = INVALID_HANDLE_VALUE;
+    m_filename = szFileName;
 
-        m_okFromCache = 0;
+    m_okFromCache = 0;
 }
 
 CFileDownload::~CFileDownload()
 {
-        Cleanup();
+    Cleanup();
 }
 
 STDMETHODIMP
-CFileDownload::KickOffDownload( LPCWSTR szURL )
+CFileDownload::KickOffDownload(LPCWSTR szURL)
 {
     // MAGIC: registry flag determines whether we
     // nuke this guy from the cache or not
 
-    GetDLMRegDWord( _TEXT("CacheOk"), &m_okFromCache );
-    return( CBaseBSCB::KickOffDownload(szURL) );
+    GetDLMRegDWord(_TEXT("CacheOk"), &m_okFromCache);
+    return(CBaseBSCB::KickOffDownload(szURL));
 }
 
 HRESULT CFileDownload::Cleanup()
 {
-        if( m_buffer )
-        {
-                delete m_buffer;
-                m_buffer = 0;
-        }
+    if (m_buffer) {
+        delete m_buffer;
+        m_buffer = 0;
+    }
 
-        if( m_file != INVALID_HANDLE_VALUE )
-        {
-                CloseHandle(m_file);
-                m_file = INVALID_HANDLE_VALUE;
-        }
+    if (m_file != INVALID_HANDLE_VALUE) {
+        CloseHandle(m_file);
+        m_file = INVALID_HANDLE_VALUE;
+    }
 
-        return(NOERROR);
+    return(NOERROR);
 }
 
 STDMETHODIMP
 CFileDownload::GetBindInfo
 (
-        DWORD     * grfBINDF,
-        BINDINFO  * pbindinfo
+    DWORD* grfBINDF,
+    BINDINFO* pbindinfo
 )
 {
 
-        HRESULT hr = CBaseBSCB::GetBindInfo( grfBINDF, pbindinfo );
+    HRESULT hr = CBaseBSCB::GetBindInfo(grfBINDF, pbindinfo);
 
-        if( SUCCEEDED(hr) && !m_okFromCache )
-                *grfBINDF =  BINDF_PULLDATA;
+    if (SUCCEEDED(hr) && !m_okFromCache)
+        *grfBINDF = BINDF_PULLDATA;
 
-        return(hr);
+    return(hr);
 }
 
 
@@ -1567,89 +1521,82 @@ CFileDownload::OnDataAvailable
 (
     DWORD       grfBSCF,
     DWORD       dwSize,
-    FORMATETC  *pformatetc,
-    STGMEDIUM  *pstgmed
+    FORMATETC* pformatetc,
+    STGMEDIUM* pstgmed
 )
 {
     // Pointers are validated in base class
 
-    HRESULT hr = CBaseBSCB::OnDataAvailable(grfBSCF,dwSize,pformatetc,pstgmed);
+    HRESULT hr = CBaseBSCB::OnDataAvailable(grfBSCF, dwSize, pformatetc, pstgmed);
 
-    if( FAILED(hr) || (dwSize == m_readSoFar) )
+    if (FAILED(hr) || (dwSize == m_readSoFar))
         return(hr);
 
-    if( (m_file == INVALID_HANDLE_VALUE)  && dwSize )
-    {
+    if ((m_file == INVALID_HANDLE_VALUE) && dwSize) {
         CHECK_POINTER(m_filename);
 
-        hr = MyCreateFile(m_filename,m_file);
+        hr = MyCreateFile(m_filename, m_file);
 
-        if( FAILED(hr) )
+        if (FAILED(hr))
             hr = E_ABORT;
     }
 
     HANDLE_ABORT(hr);
 
-    UOSASSERT( (m_file != INVALID_HANDLE_VALUE) );
+    UOSASSERT((m_file != INVALID_HANDLE_VALUE));
 
     // Only allocate a read buffer if the one we have is not
     // big enough.
 
-    if( m_buffer && (m_bufsize < (dwSize- m_readSoFar+1)) )
-    {
+    if (m_buffer && (m_bufsize < (dwSize - m_readSoFar + 1))) {
         delete m_buffer;
         m_buffer = 0;
-        m_bufsize=0;
+        m_bufsize = 0;
     }
 
-    if( !m_buffer )
-    {
-        m_bufsize=dwSize- m_readSoFar+1;
-        DPRINTF( ("Allocating read buffer %d\n",m_bufsize) );
-        m_buffer = new unsigned char [(dwSize- m_readSoFar+1)];
+    if (!m_buffer) {
+        m_bufsize = dwSize - m_readSoFar + 1;
+        DPRINTF(("Allocating read buffer %d\n", m_bufsize));
+        m_buffer = new unsigned char[(dwSize - m_readSoFar + 1)];
     }
 
     CHECK_MEMORY(m_buffer);
 
     DWORD dwReadThisMuch = dwSize - m_readSoFar;
-    DWORD dwActual       = 0;
-    DWORD dwCurrentRead  = 0;
+    DWORD dwActual = 0;
+    DWORD dwCurrentRead = 0;
 
-    unsigned char * temp = m_buffer;
-    do
-    {
-        hr = m_UserStream->Read(temp,dwReadThisMuch,&dwActual);
+    unsigned char* temp = m_buffer;
+    do {
+        hr = m_UserStream->Read(temp, dwReadThisMuch, &dwActual);
         dwCurrentRead += dwActual;
         dwReadThisMuch -= dwActual;
         temp += dwActual;
 
-    }
-    while (!(hr == S_FALSE || hr == E_PENDING) && SUCCEEDED(hr));
+    } while (!(hr == S_FALSE || hr == E_PENDING) && SUCCEEDED(hr));
 
-    if( dwCurrentRead )
-    {
+    if (dwCurrentRead) {
         m_readSoFar += (dwReadThisMuch = dwCurrentRead);
 
         BOOL bWriteOk = ::WriteFile(
-                            m_file, // HANDLE  hFile,    // handle to file to write to
-                            m_buffer, // LPCVOID  lpBuffer,    // pointer to data to write to file
-                            dwReadThisMuch,        // DWORD  nNumberOfBytesToWrite,    // number of bytes to write
-                            &dwActual,    // pointer to number of bytes written
-                            0 ); // LPOVERLAPPED  lpOverlapped     // addr. of structure needed for overlapped
+            m_file, // HANDLE  hFile,    // handle to file to write to
+            m_buffer, // LPCVOID  lpBuffer,    // pointer to data to write to file
+            dwReadThisMuch,        // DWORD  nNumberOfBytesToWrite,    // number of bytes to write
+            &dwActual,    // pointer to number of bytes written
+            0); // LPOVERLAPPED  lpOverlapped     // addr. of structure needed for overlapped
 
-        if( !bWriteOk )
+        if (!bWriteOk)
             hr = E_FAIL;
     }
 
     // PUMPREAD(pstgmed->pstm);
 
-    if (grfBSCF & BSCF_LASTDATANOTIFICATION)
-    {
+    if (grfBSCF & BSCF_LASTDATANOTIFICATION) {
         CloseHandle(m_file);
         m_file = INVALID_HANDLE_VALUE;
     }
 
-    return( hr );
+    return(hr);
 }
 void
 CFileDownload::Neutralize()
@@ -1672,57 +1619,57 @@ CFileDownload::Neutralize()
 class CCacheFileDownload : public CBaseBSCB
 {
 public:
-        CCacheFileDownload( IUnknown * caller, DWORD bscof, LPUOSCALLBACK callback, LPCWSTR szFileName=0);
-        ~CCacheFileDownload();
+    CCacheFileDownload(IUnknown* caller, DWORD bscof, LPUOSCALLBACK callback, LPCWSTR szFileName = 0);
+    ~CCacheFileDownload();
 
     STDMETHODIMP OnDataAvailable(
-             DWORD grfBSCF,
-             DWORD dwSize,
-             FORMATETC  *pformatetc,
-             STGMEDIUM  *pstgmed);
+        DWORD grfBSCF,
+        DWORD dwSize,
+        FORMATETC* pformatetc,
+        STGMEDIUM* pstgmed);
 
     STDMETHODIMP GetBindInfo(
-             DWORD  *grfBINDF,
-             BINDINFO  *pbindinfo);
+        DWORD* grfBINDF,
+        BINDINFO* pbindinfo);
 
-    STDMETHOD(KickOffDownload)( LPCWSTR szURL );
+    STDMETHOD(KickOffDownload)(LPCWSTR szURL);
 private:
-        DWORD m_readSoFar;
+    DWORD m_readSoFar;
 };
 
 CCacheFileDownload::CCacheFileDownload
 (
-        IUnknown *              caller,
-        DWORD                   bscof,
-        LPUOSCALLBACK   callback,
-        LPCWSTR                 szFileName
+    IUnknown* caller,
+    DWORD                   bscof,
+    LPUOSCALLBACK   callback,
+    LPCWSTR                 szFileName
 )
-        : CBaseBSCB(caller, bscof, callback)
+    : CBaseBSCB(caller, bscof, callback)
 {
-        m_readSoFar=0;
+    m_readSoFar = 0;
 }
 
 CCacheFileDownload::~CCacheFileDownload()
 {
-//      Cleanup();
+    //      Cleanup();
 }
 
 STDMETHODIMP
-CCacheFileDownload::KickOffDownload( LPCWSTR szURL )
+CCacheFileDownload::KickOffDownload(LPCWSTR szURL)
 {
-    return( CBaseBSCB::KickOffDownload(szURL) );
+    return(CBaseBSCB::KickOffDownload(szURL));
 }
 
 STDMETHODIMP
 CCacheFileDownload::GetBindInfo
 (
-    DWORD     * grfBINDF,
-    BINDINFO  * pbindinfo
+    DWORD* grfBINDF,
+    BINDINFO* pbindinfo
 )
 {
 
-        HRESULT hr = CBaseBSCB::GetBindInfo( grfBINDF, pbindinfo );
-        return(hr);
+    HRESULT hr = CBaseBSCB::GetBindInfo(grfBINDF, pbindinfo);
+    return(hr);
 }
 
 
@@ -1731,39 +1678,37 @@ CCacheFileDownload::OnDataAvailable
 (
     DWORD       grfBSCF,
     DWORD       dwSize,
-    FORMATETC  *pformatetc,
-    STGMEDIUM  *pstgmed
+    FORMATETC* pformatetc,
+    STGMEDIUM* pstgmed
 )
 {
     // Pointers are validated in base class
-        HRESULT hr = CBaseBSCB::OnDataAvailable(grfBSCF,dwSize,pformatetc,pstgmed);
+    HRESULT hr = CBaseBSCB::OnDataAvailable(grfBSCF, dwSize, pformatetc, pstgmed);
 
-        if( FAILED(hr) || (dwSize == m_readSoFar) )
-                return(hr);
+    if (FAILED(hr) || (dwSize == m_readSoFar))
+        return(hr);
 
-    IStream *       pstm=pstgmed->pstm;
-    if ( pstm && dwSize > m_readSoFar)
-        {
+    IStream* pstm = pstgmed->pstm;
+    if (pstm && dwSize > m_readSoFar) {
         DWORD dwRead = dwSize - m_readSoFar;
         DWORD dwActuallyRead;
 
-        char * lp = new char[dwRead + 1];
-            CHECK_MEMORY(lp);
-        hr=pstm->Read(lp,dwRead,&dwActuallyRead);
+        char* lp = new char[dwRead + 1];
+        CHECK_MEMORY(lp);
+        hr = pstm->Read(lp, dwRead, &dwActuallyRead);
 
-                // Might not be needed
-        if(hr!=S_OK)  // If Read Fails then return Error
-             if(hr!=E_PENDING)
-                 {
-                 delete lp;
-                 return(hr);
-                 }
+        // Might not be needed
+        if (hr != S_OK)  // If Read Fails then return Error
+            if (hr != E_PENDING) {
+                delete lp;
+                return(hr);
+            }
 
         delete lp;
         m_readSoFar += (dwRead = dwActuallyRead);
 
-        }
-        return( hr );
+    }
+    return(hr);
 }
 
 
@@ -1781,14 +1726,13 @@ URLOpenPullStreamW
 
     HRESULT hr;
 
-    CPullDownload * download = new CPullDownload(caller,URLOSTRM_NOTIFY_ONDATA,callback);
+    CPullDownload* download = new CPullDownload(caller, URLOSTRM_NOTIFY_ONDATA, callback);
 
     CHECK_POINTER(download);
 
-    if( !download )
+    if (!download)
         hr = E_OUTOFMEMORY;
-    else
-    {
+    else {
         download->SetEncodingFlags(dwReserved);
         hr = download->KickOffDownload(szURL);
     }
@@ -1807,22 +1751,21 @@ URLDownloadToFileW
 )
 {
     CHECK_POINTER(szURL);
-        HRESULT hr;
+    HRESULT hr;
 
 
-    CFileDownload * strm = new CFileDownload(caller,URLOSTRM_DONOT_NOTIFY_ONDATA,callback,szFileName);
+    CFileDownload* strm = new CFileDownload(caller, URLOSTRM_DONOT_NOTIFY_ONDATA, callback, szFileName);
 
     CHECK_POINTER(strm);
 
 
-    if( !strm )
+    if (!strm)
         hr = E_OUTOFMEMORY;
-    else
-        {
+    else {
         strm->AddRef(); // So that we have valid handle even after OnStopBinding()
         strm->SetEncodingFlags(dwReserved);
         hr = strm->KickOffDownload(szURL);
-        }
+    }
 
     if (strm)
         strm->Release();
@@ -1844,101 +1787,87 @@ URLDownloadToCacheFileW
     LPUOSCALLBACK       callback
 )
 {
-        CHECK_POINTER(szURL);
+    CHECK_POINTER(szURL);
 
-        HRESULT hr=S_OK;
+    HRESULT hr = S_OK;
 
-        BOOL fFileURL = FALSE;
+    BOOL fFileURL = FALSE;
 
-        if (dwBufLength <= 0)
-        {
-            hr = E_OUTOFMEMORY; // Buffer length invalid
-            return hr;
-        }
-
-
-        // 1,2, and 3 are reserved for the constants
-        // URLOSTRM_USECACHE, CACHEONLY and GETNEWESTVERSION constants
-        // For Compatibility with previous versions
-
-        dwBufLength = (dwBufLength < 4) ? MAX_PATH : dwBufLength;
-        szFileName[0] = NULL;
-        // For Cache calls
-        MAKE_ANSI(szURL);
+    if (dwBufLength <= 0) {
+        hr = E_OUTOFMEMORY; // Buffer length invalid
+        return hr;
+    }
 
 
-        CCacheFileDownload * strm = new CCacheFileDownload(caller,dwBufLength,callback,szFileName);
+    // 1,2, and 3 are reserved for the constants
+    // URLOSTRM_USECACHE, CACHEONLY and GETNEWESTVERSION constants
+    // For Compatibility with previous versions
 
-        CHECK_POINTER(strm);
+    dwBufLength = (dwBufLength < 4) ? MAX_PATH : dwBufLength;
+    szFileName[0] = NULL;
+    // For Cache calls
+    MAKE_ANSI(szURL);
 
-        if( !strm )
-        {
-             hr = E_OUTOFMEMORY;
-        }
-        else
-        {
-             strm->AddRef(); // So that we have valid handle even after OnStopBinding()
-             strm->SetEncodingFlags(dwReserved);
-             hr = strm->KickOffDownload(szURL);
-        }
 
-        if(SUCCEEDED(hr))
-        {
-            if (*strm->m_szCacheFileName)
-            {
-                // If it is a file URL we have to convert it to WIN32 file
-                CHAR szPath[MAX_PATH];
-                DWORD cchPath = MAX_PATH;
+    CCacheFileDownload* strm = new CCacheFileDownload(caller, dwBufLength, callback, szFileName);
 
-                if(SUCCEEDED(PathCreateFromUrl(strm->m_szCacheFileName, szPath, &cchPath, 0)))
-                {
-                    fFileURL = TRUE;
-                    //  url should now look like a DOS path
-                    if (0==MultiByteToWideChar(CP_ACP, 0,
-                                    szPath,-1,
-                                    szFileName, dwBufLength))
-                    {
-                        hr = E_OUTOFMEMORY;
-                        szFileName[0] = NULL;
-                    }
-                    else
-                        hr=S_OK;
-                }
-                if (!fFileURL)
-                {
-                    if (0==MultiByteToWideChar(CP_ACP, 0, strm->m_szCacheFileName,
-                               lstrlen(strm->m_szCacheFileName)+1,
-                               szFileName, dwBufLength))
-                    {
-                         hr = E_OUTOFMEMORY;
-                         szFileName[0] = NULL;
-                    }
-                    else
-                         hr=S_OK;
-                }
+    CHECK_POINTER(strm);
+
+    if (!strm) {
+        hr = E_OUTOFMEMORY;
+    } else {
+        strm->AddRef(); // So that we have valid handle even after OnStopBinding()
+        strm->SetEncodingFlags(dwReserved);
+        hr = strm->KickOffDownload(szURL);
+    }
+
+    if (SUCCEEDED(hr)) {
+        if (*strm->m_szCacheFileName) {
+            // If it is a file URL we have to convert it to WIN32 file
+            CHAR szPath[MAX_PATH];
+            DWORD cchPath = MAX_PATH;
+
+            if (SUCCEEDED(PathCreateFromUrl(strm->m_szCacheFileName, szPath, &cchPath, 0))) {
+                fFileURL = TRUE;
+                //  url should now look like a DOS path
+                if (0 == MultiByteToWideChar(CP_ACP, 0,
+                                             szPath, -1,
+                                             szFileName, dwBufLength)) {
+                    hr = E_OUTOFMEMORY;
+                    szFileName[0] = NULL;
+                } else
+                    hr = S_OK;
             }
-            else
-                hr = E_FAIL;
-        }
+            if (!fFileURL) {
+                if (0 == MultiByteToWideChar(CP_ACP, 0, strm->m_szCacheFileName,
+                                             lstrlen(strm->m_szCacheFileName) + 1,
+                                             szFileName, dwBufLength)) {
+                    hr = E_OUTOFMEMORY;
+                    szFileName[0] = NULL;
+                } else
+                    hr = S_OK;
+            }
+        } else
+            hr = E_FAIL;
+    }
 
-        if (strm)
-            strm->Release();
+    if (strm)
+        strm->Release();
 
-        // WinSE QFE #3411
-        // At a minimum, we may need to cleanup the notification hwnd created
-        // because this thread can become unresponsive if a broadcast message
-        // is sent and the client app isn't pumping messages on this thread.
-        // We'll go ahead an do a full tls cleanup.
+    // WinSE QFE #3411
+    // At a minimum, we may need to cleanup the notification hwnd created
+    // because this thread can become unresponsive if a broadcast message
+    // is sent and the client app isn't pumping messages on this thread.
+    // We'll go ahead an do a full tls cleanup.
 
-        // If this is NOT NT5 or greater, then our notification window is not a message window.
-        // Clean up our thread data if no other activity on this thread.
+    // If this is NOT NT5 or greater, then our notification window is not a message window.
+    // Clean up our thread data if no other activity on this thread.
 
-        if (!g_bNT5OrGreater)
-        {
-            DoThreadCleanup(FALSE);
-        }
+    if (!g_bNT5OrGreater) {
+        DoThreadCleanup(FALSE);
+    }
 
-        return(hr);
+    return(hr);
 }
 
 
@@ -1947,38 +1876,36 @@ URLOpenBlockingStreamW
 (
     LPUNKNOWN            caller,
     LPCWSTR             szURL,
-    LPSTREAM*            ppStream,
+    LPSTREAM* ppStream,
     DWORD               dwReserved,
     LPUOSCALLBACK       callback
 )
 {
     CHECK_POINTER(szURL);
     CHECK_POINTER(ppStream);
-        HRESULT hr;
+    HRESULT hr;
 
 
-    CBlockDownload * strm = new CBlockDownload(caller,URLOSTRM_DONOT_NOTIFY_ONDATA,callback);
+    CBlockDownload* strm = new CBlockDownload(caller, URLOSTRM_DONOT_NOTIFY_ONDATA, callback);
 
     CHECK_POINTER(strm);
-    if( !strm )
+    if (!strm)
         hr = E_OUTOFMEMORY;
-    else
-    {
+    else {
         strm->AddRef();
         strm->SetEncodingFlags(dwReserved);
         hr = strm->KickOffDownload(szURL);
     }
 
 
-    if( SUCCEEDED(hr) )
-    {
+    if (SUCCEEDED(hr)) {
         hr = strm->GetStream(ppStream);
 
         // We add ref this pointer because we are handing
         // it back to the user
 
-        if( SUCCEEDED(hr) )
-           (*ppStream)->AddRef();
+        if (SUCCEEDED(hr))
+            (*ppStream)->AddRef();
     }
 
     if (strm)
@@ -1998,17 +1925,16 @@ URLOpenStreamW
 )
 {
     CHECK_POINTER(szURL);
-        HRESULT hr;
+    HRESULT hr;
 
 
-    CPushDownload * strm = new CPushDownload(caller,URLOSTRM_NOTIFY_ONDATA,callback);
+    CPushDownload* strm = new CPushDownload(caller, URLOSTRM_NOTIFY_ONDATA, callback);
 
     CHECK_POINTER(strm);
 
-    if( !strm )
+    if (!strm)
         hr = E_OUTOFMEMORY;
-    else
-    {
+    else {
         strm->SetEncodingFlags(dwReserved);
         hr = strm->KickOffDownload(szURL);
     }
@@ -2017,9 +1943,7 @@ URLOpenStreamW
 }
 
 
-
 //   ANSI VERSION OF PUBLIC API
-
 
 STDAPI
 URLOpenPullStreamA
@@ -2032,7 +1956,7 @@ URLOpenPullStreamA
 {
     MAKE_WIDE(szURL);
 
-    return( URLOpenPullStreamW(caller, WIDE_NAME(szURL), dwReserved, callback) );
+    return(URLOpenPullStreamW(caller, WIDE_NAME(szURL), dwReserved, callback));
 }
 
 STDAPI
@@ -2048,7 +1972,7 @@ URLDownloadToFileA
     MAKE_WIDE(szURL);
     MAKE_WIDE(szFileName);
 
-    return( URLDownloadToFileW( caller, WIDE_NAME(szURL), WIDE_NAME(szFileName),dwReserved, callback ) );
+    return(URLDownloadToFileW(caller, WIDE_NAME(szURL), WIDE_NAME(szFileName), dwReserved, callback));
 }
 
 STDAPI
@@ -2062,34 +1986,30 @@ URLDownloadToCacheFileA
     LPUOSCALLBACK       callback
 )
 {
-        HRESULT hr=E_OUTOFMEMORY;
+    HRESULT hr = E_OUTOFMEMORY;
 
-        if (dwBufLength <= 0)
-            return hr;
+    if (dwBufLength <= 0)
+        return hr;
 
-        MAKE_WIDE(szURL);
-        LPWSTR lpwszfilename= new WCHAR[MAX_PATH];
+    MAKE_WIDE(szURL);
+    LPWSTR lpwszfilename = new WCHAR[MAX_PATH];
 
-        if (lpwszfilename!=NULL)
-        {
-                hr=URLDownloadToCacheFileW( caller, WIDE_NAME(szURL), lpwszfilename, MAX_PATH, dwReserved, callback );
+    if (lpwszfilename != NULL) {
+        hr = URLDownloadToCacheFileW(caller, WIDE_NAME(szURL), lpwszfilename, MAX_PATH, dwReserved, callback);
 
-                if (SUCCEEDED(hr))
-                {
-                        // Convert to ANSI.
-                        dwBufLength = (dwBufLength < 4) ? MAX_PATH : dwBufLength;
-                        if (0==WideCharToMultiByte(     CP_ACP, 0, lpwszfilename, lstrlenW(lpwszfilename)+1,szFileName,
-                                                                                dwBufLength, NULL, NULL))
-                        {
-                                hr = E_OUTOFMEMORY;
-                                szFileName[0] = NULL;
-                        }
-                }
-                else
-                    szFileName[0] = NULL;
+        if (SUCCEEDED(hr)) {
+            // Convert to ANSI.
+            dwBufLength = (dwBufLength < 4) ? MAX_PATH : dwBufLength;
+            if (0 == WideCharToMultiByte(CP_ACP, 0, lpwszfilename, lstrlenW(lpwszfilename) + 1, szFileName,
+                                         dwBufLength, NULL, NULL)) {
+                hr = E_OUTOFMEMORY;
+                szFileName[0] = NULL;
+            }
+        } else
+            szFileName[0] = NULL;
         delete[] lpwszfilename;
-        }
-        return(hr);
+    }
+    return(hr);
 }
 
 STDAPI
@@ -2097,14 +2017,14 @@ URLOpenBlockingStreamA
 (
     LPUNKNOWN            caller,
     LPCSTR              szURL,
-    LPSTREAM*            ppStream,
+    LPSTREAM* ppStream,
     DWORD               dwReserved,
     LPUOSCALLBACK       callback
 )
 {
     MAKE_WIDE(szURL);
 
-    return( URLOpenBlockingStreamW(caller,WIDE_NAME(szURL),ppStream,dwReserved,callback) );
+    return(URLOpenBlockingStreamW(caller, WIDE_NAME(szURL), ppStream, dwReserved, callback));
 }
 
 
@@ -2119,8 +2039,5 @@ URLOpenStreamA
 {
     MAKE_WIDE(szURL);
 
-    return( URLOpenStreamW(caller,WIDE_NAME(szURL),dwReserved,callback) );
+    return(URLOpenStreamW(caller, WIDE_NAME(szURL), dwReserved, callback));
 }
-
-
-

@@ -61,8 +61,7 @@ BOOL UnregisterTypeLibrary
     // convert the libid into a string.
 
     SHStringFromGUID(*piidLibrary, szScratch, ARRAYSIZE(szScratch));
-    if (ERROR_SUCCESS == RegOpenKeyExA(HKEY_CLASSES_ROOT, "TypeLib", 0, KEY_READ|KEY_WRITE, &hk))
-    {
+    if (ERROR_SUCCESS == RegOpenKeyExA(HKEY_CLASSES_ROOT, "TypeLib", 0, KEY_READ | KEY_WRITE, &hk)) {
         f = SHDeleteKey(hk, szScratch);
         ASSERT(f == ERROR_SUCCESS);
         RegCloseKey(hk);
@@ -76,7 +75,7 @@ BOOL UnregisterTypeLibrary
 HRESULT SHRegisterTypeLib(void)
 {
     HRESULT hr = S_OK;
-    ITypeLib *pTypeLib;
+    ITypeLib* pTypeLib;
     DWORD dwPathLen;
     WCHAR wzModuleName[MAX_PATH];
 
@@ -85,27 +84,23 @@ HRESULT SHRegisterTypeLib(void)
     dwPathLen = GetModuleFileName(MLGetHinst(), wzModuleName, ARRAYSIZE(wzModuleName));
 
 #ifdef UNIX
-    dwPathLen = ConvertModuleNameToUnix( wzModuleName );
+    dwPathLen = ConvertModuleNameToUnix(wzModuleName);
 #endif
 
     hr = LoadTypeLib(wzModuleName, &pTypeLib);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         // call the unregister type library as we had some old junk that
         // was registered by a previous version of OleAut32, which is now causing
         // the current version to not work on NT...
         UnregisterTypeLibrary(&LIBID_BrowseUI);
         hr = RegisterTypeLib(pTypeLib, wzModuleName, NULL);
 
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)) {
             TraceMsg(DM_WARNING, "sccls: RegisterTypeLib failed (%x)", hr);
         }
         pTypeLib->Release();
-    }
-    else
-    {
+    } else {
         TraceMsg(DM_WARNING, "sccls: LoadTypeLib failed (%x)", hr);
     }
 
@@ -126,19 +121,18 @@ void SetBrowseNewProcess(void)
     MEMORYSTATUS ms;
     SYSTEM_INFO  si;
 
-    ms.dwLength=sizeof(MEMORYSTATUS);
+    ms.dwLength = sizeof(MEMORYSTATUS);
     GlobalMemoryStatus(&ms);
     GetSystemInfo(&si);
 
     if (!g_fRunningOnNT && ((si.dwProcessorType == PROCESSOR_INTEL_486) ||
-                            (si.dwProcessorType == PROCESSOR_INTEL_386)))
-    {
+                            (si.dwProcessorType == PROCESSOR_INTEL_386))) {
         // Bail if Win9x and 386 or 486 cpu
         return;
     }
 
 
-    if (ms.dwTotalPhys < 30*1024*1024)
+    if (ms.dwTotalPhys < 30 * 1024 * 1024)
         return;
 
     SHRegSetUSValue(c_szBrowseNewProcessReg, c_szBrowseNewProcess, REG_SZ, TEXT("yes"), SIZEOF(TEXT("yes")), SHREGSET_FORCE_HKCU);
@@ -169,12 +163,9 @@ GetIEPath(
     *pszBuf = '\0';
 
     // Get the path of Internet Explorer
-    if (NO_ERROR != RegOpenKeyExA(HKEY_LOCAL_MACHINE, SZ_REGKEY_IEXPLOREA, 0, KEY_READ|KEY_WRITE, &hkey))
-    {
-        TraceMsg(TF_ERROR, "InstallRegSet(): RegOpenKey( %s ) Failed", c_szIexploreKey) ;
-    }
-    else
-    {
+    if (NO_ERROR != RegOpenKeyExA(HKEY_LOCAL_MACHINE, SZ_REGKEY_IEXPLOREA, 0, KEY_READ | KEY_WRITE, &hkey)) {
+        TraceMsg(TF_ERROR, "InstallRegSet(): RegOpenKey( %s ) Failed", c_szIexploreKey);
+    } else {
         DWORD cbBrowser;
         DWORD dwType;
 
@@ -183,12 +174,9 @@ GetIEPath(
 
         cbBrowser = CbFromCchA(cchBuf - SIZE_FLAG - 4);
         if (NO_ERROR != RegQueryValueExA(hkey, "", NULL, &dwType,
-                                         (LPBYTE)&pszBuf[bInsertQuotes?1:0], &cbBrowser))
-        {
+                                         (LPBYTE)&pszBuf[bInsertQuotes ? 1 : 0], &cbBrowser)) {
             TraceMsg(TF_ERROR, "InstallRegSet(): RegQueryValueEx() for Iexplore path failed");
-        }
-        else
-        {
+        } else {
             bRet = TRUE;
         }
 
@@ -219,12 +207,10 @@ CallRegInstall(
     HRESULT hr = E_FAIL;
     HINSTANCE hinstAdvPack = LoadLibraryA("ADVPACK.DLL");
 
-    if (hinstAdvPack)
-    {
+    if (hinstAdvPack) {
         REGINSTALL pfnri = (REGINSTALL)GetProcAddress(hinstAdvPack, "RegInstall");
 
-        if (pfnri)
-        {
+        if (pfnri) {
             char szIEPath[MAX_PATH];
             STRENTRY seReg[] = {
                 { "MSIEXPLORE", szIEPath },
@@ -233,11 +219,10 @@ CallRegInstall(
                 { "25", "%SystemRoot%" },
                 { "11", "%SystemRoot%\\system32" },
             };
-            STRTABLE stReg = { ARRAYSIZE(seReg) - 2, seReg };
+            STRTABLE stReg = {ARRAYSIZE(seReg) - 2, seReg};
 
             // Get the location of iexplore from the registry
-            if ( !EVAL(GetIEPath(szIEPath, SIZECHARS(szIEPath), TRUE)) )
-            {
+            if (!EVAL(GetIEPath(szIEPath, SIZECHARS(szIEPath), TRUE))) {
 #ifndef UNIX
                 // Failed, just say "iexplore"
                 lstrcpyA(szIEPath, "iexplore.exe");
@@ -246,8 +231,7 @@ CallRegInstall(
 #endif
             }
 
-            if (g_fRunningOnNT)
-            {
+            if (g_fRunningOnNT) {
                 // If on NT, we want custom action for %25% %11%
                 // so that it uses %SystemRoot% in writing the
                 // path to the registry.
@@ -255,21 +239,18 @@ CallRegInstall(
             }
 
             hr = pfnri(g_hinst, pszSection, &stReg);
-            if (bUninstall)
-            {
+            if (bUninstall) {
                 // ADVPACK will return E_UNEXPECTED if you try to uninstall
                 // (which does a registry restore) on an INF section that was
                 // never installed.  We uninstall sections that may never have
                 // been installed, so ignore this error
                 hr = ((E_UNEXPECTED == hr) ? S_OK : hr);
             }
-        }
-        else
+        } else
             TraceMsg(DM_ERROR, "DLLREG CallRegInstall() calling GetProcAddress(hinstAdvPack, \"RegInstall\") failed");
 
         FreeLibrary(hinstAdvPack);
-    }
-    else
+    } else
         TraceMsg(DM_ERROR, "DLLREG CallRegInstall() Failed to load ADVPACK.DLL");
 
     return hr;
@@ -284,8 +265,7 @@ DllRegisterServer(void)
     TraceMsg(DM_TRACE, "DLLREG DllRegisterServer() Beginning");
 
 #ifdef DEBUG
-    if (IsFlagSet(g_dwBreakFlags, BF_ONAPIENTER))
-    {
+    if (IsFlagSet(g_dwBreakFlags, BF_ONAPIENTER)) {
         TraceMsg(TF_ALWAYS, "Stopping in DllRegisterServer");
         DEBUG_BREAK;
     }
@@ -343,18 +323,14 @@ STDAPI DllInstall(BOOL bInstall, LPCWSTR pszCmdLine)
     HRESULT hrExternal = S_OK;
 
     CoInitialize(0);
-    if (bInstall)
-    {
+    if (bInstall) {
         // "U" means it's the per user install call
-        if (!lstrcmpiW(pszCmdLine, L"U"))
-        {
+        if (!lstrcmpiW(pszCmdLine, L"U")) {
             ImportQuickLinks();
             SetBrowseNewProcess();
             if (GetUIVersion() >= 5)
                 hr = THR(CallRegInstall("InstallPerUser_BrowseUIShell", FALSE));
-        }
-        else
-        {
+        } else {
             // Backup current associations because InstallPlatformRegItems() may overwrite.
             if (GetUIVersion() < 5)
                 hr = THR(CallRegInstall("InstallBrowseUINonShell", FALSE));
@@ -371,9 +347,7 @@ STDAPI DllInstall(BOOL bInstall, LPCWSTR pszCmdLine)
 
         // Add Notepad to the OpenWithList for .htm files
         AddNotepadToOpenWithList();
-    }
-    else
-    {
+    } else {
         hr = THR(CallRegInstall("UnInstallBrowseUI", TRUE));
         if (SUCCEEDED(hrExternal))
             hrExternal = hr;

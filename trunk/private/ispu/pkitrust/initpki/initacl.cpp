@@ -90,31 +90,31 @@ STATIC BOOL GetPredefinedSids()
         SECURITY_WORLD_SID_AUTHORITY;
 
     if (!AllocateAndInitializeSid(
-            &siaNtAuthority,
-            1,
-            SECURITY_LOCAL_SYSTEM_RID,
-            0, 0, 0, 0, 0, 0, 0,
-            &psidLocalSystem
-            ))
+        &siaNtAuthority,
+        1,
+        SECURITY_LOCAL_SYSTEM_RID,
+        0, 0, 0, 0, 0, 0, 0,
+        &psidLocalSystem
+    ))
         goto AllocateAndInitializeSidError;
 
     if (!AllocateAndInitializeSid(
-            &siaNtAuthority,
-            2,
-            SECURITY_BUILTIN_DOMAIN_RID,
-            DOMAIN_ALIAS_RID_ADMINS,
-            0, 0, 0, 0, 0, 0,
-            &psidAdministrators
-            ))
+        &siaNtAuthority,
+        2,
+        SECURITY_BUILTIN_DOMAIN_RID,
+        DOMAIN_ALIAS_RID_ADMINS,
+        0, 0, 0, 0, 0, 0,
+        &psidAdministrators
+    ))
         goto AllocateAndInitializeSidError;
 
     if (!AllocateAndInitializeSid(
-            &siaWorldSidAuthority,
-            1,
-            SECURITY_WORLD_RID,
-            0, 0, 0, 0, 0, 0, 0,
-            &psidEveryone
-            ))
+        &siaWorldSidAuthority,
+        1,
+        SECURITY_WORLD_RID,
+        0, 0, 0, 0, 0, 0, 0,
+        &psidEveryone
+    ))
         goto AllocateAndInitializeSidError;
 
     fResult = TRUE;
@@ -124,7 +124,7 @@ CommonReturn:
 ErrorReturn:
     fResult = FALSE;
     goto CommonReturn;
-TRACE_ERROR(AllocateAndInitializeSidError)
+    TRACE_ERROR(AllocateAndInitializeSidError)
 }
 
 STATIC void FreePredefinedSids()
@@ -144,22 +144,22 @@ STATIC void FreePredefinedSids()
 STATIC PSECURITY_DESCRIPTOR AllocAndGetSecurityDescriptor(
     IN HKEY hKey,
     SECURITY_INFORMATION SecInf
-    )
+)
 {
     LONG err;
     PSECURITY_DESCRIPTOR psd = NULL;
     DWORD cbsd;
 
     cbsd = HKLM_SD_LEN;
-    if (NULL == (psd = (PSECURITY_DESCRIPTOR) PkiNonzeroAlloc(cbsd)))
+    if (NULL == (psd = (PSECURITY_DESCRIPTOR)PkiNonzeroAlloc(cbsd)))
         goto OutOfMemory;
 
     err = RegGetKeySecurity(
-            hKey,
-            SecInf,
-            psd,
-            &cbsd
-            );
+        hKey,
+        SecInf,
+        psd,
+        &cbsd
+    );
     if (ERROR_SUCCESS == err)
         goto CommonReturn;
     if (ERROR_INSUFFICIENT_BUFFER != err)
@@ -169,15 +169,15 @@ STATIC PSECURITY_DESCRIPTOR AllocAndGetSecurityDescriptor(
         goto NoSecurityDescriptor;
 
     PkiFree(psd);
-    if (NULL == (psd = (PSECURITY_DESCRIPTOR) PkiNonzeroAlloc(cbsd)))
+    if (NULL == (psd = (PSECURITY_DESCRIPTOR)PkiNonzeroAlloc(cbsd)))
         goto OutOfMemory;
 
     if (ERROR_SUCCESS != (err = RegGetKeySecurity(
-            hKey,
-            SecInf,
-            psd,
-            &cbsd
-            ))) goto RegGetKeySecurityError;
+        hKey,
+        SecInf,
+        psd,
+        &cbsd
+    ))) goto RegGetKeySecurityError;
 
 CommonReturn:
     return psd;
@@ -186,9 +186,9 @@ ErrorReturn:
     psd = NULL;
     goto CommonReturn;
 
-TRACE_ERROR(OutOfMemory)
-SET_ERROR_VAR(RegGetKeySecurityError, err)
-SET_ERROR(NoSecurityDescriptor, ERROR_INVALID_SECURITY_DESCR)
+    TRACE_ERROR(OutOfMemory)
+        SET_ERROR_VAR(RegGetKeySecurityError, err)
+        SET_ERROR(NoSecurityDescriptor, ERROR_INVALID_SECURITY_DESCR)
 }
 
 
@@ -198,7 +198,7 @@ SET_ERROR(NoSecurityDescriptor, ERROR_INVALID_SECURITY_DESCR)
 
 STATIC BOOL IsValidHKLMAccessRights(
     IN HKEY hKey
-    )
+)
 {
     BOOL fResult;
     PSECURITY_DESCRIPTOR psd = NULL;
@@ -208,12 +208,12 @@ STATIC BOOL IsValidHKLMAccessRights(
     DWORD dwAceIndex;
 
     if (NULL == (psd = AllocAndGetSecurityDescriptor(
-            hKey,
-            DACL_SECURITY_INFORMATION
-            ))) goto GetSecurityDescriptorError;
+        hKey,
+        DACL_SECURITY_INFORMATION
+    ))) goto GetSecurityDescriptorError;
 
     if (!GetSecurityDescriptorDacl(psd, &fDaclPresent, &pAcl,
-            &fDaclDefaulted))
+                                   &fDaclDefaulted))
         goto GetSecurityDescriptorDaclError;
     if (!fDaclPresent || NULL == pAcl || 0 == pAcl->AceCount)
         goto MissingDaclError;
@@ -221,12 +221,12 @@ STATIC BOOL IsValidHKLMAccessRights(
     for (dwAceIndex = 0; dwAceIndex < pAcl->AceCount; dwAceIndex++) {
         PACCESS_ALLOWED_ACE pAce;
 
-        if (!GetAce(pAcl, dwAceIndex, (void **) &pAce))
+        if (!GetAce(pAcl, dwAceIndex, (void**)&pAce))
             goto GetAceError;
 
         if (ACCESS_ALLOWED_ACE_TYPE != pAce->Header.AceType)
             continue;
-        if (!EqualSid(psidEveryone, (PSID) &pAce->SidStart))
+        if (!EqualSid(psidEveryone, (PSID)&pAce->SidStart))
             continue;
 
         if (0 != (pAce->Mask & ~MAX_HKLM_EVERYONE_ACE_MASK))
@@ -242,10 +242,10 @@ ErrorReturn:
     fResult = FALSE;
     goto CommonReturn;
 
-TRACE_ERROR(GetSecurityDescriptorError)
-TRACE_ERROR(GetSecurityDescriptorDaclError)
-SET_ERROR(MissingDaclError, ERROR_INVALID_ACL)
-TRACE_ERROR(GetAceError)
+    TRACE_ERROR(GetSecurityDescriptorError)
+        TRACE_ERROR(GetSecurityDescriptorDaclError)
+        SET_ERROR(MissingDaclError, ERROR_INVALID_ACL)
+        TRACE_ERROR(GetAceError)
 }
 
 
@@ -255,8 +255,8 @@ TRACE_ERROR(GetAceError)
 STATIC BOOL CreateHKLMSecurityDescriptor(
     IN ACCESS_MASK EveryoneAccessMask,
     OUT PSECURITY_DESCRIPTOR psd,
-    OUT PACL *ppDacl
-    )
+    OUT PACL* ppDacl
+)
 {
     BOOL fResult;
     PACL pDacl = NULL;
@@ -274,7 +274,7 @@ STATIC BOOL CreateHKLMSecurityDescriptor(
     // compute size of ACL
 
     dwAclSize = sizeof(ACL) +
-        HKLM_ACE_COUNT * ( sizeof(ACCESS_ALLOWED_ACE) - sizeof(DWORD) ) +
+        HKLM_ACE_COUNT * (sizeof(ACCESS_ALLOWED_ACE) - sizeof(DWORD)) +
         GetLengthSid(psidLocalSystem) +
         GetLengthSid(psidAdministrators) +
         GetLengthSid(psidEveryone)
@@ -283,39 +283,39 @@ STATIC BOOL CreateHKLMSecurityDescriptor(
 
     // allocate storage for Acl
 
-    if (NULL == (pDacl = (PACL) PkiNonzeroAlloc(dwAclSize)))
+    if (NULL == (pDacl = (PACL)PkiNonzeroAlloc(dwAclSize)))
         goto OutOfMemory;
 
     if (!InitializeAcl(pDacl, dwAclSize, ACL_REVISION))
         goto InitializeAclError;
 
     if (!AddAccessAllowedAce(
-            pDacl,
-            ACL_REVISION,
-            HKLM_SYSTEM_ACE_MASK,
-            psidLocalSystem
-            ))
+        pDacl,
+        ACL_REVISION,
+        HKLM_SYSTEM_ACE_MASK,
+        psidLocalSystem
+    ))
         goto AddAceError;
     if (!AddAccessAllowedAce(
-            pDacl,
-            ACL_REVISION,
-            HKLM_ADMIN_ACE_MASK,
-            psidAdministrators
-            ))
+        pDacl,
+        ACL_REVISION,
+        HKLM_ADMIN_ACE_MASK,
+        psidAdministrators
+    ))
         goto AddAceError;
     if (!AddAccessAllowedAce(
-            pDacl,
-            ACL_REVISION,
-            EveryoneAccessMask,
-            psidEveryone
-            ))
+        pDacl,
+        ACL_REVISION,
+        EveryoneAccessMask,
+        psidEveryone
+    ))
         goto AddAceError;
 
 
     // make containers inherit.
 
     for (i = 0; i < HKLM_ACE_COUNT; i++) {
-        if(!GetAce(pDacl, i, (void **) &pAce))
+        if (!GetAce(pDacl, i, (void**)&pAce))
             goto GetAceError;
         pAce->Header.AceFlags = HKLM_ACE_FLAGS;
     }
@@ -333,12 +333,12 @@ ErrorReturn:
     fResult = FALSE;
     goto CommonReturn;
 
-TRACE_ERROR(InitializeSecurityDescriptorError)
-TRACE_ERROR(OutOfMemory)
-TRACE_ERROR(InitializeAclError)
-TRACE_ERROR(AddAceError)
-TRACE_ERROR(GetAceError)
-TRACE_ERROR(SetSecurityDescriptorDaclError)
+    TRACE_ERROR(InitializeSecurityDescriptorError)
+        TRACE_ERROR(OutOfMemory)
+        TRACE_ERROR(InitializeAclError)
+        TRACE_ERROR(AddAceError)
+        TRACE_ERROR(GetAceError)
+        TRACE_ERROR(SetSecurityDescriptorDaclError)
 }
 
 
@@ -347,16 +347,16 @@ TRACE_ERROR(SetSecurityDescriptorDaclError)
 STATIC BOOL SetHKLMDacl(
     IN HKEY hKey,
     IN PSECURITY_DESCRIPTOR psd
-    )
+)
 {
     BOOL fResult;
     LONG err;
 
     if (ERROR_SUCCESS != (err = RegSetKeySecurity(
-            hKey,
-            DACL_SECURITY_INFORMATION,
-            psd
-            )))
+        hKey,
+        DACL_SECURITY_INFORMATION,
+        psd
+    )))
         goto RegSetKeySecurityError;
 
     fResult = TRUE;
@@ -366,31 +366,31 @@ ErrorReturn:
     fResult = FALSE;
     goto CommonReturn;
 
-SET_ERROR_VAR(RegSetKeySecurityError, err)
+    SET_ERROR_VAR(RegSetKeySecurityError, err)
 }
 
 STATIC BOOL GetSubKeyInfo(
     IN HKEY hKey,
-    OUT OPTIONAL DWORD *pcSubKeys,
-    OUT OPTIONAL DWORD *pcchMaxSubKey = NULL
-    )
+    OUT OPTIONAL DWORD* pcSubKeys,
+    OUT OPTIONAL DWORD* pcchMaxSubKey = NULL
+)
 {
     BOOL fResult;
     LONG err;
     if (ERROR_SUCCESS != (err = RegQueryInfoKeyU(
-            hKey,
-            NULL,       // lpszClass
-            NULL,       // lpcchClass
-            NULL,       // lpdwReserved
-            pcSubKeys,
-            pcchMaxSubKey,
-            NULL,       // lpcchMaxClass
-            NULL,       // lpcValues
-            NULL,       // lpcchMaxValuesName
-            NULL,       // lpcbMaxValueData
-            NULL,       // lpcbSecurityDescriptor
-            NULL        // lpftLastWriteTime
-            ))) goto RegQueryInfoKeyError;
+        hKey,
+        NULL,       // lpszClass
+        NULL,       // lpcchClass
+        NULL,       // lpdwReserved
+        pcSubKeys,
+        pcchMaxSubKey,
+        NULL,       // lpcchMaxClass
+        NULL,       // lpcValues
+        NULL,       // lpcchMaxValuesName
+        NULL,       // lpcbMaxValueData
+        NULL,       // lpcbSecurityDescriptor
+        NULL        // lpftLastWriteTime
+    ))) goto RegQueryInfoKeyError;
     fResult = TRUE;
 
 CommonReturn:
@@ -405,7 +405,7 @@ ErrorReturn:
     if (pcchMaxSubKey)
         *pcchMaxSubKey = 0;
     goto CommonReturn;
-SET_ERROR_VAR(RegQueryInfoKeyError, err)
+    SET_ERROR_VAR(RegQueryInfoKeyError, err)
 }
 
 
@@ -415,7 +415,7 @@ SET_ERROR_VAR(RegQueryInfoKeyError, err)
 STATIC BOOL RecursiveInitializeHKLMSubKeyAcls(
     IN HKEY hKey,
     IN PSECURITY_DESCRIPTOR psd
-    )
+)
 {
     BOOL fResult = TRUE;
     DWORD cSubKeys;
@@ -426,18 +426,18 @@ STATIC BOOL RecursiveInitializeHKLMSubKeyAcls(
         fResult &= SetHKLMDacl(hKey, psd);
 
     if (!GetSubKeyInfo(
-            hKey,
-            &cSubKeys,
-            &cchMaxSubKey
-            ))
+        hKey,
+        &cSubKeys,
+        &cchMaxSubKey
+    ))
         return FALSE;
 
     if (cSubKeys && cchMaxSubKey) {
         DWORD i;
 
         cchMaxSubKey++;
-        if (NULL == (pwszSubKey = (LPWSTR) PkiNonzeroAlloc(
-                cchMaxSubKey * sizeof(WCHAR))))
+        if (NULL == (pwszSubKey = (LPWSTR)PkiNonzeroAlloc(
+            cchMaxSubKey * sizeof(WCHAR))))
             goto OutOfMemory;
 
         for (i = 0; i < cSubKeys; i++) {
@@ -446,24 +446,24 @@ STATIC BOOL RecursiveInitializeHKLMSubKeyAcls(
             HKEY hSubKey;
 
             if (ERROR_SUCCESS != (err = RegEnumKeyExU(
-                    hKey,
-                    i,
-                    pwszSubKey,
-                    &cchSubKey,
-                    NULL,               // lpdwReserved
-                    NULL,               // lpszClass
-                    NULL,               // lpcchClass
-                    NULL                // lpftLastWriteTime
-                    )) || 0 == cchSubKey ||
-                            L'\0' == *pwszSubKey)
+                hKey,
+                i,
+                pwszSubKey,
+                &cchSubKey,
+                NULL,               // lpdwReserved
+                NULL,               // lpszClass
+                NULL,               // lpcchClass
+                NULL                // lpftLastWriteTime
+            )) || 0 == cchSubKey ||
+                L'\0' == *pwszSubKey)
                 continue;
 
             if (ERROR_SUCCESS != (err = RegOpenKeyExU(
-                    hKey,
-                    pwszSubKey,
-                    0,                      // dwReserved
-                    KEY_READ | WRITE_DAC,
-                    &hSubKey))) {
+                hKey,
+                pwszSubKey,
+                0,                      // dwReserved
+                KEY_READ | WRITE_DAC,
+                &hSubKey))) {
 #if DBG
                 DbgPrintf(DBG_SS_CRYPT32, "RegOpenKeyEx(%S) returned error: %d 0x%x\n", pwszSubKey, err, err);
 #endif
@@ -480,7 +480,7 @@ CommonReturn:
 ErrorReturn:
     fResult = FALSE;
     goto CommonReturn;
-TRACE_ERROR(OutOfMemory)
+    TRACE_ERROR(OutOfMemory)
 }
 
 
@@ -511,15 +511,15 @@ InitializeHKLMAcls()
         return FALSE;
 
     if (!CreateHKLMSecurityDescriptor(
-            HKLM_EVERYONE_ACE_MASK,
-            &sd,
-            &pDacl
-            ))
+        HKLM_EVERYONE_ACE_MASK,
+        &sd,
+        &pDacl
+    ))
         goto ErrorReturn;
 
     memset(&SecAttr, 0, sizeof(SecAttr));
     SecAttr.nLength = sizeof(SecAttr);
-    SecAttr.lpSecurityDescriptor = (LPVOID) &sd;
+    SecAttr.lpSecurityDescriptor = (LPVOID)&sd;
     SecAttr.bInheritHandle = FALSE;
 
 
@@ -531,15 +531,15 @@ InitializeHKLMAcls()
 
     for (i = 0; i < HKLM_REGPATH_CNT; i++) {
         if (ERROR_SUCCESS != (err = RegCreateKeyExU(
-                HKEY_LOCAL_MACHINE,
-                rgpwszHKLMRegPath[i],
-                0,                      // dwReserved
-                NULL,                   // lpClass
-                REG_OPTION_NON_VOLATILE,
-                MAXIMUM_ALLOWED,
-                &SecAttr,
-                &hKey,
-                &dwDisposition))) {
+            HKEY_LOCAL_MACHINE,
+            rgpwszHKLMRegPath[i],
+            0,                      // dwReserved
+            NULL,                   // lpClass
+            REG_OPTION_NON_VOLATILE,
+            MAXIMUM_ALLOWED,
+            &SecAttr,
+            &hKey,
+            &dwDisposition))) {
 #if DBG
             DbgPrintf(DBG_SS_CRYPT32, "RegCreateKeyEx(HKLM\\%S) returned error: %d 0x%x\n", rgpwszHKLMRegPath[i], err, err);
 #endif
@@ -557,22 +557,22 @@ InitializeHKLMAcls()
     // Allow Everyone to have KEY_READ and KEY_SET_VALUE access to
     // the IEDirtyFlags registry key
     if (!CreateHKLMSecurityDescriptor(
-            IE_EVERYONE_ACE_MASK,
-            &sd,
-            &pDacl
-            ))
+        IE_EVERYONE_ACE_MASK,
+        &sd,
+        &pDacl
+    ))
         goto ErrorReturn;
 
     if (ERROR_SUCCESS != (err = RegCreateKeyExU(
-            HKEY_LOCAL_MACHINE,
-            CERT_IE_DIRTY_FLAGS_REGPATH,
-            0,                      // dwReserved
-            NULL,                   // lpClass
-            REG_OPTION_NON_VOLATILE,
-            MAXIMUM_ALLOWED,
-            &SecAttr,
-            &hKey,
-            &dwDisposition))) {
+        HKEY_LOCAL_MACHINE,
+        CERT_IE_DIRTY_FLAGS_REGPATH,
+        0,                      // dwReserved
+        NULL,                   // lpClass
+        REG_OPTION_NON_VOLATILE,
+        MAXIMUM_ALLOWED,
+        &SecAttr,
+        &hKey,
+        &dwDisposition))) {
 #if DBG
         DbgPrintf(DBG_SS_CRYPT32, "RegCreateKeyEx(HKLM\\%S) returned error: %d 0x%x\n", CERT_IE_DIRTY_FLAGS_REGPATH, err, err);
 #endif

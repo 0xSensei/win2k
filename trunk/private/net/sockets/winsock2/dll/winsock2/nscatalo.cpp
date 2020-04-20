@@ -35,7 +35,7 @@ Revision History:
 #define NUM_ENTRIES_NAME        "Num_Catalog_Entries"
 
 #define FIRST_SERIAL_NUMBER 1
-    // The first access serial number to be assigned on a given system.
+// The first access serial number to be assigned on a given system.
 
 
 NSCATALOG::NSCATALOG()
@@ -58,7 +58,7 @@ Return Value:
     // Initialize members
     m_num_items = 0;
     m_reg_key = NULL;
-    m_serial_num = FIRST_SERIAL_NUMBER-1;
+    m_serial_num = FIRST_SERIAL_NUMBER - 1;
     m_namespace_list.Flink = NULL;
     m_classinfo_provider = NULL;
 }
@@ -69,7 +69,7 @@ Return Value:
 BOOL
 NSCATALOG::OpenCatalog(
     IN  HKEY   ParentKey
-    )
+)
 /*
 
 Routine Description:
@@ -99,8 +99,7 @@ Return Value:
 
     __try {
         InitializeCriticalSection(&m_nscatalog_lock);
-    }
-    __except (WS2_EXCEPTION_FILTER ()) {
+    } __except (WS2_EXCEPTION_FILTER()) {
         return FALSE;
     }
     InitializeListHead(&m_namespace_list);
@@ -117,11 +116,11 @@ Return Value:
         NSCATALOG::GetCurrentCatalogName(),     // lpszSubKey
         0,                                      // dwReserved
         MAXIMUM_ALLOWED,                        // samDesired
-        & new_key                               // phkResult
-        );
-    if( lresult == ERROR_SUCCESS ) {
+        &new_key                               // phkResult
+    );
+    if (lresult == ERROR_SUCCESS) {
         key_disposition = REG_OPENED_EXISTING_KEY;
-    } else if( lresult == ERROR_FILE_NOT_FOUND ) {
+    } else if (lresult == ERROR_FILE_NOT_FOUND) {
         lresult = RegCreateKeyEx(
             ParentKey,                          // hkey
             NSCATALOG::GetCurrentCatalogName(), // lpszSubKey
@@ -130,9 +129,9 @@ Return Value:
             REG_OPTION_NON_VOLATILE,            // fdwOptions
             KEY_ALL_ACCESS,                     // samDesired
             NULL,                               // lpSecurityAttributes
-            & new_key,                          // phkResult
-            & key_disposition                   // lpdwDisposition
-            );
+            &new_key,                          // phkResult
+            &key_disposition                   // lpdwDisposition
+        );
     }
 
     if (lresult != ERROR_SUCCESS) {
@@ -153,10 +152,10 @@ Return Value:
             bresult = WriteRegistryEntry(
                 new_key,           // EntryKey
                 NUM_ENTRIES_NAME,  // EntryName
-                (PVOID) & dwData,  // Data
+                (PVOID)&dwData,  // Data
                 REG_DWORD          // TypeFlag
-                );
-            if (! bresult) {
+            );
+            if (!bresult) {
                 DEBUGF(
                     DBG_ERR,
                     ("Writing Num_Entries\n"));
@@ -168,10 +167,10 @@ Return Value:
             bresult = WriteRegistryEntry(
                 new_key,                  // EntryKey
                 SERIAL_NUMBER_NAME,       // EntryName
-                (PVOID) & dwData,         // Data
+                (PVOID)&dwData,         // Data
                 REG_DWORD                 // TypeFlag
-                );
-            if (! bresult) {
+            );
+            if (!bresult) {
                 DEBUGF(DBG_ERR, ("Writing %s\n", SERIAL_NUMBER_NAME));
                 TRY_THROW(guard_open);
             }
@@ -184,19 +183,19 @@ Return Value:
                 REG_OPTION_NON_VOLATILE,  // fdwOptions
                 KEY_ALL_ACCESS,           // samDesired
                 NULL,                     // lpSecurityAttributes
-                & entries_key,            // phkResult
-                & dont_care               // lpdwDisposition
-                );
+                &entries_key,            // phkResult
+                &dont_care               // lpdwDisposition
+            );
             if (lresult != ERROR_SUCCESS) {
                 DEBUGF(
                     DBG_ERR,
                     ("Creating entries subkey '%s'\n",
-                    CATALOG_ENTRIES_NAME));
+                     CATALOG_ENTRIES_NAME));
                 TRY_THROW(guard_open);
             }
             lresult = RegCloseKey(
                 entries_key  // hkey
-                );
+            );
             if (lresult != ERROR_SUCCESS) {
                 DEBUGF(
                     DBG_ERR,
@@ -206,29 +205,29 @@ Return Value:
 
         }  // if REG_CREATED_NEW_KEY
         else {
-            bresult = ReadRegistryEntry (
-                        new_key,                // EntryKey
-                        SERIAL_NUMBER_NAME,     // EntryName
-                        (PVOID) &dwData,        // Data
-                        sizeof (DWORD),         // MaxBytes
-                        REG_DWORD               // TypeFlag
-                        );
+            bresult = ReadRegistryEntry(
+                new_key,                // EntryKey
+                SERIAL_NUMBER_NAME,     // EntryName
+                (PVOID)&dwData,        // Data
+                sizeof(DWORD),         // MaxBytes
+                REG_DWORD               // TypeFlag
+            );
             if (!bresult) {
                 // This must be the first time this version of ws2_32.dll
                 // is being run.  We need to update catalog to have this
                 // new entry or fail initialization.
 
                 dwData = FIRST_SERIAL_NUMBER;
-                bresult = WriteRegistryEntry (
-                            new_key,                // EntryKey
-                            SERIAL_NUMBER_NAME,     // EntryName
-                            (PVOID) &dwData,        // Data
-                            REG_DWORD               // TypeFlag
-                            );
+                bresult = WriteRegistryEntry(
+                    new_key,                // EntryKey
+                    SERIAL_NUMBER_NAME,     // EntryName
+                    (PVOID)&dwData,        // Data
+                    REG_DWORD               // TypeFlag
+                );
                 if (!bresult) {
-                    DEBUGF (DBG_ERR,
-                        ("Writing '%s' value.\n", SERIAL_NUMBER_NAME));
-                    TRY_THROW (guard_open);
+                    DEBUGF(DBG_ERR,
+                           ("Writing '%s' value.\n", SERIAL_NUMBER_NAME));
+                    TRY_THROW(guard_open);
                 }
             }
         } // else
@@ -241,7 +240,7 @@ Return Value:
 
         close_result = RegCloseKey(
             new_key  // hkey
-            );
+        );
         if (close_result != ERROR_SUCCESS) {
             DEBUGF(
                 DBG_ERR,
@@ -260,7 +259,7 @@ INT
 NSCATALOG::InitializeFromRegistry(
     IN  HKEY    ParentKey,
     IN  HANDLE  ChangeEvent OPTIONAL
-    )
+)
 /*
 
 Routine Description:
@@ -294,17 +293,16 @@ Implementation Notes:
 
 
     assert(ParentKey != NULL);
-    assert(m_reg_key==NULL);
+    assert(m_reg_key == NULL);
 
     bresult = OpenCatalog(
         ParentKey
-        );
+    );
     // Opening  the catalog has the side-effect of creating an empty catalog if
     // needed.
     if (bresult) {
-        return_value =  RefreshFromRegistry (ChangeEvent);
-    }
-    else {
+        return_value = RefreshFromRegistry(ChangeEvent);
+    } else {
         DEBUGF(
             DBG_ERR,
             ("Unable to create or open ns catalog\n"));
@@ -320,7 +318,7 @@ Implementation Notes:
 INT
 NSCATALOG::RefreshFromRegistry(
     IN  HANDLE  ChangeEvent OPTIONAL
-    )
+)
 /*
 
 Routine Description:
@@ -374,29 +372,29 @@ Implementation Notes:
 
     // Create the event if caller did not provide one
 
-    if (ChangeEvent==NULL) {
-        ChangeEvent = CreateEvent (NULL, FALSE, FALSE, NULL);
-        if (ChangeEvent==NULL) {
+    if (ChangeEvent == NULL) {
+        ChangeEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+        if (ChangeEvent == NULL) {
             return WSASYSCALLFAILURE;
         }
         created_event = TRUE;
     }
 
     // Lock this catalog object
-    AcquireCatalogLock ();
+    AcquireCatalogLock();
 
     assert(m_reg_key != NULL);
 
     // Initialize locals to known defaults
     item = NULL;
-    InitializeListHead (&temp_list);
+    InitializeListHead(&temp_list);
 
     do {
         // Synchronize with writers
-        return_value = SynchronizeSharedCatalogAccess (
-                                m_reg_key,
-                                ChangeEvent,
-                                &serial_num);
+        return_value = SynchronizeSharedCatalogAccess(
+            m_reg_key,
+            ChangeEvent,
+            &serial_num);
         if (return_value != ERROR_SUCCESS) {
             // Non-recoverable;
             break;
@@ -414,8 +412,8 @@ Implementation Notes:
             CATALOG_ENTRIES_NAME,  // lpszSubKey
             0,                     // dwReserved
             MAXIMUM_ALLOWED,       // samDesired
-            & entries_key          // phkResult
-            );
+            &entries_key          // phkResult
+        );
         if (lresult != ERROR_SUCCESS) {
             // Non-recoverable
             DEBUGF(DBG_ERR, ("Opening entries key of registry\n"));
@@ -431,21 +429,21 @@ Implementation Notes:
             bresult = ReadRegistryEntry(
                 m_reg_key,              // EntryKey
                 NUM_ENTRIES_NAME,       // EntryName
-                (PVOID) & num_entries,  // Data
+                (PVOID)&num_entries,  // Data
                 sizeof(DWORD),          // MaxBytes
                 REG_DWORD               // TypeFlag
-                );
-            if (! bresult) {
+            );
+            if (!bresult) {
                 DEBUGF(
                     DBG_ERR,
                     ("Reading %s from registry\n",
-                    NUM_ENTRIES_NAME));
+                     NUM_ENTRIES_NAME));
                 return_value = WSASYSCALLFAILURE;
                 TRY_THROW(guard_open);
             }
 
             // read the items and place on temp list
-            InitializeListHead (&temp_list);
+            InitializeListHead(&temp_list);
             for (seq_num = 1; seq_num <= num_entries; seq_num++) {
                 item = new NSCATALOGENTRY();
                 if (item == NULL) {
@@ -458,27 +456,27 @@ Implementation Notes:
                 return_value = item->InitializeFromRegistry(
                     entries_key,  // ParentKey
                     (INT)seq_num  // SequenceNum
-                    );
+                );
                 if (return_value != ERROR_SUCCESS) {
-                    item->Dereference ();
+                    item->Dereference();
                     DEBUGF(
                         DBG_ERR,
                         ("Initializing new proto catalog item\n"));
                     TRY_THROW(guard_open);
                 }
-                InsertTailList (&temp_list, &item->m_CatalogLinkage);
+                InsertTailList(&temp_list, &item->m_CatalogLinkage);
             }  // for seq_num
 
         } TRY_CATCH(guard_open) {
 
-            assert (return_value!=ERROR_SUCCESS);
+            assert(return_value != ERROR_SUCCESS);
 
         } TRY_END(guard_open);
 
         // close catalog
         lresult = RegCloseKey(
             entries_key  // hkey
-            );
+        );
         if (lresult != ERROR_SUCCESS) {
             DEBUGF(
                 DBG_ERR,
@@ -493,13 +491,13 @@ Implementation Notes:
         // catalog.
 
 
-        catalog_changed = HasCatalogChanged (ChangeEvent);
+        catalog_changed = HasCatalogChanged(ChangeEvent);
 
-        if ((return_value==ERROR_SUCCESS) && !catalog_changed) {
-            UpdateNamespaceList (&temp_list);
+        if ((return_value == ERROR_SUCCESS) && !catalog_changed) {
+            UpdateNamespaceList(&temp_list);
 
             // Store new catalog parameters
-            assert (m_num_items == num_entries);
+            assert(m_num_items == num_entries);
             m_serial_num = serial_num;
             break;
         }
@@ -508,31 +506,30 @@ Implementation Notes:
         // Free the entries we might have read
 
 
-        while (!IsListEmpty (&temp_list)) {
+        while (!IsListEmpty(&temp_list)) {
             PLIST_ENTRY list_member;
-            list_member = RemoveHeadList (&temp_list);
-            item = CONTAINING_RECORD (list_member,
-                                        NSCATALOGENTRY,
-                                        m_CatalogLinkage);
+            list_member = RemoveHeadList(&temp_list);
+            item = CONTAINING_RECORD(list_member,
+                                     NSCATALOGENTRY,
+                                     m_CatalogLinkage);
 #if defined(DEBUG_TRACING)
-            InitializeListHead (&item->m_CatalogLinkage);
+            InitializeListHead(&item->m_CatalogLinkage);
 #endif
-            item->Dereference ();
+            item->Dereference();
         }
-    }
-    while (catalog_changed); // Retry while catalog is being written over
+    } while (catalog_changed); // Retry while catalog is being written over
 
 
     // We should have freed or consumed all the items we
     // might have read.
 
-    assert (IsListEmpty (&temp_list));
+    assert(IsListEmpty(&temp_list));
 
-    ReleaseCatalogLock ();
+    ReleaseCatalogLock();
 
     // Close the event if we created one.
     if (created_event)
-        CloseHandle (ChangeEvent);
+        CloseHandle(ChangeEvent);
 
     return return_value;
 
@@ -541,9 +538,9 @@ Implementation Notes:
 
 
 VOID
-NSCATALOG::UpdateNamespaceList (
+NSCATALOG::UpdateNamespaceList(
     PLIST_ENTRY     new_list
-    )
+)
 /*
 
 Routine Description:
@@ -579,55 +576,55 @@ Implementation Notes:
     PLIST_ENTRY     list_member;
 
     // Move items from current list to old list
-    InsertHeadList (&m_namespace_list, &old_list);
-    RemoveEntryList (&m_namespace_list);
-    InitializeListHead (&m_namespace_list);
+    InsertHeadList(&m_namespace_list, &old_list);
+    RemoveEntryList(&m_namespace_list);
+    InitializeListHead(&m_namespace_list);
 
     // for all loaded items
-    while (!IsListEmpty (new_list)) {
-        list_member = RemoveHeadList (new_list);
-        item = CONTAINING_RECORD (list_member,
-                                    NSCATALOGENTRY,
-                                    m_CatalogLinkage);
+    while (!IsListEmpty(new_list)) {
+        list_member = RemoveHeadList(new_list);
+        item = CONTAINING_RECORD(list_member,
+                                 NSCATALOGENTRY,
+                                 m_CatalogLinkage);
 
         // check if the same item is in the old list
         list_member = old_list.Flink;
-        while (list_member!=&old_list) {
+        while (list_member != &old_list) {
             PNSCATALOGENTRY     old_item;
-            old_item = CONTAINING_RECORD (list_member,
-                                    NSCATALOGENTRY,
-                                    m_CatalogLinkage);
+            old_item = CONTAINING_RECORD(list_member,
+                                         NSCATALOGENTRY,
+                                         m_CatalogLinkage);
             list_member = list_member->Flink;
             if (*(item->GetProviderId()) == *(old_item->GetProviderId())) {
                 // it is, use the old one and get rid of the new
-                assert (item->GetNamespaceId () == old_item->GetNamespaceId());
+                assert(item->GetNamespaceId() == old_item->GetNamespaceId());
 #if defined(DEBUG_TRACING)
-                InitializeListHead (&item->m_CatalogLinkage);
+                InitializeListHead(&item->m_CatalogLinkage);
 #endif
-                item->Dereference ();
+                item->Dereference();
 
                 item = old_item;
-                RemoveEntryList (&item->m_CatalogLinkage);
+                RemoveEntryList(&item->m_CatalogLinkage);
                 m_num_items -= 1;
                 break;
             }
         }
         // add item to the current list
-        InsertTailList (&m_namespace_list, &item->m_CatalogLinkage);
+        InsertTailList(&m_namespace_list, &item->m_CatalogLinkage);
         m_num_items += 1;
     }
 
     // destroy all remaining items on the old list
-    while (!IsListEmpty (&old_list)) {
-        list_member = RemoveHeadList (&old_list);
-        item = CONTAINING_RECORD (list_member,
-                                    NSCATALOGENTRY,
-                                    m_CatalogLinkage);
+    while (!IsListEmpty(&old_list)) {
+        list_member = RemoveHeadList(&old_list);
+        item = CONTAINING_RECORD(list_member,
+                                 NSCATALOGENTRY,
+                                 m_CatalogLinkage);
 #if defined(DEBUG_TRACING)
-        InitializeListHead (&item->m_CatalogLinkage);
+        InitializeListHead(&item->m_CatalogLinkage);
 #endif
         m_num_items -= 1;
-        item->Dereference ();
+        item->Dereference();
     }
 
 }
@@ -635,7 +632,7 @@ Implementation Notes:
 
 INT
 NSCATALOG::WriteToRegistry(
-    )
+)
 /*
 
 Routine Description:
@@ -673,17 +670,17 @@ Implementation Notes:
     BOOL bresult;
 
     // lock the catalog object
-    AcquireCatalogLock ();
-    assert (m_reg_key!=NULL);
-    assert (m_serial_num!=0);
+    AcquireCatalogLock();
+    assert(m_reg_key != NULL);
+    assert(m_serial_num != 0);
 
     // Get exclusive access to the registry
     // This also verifies that registry has not change since
     // it was last read
-    return_value = AcquireExclusiveCatalogAccess (
-                            m_reg_key,
-                            m_serial_num,
-                            &access_key);
+    return_value = AcquireExclusiveCatalogAccess(
+        m_reg_key,
+        m_serial_num,
+        &access_key);
     if (return_value == ERROR_SUCCESS) {
         // Create or open existing entries key
         lresult = RegCreateKeyEx(
@@ -694,20 +691,20 @@ Implementation Notes:
             REG_OPTION_NON_VOLATILE,  // fdwOptions
             KEY_ALL_ACCESS,           // samDesired
             NULL,                     // lpSecurityAttributes
-            & entries_key,            // phkResult
-            & dont_care               // lpdwDisposition
-            );
+            &entries_key,            // phkResult
+            &dont_care               // lpdwDisposition
+        );
         if (lresult == ERROR_SUCCESS) {
             TRY_START(any_failure) {
                 PLIST_ENTRY          ListMember;
                 PNSCATALOGENTRY     item;
                 DWORD               num_items = 0;
 
-                lresult = RegDeleteSubkeys (entries_key);
+                lresult = RegDeleteSubkeys(entries_key);
 
                 // Write catalog items to registry
                 ListMember = m_namespace_list.Flink;
-                while (ListMember != & m_namespace_list) {
+                while (ListMember != &m_namespace_list) {
                     item = CONTAINING_RECORD(
                         ListMember,
                         NSCATALOGENTRY,
@@ -717,29 +714,29 @@ Implementation Notes:
                     return_value = item->WriteToRegistry(
                         entries_key,  // ParentKey
                         num_items     // SequenceNum
-                        );
+                    );
                     if (return_value != ERROR_SUCCESS) {
                         DEBUGF(
                             DBG_ERR,
                             ("Writing item (%lu) to registry\n",
-                            num_items));
+                             num_items));
                         TRY_THROW(any_write_failure);
                     }
                 }  // while get item
 
-                assert (m_num_items == num_items);
+                assert(m_num_items == num_items);
                 // Write number of items
                 bresult = WriteRegistryEntry(
                     m_reg_key,             // EntryKey
                     NUM_ENTRIES_NAME,     // EntryName
-                    (PVOID) & m_num_items,// Data
+                    (PVOID)&m_num_items,// Data
                     REG_DWORD             // TypeFlag
-                    );
-                if (! bresult) {
+                );
+                if (!bresult) {
                     DEBUGF(
                         DBG_ERR,
                         ("Writing %s value\n",
-                        NUM_ENTRIES_NAME));
+                         NUM_ENTRIES_NAME));
                     return_value = WSASYSCALLFAILURE;
                     TRY_THROW(any_write_failure);
                 }
@@ -753,7 +750,7 @@ Implementation Notes:
             // Close entries key
             lresult = RegCloseKey(
                 entries_key  // hkey
-                );
+            );
             if (lresult != ERROR_SUCCESS) {
                 DEBUGF(
                     DBG_ERR,
@@ -763,10 +760,10 @@ Implementation Notes:
         }
 
         // Release registry
-        ReleaseExclusiveCatalogAccess (
-                            m_reg_key,
-                            m_serial_num,
-                            access_key);
+        ReleaseExclusiveCatalogAccess(
+            m_reg_key,
+            m_serial_num,
+            access_key);
     }
 
     // Unlock catalog object
@@ -816,27 +813,27 @@ Implementation Notes:
 
     // Check if we were fully initialized.
 
-    if (m_namespace_list.Flink==NULL) {
+    if (m_namespace_list.Flink == NULL) {
         return;
     }
     AcquireCatalogLock();
-    while ((this_linkage = m_namespace_list.Flink) != & m_namespace_list) {
+    while ((this_linkage = m_namespace_list.Flink) != &m_namespace_list) {
         this_item = CONTAINING_RECORD(
             this_linkage,        // address
             NSCATALOGENTRY,      // type
             m_CatalogLinkage     // field
-            );
+        );
         RemoveCatalogItem(
             this_item  // CatalogItem
-            );
-        this_item->Dereference ();
+        );
+        this_item->Dereference();
     }  // while (get entry linkage)
 
-    if (m_reg_key!=NULL) {
-        lresult = RegCloseKey (m_reg_key);
+    if (m_reg_key != NULL) {
+        lresult = RegCloseKey(m_reg_key);
         if (lresult != ERROR_SUCCESS) {
-            DEBUGF (DBG_ERR,
-                ("Closing catalog registry key, err: %ld.\n", lresult));
+            DEBUGF(DBG_ERR,
+                   ("Closing catalog registry key, err: %ld.\n", lresult));
         }
         m_reg_key = NULL;
     }
@@ -851,7 +848,7 @@ VOID
 NSCATALOG::EnumerateCatalogItems(
     IN NSCATALOGITERATION  IterationProc,
     IN PVOID               PassBack
-    )
+)
 /*
 
 Routine Description:
@@ -888,23 +885,23 @@ Return Value:
 
     enumerate_more = TRUE;
 
-    AcquireCatalogLock ();
+    AcquireCatalogLock();
 
     ListMember = m_namespace_list.Flink;
 
-    while (enumerate_more && (ListMember != & m_namespace_list)) {
+    while (enumerate_more && (ListMember != &m_namespace_list)) {
         CatalogEntry = CONTAINING_RECORD(
             ListMember,
             NSCATALOGENTRY,
             m_CatalogLinkage);
         ListMember = ListMember->Flink;
-        enumerate_more = (* IterationProc) (
+        enumerate_more = (*IterationProc) (
             PassBack,     // PassBack
             CatalogEntry  // CatalogEntry
             );
     } //while
 
-    ReleaseCatalogLock ();
+    ReleaseCatalogLock();
 }  // EnumerateCatalogItems
 
 
@@ -913,8 +910,8 @@ Return Value:
 INT
 NSCATALOG::GetCountedCatalogItemFromNameSpaceId(
     IN  DWORD NamespaceId,
-    OUT PNSCATALOGENTRY FAR * CatalogItem
-    )
+    OUT PNSCATALOGENTRY FAR* CatalogItem
+)
 /*
 
 Routine Description:
@@ -943,18 +940,18 @@ Return Value:
     PLIST_ENTRY         ListMember;
     INT                 ReturnCode;
     PNSCATALOGENTRY     CatalogEntry;
-    BOOL                Found=FALSE;
+    BOOL                Found = FALSE;
 
     assert(CatalogItem != NULL);
 
     // Prepare for early error return
-    * CatalogItem = NULL;
+    *CatalogItem = NULL;
     ReturnCode = WSAEINVAL;
 
     AcquireCatalogLock();
     ListMember = m_namespace_list.Flink;
 
-    while (ListMember != & m_namespace_list) {
+    while (ListMember != &m_namespace_list) {
         CatalogEntry = CONTAINING_RECORD(
             ListMember,
             NSCATALOGENTRY,
@@ -964,13 +961,13 @@ Return Value:
             if (CatalogEntry->GetProvider() == NULL) {
                 ReturnCode = LoadProvider(
                     CatalogEntry    // CatalogEntry
-                    );
+                );
                 if (ReturnCode != ERROR_SUCCESS) {
                     break;
                 }
             }  // if provider is NULL
-            CatalogEntry->Reference ();
-            * CatalogItem = CatalogEntry;
+            CatalogEntry->Reference();
+            *CatalogItem = CatalogEntry;
             ReturnCode = ERROR_SUCCESS;
             break;
         } //if
@@ -985,8 +982,8 @@ Return Value:
 INT
 NSCATALOG::GetCountedCatalogItemFromProviderId(
     IN  LPGUID                ProviderId,
-    OUT PNSCATALOGENTRY FAR * CatalogItem
-    )
+    OUT PNSCATALOGENTRY FAR* CatalogItem
+)
 /*
 
 Routine Description:
@@ -1023,24 +1020,24 @@ Return Value:
 
     ListMember = m_namespace_list.Flink;
 
-    while (ListMember != & m_namespace_list) {
+    while (ListMember != &m_namespace_list) {
         CatalogEntry = CONTAINING_RECORD(
             ListMember,
             NSCATALOGENTRY,
             m_CatalogLinkage);
         ListMember = ListMember->Flink;
 
-        if ( *(CatalogEntry->GetProviderId()) == *ProviderId) {
+        if (*(CatalogEntry->GetProviderId()) == *ProviderId) {
             if (CatalogEntry->GetProvider() == NULL) {
                 ReturnCode = LoadProvider(
                     CatalogEntry    // CatalogEntry
-                    );
+                );
                 if (ReturnCode != ERROR_SUCCESS) {
                     break;
                 }
             }  // if provider is NULL
-            CatalogEntry->Reference ();
-            * CatalogItem = CatalogEntry;
+            CatalogEntry->Reference();
+            *CatalogItem = CatalogEntry;
             ReturnCode = ERROR_SUCCESS;
             break;
         } //if
@@ -1055,7 +1052,7 @@ Return Value:
 VOID
 NSCATALOG::AppendCatalogItem(
     IN  PNSCATALOGENTRY  CatalogItem
-    )
+)
 /*
 
 Routine Description:
@@ -1074,12 +1071,12 @@ Return Value:
 --*/
 {
     assert(CatalogItem != NULL);
-    assert(IsListEmpty (&CatalogItem->m_CatalogLinkage));
+    assert(IsListEmpty(&CatalogItem->m_CatalogLinkage));
     InsertTailList(
-        & m_namespace_list,               // ListHead
-        & CatalogItem->m_CatalogLinkage  // Entry
-        );
-    m_num_items ++;
+        &m_namespace_list,               // ListHead
+        &CatalogItem->m_CatalogLinkage  // Entry
+    );
+    m_num_items++;
 }  // AppendCatalogItem
 
 
@@ -1088,7 +1085,7 @@ Return Value:
 VOID
 NSCATALOG::RemoveCatalogItem(
     IN  PNSCATALOGENTRY  CatalogItem
-    )
+)
 /*
 
 Routine Description:
@@ -1106,13 +1103,13 @@ Return Value:
 --*/
 {
     assert(CatalogItem != NULL);
-    assert (!IsListEmpty (&CatalogItem->m_CatalogLinkage));
+    assert(!IsListEmpty(&CatalogItem->m_CatalogLinkage));
 
     RemoveEntryList(
-        & CatalogItem->m_CatalogLinkage  // Entry
-        );
+        &CatalogItem->m_CatalogLinkage  // Entry
+    );
 #if defined(DEBUG_TRACING)
-    InitializeListHead (&CatalogItem->m_CatalogLinkage);
+    InitializeListHead(&CatalogItem->m_CatalogLinkage);
 #endif
     assert(m_num_items > 0);
     m_num_items--;
@@ -1126,7 +1123,7 @@ INT WSAAPI
 NSCATALOG::GetServiceClassInfo(
     IN OUT  LPDWORD                 lpdwBufSize,
     IN OUT  LPWSASERVICECLASSINFOW  lpServiceClassInfo
-    )
+)
 /*
 
 Routine Description:
@@ -1168,11 +1165,11 @@ Return Value:
     // Save off the buffer size incase we need it later
     BufSize = *lpdwBufSize;
 
-    if (!m_classinfo_provider){
+    if (!m_classinfo_provider) {
         m_classinfo_provider = GetClassInfoProvider(
             BufSize,
             lpServiceClassInfo);
-        if (!m_classinfo_provider){
+        if (!m_classinfo_provider) {
             SetLastError(WSAEFAULT);
             return(SOCKET_ERROR);
         } //if
@@ -1181,29 +1178,29 @@ Return Value:
     ReturnCode = m_classinfo_provider->NSPGetServiceClassInfo(
         lpdwBufSize,
         lpServiceClassInfo
-        );
+    );
 
-    if (ERROR_SUCCESS == ReturnCode){
+    if (ERROR_SUCCESS == ReturnCode) {
         ValidAnswer = TRUE;
     } //if
 
-    if (!ValidAnswer){
+    if (!ValidAnswer) {
         // The name space provider we where using failed to find the class info
         // go find a provider that can answer the question
         ReturnCode = SOCKET_ERROR;
         Provider = GetClassInfoProvider(
             BufSize,
             lpServiceClassInfo);
-        if (Provider){
+        if (Provider) {
             //We found a provider that can service the request so use this
             //provider until it fails
             m_classinfo_provider = Provider;
 
             // Now retry the call
-             ReturnCode = m_classinfo_provider->NSPGetServiceClassInfo(
-                 lpdwBufSize,
-                 lpServiceClassInfo
-                 );
+            ReturnCode = m_classinfo_provider->NSPGetServiceClassInfo(
+                lpdwBufSize,
+                lpServiceClassInfo
+            );
         } //if
     } //if
     return(ReturnCode);
@@ -1214,7 +1211,7 @@ PNSPROVIDER
 NSCATALOG::GetClassInfoProvider(
     IN  DWORD BufSize,
     IN  LPWSASERVICECLASSINFOW  lpServiceClassInfo
-    )
+)
 /*
 
 Routine Description:
@@ -1242,26 +1239,26 @@ Return Value:
 
 #if 0
     PLIST_ENTRY ListEntry;
-    PNSPROVIDER Provider=NULL;
+    PNSPROVIDER Provider = NULL;
     PNSCATALOGENTRY CatalogEntry;
     INT ReturnCode;
 
 
     ListEntry = m_namespace_list.Flink;
 
-    while (ListEntry != &m_namespace_list){
+    while (ListEntry != &m_namespace_list) {
         CatalogEntry = CONTAINING_RECORD(ListEntry,
                                          NSCATALOGENTRY,
                                          m_CatalogLinkage);
         Provider = CatalogEntry->GetProvider();
         if (Provider &&
             CatalogEntry->GetEnabledState() &&
-            CatalogEntry->StoresServiceClassInfo()){
+            CatalogEntry->StoresServiceClassInfo()) {
             ReturnCode = Provider->NSPGetServiceClassInfo(
                 &BufSize,
                 lpServiceClassInfo
-                 );
-            if (ERROR_SUCCESS == ReturnCode){
+            );
+            if (ERROR_SUCCESS == ReturnCode) {
                 break;
             } //if
         } //if
@@ -1286,17 +1283,17 @@ Return Value:
     INT ReturnCode = ERROR_SUCCESS;
     PNSPROVIDER LocalProvider;
 
-    AcquireCatalogLock ();// Serialize provider loading/unloading
+    AcquireCatalogLock();// Serialize provider loading/unloading
 
     // Check if provider is loaded under the lock
-    if (CatalogEntry->GetProvider ()==NULL) {
+    if (CatalogEntry->GetProvider() == NULL) {
         LocalProvider = new NSPROVIDER;
-        if (LocalProvider!=NULL){
-            ReturnCode = LocalProvider->Initialize(CatalogEntry->GetLibraryPath (), CatalogEntry->GetProviderId ());
-            if (ERROR_SUCCESS == ReturnCode){
-                CatalogEntry->SetProvider (LocalProvider);
+        if (LocalProvider != NULL) {
+            ReturnCode = LocalProvider->Initialize(CatalogEntry->GetLibraryPath(), CatalogEntry->GetProviderId());
+            if (ERROR_SUCCESS == ReturnCode) {
+                CatalogEntry->SetProvider(LocalProvider);
             }
-            LocalProvider->Dereference ();
+            LocalProvider->Dereference();
         } else {
             DEBUGF(DBG_ERR, ("Couldn't allocate a NSPROVIDER object\n"));
             ReturnCode = WSA_NOT_ENOUGH_MEMORY;
@@ -1304,7 +1301,7 @@ Return Value:
     } // if provider not loaded
 
     // Serialize provider loading/unloading
-    ReleaseCatalogLock ();
+    ReleaseCatalogLock();
     return ReturnCode;
 }
 

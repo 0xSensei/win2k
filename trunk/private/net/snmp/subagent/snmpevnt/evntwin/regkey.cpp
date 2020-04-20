@@ -47,7 +47,7 @@ CRegistryValue::CRegistryValue()
 
 
 CRegistryValue::CRegistryValue(LPCTSTR pszName, DWORD dwType,
-    DWORD dwDataLength, LPBYTE pData)
+                               DWORD dwDataLength, LPBYTE pData)
 {
     Set(pszName, dwType, dwDataLength, pData);
 }
@@ -70,7 +70,7 @@ CRegistryValue::~CRegistryValue()
 
 
 void CRegistryValue::Set(LPCTSTR pszName, DWORD dwType,
-    DWORD dwDataLength, LPBYTE pData)
+                         DWORD dwDataLength, LPBYTE pData)
 {
     Empty();
 
@@ -79,8 +79,7 @@ void CRegistryValue::Set(LPCTSTR pszName, DWORD dwType,
     m_dwDataLength = dwDataLength;
     if (dwDataLength == 0 || pData == NULL)
         m_pData = NULL;
-    else
-    {
+    else {
         m_pData = new BYTE[dwDataLength];
         memcpy(m_pData, pData, dwDataLength);
     }
@@ -95,8 +94,8 @@ void CRegistryValue::Set(LPCTSTR pszName, DWORD dwType,
 //  If pData is NULL, no copy is performed.
 
 
-void CRegistryValue::Get(CString &sName, DWORD &dwType,
-    DWORD &dwDataLength, LPBYTE pData)
+void CRegistryValue::Get(CString& sName, DWORD& dwType,
+                         DWORD& dwDataLength, LPBYTE pData)
 {
     sName = m_sName;
     dwType = m_dwType;
@@ -129,7 +128,7 @@ void CRegistryValue::Empty()
 //  Assignment operator.  Copies CRegistryValue object.
 
 
-const CRegistryValue& CRegistryValue::operator=(CRegistryValue &other)
+const CRegistryValue& CRegistryValue::operator=(CRegistryValue& other)
 {
     Set(other.m_sName, other.m_dwType, other.m_dwDataLength, other.m_pData);
 
@@ -229,8 +228,7 @@ LONG CRegistryKey::Connect(LPCTSTR pszComputer, HKEY hkey)
 
     m_lResult = ERROR_SUCCESS;
 
-    if (m_bConnected)
-    {
+    if (m_bConnected) {
         m_lResult = Disconnect(TRUE);
         if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
             g_bLostConnection = TRUE;
@@ -245,15 +243,12 @@ LONG CRegistryKey::Connect(LPCTSTR pszComputer, HKEY hkey)
 
     sComputer = pszComputer;
     GetComputerName(szName, &dwNumChars);
-    if (sComputer.IsEmpty() || !lstrcmpi(pszComputer, szName))
-    {
+    if (sComputer.IsEmpty() || !lstrcmpi(pszComputer, szName)) {
         // Local
 
         m_bLocal = TRUE;
         hkeyRemote = NULL;
-    }
-    else
-    {
+    } else {
         // Remote
 
         m_bLocal = FALSE;
@@ -284,11 +279,9 @@ LONG CRegistryKey::Disconnect(BOOL bForce)
 {
     m_lResult = ERROR_SUCCESS;
 
-    if (m_bConnected)
-    {
+    if (m_bConnected) {
         // Close the open key
-        if (m_bOpen)
-        {
+        if (m_bOpen) {
             m_lResult = Close(bForce);
             if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
                 g_bLostConnection = TRUE;
@@ -300,8 +293,7 @@ LONG CRegistryKey::Disconnect(BOOL bForce)
 
         // Close the remote connection
         if (!g_bLostConnection) {
-            if (!m_bLocal)
-            {
+            if (!m_bLocal) {
                 m_lResult = RegCloseKey(m_hkeyRemote);
                 if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
                     g_bLostConnection = TRUE;
@@ -325,8 +317,8 @@ LONG CRegistryKey::Disconnect(BOOL bForce)
 //  CRegistryKey::Create
 
 
-LONG CRegistryKey::Create(LPCTSTR pszKeyName, DWORD &dwDisposition,
-    LPCTSTR pszClass, REGSAM samDesired, LPSECURITY_ATTRIBUTES lpSecAttr)
+LONG CRegistryKey::Create(LPCTSTR pszKeyName, DWORD& dwDisposition,
+                          LPCTSTR pszClass, REGSAM samDesired, LPSECURITY_ATTRIBUTES lpSecAttr)
 {
     if (g_bLostConnection) {
         return RPC_S_SERVER_UNAVAILABLE;
@@ -337,8 +329,7 @@ LONG CRegistryKey::Create(LPCTSTR pszKeyName, DWORD &dwDisposition,
     m_lResult = ERROR_SUCCESS;
     dwDisposition = 0;
 
-    if (m_bOpen)
-    {
+    if (m_bOpen) {
         m_lResult = Close(TRUE);
         if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
             g_bLostConnection = TRUE;
@@ -348,8 +339,7 @@ LONG CRegistryKey::Create(LPCTSTR pszKeyName, DWORD &dwDisposition,
     }
 
     // If not connected, default to \\Local_Machine\HKEY_LOCAL_MACHINE
-    if (!m_bConnected)
-    {
+    if (!m_bConnected) {
         m_lResult = Connect();
         if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
             g_bLostConnection = TRUE;
@@ -398,8 +388,7 @@ LONG CRegistryKey::Open(LPCTSTR pszKeyName, REGSAM samDesired)
 
     m_lResult = ERROR_SUCCESS;
 
-    if (m_bOpen)
-    {
+    if (m_bOpen) {
         m_lResult = Close(TRUE);
         if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
             g_bLostConnection = TRUE;
@@ -409,8 +398,7 @@ LONG CRegistryKey::Open(LPCTSTR pszKeyName, REGSAM samDesired)
     }
 
     // If not connected, default to \\Local_Machine\HKEY_LOCAL_MACHINE
-    if (!m_bConnected)
-    {
+    if (!m_bConnected) {
         m_lResult = Connect();
         if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
             g_bLostConnection = TRUE;
@@ -440,16 +428,15 @@ LONG CRegistryKey::Open(LPCTSTR pszKeyName, REGSAM samDesired)
 
     dwClass = 1024 + 1;
     m_lResult = RegQueryInfoKey(hkeyOpen, szBuffer, &dwClass, 0, &dwSubKeys,
-        &dwMaxSubKey, &dwMaxClass, &dwValues, &dwMaxValueName,
-        &dwMaxValueData, &dwSecurityDescriptor, &ftLastWriteTime);
+                                &dwMaxSubKey, &dwMaxClass, &dwValues, &dwMaxValueName,
+                                &dwMaxValueData, &dwSecurityDescriptor, &ftLastWriteTime);
 
     if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
         g_bLostConnection = TRUE;
         return m_lResult;
     }
 
-    if (m_lResult != ERROR_SUCCESS)
-    {
+    if (m_lResult != ERROR_SUCCESS) {
         RegCloseKey(hkeyOpen);
         return m_lResult;
     }
@@ -494,8 +481,7 @@ LONG CRegistryKey::Close(BOOL bForce)
             return ERROR_SUCCESS;
 
 
-        if (m_bDirty)
-        {
+        if (m_bDirty) {
             m_lResult = RegFlushKey(m_hkeyOpen);
             if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
                 g_bLostConnection = TRUE;
@@ -538,8 +524,7 @@ LONG CRegistryKey::Close(BOOL bForce)
     if (g_bLostConnection) {
         m_lResult = RPC_S_SERVER_UNAVAILABLE;
         return RPC_S_SERVER_UNAVAILABLE;
-    }
-    else {
+    } else {
         m_lResult = ERROR_SUCCESS;
         return ERROR_SUCCESS;
     }
@@ -563,7 +548,7 @@ CStringArray* CRegistryKey::EnumValues()
 
     TCHAR szBuffer[1024 + 1];
     DWORD dwLength;
-    CStringArray *pArr;
+    CStringArray* pArr;
     int i;
 
     m_lResult = ERROR_SUCCESS;
@@ -575,11 +560,10 @@ CStringArray* CRegistryKey::EnumValues()
     pArr = new CStringArray;
     i = 0;
     m_lResult = ERROR_SUCCESS;
-    while (TRUE)
-    {
+    while (TRUE) {
         dwLength = 1024 + 1;
         m_lResult = RegEnumValue(m_hkeyOpen, i, szBuffer, &dwLength, NULL,
-            NULL, NULL, NULL);
+                                 NULL, NULL, NULL);
 
         if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
             g_bLostConnection = TRUE;
@@ -620,7 +604,7 @@ CStringArray* CRegistryKey::EnumSubKeys()
 
     TCHAR szBuffer[1024 + 1];
     DWORD dwLength;
-    CStringArray *pArr;
+    CStringArray* pArr;
     int i;
 
     m_lResult = ERROR_SUCCESS;
@@ -632,11 +616,10 @@ CStringArray* CRegistryKey::EnumSubKeys()
     pArr = new CStringArray;
     i = 0;
 
-    while (TRUE)
-    {
+    while (TRUE) {
         dwLength = 1024 + 1;
         m_lResult = RegEnumKeyEx(m_hkeyOpen, i, szBuffer, &dwLength, NULL,
-            NULL, NULL, NULL);
+                                 NULL, NULL, NULL);
 
         if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
             g_bLostConnection = TRUE;
@@ -664,11 +647,11 @@ CStringArray* CRegistryKey::EnumSubKeys()
 //  Note: regval is always emptied regardless of success/failure
 
 
-BOOL CRegistryKey::GetValue(LPCTSTR pszValue, CRegistryValue &regval)
+BOOL CRegistryKey::GetValue(LPCTSTR pszValue, CRegistryValue& regval)
 {
 
     DWORD dwLength, dwType;
-    BYTE *pBuffer;
+    BYTE* pBuffer;
 
     regval.Empty();
 
@@ -677,8 +660,7 @@ BOOL CRegistryKey::GetValue(LPCTSTR pszValue, CRegistryValue &regval)
         return FALSE;
     }
 
-    if (!m_bOpen)
-    {
+    if (!m_bOpen) {
         m_lResult = ERROR_INVALID_FUNCTION;
         return FALSE;
     }
@@ -702,7 +684,7 @@ BOOL CRegistryKey::GetValue(LPCTSTR pszValue, CRegistryValue &regval)
         return FALSE;
 
     m_lResult = RegQueryValueEx(m_hkeyOpen, (LPTSTR)pszValue, NULL, &dwType,
-        pBuffer, &dwLength);
+                                pBuffer, &dwLength);
 
 
     if (m_lResult == ERROR_SUCCESS)
@@ -725,21 +707,19 @@ BOOL CRegistryKey::GetValue(LPCTSTR pszValue, CRegistryValue &regval)
 //  CRegistryKey::SetValue
 
 
-BOOL CRegistryKey::SetValue(CRegistryValue &regval)
+BOOL CRegistryKey::SetValue(CRegistryValue& regval)
 {
     if (g_bLostConnection) {
         m_lResult = RPC_S_SERVER_UNAVAILABLE;
         return FALSE;
     }
 
-    if (!m_bOpen)
-    {
+    if (!m_bOpen) {
         m_lResult = ERROR_INVALID_FUNCTION;
         return FALSE;
     }
 
-    if (regval.m_sName.IsEmpty())
-    {
+    if (regval.m_sName.IsEmpty()) {
         m_lResult = ERROR_INVALID_DATA;
         return FALSE;
     }
@@ -765,7 +745,7 @@ BOOL CRegistryKey::SetValue(CRegistryValue &regval)
 //  specified key.  If failure, regkey is returned disconnected.
 
 
-BOOL CRegistryKey::GetSubKey(LPCTSTR pszSubKey, CRegistryKey &regkey)
+BOOL CRegistryKey::GetSubKey(LPCTSTR pszSubKey, CRegistryKey& regkey)
 {
     if (g_bLostConnection) {
         m_lResult = RPC_S_SERVER_UNAVAILABLE;
@@ -805,8 +785,7 @@ BOOL CRegistryKey::GetSubKey(LPCTSTR pszSubKey, CRegistryKey &regkey)
         g_bLostConnection = TRUE;
     }
 
-    if (m_lResult != ERROR_SUCCESS)
-    {
+    if (m_lResult != ERROR_SUCCESS) {
         regkey.Disconnect(TRUE);
         return FALSE;
     }
@@ -825,7 +804,7 @@ BOOL CRegistryKey::GetSubKey(LPCTSTR pszSubKey, CRegistryKey &regkey)
 
 BOOL CRegistryKey::CreateSubKey(
     LPCTSTR pszSubKey,
-    CRegistryKey &regkey,
+    CRegistryKey& regkey,
     LPCTSTR pszClass,
     LPSECURITY_ATTRIBUTES lpSecAttr,
     BOOL bIsVolatile)
@@ -871,8 +850,7 @@ BOOL CRegistryKey::CreateSubKey(
         g_bLostConnection = TRUE;
     }
 
-    if (m_lResult != ERROR_SUCCESS)
-    {
+    if (m_lResult != ERROR_SUCCESS) {
         regkey.Disconnect(TRUE);
         return FALSE;
     }
@@ -887,8 +865,7 @@ BOOL CRegistryKey::CreateSubKey(
 
     m_lResult = regkey.Open(m_sFullName + "\\" + sSubKey, m_Sam);
 
-    if (m_lResult != ERROR_SUCCESS)
-    {
+    if (m_lResult != ERROR_SUCCESS) {
         if ((m_lResult == RPC_S_SERVER_UNAVAILABLE) || (m_lResult == RPC_S_CALL_FAILED)) {
             g_bLostConnection = TRUE;
         }
@@ -929,9 +906,8 @@ BOOL CRegistryKey::DeleteSubKey(LPCTSTR pszSubKey)
         return FALSE;
 
     // Delete all subkeys of the specified subkey (RegDeleteKey limitation)
-    CStringArray *parr = subkey.EnumSubKeys();
-    for (i=0; i<parr->GetSize(); i++)
-    {
+    CStringArray* parr = subkey.EnumSubKeys();
+    for (i = 0; i < parr->GetSize(); i++) {
         if (!subkey.DeleteSubKey(parr->GetAt(i)))
             return FALSE;
     }

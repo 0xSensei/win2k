@@ -23,7 +23,7 @@
 // interface code and represent the interface proxy.
 
 
-extern "C" HRESULT PrxyDllGetClassObject( REFCLSID rclsid, REFIID   riid, void   **ppv    );
+extern "C" HRESULT PrxyDllGetClassObject(REFCLSID rclsid, REFIID   riid, void** ppv);
 extern "C" HRESULT PrxyDllRegisterServer();
 extern "C" HRESULT PrxyDllUnregisterServer();
 
@@ -37,37 +37,37 @@ static ULONG       g_cLock = 0;
 static HINSTANCE   g_hInst = 0;
 
 static const WCHAR* OBJ_GUID
-             = TEXT("{570DA105-3C30-11D1-8BF1-0000F8754035}");
+= TEXT("{570DA105-3C30-11D1-8BF1-0000F8754035}");
 
 static const WCHAR* APPID_GUID
-             = TEXT("{570DA105-3C30-11D1-8BF1-0000F8754035}");
+= TEXT("{570DA105-3C30-11D1-8BF1-0000F8754035}");
 //           = TEXT("{911D15AD-092B-11D1-9BF3-00A0C9063D92}");
 
 static const WCHAR* CLSID_OBJ
-             = TEXT("CLSID\\{570DA105-3C30-11D1-8BF1-0000F8754035}");
+= TEXT("CLSID\\{570DA105-3C30-11D1-8BF1-0000F8754035}");
 
 static const WCHAR* CLSID_PROXY
-             = TEXT("CLSID\\{3F7EC550-80A3-11D1-B222-00A0C90C91FE}");
+= TEXT("CLSID\\{3F7EC550-80A3-11D1-B222-00A0C90C91FE}");
 
 static const WCHAR* APPID_OBJ
-             = TEXT("AppID\\{570DA105-3C30-11D1-8BF1-0000F8754035}");
+= TEXT("AppID\\{570DA105-3C30-11D1-8BF1-0000F8754035}");
 //           = TEXT("AppID\\{911D15AD-092B-11D1-9BF3-00A0C9063D92}");
 
 static const WCHAR* CLSID_INTF
-             = TEXT("CLSID\\{3AE0B7E0-3C19-11D1-8BF1-0000F8754035}");
+= TEXT("CLSID\\{3AE0B7E0-3C19-11D1-8BF1-0000F8754035}");
 
 static const WCHAR* INTF_INTF
-             = TEXT("Interface\\{3AE0B7E0-3C19-11D1-8BF1-0000F8754035}");
+= TEXT("Interface\\{3AE0B7E0-3C19-11D1-8BF1-0000F8754035}");
 
 static const WCHAR* INTF_GUID
-             = TEXT("{3AE0B7E0-3C19-11D1-8BF1-0000F8754035}");
+= TEXT("{3AE0B7E0-3C19-11D1-8BF1-0000F8754035}");
 
 static const WCHAR* PROXY_GUID
-             = TEXT("{3F7EC550-80A3-11D1-B222-00A0C90C91FE}");
+= TEXT("{3F7EC550-80A3-11D1-B222-00A0C90C91FE}");
 
 
 static const unsigned char AccessPermission[] =
-{ 0x01,0x00,0x04,0x80,0x70,0x00,0x00,0x00,
+{0x01,0x00,0x04,0x80,0x70,0x00,0x00,0x00,
   0x8C,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
   0x14,0x00,0x00,0x00,0x02,0x00,0x5C,0x00,
   0x04,0x00,0x00,0x00,0x00,0x00,0x14,0x00,
@@ -91,7 +91,7 @@ static const unsigned char AccessPermission[] =
 };
 
 static const unsigned char LaunchPermission[] =
-{ 0x01,0x00,0x04,0x80,0x78,0x00,0x00,0x00,
+{0x01,0x00,0x04,0x80,0x78,0x00,0x00,0x00,
   0x94,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
   0x14,0x00,0x00,0x00,0x02,0x00,0x64,0x00,
   0x04,0x00,0x00,0x00,0x00,0x00,0x14,0x00,
@@ -117,47 +117,43 @@ static const unsigned char LaunchPermission[] =
 
 #if FALSE
 
-    ... DllMain() is defined in ..\msrlsp\dllmain.cpp
+... DllMain() is defined in ..\msrlsp\dllmain.cpp
 
 
 // DllMain()
 
 
-BOOL WINAPI DllMain( HINSTANCE hInst,
-                     ULONG     ulReason,
-                     LPVOID    pvReserved )
-    {
+BOOL WINAPI DllMain(HINSTANCE hInst,
+                    ULONG     ulReason,
+                    LPVOID    pvReserved)
+{
     BOOL  fInitialized = TRUE;
 
-    switch (ulReason)
-       {
-       case DLL_PROCESS_ATTACH:
-          if (!DisableThreadLibraryCalls(hInst))
-             {
-             fInitialized = FALSE;
-             }
-          else
-             {
-             g_hInst = hInst;
-             }
-          break;
+    switch (ulReason) {
+    case DLL_PROCESS_ATTACH:
+        if (!DisableThreadLibraryCalls(hInst)) {
+            fInitialized = FALSE;
+        } else {
+            g_hInst = hInst;
+        }
+        break;
 
-       case DLL_PROCESS_DETACH:
-          break;
+    case DLL_PROCESS_DETACH:
+        break;
 
-       case DLL_THREAD_ATTACH:
-          // Not used. Disabled.
-          _ASSERT(0);
-          break;
+    case DLL_THREAD_ATTACH:
+        // Not used. Disabled.
+        _ASSERT(0);
+        break;
 
-       case DLL_THREAD_DETACH:
-          // Not used. Disabled.
-          _ASSERT(0);
-          break;
-       }
+    case DLL_THREAD_DETACH:
+        // Not used. Disabled.
+        _ASSERT(0);
+        break;
+    }
 
     return fInitialized;
-    }
+}
 #endif
 
 
@@ -178,44 +174,38 @@ BOOL WINAPI DllMain( HINSTANCE hInst,
 //                  pointer.
 // Return Value:
 //  HRESULT         NOERROR on success, otherwise an error code.
-HRESULT DllGetClassObject( REFCLSID rclsid, REFIID   riid, void   **ppv    )
-    {
+HRESULT DllGetClassObject(REFCLSID rclsid, REFIID   riid, void** ppv)
+{
     HRESULT   hr;
-    CRestrictedProcessClassFactory *pObj;
+    CRestrictedProcessClassFactory* pObj;
 
     // Test to see if the Class Factory for the Proxy/Stub
     // is wanted.
-    if (CLSID_RestrictedProcessProxy == rclsid)
-       {
-       return PrxyDllGetClassObject(rclsid,riid,ppv);
-       }
+    if (CLSID_RestrictedProcessProxy == rclsid) {
+        return PrxyDllGetClassObject(rclsid, riid, ppv);
+    }
 
     // The only choice left is the CLSID for the Restricted
     // Networking object.
-    if (CLSID_RestrictedProcess != rclsid)
-       {
-       return CLASS_E_CLASSNOTAVAILABLE;
-       }
+    if (CLSID_RestrictedProcess != rclsid) {
+        return CLASS_E_CLASSNOTAVAILABLE;
+    }
 
     pObj = new CRestrictedProcessClassFactory();
-    if (!pObj)
-       {
-       return E_OUTOFMEMORY;
-       }
+    if (!pObj) {
+        return E_OUTOFMEMORY;
+    }
 
-    hr = pObj->QueryInterface(riid,ppv);
+    hr = pObj->QueryInterface(riid, ppv);
 
-    if (FAILED(hr))
-       {
-       delete pObj;
-       }
-    else
-       {
-       g_cObj++;
-       }
+    if (FAILED(hr)) {
+        delete pObj;
+    } else {
+        g_cObj++;
+    }
 
     return hr;
-    }
+}
 
 
 // DllCanUnloadNow()
@@ -231,14 +221,14 @@ HRESULT DllGetClassObject( REFCLSID rclsid, REFIID   riid, void   **ppv    )
 
 
 HRESULT DllCanUnloadNow(void)
-    {
+{
     HRESULT hr;
 
     //Our answer is whether there are any object or locks
-    hr = ((0==g_cObj) && (0L==g_cLock))? S_OK : S_FALSE;
+    hr = ((0 == g_cObj) && (0L == g_cLock)) ? S_OK : S_FALSE;
 
     return hr;
-    }
+}
 
 
 // SetKeyAndValue()
@@ -256,16 +246,16 @@ HRESULT DllCanUnloadNow(void)
 //    BOOL         TRUE if successful, FALSE otherwise.
 
 
-static BOOL SetKeyAndValue( const WCHAR *pwsKey,
-                            const WCHAR *pwsSubKey,
-                            const WCHAR *pwsValueName,
-                            const WCHAR *pwsValue,
-                            const DWORD  dwType = REG_SZ,
-                                  DWORD  dwDataSize = 0 )
-    {
+static BOOL SetKeyAndValue(const WCHAR* pwsKey,
+                           const WCHAR* pwsSubKey,
+                           const WCHAR* pwsValueName,
+                           const WCHAR* pwsValue,
+                           const DWORD  dwType = REG_SZ,
+                           DWORD  dwDataSize = 0)
+{
     HKEY   hKey;
     DWORD  dwSize = 0;
-    WCHAR  *pwsCompleteKey;
+    WCHAR* pwsCompleteKey;
 
     if (pwsKey)
         dwSize = wcslen(pwsKey);
@@ -275,43 +265,37 @@ static BOOL SetKeyAndValue( const WCHAR *pwsKey,
 
     _ASSERTE(dwSize > 0);
 
-    dwSize = (1+1+dwSize)*sizeof(WCHAR);  // Extra +1 for the backslash...
+    dwSize = (1 + 1 + dwSize) * sizeof(WCHAR);  // Extra +1 for the backslash...
     pwsCompleteKey = (WCHAR*)_alloca(dwSize);
-    if (!pwsCompleteKey)
-        {
+    if (!pwsCompleteKey) {
         return FALSE;   // Out of stack memory.
-        }
+    }
 
-    wcscpy(pwsCompleteKey,pwsKey);
+    wcscpy(pwsCompleteKey, pwsKey);
 
-    if (NULL!=pwsSubKey)
-        {
+    if (NULL != pwsSubKey) {
         wcscat(pwsCompleteKey, TEXT("\\"));
         wcscat(pwsCompleteKey, pwsSubKey);
-        }
+    }
 
-    if (ERROR_SUCCESS!=RegCreateKeyEx( HKEY_CLASSES_ROOT, pwsCompleteKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL))
-        {
+    if (ERROR_SUCCESS != RegCreateKeyEx(HKEY_CLASSES_ROOT, pwsCompleteKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL)) {
         return FALSE;
-        }
+    }
 
-    if (pwsValue)
-        {
-        if ((dwType == REG_SZ)||(dwType == REG_EXPAND_SZ))
-          dwDataSize = (1+wcslen(pwsValue))*sizeof(WCHAR);
+    if (pwsValue) {
+        if ((dwType == REG_SZ) || (dwType == REG_EXPAND_SZ))
+            dwDataSize = (1 + wcslen(pwsValue)) * sizeof(WCHAR);
 
         _ASSERT(dwDataSize);
 
-        RegSetValueEx( hKey, pwsValueName, 0, dwType, (BYTE *)pwsValue, dwDataSize );
-        }
-    else
-        {
-        RegSetValueEx( hKey, pwsValueName, 0, dwType, (BYTE *)pwsValue, 0 );
-        }
+        RegSetValueEx(hKey, pwsValueName, 0, dwType, (BYTE*)pwsValue, dwDataSize);
+    } else {
+        RegSetValueEx(hKey, pwsValueName, 0, dwType, (BYTE*)pwsValue, 0);
+    }
 
     RegCloseKey(hKey);
     return TRUE;
-    }
+}
 
 
 
@@ -330,7 +314,7 @@ static BOOL SetKeyAndValue( const WCHAR *pwsKey,
 
 
 HRESULT DllUnregisterServer()
-    {
+{
     DWORD  dwStatus;
     BOOL   fIsInstalled;
     WCHAR  wszTemp[256];
@@ -421,13 +405,12 @@ HRESULT DllUnregisterServer()
     // This is the registration code used to uninstall a LSP from
     // WinSock2:
     dwStatus = LSPAlreadyInstalled(&fIsInstalled);
-    if (fIsInstalled)
-        {
+    if (fIsInstalled) {
         UninstallLSP();
-        }
+    }
 
     return S_OK;
-    }
+}
 
 
 // DllRegisterServer()
@@ -493,14 +476,14 @@ HRESULT DllUnregisterServer()
 
 
 HRESULT DllRegisterServer()
-    {
+{
     // Disable LSP, remove entries from registry and list of Winsock2
     // providers:
     HRESULT hr = DllUnregisterServer();
 
     return hr;
 
-    #if FALSE
+#if FALSE
     DWORD  dwStatus;
     BOOL   fIsInstalled;
     // WCHAR  wszModule[256];
@@ -508,113 +491,105 @@ HRESULT DllRegisterServer()
 
     // Name of this DLL:
 
-    #if FALSE
-    if (!GetModuleFileName( g_hInst, wszModule,
-                            sizeof(wszModule)/sizeof(WCHAR)))
-       {
-       return SELFREG_E_CLASS;
-       }
-    #endif
+#if FALSE
+    if (!GetModuleFileName(g_hInst, wszModule,
+                           sizeof(wszModule) / sizeof(WCHAR))) {
+        return SELFREG_E_CLASS;
+    }
+#endif
 
 
     // Create \HKEY_CLASSES_ROOT\AppID entries:
 
-    if (  !SetKeyAndValue( APPID_OBJ,
-                           NULL,
-                           NULL,
-                           TEXT("Restricted Process WinSock2 Helper"))
-       || !SetKeyAndValue( APPID_OBJ,NULL,TEXT("DllSurrogate"),NULL)
-       || !SetKeyAndValue( APPID_OBJ,NULL,TEXT("AccessPermission"),(WCHAR*)AccessPermission,REG_BINARY,sizeof(AccessPermission))
-       || !SetKeyAndValue( APPID_OBJ,NULL,TEXT("LaunchPermission"),(WCHAR*)LaunchPermission,REG_BINARY,sizeof(LaunchPermission))
-       || !SetKeyAndValue( APPID_OBJ,NULL,TEXT("RunAs"),TEXT("Interactive User")) )
-       {
-       return SELFREG_E_CLASS;
-       }
+    if (!SetKeyAndValue(APPID_OBJ,
+                        NULL,
+                        NULL,
+                        TEXT("Restricted Process WinSock2 Helper"))
+        || !SetKeyAndValue(APPID_OBJ, NULL, TEXT("DllSurrogate"), NULL)
+        || !SetKeyAndValue(APPID_OBJ, NULL, TEXT("AccessPermission"), (WCHAR*)AccessPermission, REG_BINARY, sizeof(AccessPermission))
+        || !SetKeyAndValue(APPID_OBJ, NULL, TEXT("LaunchPermission"), (WCHAR*)LaunchPermission, REG_BINARY, sizeof(LaunchPermission))
+        || !SetKeyAndValue(APPID_OBJ, NULL, TEXT("RunAs"), TEXT("Interactive User"))) {
+        return SELFREG_E_CLASS;
+    }
 
 
     // Create VersionIndependentProgID keys:
 
-    if (  !SetKeyAndValue( TEXT("RestrictedProcess"),
-                            NULL,
-                            NULL,
-                            TEXT("Restricted Process WinSock2 Helper"))
-       || !SetKeyAndValue( TEXT("RestrictedProcess"),
-                            TEXT("CLSID"),
-                            NULL,
-                            OBJ_GUID)
-       || !SetKeyAndValue( TEXT("RestrictedProcess"),
-                            TEXT("CurVer"),
-                            NULL,
-                            TEXT("RestrictedProcess1.0")) )
-       {
-       return SELFREG_E_CLASS;
-       }
+    if (!SetKeyAndValue(TEXT("RestrictedProcess"),
+                        NULL,
+                        NULL,
+                        TEXT("Restricted Process WinSock2 Helper"))
+        || !SetKeyAndValue(TEXT("RestrictedProcess"),
+                           TEXT("CLSID"),
+                           NULL,
+                           OBJ_GUID)
+        || !SetKeyAndValue(TEXT("RestrictedProcess"),
+                           TEXT("CurVer"),
+                           NULL,
+                           TEXT("RestrictedProcess1.0"))) {
+        return SELFREG_E_CLASS;
+    }
 
 
     // Create ProgID keys:
 
-    if (  !SetKeyAndValue( TEXT("RestrictedProcess1.0"),
-                           NULL,
-                           NULL,
-                           TEXT("Restricted Process WinSock2 Helper"))
-       || !SetKeyAndValue( TEXT("RestrictedProcess1.0"),
+    if (!SetKeyAndValue(TEXT("RestrictedProcess1.0"),
+                        NULL,
+                        NULL,
+                        TEXT("Restricted Process WinSock2 Helper"))
+        || !SetKeyAndValue(TEXT("RestrictedProcess1.0"),
                            TEXT("CLSID"),
                            NULL,
-                           OBJ_GUID) )
-       {
-       return SELFREG_E_CLASS;
-       }
+                           OBJ_GUID)) {
+        return SELFREG_E_CLASS;
+    }
 
 
     // Create entries under \HKEY_CLASSES_ROOT\CLSID:
 
-    if (  !SetKeyAndValue(CLSID_OBJ, NULL, NULL, TEXT("RestrictedProcess WinSock2 Helper"))
-       || !SetKeyAndValue(CLSID_OBJ, NULL, TEXT("AppID"), APPID_GUID)
-       || !SetKeyAndValue(CLSID_OBJ, TEXT("InprocServer32"), NULL, TEXT("%SystemRoot%\\system32\\msrlsp.dll"), REG_EXPAND_SZ)
-       || !SetKeyAndValue(CLSID_OBJ, TEXT("NotInsertable"), NULL, NULL)
-       || !SetKeyAndValue(CLSID_OBJ, TEXT("ProgID"), NULL, TEXT("RestrictedProcess1.0"))
-       || !SetKeyAndValue(CLSID_OBJ, TEXT("ThreadingModel"), NULL, TEXT("Both"))
-       || !SetKeyAndValue(CLSID_OBJ, TEXT("VersionIndependentProgID"), NULL, TEXT("RestrictedProcess")) )
-       {
-       return SELFREG_E_CLASS;
-       }
+    if (!SetKeyAndValue(CLSID_OBJ, NULL, NULL, TEXT("RestrictedProcess WinSock2 Helper"))
+        || !SetKeyAndValue(CLSID_OBJ, NULL, TEXT("AppID"), APPID_GUID)
+        || !SetKeyAndValue(CLSID_OBJ, TEXT("InprocServer32"), NULL, TEXT("%SystemRoot%\\system32\\msrlsp.dll"), REG_EXPAND_SZ)
+        || !SetKeyAndValue(CLSID_OBJ, TEXT("NotInsertable"), NULL, NULL)
+        || !SetKeyAndValue(CLSID_OBJ, TEXT("ProgID"), NULL, TEXT("RestrictedProcess1.0"))
+        || !SetKeyAndValue(CLSID_OBJ, TEXT("ThreadingModel"), NULL, TEXT("Both"))
+        || !SetKeyAndValue(CLSID_OBJ, TEXT("VersionIndependentProgID"), NULL, TEXT("RestrictedProcess"))) {
+        return SELFREG_E_CLASS;
+    }
 
-    if (  !SetKeyAndValue( CLSID_INTF,
-                           NULL,
-                           NULL,
-                           TEXT("IRestrictedProcess Proxy/Stub Factory"))
-       || !SetKeyAndValue( CLSID_INTF,
+    if (!SetKeyAndValue(CLSID_INTF,
+                        NULL,
+                        NULL,
+                        TEXT("IRestrictedProcess Proxy/Stub Factory"))
+        || !SetKeyAndValue(CLSID_INTF,
                            TEXT("InprocServer32"),
                            NULL,
                            TEXT("%SystemRoot%\\system32\\msrlsp.dll"),
-                           REG_EXPAND_SZ) )
-       {
-       return SELFREG_E_CLASS;
-       }
+                           REG_EXPAND_SZ)) {
+        return SELFREG_E_CLASS;
+    }
 
 
     // Create the entries under \HKEY_CLASSES_ROOT\Interface
 
-    if (  !SetKeyAndValue(INTF_INTF, NULL, NULL, TEXT("IRestrictedProcess"))
-       || !SetKeyAndValue(INTF_INTF, TEXT("ProxyStubClsid32"), NULL, PROXY_GUID)
-       || !SetKeyAndValue(INTF_INTF, TEXT("NumMethods"), NULL, TEXT("14")) )
-       {
-       // !SetKeyAndValue(INTF_INTF, TEXT("ProxyStubClsid32"), NULL, INTF_GUID)
-       return SELFREG_E_CLASS;
-       }
+    if (!SetKeyAndValue(INTF_INTF, NULL, NULL, TEXT("IRestrictedProcess"))
+        || !SetKeyAndValue(INTF_INTF, TEXT("ProxyStubClsid32"), NULL, PROXY_GUID)
+        || !SetKeyAndValue(INTF_INTF, TEXT("NumMethods"), NULL, TEXT("14"))) {
+        // !SetKeyAndValue(INTF_INTF, TEXT("ProxyStubClsid32"), NULL, INTF_GUID)
+        return SELFREG_E_CLASS;
+    }
 
 
     // These entries are for the Proxy CLSID (created from the interface IDL:
 
-    if (  !SetKeyAndValue(CLSID_PROXY, NULL, NULL, TEXT("RestrictedProcess WinSock2 Helper Proxy"))
-       || !SetKeyAndValue(CLSID_PROXY, NULL, TEXT("AppID"), APPID_GUID)
-       || !SetKeyAndValue(CLSID_PROXY, TEXT("InprocServer32"), NULL, TEXT("%SystemRoot%\\system32\\msrlsp.dll"), REG_EXPAND_SZ)
-       || !SetKeyAndValue(CLSID_PROXY, TEXT("ProgID"), NULL, TEXT("RestrictedProcess1.0"))
-       || !SetKeyAndValue(CLSID_PROXY, TEXT("ThreadingModel"), NULL, TEXT("Both"))
-       || !SetKeyAndValue(CLSID_PROXY, TEXT("VersionIndependentProgID"), NULL, TEXT("RestrictedProcess")) )
-       {
-       return SELFREG_E_CLASS;
-       }
+    if (!SetKeyAndValue(CLSID_PROXY, NULL, NULL, TEXT("RestrictedProcess WinSock2 Helper Proxy"))
+        || !SetKeyAndValue(CLSID_PROXY, NULL, TEXT("AppID"), APPID_GUID)
+        || !SetKeyAndValue(CLSID_PROXY, TEXT("InprocServer32"), NULL, TEXT("%SystemRoot%\\system32\\msrlsp.dll"), REG_EXPAND_SZ)
+        || !SetKeyAndValue(CLSID_PROXY, TEXT("ProgID"), NULL, TEXT("RestrictedProcess1.0"))
+        || !SetKeyAndValue(CLSID_PROXY, TEXT("ThreadingModel"), NULL, TEXT("Both"))
+        || !SetKeyAndValue(CLSID_PROXY, TEXT("VersionIndependentProgID"), NULL, TEXT("RestrictedProcess"))) {
+        return SELFREG_E_CLASS;
+    }
 
     // return PrxyDllRegisterServer();    not currently used...
 
@@ -622,15 +597,14 @@ HRESULT DllRegisterServer()
     // Check to see if the LSP (msrlsp.dll) is registered with
     // WinSock2, if not the register it:
     dwStatus = LSPAlreadyInstalled(&fIsInstalled);
-    if (!fIsInstalled)
-        {
+    if (!fIsInstalled) {
         InstallLSP();
-        }
+    }
 
     return S_OK;
 
-    #endif
-    }
+#endif
+}
 
 
 // ObjectDestroyed
@@ -639,14 +613,13 @@ HRESULT DllRegisterServer()
 
 
 void ObjectDestroyed(void)
-    {
-    if (g_cObj)
-       {
-       g_cObj--;
-       }
+{
+    if (g_cObj) {
+        g_cObj--;
+    }
 
     return;
-    }
+}
 
 
 //  CRestrictedProcessClassFactor::CRestrictedProcessClassFactory()
@@ -654,10 +627,10 @@ void ObjectDestroyed(void)
 //  Class Factory Constructor.
 
 CRestrictedProcessClassFactory::CRestrictedProcessClassFactory(void)
-    {
-    m_cRef=0L;
+{
+    m_cRef = 0L;
     return;
-    }
+}
 
 
 //  CRestrictedProcessClassFactory::~CRestrictedProcessClassFactory()
@@ -665,31 +638,30 @@ CRestrictedProcessClassFactory::CRestrictedProcessClassFactory(void)
 //  Class Factory Destructor.
 
 CRestrictedProcessClassFactory::~CRestrictedProcessClassFactory(void)
-    {
+{
     return;
-    }
+}
 
 
 //  CRestrictedProcessClassFactory::QueryInterface()
 
 
 STDMETHODIMP CRestrictedProcessClassFactory::QueryInterface(
-                                    REFIID riid,
-                                    PPVOID ppv  )
-    {
-    *ppv=NULL;
+    REFIID riid,
+    PPVOID ppv)
+{
+    *ppv = NULL;
 
-    if (IID_IUnknown==riid || IID_IClassFactory==riid)
-        *ppv=this;
+    if (IID_IUnknown == riid || IID_IClassFactory == riid)
+        *ppv = this;
 
-    if (NULL!=*ppv)
-        {
+    if (NULL != *ppv) {
         ((LPUNKNOWN)*ppv)->AddRef();
         return NOERROR;
-        }
+    }
 
     return ResultFromScode(E_NOINTERFACE);
-    }
+}
 
 
 
@@ -697,9 +669,9 @@ STDMETHODIMP CRestrictedProcessClassFactory::QueryInterface(
 
 
 STDMETHODIMP_(ULONG) CRestrictedProcessClassFactory::AddRef(void)
-    {
+{
     return ++m_cRef;
-    }
+}
 
 
 
@@ -707,13 +679,13 @@ STDMETHODIMP_(ULONG) CRestrictedProcessClassFactory::AddRef(void)
 
 
 STDMETHODIMP_(ULONG) CRestrictedProcessClassFactory::Release(void)
-    {
-    if (0L!=--m_cRef)
+{
+    if (0L != --m_cRef)
         return m_cRef;
 
     delete this;
     return 0;
-    }
+}
 
 
 
@@ -736,33 +708,32 @@ STDMETHODIMP_(ULONG) CRestrictedProcessClassFactory::Release(void)
 
 
 STDMETHODIMP CRestrictedProcessClassFactory::CreateInstance(
-                                     LPUNKNOWN   pUnkOuter,
-                                     REFIID      riid,
-                                     void      **ppvObj )
-    {
+    LPUNKNOWN   pUnkOuter,
+    REFIID      riid,
+    void** ppvObj)
+{
     PCRestrictedProcess             pObj;
     HRESULT             hr;
 
-    *ppvObj=NULL;
-    hr=ResultFromScode(E_OUTOFMEMORY);
+    *ppvObj = NULL;
+    hr = ResultFromScode(E_OUTOFMEMORY);
 
     //Verify that a controlling unknown asks for IUnknown
-    if (NULL!=pUnkOuter && IID_IUnknown!=riid)
+    if (NULL != pUnkOuter && IID_IUnknown != riid)
         return ResultFromScode(CLASS_E_NOAGGREGATION);
 
     //Create the object telling us to notify us when it's gone.
-    pObj=new CRestrictedProcess(pUnkOuter, ObjectDestroyed);
+    pObj = new CRestrictedProcess(pUnkOuter, ObjectDestroyed);
 
-    if (NULL==pObj)
-        {
+    if (NULL == pObj) {
         //This starts shutdown if there are no other objects.
         g_cObj++;
         ObjectDestroyed();
         return hr;
-        }
+    }
 
     if (pObj->Init())
-        hr=pObj->QueryInterface(riid, ppvObj);
+        hr = pObj->QueryInterface(riid, ppvObj);
 
     g_cObj++;
 
@@ -771,14 +742,13 @@ STDMETHODIMP CRestrictedProcessClassFactory::CreateInstance(
      * the object failed, we handle the g_cObj increment above
      * in ObjectDestroyed.
      */
-    if (FAILED(hr))
-        {
+    if (FAILED(hr)) {
         delete pObj;
         ObjectDestroyed();  //Handle shutdown cases.
-        }
+    }
 
     return hr;
-    }
+}
 
 
 
@@ -799,11 +769,10 @@ STDMETHODIMP CRestrictedProcessClassFactory::CreateInstance(
 
 
 STDMETHODIMP CRestrictedProcessClassFactory::LockServer(BOOL fLock)
-    {
+{
     if (fLock)
         g_cLock++;
-    else
-        {
+    else {
         g_cLock--;
 
         /*
@@ -813,8 +782,8 @@ STDMETHODIMP CRestrictedProcessClassFactory::LockServer(BOOL fLock)
          */
         g_cObj++;
         ObjectDestroyed();
-        }
+    }
 
     return NOERROR;
-    }
+}
 

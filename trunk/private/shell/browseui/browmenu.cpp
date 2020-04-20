@@ -15,16 +15,14 @@ STDAPI GetLinkInfo(IShellFolder* psf, LPCITEMIDLIST pidlItem, BOOL* pfAvailable,
 BOOL AreIntelliMenusEnbaled()
 {
     // This is only garenteed to work on NT5 because the session incrementer is located in the tray
-    if (IsOS(OS_WIN2000))
-    {
+    if (IsOS(OS_WIN2000)) {
         DWORD dwRest = SHRestricted(REST_INTELLIMENUS);
         if (dwRest != RESTOPT_INTELLIMENUS_USER)
             return (dwRest == RESTOPT_INTELLIMENUS_ENABLED);
 
         return SHRegGetBoolUSValue(REG_STR_MAIN, TEXT("FavIntelliMenus"),
                                    FALSE, TRUE); // Don't ignore HKCU, Enable Menus by default
-    }
-    else
+    } else
         return FALSE;
 }
 
@@ -45,7 +43,7 @@ CFavoritesCallback::~CFavoritesCallback()
 Purpose: IUnknown::QueryInterface method
 
 */
-STDMETHODIMP CFavoritesCallback::QueryInterface (REFIID riid, LPVOID * ppvObj)
+STDMETHODIMP CFavoritesCallback::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
     static const QITAB qit[] =
     {
@@ -62,7 +60,7 @@ STDMETHODIMP CFavoritesCallback::QueryInterface (REFIID riid, LPVOID * ppvObj)
 Purpose: IUnknown::AddRef method
 
 */
-STDMETHODIMP_(ULONG) CFavoritesCallback::AddRef ()
+STDMETHODIMP_(ULONG) CFavoritesCallback::AddRef()
 {
     return ++_cRef;
 }
@@ -76,7 +74,7 @@ STDMETHODIMP_(ULONG) CFavoritesCallback::Release()
     ASSERT(_cRef > 0);
     _cRef--;
 
-    if( _cRef > 0)
+    if (_cRef > 0)
         return _cRef;
 
     delete this;
@@ -91,12 +89,9 @@ STDMETHODIMP CFavoritesCallback::SetSite(IUnknown* punk)
 {
     ATOMICRELEASE(_punkSite);
     _punkSite = punk;
-    if (_punkSite)
-    {
+    if (_punkSite) {
         _punkSite->AddRef();
-    }
-    else if (_psmFavCache)
-    {
+    } else if (_psmFavCache) {
         // Since the top level menu is being destroyed, they are removing
         // our site. We should cleanup.
         DWORD dwFlags;
@@ -111,8 +106,7 @@ STDMETHODIMP CFavoritesCallback::SetSite(IUnknown* punk)
         _psmFavCache->Initialize(NULL, uId, uIdA, dwFlags);
 
         IDeskBand* pdesk;
-        if (SUCCEEDED(_psmFavCache->QueryInterface(IID_IDeskBand, (LPVOID*)&pdesk)))
-        {
+        if (SUCCEEDED(_psmFavCache->QueryInterface(IID_IDeskBand, (LPVOID*)&pdesk))) {
             pdesk->CloseDW(0);
             pdesk->Release();
         }
@@ -131,8 +125,7 @@ Purpose: IShellMenuCallback::CallbackSM method
 STDMETHODIMP CFavoritesCallback::CallbackSM(LPSMDATA psmd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     HRESULT hres = S_FALSE;
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case SMC_INITMENU:
         hres = _Init(psmd->hmenu, psmd->uIdParent, psmd->punk);
         break;
@@ -146,17 +139,17 @@ STDMETHODIMP CFavoritesCallback::CallbackSM(LPSMDATA psmd, UINT uMsg, WPARAM wPa
             _fExpandoMenus = AreIntelliMenusEnbaled();
         break;
 
-     case SMC_DEMOTE:
-         hres = _Demote(psmd);
-         break;
+    case SMC_DEMOTE:
+        hres = _Demote(psmd);
+        break;
 
-     case SMC_PROMOTE:
-         hres = _Promote(psmd);
-         break;
+    case SMC_PROMOTE:
+        hres = _Promote(psmd);
+        break;
 
-     case SMC_NEWITEM:
-         hres = _HandleNew(psmd);
-         break;
+    case SMC_NEWITEM:
+        hres = _HandleNew(psmd);
+        break;
 
     case SMC_SFEXEC:
         hres = SHNavigateToFavorite(psmd->psf, psmd->pidlItem, _punkSite, SBSP_DEFBROWSER | SBSP_DEFMODE);
@@ -171,7 +164,7 @@ STDMETHODIMP CFavoritesCallback::CallbackSM(LPSMDATA psmd, UINT uMsg, WPARAM wPa
         break;
 
     case SMC_GETOBJECT:
-        hres = _GetObject(psmd, (GUID)*((GUID*)wParam), (void**)lParam);
+        hres = _GetObject(psmd, (GUID) * ((GUID*)wParam), (void**)lParam);
         break;
 
     case SMC_DEFAULTICON:
@@ -183,11 +176,11 @@ STDMETHODIMP CFavoritesCallback::CallbackSM(LPSMDATA psmd, UINT uMsg, WPARAM wPa
         break;
 
     case SMC_SHCHANGENOTIFY:
-        {
-            PSMCSHCHANGENOTIFYSTRUCT pshf = (PSMCSHCHANGENOTIFYSTRUCT)lParam;
-            hres = _ProcessChangeNotify(psmd, pshf->lEvent, pshf->pidl1, pshf->pidl2);
-        }
-        break;
+    {
+        PSMCSHCHANGENOTIFYSTRUCT pshf = (PSMCSHCHANGENOTIFYSTRUCT)lParam;
+        hres = _ProcessChangeNotify(psmd, pshf->lEvent, pshf->pidl1, pshf->pidl2);
+    }
+    break;
 
     case SMC_REFRESH:
         _fExpandoMenus = AreIntelliMenusEnbaled();
@@ -198,28 +191,26 @@ STDMETHODIMP CFavoritesCallback::CallbackSM(LPSMDATA psmd, UINT uMsg, WPARAM wPa
         break;
 
     case SMC_CHEVRONEXPAND:
-        {
-            if (_fShowingTip)
-            {
-                LPTSTR pszExpanded = TEXT("NO");
+    {
+        if (_fShowingTip) {
+            LPTSTR pszExpanded = TEXT("NO");
 
-                SHRegSetUSValue(REG_STR_MAIN, TEXT("FavChevron"),
-                    REG_SZ, pszExpanded, lstrlen(pszExpanded) * sizeof(TCHAR), SHREGSET_FORCE_HKCU);
-            }
-
-            _fShowingTip = FALSE;
-
-            hres = S_OK;
+            SHRegSetUSValue(REG_STR_MAIN, TEXT("FavChevron"),
+                            REG_SZ, pszExpanded, lstrlen(pszExpanded) * sizeof(TCHAR), SHREGSET_FORCE_HKCU);
         }
-        break;
+
+        _fShowingTip = FALSE;
+
+        hres = S_OK;
+    }
+    break;
 
     case SMC_DISPLAYCHEVRONTIP:
 
         // Should we show the tip?
         _fShowingTip = SHRegGetBoolUSValue(REG_STR_MAIN, TEXT("FavChevron"), FALSE, TRUE);    // Default to YES.
 
-        if (_fShowingTip)
-        {
+        if (_fShowingTip) {
             hres = S_OK;
         }
         break;
@@ -239,15 +230,13 @@ HRESULT CFavoritesCallback::_Init(HMENU hMenu, UINT uIdParent, IUnknown* punk)
     IOleCommandTarget* poct;
 
 #ifdef DEBUG
-    if (GetAsyncKeyState(VK_SHIFT) < 0)
-    {
+    if (GetAsyncKeyState(VK_SHIFT) < 0) {
         UEMFireEvent(&UEMIID_BROWSER, UEME_CTLSESSION, UEMF_XEVENT, TRUE, -1);
     }
 #endif
 
 
-    if (SUCCEEDED(IUnknown_QueryService(_punkSite, SID_STopLevelBrowser, IID_IOleCommandTarget, (void**)&poct)))
-    {
+    if (SUCCEEDED(IUnknown_QueryService(_punkSite, SID_STopLevelBrowser, IID_IOleCommandTarget, (void**)&poct))) {
         poct->Exec(&CGID_MenuBand, MBANDCID_ENTERMENU, 0, NULL, NULL);
         poct->Release();
         hres = S_OK;
@@ -256,16 +245,13 @@ HRESULT CFavoritesCallback::_Init(HMENU hMenu, UINT uIdParent, IUnknown* punk)
     // Only do this for the favorites dropdown. This was causing
     // the chevron menu to be invalidated before it was created. This caused some
     // resize problems because the metrics were unavailable.
-    if (uIdParent == FCIDM_MENU_FAVORITES)
-    {
+    if (uIdParent == FCIDM_MENU_FAVORITES) {
         // If we switched between online and offline, we need to re-init the menu
         BOOL fOffline = BOOLIFY(SHIsGlobalOffline());
-        if (fOffline ^ _fOffline)
-        {
+        if (fOffline ^ _fOffline) {
             _fOffline = fOffline;
             IShellMenu* psm;
-            if (SUCCEEDED(punk->QueryInterface(IID_IShellMenu, (void**)&psm)))
-            {
+            if (SUCCEEDED(punk->QueryInterface(IID_IShellMenu, (void**)&psm))) {
                 psm->InvalidateItem(NULL, SMINV_REFRESH);
                 psm->Release();
             }
@@ -280,8 +266,7 @@ HRESULT CFavoritesCallback::_Exit()
     HRESULT hres = S_FALSE;
     IOleCommandTarget* poct;
 
-    if (SUCCEEDED(IUnknown_QueryService(_punkSite, SID_STopLevelBrowser, IID_IOleCommandTarget, (void**)&poct)))
-    {
+    if (SUCCEEDED(IUnknown_QueryService(_punkSite, SID_STopLevelBrowser, IID_IOleCommandTarget, (void**)&poct))) {
         poct->Exec(&CGID_MenuBand, MBANDCID_EXITMENU, 0, NULL, NULL);
         poct->Release();
         hres = S_OK;    // I handled the exit
@@ -292,13 +277,10 @@ HRESULT CFavoritesCallback::_Exit()
 
 HRESULT CFavoritesCallback::_GetHmenuInfo(HMENU hMenu, UINT uId, SMINFO* psminfo)
 {
-    if (uId == FCIDM_MENU_FAVORITES)
-    {
+    if (uId == FCIDM_MENU_FAVORITES) {
         if (psminfo->dwMask & SMIM_FLAGS)
             psminfo->dwFlags |= SMIF_DROPCASCADE;
-    }
-    else
-    {
+    } else {
         if (psminfo->dwMask & SMIM_FLAGS)
             psminfo->dwFlags |= SMIF_TRACKPOPUP;
     }
@@ -319,12 +301,10 @@ HRESULT CFavoritesCallback::_GetSFInfo(SMDATA* psmd, SMINFO* psminfo)
     // If we are offline and the item is not available, we set the
     // SMIF_ALTSTATE so that the menu item is greyed
 
-    if (psminfo->dwMask & SMIM_FLAGS)
-    {
+    if (psminfo->dwMask & SMIM_FLAGS) {
         if (_fOffline &&
             SUCCEEDED(GetLinkInfo(psmd->psf, psmd->pidlItem, &fAvailable, NULL)) &&
-            fAvailable == FALSE)
-        {
+            fAvailable == FALSE) {
             // Not available, so grey the item
             psminfo->dwFlags |= SMIF_ALTSTATE;
         }
@@ -339,13 +319,11 @@ HRESULT CFavoritesCallback::_SelectItem(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST 
 {
     HRESULT hres = S_FALSE;
     LPITEMIDLIST pidlFull = ILCombine(pidlFolder, pidl);
-    if (pidlFull)
-    {
+    if (pidlFull) {
         VARIANTARG vargIn;
-        if (InitVariantFromIDList(&vargIn, pidlFull))
-        {
+        if (InitVariantFromIDList(&vargIn, pidlFull)) {
             hres = IUnknown_QueryServiceExec(_punkSite, SID_SMenuBandHandler,
-                &CGID_MenuBandHandler, MBHANDCID_PIDLSELECT, 0, &vargIn, NULL);
+                                             &CGID_MenuBandHandler, MBHANDCID_PIDLSELECT, 0, &vargIn, NULL);
             VariantClearLazy(&vargIn);
         }
         ILFree(pidlFull);
@@ -368,34 +346,27 @@ HRESULT CFavoritesCallback::_GetObject(LPSMDATA psmd, REFIID riid, void** ppvOut
     HRESULT hres = S_FALSE;
     *ppvOut = NULL;
 
-    if (IsEqualIID(IID_IShellMenu, riid))
-    {
-        if (psmd->uId == FCIDM_MENU_FAVORITES)
-        {
+    if (IsEqualIID(IID_IShellMenu, riid)) {
+        if (psmd->uId == FCIDM_MENU_FAVORITES) {
             // Do we have a cached Favorites menu?
-            if (_psmFavCache)
-            {
+            if (_psmFavCache) {
                 // Yes we do, return it
                 _psmFavCache->AddRef();
                 *ppvOut = (LPVOID)_psmFavCache;
                 hres = S_OK;
-            }
-            else
-            {
+            } else {
                 // Nope; We need to create one...
                 hres = CoCreateInstance(CLSID_MenuBand, NULL, CLSCTX_INPROC, IID_IShellMenu, (void**)&_psmFavCache);
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     HMENU hmenu = NULL;
                     HWND hwnd;
 
                     _psmFavCache->Initialize(this, FCIDM_MENU_FAVORITES, ANCESTORDEFAULT,
-                        SMINIT_CACHED | SMINIT_VERTICAL);
+                                             SMINIT_CACHED | SMINIT_VERTICAL);
 
                     // We need to grab the Top HMENU portion of the Favorites menu from the current band
                     IShellMenu* psm;
-                    if (SUCCEEDED(psmd->punk->QueryInterface(IID_IShellMenu, (LPVOID*)&psm)))
-                    {
+                    if (SUCCEEDED(psmd->punk->QueryInterface(IID_IShellMenu, (LPVOID*)&psm))) {
                         psm->GetMenu(&hmenu, &hwnd, NULL);
 
                         hmenu = GetSubMenu(hmenu, GetMenuPosFromID(hmenu, FCIDM_MENU_FAVORITES));
@@ -409,18 +380,15 @@ HRESULT CFavoritesCallback::_GetObject(LPSMDATA psmd, REFIID riid, void** ppvOut
                         psm->Release();
                     }
 
-                    if (hmenu)
-                    {
+                    if (hmenu) {
                         hres = _psmFavCache->SetMenu(hmenu, hwnd, SMSET_TOP | SMSET_DONTOWN);
                     }
 
                     LPITEMIDLIST pidlFav;
                     if (SUCCEEDED(hres) &&
-                        SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_FAVORITES, &pidlFav)))
-                    {
+                        SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_FAVORITES, &pidlFav))) {
                         IShellFolder* psf;
-                        if (SUCCEEDED(IEBindToObject(pidlFav, &psf)))
-                        {
+                        if (SUCCEEDED(IEBindToObject(pidlFav, &psf))) {
                             HKEY hMenuKey;
                             DWORD dwDisp;
 
@@ -431,21 +399,17 @@ HRESULT CFavoritesCallback::_GetObject(LPSMDATA psmd, REFIID riid, void** ppvOut
                         ILFree(pidlFav);
                     }
 
-                    if (SUCCEEDED(hres))
-                    {
+                    if (SUCCEEDED(hres)) {
                         _psmFavCache->AddRef(); // We're caching this.
                         *ppvOut = _psmFavCache;
                     }
                 }
             }
         }
-    }
-    else if (IsEqualIID(IID_IShellMenuCallback, riid))
-    {
+    } else if (IsEqualIID(IID_IShellMenuCallback, riid)) {
         IShellMenuCallback* psmcb = (IShellMenuCallback*) new CFavoritesCallback;
 
-        if (psmcb)
-        {
+        if (psmcb) {
             *ppvOut = (LPVOID)psmcb;
             hres = S_OK;
         }
@@ -472,14 +436,11 @@ DWORD CFavoritesCallback::_GetDemote(SMDATA* psmd)
 {
     UEMINFO uei;
     DWORD dwFlags = 0;
-    if (_fExpandoMenus)
-    {
+    if (_fExpandoMenus) {
         uei.cbSize = SIZEOF(uei);
         uei.dwMask = UEIM_HIT;
-        if (SUCCEEDED(UEMQueryEvent(&UEMIID_BROWSER, UEME_RUNPIDL, (WPARAM)psmd->psf, (LPARAM)psmd->pidlItem, &uei)))
-        {
-            if (uei.cHit == 0)
-            {
+        if (SUCCEEDED(UEMQueryEvent(&UEMIID_BROWSER, UEME_RUNPIDL, (WPARAM)psmd->psf, (LPARAM)psmd->pidlItem, &uei))) {
+            if (uei.cHit == 0) {
                 dwFlags |= SMIF_DEMOTED;
             }
         }
@@ -492,8 +453,7 @@ HRESULT CFavoritesCallback::_Demote(LPSMDATA psmd)
 {
     HRESULT hres = S_FALSE;
 
-    if (_fExpandoMenus)
-    {
+    if (_fExpandoMenus) {
         UEMINFO uei;
         uei.cbSize = SIZEOF(uei);
         uei.dwMask = UEIM_HIT;
@@ -505,8 +465,7 @@ HRESULT CFavoritesCallback::_Demote(LPSMDATA psmd)
 
 HRESULT CFavoritesCallback::_Promote(LPSMDATA psmd)
 {
-    if (_fExpandoMenus)
-    {
+    if (_fExpandoMenus) {
         UEMFireEvent(&UEMIID_BROWSER, UEME_RUNPIDL, UEMF_XEVENT, (WPARAM)psmd->psf, (LPARAM)psmd->pidlItem);
     }
     return S_OK;
@@ -515,8 +474,7 @@ HRESULT CFavoritesCallback::_Promote(LPSMDATA psmd)
 HRESULT CFavoritesCallback::_HandleNew(LPSMDATA psmd)
 {
     HRESULT hres = S_FALSE;
-    if (_fExpandoMenus)
-    {
+    if (_fExpandoMenus) {
         UEMINFO uei;
         uei.cbSize = SIZEOF(uei);
         uei.dwMask = UEIM_HIT;
@@ -541,8 +499,8 @@ HRESULT CFavoritesCallback::_GetTip(LPTSTR pstrTitle, LPTSTR pstrTip)
 
 // BUGBUG (lamadio): There is a duplicate of this helper in shell32\unicpp\startmnu.cpp
 //                   When modifying this, rev that one as well.
-void UEMRenamePidl(const GUID *pguidGrp1, IShellFolder* psf1, LPCITEMIDLIST pidl1,
-                   const GUID *pguidGrp2, IShellFolder* psf2, LPCITEMIDLIST pidl2)
+void UEMRenamePidl(const GUID* pguidGrp1, IShellFolder* psf1, LPCITEMIDLIST pidl1,
+                   const GUID* pguidGrp2, IShellFolder* psf2, LPCITEMIDLIST pidl2)
 {
     UEMINFO uei;
     uei.cbSize = SIZEOF(uei);
@@ -550,20 +508,19 @@ void UEMRenamePidl(const GUID *pguidGrp1, IShellFolder* psf1, LPCITEMIDLIST pidl
     if (SUCCEEDED(UEMQueryEvent(pguidGrp1,
                                 UEME_RUNPIDL, (WPARAM)psf1,
                                 (LPARAM)pidl1, &uei)) &&
-                                uei.cHit > 0)
-    {
+        uei.cHit > 0) {
         UEMSetEvent(pguidGrp2,
-            UEME_RUNPIDL, (WPARAM)psf2, (LPARAM)pidl2, &uei);
+                    UEME_RUNPIDL, (WPARAM)psf2, (LPARAM)pidl2, &uei);
 
         uei.cHit = 0;
         UEMSetEvent(pguidGrp1,
-            UEME_RUNPIDL, (WPARAM)psf1, (LPARAM)pidl1, &uei);
+                    UEME_RUNPIDL, (WPARAM)psf1, (LPARAM)pidl1, &uei);
     }
 }
 
 // BUGBUG (lamadio): There is a duplicate of this helper in shell32\unicpp\startmnu.cpp
 //                   When modifying this, rev that one as well.
-void UEMDeletePidl(const GUID *pguidGrp, IShellFolder* psf, LPCITEMIDLIST pidl)
+void UEMDeletePidl(const GUID* pguidGrp, IShellFolder* psf, LPCITEMIDLIST pidl)
 {
     UEMINFO uei;
     uei.cbSize = SIZEOF(uei);
@@ -575,81 +532,72 @@ void UEMDeletePidl(const GUID *pguidGrp, IShellFolder* psf, LPCITEMIDLIST pidl)
 HRESULT CFavoritesCallback::_ProcessChangeNotify(SMDATA* psmd, LONG lEvent,
                                                  LPCITEMIDLIST pidl1, LPCITEMIDLIST pidl2)
 {
-    switch (lEvent)
-    {
+    switch (lEvent) {
     case SHCNE_RENAMEFOLDER:
         // BUGBUG (lamadio): We should move the MenuOrder stream as well. 5.5.99
     case SHCNE_RENAMEITEM:
-        {
-            LPITEMIDLIST pidlFavorites;
-            SHGetSpecialFolderLocation(NULL, CSIDL_FAVORITES, &pidlFavorites);
-            if (ILIsParent(pidlFavorites, pidl1, FALSE))
-            {
-                IShellFolder* psfFrom;
-                LPCITEMIDLIST pidlFrom;
-                if (SUCCEEDED(IEBindToParentFolder(pidl1, &psfFrom, &pidlFrom)))
-                {
-                    if (ILIsParent(pidlFavorites, pidl2, FALSE))
-                    {
-                        IShellFolder* psfTo;
-                        LPCITEMIDLIST pidlTo;
+    {
+        LPITEMIDLIST pidlFavorites;
+        SHGetSpecialFolderLocation(NULL, CSIDL_FAVORITES, &pidlFavorites);
+        if (ILIsParent(pidlFavorites, pidl1, FALSE)) {
+            IShellFolder* psfFrom;
+            LPCITEMIDLIST pidlFrom;
+            if (SUCCEEDED(IEBindToParentFolder(pidl1, &psfFrom, &pidlFrom))) {
+                if (ILIsParent(pidlFavorites, pidl2, FALSE)) {
+                    IShellFolder* psfTo;
+                    LPCITEMIDLIST pidlTo;
 
-                        if (SUCCEEDED(IEBindToParentFolder(pidl2, &psfTo, &pidlTo)))
-                        {
-                            // Then we need to rename it
-                            UEMRenamePidl(&UEMIID_BROWSER, psfFrom, pidlFrom,
-                                          &UEMIID_BROWSER, psfTo, pidlTo);
-                            psfTo->Release();
-                        }
+                    if (SUCCEEDED(IEBindToParentFolder(pidl2, &psfTo, &pidlTo))) {
+                        // Then we need to rename it
+                        UEMRenamePidl(&UEMIID_BROWSER, psfFrom, pidlFrom,
+                                      &UEMIID_BROWSER, psfTo, pidlTo);
+                        psfTo->Release();
                     }
-                    else
-                    {
-                        // Otherwise, we delete it.
-                        UEMDeletePidl(&UEMIID_BROWSER, psfFrom, pidlFrom);
-                    }
-
-                    psfFrom->Release();
+                } else {
+                    // Otherwise, we delete it.
+                    UEMDeletePidl(&UEMIID_BROWSER, psfFrom, pidlFrom);
                 }
-            }
 
-            ILFree(pidlFavorites);
+                psfFrom->Release();
+            }
         }
-        break;
+
+        ILFree(pidlFavorites);
+    }
+    break;
 
     case SHCNE_DELETE:
         // BUGBUG (lamadio): We should nuke the MenuOrder stream as well. 5.5.99
     case SHCNE_RMDIR:
-        {
-            IShellFolder* psf;
-            LPCITEMIDLIST pidl;
+    {
+        IShellFolder* psf;
+        LPCITEMIDLIST pidl;
 
-            if (SUCCEEDED(IEBindToParentFolder(pidl1, &psf, &pidl)))
-            {
-                UEMDeletePidl(&UEMIID_BROWSER, psf, pidl);
-                psf->Release();
-            }
-
+        if (SUCCEEDED(IEBindToParentFolder(pidl1, &psf, &pidl))) {
+            UEMDeletePidl(&UEMIID_BROWSER, psf, pidl);
+            psf->Release();
         }
-        break;
+
+    }
+    break;
 
     case SHCNE_CREATE:
     case SHCNE_MKDIR:
-        {
-            IShellFolder* psf;
-            LPCITEMIDLIST pidl;
+    {
+        IShellFolder* psf;
+        LPCITEMIDLIST pidl;
 
-            if (SUCCEEDED(IEBindToParentFolder(pidl1, &psf, &pidl)))
-            {
-                UEMINFO uei;
-                uei.cbSize = SIZEOF(uei);
-                uei.dwMask = UEIM_HIT;
-                uei.cHit = UEM_NEWITEMCOUNT;
-                UEMSetEvent(&UEMIID_BROWSER,
-                    UEME_RUNPIDL, (WPARAM)psf, (LPARAM)pidl, &uei);
-            }
-
+        if (SUCCEEDED(IEBindToParentFolder(pidl1, &psf, &pidl))) {
+            UEMINFO uei;
+            uei.cbSize = SIZEOF(uei);
+            uei.dwMask = UEIM_HIT;
+            uei.cHit = UEM_NEWITEMCOUNT;
+            UEMSetEvent(&UEMIID_BROWSER,
+                        UEME_RUNPIDL, (WPARAM)psf, (LPARAM)pidl, &uei);
         }
-        break;
+
+    }
+    break;
     }
 
     return S_FALSE;
@@ -666,12 +614,10 @@ BOOL CFavoritesCallback::_AllowDrop(IDataObject* pIDataObject, HWND hwnd)
 
     BOOL fRet = True;  // Allow drop.
 
-    if (hwnd)
-    {
+    if (hwnd) {
         LPITEMIDLIST pidl;
 
-        if (SUCCEEDED(SHPidlFromDataObject(pIDataObject, &pidl, NULL, 0)))
-        {
+        if (SUCCEEDED(SHPidlFromDataObject(pIDataObject, &pidl, NULL, 0))) {
             fRet = IEIsLinkSafe(hwnd, pidl, ILS_ADDTOFAV);
             ILFree(pidl);
         }

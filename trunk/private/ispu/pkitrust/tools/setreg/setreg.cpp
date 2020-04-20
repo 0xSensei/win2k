@@ -33,7 +33,7 @@ typedef struct _FlagNames
     DWORD       dwMask;
 } FlagNames;
 
-static FlagNames SoftPubFlags [] =
+static FlagNames SoftPubFlags[] =
 {
     IDS_NAME_TEST_ROOT, WTPF_TRUSTTEST | WTPF_TESTCANBEVALID,
     IDS_NAME_EXPIRATION, WTPF_IGNOREEXPIRATION,
@@ -65,7 +65,7 @@ WCHAR    wszBuffer3[MAX_STRING_RSC_SIZE];
 
 
 // The private version of _wcsicmp
-int IDSwcsicmp(WCHAR *pwsz, int idsString)
+int IDSwcsicmp(WCHAR* pwsz, int idsString)
 {
     assert(pwsz);
 
@@ -114,7 +114,7 @@ void IDS_DW_IDS_IDSwprintf(int ids1, DWORD dw, int ids2, int ids3)
 
 
 // Convert STR to WSTR
-BOOL SZtoWSZ(LPSTR szStr, LPWSTR *pwsz)
+BOOL SZtoWSZ(LPSTR szStr, LPWSTR* pwsz)
 {
     DWORD    dwSize = 0;
 
@@ -131,12 +131,11 @@ BOOL SZtoWSZ(LPSTR szStr, LPWSTR *pwsz)
         return FALSE;
 
     //allocate memory
-    *pwsz = (LPWSTR) malloc(dwSize * sizeof(WCHAR));
+    *pwsz = (LPWSTR)malloc(dwSize * sizeof(WCHAR));
     if (*pwsz == NULL)
         return FALSE;
 
-    if (MultiByteToWideChar(0, 0, szStr, -1, *pwsz, dwSize))
-    {
+    if (MultiByteToWideChar(0, 0, szStr, -1, *pwsz, dwSize)) {
         return TRUE;
     }
 
@@ -165,8 +164,7 @@ static void Usage(void)
     IDSwprintf(IDS_ENDLN);
     IDSwprintf(IDS_CHOICES);
 
-    for (int i = 0; i < NSOFTPUBFLAGS; i++)
-    {
+    for (int i = 0; i < NSOFTPUBFLAGS; i++) {
         IDS_IDS_DWwprintf(IDS_DESC, SoftPubFlags[i].idsName, (i + 1));
     }
 
@@ -198,13 +196,12 @@ static void DisplaySoftPubKeys()
         0,          // dwReserved
         KEY_READ,
         &hKey);
-    if (ERROR_SUCCESS != lErr)
-    {
+    if (ERROR_SUCCESS != lErr) {
         if (lErr == ERROR_FILE_NOT_FOUND)
             IDSwprintf(IDS_NO_VALUE, REGPATH_WINTRUST_POLICY_FLAGS, NULL);
         else
             IDSwprintf(IDS_REG_OPEN_FAILED,
-            REGPATH_WINTRUST_POLICY_FLAGS, L" ", lErr);
+                       REGPATH_WINTRUST_POLICY_FLAGS, L" ", lErr);
 
         return;
     }
@@ -214,11 +211,10 @@ static void DisplaySoftPubKeys()
         wszState,
         0,          // dwReserved
         &dwType,
-        (BYTE *) &dwState,
+        (BYTE*)&dwState,
         &cbData
-        );
-    if (ERROR_SUCCESS != lErr)
-    {
+    );
+    if (ERROR_SUCCESS != lErr) {
         if (lErr == ERROR_FILE_NOT_FOUND)
             IDSwprintf(IDS_NO_VALUE, REGPATH_WINTRUST_POLICY_FLAGS, NULL);
         else
@@ -231,22 +227,19 @@ static void DisplaySoftPubKeys()
     //  04-Aug-1997 pberkman:
     //      added check for reg_binary because on WIN95 OSR2 when the machine is changed
     //      from mutli-user profiles to single user profile, the registry DWORD values change to BINARY
-    if ((dwType != REG_DWORD) && (dwType != REG_BINARY))
-    {
+    if ((dwType != REG_DWORD) && (dwType != REG_BINARY)) {
         IDSwprintf(IDS_WRONG_TYPE, REGPATH_WINTRUST_POLICY_FLAGS, NULL, dwType);
         goto CLEANUP;
     }
 
     IDSwprintf(IDS_STATE, dwState);
 
-    for (i = 0; i < NSOFTPUBFLAGS; i++)
-    {
+    for (i = 0; i < NSOFTPUBFLAGS; i++) {
         BOOL fOn = (dwState & SoftPubFlags[i].dwMask);
 
         int        idsValue;
 
-        switch (SoftPubFlags[i].dwMask)
-        {
+        switch (SoftPubFlags[i].dwMask) {
         case WTPF_IGNOREREVOCATIONONTS:
         case WTPF_IGNOREREVOKATION:
         case WTPF_IGNOREEXPIRATION:
@@ -258,12 +251,9 @@ static void DisplaySoftPubKeys()
             idsValue = fOn ? IDS_TRUE : IDS_FALSE;
         };
 
-        if (i < 9)
-        {
+        if (i < 9) {
             IDS_DW_IDS_IDSwprintf(IDS_DISPLAY_LT_10, (i + 1), SoftPubFlags[i].idsName, idsValue);
-        }
-        else
-        {
+        } else {
             IDS_DW_IDS_IDSwprintf(IDS_DISPLAY, (i + 1), SoftPubFlags[i].idsName, idsValue);
         }
     }
@@ -301,8 +291,7 @@ static void SetSoftPubKey(DWORD dwMask, BOOL fOn)
         KEY_ALL_ACCESS,
         NULL,       // lpSecurityAttributes
         &hKey,
-        &dwDisposition)))
-    {
+        &dwDisposition))) {
         IDSwprintf(IDS_REG_CREATE_FAILED, REGPATH_WINTRUST_POLICY_FLAGS, L" ", lErr);
         return;
     }
@@ -310,29 +299,23 @@ static void SetSoftPubKey(DWORD dwMask, BOOL fOn)
     dwState = 0;
     cbData = sizeof(dwState);
     lErr = RegQueryValueExU
-        (
+    (
         hKey,
         wszState,
         0,          // dwReserved
         &dwType,
-        (BYTE *) &dwState,
+        (BYTE*)&dwState,
         &cbData
-        );
-    if (ERROR_SUCCESS != lErr)
-    {
-        if (lErr == ERROR_FILE_NOT_FOUND)
-        {
+    );
+    if (ERROR_SUCCESS != lErr) {
+        if (lErr == ERROR_FILE_NOT_FOUND) {
             dwState = 0;
             IDSwprintf(IDS_NO_VALUE, REGPATH_WINTRUST_POLICY_FLAGS, NULL);
-        }
-        else
-        {
+        } else {
             IDSwprintf(IDS_REG_QUERY_FAILED, REGPATH_WINTRUST_POLICY_FLAGS, NULL, lErr);
             goto CLEANUP;
         }
-    }
-    else if ((dwType != REG_DWORD) && (dwType != REG_BINARY))
-    {
+    } else if ((dwType != REG_DWORD) && (dwType != REG_BINARY)) {
         IDSwprintf(IDS_WRONG_TYPE, REGPATH_WINTRUST_POLICY_FLAGS, NULL, dwType);
         goto CLEANUP;
     }
@@ -359,9 +342,9 @@ static void SetSoftPubKey(DWORD dwMask, BOOL fOn)
         wszState,
         0,          // dwReserved
         REG_DWORD,
-        (BYTE *) &dwState,
+        (BYTE*)&dwState,
         sizeof(dwState)
-        );
+    );
     if (ERROR_SUCCESS != lErr)
         IDSwprintf(IDS_REG_SET_FAILED, lErr);
 
@@ -371,11 +354,11 @@ CLEANUP:
 }
 
 
-extern "C" int __cdecl wmain(int argc, WCHAR ** wargv)
+extern "C" int __cdecl wmain(int argc, WCHAR * *wargv)
 {
     int        ReturnStatus = 0;
-    LPWSTR    *prgwszKeyName = NULL;
-    LPWSTR    *prgwszValue = NULL;
+    LPWSTR* prgwszKeyName = NULL;
+    LPWSTR* prgwszValue = NULL;
     DWORD    dwIndex = 0;
     DWORD    dwCountKey = 0;
     DWORD    dwCountValue = 0;
@@ -383,7 +366,7 @@ extern "C" int __cdecl wmain(int argc, WCHAR ** wargv)
     BOOL    fOn = TRUE;
     BOOL    fQuiet = FALSE;
     DWORD    dwEntry = 0;
-    WCHAR    *pArg = NULL;
+    WCHAR* pArg = NULL;
 
     WCHAR    wszSwitch1[OPTION_SWITCH_SIZE];
     WCHAR    wszSwitch2[OPTION_SWITCH_SIZE];
@@ -398,72 +381,57 @@ extern "C" int __cdecl wmain(int argc, WCHAR ** wargv)
 
     //convert the multitype registry path to the wchar version
 
-    prgwszKeyName = (LPWSTR *) malloc(sizeof(LPWSTR)*argc);
-    prgwszValue = (LPWSTR *) malloc(sizeof(LPWSTR)*argc);
+    prgwszKeyName = (LPWSTR*)malloc(sizeof(LPWSTR) * argc);
+    prgwszValue = (LPWSTR*)malloc(sizeof(LPWSTR) * argc);
 
-    if (!prgwszKeyName || !prgwszValue)
-    {
+    if (!prgwszKeyName || !prgwszValue) {
         IDSwprintf(IDS_FAILED);
         ReturnStatus = -1;
         goto CommonReturn;
     }
 
     //memset
-    memset(prgwszKeyName, 0, sizeof(LPWSTR)*argc);
-    memset(prgwszValue, 0, sizeof(LPWSTR)*argc);
+    memset(prgwszKeyName, 0, sizeof(LPWSTR) * argc);
+    memset(prgwszValue, 0, sizeof(LPWSTR) * argc);
 
-    while (--argc > 0)
-    {
+    while (--argc > 0) {
         pArg = *++wargv;
 
-        if (*pArg == *wszSwitch1 || *pArg == *wszSwitch2)
-        {
+        if (*pArg == *wszSwitch1 || *pArg == *wszSwitch2) {
             if (IDSwcsicmp(&(pArg[1]), IDS_OPTION_Q) == 0)
                 fQuiet = TRUE;
             else
                 goto BadUsage;
-        }
-        else
-        {
-            if (dwCountKey == dwCountValue)
-            {
+        } else {
+            if (dwCountKey == dwCountValue) {
                 prgwszKeyName[dwCountKey] = pArg;
                 dwCountKey++;
-            }
-            else
-            {
-                if (dwCountKey == (dwCountValue + 1))
-                {
+            } else {
+                if (dwCountKey == (dwCountValue + 1)) {
                     prgwszValue[dwCountValue] = pArg;
                     dwCountValue++;
-                }
-                else
-                {
+                } else {
                     goto BadUsage;
                 }
             }
         }
     }
 
-    if (dwCountKey != dwCountValue)
-    {
+    if (dwCountKey != dwCountValue) {
         IDSwprintf(IDS_MANY_ARG);
         goto BadUsage;
     }
 
-    if (dwCountKey == 0)
-    {
+    if (dwCountKey == 0) {
         //Display the Software Publisher State Key Values
         DisplaySoftPubKeys();
         goto CommonReturn;
     }
 
-    for (dwIndex = 0; dwIndex < dwCountKey; dwIndex++)
-    {
+    for (dwIndex = 0; dwIndex < dwCountKey; dwIndex++) {
         dwEntry = _wtoi(prgwszKeyName[dwIndex]);
 
-        if (dwEntry < 1 || dwEntry > NSOFTPUBFLAGS + 1)
-        {
+        if (dwEntry < 1 || dwEntry > NSOFTPUBFLAGS + 1) {
             IDSwprintf(IDS_INVALID_CHOICE);
             goto BadUsage;
         }
@@ -475,8 +443,7 @@ extern "C" int __cdecl wmain(int argc, WCHAR ** wargv)
             fOn = TRUE;
         else if (0 == IDSwcsicmp(prgwszValue[dwIndex], IDS_FALSE))
             fOn = FALSE;
-        else
-        {
+        else {
             IDSwprintf(IDS_BAD_VALUE);
             goto BadUsage;
         }
@@ -484,8 +451,7 @@ extern "C" int __cdecl wmain(int argc, WCHAR ** wargv)
         SetSoftPubKey(dwMask, fOn);
     }
 
-    if (!fQuiet)
-    {
+    if (!fQuiet) {
         IDSwprintf(IDS_UPDATED);
         DisplaySoftPubKeys();
     }

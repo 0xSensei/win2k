@@ -68,18 +68,18 @@ extern DYNLIB g_dynlibMSHTML;
 #endif
 #define WM_UPDATEDEFAULTPRINTER WM_USER+338
 
-TCHAR achScriptPath[MAX_PATH] = { 0 };
-TCHAR achScriptStartDir[MAX_PATH] = { 0 };
-TCHAR achDRTPath[MAX_PATH] = { 0 };
+TCHAR achScriptPath[MAX_PATH] = {0};
+TCHAR achScriptStartDir[MAX_PATH] = {0};
+TCHAR achDRTPath[MAX_PATH] = {0};
 
 #ifdef UNIX
-void SanitizePath( TCHAR *pszPath )
+void SanitizePath(TCHAR* pszPath)
 {
-    if ( pszPath ) {
-        TCHAR *pch = pszPath;
+    if (pszPath) {
+        TCHAR* pch = pszPath;
 
         while (*pch) {
-            if (( *pch == L'/') || ( *pch == L'\\')) {
+            if ((*pch == L'/') || (*pch == L'\\')) {
                 *pch = _T(FILENAME_SEPARATOR);
             }
 
@@ -91,22 +91,19 @@ void SanitizePath( TCHAR *pszPath )
 
 void PrimeDRTPath()
 {
-    if (!achDRTPath[0])
-    {
+    if (!achDRTPath[0]) {
         char achDRTPathA[MAX_PATH] = "";
 
-        GetPrivateProfileStringA("PadDirs","DRTScript","",achDRTPathA,MAX_PATH, "mshtmdbg.ini");
+        GetPrivateProfileStringA("PadDirs", "DRTScript", "", achDRTPathA, MAX_PATH, "mshtmdbg.ini");
 
-        if (achDRTPathA[0])
-        {
+        if (achDRTPathA[0]) {
             MultiByteToWideChar(CP_ACP, 0, achDRTPathA, MAX_PATH, achDRTPath, MAX_PATH);
         }
 
     }
 
-    if (!achDRTPath[0])
-    {
-        TCHAR  *pch;
+    if (!achDRTPath[0]) {
+        TCHAR* pch;
 
         // Prime file name with drt file directory.
 
@@ -117,8 +114,7 @@ void PrimeDRTPath()
         // Chop off the name of this file and three directories.
         // This will leave the root of our SLM tree in achScriptPath.
 
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             pch = _tcsrchr(achDRTPath, _T(FILENAME_SEPARATOR));
             if (pch)
                 *pch = 0;
@@ -127,35 +123,32 @@ void PrimeDRTPath()
         // Glue on the name of the directory containing the test cases.
 
         _tcscat(achDRTPath, _T(FILENAME_SEPARATOR_STR)
-                               _T("src")
-                               _T(FILENAME_SEPARATOR_STR)
-                               _T("f3")
-                               _T(FILENAME_SEPARATOR_STR)
-                               _T("drt")
-                               _T(FILENAME_SEPARATOR_STR)
-                               _T("0drt.js"));
+                _T("src")
+                _T(FILENAME_SEPARATOR_STR)
+                _T("f3")
+                _T(FILENAME_SEPARATOR_STR)
+                _T("drt")
+                _T(FILENAME_SEPARATOR_STR)
+                _T("0drt.js"));
     }
 }
 
 void PrimeScriptStartDir()
 {
     // look in mshtmdbg.ini first
-    if(!achScriptStartDir[0])
-    {
+    if (!achScriptStartDir[0]) {
         char achScriptPathA[MAX_PATH] = "";
 
-        GetPrivateProfileStringA("PadDirs","ScriptDir","",achScriptPathA,MAX_PATH, "mshtmdbg.ini");
+        GetPrivateProfileStringA("PadDirs", "ScriptDir", "", achScriptPathA, MAX_PATH, "mshtmdbg.ini");
 
-        if (achScriptPathA[0])
-        {
+        if (achScriptPathA[0]) {
             MultiByteToWideChar(CP_ACP, 0, achScriptPathA, MAX_PATH, achScriptStartDir, MAX_PATH);
         }
     }
 
     // cobble something up form where we were compiled
-    if (!achScriptStartDir[0])
-    {
-        TCHAR  *pch;
+    if (!achScriptStartDir[0]) {
+        TCHAR* pch;
 
         // Prime file name with drt file directory.
 
@@ -166,8 +159,7 @@ void PrimeScriptStartDir()
         // Chop off the name of this file and three directories.
         // This will leave the root of our SLM tree in achScriptPath.
 
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             pch = _tcsrchr(achScriptStartDir, _T(FILENAME_SEPARATOR));
             if (pch)
                 *pch = 0;
@@ -175,12 +167,12 @@ void PrimeScriptStartDir()
 
         // Glue on the name of the directory containing the test cases.
 
-        _tcscat(achScriptStartDir,  _T(FILENAME_SEPARATOR_STR)
-                                    _T("src")
-                                    _T(FILENAME_SEPARATOR_STR)
-                                    _T("f3")
-                                    _T(FILENAME_SEPARATOR_STR)
-                                    _T("drt"));
+        _tcscat(achScriptStartDir, _T(FILENAME_SEPARATOR_STR)
+                _T("src")
+                _T(FILENAME_SEPARATOR_STR)
+                _T("f3")
+                _T(FILENAME_SEPARATOR_STR)
+                _T("drt"));
     }
 }
 
@@ -194,20 +186,16 @@ CPadDoc::ExecuteDRT()
     hr = THR(ExecuteTopLevelScript(achDRTPath));
 
     if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND) ||
-        hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND))
-    {
+        hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
         TCHAR achMsg[400];
 
         _tcscpy(achMsg, _T("Could not find the DRT script at "));
         _tcscat(achMsg, achDRTPath);
         _tcscat(achMsg, _T(".\nDo you wish to try and find the script yourself?"));
 
-        if (MessageBox(_hwnd, achMsg, _T("Could not find DRT."), MB_YESNO) == IDYES)
-        {
+        if (MessageBox(_hwnd, achMsg, _T("Could not find DRT."), MB_YESNO) == IDYES) {
             hr = THR(PromptExecuteScript(TRUE));
-        }
-        else
-        {
+        } else {
             hr = S_OK;
         }
     }
@@ -221,23 +209,19 @@ CPadDoc::PromptExecuteScript(BOOL fDRT)
     HRESULT         hr;
     OPENFILENAME    ofn;
     BOOL            f;
-    TCHAR *         pchPath;
-    TCHAR *         pchStartDir;
+    TCHAR* pchPath;
+    TCHAR* pchStartDir;
 
-    if (fDRT)
-    {
+    if (fDRT) {
         // This should only be called from ExecuteDRT which
         // will already have called PrimeScriptPath.  We didn't
         // find the DRT start file so we open the dialog at
         // where we looked for it.
-        Assert( *achDRTPath );
+        Assert(*achDRTPath);
         pchPath = achDRTPath;
         pchStartDir = NULL;
-    }
-    else
-    {
-        if (!*achScriptStartDir)
-        {
+    } else {
+        if (!*achScriptStartDir) {
             PrimeScriptStartDir();
         }
 
@@ -273,8 +257,7 @@ CPadDoc::LoadTypeLibrary()
     HRESULT hr = S_OK;
     TCHAR achExe[MAX_PATH];
 
-    if (!_pTypeLibPad)
-    {
+    if (!_pTypeLibPad) {
         GetModuleFileName(g_hInstCore, achExe, MAX_PATH);
 
         //BUGBUG (carled) again the crt library shutdown causes oleaut32 to leak memory
@@ -295,47 +278,40 @@ CPadDoc::LoadTypeLibrary()
             goto Cleanup;
     }
 
-    if (!_apTypeComp[0])
-    {
+    if (!_apTypeComp[0]) {
         hr = THR(_pTypeLibPad->GetTypeComp(&_apTypeComp[0]));
         if (hr)
             goto Cleanup;
     }
 
-    if (!_pTypeInfoCPad)
-    {
+    if (!_pTypeInfoCPad) {
         hr = THR(_pTypeLibPad->GetTypeInfoOfGuid(CLSID_Pad, &_pTypeInfoCPad));
         if (hr)
             goto Cleanup;
     }
 
-    if (!_pTypeInfoIPad)
-    {
+    if (!_pTypeInfoIPad) {
         hr = THR(_pTypeLibPad->GetTypeInfoOfGuid(IID_IPad, &_pTypeInfoIPad));
         if (hr)
             goto Cleanup;
     }
 
-    if (!_pTypeInfoILine)
-    {
+    if (!_pTypeInfoILine) {
         hr = THR(_pTypeLibPad->GetTypeInfoOfGuid(IID_ILine, &_pTypeInfoILine));
         if (hr)
             goto Cleanup;
     }
 
-    if (!_pTypeInfoICascaded)
-    {
+    if (!_pTypeInfoICascaded) {
         hr = THR(_pTypeLibPad->GetTypeInfoOfGuid(IID_ICascaded, &_pTypeInfoICascaded));
         if (hr)
             goto Cleanup;
     }
 
-    if (!_pTypeLibDLL)
-    {
+    if (!_pTypeLibDLL) {
         // If specified, load MSHTML from the system[32] directory
         // instead of the from the exe directory.
-        if (g_fLoadSystemMSHTML)
-        {
+        if (g_fLoadSystemMSHTML) {
             UINT uRet = GetSystemDirectory(achExe, sizeof(achExe));
             Assert(uRet);
             achExe[uRet] = FILENAME_SEPARATOR;
@@ -343,9 +319,8 @@ CPadDoc::LoadTypeLibrary()
             achExe[uRet + 1] = 0;
         }
 
-        TCHAR * pchName = _tcsrchr(achExe, FILENAME_SEPARATOR);
-        if (!pchName)
-        {
+        TCHAR* pchName = _tcsrchr(achExe, FILENAME_SEPARATOR);
+        if (!pchName) {
             hr = E_FAIL;
             goto Cleanup;
         }
@@ -357,8 +332,7 @@ CPadDoc::LoadTypeLibrary()
 #endif
         hr = THR(LoadTypeLib(achExe, &_pTypeLibDLL));
 
-        if (hr)
-        {
+        if (hr) {
 #ifdef UNIX
             _tcscpy(achExe, _T("mshtml.dll"));
 #else
@@ -371,8 +345,7 @@ CPadDoc::LoadTypeLibrary()
         }
     }
 
-    if (!_apTypeComp[1])
-    {
+    if (!_apTypeComp[1]) {
         hr = THR(_pTypeLibDLL->GetTypeComp(&_apTypeComp[1]));
         if (hr)
             goto Cleanup;
@@ -392,25 +365,23 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::PushScript(TCHAR *pchType)
+CPadDoc::PushScript(TCHAR* pchType)
 {
     HRESULT hr;
-    CPadScriptSite * pScriptSite;
+    CPadScriptSite* pScriptSite;
 
     hr = LoadTypeLibrary();
     if (hr)
         goto Cleanup;
 
     pScriptSite = new CPadScriptSite(this);
-    if(!pScriptSite)
-    {
+    if (!pScriptSite) {
         hr = E_OUTOFMEMORY;
         goto Cleanup;
     }
 
     hr = pScriptSite->Init(pchType);
-    if (hr)
-    {
+    if (hr) {
         delete pScriptSite;
         pScriptSite = NULL;
         goto Cleanup;
@@ -434,9 +405,9 @@ Cleanup:
 HRESULT
 CPadDoc::PopScript()
 {
-    CPadScriptSite * pScriptSite = _pScriptSite;
+    CPadScriptSite* pScriptSite = _pScriptSite;
 
-    if(!_pScriptSite)
+    if (!_pScriptSite)
         return S_FALSE;
 
     // Script about to unload fire unload.
@@ -456,10 +427,10 @@ CPadDoc::PopScript()
 //  Clear the stack of script engines
 HRESULT CPadDoc::CloseScripts()
 {
-    while(PopScript() == S_OK)
+    while (PopScript() == S_OK)
 
 
-    Assert(_pScriptSite == NULL);
+        Assert(_pScriptSite == NULL);
 
     return S_OK;
 }
@@ -474,7 +445,7 @@ HRESULT CPadDoc::CloseScripts()
 
 
 HRESULT
-CPadDoc::ExecuteTopLevelScript(TCHAR * pchPath)
+CPadDoc::ExecuteTopLevelScript(TCHAR* pchPath)
 {
     HRESULT hr;
 
@@ -487,11 +458,11 @@ CPadDoc::ExecuteTopLevelScript(TCHAR * pchPath)
     CloseScripts();
 
     hr = THR(PushScript(_tcsrchr(pchPath, _T('.'))));
-    if(hr)
+    if (hr)
         goto Cleanup;
 
     hr = THR(_pScriptSite->ExecuteScriptFile(pchPath));
-    if(hr)
+    if (hr)
         goto Cleanup;
 
     hr = THR(_pScriptSite->SetScriptState(SCRIPTSTATE_CONNECTED));
@@ -514,7 +485,7 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::ExecuteTopLevelScriptlet(TCHAR * pchScript)
+CPadDoc::ExecuteTopLevelScriptlet(TCHAR* pchScript)
 {
     HRESULT hr;
 
@@ -523,14 +494,11 @@ CPadDoc::ExecuteTopLevelScriptlet(TCHAR * pchScript)
 
     AddRef();
 
-    if(!_pScriptSite)
-    {
+    if (!_pScriptSite) {
         hr = THR(PushScript(NULL));
-        if(hr)
+        if (hr)
             goto Cleanup;
-    }
-    else
-    {
+    } else {
         Assert(_pScriptSite->_pScriptSitePrev == NULL);
     }
 
@@ -552,28 +520,27 @@ Cleanup:
 
 
 void
-CPadDoc::FireEvent(DISPID dispid, UINT carg, VARIANTARG *pvararg)
+CPadDoc::FireEvent(DISPID dispid, UINT carg, VARIANTARG* pvararg)
 {
     DISPPARAMS  dp;
     EXCEPINFO   ei;
     UINT        uArgErr = 0;
 
-    if (_pScriptSite && _pScriptSite->_pDispSink)
-    {
-        dp.rgvarg            = pvararg;
+    if (_pScriptSite && _pScriptSite->_pDispSink) {
+        dp.rgvarg = pvararg;
         dp.rgdispidNamedArgs = NULL;
-        dp.cArgs             = carg;
-        dp.cNamedArgs        = 0;
+        dp.cArgs = carg;
+        dp.cNamedArgs = 0;
 
         _pScriptSite->_pDispSink->Invoke(
-                dispid,
-                IID_NULL,
-                0,
-                DISPATCH_METHOD,
-                &dp,
-                NULL,
-                &ei,
-                &uArgErr);
+            dispid,
+            IID_NULL,
+            0,
+            DISPATCH_METHOD,
+            &dp,
+            NULL,
+            &ei,
+            &uArgErr);
     }
 }
 
@@ -617,7 +584,7 @@ CPadDoc::FireEvent(DISPID dispid, BOOL fArg)
 
 
 HRESULT
-CPadDoc::GetTypeInfo(UINT itinfo, ULONG lcid, ITypeInfo ** pptinfo)
+CPadDoc::GetTypeInfo(UINT itinfo, ULONG lcid, ITypeInfo** pptinfo)
 {
     HRESULT hr;
 
@@ -635,7 +602,7 @@ Cleanup:
 
 
 //  Member: CPadDoc::GetTypeInfoCount, IDispatch
-HRESULT CPadDoc::GetTypeInfoCount(UINT * pctinfo)
+HRESULT CPadDoc::GetTypeInfoCount(UINT* pctinfo)
 {
     *pctinfo = 1;
     return S_OK;
@@ -643,7 +610,7 @@ HRESULT CPadDoc::GetTypeInfoCount(UINT * pctinfo)
 
 
 //  Member: CPadDoc::GetIDsOfNames, IDispatch
-HRESULT CPadDoc::GetIDsOfNames(REFIID riid, LPOLESTR * rgszNames, UINT cNames, LCID lcid, DISPID * rgdispid)
+HRESULT CPadDoc::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UINT cNames, LCID lcid, DISPID* rgdispid)
 {
     HRESULT hr;
 
@@ -664,7 +631,7 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::Invoke(DISPID dispidMember, REFIID riid, LCID lcid, WORD wFlags,DISPPARAMS * pdispparams, VARIANT * pvarResult,EXCEPINFO * pexcepinfo, UINT * puArgErr)
+CPadDoc::Invoke(DISPID dispidMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS* pdispparams, VARIANT* pvarResult, EXCEPINFO* pexcepinfo, UINT* puArgErr)
 {
     HRESULT hr;
 
@@ -672,7 +639,7 @@ CPadDoc::Invoke(DISPID dispidMember, REFIID riid, LCID lcid, WORD wFlags,DISPPAR
     if (hr)
         goto Cleanup;
 
-    hr = THR_NOTRACE(_pTypeInfoIPad->Invoke((IPad *)this, dispidMember, wFlags, pdispparams, pvarResult, pexcepinfo, puArgErr));
+    hr = THR_NOTRACE(_pTypeInfoIPad->Invoke((IPad*)this, dispidMember, wFlags, pdispparams, pvarResult, pexcepinfo, puArgErr));
 
 Cleanup:
     RRETURN1(hr, DISP_E_MEMBERNOTFOUND);
@@ -687,7 +654,7 @@ Cleanup:
 HRESULT
 CPadDoc::DoEvents(VARIANT_BOOL fWait)
 {
-    PADTHREADSTATE * pts = GetThreadState();
+    PADTHREADSTATE* pts = GetThreadState();
 
     PerfLog1(tagPerfWatchPad, this, "+CPadDoc::DoEvents(fWait=%d)", fWait);
 
@@ -695,8 +662,7 @@ CPadDoc::DoEvents(VARIANT_BOOL fWait)
     pts->cDoEvents += !!fWait;
     Run(!fWait);
 
-    if (fWait && !pts->fEndEvents)
-    {
+    if (fWait && !pts->fEndEvents) {
         MessageBox(
             _hwnd,
             TEXT("Warning: DoEvents TRUE was not balanced by a call to EndEvents."),
@@ -704,8 +670,7 @@ CPadDoc::DoEvents(VARIANT_BOOL fWait)
             MB_APPLMODAL | MB_ICONERROR | MB_OK);
     }
 
-    if (pts->fEndEvents && !fWait)
-    {
+    if (pts->fEndEvents && !fWait) {
         MessageBox(
             _hwnd,
             TEXT("Warning: EndEvents called inside a DoEvents FALSE."),
@@ -730,10 +695,9 @@ CPadDoc::DoEvents(VARIANT_BOOL fWait)
 HRESULT
 CPadDoc::EndEvents()
 {
-    PADTHREADSTATE * pts = GetThreadState();
+    PADTHREADSTATE* pts = GetThreadState();
 
-    if (!pts->cDoEvents)
-    {
+    if (!pts->cDoEvents) {
         return S_OK;
     }
 
@@ -754,7 +718,7 @@ HRESULT
 CPadDoc::OpenFileStream(BSTR bstrPath)
 {
     HRESULT hr = S_OK;
-    IStream *pStream = NULL;
+    IStream* pStream = NULL;
 
     if (_fUseShdocvw)
         return E_FAIL;
@@ -762,15 +726,12 @@ CPadDoc::OpenFileStream(BSTR bstrPath)
     if (bstrPath && !*bstrPath)
         bstrPath = NULL;
 
-    if (!bstrPath)
-    {
+    if (!bstrPath) {
         hr = THR(CreateStreamOnHGlobal(NULL, TRUE, &pStream));
         if (hr)
             goto Cleanup;
-    }
-    else
-    {
-        hr = THR(CreateStreamOnFile(bstrPath, STGM_READ|STGM_SHARE_DENY_NONE, &pStream));
+    } else {
+        hr = THR(CreateStreamOnFile(bstrPath, STGM_READ | STGM_SHARE_DENY_NONE, &pStream));
         if (hr)
             goto Cleanup;
     }
@@ -800,35 +761,29 @@ CPadDoc::OpenFile(BSTR bstrPath, BSTR bstrProgID)
     if (bstrPath && !*bstrPath)
         bstrPath = NULL;
 
-    if (bstrPath && (*bstrPath == '*'))
-    {
+    if (bstrPath && (*bstrPath == '*')) {
         fUseBindToObject = TRUE;
         bstrPath += 1;
     }
 
 #ifdef UNIX
-    SanitizePath( bstrPath );
+    SanitizePath(bstrPath);
 #endif
 
-    if (bstrProgID && *bstrProgID)
-    {
+    if (bstrProgID && *bstrProgID) {
         CLSID clsid;
 
         hr = THR(CLSIDFromProgID(bstrProgID, &clsid));
-        if(hr)
+        if (hr)
             goto Cleanup;
 
         hr = THR(Open(clsid, bstrPath));
-    }
-    else if (bstrPath)
-    {
-        if (_fUseShdocvw)
-        {
+    } else if (bstrPath) {
+        if (_fUseShdocvw) {
             PerfLog(tagPerfWatchPad, this, "+CPadDoc::OpenFile GetBrowser");
             hr = THR(GetBrowser());
             PerfLog(tagPerfWatchPad, this, "-CPadDoc::OpenFile GetBrowser");
-            if (hr)
-            {
+            if (hr) {
                 goto Cleanup;
             }
 
@@ -841,28 +796,21 @@ CPadDoc::OpenFile(BSTR bstrPath, BSTR bstrProgID)
             PerfLog(tagPerfWatchPad, this, "+CPadDoc::OpenFile UpdateToolbarUI");
             UpdateToolbarUI();
             PerfLog(tagPerfWatchPad, this, "-CPadDoc::OpenFile UpdateToolbarUI");
-        }
-        else if (fUseBindToObject)
-        {
+        } else if (fUseBindToObject) {
             TCHAR ach[MAX_PATH];
             BOOL IsUrlPrefix(const TCHAR * pchPath);
 
-            if (!IsUrlPrefix(bstrPath))
-            {
+            if (!IsUrlPrefix(bstrPath)) {
                 _tcscpy(ach, _T("file://"));
                 _tcscat(ach, bstrPath);
                 bstrPath = ach;
             }
 
             hr = THR(Open(bstrPath));
-        }
-        else
-        {
+        } else {
             hr = THR(Open(CLSID_HTMLDocument, bstrPath));
         }
-    }
-    else
-    {
+    } else {
         hr = THR(Open(CLSID_HTMLDocument, NULL));
     }
 
@@ -880,7 +828,7 @@ Cleanup:
 HRESULT
 CPadDoc::SaveFile(BSTR bstrPath)
 {
-    if(!bstrPath)
+    if (!bstrPath)
         return E_INVALIDARG;
 
     return Save(bstrPath);
@@ -915,37 +863,34 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::ExecuteCommand(LONG lCmdID, VARIANT * pvarParam)
+CPadDoc::ExecuteCommand(LONG lCmdID, VARIANT* pvarParam)
 {
     HRESULT hr = S_OK;;
-    IOleCommandTarget * pCommandTarget = NULL;
+    IOleCommandTarget* pCommandTarget = NULL;
 
     if (!_pInPlaceObject)
         goto Cleanup;
 
     hr = THR_NOTRACE(_pInPlaceObject->QueryInterface(
-                            IID_IOleCommandTarget,
-                            (void **)&pCommandTarget));
-    if(hr)
+        IID_IOleCommandTarget,
+        (void**)&pCommandTarget));
+    if (hr)
         goto Cleanup;
 
-    if(!pvarParam || pvarParam->vt != VT_ERROR)
-    {
+    if (!pvarParam || pvarParam->vt != VT_ERROR) {
         hr = pCommandTarget->Exec(
-                (GUID *)&CGID_MSHTML,
-                lCmdID,
-                MSOCMDEXECOPT_DONTPROMPTUSER,
-                pvarParam,
-                NULL);
-    }
-    else
-    {
+            (GUID*)&CGID_MSHTML,
+            lCmdID,
+            MSOCMDEXECOPT_DONTPROMPTUSER,
+            pvarParam,
+            NULL);
+    } else {
         hr = pCommandTarget->Exec(
-                (GUID *)&CGID_MSHTML,
-                lCmdID,
-                0,
-                NULL,
-                NULL);
+            (GUID*)&CGID_MSHTML,
+            lCmdID,
+            0,
+            NULL,
+            NULL);
     }
 
 Cleanup:
@@ -960,48 +905,47 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::QueryCommandStatus(LONG lCmdID, VARIANT * pvarState)
+CPadDoc::QueryCommandStatus(LONG lCmdID, VARIANT* pvarState)
 {
     HRESULT hr;
-    IOleCommandTarget * pCommandTarget = NULL;
+    IOleCommandTarget* pCommandTarget = NULL;
 
-    if(!pvarState)
+    if (!pvarState)
         return E_INVALIDARG;
 
     hr = THR_NOTRACE(_pInPlaceObject->QueryInterface(
-                            IID_IOleCommandTarget,
-                            (void **)&pCommandTarget));
-    if(hr)
+        IID_IOleCommandTarget,
+        (void**)&pCommandTarget));
+    if (hr)
         goto Cleanup;
 
     pvarState->vt = VT_NULL;
 
-    switch(lCmdID)
-    {
+    switch (lCmdID) {
     case IDM_FONTSIZE:
-        pvarState->vt   = VT_I4;
+        pvarState->vt = VT_I4;
         pvarState->lVal = 0;
         goto QueryWithExec;
     case IDM_BLOCKFMT:
-        pvarState->vt      = VT_BSTR;
+        pvarState->vt = VT_BSTR;
         pvarState->bstrVal = NULL;
         goto QueryWithExec;
     case IDM_FONTNAME:
-        pvarState->vt      = VT_BSTR;
+        pvarState->vt = VT_BSTR;
         pvarState->bstrVal = NULL;
         goto QueryWithExec;
     case IDM_FORECOLOR:
-        pvarState->vt      = VT_I4;
-        pvarState->lVal    = 0;
+        pvarState->vt = VT_I4;
+        pvarState->lVal = 0;
         goto QueryWithExec;
 
-QueryWithExec:
+    QueryWithExec:
         hr = THR(pCommandTarget->Exec(
-                    (GUID *)&CGID_MSHTML,
-                    lCmdID,
-                    MSOCMDEXECOPT_DONTPROMPTUSER,
-                    NULL,
-                    pvarState));
+            (GUID*)&CGID_MSHTML,
+            lCmdID,
+            MSOCMDEXECOPT_DONTPROMPTUSER,
+            NULL,
+            pvarState));
         break;
 
 
@@ -1011,11 +955,11 @@ QueryWithExec:
         rgCmds[0].cmdID = lCmdID;
 
         hr = pCommandTarget->QueryStatus(
-                (GUID *)&CGID_MSHTML,
-                1,
-                rgCmds,
-                NULL);
-        if(hr)
+            (GUID*)&CGID_MSHTML,
+            1,
+            rgCmds,
+            NULL);
+        if (hr)
             goto Cleanup;
 
         pvarState->vt = VT_I4;
@@ -1045,26 +989,19 @@ CPadDoc::MoveMouseTo(int x, int y, VARIANT_BOOL fLeftButton, int keyState)
     HRESULT hr = S_OK;
     POINT   pt;
     HWND    hwnd;
-    WPARAM  wParam=0;
-    LPARAM  lParam=0;
+    WPARAM  wParam = 0;
+    LPARAM  lParam = 0;
 
     // get the appropriate HWND for this event
-    if ((hwnd = GetFocus()) != NULL)
-    {
+    if ((hwnd = GetFocus()) != NULL) {
         // use focus window if we can get one
-    }
-    else if (_pInPlaceActiveObject &&
-            OK(_pInPlaceActiveObject->GetWindow(&hwnd)))
-    {
+    } else if (_pInPlaceActiveObject &&
+               OK(_pInPlaceActiveObject->GetWindow(&hwnd))) {
         // use inplace active object hwnd
-    }
-    else if (_pInPlaceObject &&
-            OK(_pInPlaceObject->GetWindow(&hwnd)))
-    {
+    } else if (_pInPlaceObject &&
+               OK(_pInPlaceObject->GetWindow(&hwnd))) {
         // use inplace object window
-    }
-    else
-    {
+    } else {
         // use our window
         hwnd = _hwnd;
     }
@@ -1072,8 +1009,7 @@ CPadDoc::MoveMouseTo(int x, int y, VARIANT_BOOL fLeftButton, int keyState)
     pt.x = x;
     pt.y = y;
 
-    if (!ClientToScreen(hwnd, &pt))
-    {
+    if (!ClientToScreen(hwnd, &pt)) {
         hr = GetLastError();
         goto Cleanup;
     }
@@ -1081,8 +1017,7 @@ CPadDoc::MoveMouseTo(int x, int y, VARIANT_BOOL fLeftButton, int keyState)
     // first move the mosue, but because the accompaning
     // mosemove msg is flaky, we want to send another
     // immediately
-    if(!SetCursorPos(pt.x, pt.y))
-    {
+    if (!SetCursorPos(pt.x, pt.y)) {
         hr = GetLastError();
         goto Cleanup;
     }
@@ -1099,18 +1034,17 @@ CPadDoc::MoveMouseTo(int x, int y, VARIANT_BOOL fLeftButton, int keyState)
     if (keyState & 0x0002)
         wParam |= MK_SHIFT;
 
-    wParam |= (fLeftButton==VB_TRUE) ? MK_LBUTTON : 0;
+    wParam |= (fLeftButton == VB_TRUE) ? MK_LBUTTON : 0;
 
     // SendMessage to make this happen now
-    if (!SendMessage(hwnd, WM_MOUSEMOVE, wParam, lParam))
-    {
+    if (!SendMessage(hwnd, WM_MOUSEMOVE, wParam, lParam)) {
         hr = GetLastError();
         goto Cleanup;
     }
 
 
 Cleanup:
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
@@ -1131,26 +1065,19 @@ CPadDoc::DoMouseButtonAt(int x, int y, VARIANT_BOOL fLeftButton, BSTR bstrAction
     HRESULT hr = S_OK;
     POINT   pt;
     HWND    hwnd;
-    UINT    uMsg=0;
-    WPARAM  wParam=0;
-    LPARAM  lParam=0;
+    UINT    uMsg = 0;
+    WPARAM  wParam = 0;
+    LPARAM  lParam = 0;
     // get the appropriate HWND for this event
-    if ((hwnd = GetFocus()) != NULL)
-    {
+    if ((hwnd = GetFocus()) != NULL) {
         // use focus window if we can get one
-    }
-    else if (_pInPlaceActiveObject &&
-            OK(_pInPlaceActiveObject->GetWindow(&hwnd)))
-    {
+    } else if (_pInPlaceActiveObject &&
+               OK(_pInPlaceActiveObject->GetWindow(&hwnd))) {
         // use inplace active object hwnd
-    }
-    else if (_pInPlaceObject &&
-            OK(_pInPlaceObject->GetWindow(&hwnd)))
-    {
+    } else if (_pInPlaceObject &&
+               OK(_pInPlaceObject->GetWindow(&hwnd))) {
         // use inplace object window
-    }
-    else
-    {
+    } else {
         // use our window
         hwnd = _hwnd;
     }
@@ -1170,74 +1097,55 @@ CPadDoc::DoMouseButtonAt(int x, int y, VARIANT_BOOL fLeftButton, BSTR bstrAction
         wParam |= MK_SHIFT;
 
     // set up the Msg and the wParam
-    if (_tcsicmp(bstrAction, _T("down"))==0)
-    {
-        if (fLeftButton==VB_TRUE)
-        {
+    if (_tcsicmp(bstrAction, _T("down")) == 0) {
+        if (fLeftButton == VB_TRUE) {
             uMsg = WM_LBUTTONDOWN;
             wParam |= MK_LBUTTON;
-        }
-        else
-        {
+        } else {
             uMsg = WM_RBUTTONDOWN;
             wParam |= MK_RBUTTON;
         }
-    }
-    else if (_tcsicmp(bstrAction, _T("up"))==0)
-    {
-        if (fLeftButton==VB_TRUE)
-        {
+    } else if (_tcsicmp(bstrAction, _T("up")) == 0) {
+        if (fLeftButton == VB_TRUE) {
             uMsg = WM_LBUTTONUP;
             wParam |= MK_LBUTTON;
-        }
-        else
-        {
+        } else {
             uMsg = WM_RBUTTONUP;
             wParam |= MK_RBUTTON;
         }
-    }
-    else if (_tcsicmp(bstrAction, _T("click"))==0)
-    {
+    } else if (_tcsicmp(bstrAction, _T("click")) == 0) {
         // down
         hr = THR_NOTRACE(DoMouseButtonAt(x, y, fLeftButton, _T("down"), keyState));
         if (hr)
             goto Cleanup;
 
         // up
-        if (fLeftButton==VB_TRUE)
-        {
+        if (fLeftButton == VB_TRUE) {
             uMsg = WM_LBUTTONUP;
             wParam |= MK_LBUTTON;
-        }
-        else
-        {
+        } else {
             uMsg = WM_RBUTTONUP;
             wParam |= MK_RBUTTON;
         }
-    }
-    else if ((_tcsicmp(bstrAction, _T("doubleclick"))==0) ||
-            (_tcsicmp(bstrAction, _T("double"))==0))
-    {
+    } else if ((_tcsicmp(bstrAction, _T("doubleclick")) == 0) ||
+               (_tcsicmp(bstrAction, _T("double")) == 0)) {
         // oh oh gotta do some work, simulate by sending down, up, down, dbl
-        hr = THR_NOTRACE(DoMouseButtonAt(x,y,fLeftButton, _T("down"), keyState));
+        hr = THR_NOTRACE(DoMouseButtonAt(x, y, fLeftButton, _T("down"), keyState));
         if (hr)
             goto Cleanup;
 
-        hr = THR_NOTRACE(DoMouseButtonAt(x,y, fLeftButton, _T("up"), keyState));
+        hr = THR_NOTRACE(DoMouseButtonAt(x, y, fLeftButton, _T("up"), keyState));
         if (hr)
             goto Cleanup;
 
-        hr = THR_NOTRACE(DoMouseButtonAt(x,y, fLeftButton, _T("down"), keyState));
+        hr = THR_NOTRACE(DoMouseButtonAt(x, y, fLeftButton, _T("down"), keyState));
         if (hr)
             goto Cleanup;
 
-        if (fLeftButton==VB_TRUE)
-        {
+        if (fLeftButton == VB_TRUE) {
             uMsg = WM_LBUTTONDBLCLK;
             wParam |= MK_LBUTTON;
-        }
-        else
-        {
+        } else {
             uMsg = WM_RBUTTONDBLCLK;
             wParam |= MK_RBUTTON;
         }
@@ -1247,7 +1155,7 @@ CPadDoc::DoMouseButtonAt(int x, int y, VARIANT_BOOL fLeftButton, BSTR bstrAction
         hr = GetLastError();
 
 Cleanup:
-    RRETURN ( hr );
+    RRETURN(hr);
 }
 
 
@@ -1264,13 +1172,12 @@ CPadDoc::DoMouseButton(VARIANT_BOOL fLeftButton, BSTR bstrAction, int keyState)
     HRESULT hr = S_OK;
     POINT   pt;
     HWND    hwnd;
-    UINT    uMsg=0;
-    WPARAM  wParam=0;
-    LPARAM  lParam=0;
+    UINT    uMsg = 0;
+    WPARAM  wParam = 0;
+    LPARAM  lParam = 0;
 
     // get the cursor's position
-    if (!GetCursorPos(&pt))
-    {
+    if (!GetCursorPos(&pt)) {
         hr = GetLastError();
         goto Cleanup;
     }
@@ -1282,8 +1189,7 @@ CPadDoc::DoMouseButton(VARIANT_BOOL fLeftButton, BSTR bstrAction, int keyState)
         goto Cleanup;
 
     // adjust the point
-    if (!ScreenToClient(hwnd, &pt))
-    {
+    if (!ScreenToClient(hwnd, &pt)) {
         hr = GetLastError();
         goto Cleanup;
     }
@@ -1301,54 +1207,38 @@ CPadDoc::DoMouseButton(VARIANT_BOOL fLeftButton, BSTR bstrAction, int keyState)
         wParam |= MK_SHIFT;
 
     // set up the Msg and the wParam
-    if (_tcsicmp(bstrAction, _T("down"))==0)
-    {
-        if (fLeftButton==VB_TRUE)
-        {
+    if (_tcsicmp(bstrAction, _T("down")) == 0) {
+        if (fLeftButton == VB_TRUE) {
             uMsg = WM_LBUTTONDOWN;
             wParam |= MK_LBUTTON;
-        }
-        else
-        {
+        } else {
             uMsg = WM_RBUTTONDOWN;
             wParam |= MK_RBUTTON;
         }
-    }
-    else if (_tcsicmp(bstrAction, _T("up"))==0)
-    {
-        if (fLeftButton==VB_TRUE)
-        {
+    } else if (_tcsicmp(bstrAction, _T("up")) == 0) {
+        if (fLeftButton == VB_TRUE) {
             uMsg = WM_LBUTTONUP;
             wParam |= MK_LBUTTON;
-        }
-        else
-        {
+        } else {
             uMsg = WM_RBUTTONUP;
             wParam |= MK_RBUTTON;
         }
-    }
-    else if (_tcsicmp(bstrAction, _T("click"))==0)
-    {
+    } else if (_tcsicmp(bstrAction, _T("click")) == 0) {
         // down
         hr = THR_NOTRACE(DoMouseButton(fLeftButton, _T("down"), keyState));
         if (hr)
             goto Cleanup;
 
         // up
-        if (fLeftButton==VB_TRUE)
-        {
+        if (fLeftButton == VB_TRUE) {
             uMsg = WM_LBUTTONUP;
             wParam |= MK_LBUTTON;
-        }
-        else
-        {
+        } else {
             uMsg = WM_RBUTTONUP;
             wParam |= MK_RBUTTON;
         }
-    }
-    else if ((_tcsicmp(bstrAction, _T("doubleclick"))==0) ||
-            (_tcsicmp(bstrAction, _T("double"))==0))
-    {
+    } else if ((_tcsicmp(bstrAction, _T("doubleclick")) == 0) ||
+               (_tcsicmp(bstrAction, _T("double")) == 0)) {
         // oh oh gotta do some work, simulate by sending down, up, down, dbl
         hr = THR_NOTRACE(DoMouseButton(fLeftButton, _T("down"), keyState));
         if (hr)
@@ -1362,13 +1252,10 @@ CPadDoc::DoMouseButton(VARIANT_BOOL fLeftButton, BSTR bstrAction, int keyState)
         if (hr)
             goto Cleanup;
 
-        if (fLeftButton==VB_TRUE)
-        {
+        if (fLeftButton == VB_TRUE) {
             uMsg = WM_LBUTTONDBLCLK;
             wParam |= MK_LBUTTON;
-        }
-        else
-        {
+        } else {
             uMsg = WM_RBUTTONDBLCLK;
             wParam |= MK_RBUTTON;
         }
@@ -1378,7 +1265,7 @@ CPadDoc::DoMouseButton(VARIANT_BOOL fLeftButton, BSTR bstrAction, int keyState)
         hr = GetLastError();
 
 Cleanup:
-    RRETURN ( hr );
+    RRETURN(hr);
 }
 
 
@@ -1402,16 +1289,13 @@ CPadDoc::PrintStatus(BSTR bstrMessage)
 
 
 HRESULT
-CPadDoc::get_ScriptParam(VARIANT *pvarScriptParam)
+CPadDoc::get_ScriptParam(VARIANT* pvarScriptParam)
 {
     HRESULT hr;
 
-    if (_pScriptSite)
-    {
+    if (_pScriptSite) {
         hr = THR(VariantCopy(pvarScriptParam, &_pScriptSite->_varParam));
-    }
-    else
-    {
+    } else {
         hr = E_FAIL;
     }
 
@@ -1427,16 +1311,13 @@ CPadDoc::get_ScriptParam(VARIANT *pvarScriptParam)
 
 
 HRESULT
-CPadDoc::get_ScriptObject(IDispatch **ppDisp)
+CPadDoc::get_ScriptObject(IDispatch** ppDisp)
 {
     HRESULT hr;
 
-    if (_pScriptSite)
-    {
+    if (_pScriptSite) {
         hr = THR(_pScriptSite->_pScript->GetScriptDispatch(_T("Pad"), ppDisp));
-    }
-    else
-    {
+    } else {
         *ppDisp = NULL;
         hr = E_FAIL;
     }
@@ -1453,21 +1334,20 @@ CPadDoc::get_ScriptObject(IDispatch **ppDisp)
 
 
 HRESULT
-CPadDoc::ExecuteScript(BSTR bstrPath, VARIANT *pvarScriptParam, VARIANT_BOOL fAsync)
+CPadDoc::ExecuteScript(BSTR bstrPath, VARIANT* pvarScriptParam, VARIANT_BOOL fAsync)
 {
     HRESULT hr;
 
-    if(!bstrPath)
+    if (!bstrPath)
         return E_INVALIDARG;
 
     hr = THR(PushScript(_tcsrchr(bstrPath, _T('.'))));
-    if(hr)
+    if (hr)
         goto Cleanup;
 
     SetWindowText(_hwnd, bstrPath);
 
-    if (pvarScriptParam && pvarScriptParam->vt != VT_ERROR)
-    {
+    if (pvarScriptParam && pvarScriptParam->vt != VT_ERROR) {
         hr = THR(VariantCopy(&_pScriptSite->_varParam, pvarScriptParam));
         if (hr)
             goto Cleanup;
@@ -1479,12 +1359,9 @@ CPadDoc::ExecuteScript(BSTR bstrPath, VARIANT *pvarScriptParam, VARIANT_BOOL fAs
     if (hr)
         goto Cleanup;
 
-    if (fAsync)
-    {
+    if (fAsync) {
         PostMessage(_hwnd, WM_RUNSCRIPT, 0, 0);
-    }
-    else
-    {
+    } else {
         FireEvent(DISPID_PadEvents_Load, 0, NULL);
         PopScript();
     }
@@ -1509,8 +1386,8 @@ CPadDoc::RegisterControl(BSTR Path)
 #ifdef UNIX
     // Fix path in case we succeed but silently fail
 
-    SanitizePath( Path );
-    RegisterDLL( Path );
+    SanitizePath(Path);
+    RegisterDLL(Path);
 
     return S_OK;
 #else
@@ -1533,7 +1410,7 @@ CPadDoc::IncludeScript(BSTR bstrPath)
 {
     HRESULT hr;
 
-    if(!bstrPath)
+    if (!bstrPath)
         return E_INVALIDARG;
 
     hr = THR(_pScriptSite->ExecuteScriptFile(bstrPath));
@@ -1552,17 +1429,16 @@ CPadDoc::IncludeScript(BSTR bstrPath)
 
 
 HRESULT
-CPadDoc::SetProperty(IDispatch * pDisp, BSTR bstrProperty, VARIANT * pvar)
- {
+CPadDoc::SetProperty(IDispatch* pDisp, BSTR bstrProperty, VARIANT* pvar)
+{
     HRESULT     hr;
     DISPPARAMS  dp;
-//    EXCEPINFO   ei;
+    //    EXCEPINFO   ei;
     UINT        uArgErr = 0;
     DISPID      dispidProp;
     DISPID      dispidPut = DISPID_PROPERTYPUT;
 
-    if (!pvar)
-    {
+    if (!pvar) {
         return E_INVALIDARG;
     }
 
@@ -1570,20 +1446,20 @@ CPadDoc::SetProperty(IDispatch * pDisp, BSTR bstrProperty, VARIANT * pvar)
     if (hr)
         goto Cleanup;
 
-    dp.rgvarg            = pvar;
+    dp.rgvarg = pvar;
     dp.rgdispidNamedArgs = &dispidPut;
-    dp.cArgs             = 1;
-    dp.cNamedArgs        = 1;
+    dp.cArgs = 1;
+    dp.cNamedArgs = 1;
 
     hr = pDisp->Invoke(
-                dispidProp,
-                IID_NULL,
-                0,
-                DISPATCH_PROPERTYPUT,
-                &dp,
-                NULL,
-                NULL,   // use excepinfo?
-                &uArgErr);
+        dispidProp,
+        IID_NULL,
+        0,
+        DISPATCH_PROPERTYPUT,
+        &dp,
+        NULL,
+        NULL,   // use excepinfo?
+        &uArgErr);
 
 Cleanup:
     RRETURN(hr);
@@ -1599,16 +1475,15 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::GetProperty(IDispatch * pDisp, BSTR bstrProperty, VARIANT * pvar)
+CPadDoc::GetProperty(IDispatch* pDisp, BSTR bstrProperty, VARIANT* pvar)
 {
     HRESULT     hr;
     DISPPARAMS  dp;
-//    EXCEPINFO   ei;
+    //    EXCEPINFO   ei;
     UINT        uArgErr = 0;
     DISPID      dispidProp;
 
-    if (!pvar)
-    {
+    if (!pvar) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
@@ -1617,24 +1492,23 @@ CPadDoc::GetProperty(IDispatch * pDisp, BSTR bstrProperty, VARIANT * pvar)
     if (hr)
         goto Cleanup;
 
-    dp.rgvarg            = NULL;
+    dp.rgvarg = NULL;
     dp.rgdispidNamedArgs = NULL;
-    dp.cArgs             = 0;
-    dp.cNamedArgs        = 0;
+    dp.cArgs = 0;
+    dp.cNamedArgs = 0;
 
     hr = pDisp->Invoke(
-                dispidProp,
-                IID_NULL,
-                0,
-                DISPATCH_PROPERTYGET,
-                &dp,
-                pvar,
-                NULL,       // use excepinfo?
-                &uArgErr);
+        dispidProp,
+        IID_NULL,
+        0,
+        DISPATCH_PROPERTYGET,
+        &dp,
+        pvar,
+        NULL,       // use excepinfo?
+        &uArgErr);
 
 Cleanup:
-    if (hr)
-    {
+    if (hr) {
         pvar->vt = VT_NULL;
     }
 
@@ -1643,55 +1517,50 @@ Cleanup:
 
 
 //  Member: CPadDoc::get_Document, IPad
-HRESULT CPadDoc::get_Document(IDispatch **ppDocDisp)
+HRESULT CPadDoc::get_Document(IDispatch** ppDocDisp)
 {
     HRESULT hr = S_OK;
-    IHTMLDocument2 *pOmDoc;
+    IHTMLDocument2* pOmDoc;
 
-    if(!ppDocDisp)
-    {
+    if (!ppDocDisp) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *ppDocDisp = NULL;
 
-    if (_pBrowser)
-    {
+    if (_pBrowser) {
         hr = THR(_pBrowser->get_Document(ppDocDisp));
-    }
-    else if (_pObject)
-    {
-        hr = THR(GetOmDocumentFromDoc (_pObject, &pOmDoc));
-        if (OK(hr))
-        {
+    } else if (_pObject) {
+        hr = THR(GetOmDocumentFromDoc(_pObject, &pOmDoc));
+        if (OK(hr)) {
             *ppDocDisp = pOmDoc;
         }
     }
 
 Cleanup:
-    RRETURN (hr);
+    RRETURN(hr);
 }
 
 
 //  Member: CPadDoc::get_TempPath, IPad
 
-HRESULT CPadDoc::get_TempPath(BSTR * pbstrPath)
+HRESULT CPadDoc::get_TempPath(BSTR* pbstrPath)
 {
     TCHAR achTempPath[MAX_PATH];
     int cch;
 
-    if(!pbstrPath)
+    if (!pbstrPath)
         return E_INVALIDARG;
 
     cch = GetTempPath(ARRAY_SIZE(achTempPath), achTempPath);
 
-    if(cch == 0 || cch > ARRAY_SIZE(achTempPath))
+    if (cch == 0 || cch > ARRAY_SIZE(achTempPath))
         return E_FAIL;
 
     *pbstrPath = SysAllocString(achTempPath);
 
-    if(!*pbstrPath)
+    if (!*pbstrPath)
         return E_OUTOFMEMORY;
 
     return S_OK;
@@ -1704,28 +1573,27 @@ HRESULT CPadDoc::get_TempPath(BSTR * pbstrPath)
 
 
 HRESULT
-CPadDoc::GetTempFileName(BSTR * pbstrName)
+CPadDoc::GetTempFileName(BSTR* pbstrName)
 {
     HRESULT hr;
     BSTR bstrPath;
     TCHAR achTempFile[MAX_PATH];
 
-    if(!pbstrName)
+    if (!pbstrName)
         return E_INVALIDARG;
 
     hr = get_TempPath(&bstrPath);
-    if(hr)
+    if (hr)
         goto Cleanup;
 
-    if(::GetTempFileName(bstrPath, _T("PAD"), 0, achTempFile) == 0)
-    {
+    if (::GetTempFileName(bstrPath, _T("PAD"), 0, achTempFile) == 0) {
         hr = E_FAIL;
         goto Cleanup;
     }
 
     *pbstrName = SysAllocString(achTempFile);
 
-    if(!*pbstrName)
+    if (!*pbstrName)
         hr = E_OUTOFMEMORY;
 
 Cleanup:
@@ -1747,7 +1615,7 @@ CPadDoc::CleanupTempFiles()
     CHAR             achTempFile[MAX_PATH];
     HANDLE           hFiles;
     WIN32_FIND_DATAA fd;
-    CHAR          *  pch;
+    CHAR* pch;
     int              c;
 
 
@@ -1768,21 +1636,18 @@ CPadDoc::CleanupTempFiles()
                             NULL);
 
     pch = achTempFile + c;
-    Assert(*(pch-1) == FILENAME_SEPARATOR);
+    Assert(*(pch - 1) == FILENAME_SEPARATOR);
     strcpy(pch, "PAD*.TMP");
     hFiles = FindFirstFileA(achTempFile, &fd);
-    if (hFiles == INVALID_HANDLE_VALUE)
-    {
+    if (hFiles == INVALID_HANDLE_VALUE) {
         hr = S_OK;
         goto Cleanup;
     }
 
-    do
-    {
-        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-        {
+    do {
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
             strcpy(pch, fd.cFileName);
-            (void) DeleteFileA(achTempFile); // Ignore errors
+            (void)DeleteFileA(achTempFile); // Ignore errors
         }
     } while (FindNextFileA(hFiles, &fd));
 
@@ -1799,9 +1664,9 @@ HRESULT
 CPadDoc::PrintLog(BSTR bstrLine)
 {
     DWORD  cchLen = SysStringLen(bstrLine);
-    char * pchBuf = new char[cchLen+3];
+    char* pchBuf = new char[cchLen + 3];
 
-    WideCharToMultiByte(CP_ACP, 0, bstrLine, cchLen, pchBuf, cchLen+1, NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, bstrLine, cchLen, pchBuf, cchLen + 1, NULL, NULL);
     pchBuf[cchLen] = '\0';
 
     TraceTagEx((tagScriptLog, TAG_NONAME, "%s", pchBuf));
@@ -1816,7 +1681,7 @@ CPadDoc::PrintLog(BSTR bstrLine)
 
     WriteFile(GetStdHandle(STD_OUTPUT_HANDLE),
               pchBuf,
-              cchLen+2,
+              cchLen + 2,
               &cbWrite,
               NULL);
 
@@ -1828,7 +1693,7 @@ CPadDoc::PrintLog(BSTR bstrLine)
 //  Member: CPadDoc::PrintDebug, IPad
 HRESULT CPadDoc::PrintDebug(BSTR bstrValue)
 {
-    if(!_pDebugWindow)
+    if (!_pDebugWindow)
         ToggleDebugWindowVisibility();
 
     Assert(_pDebugWindow);
@@ -1844,7 +1709,7 @@ HRESULT CPadDoc::PrintDebug(BSTR bstrValue)
 
 
 HRESULT
-CPadDoc::DRTPrint(long Flags, VARIANT_BOOL * Success)
+CPadDoc::DRTPrint(long Flags, VARIANT_BOOL* Success)
 {
     HRESULT hr = E_FAIL;
     VARIANT varPrintFlags;
@@ -1853,41 +1718,35 @@ CPadDoc::DRTPrint(long Flags, VARIANT_BOOL * Success)
     // 1. Print the current doc.
 
     V_VT(&varPrintFlags) = VT_I2;
-    V_I2(&varPrintFlags) = (short) Flags;
+    V_I2(&varPrintFlags) = (short)Flags;
 
-    hr = THR( ExecuteCommand(IDM_PRINT, &varPrintFlags) );
+    hr = THR(ExecuteCommand(IDM_PRINT, &varPrintFlags));
     if (hr)
         goto Cleanup;
 
     // 2. Wait until the DRT output file exists.
-    do
-    {
-        hr = THR( FileExists(PRINTDRT_FILE, &fOutputFileExists) );
+    do {
+        hr = THR(FileExists(PRINTDRT_FILE, &fOutputFileExists));
 
         if (hr)
             goto Cleanup;
-    }
-    while (fOutputFileExists == VB_FALSE && MsgWaitForMultipleObjects(0, NULL, FALSE, 250, 0) == WAIT_TIMEOUT);
+    } while (fOutputFileExists == VB_FALSE && MsgWaitForMultipleObjects(0, NULL, FALSE, 250, 0) == WAIT_TIMEOUT);
 
-    #if (defined(_X86_))
+#if (defined(_X86_))
     // 3. Fire up a postscript viewer.
-    if (!(Flags & 128))
-    {
+    if (!(Flags & 128)) {
         HINSTANCE hInstance = 0;
         HWND hwndDesktop = GetDesktopWindow();
 
-        if (g_fUnicodePlatform)
-        {
+        if (g_fUnicodePlatform) {
             hInstance = ShellExecuteW(hwndDesktop, NULL, _T("gs.bat"), PRINTDRT_FILE, NULL, SW_HIDE);
-        }
-        else
-        {
+        } else {
             hInstance = ShellExecuteA(hwndDesktop, NULL, "gs.bat", PRINTDRT_FILEA, NULL, SW_HIDE);
         }
 
-        Assert((LONG) hInstance > 32 && "Error bringing up a postscript viewer.  Verify C:\\PRINTDRT.PS manually by printing it.");
+        Assert((LONG)hInstance > 32 && "Error bringing up a postscript viewer.  Verify C:\\PRINTDRT.PS manually by printing it.");
     }
-    #endif
+#endif
 
 Cleanup:
 
@@ -1903,60 +1762,49 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::SetDefaultPrinter(BSTR bstrNewDefaultPrinter, VARIANT_BOOL * Success)
+CPadDoc::SetDefaultPrinter(BSTR bstrNewDefaultPrinter, VARIANT_BOOL* Success)
 {
-    HRESULT hr= E_FAIL;
+    HRESULT hr = E_FAIL;
     *Success = VB_FALSE;;
 
 #if (defined(_X86_))
     HWND hwndDesktopWindow = GetDesktopWindow();
     HWND hwndInternetExplorer = 0;
 
-    if (g_fUnicodePlatform)
-    {
-       hr = WriteProfileStringW(_T("Windows"), _T("Device"), (const TCHAR *)bstrNewDefaultPrinter)
-           ? S_OK : E_FAIL;
+    if (g_fUnicodePlatform) {
+        hr = WriteProfileStringW(_T("Windows"), _T("Device"), (const TCHAR*)bstrNewDefaultPrinter)
+            ? S_OK : E_FAIL;
 
 
-        if (!hr && hwndDesktopWindow)
-        {
+        if (!hr && hwndDesktopWindow) {
             // make sure the spooler knows about the new default printer
             // Cause MSHMTL.DLL to re-read registry settings
-            do
-            {
+            do {
                 hwndInternetExplorer = FindWindowExW(hwndDesktopWindow, hwndInternetExplorer, _T("Internet Explorer_Hidden"), NULL);
 
 
-                if (hwndInternetExplorer)
-                {
+                if (hwndInternetExplorer) {
                     SendMessage(hwndInternetExplorer, WM_UPDATEDEFAULTPRINTER, 0, 0);
                 }
-            }
-            while (hwndInternetExplorer);
+            } while (hwndInternetExplorer);
         }
-    }
-    else
-    {
+    } else {
         char strNewDefaultPrinter[100];
         DWORD cbNewDefaultPrinter = WideCharToMultiByte(CP_ACP, 0, bstrNewDefaultPrinter, -1, strNewDefaultPrinter, 100, NULL, NULL);
 
-        hr = (cbNewDefaultPrinter && WriteProfileStringA("Windows", "Device", (const char *)strNewDefaultPrinter))
+        hr = (cbNewDefaultPrinter && WriteProfileStringA("Windows", "Device", (const char*)strNewDefaultPrinter))
             ? S_OK : E_FAIL;
 
-        if (!hr && hwndDesktopWindow)
-        {
+        if (!hr && hwndDesktopWindow) {
             // make sure the spooler knows about the new default printer
             // Cause MSHMTL.DLL to re-read registry settings
-            do
-            {
+            do {
                 hwndInternetExplorer = FindWindowExA(hwndDesktopWindow, hwndInternetExplorer, "Internet Explorer_Hidden", NULL);
 
-                if (hwndInternetExplorer)
-                {
+                if (hwndInternetExplorer) {
                     SendMessage(hwndInternetExplorer, WM_UPDATEDEFAULTPRINTER, 0, 0);
                 }
-            }
-            while (hwndInternetExplorer);
+            } while (hwndInternetExplorer);
         }
     }
 
@@ -1992,8 +1840,7 @@ AreFilesSame(HANDLE hFile1, HANDLE hFile2)
 
     dwCurSize = 0;
 
-    while (dwCurSize < dwFile1Size)
-    {
+    while (dwCurSize < dwFile1Size) {
         DWORD dwRead;
         char Buf1[FILEBUFFERSIZE], Buf2[FILEBUFFERSIZE];
         dwCurSize += FILEBUFFERSIZE;
@@ -2006,8 +1853,7 @@ AreFilesSame(HANDLE hFile1, HANDLE hFile2)
 
         // read a portion of the first file
         if (!ReadFile(hFile1, Buf1, dwRead, &dwActualRead, NULL) ||
-            !ReadFile(hFile2, Buf2, dwRead, &dwActualRead, NULL))
-        {
+            !ReadFile(hFile2, Buf2, dwRead, &dwActualRead, NULL)) {
             TraceTag((tagError, "ERROR reading one of the htm files."));
             return FALSE;
         }
@@ -2026,23 +1872,21 @@ BOOL IsPostscript(BSTR bstrFile)
     if (_tcslen(bstrFile) < 3)
         return FALSE;
 
-    return (StrCmpIC(_T(".ps"), bstrFile+_tcslen(bstrFile)-3) == 0);
+    return (StrCmpIC(_T(".ps"), bstrFile + _tcslen(bstrFile) - 3) == 0);
 }
 
 HRESULT
-ReadNextPostscriptLine(HANDLE hFile, char *lpBuffer, LPDWORD pdwLineLength)
+ReadNextPostscriptLine(HANDLE hFile, char* lpBuffer, LPDWORD pdwLineLength)
 {
-    char  * lpFirstNewLine;
-    char  * lpFirstRandomIdentifier;
+    char* lpFirstNewLine;
+    char* lpFirstRandomIdentifier;
     int     cch;
 
     Assert(lpBuffer);
 
-    do
-    {
+    do {
         // read a portion of the file
-        if (!ReadFile(hFile, lpBuffer, FILEBUFFERSIZE, pdwLineLength, NULL))
-        {
+        if (!ReadFile(hFile, lpBuffer, FILEBUFFERSIZE, pdwLineLength, NULL)) {
             TraceTag((tagError, "ERROR reading one of the postscript files."));
             return E_FAIL;
         }
@@ -2059,14 +1903,12 @@ ReadNextPostscriptLine(HANDLE hFile, char *lpBuffer, LPDWORD pdwLineLength)
             lpFirstNewLine = NULL;
 
         // if we found a new line, reposition the file pointer
-        if (lpFirstNewLine)
-        {
+        if (lpFirstNewLine) {
             SetFilePointer(hFile, (lpFirstNewLine - lpBuffer + 1) - *pdwLineLength, NULL, FILE_CURRENT);
 
             *pdwLineLength = lpFirstNewLine - lpBuffer;
         }
-    }
-    while (lpBuffer[0] == '%' && lpBuffer[1] == '%');
+    } while (lpBuffer[0] == '%' && lpBuffer[1] == '%');
 
     // before we return successfully, we have to NULL out all font identifiers starting with
     // MSTT followed by a 8-digit hexcode.
@@ -2074,27 +1916,24 @@ ReadNextPostscriptLine(HANDLE hFile, char *lpBuffer, LPDWORD pdwLineLength)
     lpBuffer[*pdwLineLength] = 0;
     lpFirstRandomIdentifier = lpBuffer;
 
-    do
-    {
+    do {
         // Find first occurence of "MSTT"
         lpFirstRandomIdentifier = StrStrA(lpFirstRandomIdentifier, "MSTT");
 
         // If found, NULL out the random 8-digit hexcode following it.
-        if (lpFirstRandomIdentifier)
-        {
-            int nPadding = *pdwLineLength - (lpFirstRandomIdentifier+4-lpBuffer); // chars left in line
+        if (lpFirstRandomIdentifier) {
+            int nPadding = *pdwLineLength - (lpFirstRandomIdentifier + 4 - lpBuffer); // chars left in line
 
             // Zero out at most 8 characters.
             if (nPadding > 8)
                 nPadding = 8;
 
-            memset( lpFirstRandomIdentifier+4, '0', nPadding );
+            memset(lpFirstRandomIdentifier + 4, '0', nPadding);
 
             // prevent finding the same occurence again.
             lpFirstRandomIdentifier++;
         }
-    }
-    while (lpFirstRandomIdentifier);
+    } while (lpFirstRandomIdentifier);
 
     return S_OK;
 }
@@ -2106,8 +1945,7 @@ ComparePostscriptFiles(HANDLE hFile1, HANDLE hFile2)
 
     Assert(hFile1 != INVALID_HANDLE_VALUE && hFile2 != INVALID_HANDLE_VALUE);
 
-    do
-    {
+    do {
         char Buf1[FILEBUFFERSIZE], Buf2[FILEBUFFERSIZE];
         HRESULT hr;
 
@@ -2119,8 +1957,7 @@ ComparePostscriptFiles(HANDLE hFile1, HANDLE hFile2)
         if (hr)
             return FALSE;
 
-        if (dwActualRead1 && dwActualRead2)
-        {
+        if (dwActualRead1 && dwActualRead2) {
             // Compare lengths of lines.
             if (dwActualRead1 != dwActualRead2)
                 return FALSE;
@@ -2137,7 +1974,7 @@ ComparePostscriptFiles(HANDLE hFile1, HANDLE hFile2)
 }
 
 HRESULT
-CPadDoc::CompareFiles(BSTR bstrFile1, BSTR bstrFile2, VARIANT_BOOL *pfMatch)
+CPadDoc::CompareFiles(BSTR bstrFile1, BSTR bstrFile2, VARIANT_BOOL* pfMatch)
 {
     HANDLE hFile1;
     HANDLE hFile2;
@@ -2151,15 +1988,14 @@ CPadDoc::CompareFiles(BSTR bstrFile1, BSTR bstrFile2, VARIANT_BOOL *pfMatch)
     if (hFile2 == INVALID_HANDLE_VALUE)
         fMatch = FALSE;
 
-    if (fMatch)
-    {
+    if (fMatch) {
         fMatch =
-        // Are we comparing postscript files?
-        (IsPostscript(bstrFile1) && IsPostscript(bstrFile2)) ?
+            // Are we comparing postscript files?
+            (IsPostscript(bstrFile1) && IsPostscript(bstrFile2)) ?
             // Comparing postscript files requires dropping postscript
             // comments (%%) that contain irrelevant, but distinct information
             // such as the creation date, time, and environment.
-            ComparePostscriptFiles(hFile1,hFile2) :
+            ComparePostscriptFiles(hFile1, hFile2) :
             // else do normal compare
             AreFilesSame(hFile1, hFile2);
     }
@@ -2173,7 +2009,7 @@ CPadDoc::CompareFiles(BSTR bstrFile1, BSTR bstrFile2, VARIANT_BOOL *pfMatch)
 }
 
 HRESULT
-CPadDoc::CopyThisFile(BSTR bstrFile1, BSTR bstrFile2, VARIANT_BOOL *pfSuccess)
+CPadDoc::CopyThisFile(BSTR bstrFile1, BSTR bstrFile2, VARIANT_BOOL* pfSuccess)
 {
     *pfSuccess = CopyFile(bstrFile1, bstrFile2, FALSE) ? VB_TRUE : VB_FALSE;
     RRETURN(S_OK);
@@ -2187,7 +2023,7 @@ CPadDoc::CopyThisFile(BSTR bstrFile1, BSTR bstrFile2, VARIANT_BOOL *pfSuccess)
 
 
 HRESULT
-CPadDoc::FileExists(BSTR bstrFile, VARIANT_BOOL *pfFileExists)
+CPadDoc::FileExists(BSTR bstrFile, VARIANT_BOOL* pfFileExists)
 {
     DWORD dwReturn;
     LPTSTR pDummy;
@@ -2195,8 +2031,7 @@ CPadDoc::FileExists(BSTR bstrFile, VARIANT_BOOL *pfFileExists)
     dwReturn = SearchPath(NULL, bstrFile, NULL, 0, NULL, &pDummy);
     *pfFileExists = (dwReturn > 0) ? VB_TRUE : VB_FALSE;
 
-    if (*pfFileExists == VB_TRUE)
-    {
+    if (*pfFileExists == VB_TRUE) {
         HANDLE hFile = CreateFile(bstrFile, GENERIC_READ, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
         if (hFile == INVALID_HANDLE_VALUE)
             *pfFileExists = VB_FALSE;
@@ -2223,13 +2058,11 @@ LONG UnhandledExceptionHandler(LPEXCEPTION_POINTERS lpexpExceptionInfo)
     HANDLE hProcess;
 
     hProcess = OpenProcess(PROCESS_ALL_ACCESS, TRUE, GetCurrentProcessId());
-    if (hProcess)
-    {
-        char * pszExType = NULL;
+    if (hProcess) {
+        char* pszExType = NULL;
         char   achBuf[200];
 
-        switch (lpexpExceptionInfo->ExceptionRecord->ExceptionCode)
-        {
+        switch (lpexpExceptionInfo->ExceptionRecord->ExceptionCode) {
         case EXCEPTION_ACCESS_VIOLATION:
             pszExType = "Access Violation";
             break;
@@ -2272,7 +2105,7 @@ LONG UnhandledExceptionHandler(LPEXCEPTION_POINTERS lpexpExceptionInfo)
 
 HRESULT CPadDoc::DisableDialogs()
 {
-    SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX);
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     SetUnhandledExceptionFilter(UnhandledExceptionHandler);
     EnableTag(tagAssertExit, TRUE);
 
@@ -2286,7 +2119,7 @@ HRESULT CPadDoc::DisableDialogs()
 
 
 HRESULT
-CPadDoc::get_DialogsEnabled(VARIANT_BOOL *pfEnabled)
+CPadDoc::get_DialogsEnabled(VARIANT_BOOL* pfEnabled)
 {
     *pfEnabled = IsTagEnabled(tagAssertExit) ? VB_FALSE : VB_TRUE;
     return S_OK;
@@ -2303,29 +2136,23 @@ CPadDoc::get_DialogsEnabled(VARIANT_BOOL *pfEnabled)
 
 
 HRESULT
-CPadDoc::get_ScriptPath(long i, BSTR * pbstrPath)
+CPadDoc::get_ScriptPath(long i, BSTR* pbstrPath)
 {
     TCHAR achPath[MAX_PATH];
-    TCHAR *pch = NULL;
+    TCHAR* pch = NULL;
 
     *pbstrPath = NULL;
-    if (_pScriptSite)
-    {
+    if (_pScriptSite) {
         memcpy(achPath, _pScriptSite->_achPath, sizeof(achPath));
-        for (; i >= 0; i--)
-        {
+        for (; i >= 0; i--) {
             pch = _tcsrchr(achPath, _T(FILENAME_SEPARATOR));
-            if (pch)
-            {
+            if (pch) {
                 *pch = 0;
-            }
-            else
-            {
+            } else {
                 return E_FAIL;
             }
         }
-        if (pch)
-        {
+        if (pch) {
             pch[0] = _T(FILENAME_SEPARATOR);
             pch[1] = 0;
         }
@@ -2345,8 +2172,7 @@ HRESULT CPadDoc::put_TimerInterval(long lInterval)
 {
     KillTimer(_hwnd, 0);
     _lTimerInterval = lInterval;
-    if (_lTimerInterval)
-    {
+    if (_lTimerInterval) {
         SetTimer(_hwnd, 0, _lTimerInterval, NULL);
     }
     return S_OK;
@@ -2359,7 +2185,7 @@ HRESULT CPadDoc::put_TimerInterval(long lInterval)
 
 
 HRESULT
-CPadDoc::get_TimerInterval(long *plInterval)
+CPadDoc::get_TimerInterval(long* plInterval)
 {
     *plInterval = _lTimerInterval;
     return S_OK;
@@ -2424,17 +2250,16 @@ CPadDoc::StopCAP()
 
 
 
-DYNLIB g_dynlibTimeLib = { NULL, NULL, "TimeLib.DLL" };
-DYNPROC g_dynprocTicStartAll = { NULL, &g_dynlibTimeLib, "TicStartAll" };
-DYNPROC g_dynprocTicStopAll = { NULL, &g_dynlibTimeLib, "TicStopAll" };
+DYNLIB g_dynlibTimeLib = {NULL, NULL, "TimeLib.DLL"};
+DYNPROC g_dynprocTicStartAll = {NULL, &g_dynlibTimeLib, "TicStartAll"};
+DYNPROC g_dynprocTicStopAll = {NULL, &g_dynlibTimeLib, "TicStopAll"};
 
 HRESULT
 CPadDoc::TicStartAll()
 {
-    if (    g_dynprocTicStartAll.pfn != NULL
-        ||  LoadProcedure(&g_dynprocTicStartAll) == S_OK)
-    {
-        ((HRESULT (STDAPICALLTYPE *)())g_dynprocTicStartAll.pfn)();
+    if (g_dynprocTicStartAll.pfn != NULL
+        || LoadProcedure(&g_dynprocTicStartAll) == S_OK) {
+        ((HRESULT(STDAPICALLTYPE*)())g_dynprocTicStartAll.pfn)();
     }
 
     return(S_OK);
@@ -2443,10 +2268,9 @@ CPadDoc::TicStartAll()
 HRESULT
 CPadDoc::TicStopAll()
 {
-    if (    g_dynprocTicStopAll.pfn != NULL
-        ||  LoadProcedure(&g_dynprocTicStopAll) == S_OK)
-    {
-        ((HRESULT (STDAPICALLTYPE *)())g_dynprocTicStopAll.pfn)();
+    if (g_dynprocTicStopAll.pfn != NULL
+        || LoadProcedure(&g_dynprocTicStopAll) == S_OK) {
+        ((HRESULT(STDAPICALLTYPE*)())g_dynprocTicStopAll.pfn)();
     }
 
     return(S_OK);
@@ -2474,7 +2298,7 @@ CPadDoc::DumpMeterLog(BSTR bstrFileName)
 
 
 HRESULT
-CPadDoc::GetSwitchTimers(VARIANT * pValue)
+CPadDoc::GetSwitchTimers(VARIANT* pValue)
 {
     TCHAR ach[256];
 
@@ -2482,16 +2306,15 @@ CPadDoc::GetSwitchTimers(VARIANT * pValue)
     pValue->vt = VT_BSTR;
     pValue->bstrVal = NULL;
 
-    IOleCommandTarget * pCommandTarget = NULL;
+    IOleCommandTarget* pCommandTarget = NULL;
 
-    _pInPlaceObject->QueryInterface(IID_IOleCommandTarget, (void **)&pCommandTarget);
+    _pInPlaceObject->QueryInterface(IID_IOleCommandTarget, (void**)&pCommandTarget);
 
-    if (pCommandTarget)
-    {
+    if (pCommandTarget) {
         VARIANT v;
         v.vt = VT_BSTR;
         v.bstrVal = (BSTR)ach;
-        pCommandTarget->Exec((GUID *)&CGID_MSHTML, IDM_GETSWITCHTIMERS, 0, NULL, &v);
+        pCommandTarget->Exec((GUID*)&CGID_MSHTML, IDM_GETSWITCHTIMERS, 0, NULL, &v);
         pCommandTarget->Release();
     }
 
@@ -2509,16 +2332,15 @@ CPadDoc::GetSwitchTimers(VARIANT * pValue)
 
 #if DBG==1
 
-DYNPROC s_dynprocTestNileSTD = { NULL, &g_dynlibMSHTML, "TestNileSTD" };
+DYNPROC s_dynprocTestNileSTD = {NULL, &g_dynlibMSHTML, "TestNileSTD"};
 
 HRESULT
 CPadDoc::TestNile()
 {
 
     if (s_dynprocTestNileSTD.pfn != NULL
-        ||  LoadProcedure(&s_dynprocTestNileSTD) == S_OK)
-    {
-        return ((HRESULT (STDAPICALLTYPE *)())s_dynprocTestNileSTD.pfn)();
+        || LoadProcedure(&s_dynprocTestNileSTD) == S_OK) {
+        return ((HRESULT(STDAPICALLTYPE*)())s_dynprocTestNileSTD.pfn)();
     }
     return ERROR_DLL_INIT_FAILED;
 }
@@ -2532,14 +2354,14 @@ CPadDoc::TestNile()
 
 
 HRESULT
-CPadDoc::GetObject(BSTR bstrFile, BSTR bstrProgID, IDispatch **ppDisp)
+CPadDoc::GetObject(BSTR bstrFile, BSTR bstrProgID, IDispatch** ppDisp)
 {
     HRESULT hr;
     CLSID clsid;
-    IPersistFile *pPF = NULL;
-    IUnknown *pUnk = NULL;
-    IBindCtx *pBCtx = NULL;
-    IMoniker *pMk = NULL;
+    IPersistFile* pPF = NULL;
+    IUnknown* pUnk = NULL;
+    IBindCtx* pBCtx = NULL;
+    IMoniker* pMk = NULL;
 
     *ppDisp = NULL;
 
@@ -2549,16 +2371,14 @@ CPadDoc::GetObject(BSTR bstrFile, BSTR bstrProgID, IDispatch **ppDisp)
     if (bstrProgID && !*bstrProgID)
         bstrProgID = NULL;
 
-    if (bstrProgID)
-    {
+    if (bstrProgID) {
         hr = THR(CLSIDFromProgID(bstrProgID, &clsid));
         if (hr)
             goto Cleanup;
     }
 
-    if (bstrFile && bstrProgID)
-    {
-        hr = THR(CoCreateInstance(clsid, NULL, CLSCTX_SERVER, IID_IPersistFile, (void **)&pPF));
+    if (bstrFile && bstrProgID) {
+        hr = THR(CoCreateInstance(clsid, NULL, CLSCTX_SERVER, IID_IPersistFile, (void**)&pPF));
         if (hr)
             goto Cleanup;
 
@@ -2566,12 +2386,10 @@ CPadDoc::GetObject(BSTR bstrFile, BSTR bstrProgID, IDispatch **ppDisp)
         if (hr)
             goto Cleanup;
 
-        hr = THR(pPF->QueryInterface(IID_IDispatch, (void **)ppDisp));
+        hr = THR(pPF->QueryInterface(IID_IDispatch, (void**)ppDisp));
         if (hr)
             goto Cleanup;
-    }
-    else if (bstrFile)
-    {
+    } else if (bstrFile) {
         ULONG cEaten;
 
         hr = THR(CreateAsyncBindCtxEx(NULL, 0, NULL, NULL, &pBCtx, 0));
@@ -2582,23 +2400,19 @@ CPadDoc::GetObject(BSTR bstrFile, BSTR bstrProgID, IDispatch **ppDisp)
         if (hr)
             goto Cleanup;
 
-        hr = THR(pMk->BindToObject(pBCtx, NULL, IID_IDispatch, (void **)ppDisp));
+        hr = THR(pMk->BindToObject(pBCtx, NULL, IID_IDispatch, (void**)ppDisp));
         if (hr)
             goto Cleanup;
 
-    }
-    else if (bstrProgID)
-    {
+    } else if (bstrProgID) {
         hr = THR(GetActiveObject(clsid, NULL, &pUnk));
         if (hr)
             goto Cleanup;
 
-        hr = THR(pUnk->QueryInterface(IID_IDispatch, (void **)ppDisp));
+        hr = THR(pUnk->QueryInterface(IID_IDispatch, (void**)ppDisp));
         if (hr)
             goto Cleanup;
-    }
-    else
-    {
+    } else {
         hr = E_INVALIDARG;
     }
 
@@ -2618,15 +2432,14 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::CreateObject(BSTR bstrProgID, IDispatch **ppDisp)
+CPadDoc::CreateObject(BSTR bstrProgID, IDispatch** ppDisp)
 {
     extern CPadFactory PadDocFactory;
     HRESULT hr;
     CLSID clsid;
-    IUnknown *pUnk = NULL;
+    IUnknown* pUnk = NULL;
 
-    if (StrCmpIC(bstrProgID, _T("TridentPad")) == 0)
-    {
+    if (StrCmpIC(bstrProgID, _T("TridentPad")) == 0) {
 
         // Short circuit our own object so we do not depend
         // on user registering this version of HTMLPad.
@@ -2636,15 +2449,13 @@ CPadDoc::CreateObject(BSTR bstrProgID, IDispatch **ppDisp)
         if (hr)
             goto Cleanup;
 
-        hr = THR(pUnk->QueryInterface(IID_IDispatch, (void **)ppDisp));
-    }
-    else
-    {
+        hr = THR(pUnk->QueryInterface(IID_IDispatch, (void**)ppDisp));
+    } else {
         hr = THR(CLSIDFromProgID(bstrProgID, &clsid));
         if (hr)
             goto Cleanup;
 
-        hr = THR(CoCreateInstance(clsid, NULL, CLSCTX_SERVER, IID_IDispatch, (void **)ppDisp));
+        hr = THR(CoCreateInstance(clsid, NULL, CLSCTX_SERVER, IID_IDispatch, (void**)ppDisp));
     }
 
 Cleanup:
@@ -2659,13 +2470,13 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::get_CurrentTime(long *plTime)
+CPadDoc::get_CurrentTime(long* plTime)
 {
     LONGLONG f;
     LONGLONG t;
 
-    QueryPerformanceFrequency((LARGE_INTEGER *)&f);
-    QueryPerformanceCounter((LARGE_INTEGER *)&t);
+    QueryPerformanceFrequency((LARGE_INTEGER*)&f);
+    QueryPerformanceCounter((LARGE_INTEGER*)&t);
 
     *plTime = (long)((t * 1000) / f);
 
@@ -2683,18 +2494,14 @@ CPadDoc::get_CurrentTime(long *plTime)
 HRESULT
 CPadDoc::ShowWindow(long lCmdShow)
 {
-    if (_hwnd)
-    {
+    if (_hwnd) {
         ::ShowWindow(_hwnd, lCmdShow);
     }
 
-    if (lCmdShow == SW_HIDE && _fVisible)
-    {
+    if (lCmdShow == SW_HIDE && _fVisible) {
         _fVisible = FALSE;
         Release();
-    }
-    else if (lCmdShow != SW_HIDE && !_fVisible)
-    {
+    } else if (lCmdShow != SW_HIDE && !_fVisible) {
         _fVisible = TRUE;
         AddRef();
     }
@@ -2711,8 +2518,7 @@ CPadDoc::ShowWindow(long lCmdShow)
 HRESULT
 CPadDoc::MoveWindow(long x, long y, long cx, long cy)
 {
-    if (_hwnd)
-    {
+    if (_hwnd) {
         ::MoveWindow(_hwnd, x, y, cx, cy, TRUE);
     }
     return S_OK;
@@ -2725,68 +2531,56 @@ CPadDoc::MoveWindow(long x, long y, long cx, long cy)
 
 
 HRESULT
-CPadDoc::get_WindowLeft(long *px)
+CPadDoc::get_WindowLeft(long* px)
 {
     RECT rc;
 
-    if (_hwnd)
-    {
-        GetWindowRect(_hwnd,  &rc);
+    if (_hwnd) {
+        GetWindowRect(_hwnd, &rc);
         *px = rc.left;
-    }
-    else
-    {
+    } else {
         *px = 0;
     }
     return S_OK;
 }
 
 HRESULT
-CPadDoc::get_WindowTop(long *py)
+CPadDoc::get_WindowTop(long* py)
 {
     RECT rc;
 
-    if (_hwnd)
-    {
-        GetWindowRect(_hwnd,  &rc);
+    if (_hwnd) {
+        GetWindowRect(_hwnd, &rc);
         *py = rc.top;
-    }
-    else
-    {
+    } else {
         *py = 0;
     }
     return S_OK;
 }
 
 HRESULT
-CPadDoc::get_WindowWidth(long *pcx)
+CPadDoc::get_WindowWidth(long* pcx)
 {
     RECT rc;
 
-    if (_hwnd)
-    {
-        GetWindowRect(_hwnd,  &rc);
+    if (_hwnd) {
+        GetWindowRect(_hwnd, &rc);
         *pcx = rc.right - rc.left;
-    }
-    else
-    {
+    } else {
         *pcx = 0;
     }
     return S_OK;
 }
 
 HRESULT
-CPadDoc::get_WindowHeight(long *pcy)
+CPadDoc::get_WindowHeight(long* pcy)
 {
     RECT rc;
 
-    if (_hwnd)
-    {
-        GetWindowRect(_hwnd,  &rc);
+    if (_hwnd) {
+        GetWindowRect(_hwnd, &rc);
         *pcy = rc.bottom - rc.top;
-    }
-    else
-    {
+    } else {
         *pcy = 0;
     }
     return S_OK;
@@ -2801,21 +2595,17 @@ CPadDoc::get_WindowHeight(long *pcy)
 HRESULT
 CPadDoc::ASSERT(VARIANT_BOOL fAssert, BSTR bstrMessage)
 {
-    if (!fAssert)
-    {
+    if (!fAssert) {
         char ach[1024];
 
         // Add name of currently executing script to the assert message.
 
-        if (!_pScriptSite || !_pScriptSite->_achPath[0])
-        {
+        if (!_pScriptSite || !_pScriptSite->_achPath[0]) {
             ach[0] = 0;
-        }
-        else
-        {
+        } else {
             // Try to chop of directory name.
 
-            TCHAR * pchName = wcsrchr(_pScriptSite->_achPath, _T(FILENAME_SEPARATOR));
+            TCHAR* pchName = wcsrchr(_pScriptSite->_achPath, _T(FILENAME_SEPARATOR));
             if (pchName)
                 pchName += 1;
             else
@@ -2827,12 +2617,9 @@ CPadDoc::ASSERT(VARIANT_BOOL fAssert, BSTR bstrMessage)
 
         // Add message to the assert.
 
-        if (!bstrMessage || !*bstrMessage)
-        {
+        if (!bstrMessage || !*bstrMessage) {
             strcat(ach, "HTMLPad Script Assert");
-        }
-        else
-        {
+        } else {
             WideCharToMultiByte(CP_ACP, 0, bstrMessage, -1, &ach[strlen(ach)], ARRAY_SIZE(ach) - MAX_PATH - 3, NULL, NULL);
         }
 
@@ -2854,13 +2641,12 @@ CPadDoc::ASSERT(VARIANT_BOOL fAssert, BSTR bstrMessage)
 HRESULT
 CPadDoc::WaitForRecalc()
 {
-    IOleCommandTarget * pCommandTarget = NULL;
+    IOleCommandTarget* pCommandTarget = NULL;
 
-    _pInPlaceObject->QueryInterface(IID_IOleCommandTarget, (void **)&pCommandTarget);
+    _pInPlaceObject->QueryInterface(IID_IOleCommandTarget, (void**)&pCommandTarget);
 
-    if (pCommandTarget)
-    {
-        pCommandTarget->Exec((GUID *)&CGID_MSHTML, IDM_WAITFORRECALC, 0, NULL, NULL);
+    if (pCommandTarget) {
+        pCommandTarget->Exec((GUID*)&CGID_MSHTML, IDM_WAITFORRECALC, 0, NULL, NULL);
         pCommandTarget->Release();
     }
 
@@ -2876,11 +2662,11 @@ CPadDoc::WaitForRecalc()
 
 
 HANDLE      g_hMapHtmPerfCtl = NULL;
-HTMPERFCTL *g_pHtmPerfCtl = NULL;
+HTMPERFCTL* g_pHtmPerfCtl = NULL;
 
-void WINAPI PadDocCallback(DWORD dwArg1, void * pvArg2)
+void WINAPI PadDocCallback(DWORD dwArg1, void* pvArg2)
 {
-    ((CPadDoc *)g_pHtmPerfCtl->pvHost)->PerfCtlCallback(dwArg1, pvArg2);
+    ((CPadDoc*)g_pHtmPerfCtl->pvHost)->PerfCtlCallback(dwArg1, pvArg2);
 }
 
 void
@@ -2895,43 +2681,38 @@ DeletePerfCtl()
 }
 
 void
-CreatePerfCtl(DWORD dwFlags, void * pvHost)
+CreatePerfCtl(DWORD dwFlags, void* pvHost)
 {
     char achName[sizeof(HTMPERFCTL_NAME) + 8 + 1];
     wsprintfA(achName, "%s%08lX", HTMPERFCTL_NAME, GetCurrentProcessId());
 
     if (g_hMapHtmPerfCtl == NULL)
         g_hMapHtmPerfCtl = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, 4096, achName);
-    if (g_hMapHtmPerfCtl == NULL)
-    {
+    if (g_hMapHtmPerfCtl == NULL) {
         TraceTag((tagError, "CreateFileMappingA(\"%s\") failed (%ld)", achName, GetLastError()));
         return;
     }
 #ifndef UNIX
     if (g_pHtmPerfCtl == NULL)
-        g_pHtmPerfCtl = (HTMPERFCTL *)MapViewOfFile(g_hMapHtmPerfCtl, FILE_MAP_WRITE, 0, 0, 0);
+        g_pHtmPerfCtl = (HTMPERFCTL*)MapViewOfFile(g_hMapHtmPerfCtl, FILE_MAP_WRITE, 0, 0, 0);
 #endif
-    if (g_pHtmPerfCtl == NULL)
-    {
+    if (g_pHtmPerfCtl == NULL) {
         TraceTag((tagError, "MapViewOfFile() failed (%ld)", GetLastError()));
         return;
     }
 
-    g_pHtmPerfCtl->dwSize  = sizeof(HTMPERFCTL);
+    g_pHtmPerfCtl->dwSize = sizeof(HTMPERFCTL);
     g_pHtmPerfCtl->dwFlags = dwFlags;
     g_pHtmPerfCtl->pfnCall = PadDocCallback;
-    g_pHtmPerfCtl->pvHost  = pvHost;
+    g_pHtmPerfCtl->pvHost = pvHost;
 }
 
 void
-CPadDoc::PerfCtlCallback(DWORD dwArg1, void * pvArg2)
+CPadDoc::PerfCtlCallback(DWORD dwArg1, void* pvArg2)
 {
-    if (_fDisablePadEvents)
-    {
+    if (_fDisablePadEvents) {
         EndEvents();
-    }
-    else
-    {
+    } else {
         VARIANT var;
 
         VariantInit(&var);
@@ -2974,8 +2755,7 @@ CPadDoc::ClearDownloadCache()
     if (hEnumCache == 0)
         return S_OK;
 
-    do
-    {
+    do {
         DeleteUrlCacheEntryA(info.info.lpszSourceUrlName);
         dw = sizeof(info);
     } while (FindNextUrlCacheEntryA(hEnumCache, &info.info, &dw));
@@ -2997,23 +2777,22 @@ CPadDoc::LockWindowUpdate(VARIANT_BOOL fLock)
 {
     _fPaintLocked = fLock != 0;
 
-    if (!fLock && _fPaintOnUnlock && _hwnd)
-    {
-        RedrawWindow(_hwnd, (GDIRECT *)NULL, NULL, RDW_INVALIDATE|RDW_ALLCHILDREN);
+    if (!fLock && _fPaintOnUnlock && _hwnd) {
+        RedrawWindow(_hwnd, (GDIRECT*)NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
     }
 
     return S_OK;
 }
 
 #ifdef NEVER    // (srinib) - commenting this out, since it is not being used
-                // causing maintenance problems and also forces text.lib to be linked
-                // to pad.
-extern HRESULT Lines(IDispatch * pObject, long *pl);
-extern HRESULT Line(IDispatch * pObject, long l, IDispatch **ppLine, CPadDoc * pPadDoc);
-extern HRESULT Cascaded(IDispatch * pObject, IDispatch **ppCascaded, CPadDoc * pPadDoc);
+// causing maintenance problems and also forces text.lib to be linked
+// to pad.
+extern HRESULT Lines(IDispatch* pObject, long* pl);
+extern HRESULT Line(IDispatch* pObject, long l, IDispatch** ppLine, CPadDoc* pPadDoc);
+extern HRESULT Cascaded(IDispatch* pObject, IDispatch** ppCascaded, CPadDoc* pPadDoc);
 #endif
 
-HRESULT CPadDoc::get_Lines(IDispatch * pObject, long *pl)
+HRESULT CPadDoc::get_Lines(IDispatch* pObject, long* pl)
 {
     return 0;
 #ifdef NEVER
@@ -3021,7 +2800,7 @@ HRESULT CPadDoc::get_Lines(IDispatch * pObject, long *pl)
 #endif
 }
 
-HRESULT CPadDoc::get_Line(IDispatch * pObject, long l, IDispatch **ppLine)
+HRESULT CPadDoc::get_Line(IDispatch* pObject, long l, IDispatch** ppLine)
 {
     return 0;
 #ifdef NEVER
@@ -3029,7 +2808,7 @@ HRESULT CPadDoc::get_Line(IDispatch * pObject, long l, IDispatch **ppLine)
 #endif
 }
 
-HRESULT CPadDoc::get_Cascaded(IDispatch * pObject, IDispatch **ppCascaded)
+HRESULT CPadDoc::get_Cascaded(IDispatch* pObject, IDispatch** ppCascaded)
 {
     return 0;
 #ifdef NEVER
@@ -3060,9 +2839,8 @@ CPadDoc::EnableTraceTag(BSTR bstrTag, BOOL fEnable)
 
     str[ret] = '\0';
 
-    tag = FindTag (str);
-    if (tag)
-    {
+    tag = FindTag(str);
+    if (tag) {
         EnableTag(tag, fEnable);
         return S_OK;
     }
@@ -3071,7 +2849,7 @@ CPadDoc::EnableTraceTag(BSTR bstrTag, BOOL fEnable)
 }
 
 HRESULT
-CPadDoc::GetRegValue(long hKeyIn, BSTR bstrSubkey, BSTR bstrValueName, VARIANT *pValue)
+CPadDoc::GetRegValue(long hKeyIn, BSTR bstrSubkey, BSTR bstrValueName, VARIANT* pValue)
 {
     HKEY hKey = (HKEY)(LONG_PTR)hKeyIn;
     HKEY hOpenedKey = 0;
@@ -3081,8 +2859,7 @@ CPadDoc::GetRegValue(long hKeyIn, BSTR bstrSubkey, BSTR bstrValueName, VARIANT *
     DWORD lType = sizeof(buffer);
 
     // Default key to HKEY_CURRENT_USER
-    if (hKey==0)
-    {
+    if (hKey == 0) {
         hKey = HKEY_CURRENT_USER;
     }
 
@@ -3092,33 +2869,32 @@ CPadDoc::GetRegValue(long hKeyIn, BSTR bstrSubkey, BSTR bstrValueName, VARIANT *
     hr = RegOpenKeyEx(hKey, bstrSubkey, 0, KEY_QUERY_VALUE, &hOpenedKey);
     if (hr)
         goto Cleanup;
-    hr = RegQueryValueEx(hOpenedKey, bstrValueName, NULL, &type, (UCHAR *)buffer, &lType);
+    hr = RegQueryValueEx(hOpenedKey, bstrValueName, NULL, &type, (UCHAR*)buffer, &lType);
     if (hr)
         goto Cleanup;
 
     VariantClear(pValue);
-    switch (type)
-    {
-        case REG_SZ:
-            (*pValue).bstrVal = SysAllocString(buffer);
-            if (!(*pValue).bstrVal)       // Alloc failed?
-                goto Cleanup;
-            (*pValue).vt = VT_BSTR;
-            break;
-
-        case REG_DWORD:
-            (*pValue).vt = VT_I4;
-            (*pValue).lVal = *(DWORD*)buffer;
-            break;
-
-        default:
-            hr = E_NOTIMPL;
+    switch (type) {
+    case REG_SZ:
+        (*pValue).bstrVal = SysAllocString(buffer);
+        if (!(*pValue).bstrVal)       // Alloc failed?
             goto Cleanup;
+        (*pValue).vt = VT_BSTR;
+        break;
+
+    case REG_DWORD:
+        (*pValue).vt = VT_I4;
+        (*pValue).lVal = *(DWORD*)buffer;
+        break;
+
+    default:
+        hr = E_NOTIMPL;
+        goto Cleanup;
     }
 
 Cleanup:
     if (hOpenedKey)
-        (void) RegCloseKey(hOpenedKey);
+        (void)RegCloseKey(hOpenedKey);
     return S_OK;
 }
 
@@ -3130,14 +2906,12 @@ CPadDoc::DeleteRegValue(long hkeyIn, BSTR bstrSubKey, BSTR bstrValueName)
     HRESULT hr = S_OK;
 
     // Default key to HKEY_CURRENT_USER
-    if (hkey==0)
-    {
+    if (hkey == 0) {
         hkey = HKEY_CURRENT_USER;
     }
 
     hr = RegOpenKeyEx(hkey, bstrSubKey, 0, KEY_SET_VALUE, &hOpenedKey);
-    if (ERROR_SUCCESS == hr)
-    {
+    if (ERROR_SUCCESS == hr) {
         RegDeleteValue(hOpenedKey, bstrValueName);
         (void)RegCloseKey(hOpenedKey);
     }
@@ -3154,21 +2928,18 @@ CPadDoc::SetRegValue(long hkeyIn, BSTR bstrSubKey, BSTR bstrValueName, VARIANT v
     DWORD dwDisposition;
 
     // Default key to HKEY_CURRENT_USER
-    if (hkey==0)
-    {
+    if (hkey == 0) {
         hkey = HKEY_CURRENT_USER;
     }
 
-    if (!RegCreateKeyEx(hkey, bstrSubKey, 0, 0, 0, KEY_SET_VALUE, 0, &hOpenedKey, &dwDisposition))
-    {
+    if (!RegCreateKeyEx(hkey, bstrSubKey, 0, 0, 0, KEY_SET_VALUE, 0, &hOpenedKey, &dwDisposition)) {
         long lval;
         switch V_VT(&value)
         {
         case VT_I4:
             lval = V_I4(&value);
 
-            if (RegSetValueEx(hOpenedKey, bstrValueName, 0, REG_DWORD, (const BYTE *)(&lval), sizeof(DWORD)))
-            {
+            if (RegSetValueEx(hOpenedKey, bstrValueName, 0, REG_DWORD, (const BYTE*)(&lval), sizeof(DWORD))) {
                 hr = E_FAIL;
             }
             break;
@@ -3176,16 +2947,14 @@ CPadDoc::SetRegValue(long hkeyIn, BSTR bstrSubKey, BSTR bstrValueName, VARIANT v
         case VT_I2:
             lval = V_I2(&value);
 
-            if (RegSetValueEx(hOpenedKey, bstrValueName, 0, REG_DWORD, (const BYTE *)(&lval), sizeof(DWORD)))
-            {
-              hr = E_FAIL;
+            if (RegSetValueEx(hOpenedKey, bstrValueName, 0, REG_DWORD, (const BYTE*)(&lval), sizeof(DWORD))) {
+                hr = E_FAIL;
             }
             break;
 
         case VT_BSTR:
-            if (RegSetValueEx(hOpenedKey, bstrValueName, 0, REG_SZ, (const BYTE *)(V_BSTR(&value)), SysStringLen(V_BSTR(&value))*2 + 2))
-            {
-              hr = E_FAIL;
+            if (RegSetValueEx(hOpenedKey, bstrValueName, 0, REG_SZ, (const BYTE*)(V_BSTR(&value)), SysStringLen(V_BSTR(&value)) * 2 + 2)) {
+                hr = E_FAIL;
             }
             break;
 
@@ -3195,16 +2964,13 @@ CPadDoc::SetRegValue(long hkeyIn, BSTR bstrSubKey, BSTR bstrValueName, VARIANT v
         Verify(!RegCloseKey(hOpenedKey));
 
         // Cause MSHMTL.DLL to re-read registry settings
-        if (_pInPlaceObject)
-        {
+        if (_pInPlaceObject) {
             HWND hwndDoc;
             _pInPlaceObject->GetWindow(&hwndDoc);
             (void)SendMessage(hwndDoc, WM_WININICHANGE, 0, 0);
         }
 
-    }
-    else
-    {
+    } else {
         hr = E_FAIL;
     }
 
@@ -3213,7 +2979,7 @@ CPadDoc::SetRegValue(long hkeyIn, BSTR bstrSubKey, BSTR bstrValueName, VARIANT v
 
 
 HRESULT
-CPadDoc::TrustProvider(BSTR bstrKeyname, BSTR bstrProvidername, VARIANT *pOldKey)
+CPadDoc::TrustProvider(BSTR bstrKeyname, BSTR bstrProvidername, VARIANT* pOldKey)
 {
     HRESULT hr;
     VARIANT varProvider;
@@ -3229,8 +2995,7 @@ CPadDoc::TrustProvider(BSTR bstrKeyname, BSTR bstrProvidername, VARIANT *pOldKey
                      &varProvider);
 
     // Was there an existing key?
-    if (VT_BSTR!=varProvider.vt || NULL==varProvider.bstrVal)
-    {
+    if (VT_BSTR != varProvider.vt || NULL == varProvider.bstrVal) {
         varProvider.vt = VT_BSTR;
         varProvider.bstrVal = SysAllocString(bstrProvidername);
 
@@ -3256,8 +3021,7 @@ CPadDoc::RevertTrustProvider(BSTR keyname)
 {
     HRESULT hr = S_OK;
 
-    if (keyname && *keyname)
-    {
+    if (keyname && *keyname) {
         hr = DeleteRegValue(0,
                             _T("Software\\Microsoft\\Windows\\CurrentVersion\\WinTrust\\Trust Providers\\Software Publishing\\Trust Database\\0"),
                             keyname);
@@ -3266,7 +3030,7 @@ CPadDoc::RevertTrustProvider(BSTR keyname)
     return hr;
 }
 
-HRESULT GetPadLineTypeInfo(CPadDoc * pPadDoc, ITypeInfo ** pptinfo)
+HRESULT GetPadLineTypeInfo(CPadDoc* pPadDoc, ITypeInfo** pptinfo)
 {
     HRESULT hr;
 
@@ -3280,7 +3044,7 @@ Cleanup:
     RRETURN(hr);
 }
 
-HRESULT GetPadCascadedTypeInfo(CPadDoc * pPadDoc, ITypeInfo ** pptinfo)
+HRESULT GetPadCascadedTypeInfo(CPadDoc* pPadDoc, ITypeInfo** pptinfo)
 {
     HRESULT hr;
 
@@ -3295,16 +3059,14 @@ Cleanup:
 }
 
 HRESULT
-CPadDoc::ComputeCRC(BSTR bstrText, VARIANT * pCRC)
+CPadDoc::ComputeCRC(BSTR bstrText, VARIANT* pCRC)
 {
     const TCHAR* pch = bstrText;
     WORD         wHash = 0;
 
-    if (pch)
-    {
-        for (;*pch; pch++)
-        {
-            wHash = wHash << 7 ^ wHash >> (16-7) ^ (*pch);
+    if (pch) {
+        for (; *pch; pch++) {
+            wHash = wHash << 7 ^ wHash >> (16 - 7) ^ (*pch);
         }
     }
 
@@ -3321,12 +3083,12 @@ CPadDoc::ComputeCRC(BSTR bstrText, VARIANT * pCRC)
 
 
 HRESULT
-CPadDoc::get_Dbg(long *plDbg)
+CPadDoc::get_Dbg(long* plDbg)
 {
 #ifdef DBG
-    *plDbg = DBG;
+    * plDbg = DBG;
 #else
-    *plDbg = 0;
+    * plDbg = 0;
 #endif
     RRETURN(S_OK);
 }
@@ -3339,15 +3101,14 @@ CPadDoc::get_Dbg(long *plDbg)
 
 
 HRESULT
-CPadDoc::get_ProcessorArchitecture(BSTR * pbstrMachineType)
+CPadDoc::get_ProcessorArchitecture(BSTR* pbstrMachineType)
 {
     SYSTEM_INFO si;
-    TCHAR *     pch;
+    TCHAR* pch;
 
     GetSystemInfo(&si);
 
-    switch (si.wProcessorArchitecture)
-    {
+    switch (si.wProcessorArchitecture) {
     case PROCESSOR_ARCHITECTURE_INTEL:
         pch = _T("x86");
         break;
@@ -3391,7 +3152,7 @@ CPadDoc::CoMemoryTrackDisable(VARIANT_BOOL fDisable)
 
 
 HRESULT
-CPadDoc::get_UseShdocvw(VARIANT_BOOL *pfHosted)
+CPadDoc::get_UseShdocvw(VARIANT_BOOL* pfHosted)
 {
     *pfHosted = !!_fUseShdocvw;
     return S_OK;
@@ -3418,7 +3179,7 @@ CPadDoc::put_UseShdocvw(VARIANT_BOOL fHosted)
 
 
 HRESULT
-CPadDoc::get_DownloadNotifyMask(ULONG *pulMask)
+CPadDoc::get_DownloadNotifyMask(ULONG* pulMask)
 {
     *pulMask = _ulDownloadNotifyMask;
     return S_OK;
@@ -3444,13 +3205,12 @@ CPadDoc::put_DownloadNotifyMask(ULONG ulMask)
 
 
 HRESULT
-CPadDoc::GoBack(VARIANT_BOOL *pfWentBack)
+CPadDoc::GoBack(VARIANT_BOOL* pfWentBack)
 {
     HRESULT hr;
     *pfWentBack = FALSE;
 
-    if (_pBrowser)
-    {
+    if (_pBrowser) {
         hr = THR(_pBrowser->GoBack());
         *pfWentBack = (hr == S_OK);
     }
@@ -3465,13 +3225,12 @@ CPadDoc::GoBack(VARIANT_BOOL *pfWentBack)
 
 
 HRESULT
-CPadDoc::GoForward(VARIANT_BOOL *pfWentForward)
+CPadDoc::GoForward(VARIANT_BOOL* pfWentForward)
 {
     HRESULT hr;
     *pfWentForward = FALSE;
 
-    if (_pBrowser)
-    {
+    if (_pBrowser) {
         hr = THR(_pBrowser->GoForward());
         *pfWentForward = (hr == S_OK);
     }
@@ -3486,18 +3245,18 @@ CPadDoc::GoForward(VARIANT_BOOL *pfWentForward)
 
 
 
-typedef HRESULT (TestExternal_Func)(VARIANT *pParam, long *plRetVal);
+typedef HRESULT(TestExternal_Func)(VARIANT* pParam, long* plRetVal);
 
 HRESULT
 CPadDoc::TestExternal(
     BSTR bstrDLLName,
     BSTR bstrFunctionName,
-    VARIANT *pParam,
-    long *plRetVal)
+    VARIANT* pParam,
+    long* plRetVal)
 {
     HRESULT hr = S_OK;
     HINSTANCE hInstDLL = NULL;
-    TestExternal_Func *pfn = NULL;
+    TestExternal_Func* pfn = NULL;
 
     if (!plRetVal || !bstrDLLName || !bstrFunctionName)
         return E_POINTER;
@@ -3505,11 +3264,10 @@ CPadDoc::TestExternal(
     *plRetVal = -1;
 
     int cchLen = SysStringLen(bstrDLLName);
-    char * pchBuf = new char[cchLen+1];
+    char* pchBuf = new char[cchLen + 1];
 
-    if (pchBuf)
-    {
-        WideCharToMultiByte(CP_ACP, 0, bstrDLLName, cchLen, pchBuf, cchLen+1, NULL, NULL);
+    if (pchBuf) {
+        WideCharToMultiByte(CP_ACP, 0, bstrDLLName, cchLen, pchBuf, cchLen + 1, NULL, NULL);
         pchBuf[cchLen] = '\0';
 
         hInstDLL = LoadLibraryA(pchBuf);
@@ -3517,32 +3275,27 @@ CPadDoc::TestExternal(
         delete pchBuf;
     }
 
-    if (NULL == hInstDLL)
-    {
+    if (NULL == hInstDLL) {
         TraceTagEx((tagScriptLog, TAG_NONAME, "TestExternal can't load external dll"));
         return S_FALSE;     // Can't return error codes or the script will abort
     }
 
     cchLen = SysStringLen(bstrFunctionName);
-    pchBuf = new char[cchLen+1];
+    pchBuf = new char[cchLen + 1];
 
-    if (pchBuf)
-    {
-        WideCharToMultiByte(CP_ACP, 0, bstrFunctionName, cchLen, pchBuf, cchLen+1, NULL, NULL);
+    if (pchBuf) {
+        WideCharToMultiByte(CP_ACP, 0, bstrFunctionName, cchLen, pchBuf, cchLen + 1, NULL, NULL);
         pchBuf[cchLen] = '\0';
 
-        pfn = (TestExternal_Func *)GetProcAddress(hInstDLL, pchBuf);
+        pfn = (TestExternal_Func*)GetProcAddress(hInstDLL, pchBuf);
 
         delete pchBuf;
     }
 
-    if (NULL == pfn)
-    {
+    if (NULL == pfn) {
         TraceTagEx((tagScriptLog, TAG_NONAME, "TestExternal can't find external function"));
         hr = S_FALSE;
-    }
-    else
-    {
+    } else {
         *plRetVal = 0;
         hr = (*pfn)(pParam, plRetVal);
     }
@@ -3584,12 +3337,11 @@ Cleanup:
 HRESULT
 CPadDoc::DeinitDynamicLibrary(BSTR bstrDLLName)
 {
-    static DYNPROC s_dynprocDeinitDynamicLibrary = { NULL, &g_dynlibMSHTML, "DeinitDynamicLibrary" };
+    static DYNPROC s_dynprocDeinitDynamicLibrary = {NULL, &g_dynlibMSHTML, "DeinitDynamicLibrary"};
 
-    if (    s_dynprocDeinitDynamicLibrary.pfn != NULL
-        ||  LoadProcedure(&s_dynprocDeinitDynamicLibrary) == S_OK)
-    {
-        ((void (STDAPICALLTYPE *)(LPCTSTR))s_dynprocDeinitDynamicLibrary.pfn)(bstrDLLName);
+    if (s_dynprocDeinitDynamicLibrary.pfn != NULL
+        || LoadProcedure(&s_dynprocDeinitDynamicLibrary) == S_OK) {
+        ((void (STDAPICALLTYPE*)(LPCTSTR))s_dynprocDeinitDynamicLibrary.pfn)(bstrDLLName);
     }
 
     return S_OK;
@@ -3602,27 +3354,26 @@ CPadDoc::DeinitDynamicLibrary(BSTR bstrDLLName)
 
 
 HRESULT
-CPadDoc::IsDynamicLibraryLoaded(BSTR bstrDLLName, VARIANT_BOOL *pfLoaded)
+CPadDoc::IsDynamicLibraryLoaded(BSTR bstrDLLName, VARIANT_BOOL* pfLoaded)
 {
-    static DYNPROC s_dynprocIsDynamicLibraryLoaded = { NULL, &g_dynlibMSHTML, "IsDynamicLibraryLoaded" };
-    if (    s_dynprocIsDynamicLibraryLoaded.pfn != NULL
-        ||  LoadProcedure(&s_dynprocIsDynamicLibraryLoaded) == S_OK)
-    {
-        *pfLoaded = ((BOOL (STDAPICALLTYPE *)(LPCTSTR))s_dynprocIsDynamicLibraryLoaded.pfn)(bstrDLLName) ?
+    static DYNPROC s_dynprocIsDynamicLibraryLoaded = {NULL, &g_dynlibMSHTML, "IsDynamicLibraryLoaded"};
+    if (s_dynprocIsDynamicLibraryLoaded.pfn != NULL
+        || LoadProcedure(&s_dynprocIsDynamicLibraryLoaded) == S_OK) {
+        *pfLoaded = ((BOOL(STDAPICALLTYPE*)(LPCTSTR))s_dynprocIsDynamicLibraryLoaded.pfn)(bstrDLLName) ?
             VB_TRUE : VB_FALSE;
     }
 
     return S_OK;
 }
 
-HRESULT CPadDoc::get_ViewChangesFired(long *plCount)
+HRESULT CPadDoc::get_ViewChangesFired(long* plCount)
 {
     *plCount = _lViewChangesFired;
     _lViewChangesFired = 0; // reset count
     return S_OK;
 }
 
-HRESULT CPadDoc::get_DataChangesFired(long *plCount)
+HRESULT CPadDoc::get_DataChangesFired(long* plCount)
 {
     *plCount = _lDataChangesFired;
     _lDataChangesFired = 0; // reset count
@@ -3634,22 +3385,26 @@ HRESULT CPadDoc::get_DataChangesFired(long *plCount)
 class CPadServerOM : public IDispatch
 {
 public:
-    CPadServerOM(DWORD dwUA, TCHAR *pchUA, TCHAR *pchFile, TCHAR *pchQS);
+    CPadServerOM(DWORD dwUA, TCHAR* pchUA, TCHAR* pchFile, TCHAR* pchQS);
 
     DECLARE_FORMS_STANDARD_IUNKNOWN(CPadServerOM)
-    STDMETHOD(GetTypeInfo)(UINT itinfo, ULONG lcid, ITypeInfo ** pptinfo)
-        { return E_NOTIMPL; }
-    STDMETHOD(GetTypeInfoCount)(UINT * pctinfo)
-        { return E_NOTIMPL; }
-    STDMETHOD(GetIDsOfNames)(REFIID riid, LPOLESTR * rgszNames, UINT cNames, LCID lcid, DISPID * rgdispid);
+    STDMETHOD(GetTypeInfo)(UINT itinfo, ULONG lcid, ITypeInfo** pptinfo)
+    {
+        return E_NOTIMPL;
+    }
+    STDMETHOD(GetTypeInfoCount)(UINT* pctinfo)
+    {
+        return E_NOTIMPL;
+    }
+    STDMETHOD(GetIDsOfNames)(REFIID riid, LPOLESTR* rgszNames, UINT cNames, LCID lcid, DISPID* rgdispid);
     STDMETHOD(Invoke)(DISPID dispidMember,
                       REFIID riid,
                       LCID lcid,
                       WORD wFlags,
-                      DISPPARAMS * pdispparams,
-                      VARIANT * pvarResult,
-                      EXCEPINFO * pexcepinfo,
-                      UINT * puArgErr);
+                      DISPPARAMS* pdispparams,
+                      VARIANT* pvarResult,
+                      EXCEPINFO* pexcepinfo,
+                      UINT* puArgErr);
 
 
     // Data
@@ -3662,7 +3417,7 @@ public:
 };
 
 
-CPadServerOM::CPadServerOM(DWORD dwUA, TCHAR *pchUA, TCHAR *pchFile, TCHAR *pchQS)
+CPadServerOM::CPadServerOM(DWORD dwUA, TCHAR* pchUA, TCHAR* pchFile, TCHAR* pchQS)
 {
     _dwUA = dwUA;
     _cstrUA.Set(pchUA);
@@ -3673,11 +3428,10 @@ CPadServerOM::CPadServerOM(DWORD dwUA, TCHAR *pchUA, TCHAR *pchFile, TCHAR *pchQ
 
 
 HRESULT
-CPadServerOM::QueryInterface(REFIID riid, void **ppv)
+CPadServerOM::QueryInterface(REFIID riid, void** ppv)
 {
-    if (riid == IID_IUnknown || riid == IID_IDispatch)
-    {
-        *ppv = (IDispatch *)this;
+    if (riid == IID_IUnknown || riid == IID_IDispatch) {
+        *ppv = (IDispatch*)this;
         AddRef();
         return S_OK;
     }
@@ -3686,28 +3440,19 @@ CPadServerOM::QueryInterface(REFIID riid, void **ppv)
 }
 
 
-HRESULT CPadServerOM::GetIDsOfNames(REFIID riid, LPOLESTR * rgszNames, UINT cNames, LCID lcid, DISPID * rgdispid)
+HRESULT CPadServerOM::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UINT cNames, LCID lcid, DISPID* rgdispid)
 {
     DISPID  dispid = DISPID_UNKNOWN;
 
-    if (_tcsequal(*rgszNames, _T("UserAgent")))
-    {
+    if (_tcsequal(*rgszNames, _T("UserAgent"))) {
         dispid = 1;
-    }
-    else if (_tcsequal(*rgszNames, _T("NormalizedUA")))
-    {
+    } else if (_tcsequal(*rgszNames, _T("NormalizedUA"))) {
         dispid = 2;
-    }
-    else if (_tcsequal(*rgszNames, _T("URL")))
-    {
+    } else if (_tcsequal(*rgszNames, _T("URL"))) {
         dispid = 3;
-    }
-    else if (_tcsequal(*rgszNames, _T("Path")))
-    {
+    } else if (_tcsequal(*rgszNames, _T("Path"))) {
         dispid = 4;
-    }
-    else if (_tcsequal(*rgszNames, _T("QueryString")))
-    {
+    } else if (_tcsequal(*rgszNames, _T("QueryString"))) {
         dispid = 5;
     }
 
@@ -3722,16 +3467,15 @@ CPadServerOM::Invoke(
     REFIID riid,
     LCID lcid,
     WORD wFlags,
-    DISPPARAMS * pdispparams,
-    VARIANT * pvarResult,
-    EXCEPINFO * pexcepinfo,
-    UINT * puArgErr)
+    DISPPARAMS* pdispparams,
+    VARIANT* pvarResult,
+    EXCEPINFO* pexcepinfo,
+    UINT* puArgErr)
 {
     if (!pvarResult)
         return S_OK;
 
-    switch (dispidMember)
-    {
+    switch (dispidMember) {
     case 1:
         V_VT(pvarResult) = VT_BSTR;
         _cstrUA.AllocBSTR(&V_BSTR(pvarResult));
@@ -3749,13 +3493,10 @@ CPadServerOM::Invoke(
         break;
 
     case 5:
-        if (_cstrQS)
-        {
+        if (_cstrQS) {
             V_VT(pvarResult) = VT_BSTR;
             _cstrQS.AllocBSTR(&V_BSTR(pvarResult));
-        }
-        else
-        {
+        } else {
             V_VT(pvarResult) = VT_NULL;
         }
         break;
@@ -3769,15 +3510,15 @@ CPadServerOM::Invoke(
 
 
 //  Member: CPadDoc::Sleep, per IPad
-HRESULT CPadDoc::Sleep (int nTimeout)
+HRESULT CPadDoc::Sleep(int nTimeout)
 {
-    ::Sleep (nTimeout);
+    ::Sleep(nTimeout);
     return S_OK;
 }
 
 
 //  Member: CPadDoc::IsWin95, per IPad
-HRESULT CPadDoc::IsWin95(long * pfWin95)
+HRESULT CPadDoc::IsWin95(long* pfWin95)
 {
     OSVERSIONINFOA ovi;
 
@@ -3798,60 +3539,59 @@ HRESULT CPadDoc::IsWin95(long * pfWin95)
 
 
 HRESULT
-CPadDoc::GetAccWindow( IDispatch ** ppAccWindow )
+CPadDoc::GetAccWindow(IDispatch** ppAccWindow)
 {
     HWND                hwnd = NULL;
     HRESULT             hr = S_OK;
     HINSTANCE           hInstOleacc = 0;
-    IDispatch *         pHTMLDoc = NULL;
-    IServiceProvider *  pServProv = NULL;
+    IDispatch* pHTMLDoc = NULL;
+    IServiceProvider* pServProv = NULL;
 
-    if ( !ppAccWindow )
+    if (!ppAccWindow)
         return E_POINTER;
 
     *ppAccWindow = NULL;
 
-    if (_pInPlaceActiveObject )
-            _pInPlaceActiveObject->GetWindow(&hwnd);
+    if (_pInPlaceActiveObject)
+        _pInPlaceActiveObject->GetWindow(&hwnd);
 
-    if ( !hwnd && _pInPlaceObject )
-            _pInPlaceObject->GetWindow(&hwnd);
+    if (!hwnd && _pInPlaceObject)
+        _pInPlaceObject->GetWindow(&hwnd);
 
-    hInstOleacc = LoadLibraryA( "OLEACC.DLL" );
+    hInstOleacc = LoadLibraryA("OLEACC.DLL");
 
-    if ( hwnd && hInstOleacc )
-    {
+    if (hwnd && hInstOleacc) {
         // get the document
-        hr = get_Document( &pHTMLDoc );
-        if ( hr || !pHTMLDoc )
+        hr = get_Document(&pHTMLDoc);
+        if (hr || !pHTMLDoc)
             goto Cleanup;
 
         // get the service provider interface
-        hr = pHTMLDoc->QueryInterface( IID_IServiceProvider, (void **)&pServProv);
-        if ( hr || !pServProv )
+        hr = pHTMLDoc->QueryInterface(IID_IServiceProvider, (void**)&pServProv);
+        if (hr || !pServProv)
             goto Cleanup;
 
 
         // get the IAccessible interface
-        hr = pServProv->QueryService( IID_IAccessible, IID_IAccessible, (void **)ppAccWindow);
-        if ( hr || !ppAccWindow )
+        hr = pServProv->QueryService(IID_IAccessible, IID_IAccessible, (void**)ppAccWindow);
+        if (hr || !ppAccWindow)
             goto Cleanup;
 
     }
 
 
-//FerhanE:
-//  Even if we can not find the OLEACC.DLL, return NULL as the out value and a success code.
-//  This way, the script can skip over the code that requires this information.
+    //FerhanE:
+    //  Even if we can not find the OLEACC.DLL, return NULL as the out value and a success code.
+    //  This way, the script can skip over the code that requires this information.
 
 Cleanup:
-    if ( hInstOleacc)
-        FreeLibrary( hInstOleacc );
+    if (hInstOleacc)
+        FreeLibrary(hInstOleacc);
 
-    if ( pHTMLDoc )
+    if (pHTMLDoc)
         pHTMLDoc->Release();
 
-    if ( pServProv )
+    if (pServProv)
         pServProv->Release();
 
     return hr;
@@ -3863,9 +3603,9 @@ Cleanup:
 
 
 HRESULT
-CPadDoc::GetAccObjAtPoint( long x, long y, IDispatch ** ppAccObject )
+CPadDoc::GetAccObjAtPoint(long x, long y, IDispatch** ppAccObject)
 {
-    if ( !ppAccObject )
+    if (!ppAccObject)
         return E_POINTER;
 
     *ppAccObject = NULL;
@@ -3882,26 +3622,24 @@ CPadDoc::GetAccObjAtPoint( long x, long y, IDispatch ** ppAccObject )
 
 
 HRESULT
-   CPadDoc::SetKeyboard( BSTR bstrKeyboard)
+CPadDoc::SetKeyboard(BSTR bstrKeyboard)
 {
-    if (bstrKeyboard)
-    {
+    if (bstrKeyboard) {
         HKL hkblyt;
         char szBufA[KL_NAMELENGTH];
         WideCharToMultiByte(CP_ACP, 0,
                             bstrKeyboard, SysStringLen(bstrKeyboard),
                             szBufA, sizeof(szBufA), NULL, NULL);
-        szBufA[KL_NAMELENGTH-1] = (char)0;
+        szBufA[KL_NAMELENGTH - 1] = (char)0;
         hkblyt = LoadKeyboardLayoutA(szBufA, 0);
-        if (hkblyt)
-        {
+        if (hkblyt) {
 #if 1
             hkblyt = ActivateKeyboardLayout(hkblyt, KLF_SETFORPROCESS);
             if (hkblyt)
                 return (S_OK);
 #else
             PostMessage(_hwnd, WM_INPUTLANGCHANGEREQUEST,
-                        (WPARAM)0, (LPARAM)hkblyt );
+                        (WPARAM)0, (LPARAM)hkblyt);
             return (S_OK);
 #endif
         }
@@ -3913,17 +3651,15 @@ HRESULT
 
 //  Member : GetKeyboard
 //  Synopsis: Change the keyboard layout for IME testing.
-HRESULT CPadDoc::GetKeyboard( VARIANT *pKeyboard)
+HRESULT CPadDoc::GetKeyboard(VARIANT* pKeyboard)
 {
-    if (pKeyboard)
-    {
+    if (pKeyboard) {
         char szBufA[KL_NAMELENGTH];
-        if (GetKeyboardLayoutNameA(szBufA))
-        {
+        if (GetKeyboardLayoutNameA(szBufA)) {
             TCHAR szBufW[KL_NAMELENGTH];
             MultiByteToWideChar(CP_ACP, 0, szBufA, sizeof(szBufA),
-                                szBufW, sizeof(szBufW)/sizeof(TCHAR));
-            szBufW[KL_NAMELENGTH-1] = (char)0;
+                                szBufW, sizeof(szBufW) / sizeof(TCHAR));
+            szBufW[KL_NAMELENGTH - 1] = (char)0;
             V_VT(pKeyboard) = VT_BSTR;
             V_BSTR(pKeyboard) = SysAllocString(szBufW);
             if (V_BSTR(pKeyboard))
@@ -3937,26 +3673,21 @@ HRESULT CPadDoc::GetKeyboard( VARIANT *pKeyboard)
 
 //  Member : ToggleIMEMode
 //  Synopsis: Change the IME mode.
-HRESULT CPadDoc::ToggleIMEMode( BSTR bstrIME)
+HRESULT CPadDoc::ToggleIMEMode(BSTR bstrIME)
 {
-    if (StrCmpIC(bstrIME, _T("Japanese")) == 0)
-    {
+    if (StrCmpIC(bstrIME, _T("Japanese")) == 0) {
         keybd_event(VK_MENU, 0, 0, 0);
         keybd_event(0x29, 0x29, 0, KF_ALTDOWN << 16);
         keybd_event(0x29, 0, KEYEVENTF_KEYUP, 0);
         keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
         return S_OK;
-    }
-    else if (StrCmpIC(bstrIME, _T("Chinese")) == 0)
-    {
+    } else if (StrCmpIC(bstrIME, _T("Chinese")) == 0) {
         keybd_event(VK_SHIFT, 0, 0, 0);
         keybd_event(VK_SPACE, 0, 0, 0);
         keybd_event(VK_SPACE, 0, KEYEVENTF_KEYUP, 0);
         keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
         return S_OK;
-    }
-    else if (StrCmpIC(bstrIME, _T("Korean")) == 0)
-    {
+    } else if (StrCmpIC(bstrIME, _T("Korean")) == 0) {
         // The VK_RMENU keycode is not supported by keybd_event().
         // 0x15 is a magic, reserved for kanji, code that I discovered
         // using Spy. -- AryeG.
@@ -3975,56 +3706,53 @@ HRESULT CPadDoc::ToggleIMEMode( BSTR bstrIME)
 //            so that the IME will be able to trap them.
 
 // For just one key at a time.
-TCHAR * CPadDoc::SendIMEKey(TCHAR *pch, DWORD dwFlags)
+TCHAR* CPadDoc::SendIMEKey(TCHAR* pch, DWORD dwFlags)
 {
     BYTE ch;
-    switch (*pch)
-    {
-        default:
-            ch = (BYTE)*pch;
-            if (ch >= 'a' && ch <= 'z')
-                ch -= 'a' - 'A';
-            keybd_event(ch, (BYTE)MapVirtualKey(ch, 0), 0, 0);
-            keybd_event(ch, (BYTE)MapVirtualKey(ch, 0), KEYEVENTF_KEYUP, 0);
-            pch++;
-            break;
-        case _T('+'):
-            keybd_event(VK_SHIFT, 0, 0, 0);
-            pch++;
-            pch = SendIMEKey(pch, dwFlags);
-            keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
-            break;
-        case _T('^'):
-            keybd_event(VK_CONTROL, 0, 0, 0);
-            pch++;
-            pch = SendIMEKey(pch, dwFlags);
-            keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
-            break;
-        case _T('%'):
-            keybd_event(VK_MENU, 0, 0, 0);
-            pch++;
-            pch = SendIMEKey(pch, dwFlags | (KF_ALTDOWN << 16));
-            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
-            break;
-        case _T('{'):
-            pch++;
-            pch = SendIMESpecial(pch, 0);
-            break;
+    switch (*pch) {
+    default:
+        ch = (BYTE)*pch;
+        if (ch >= 'a' && ch <= 'z')
+            ch -= 'a' - 'A';
+        keybd_event(ch, (BYTE)MapVirtualKey(ch, 0), 0, 0);
+        keybd_event(ch, (BYTE)MapVirtualKey(ch, 0), KEYEVENTF_KEYUP, 0);
+        pch++;
+        break;
+    case _T('+'):
+        keybd_event(VK_SHIFT, 0, 0, 0);
+        pch++;
+        pch = SendIMEKey(pch, dwFlags);
+        keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
+        break;
+    case _T('^'):
+        keybd_event(VK_CONTROL, 0, 0, 0);
+        pch++;
+        pch = SendIMEKey(pch, dwFlags);
+        keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
+        break;
+    case _T('%'):
+        keybd_event(VK_MENU, 0, 0, 0);
+        pch++;
+        pch = SendIMEKey(pch, dwFlags | (KF_ALTDOWN << 16));
+        keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
+        break;
+    case _T('{'):
+        pch++;
+        pch = SendIMESpecial(pch, 0);
+        break;
     }
 
     return pch;
 }
 
 
-HRESULT CPadDoc::SendIMEKeys( BSTR bstrKeys )
+HRESULT CPadDoc::SendIMEKeys(BSTR bstrKeys)
 {
-    if (bstrKeys)
-    {
-        TCHAR *pch = bstrKeys;
+    if (bstrKeys) {
+        TCHAR* pch = bstrKeys;
 
         // Put in all the keystrokes.
-        while (*pch != 0)
-        {
+        while (*pch != 0) {
             pch = SendIMEKey(pch, 0);
         }
         return (S_OK);
@@ -4038,32 +3766,31 @@ HRESULT CPadDoc::SendIMEKeys( BSTR bstrKeys )
 //  Member: CPadDoc::RemoveElement
 
 
-HRESULT CPadDoc::RemoveElement ( IDispatch * pIDispatch )
+HRESULT CPadDoc::RemoveElement(IDispatch* pIDispatch)
 {
     HRESULT            hr = S_OK;
-    IDispatch *        pDocDisp = NULL;
-    IMarkupServices *  pMarkupServices = NULL;
-    IHTMLElement *     pIElement = NULL;
+    IDispatch* pDocDisp = NULL;
+    IMarkupServices* pMarkupServices = NULL;
+    IHTMLElement* pIElement = NULL;
 
-    if (!pIDispatch)
-    {
+    if (!pIDispatch) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
-    hr = THR( pIDispatch->QueryInterface( IID_IHTMLElement, (void **) & pIElement ) );
+    hr = THR(pIDispatch->QueryInterface(IID_IHTMLElement, (void**)&pIElement));
     if (hr)
         goto Cleanup;
 
-    hr = THR( get_Document( & pDocDisp ) );
+    hr = THR(get_Document(&pDocDisp));
     if (hr)
         goto Cleanup;
 
-    hr = THR( pDocDisp->QueryInterface( IID_IMarkupServices, (void **) & pMarkupServices ) );
+    hr = THR(pDocDisp->QueryInterface(IID_IMarkupServices, (void**)&pMarkupServices));
     if (hr)
         goto Cleanup;
 
-    hr = THR( pMarkupServices->RemoveElement( pIElement ) );
+    hr = THR(pMarkupServices->RemoveElement(pIElement));
     if (hr)
         goto Cleanup;
 
@@ -4078,46 +3805,44 @@ Cleanup:
     if (pMarkupServices)
         pMarkupServices->Release();
 
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
 //  Member: CPadDoc::Markup
 
 
-static IMarkupServices *  g_MS = NULL;
-static IMarkupContainer * g_PM = NULL;
+static IMarkupServices* g_MS = NULL;
+static IMarkupContainer* g_PM = NULL;
 
-static HRESULT FindElementByTagId ( ELEMENT_TAG_ID tagIdFindThis, IHTMLElement * * ppIElement )
+static HRESULT FindElementByTagId(ELEMENT_TAG_ID tagIdFindThis, IHTMLElement** ppIElement)
 {
     HRESULT          hr = S_OK;
-    IMarkupPointer * pIPointer = NULL;
+    IMarkupPointer* pIPointer = NULL;
 
-    Assert( ppIElement );
+    Assert(ppIElement);
 
     *ppIElement = NULL;
 
-    hr = THR( g_MS->CreateMarkupPointer( & pIPointer ) );
+    hr = THR(g_MS->CreateMarkupPointer(&pIPointer));
     if (hr)
         goto Cleanup;
 
-    hr = THR( pIPointer->MoveToContainer( g_PM, TRUE ) );
+    hr = THR(pIPointer->MoveToContainer(g_PM, TRUE));
     if (hr)
         goto Cleanup;
 
-    for ( ; ; )
-    {
+    for (; ; ) {
         MARKUP_CONTEXT_TYPE ct;
 
-        hr = THR( pIPointer->Right( TRUE, & ct, ppIElement, NULL, NULL ) );
+        hr = THR(pIPointer->Right(TRUE, &ct, ppIElement, NULL, NULL));
         if (ct == CONTEXT_TYPE_None)
             break;
 
-        if (ct == CONTEXT_TYPE_EnterScope)
-        {
+        if (ct == CONTEXT_TYPE_EnterScope) {
             ELEMENT_TAG_ID tagId;
 
-            hr = THR( g_MS->GetElementTagId( *ppIElement, & tagId ) );
+            hr = THR(g_MS->GetElementTagId(*ppIElement, &tagId));
             if (hr)
                 goto Cleanup;
 
@@ -4133,16 +3858,16 @@ Cleanup:
     if (pIPointer)
         pIPointer->Release();
 
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
-static HRESULT MangleRemoveBody ( )
+static HRESULT MangleRemoveBody()
 {
     HRESULT        hr = S_OK;
-    IHTMLElement * pIElement = NULL;
+    IHTMLElement* pIElement = NULL;
 
-    hr = THR( FindElementByTagId( TAGID_BODY, & pIElement ) );
+    hr = THR(FindElementByTagId(TAGID_BODY, &pIElement));
 
     if (hr)
         goto Cleanup;
@@ -4150,7 +3875,7 @@ static HRESULT MangleRemoveBody ( )
     if (!pIElement)
         goto Cleanup;
 
-    hr = THR( g_MS->RemoveElement( pIElement ) );
+    hr = THR(g_MS->RemoveElement(pIElement));
     if (hr)
         goto Cleanup;
 
@@ -4158,25 +3883,24 @@ Cleanup:
     if (pIElement)
         pIElement->Release();
 
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
-static HRESULT MangleRemoveTables ( )
+static HRESULT MangleRemoveTables()
 {
     HRESULT        hr = S_OK;
-    IHTMLElement * pIElement = NULL;
+    IHTMLElement* pIElement = NULL;
 
-    for ( ; ; )
-    {
-        hr = THR( FindElementByTagId( TAGID_TABLE, & pIElement ) );
+    for (; ; ) {
+        hr = THR(FindElementByTagId(TAGID_TABLE, &pIElement));
         if (hr)
             goto Cleanup;
 
         if (!pIElement)
             goto Cleanup;
 
-        hr = THR( g_MS->RemoveElement( pIElement ) );
+        hr = THR(g_MS->RemoveElement(pIElement));
         if (hr)
             goto Cleanup;
 
@@ -4188,13 +3912,13 @@ Cleanup:
     if (pIElement)
         pIElement->Release();
 
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
-IMarkupPointer * CPadDoc::FindPadPointer ( long id )
+IMarkupPointer* CPadDoc::FindPadPointer(long id)
 {
-    for ( int i = 0 ; i < _aryPadPointers.Size() ; i++ )
+    for (int i = 0; i < _aryPadPointers.Size(); i++)
         if (_aryPadPointers[i]._id == id)
             return _aryPadPointers[i]._pPointer;
 
@@ -4202,18 +3926,18 @@ IMarkupPointer * CPadDoc::FindPadPointer ( long id )
 }
 
 
-IMarkupPointer * CPadDoc::FindPadPointer ( VARIANT * pvar )
+IMarkupPointer* CPadDoc::FindPadPointer(VARIANT* pvar)
 {
-    if (!pvar || V_VT( pvar ) != VT_I4)
+    if (!pvar || V_VT(pvar) != VT_I4)
         return NULL;
 
-    return FindPadPointer( V_I4( pvar ) );
+    return FindPadPointer(V_I4(pvar));
 }
 
 
-IMarkupContainer * CPadDoc::FindPadContainer ( long id )
+IMarkupContainer* CPadDoc::FindPadContainer(long id)
 {
-    for ( int i = 0 ; i < _aryPadContainers.Size() ; i++ )
+    for (int i = 0; i < _aryPadContainers.Size(); i++)
         if (_aryPadContainers[i]._id == id)
             return _aryPadContainers[i]._pContainer;
 
@@ -4221,23 +3945,23 @@ IMarkupContainer * CPadDoc::FindPadContainer ( long id )
 }
 
 
-IMarkupContainer * CPadDoc::FindPadContainer ( VARIANT * pvar )
+IMarkupContainer* CPadDoc::FindPadContainer(VARIANT* pvar)
 {
-    if (!pvar || V_VT( pvar ) != VT_I4)
+    if (!pvar || V_VT(pvar) != VT_I4)
         return NULL;
 
-    return FindPadContainer( V_I4( pvar ) );
+    return FindPadContainer(V_I4(pvar));
 }
 
 
-IHTMLElement * CPadDoc::GetElement ( VARIANT * pvar )
+IHTMLElement* CPadDoc::GetElement(VARIANT* pvar)
 {
-    IHTMLElement * pIElement;
+    IHTMLElement* pIElement;
 
-    if (!pvar || V_VT( pvar ) != VT_DISPATCH || !V_DISPATCH( pvar ))
+    if (!pvar || V_VT(pvar) != VT_DISPATCH || !V_DISPATCH(pvar))
         return NULL;
 
-    if (V_DISPATCH( pvar )->QueryInterface( IID_IHTMLElement, (void **) & pIElement ) != S_OK)
+    if (V_DISPATCH(pvar)->QueryInterface(IID_IHTMLElement, (void**)&pIElement) != S_OK)
         return NULL;
 
     pIElement->Release(); // I don't really want a ref (the dispatch will keep it around)
@@ -4247,66 +3971,60 @@ IHTMLElement * CPadDoc::GetElement ( VARIANT * pvar )
 
 
 HRESULT
-CPadDoc::Markup (
-    VARIANT * pvarParam1, VARIANT * pvarParam2, VARIANT * pvarParam3,
-    VARIANT * pvarParam4, VARIANT * pvarParam5, VARIANT * pvarParam6,
-    VARIANT * pvarRet )
+CPadDoc::Markup(
+    VARIANT* pvarParam1, VARIANT* pvarParam2, VARIANT* pvarParam3,
+    VARIANT* pvarParam4, VARIANT* pvarParam5, VARIANT* pvarParam6,
+    VARIANT* pvarRet)
 {
     HRESULT            hr = S_OK;
-    IDispatch *        pDocDisp = NULL;
+    IDispatch* pDocDisp = NULL;
 
-    VariantClear( pvarRet );
+    VariantClear(pvarRet);
 
-    hr = THR( get_Document( & pDocDisp ) );
+    hr = THR(get_Document(&pDocDisp));
     if (hr)
         goto Cleanup;
 
-    Assert( ! g_MS && ! g_PM );
+    Assert(!g_MS && !g_PM);
 
-    hr = THR( pDocDisp->QueryInterface( IID_IMarkupServices, (void **) & g_MS ) );
+    hr = THR(pDocDisp->QueryInterface(IID_IMarkupServices, (void**)&g_MS));
     if (hr)
         goto Cleanup;
 
-    hr = THR( pDocDisp->QueryInterface( IID_IMarkupContainer, (void **) & g_PM ) );
+    hr = THR(pDocDisp->QueryInterface(IID_IMarkupContainer, (void**)&g_PM));
     if (hr)
         goto Cleanup;
 
-    if (!pvarParam1 || V_VT( pvarParam1 ) != VT_BSTR)
-    {
+    if (!pvarParam1 || V_VT(pvarParam1) != VT_BSTR) {
         hr = E_FAIL;
         goto Cleanup;
     }
 
-    if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "RemoveElement" )))  // element
+    if (!StrCmpIC(V_BSTR(pvarParam1), _T("RemoveElement")))  // element
     {
-        if (!pvarParam2)
-        {
+        if (!pvarParam2) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (GetElement( pvarParam2 ))
-        {
-            hr = THR( RemoveElement( V_DISPATCH( pvarParam2 ) ) );
+        if (GetElement(pvarParam2)) {
+            hr = THR(RemoveElement(V_DISPATCH(pvarParam2)));
             if (hr)
                 goto Cleanup;
-        }
-        else if (V_VT( pvarParam2 ) == VT_BSTR)
-        {
+        } else if (V_VT(pvarParam2) == VT_BSTR) {
             ELEMENT_TAG_ID tagId;
-            IHTMLElement * pIElement = NULL;
+            IHTMLElement* pIElement = NULL;
 
-            hr = THR( g_MS->GetTagIDForName ( V_BSTR( pvarParam2 ), & tagId ) );
+            hr = THR(g_MS->GetTagIDForName(V_BSTR(pvarParam2), &tagId));
             if (hr)
                 goto Cleanup;
 
-            hr = THR( FindElementByTagId( tagId, & pIElement ) );
+            hr = THR(FindElementByTagId(tagId, &pIElement));
             if (hr)
                 goto Cleanup;
 
-            if (pIElement)
-            {
-                hr = THR( RemoveElement( pIElement ) );
+            if (pIElement) {
+                hr = THR(RemoveElement(pIElement));
                 if (hr)
                     goto Cleanup;
 
@@ -4314,196 +4032,170 @@ CPadDoc::Markup (
             }
 
         }
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "TagIdToString" )))  // str/element
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("TagIdToString")))  // str/element
     {
-        if (!pvarParam2 || V_VT( pvarParam2 ) != VT_I4)
-        {
+        if (!pvarParam2 || V_VT(pvarParam2) != VT_I4) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( g_MS->GetNameForTagID( ELEMENT_TAG_ID( V_I4( pvarParam2 ) ), & V_BSTR( pvarRet ) ) );
+        hr = THR(g_MS->GetNameForTagID(ELEMENT_TAG_ID(V_I4(pvarParam2)), &V_BSTR(pvarRet)));
         if (hr)
             goto Cleanup;
 
         pvarRet->vt = VT_BSTR;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "GetTagId" )))  // str/element
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("GetTagId")))  // str/element
     {
         ELEMENT_TAG_ID tagID = TAGID_NULL;
 
-        if (!pvarParam2)
-        {
+        if (!pvarParam2) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (GetElement( pvarParam2 ))
-        {
-            hr = THR( g_MS->GetElementTagId( GetElement( pvarParam2 ), & tagID ) );
+        if (GetElement(pvarParam2)) {
+            hr = THR(g_MS->GetElementTagId(GetElement(pvarParam2), &tagID));
             if (hr)
                 goto Cleanup;
-        }
-        else if (V_VT( pvarParam2 ) == VT_BSTR)
-        {
-            hr = THR( g_MS->GetTagIDForName ( V_BSTR( pvarParam2 ), & tagID ) );
+        } else if (V_VT(pvarParam2) == VT_BSTR) {
+            hr = THR(g_MS->GetTagIDForName(V_BSTR(pvarParam2), &tagID));
             if (hr)
                 goto Cleanup;
         }
 
         pvarRet->vt = VT_I4;
         pvarRet->lVal = tagID;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "InsertElement" )))  // pStart, pFin, element
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("InsertElement")))  // pStart, pFin, element
     {
-        IMarkupPointer * pIPointerStart = FindPadPointer( pvarParam2 );
-        IMarkupPointer * pIPointerFinish = FindPadPointer( pvarParam3 );
-        IHTMLElement *   pIElement = GetElement( pvarParam4 );
+        IMarkupPointer* pIPointerStart = FindPadPointer(pvarParam2);
+        IMarkupPointer* pIPointerFinish = FindPadPointer(pvarParam3);
+        IHTMLElement* pIElement = GetElement(pvarParam4);
 
-        if (!pIPointerStart || !pIElement)
-        {
+        if (!pIPointerStart || !pIElement) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( g_MS->InsertElement( pIElement, pIPointerStart, pIPointerFinish ) );
+        hr = THR(g_MS->InsertElement(pIElement, pIPointerStart, pIPointerFinish));
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "Remove" )))  // pStart, pFin
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("Remove")))  // pStart, pFin
     {
-        IMarkupPointer * pIPointerStart = FindPadPointer( pvarParam2 );
-        IMarkupPointer * pIPointerFinish = FindPadPointer( pvarParam3 );
+        IMarkupPointer* pIPointerStart = FindPadPointer(pvarParam2);
+        IMarkupPointer* pIPointerFinish = FindPadPointer(pvarParam3);
 
-        if (!pIPointerStart || !pIPointerFinish)
-        {
+        if (!pIPointerStart || !pIPointerFinish) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( g_MS->Remove( pIPointerStart, pIPointerFinish ) );
+        hr = THR(g_MS->Remove(pIPointerStart, pIPointerFinish));
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "Move" )))  // pStart, pFin, pTarget
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("Move")))  // pStart, pFin, pTarget
     {
-        IMarkupPointer * pIPointerStart = FindPadPointer( pvarParam2 );
-        IMarkupPointer * pIPointerFinish = FindPadPointer( pvarParam3 );
-        IMarkupPointer * pIPointerTarget = FindPadPointer( pvarParam4 );
+        IMarkupPointer* pIPointerStart = FindPadPointer(pvarParam2);
+        IMarkupPointer* pIPointerFinish = FindPadPointer(pvarParam3);
+        IMarkupPointer* pIPointerTarget = FindPadPointer(pvarParam4);
 
-        if (!pIPointerStart || !pIPointerFinish || !pIPointerTarget)
-        {
+        if (!pIPointerStart || !pIPointerFinish || !pIPointerTarget) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( g_MS->Move( pIPointerStart, pIPointerFinish, pIPointerTarget ) );
+        hr = THR(g_MS->Move(pIPointerStart, pIPointerFinish, pIPointerTarget));
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "Copy" )))  // pStart, pFin, pTarget
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("Copy")))  // pStart, pFin, pTarget
     {
-        IMarkupPointer * pIPointerStart = FindPadPointer( pvarParam2 );
-        IMarkupPointer * pIPointerFinish = FindPadPointer( pvarParam3 );
-        IMarkupPointer * pIPointerTarget = FindPadPointer( pvarParam4 );
+        IMarkupPointer* pIPointerStart = FindPadPointer(pvarParam2);
+        IMarkupPointer* pIPointerFinish = FindPadPointer(pvarParam3);
+        IMarkupPointer* pIPointerTarget = FindPadPointer(pvarParam4);
 
-        if (!pIPointerStart || !pIPointerFinish || !pIPointerTarget)
-        {
+        if (!pIPointerStart || !pIPointerFinish || !pIPointerTarget) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( g_MS->Copy( pIPointerStart, pIPointerFinish, pIPointerTarget ) );
+        hr = THR(g_MS->Copy(pIPointerStart, pIPointerFinish, pIPointerTarget));
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "FindText" )))  // start, text, end match, end search
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("FindText")))  // start, text, end match, end search
     {
-        IMarkupPointer * pIPointerStartSearch = FindPadPointer( pvarParam2 );
-        IMarkupPointer * pIPointerEndMatch = FindPadPointer( pvarParam4 );
-        IMarkupPointer * pIPointerEndSearch = FindPadPointer( pvarParam5 );
+        IMarkupPointer* pIPointerStartSearch = FindPadPointer(pvarParam2);
+        IMarkupPointer* pIPointerEndMatch = FindPadPointer(pvarParam4);
+        IMarkupPointer* pIPointerEndSearch = FindPadPointer(pvarParam5);
 
-        if (!pIPointerStartSearch || !pIPointerStartSearch || !pIPointerEndSearch)
-        {
+        if (!pIPointerStartSearch || !pIPointerStartSearch || !pIPointerEndSearch) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!pvarParam3 || V_VT( pvarParam3 ) != VT_BSTR)
-        {
+        if (!pvarParam3 || V_VT(pvarParam3) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = pIPointerStartSearch->FindText( V_BSTR( pvarParam3 ), 0, pIPointerEndMatch, pIPointerEndSearch );
+        hr = pIPointerStartSearch->FindText(V_BSTR(pvarParam3), 0, pIPointerEndMatch, pIPointerEndSearch);
 
         pvarRet->vt = VT_I4;
         pvarRet->lVal = hr = S_FALSE ? 0 : 1;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "InsertText" )))  // pointer, text
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("InsertText")))  // pointer, text
     {
-        IMarkupPointer * pIPointer = FindPadPointer( pvarParam2 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
 
-        if (!pIPointer || !pvarParam3|| V_VT( pvarParam3 ) != VT_BSTR)
-        {
+        if (!pIPointer || !pvarParam3 || V_VT(pvarParam3) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR(g_MS->InsertText(V_BSTR( pvarParam3 ), FormsStringLen( V_BSTR( pvarParam3 ) ), pIPointer ) );
+        hr = THR(g_MS->InsertText(V_BSTR(pvarParam3), FormsStringLen(V_BSTR(pvarParam3)), pIPointer));
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "RemoveBody" )))  // no args
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("RemoveBody")))  // no args
     {
-        hr = THR( MangleRemoveBody() );
+        hr = THR(MangleRemoveBody());
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "RemoveTables" )))   // no args
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("RemoveTables")))   // no args
     {
-        hr = THR( MangleRemoveTables() );
+        hr = THR(MangleRemoveTables());
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "DumpTree" )))  // pointer [optional]
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("DumpTree")))  // pointer [optional]
     {
-        IMarkupPointer * pIPointer = FindPadPointer( pvarParam2 );
-        IEditDebugServices * pEditDebug;
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
+        IEditDebugServices* pEditDebug;
 
-        hr = THR( pDocDisp->QueryInterface( IID_IEditDebugServices, (void **) & pEditDebug ) );
+        hr = THR(pDocDisp->QueryInterface(IID_IEditDebugServices, (void**)&pEditDebug));
         if (hr)
             goto Cleanup;
 
-        pEditDebug->DumpTree( pIPointer );
+        pEditDebug->DumpTree(pIPointer);
 
         pEditDebug->Release();
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "CloneElement" )))  // in element, ret clone
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("CloneElement")))  // in element, ret clone
     {
-        IHTMLElement * pIElement = GetElement( pvarParam2 );
-        IHTMLElement * pIElementClone;
+        IHTMLElement* pIElement = GetElement(pvarParam2);
+        IHTMLElement* pIElementClone;
 
-        if (!pIElement)
-        {
+        if (!pIElement) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( g_MS->CloneElement( pIElement, & pIElementClone ) );
+        hr = THR(g_MS->CloneElement(pIElement, &pIElementClone));
         if (hr)
             goto Cleanup;
 
         pvarRet->vt = VT_DISPATCH;
         pvarRet->pdispVal = pIElementClone;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "CreateMarkupPointer" )))  // return pointer
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("CreateMarkupPointer")))  // return pointer
     {
-        IMarkupPointer * pIPointer;
+        IMarkupPointer* pIPointer;
         PadPointerData   padPointer;
 
-        hr = THR( g_MS->CreateMarkupPointer( & pIPointer ) );
+        hr = THR(g_MS->CreateMarkupPointer(&pIPointer));
 
         if (hr)
             goto Cleanup;
@@ -4511,17 +4203,16 @@ CPadDoc::Markup (
         padPointer._pPointer = pIPointer;
         padPointer._id = _idPadIDNext++;
 
-        _aryPadPointers.AppendIndirect( & padPointer, NULL );
+        _aryPadPointers.AppendIndirect(&padPointer, NULL);
 
         pvarRet->vt = VT_I4;
         pvarRet->lVal = padPointer._id;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "CreateMarkupContainer" )))  // return pointer
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("CreateMarkupContainer")))  // return pointer
     {
-        IMarkupContainer * pIContainer;
+        IMarkupContainer* pIContainer;
         PadContainerData   padContainer;
 
-        hr = THR( g_MS->CreateMarkupContainer( & pIContainer ) );
+        hr = THR(g_MS->CreateMarkupContainer(&pIContainer));
 
         if (hr)
             goto Cleanup;
@@ -4529,272 +4220,240 @@ CPadDoc::Markup (
         padContainer._pContainer = pIContainer;
         padContainer._id = _idPadIDNext++;
 
-        _aryPadContainers.AppendIndirect( & padContainer, NULL );
+        _aryPadContainers.AppendIndirect(&padContainer, NULL);
 
         pvarRet->vt = VT_I4;
         pvarRet->lVal = padContainer._id;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "ReleasePointer" )))  // pointer
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("ReleasePointer")))  // pointer
     {
-        IMarkupPointer * pIPointer = FindPadPointer( pvarParam2 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
 
-        if (!pIPointer)
-        {
+        if (!pIPointer) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
         pIPointer->Release();
 
-        for ( int i = 0 ; i < _aryPadPointers.Size() ; i++ )
-            if (_aryPadPointers[i]._id == V_I4( pvarParam2 ))
-                _aryPadPointers.Delete( i );
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "ReleaseContainer" )))  // pointer
+        for (int i = 0; i < _aryPadPointers.Size(); i++)
+            if (_aryPadPointers[i]._id == V_I4(pvarParam2))
+                _aryPadPointers.Delete(i);
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("ReleaseContainer")))  // pointer
     {
-        IMarkupContainer * pIContainer = FindPadContainer( pvarParam2 );
+        IMarkupContainer* pIContainer = FindPadContainer(pvarParam2);
 
-        if (!pIContainer)
-        {
+        if (!pIContainer) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
         pIContainer->Release();
 
-        for ( int i = 0 ; i < _aryPadContainers.Size() ; i++ )
-            if (_aryPadContainers[i]._id == V_I4( pvarParam2 ))
-                _aryPadContainers.Delete( i );
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "SetGravity" )))  // pStrGravity (left|right)
+        for (int i = 0; i < _aryPadContainers.Size(); i++)
+            if (_aryPadContainers[i]._id == V_I4(pvarParam2))
+                _aryPadContainers.Delete(i);
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("SetGravity")))  // pStrGravity (left|right)
     {
-        IMarkupPointer * pIPointer = FindPadPointer( pvarParam2 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
         POINTER_GRAVITY  eGravity;
 
-        if (!pIPointer || !pvarParam3 || V_VT( pvarParam3 ) != VT_BSTR)
-        {
+        if (!pIPointer || !pvarParam3 || V_VT(pvarParam3) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Left" )))
+        if (!StrCmpIC(V_BSTR(pvarParam3), _T("Left")))
             eGravity = POINTER_GRAVITY_Left;
-        else if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Right" )))
+        else if (!StrCmpIC(V_BSTR(pvarParam3), _T("Right")))
             eGravity = POINTER_GRAVITY_Right;
-        else
-        {
+        else {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( pIPointer->SetGravity( eGravity ) );
+        hr = THR(pIPointer->SetGravity(eGravity));
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "SetCling" )))  // bool
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("SetCling")))  // bool
     {
-        IMarkupPointer * pIPointer = FindPadPointer( pvarParam2 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
 
-        if (!pIPointer || !pvarParam3 || V_VT( pvarParam3 ) != VT_BOOL)
-        {
+        if (!pIPointer || !pvarParam3 || V_VT(pvarParam3) != VT_BOOL) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( pIPointer->SetCling( V_BOOL( pvarParam3 ) ) );
+        hr = THR(pIPointer->SetCling(V_BOOL(pvarParam3)));
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "Unposition" )))  // no args
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("Unposition")))  // no args
     {
-        IMarkupPointer * pIPointer = FindPadPointer( pvarParam2 );
-        if (!pIPointer)
-        {
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
+        if (!pIPointer) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( pIPointer->Unposition() );
+        hr = THR(pIPointer->Unposition());
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "MoveToPointer" )))  // p1, p2
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("MoveToPointer")))  // p1, p2
     {
-        IMarkupPointer * pIPointerMoveMe = FindPadPointer( pvarParam2 );
-        IMarkupPointer * pIPointerToHere = FindPadPointer( pvarParam3 );
+        IMarkupPointer* pIPointerMoveMe = FindPadPointer(pvarParam2);
+        IMarkupPointer* pIPointerToHere = FindPadPointer(pvarParam3);
 
-        if (!pIPointerMoveMe || !pIPointerToHere)
-        {
+        if (!pIPointerMoveMe || !pIPointerToHere) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( pIPointerMoveMe->MoveToPointer( pIPointerToHere ) );
+        hr = THR(pIPointerMoveMe->MoveToPointer(pIPointerToHere));
 
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "MoveToBeginning" )))  // pointer, container [ optional ]
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("MoveToBeginning")))  // pointer, container [ optional ]
     {
-        IMarkupPointer * pIPointer = FindPadPointer( pvarParam2 );
-        IMarkupContainer * pIContainer = FindPadContainer( pvarParam3 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
+        IMarkupContainer* pIContainer = FindPadContainer(pvarParam3);
 
-        if (!pIPointer)
-        {
+        if (!pIPointer) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( pIPointer->MoveToContainer( pIContainer ? pIContainer : g_PM, TRUE ) );
+        hr = THR(pIPointer->MoveToContainer(pIContainer ? pIContainer : g_PM, TRUE));
 
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "MoveToEnd" )))  // pointer, container [ optional ]
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("MoveToEnd")))  // pointer, container [ optional ]
     {
-        IMarkupPointer * pIPointer = FindPadPointer( pvarParam2 );
-        IMarkupContainer * pIContainer = FindPadContainer( pvarParam3 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
+        IMarkupContainer* pIContainer = FindPadContainer(pvarParam3);
 
-        if (!pIPointer)
-        {
+        if (!pIPointer) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( pIPointer->MoveToContainer( pIContainer ? pIContainer : g_PM, FALSE ) );
+        hr = THR(pIPointer->MoveToContainer(pIContainer ? pIContainer : g_PM, FALSE));
 
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "MovePointer" )))  // pointer, dir, cchMax, ret actual cch
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("MovePointer")))  // pointer, dir, cchMax, ret actual cch
     {
-        IMarkupPointer * pIPointer = FindPadPointer( pvarParam2 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
         long             cch;
         BOOL             fLeft;
 
-        if (!pIPointer || !pvarParam3 || V_VT( pvarParam3 ) != VT_BSTR)
-        {
+        if (!pIPointer || !pvarParam3 || V_VT(pvarParam3) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Left" )))
+        if (!StrCmpIC(V_BSTR(pvarParam3), _T("Left")))
             fLeft = TRUE;
-        else if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Right" )))
+        else if (!StrCmpIC(V_BSTR(pvarParam3), _T("Right")))
             fLeft = FALSE;
-        else
-        {
+        else {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!pvarParam4 || V_VT( pvarParam4 ) == VT_ERROR)
+        if (!pvarParam4 || V_VT(pvarParam4) == VT_ERROR)
             cch = -1;
-        else if (V_VT( pvarParam4 ) != VT_I4)
-        {
+        else if (V_VT(pvarParam4) != VT_I4) {
             hr = E_FAIL;
             goto Cleanup;
-        }
-        else
-            cch = V_I4( pvarParam4 );
+        } else
+            cch = V_I4(pvarParam4);
 
         if (fLeft)
-            hr = THR( pIPointer->Left( TRUE, NULL, NULL, & cch, NULL ) );
+            hr = THR(pIPointer->Left(TRUE, NULL, NULL, &cch, NULL));
         else
-            hr = THR( pIPointer->Right( TRUE, NULL, NULL, & cch, NULL ) );
+            hr = THR(pIPointer->Right(TRUE, NULL, NULL, &cch, NULL));
 
         pvarRet->vt = VT_I4;
         pvarRet->lVal = cch;
 
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "Context" )))  // pointer, dir, ret context (bstr)
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("Context")))  // pointer, dir, ret context (bstr)
     {
-        IMarkupPointer *    pIPointer = FindPadPointer( pvarParam2 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
         BOOL                fLeft;
         MARKUP_CONTEXT_TYPE ct;
 
-        if (!pIPointer || !pvarParam3 || V_VT( pvarParam3 ) != VT_BSTR)
-        {
+        if (!pIPointer || !pvarParam3 || V_VT(pvarParam3) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Left" )))
+        if (!StrCmpIC(V_BSTR(pvarParam3), _T("Left")))
             fLeft = TRUE;
-        else if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Right" )))
+        else if (!StrCmpIC(V_BSTR(pvarParam3), _T("Right")))
             fLeft = FALSE;
-        else
-        {
+        else {
             hr = E_FAIL;
             goto Cleanup;
         }
 
         if (fLeft)
-            hr = THR( pIPointer->Left( FALSE, & ct, NULL, NULL, NULL ) );
+            hr = THR(pIPointer->Left(FALSE, &ct, NULL, NULL, NULL));
         else
-            hr = THR( pIPointer->Right( FALSE, & ct, NULL, NULL, NULL ) );
+            hr = THR(pIPointer->Right(FALSE, &ct, NULL, NULL, NULL));
 
         if (hr)
             goto Cleanup;
 
         pvarRet->vt = VT_BSTR;
 
-        switch ( ct )
-        {
-        case CONTEXT_TYPE_None        : hr = THR( FormsAllocStringW( _T( "None" ),       & pvarRet->bstrVal ) ); break;
-        case CONTEXT_TYPE_EnterScope  : hr = THR( FormsAllocStringW( _T( "EnterScope" ), & pvarRet->bstrVal ) ); break;
-        case CONTEXT_TYPE_ExitScope   : hr = THR( FormsAllocStringW( _T( "ExitScope" ),  & pvarRet->bstrVal ) ); break;
-        case CONTEXT_TYPE_NoScope     : hr = THR( FormsAllocStringW( _T( "NoScope" ),    & pvarRet->bstrVal ) ); break;
-        case CONTEXT_TYPE_Text        : hr = THR( FormsAllocStringW( _T( "Text" ),       & pvarRet->bstrVal ) ); break;
+        switch (ct) {
+        case CONTEXT_TYPE_None: hr = THR(FormsAllocStringW(_T("None"), &pvarRet->bstrVal)); break;
+        case CONTEXT_TYPE_EnterScope: hr = THR(FormsAllocStringW(_T("EnterScope"), &pvarRet->bstrVal)); break;
+        case CONTEXT_TYPE_ExitScope: hr = THR(FormsAllocStringW(_T("ExitScope"), &pvarRet->bstrVal)); break;
+        case CONTEXT_TYPE_NoScope: hr = THR(FormsAllocStringW(_T("NoScope"), &pvarRet->bstrVal)); break;
+        case CONTEXT_TYPE_Text: hr = THR(FormsAllocStringW(_T("Text"), &pvarRet->bstrVal)); break;
         }
 
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "ContextElement" )))  // pointer, dir, ret context (elem)
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("ContextElement")))  // pointer, dir, ret context (elem)
     {
-        IMarkupPointer *    pIPointer = FindPadPointer( pvarParam2 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
         BOOL                fLeft;
         MARKUP_CONTEXT_TYPE ct;
-        IHTMLElement *      pIElement = NULL;
+        IHTMLElement* pIElement = NULL;
 
-        if (!pIPointer || !pvarParam3 || V_VT( pvarParam3 ) != VT_BSTR)
-        {
+        if (!pIPointer || !pvarParam3 || V_VT(pvarParam3) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Left" )))
+        if (!StrCmpIC(V_BSTR(pvarParam3), _T("Left")))
             fLeft = TRUE;
-        else if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Right" )))
+        else if (!StrCmpIC(V_BSTR(pvarParam3), _T("Right")))
             fLeft = FALSE;
-        else
-        {
+        else {
             hr = E_FAIL;
             goto Cleanup;
         }
 
         if (fLeft)
-            hr = THR( pIPointer->Left( FALSE, & ct, & pIElement, NULL, NULL ) );
+            hr = THR(pIPointer->Left(FALSE, &ct, &pIElement, NULL, NULL));
         else
-            hr = THR( pIPointer->Right( FALSE, & ct, & pIElement, NULL, NULL ) );
+            hr = THR(pIPointer->Right(FALSE, &ct, &pIElement, NULL, NULL));
 
         if (hr)
             goto Cleanup;
 
         pvarRet->vt = VT_DISPATCH;
 
-        if (ct == CONTEXT_TYPE_EnterScope || ct == CONTEXT_TYPE_ExitScope || ct == CONTEXT_TYPE_NoScope)
-        {
-            hr = THR( pIElement->QueryInterface( IID_IDispatch, (void **) & pvarRet->pdispVal ) );
+        if (ct == CONTEXT_TYPE_EnterScope || ct == CONTEXT_TYPE_ExitScope || ct == CONTEXT_TYPE_NoScope) {
+            hr = THR(pIElement->QueryInterface(IID_IDispatch, (void**)&pvarRet->pdispVal));
 
             if (hr)
                 goto Cleanup;
-        }
-        else
-        {
+        } else {
             pvarRet->pdispVal = NULL;
         }
 
@@ -4803,74 +4462,65 @@ CPadDoc::Markup (
 
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "ContextText" )))  // pointer, dir, cchMax, ret text (bstr)
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("ContextText")))  // pointer, dir, cchMax, ret text (bstr)
     {
-        IMarkupPointer *    pIPointer = FindPadPointer( pvarParam2 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
         BOOL                fLeft;
         MARKUP_CONTEXT_TYPE ct;
         long                cch;
 
-        if (!pIPointer || !pvarParam3 || V_VT( pvarParam3 ) != VT_BSTR)
-        {
+        if (!pIPointer || !pvarParam3 || V_VT(pvarParam3) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Left" )))
+        if (!StrCmpIC(V_BSTR(pvarParam3), _T("Left")))
             fLeft = TRUE;
-        else if (!StrCmpIC( V_BSTR( pvarParam3 ), _T( "Right" )))
+        else if (!StrCmpIC(V_BSTR(pvarParam3), _T("Right")))
             fLeft = FALSE;
-        else
-        {
+        else {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!pvarParam4 || V_VT( pvarParam4 ) == VT_ERROR)
+        if (!pvarParam4 || V_VT(pvarParam4) == VT_ERROR)
             cch = -1;
-        else if (V_VT( pvarParam4 ) != VT_I4)
-        {
+        else if (V_VT(pvarParam4) != VT_I4) {
             hr = E_FAIL;
             goto Cleanup;
-        }
-        else
-            cch = V_I4( pvarParam4 );
+        } else
+            cch = V_I4(pvarParam4);
 
         if (fLeft)
-            hr = THR( pIPointer->Left( FALSE, & ct, NULL, & cch, NULL ) );
+            hr = THR(pIPointer->Left(FALSE, &ct, NULL, &cch, NULL));
         else
-            hr = THR( pIPointer->Right( FALSE, & ct, NULL, & cch, NULL ) );
+            hr = THR(pIPointer->Right(FALSE, &ct, NULL, &cch, NULL));
 
         if (hr)
             goto Cleanup;
 
         pvarRet->vt = VT_BSTR;
 
-        if (ct == CONTEXT_TYPE_Text)
-        {
-            TCHAR * pch = new TCHAR [ cch + 1 ];
+        if (ct == CONTEXT_TYPE_Text) {
+            TCHAR* pch = new TCHAR[cch + 1];
 
-            if (!pch)
-            {
+            if (!pch) {
                 hr = E_OUTOFMEMORY;
                 goto Cleanup;
             }
 
             if (fLeft)
-                hr = THR( pIPointer->Left( FALSE, NULL, NULL, & cch, pch ) );
+                hr = THR(pIPointer->Left(FALSE, NULL, NULL, &cch, pch));
             else
-                hr = THR( pIPointer->Right( FALSE, NULL, NULL, & cch, pch ) );
+                hr = THR(pIPointer->Right(FALSE, NULL, NULL, &cch, pch));
 
             pch[cch] = 0;
 
-            hr = THR( FormsAllocStringW( pch, & pvarRet->bstrVal ) );
+            hr = THR(FormsAllocStringW(pch, &pvarRet->bstrVal));
 
             delete pch;
-        }
-        else
-        {
-            hr = THR( FormsAllocStringW( _T( "" ), & pvarRet->bstrVal ) );
+        } else {
+            hr = THR(FormsAllocStringW(_T(""), &pvarRet->bstrVal));
 
             if (hr)
                 goto Cleanup;
@@ -4878,106 +4528,92 @@ CPadDoc::Markup (
 
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "MoveAdjacentToElement" )))  // pointer, element, adj
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("MoveAdjacentToElement")))  // pointer, element, adj
     {
-        IMarkupPointer *  pIPointer = FindPadPointer( pvarParam2 );
-        IHTMLElement *    pIElement = GetElement( pvarParam3 );
+        IMarkupPointer* pIPointer = FindPadPointer(pvarParam2);
+        IHTMLElement* pIElement = GetElement(pvarParam3);
 
         ELEMENT_ADJACENCY eAdj;
 
-        if (!pIPointer || !pIElement)
-        {
+        if (!pIPointer || !pIElement) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!pvarParam4 || V_VT( pvarParam4 ) != VT_BSTR)
-        {
+        if (!pvarParam4 || V_VT(pvarParam4) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!StrCmpIC( V_BSTR( pvarParam4 ), _T( "BeforeBegin" )))
+        if (!StrCmpIC(V_BSTR(pvarParam4), _T("BeforeBegin")))
             eAdj = ELEM_ADJ_BeforeBegin;
-        else if (!StrCmpIC( V_BSTR( pvarParam4 ), _T( "AfterBegin" )))
+        else if (!StrCmpIC(V_BSTR(pvarParam4), _T("AfterBegin")))
             eAdj = ELEM_ADJ_AfterBegin;
-        else if (!StrCmpIC( V_BSTR( pvarParam4 ), _T( "BeforeEnd" )))
+        else if (!StrCmpIC(V_BSTR(pvarParam4), _T("BeforeEnd")))
             eAdj = ELEM_ADJ_BeforeEnd;
-        else if (!StrCmpIC( V_BSTR( pvarParam4 ), _T( "AfterEnd" )))
+        else if (!StrCmpIC(V_BSTR(pvarParam4), _T("AfterEnd")))
             eAdj = ELEM_ADJ_AfterEnd;
-        else
-        {
+        else {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( pIPointer->MoveAdjacentToElement( pIElement, eAdj ) );
+        hr = THR(pIPointer->MoveAdjacentToElement(pIElement, eAdj));
 
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "Compare" )))  // p1, p2, how, return t/f
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("Compare")))  // p1, p2, how, return t/f
     {
-        IMarkupPointer *  p1 = FindPadPointer( pvarParam2 );
-        IMarkupPointer *  p2 = FindPadPointer( pvarParam3 );
+        IMarkupPointer* p1 = FindPadPointer(pvarParam2);
+        IMarkupPointer* p2 = FindPadPointer(pvarParam3);
         BOOL              fResult;
 
-        if (!p1 || !p2 || !pvarParam4 || V_VT( pvarParam4 ) != VT_BSTR)
-        {
+        if (!p1 || !p2 || !pvarParam4 || V_VT(pvarParam4) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        if (!StrCmpIC( V_BSTR( pvarParam4 ), _T( "IsEqualTo" )))
-            hr = THR( p1->IsEqualTo( p2, & fResult ) );
-        else if (!StrCmpIC( V_BSTR( pvarParam4 ), _T( "IsLeftOf" )))
-            hr = THR( p1->IsLeftOf( p2, & fResult ) );
-        else if (!StrCmpIC( V_BSTR( pvarParam4 ), _T( "IsLeftOfOrEqualTo" )))
-            hr = THR( p1->IsLeftOfOrEqualTo( p2, & fResult ) );
-        else if (!StrCmpIC( V_BSTR( pvarParam4 ), _T( "IsRightOf" )))
-            hr = THR( p1->IsRightOf( p2, & fResult ) );
-        else if (!StrCmpIC( V_BSTR( pvarParam4 ), _T( "IsRightOfOrEqualTo" )))
-            hr = THR( p1->IsRightOfOrEqualTo( p2, & fResult ) );
-        else
-        {
+        if (!StrCmpIC(V_BSTR(pvarParam4), _T("IsEqualTo")))
+            hr = THR(p1->IsEqualTo(p2, &fResult));
+        else if (!StrCmpIC(V_BSTR(pvarParam4), _T("IsLeftOf")))
+            hr = THR(p1->IsLeftOf(p2, &fResult));
+        else if (!StrCmpIC(V_BSTR(pvarParam4), _T("IsLeftOfOrEqualTo")))
+            hr = THR(p1->IsLeftOfOrEqualTo(p2, &fResult));
+        else if (!StrCmpIC(V_BSTR(pvarParam4), _T("IsRightOf")))
+            hr = THR(p1->IsRightOf(p2, &fResult));
+        else if (!StrCmpIC(V_BSTR(pvarParam4), _T("IsRightOfOrEqualTo")))
+            hr = THR(p1->IsRightOfOrEqualTo(p2, &fResult));
+        else {
             hr = E_FAIL;
             goto Cleanup;
         }
 
         pvarRet->vt = VT_BOOL;
         pvarRet->boolVal = !!fResult;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "BeginUndoUnit" )))  // undo string
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("BeginUndoUnit")))  // undo string
     {
-        if (!pvarParam2 || V_VT( pvarParam2 ) != VT_BSTR)
-        {
+        if (!pvarParam2 || V_VT(pvarParam2) != VT_BSTR) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        hr = THR( g_MS->BeginUndoUnit( V_BSTR( pvarParam2 ) ) );
+        hr = THR(g_MS->BeginUndoUnit(V_BSTR(pvarParam2)));
 
         if (hr)
             goto Cleanup;
-    }
-    else if (!StrCmpIC( V_BSTR( pvarParam1 ), _T( "EndUndoUnit" )))
-    {
-        hr = THR( g_MS->EndUndoUnit() );
+    } else if (!StrCmpIC(V_BSTR(pvarParam1), _T("EndUndoUnit"))) {
+        hr = THR(g_MS->EndUndoUnit());
 
         if (hr)
             goto Cleanup;
-    }
-    else
-    {
+    } else {
         hr = E_FAIL;
         goto Cleanup;
     }
 
 Cleanup:
 
-    if (g_PM)
-    {
+    if (g_PM) {
         g_PM->Release();
         g_PM = NULL;
     }
@@ -4985,13 +4621,12 @@ Cleanup:
     if (pDocDisp)
         pDocDisp->Release();
 
-    if (g_MS)
-    {
+    if (g_MS) {
         g_MS->Release();
         g_MS = NULL;
     }
 
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
@@ -5018,130 +4653,139 @@ typedef double trfloat;             // define floating point precision
 #endif
 
 class TRanrotGenerator {            // encapsulate random number generator
-  public:
-  void RandomInit(uint32 seed);     // initialization
-  void SetInterval(int min, int max); // set interval for iRandom
-  int iRandom();                    // get integer random number
-  trfloat Random();                 // get floating point random number
-  TRanrotGenerator(uint32 seed=-1); // constructor
-  protected:
-  void step();                      // generate next random number
-  union {                           // used for conversion to float
-    trfloat randp1;
-    uint32 randbits[3];};
-  int p1, p2;                       // indexes into buffer
-  int imin, iinterval;              // interval for iRandom
-  uint32 randbuffer[KK][2];         // history buffer
+public:
+    void RandomInit(uint32 seed);     // initialization
+    void SetInterval(int min, int max); // set interval for iRandom
+    int iRandom();                    // get integer random number
+    trfloat Random();                 // get floating point random number
+    TRanrotGenerator(uint32 seed = -1); // constructor
+protected:
+    void step();                      // generate next random number
+    union {                           // used for conversion to float
+        trfloat randp1;
+        uint32 randbits[3];
+    };
+    int p1, p2;                       // indexes into buffer
+    int imin, iinterval;              // interval for iRandom
+    uint32 randbuffer[KK][2];         // history buffer
 #ifdef SELF_TEST
-  uint32 randbufcopy[KK*2][2];      // used for self-test
+    uint32 randbufcopy[KK * 2][2];      // used for self-test
 #endif
 };
 
 
 TRanrotGenerator::TRanrotGenerator(uint32 seed) {
-  // constructor
-  RandomInit(seed);  SetInterval(0, 0xfffffff);}
+    // constructor
+    RandomInit(seed);  SetInterval(0, 0xfffffff);
+}
 
 
 void TRanrotGenerator::SetInterval(int min, int max) {
-  // set interval for iRandom
-  imin = min; iinterval = max - min + 1;}
+    // set interval for iRandom
+    imin = min; iinterval = max - min + 1;
+}
 
 
 void TRanrotGenerator::step() {
-  // generate next random number
-  uint32 a, b;
-  // generate next number
-  b = _lrotr(randbuffer[p1][0], R1) + randbuffer[p2][0];
-  a = _lrotr(randbuffer[p1][1], R2) + randbuffer[p2][1];
-  randbuffer[p1][0] = a; randbuffer[p1][1] = b;
-  // rotate list pointers
-  if (--p1 < 0) p1 = KK - 1;
-  if (--p2 < 0) p2 = KK - 1;
+    // generate next random number
+    uint32 a, b;
+    // generate next number
+    b = _lrotr(randbuffer[p1][0], R1) + randbuffer[p2][0];
+    a = _lrotr(randbuffer[p1][1], R2) + randbuffer[p2][1];
+    randbuffer[p1][0] = a; randbuffer[p1][1] = b;
+    // rotate list pointers
+    if (--p1 < 0) p1 = KK - 1;
+    if (--p2 < 0) p2 = KK - 1;
 #ifdef SELF_TEST
-  // perform self-test
-  if (randbuffer[p1][0] == randbufcopy[0][0] &&
-    memcmp(randbuffer, randbufcopy[KK-p1], 2*KK*sizeof(uint32)) == 0) {
-      // self-test failed
-      if ((p2 + KK - p1) % KK != JJ) {
-        // note: the way of printing error messages depends on system
-        printf("Random number generator not initialized");}
-      else {
-        printf("Random number generator returned to initial state");}
-      abort();}
+    // perform self-test
+    if (randbuffer[p1][0] == randbufcopy[0][0] &&
+        memcmp(randbuffer, randbufcopy[KK - p1], 2 * KK * sizeof(uint32)) == 0) {
+        // self-test failed
+        if ((p2 + KK - p1) % KK != JJ) {
+            // note: the way of printing error messages depends on system
+            printf("Random number generator not initialized");
+        } else {
+            printf("Random number generator returned to initial state");
+        }
+        abort();
+    }
 #endif
-  // convert to float
-  randbits[0] = a;
+    // convert to float
+    randbits[0] = a;
 #ifdef HIGH_RESOLUTION
-  randbits[1] = b | 0x80000000;                // 80 bits floats = 63 bits resolution
+    randbits[1] = b | 0x80000000;                // 80 bits floats = 63 bits resolution
 #else
-  randbits[1] = (b & 0x000FFFFF) | 0x3FF00000; // 64 bits floats = 52 bits resolution
+    randbits[1] = (b & 0x000FFFFF) | 0x3FF00000; // 64 bits floats = 52 bits resolution
 #endif
-  }
+}
 
 
 trfloat TRanrotGenerator::Random() {
-  // returns a random number between 0 and 1.
-  trfloat r = randp1 - 1.;
-  step();
-  return r;}
+    // returns a random number between 0 and 1.
+    trfloat r = randp1 - 1.;
+    step();
+    return r;
+}
 
 
 int TRanrotGenerator::iRandom() {
-  // get integer random number
-  int i = iinterval * Random();
-  if (i >= iinterval) i = iinterval;
-  return imin + i;}
+    // get integer random number
+    int i = iinterval * Random();
+    if (i >= iinterval) i = iinterval;
+    return imin + i;
+}
 
 
-void TRanrotGenerator::RandomInit (uint32 seed) {
-  // this function initializes the random number generator.
-  int i, j;
-  // make sure seed != 0
-  if (seed==0) seed = 0x7fffffff;
+void TRanrotGenerator::RandomInit(uint32 seed) {
+    // this function initializes the random number generator.
+    int i, j;
+    // make sure seed != 0
+    if (seed == 0) seed = 0x7fffffff;
 
-  // make random numbers and put them into the buffer
-  for (i=0; i<KK; i++) {
-    for (j=0; j<2; j++) {
-      seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
-      randbuffer[i][j] = seed;}}
-  // set exponent of randp1
-  randp1 = 1.5;
+    // make random numbers and put them into the buffer
+    for (i = 0; i < KK; i++) {
+        for (j = 0; j < 2; j++) {
+            seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
+            randbuffer[i][j] = seed;
+        }
+    }
+    // set exponent of randp1
+    randp1 = 1.5;
 #ifdef HIGH_RESOLUTION
-  assert((randbits[2]&0xFFFF)==0x3FFF); // check that Intel 10-byte float format used
+    assert((randbits[2] & 0xFFFF) == 0x3FFF); // check that Intel 10-byte float format used
 #else
-  Assert(randbits[1]==0x3FF80000); // check that IEEE double precision float format used
+    Assert(randbits[1] == 0x3FF80000); // check that IEEE double precision float format used
 #endif
-  Assert(sizeof(uint32)==4);  // check that 32 bits integers used
+    Assert(sizeof(uint32) == 4);  // check that 32 bits integers used
 
-  // initialize pointers to circular buffer
-  p1 = 0;  p2 = JJ;
+    // initialize pointers to circular buffer
+    p1 = 0;  p2 = JJ;
 #ifdef SELF_TEST
-  memcpy (randbufcopy, randbuffer, 2*KK*sizeof(uint32));
-  memcpy (randbufcopy[KK], randbuffer, 2*KK*sizeof(uint32));
+    memcpy(randbufcopy, randbuffer, 2 * KK * sizeof(uint32));
+    memcpy(randbufcopy[KK], randbuffer, 2 * KK * sizeof(uint32));
 #endif
-  // randomize some more
-  for (i=0; i<97; i++) step();
+    // randomize some more
+    for (i = 0; i < 97; i++) step();
 }
 
 static TRanrotGenerator r;
 
-HRESULT CPadDoc::Random ( long range, long * plRet )
+HRESULT CPadDoc::Random(long range, long* plRet)
 {
     *plRet = range > 0 ? r.iRandom() % range : 0;
 
     return S_OK;
 }
 
-HRESULT CPadDoc::RandomSeed ( long seed )
+HRESULT CPadDoc::RandomSeed(long seed)
 {
-    r.RandomInit( seed );
+    r.RandomInit(seed);
 
     return S_OK;
 }
 
 
-void GetHeapTotals(LONG * pcHeapBlocks, LONG * pcHeapBytes)
+void GetHeapTotals(LONG* pcHeapBlocks, LONG* pcHeapBytes)
 {
     HANDLE rgHeaps[256];
     DWORD dwHeap, dwHeaps;
@@ -5149,14 +4793,11 @@ void GetHeapTotals(LONG * pcHeapBlocks, LONG * pcHeapBytes)
     LONG cBlocks = 0, cBytes = 0;
 
     dwHeaps = GetProcessHeaps(ARRAY_SIZE(rgHeaps), rgHeaps);
-    for (dwHeap = 0; dwHeap < dwHeaps; ++dwHeap)
-    {
+    for (dwHeap = 0; dwHeap < dwHeaps; ++dwHeap) {
         HeapLock(rgHeaps[dwHeap]);
         memset(&he, 0, sizeof(PROCESS_HEAP_ENTRY));
-        while (HeapWalk(rgHeaps[dwHeap], &he))
-        {
-            if (he.wFlags & PROCESS_HEAP_ENTRY_BUSY)
-            {
+        while (HeapWalk(rgHeaps[dwHeap], &he)) {
+            if (he.wFlags & PROCESS_HEAP_ENTRY_BUSY) {
                 cBlocks += 1;
                 cBytes += he.cbData;
             }
@@ -5169,15 +4810,14 @@ void GetHeapTotals(LONG * pcHeapBlocks, LONG * pcHeapBytes)
 }
 
 
-HRESULT CPadDoc::GetHeapCounter(long iCounter, long * plRet)
+HRESULT CPadDoc::GetHeapCounter(long iCounter, long* plRet)
 {
     static long g_cHeapBlocks = 0;
-    static long g_cHeapBytes  = 0;
+    static long g_cHeapBytes = 0;
 
     *plRet = 0;
 
-    if (iCounter == 0)
-    {
+    if (iCounter == 0) {
         GetHeapTotals(&g_cHeapBlocks, &g_cHeapBytes);
     }
 
@@ -5197,7 +4837,7 @@ HRESULT CPadDoc::CreateProcess(BSTR bstrCommandLine, VARIANT_BOOL fWait)
     char achCommandLine[2048];
     int cch, ret;
     PROCESS_INFORMATION pi;
-    STARTUPINFOA si = { 0 };
+    STARTUPINFOA si = {0};
 
     cch = WideCharToMultiByte(CP_ACP, 0, bstrCommandLine, _tcslen(bstrCommandLine), achCommandLine, 2048, NULL, NULL);
     if (!cch)
@@ -5211,8 +4851,7 @@ HRESULT CPadDoc::CreateProcess(BSTR bstrCommandLine, VARIANT_BOOL fWait)
 
     CloseHandle(pi.hThread);
 
-    if (fWait)
-    {
+    if (fWait) {
         WaitForSingleObject(pi.hProcess, INFINITE);
     }
 
@@ -5222,7 +4861,7 @@ HRESULT CPadDoc::CreateProcess(BSTR bstrCommandLine, VARIANT_BOOL fWait)
 }
 
 
-HRESULT CPadDoc::GetCurrentProcessId(long * plRetVal)
+HRESULT CPadDoc::GetCurrentProcessId(long* plRetVal)
 {
     *plRetVal = ::GetCurrentProcessId();
     return S_OK;

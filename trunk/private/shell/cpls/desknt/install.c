@@ -468,7 +468,7 @@ InstallDriver(
                                                 &DriverInfoDetailData,
                                                 DriverInfoDetailData.cbSize,
                                                 &cbOutputSize)) ||
-                                                (GetLastError() == ERROR_INSUFFICIENT_BUFFER)) {
+                    (GetLastError() == ERROR_INSUFFICIENT_BUFFER)) {
                     bEntryFound = TRUE;
                 }
             }

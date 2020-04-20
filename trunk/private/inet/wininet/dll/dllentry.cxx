@@ -43,13 +43,13 @@ Revision History:
 extern "C" {
 #endif
 
-BOOL
-WINAPI
-DllMain(
-    IN HINSTANCE DllHandle,
-    IN DWORD Reason,
-    IN LPVOID Reserved
-    );
+    BOOL
+        WINAPI
+        DllMain(
+            IN HINSTANCE DllHandle,
+            IN DWORD Reason,
+            IN LPVOID Reserved
+        );
 
 
 #if defined(__cplusplus)
@@ -73,7 +73,7 @@ DllMain(
     IN HINSTANCE DllHandle,
     IN DWORD Reason,
     IN LPVOID Reserved
-    )
+)
 
 /*
 
@@ -175,7 +175,7 @@ Return Value:
         DEBUG_PRINT(DLL,
                     INFO,
                     ("DLL Terminated\n"
-                    ));
+                     ));
 
         DEBUG_LEAVE(TRUE);
 
@@ -244,12 +244,10 @@ HRESULT CallRegInstall(LPSTR szSection)
     HRESULT hr = E_FAIL;
     HINSTANCE hinstAdvPack = LoadLibrary(TEXT("ADVPACK.DLL"));
 
-    if (hinstAdvPack)
-    {
+    if (hinstAdvPack) {
         REGINSTALL pfnri = (REGINSTALL)GetProcAddress(hinstAdvPack, achREGINSTALL);
 
-        if (pfnri)
-        {
+        if (pfnri) {
             hr = pfnri(GlobalDllHandle, szSection, NULL);
         }
 
@@ -270,50 +268,42 @@ DllInstall
 {
     HRESULT hr = S_OK;
 
-// Add entries to selfreg.inx and include the code below to support self-registration.
+    // Add entries to selfreg.inx and include the code below to support self-registration.
 #ifdef WININET_SELFREG
     BOOL bUseHKLM = FALSE;
-    if (pwStr && (0 == StrCmpIW(pwStr, L"HKLM")))
-    {
+    if (pwStr && (0 == StrCmpIW(pwStr, L"HKLM"))) {
         bUseHKLM = TRUE;
     }
 
-    if ( bInstall )
-    {
+    if (bInstall) {
         hr = CallRegInstall(bUseHKLM ? "Reg.HKLM" : "Reg.HKCU");
-    }
-    else
-    {
+    } else {
         hr = CallRegInstall(bUseHKLM ? "Unreg.HKLM" : "UnReg.HKCU");
     }
 #endif
 
-    if( bInstall && (!pwStr || !*pwStr || (StrCmpIW( pwStr, L"HKLM") == 0)))
-    {
+    if (bInstall && (!pwStr || !*pwStr || (StrCmpIW(pwStr, L"HKLM") == 0))) {
         // Write out to HKLM\Software\Microsoft\Internet Explorer\Security\Digest
         HKEY hKey;
         DWORD dwError, dwRegDisp, dwFlags;
         dwFlags = FLAGS_DW;
 
-        dwError =  REGCREATEKEYEX(HKEY_LOCAL_MACHINE, IE_SECURITY_DIGEST_REG_KEY, 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hKey, &dwRegDisp);
-        if (dwError == ERROR_SUCCESS)
-        {
-            dwError = RegSetValueEx(hKey, FLAGS_SZ, 0, REG_BINARY, (LPBYTE) &dwFlags, sizeof(DWORD));
+        dwError = REGCREATEKEYEX(HKEY_LOCAL_MACHINE, IE_SECURITY_DIGEST_REG_KEY, 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hKey, &dwRegDisp);
+        if (dwError == ERROR_SUCCESS) {
+            dwError = RegSetValueEx(hKey, FLAGS_SZ, 0, REG_BINARY, (LPBYTE)&dwFlags, sizeof(DWORD));
             REGCLOSEKEY(hKey);
         }
 
 #ifndef UNIX
         DWORD dwNSVersion;
-        if( GetActiveNetscapeVersion( &dwNSVersion) == FALSE)
+        if (GetActiveNetscapeVersion(&dwNSVersion) == FALSE)
             dwNSVersion = 0;
-        SetNetscapeImportVersion( dwNSVersion);
+        SetNetscapeImportVersion(dwNSVersion);
 #endif // UNIX
 
         WritePrivateProfileString("compatibility", "NOTIFIER", "0x400000", "win.ini");
         WritePrivateProfileString(NULL, NULL, NULL, "win.ini");
-    }
-    else if(bInstall && StrCmpIW( pwStr, L"HKCU") == 0)
-    {
+    } else if (bInstall && StrCmpIW(pwStr, L"HKCU") == 0) {
 
         MakeCacheLocationsConsistent();
 
@@ -322,20 +312,17 @@ DllInstall
         DWORD cNSFilenameSize = MAX_PATH;
         DWORD dwNSVersion;
 
-        if( GetNetscapeImportVersion( &dwNSVersion) == TRUE
+        if (GetNetscapeImportVersion(&dwNSVersion) == TRUE
             && dwNSVersion != 0
-            && FindNetscapeCookieFile( dwNSVersion, szNSFilename, &cNSFilenameSize) == TRUE)
-        {
-            ImportCookieFile( szNSFilename );
+            && FindNetscapeCookieFile(dwNSVersion, szNSFilename, &cNSFilenameSize) == TRUE) {
+            ImportCookieFile(szNSFilename);
         }
 #endif // UNIX
 
         ie401::Import401History();
 
         ie401::Import401Content();
-    }
-    else if (!bInstall && (!pwStr || !*pwStr || (StrCmpIW(pwStr, L"HKLM") == 0)))
-    {
+    } else if (!bInstall && (!pwStr || !*pwStr || (StrCmpIW(pwStr, L"HKLM") == 0))) {
         RegDeleteKey(HKEY_LOCAL_MACHINE, IE_SECURITY_DIGEST_REG_KEY);
     }
 

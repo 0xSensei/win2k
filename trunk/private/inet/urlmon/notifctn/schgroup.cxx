@@ -712,7 +712,7 @@ STDMETHODIMP CScheduleGroup::RevokeNotification(
             if (hr == NOERROR) {
                 NotfAssert((pSLARevokedPackage));
                 hr = pSLARevokedPackage->GetNotificationItem(pNotificationItem,
-                    (ENUM_FLAGS)dwMode);
+                                                             (ENUM_FLAGS)dwMode);
                 RELEASE(pSLARevokedPackage);
             }
         } else {

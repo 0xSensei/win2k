@@ -1,28 +1,19 @@
-
 //*                  Microsoft Windows                               **
 //*            Copyright(c) Microsoft Corp., 1995                    **
 
-
-
 // PROGRAMS.C - "Programs" property sheet UI handlers doe InetCpl
 
-
-
-
 // History:
-
 // 6/20/96  t-gpease    created
 
 
 #include "inetcplp.h"
-
 #include <mluisupp.h>
 #include <advpub.h>
 
 
 // Private Functions and Structures
-
-BOOL ProgramsDlgInit( HWND hDlg);
+BOOL ProgramsDlgInit(HWND hDlg);
 void UpdateMailIconLabel();
 
 
@@ -38,7 +29,7 @@ typedef struct {
     BOOL bAssociationCheck;     // Is IE the default browser?
 #ifndef UNIX
     BOOL bIEIsFTPClient;  // Is IE the default FTP Client?
-    IFtpInstaller * pfi;  // FTP Installer
+    IFtpInstaller* pfi;  // FTP Installer
 #endif // UNIX
 
     int iHtmlEditor;
@@ -62,7 +53,7 @@ typedef struct {
     int  iVSource;
 #endif
 
-} PROGRAMSPAGE, *LPPROGRAMSPAGE;
+} PROGRAMSPAGE, * LPPROGRAMSPAGE;
 
 #define ARRAYSIZE(a)    (sizeof(a)/sizeof(a[0]))
 
@@ -119,38 +110,35 @@ BOOL CreateFileTypesDialog(HWND hDlg)
     PROPSHEETHEADER     psHeader;
     TCHAR               szFileTypes[MAX_PATH];
 
-    typedef HRESULT (WINAPI *LPADDFILETYPESPS)(LPFNADDPROPSHEETPAGE pfnAddPage,
-                                               LPARAM lparam);
+    typedef HRESULT(WINAPI* LPADDFILETYPESPS)(LPFNADDPROPSHEETPAGE pfnAddPage,
+                                              LPARAM lparam);
     LPADDFILETYPESPS AddFileTypesPS;
     HINSTANCE hInstFTDll = NULL;
 
     // get the file name from resource
-    TCHAR szDllFilename[SMALL_BUF_LEN+1];
-    if (!MLLoadString(IDS_FTDLL_FILENAME,szDllFilename,ARRAYSIZE(szDllFilename)))
-    {
+    TCHAR szDllFilename[SMALL_BUF_LEN + 1];
+    if (!MLLoadString(IDS_FTDLL_FILENAME, szDllFilename, ARRAYSIZE(szDllFilename))) {
         return FALSE;
     }
 
     // load the DLL
     hInstFTDll = LoadLibrary(szDllFilename);
-    if (!hInstFTDll)
-    {
+    if (!hInstFTDll) {
         return FALSE;
     }
 
     // get Dialog Proc...
-    if (!(AddFileTypesPS = (LPADDFILETYPESPS) GetProcAddress(hInstFTDll, szAddFileTypesPS)))
-    {
+    if (!(AddFileTypesPS = (LPADDFILETYPESPS)GetProcAddress(hInstFTDll, szAddFileTypesPS))) {
         FreeLibrary(hInstFTDll);
         return FALSE;
     }
 
-    memset(&psHeader,0,sizeof(psHeader));
+    memset(&psHeader, 0, sizeof(psHeader));
 
     MLLoadString(IDS_FILETYPES, szFileTypes, ARRAYSIZE(szFileTypes));
 
     psHeader.dwSize = sizeof(psHeader);
-    psHeader.dwFlags = PSH_NOAPPLYNOW | PSH_USECALLBACK ;
+    psHeader.dwFlags = PSH_NOAPPLYNOW | PSH_USECALLBACK;
     psHeader.hwndParent = hDlg;
     psHeader.hInstance = MLGetHinst();
     psHeader.pszIcon = NULL;
@@ -172,7 +160,7 @@ BOOL CreateFileTypesDialog(HWND hDlg)
 
 
 #ifdef WALLET
-HINSTANCE GetWalletPaymentDProc(PFN_DISPLAYWALLETPAYDIALOG_PROC * ppfnDialogProc)
+HINSTANCE GetWalletPaymentDProc(PFN_DISPLAYWALLETPAYDIALOG_PROC* ppfnDialogProc)
 {
     TCHAR   szDLLFile[MAX_PATH];
     DWORD   dwType;
@@ -180,18 +168,15 @@ HINSTANCE GetWalletPaymentDProc(PFN_DISPLAYWALLETPAYDIALOG_PROC * ppfnDialogProc
     HINSTANCE hInst = NULL;
 
     *ppfnDialogProc = NULL;
-    if (ERROR_SUCCESS == SHGetValue(HKEY_CLASSES_ROOT, g_szWalletPaymentDirKey, NULL, &dwType, (LPVOID)szDLLFile, &dwSize))
-    {
+    if (ERROR_SUCCESS == SHGetValue(HKEY_CLASSES_ROOT, g_szWalletPaymentDirKey, NULL, &dwType, (LPVOID)szDLLFile, &dwSize)) {
         hInst = LoadLibrary(szDLLFile);
         // Will Fail if OCX is not installed.
-        if (hInst)
-        {
-            *ppfnDialogProc = (PFN_DISPLAYWALLETPAYDIALOG_PROC) GetProcAddress(hInst, g_szWalletPaymentFN);
+        if (hInst) {
+            *ppfnDialogProc = (PFN_DISPLAYWALLETPAYDIALOG_PROC)GetProcAddress(hInst, g_szWalletPaymentFN);
         }
     }
 
-    if (!*ppfnDialogProc && hInst)
-    {
+    if (!*ppfnDialogProc && hInst) {
         FreeLibrary(hInst);
         hInst = NULL;
     }
@@ -207,8 +192,7 @@ BOOL IsWalletPaymentAvailable(VOID)
     BOOL fIsAvailable = FALSE;
 
     hInst = GetWalletPaymentDProc(&pfnDialogProc);
-    if (hInst)
-    {
+    if (hInst) {
         fIsAvailable = TRUE;
         FreeLibrary(hInst);
     }
@@ -222,15 +206,14 @@ VOID DisplayWalletPaymentDialog(HWND hWnd)
     PFN_DISPLAYWALLETPAYDIALOG_PROC pfnDialogProc;
 
     hInst = GetWalletPaymentDProc(&pfnDialogProc);
-    if (hInst)
-    {
+    if (hInst) {
         (*pfnDialogProc)(hWnd, NULL, NULL, 0);
         FreeLibrary(hInst);
     }
 }
 
 
-HINSTANCE GetWalletAddressDProc(PFN_DISPLAYWALLETADDRDIALOG_PROC * ppfnDialogProc)
+HINSTANCE GetWalletAddressDProc(PFN_DISPLAYWALLETADDRDIALOG_PROC* ppfnDialogProc)
 {
     TCHAR   szDLLFile[MAX_PATH];
     DWORD   dwType;
@@ -238,18 +221,15 @@ HINSTANCE GetWalletAddressDProc(PFN_DISPLAYWALLETADDRDIALOG_PROC * ppfnDialogPro
     HINSTANCE hInst = NULL;
 
     *ppfnDialogProc = NULL;
-    if (ERROR_SUCCESS == SHGetValue(HKEY_CLASSES_ROOT, g_szWalletAddressDirKey, NULL, &dwType, (LPVOID)szDLLFile, &dwSize))
-    {
+    if (ERROR_SUCCESS == SHGetValue(HKEY_CLASSES_ROOT, g_szWalletAddressDirKey, NULL, &dwType, (LPVOID)szDLLFile, &dwSize)) {
         hInst = LoadLibrary(szDLLFile);
         // Will Fail if OCX is not installed.
-        if (hInst)
-        {
-            *ppfnDialogProc = (PFN_DISPLAYWALLETADDRDIALOG_PROC) GetProcAddress(hInst, g_szWalletAddressFN);
+        if (hInst) {
+            *ppfnDialogProc = (PFN_DISPLAYWALLETADDRDIALOG_PROC)GetProcAddress(hInst, g_szWalletAddressFN);
         }
     }
 
-    if (!*ppfnDialogProc && hInst)
-    {
+    if (!*ppfnDialogProc && hInst) {
         FreeLibrary(hInst);
         hInst = NULL;
     }
@@ -264,18 +244,14 @@ BOOL IsWallet3Installed()
     BOOL fWallet3 = FALSE;
 
     hInst = GetWalletAddressDProc(&pfnDialogProc);
-    if (hInst)
-    {
+    if (hInst) {
         CHAR chPath[MAX_PATH];
 
-        if (GetModuleFileNameA(hInst, chPath, ARRAYSIZE(chPath)))
-        {
+        if (GetModuleFileNameA(hInst, chPath, ARRAYSIZE(chPath))) {
             DWORD dwMSVer, dwLSVer;
 
-            if (SUCCEEDED(GetVersionFromFile(chPath, &dwMSVer, &dwLSVer, TRUE)))
-            {
-                if (dwMSVer >= 3)
-                {
+            if (SUCCEEDED(GetVersionFromFile(chPath, &dwMSVer, &dwLSVer, TRUE))) {
+                if (dwMSVer >= 3) {
                     fWallet3 = TRUE;
                 }
             }
@@ -294,8 +270,7 @@ BOOL IsWalletAddressAvailable(VOID)
     BOOL fIsAvailable = FALSE;
 
     hInst = GetWalletAddressDProc(&pfnDialogProc);
-    if (hInst)
-    {
+    if (hInst) {
         fIsAvailable = TRUE;
         FreeLibrary(hInst);
     }
@@ -309,8 +284,7 @@ VOID DisplayWalletAddressDialog(HWND hWnd)
     PFN_DISPLAYWALLETADDRDIALOG_PROC pfnDialogProc;
 
     hInst = GetWalletAddressDProc(&pfnDialogProc);
-    if (hInst)
-    {
+    if (hInst) {
         (*pfnDialogProc)(hWnd, NULL, NULL, 0);
         FreeLibrary(hInst);
     }
@@ -343,10 +317,10 @@ VOID DisplayWalletAddressDialog(HWND hWnd)
 
 UINT RegPopulateComboBox(HWND hwndCB, HKEY hkeyProtocol)
 {
-    TCHAR           szFriendlyName      [MAX_PATH];
-    TCHAR           szKeyName           [MAX_PATH];
-    TCHAR           szCurrent           [MAX_PATH];
-    TCHAR           szFriendlyCurrent   [MAX_PATH];
+    TCHAR           szFriendlyName[MAX_PATH];
+    TCHAR           szKeyName[MAX_PATH];
+    TCHAR           szCurrent[MAX_PATH];
+    TCHAR           szFriendlyCurrent[MAX_PATH];
     FILETIME        ftLastWriteTime;
 
     DWORD   i;              // Index counter
@@ -357,32 +331,28 @@ UINT RegPopulateComboBox(HWND hwndCB, HKEY hkeyProtocol)
     // find the currently selected client
     cb = sizeof(szCurrent);
     if (RegQueryValueEx(hkeyProtocol, NULL, NULL, NULL, (LPBYTE)szCurrent, &cb)
-        != ERROR_SUCCESS)
-    {
+        != ERROR_SUCCESS) {
         // if not found then blank the friendly name and keyname.
-        szCurrent[0]=0;
-        szFriendlyCurrent[0]=0;
+        szCurrent[0] = 0;
+        szFriendlyCurrent[0] = 0;
     }
 
     // populate the dropdown
-    for(i=0;                    // always start with 0
-        cb=ARRAYSIZE(szKeyName),   // string size
-        ERROR_SUCCESS==RegEnumKeyEx(hkeyProtocol, i, szKeyName, &cb, NULL, NULL, NULL, &ftLastWriteTime);
-        i++)                    // get next entry
+    for (i = 0;                    // always start with 0
+         cb = ARRAYSIZE(szKeyName),   // string size
+         ERROR_SUCCESS == RegEnumKeyEx(hkeyProtocol, i, szKeyName, &cb, NULL, NULL, NULL, &ftLastWriteTime);
+         i++)                    // get next entry
     {
         // get the friendly name of the client
-        if (RegOpenKeyEx(hkeyProtocol, szKeyName, 0, KEY_READ, &hkeyClient)==ERROR_SUCCESS)
-        {
+        if (RegOpenKeyEx(hkeyProtocol, szKeyName, 0, KEY_READ, &hkeyClient) == ERROR_SUCCESS) {
             cb = sizeof(szFriendlyName);
             if (RegQueryValueEx(hkeyClient, NULL, NULL, NULL, (LPBYTE)szFriendlyName, &cb)
-                == ERROR_SUCCESS)
-            {
+                == ERROR_SUCCESS) {
                 // add name to dropdown
                 SendMessage(hwndCB, CB_ADDSTRING, 0, (LPARAM)szFriendlyName);
 
                 // check to see if it's the current default
-                if (!StrCmp(szKeyName, szCurrent))
-                {
+                if (!StrCmp(szKeyName, szCurrent)) {
                     // save its the friendly name which we'll use later to
                     // select the current client and what index it is.
                     StrCpyN(szFriendlyCurrent, szFriendlyName, ARRAYSIZE(szFriendlyCurrent));
@@ -397,7 +367,7 @@ UINT RegPopulateComboBox(HWND hwndCB, HKEY hkeyProtocol)
 
     // select current client and get index number... just in case listboxes are sorted we
     // are doing this last.
-    return (unsigned int) SendMessage(hwndCB, CB_SELECTSTRING, (WPARAM) 0, (LPARAM) szFriendlyCurrent);
+    return (unsigned int)SendMessage(hwndCB, CB_SELECTSTRING, (WPARAM)0, (LPARAM)szFriendlyCurrent);
 }   // RegPopulateComboBox()
 #else
 #define RegPopulateComboBox RegPopulateEditText
@@ -421,18 +391,15 @@ BOOL AddItemToEditorsCombobox
     BOOL fRet = FALSE;
 
     // Only add if not already in combo
-    if (SendMessage(hwndCB, CB_FINDSTRINGEXACT, -1, (LPARAM)pszFriendlyName) == CB_ERR)
-    {
+    if (SendMessage(hwndCB, CB_FINDSTRINGEXACT, -1, (LPARAM)pszFriendlyName) == CB_ERR) {
         // Add name to dropdown
         INT_PTR i = SendMessage(hwndCB, CB_ADDSTRING, 0, (LPARAM)pszFriendlyName);
-        if (i >= 0)
-        {
+        if (i >= 0) {
             fRet = (SendMessage(hwndCB, CB_SETITEMDATA, i, (LPARAM)hkey) != CB_ERR);
         }
     }
 
-    if (!fRet)
-    {
+    if (!fRet) {
         RegCloseKey(hkey);
     }
     return fRet;
@@ -446,8 +413,7 @@ void AddToOpenWithList(LPCTSTR pszFriendly, HKEY hkeyFrom, HKEY hkeyOpenWithList
     ASSERT(pszFriendly);
     ASSERT(hkeyFrom);
 
-    if (NULL == hkeyOpenWithList)
-    {
+    if (NULL == hkeyOpenWithList) {
         return;
     }
 
@@ -457,11 +423,9 @@ void AddToOpenWithList(LPCTSTR pszFriendly, HKEY hkeyFrom, HKEY hkeyOpenWithList
 
     DWORD dwDisposition;
     HKEY hkeyDest;
-    if (hkeyOpenWithList && ERROR_SUCCESS == RegCreateKeyEx(hkeyOpenWithList, szBuf, 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyDest, &dwDisposition))
-    {
+    if (hkeyOpenWithList && ERROR_SUCCESS == RegCreateKeyEx(hkeyOpenWithList, szBuf, 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyDest, &dwDisposition)) {
         // Copy everything under shell if this item did not exist
-        if (dwDisposition == REG_CREATED_NEW_KEY)
-        {
+        if (dwDisposition == REG_CREATED_NEW_KEY) {
             SHCopyKey(hkeyFrom, L"shell\\edit", hkeyDest, 0);
         }
         RegCloseKey(hkeyDest);
@@ -481,25 +445,21 @@ BOOL IsHtmlStub
 
     // We don't display programs that are simple redirectors (such as Office's msohtmed.exe)
     TCHAR sz[MAX_PATH];
-    if (SUCCEEDED(AssocQueryStringByKey(ASSOCF_VERIFY, ASSOCSTR_EXECUTABLE, hkeyVerb, pszVerb, sz, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(sz)))))
-    {
+    if (SUCCEEDED(AssocQueryStringByKey(ASSOCF_VERIFY, ASSOCSTR_EXECUTABLE, hkeyVerb, pszVerb, sz, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(sz))))) {
         // Get the MULTISZ list of known redirectors
         TCHAR szRedir[MAX_PATH];
         ZeroInit(szRedir, ARRAYSIZE(szRedir)); // Protect against non-multisz strings in the reg
         DWORD dwType;
         DWORD cb = sizeof(szRedir) - 4;
-        if (ERROR_SUCCESS != SHGetValue(HKEY_LOCAL_MACHINE, REGSTR_PATH_DEFAULT_HTML_EDITOR, L"Stubs", &dwType, szRedir, &cb))
-        {
+        if (ERROR_SUCCESS != SHGetValue(HKEY_LOCAL_MACHINE, REGSTR_PATH_DEFAULT_HTML_EDITOR, L"Stubs", &dwType, szRedir, &cb)) {
             // Nothing in registry, so default to ignore the Office redirector
             StrCpyN(szRedir, L"msohtmed.exe\0", ARRAYSIZE(szRedir));
         }
 
         // Compare exe name with list of redirectors
         LPCTSTR pszFile = PathFindFileName(sz);
-        for (LPTSTR p = szRedir; *p != NULL; p += lstrlen(p) + 1)
-        {
-            if (StrCmpI(p, pszFile) == 0)
-            {
+        for (LPTSTR p = szRedir; *p != NULL; p += lstrlen(p) + 1) {
+            if (StrCmpI(p, pszFile) == 0) {
                 fRet = TRUE;
                 break;
             }
@@ -522,8 +482,7 @@ void PopulateEditorsCombobox(HWND hwndCB)
     DWORD dw;
     HKEY hkeyOpenWithList = NULL;
     TCHAR szOpenWith[MAX_PATH];
-    if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CLASSES_ROOT, L".htm\\OpenWithList", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyOpenWithList, &dw))
-    {
+    if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CLASSES_ROOT, L".htm\\OpenWithList", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyOpenWithList, &dw)) {
 
         // First add Notepad to the OpenWithList so we have at least one editor
 
@@ -535,11 +494,9 @@ void PopulateEditorsCombobox(HWND hwndCB)
         HKEY hkeyOpenWith;
 
         if (SUCCEEDED(AssocQueryString(ASSOCF_INIT_BYEXENAME | ASSOCF_VERIFY,
-            ASSOCSTR_FRIENDLYAPPNAME, szPath, NULL, szNotepadFriendly, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(szNotepadFriendly)))))
-        {
+                                       ASSOCSTR_FRIENDLYAPPNAME, szPath, NULL, szNotepadFriendly, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(szNotepadFriendly))))) {
             // If not already in the OpenWithList, add it
-            if (ERROR_SUCCESS != RegOpenKeyEx(hkeyOpenWithList, szNotepadFriendly, 0, KEY_READ, &hkeyOpenWith))
-            {
+            if (ERROR_SUCCESS != RegOpenKeyEx(hkeyOpenWithList, szNotepadFriendly, 0, KEY_READ, &hkeyOpenWith)) {
                 // Compose command for the verb "c:\windows\notepad.exe %1"
                 StrCatBuff(szPath, L" %1", ARRAYSIZE(szPath));
 
@@ -548,9 +505,7 @@ void PopulateEditorsCombobox(HWND hwndCB)
                 StrCpyN(szKey, szNotepadFriendly, ARRAYSIZE(szKey));
                 StrCatBuff(szKey, L"\\shell\\edit\\command", ARRAYSIZE(szKey));
                 SHSetValue(hkeyOpenWithList, szKey, NULL, REG_SZ, szPath, CbFromCch(lstrlen(szPath) + 1));
-            }
-            else
-            {
+            } else {
                 RegCloseKey(hkeyOpenWith);
             }
         }
@@ -560,19 +515,14 @@ void PopulateEditorsCombobox(HWND hwndCB)
 
         DWORD dwIndex = 0;
         DWORD dwSize = ARRAYSIZE(szOpenWith);
-        while (ERROR_SUCCESS == RegEnumKeyEx(hkeyOpenWithList, dwIndex, szOpenWith, &dwSize, NULL, NULL, NULL, NULL))
-        {
-            if (ERROR_SUCCESS == RegOpenKeyEx(hkeyOpenWithList, szOpenWith, 0, KEY_READ, &hkeyOpenWith))
-            {
+        while (ERROR_SUCCESS == RegEnumKeyEx(hkeyOpenWithList, dwIndex, szOpenWith, &dwSize, NULL, NULL, NULL, NULL)) {
+            if (ERROR_SUCCESS == RegOpenKeyEx(hkeyOpenWithList, szOpenWith, 0, KEY_READ, &hkeyOpenWith)) {
                 // We only accept items that have an edit verb
                 TCHAR sz[MAX_PATH];
-                if (SUCCEEDED(AssocQueryStringByKey(ASSOCF_VERIFY, ASSOCSTR_FRIENDLYAPPNAME, hkeyOpenWith, L"edit", sz, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(sz)))))
-                {
+                if (SUCCEEDED(AssocQueryStringByKey(ASSOCF_VERIFY, ASSOCSTR_FRIENDLYAPPNAME, hkeyOpenWith, L"edit", sz, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(sz))))) {
                     // Note that we store hkeyOpenWith in the combo so don't close it
                     AddItemToEditorsCombobox(hwndCB, szOpenWith, hkeyOpenWith);
-                }
-                else
-                {
+                } else {
                     RegCloseKey(hkeyOpenWith);
                 }
             }
@@ -590,12 +540,10 @@ void PopulateEditorsCombobox(HWND hwndCB)
     HKEY hkeyHtm;
 
     //  BUGBUGTODO - should use AssocCreate(IQueryAssociations) here instead
-    if (SUCCEEDED(AssocQueryKey(0, ASSOCKEY_SHELLEXECCLASS, L".htm", NULL, &hkeyHtm)))
-    {
+    if (SUCCEEDED(AssocQueryKey(0, ASSOCKEY_SHELLEXECCLASS, L".htm", NULL, &hkeyHtm))) {
         TCHAR sz[MAX_PATH];
         if (!IsHtmlStub(hkeyHtm, L"edit") &&
-             SUCCEEDED(AssocQueryStringByKey(ASSOCF_VERIFY, ASSOCSTR_FRIENDLYAPPNAME, hkeyHtm, L"edit", sz, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(sz)))))
-        {
+            SUCCEEDED(AssocQueryStringByKey(ASSOCF_VERIFY, ASSOCSTR_FRIENDLYAPPNAME, hkeyHtm, L"edit", sz, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(sz))))) {
             AddItemToEditorsCombobox(hwndCB, sz, hkeyHtm);
             AddToOpenWithList(sz, hkeyHtm, hkeyOpenWithList);
 
@@ -603,8 +551,7 @@ void PopulateEditorsCombobox(HWND hwndCB)
             hkeyHtm = NULL;
         }
 
-        if (hkeyHtm)
-        {
+        if (hkeyHtm) {
             RegCloseKey(hkeyHtm);
         }
     }
@@ -614,11 +561,9 @@ void PopulateEditorsCombobox(HWND hwndCB)
 
     HKEY hkeyDefault;
     if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_DEFAULT_HTML_EDITOR, 0, KEY_READ, &hkeyDefault) ||
-        ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_DEFAULT_HTML_EDITOR, 0, KEY_READ, &hkeyDefault))
-    {
+        ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_DEFAULT_HTML_EDITOR, 0, KEY_READ, &hkeyDefault)) {
         TCHAR sz[MAX_PATH];
-        if (SUCCEEDED(AssocQueryStringByKey(ASSOCF_VERIFY, ASSOCSTR_FRIENDLYAPPNAME, hkeyDefault, L"edit", sz, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(sz)))))
-        {
+        if (SUCCEEDED(AssocQueryStringByKey(ASSOCF_VERIFY, ASSOCSTR_FRIENDLYAPPNAME, hkeyDefault, L"edit", sz, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(sz))))) {
             // Add name to dropdown and save hkeyDefault in the combobox (so don't close it)
             AddItemToEditorsCombobox(hwndCB, sz, hkeyDefault);
 
@@ -630,16 +575,13 @@ void PopulateEditorsCombobox(HWND hwndCB)
             // if we change it
 
             AddToOpenWithList(sz, hkeyDefault, hkeyOpenWithList);
-        }
-        else
-        {
+        } else {
             RegCloseKey(hkeyDefault);
         }
 
     }
 
-    if (hkeyOpenWithList)
-    {
+    if (hkeyOpenWithList) {
         RegCloseKey(hkeyOpenWithList);
     }
 }
@@ -656,15 +598,14 @@ void PopulateEditorsCombobox(HWND hwndCB)
 // 6/17/96  t-gpease   created
 // 7/ 8/96  t-gpease   added Mail and News initialization
 
-BOOL ProgramsDlgInit( HWND hDlg)
+BOOL ProgramsDlgInit(HWND hDlg)
 {
     LPPROGRAMSPAGE  pPrg;
     DWORD           dw;
     HKEY            hkey;
 
     pPrg = (LPPROGRAMSPAGE)LocalAlloc(LPTR, sizeof(*pPrg));
-    if (!pPrg)
-    {
+    if (!pPrg) {
         EndDialog(hDlg, 0);
         return FALSE;   // no memory?
     }
@@ -681,7 +622,7 @@ BOOL ProgramsDlgInit( HWND hDlg)
 
 #ifndef UNIX
     pPrg->bAssociationCheck = TRUE;     // we want everybody to use IE!
-    SUCCEEDED(CoCreateInstance(CLSID_FtpInstaller, NULL, CLSCTX_INPROC_SERVER, IID_IFtpInstaller, (void **) &pPrg->pfi));
+    SUCCEEDED(CoCreateInstance(CLSID_FtpInstaller, NULL, CLSCTX_INPROC_SERVER, IID_IFtpInstaller, (void**)&pPrg->pfi));
     if (pPrg->pfi)
         pPrg->bIEIsFTPClient = ((S_OK == pPrg->pfi->IsIEDefautlFTPClient()) ? TRUE : FALSE);
 
@@ -690,7 +631,7 @@ BOOL ProgramsDlgInit( HWND hDlg)
     pPrg->iNews = -1;                   // nothing selected
 
 #ifndef UNIX
-    pPrg->bAssociationCheck = SHRegGetBoolUSValue(REGSTR_PATH_MAIN,REGSTR_VAL_CHECKASSOC,FALSE,TRUE);
+    pPrg->bAssociationCheck = SHRegGetBoolUSValue(REGSTR_PATH_MAIN, REGSTR_VAL_CHECKASSOC, FALSE, TRUE);
 
 
     // Get the html editors
@@ -698,7 +639,7 @@ BOOL ProgramsDlgInit( HWND hDlg)
     pPrg->hwndHtmlEdit = GetDlgItem(pPrg->hDlg, IDC_PROGRAMS_HTMLEDITOR_COMBO);
     PopulateEditorsCombobox(pPrg->hwndHtmlEdit);
     // Sundown: coercion to int because 32b is sufficient for cursor selection
-    pPrg->iHtmlEditor = (int) SendMessage(pPrg->hwndHtmlEdit, CB_GETCURSEL, 0, 0);
+    pPrg->iHtmlEditor = (int)SendMessage(pPrg->hwndHtmlEdit, CB_GETCURSEL, 0, 0);
 
 
 
@@ -745,8 +686,7 @@ BOOL ProgramsDlgInit( HWND hDlg)
 #ifndef UNIX
 
     pPrg->hwndCalendar = GetDlgItem(pPrg->hDlg, IDC_PROGRAMS_CALENDAR_COMBO);
-    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CALENDARCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CALENDARCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS) {
         // populate the combobox
         pPrg->iCalendar = RegPopulateComboBox(pPrg->hwndCalendar, hkey);
 
@@ -758,8 +698,7 @@ BOOL ProgramsDlgInit( HWND hDlg)
     // get the contacts clients
 
     pPrg->hwndContact = GetDlgItem(pPrg->hDlg, IDC_PROGRAMS_CONTACT_COMBO);
-    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CONTACTCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CONTACTCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS) {
         pPrg->iContact = RegPopulateComboBox(pPrg->hwndContact, hkey);// populate the combobox
         RegCloseKey(hkey);// close the keys
     }
@@ -768,8 +707,7 @@ BOOL ProgramsDlgInit( HWND hDlg)
     // get the internet call clients
 
     pPrg->hwndCall = GetDlgItem(pPrg->hDlg, IDC_PROGRAMS_CALL_COMBO);
-    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CALLCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CALLCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS) {
         // populate the combobox
         pPrg->iCall = RegPopulateComboBox(pPrg->hwndCall, hkey);
 
@@ -781,35 +719,31 @@ BOOL ProgramsDlgInit( HWND hDlg)
     CheckDlgButton(hDlg, IDC_CHECK_ASSOCIATIONS_CHECKBOX, pPrg->bAssociationCheck);
 
     HRESULT hrIEDefaultFTPClient = E_FAIL;
-    if (pPrg->pfi)
-    {
+    if (pPrg->pfi) {
         hrIEDefaultFTPClient = pPrg->pfi->IsIEDefautlFTPClient();
         // Is this option not applicable because only the IE FTP client is installed?
         if (SUCCEEDED(hrIEDefaultFTPClient))
             CheckDlgButton(hDlg, IDC_PROGRAMS_IE_IS_FTPCLIENT, pPrg->bIEIsFTPClient);
     }
-    if (FAILED(hrIEDefaultFTPClient))
-    {
+    if (FAILED(hrIEDefaultFTPClient)) {
         // Yes, so remove the option.
         ShowWindow(GetDlgItem(hDlg, IDC_PROGRAMS_IE_IS_FTPCLIENT), SW_HIDE);
     }
 
 
-    if( g_restrict.fMailNews )
-    {
-        EnableWindow( GetDlgItem(hDlg, IDC_PROGRAMS_MAIL_COMBO), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_PROGRAMS_NEWS_COMBO), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_PROGRAMS_CALL_COMBO), FALSE);
+    if (g_restrict.fMailNews) {
+        EnableWindow(GetDlgItem(hDlg, IDC_PROGRAMS_MAIL_COMBO), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_PROGRAMS_NEWS_COMBO), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_PROGRAMS_CALL_COMBO), FALSE);
     }
 
-    if ( g_restrict.fCalContact )
-    {
-        EnableWindow( GetDlgItem(hDlg, IDC_PROGRAMS_CALENDAR_COMBO), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_PROGRAMS_CONTACT_COMBO), FALSE);
+    if (g_restrict.fCalContact) {
+        EnableWindow(GetDlgItem(hDlg, IDC_PROGRAMS_CALENDAR_COMBO), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_PROGRAMS_CONTACT_COMBO), FALSE);
     }
 
-    EnableWindow( GetDlgItem(hDlg, IDC_RESETWEBSETTINGS), !g_restrict.fResetWebSettings );
-    EnableWindow( GetDlgItem(hDlg, IDC_CHECK_ASSOCIATIONS_CHECKBOX), !g_restrict.fDefault );
+    EnableWindow(GetDlgItem(hDlg, IDC_RESETWEBSETTINGS), !g_restrict.fResetWebSettings);
+    EnableWindow(GetDlgItem(hDlg, IDC_CHECK_ASSOCIATIONS_CHECKBOX), !g_restrict.fDefault);
 
 #else /* !UNIX */
 
@@ -820,8 +754,7 @@ BOOL ProgramsDlgInit( HWND hDlg)
     pPrg->hwndNewsEdit = GetDlgItem(pPrg->hDlg, IDC_NEWS_EDIT);
     pPrg->hwndEnableUseOEMail = GetDlgItem(pPrg->hDlg, IDC_OE_MAIL);
     pPrg->hwndEnableUseOENews = GetDlgItem(pPrg->hDlg, IDC_OE_NEWS);
-    if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_VSOURCECLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_VSOURCECLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS) {
         // populate the combobox
         pPrg->iVSource = RegPopulateComboBox(pPrg->hwndVSource, hkey);
 
@@ -831,81 +764,75 @@ BOOL ProgramsDlgInit( HWND hDlg)
 
     // Set dialog items
     {
-    // Look for the oexpress executable in the directory the
-    // current process was executed from...  Use the value for the
-    // excutable name as stored in the registry for msimn.exe
-    DWORD dwType;
-    TCHAR szPresentName[MAX_PATH];
-    DWORD dwSize = sizeof(szPresentName)/sizeof(szPresentName[0]);
-    if (SHGetValue(IE_USE_OE_PRESENT_HKEY, IE_USE_OE_PRESENT_KEY,
-        IE_USE_OE_PRESENT_VALUE, &dwType, (void*)szPresentName, &dwSize) ||
-        (dwType != REG_SZ) || LocalFileCheck(szPresentName))
-    {
-        // Disable user's access to OE settings
-        EnableWindow(pPrg->hwndEnableUseOEMail, FALSE);
-        EnableWindow(pPrg->hwndEnableUseOENews, FALSE);
+        // Look for the oexpress executable in the directory the
+        // current process was executed from...  Use the value for the
+        // excutable name as stored in the registry for msimn.exe
+        DWORD dwType;
+        TCHAR szPresentName[MAX_PATH];
+        DWORD dwSize = sizeof(szPresentName) / sizeof(szPresentName[0]);
+        if (SHGetValue(IE_USE_OE_PRESENT_HKEY, IE_USE_OE_PRESENT_KEY,
+                       IE_USE_OE_PRESENT_VALUE, &dwType, (void*)szPresentName, &dwSize) ||
+            (dwType != REG_SZ) || LocalFileCheck(szPresentName)) {
+            // Disable user's access to OE settings
+            EnableWindow(pPrg->hwndEnableUseOEMail, FALSE);
+            EnableWindow(pPrg->hwndEnableUseOENews, FALSE);
 
-        // Reset the internal state of the Use OE check buttons
-        pPrg->dwUseOEMail = FALSE;
-        pPrg->dwUseOENews = FALSE;
-    }
-    else
-    {
-        // Reset the values of the check button for use OE MAIL
-        // Based on registry values
-        dwSize = sizeof(pPrg->dwUseOEMail);
-        if (SHGetValue(IE_USE_OE_MAIL_HKEY, IE_USE_OE_MAIL_KEY,
-            IE_USE_OE_MAIL_VALUE, &dwType, (void*)&pPrg->dwUseOEMail,
-            &dwSize) || (dwType != REG_DWORD))
-        {
-            // The default value for mail is FALSE
+            // Reset the internal state of the Use OE check buttons
             pPrg->dwUseOEMail = FALSE;
-        }
-        // Reset the UI elements
-        CheckDlgButton(hDlg, IDC_OE_MAIL, pPrg->dwUseOEMail ? BST_CHECKED :
-            BST_UNCHECKED);
-        EnableWindow(pPrg->hwndMail, pPrg->dwUseOEMail ? FALSE : TRUE);
-        EnableWindow(pPrg->hwndMailEdit, pPrg->dwUseOEMail ? FALSE : TRUE);
-        EnableWindow(pPrg->hwndMailFind, pPrg->dwUseOEMail ? FALSE : TRUE);
-
-        // Repeat the above for the NEWS settings
-        dwSize = sizeof(pPrg->dwUseOENews);
-        if (SHGetValue(IE_USE_OE_NEWS_HKEY, IE_USE_OE_NEWS_KEY,
-            IE_USE_OE_NEWS_VALUE, &dwType, (void*)&pPrg->dwUseOENews,
-            &dwSize) || (dwType != REG_DWORD))
-        {
-            // The default value for News is FALSE
             pPrg->dwUseOENews = FALSE;
+        } else {
+            // Reset the values of the check button for use OE MAIL
+            // Based on registry values
+            dwSize = sizeof(pPrg->dwUseOEMail);
+            if (SHGetValue(IE_USE_OE_MAIL_HKEY, IE_USE_OE_MAIL_KEY,
+                           IE_USE_OE_MAIL_VALUE, &dwType, (void*)&pPrg->dwUseOEMail,
+                           &dwSize) || (dwType != REG_DWORD)) {
+                // The default value for mail is FALSE
+                pPrg->dwUseOEMail = FALSE;
+            }
+            // Reset the UI elements
+            CheckDlgButton(hDlg, IDC_OE_MAIL, pPrg->dwUseOEMail ? BST_CHECKED :
+                           BST_UNCHECKED);
+            EnableWindow(pPrg->hwndMail, pPrg->dwUseOEMail ? FALSE : TRUE);
+            EnableWindow(pPrg->hwndMailEdit, pPrg->dwUseOEMail ? FALSE : TRUE);
+            EnableWindow(pPrg->hwndMailFind, pPrg->dwUseOEMail ? FALSE : TRUE);
+
+            // Repeat the above for the NEWS settings
+            dwSize = sizeof(pPrg->dwUseOENews);
+            if (SHGetValue(IE_USE_OE_NEWS_HKEY, IE_USE_OE_NEWS_KEY,
+                           IE_USE_OE_NEWS_VALUE, &dwType, (void*)&pPrg->dwUseOENews,
+                           &dwSize) || (dwType != REG_DWORD)) {
+                // The default value for News is FALSE
+                pPrg->dwUseOENews = FALSE;
+            }
+            CheckDlgButton(hDlg, IDC_OE_NEWS, pPrg->dwUseOENews ? BST_CHECKED :
+                           BST_UNCHECKED);
+            EnableWindow(pPrg->hwndNews, pPrg->dwUseOENews ? FALSE : TRUE);
+            EnableWindow(pPrg->hwndNewsEdit, pPrg->dwUseOENews ? FALSE : TRUE);
+            EnableWindow(pPrg->hwndNewsFind, pPrg->dwUseOENews ? FALSE : TRUE);
         }
-        CheckDlgButton(hDlg, IDC_OE_NEWS, pPrg->dwUseOENews ? BST_CHECKED :
-            BST_UNCHECKED);
-        EnableWindow(pPrg->hwndNews, pPrg->dwUseOENews ? FALSE : TRUE);
-        EnableWindow(pPrg->hwndNewsEdit, pPrg->dwUseOENews ? FALSE : TRUE);
-        EnableWindow(pPrg->hwndNewsFind, pPrg->dwUseOENews ? FALSE : TRUE);
-    }
     }
 
-    if( g_restrict.fMailNews )
-    {
-        EnableWindow( GetDlgItem(hDlg, IDC_EDIT_PROGRAMS_MAIL), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_EDIT_PROGRAMS_NEWS), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_EDIT_PROGRAMS_VSOURCE), FALSE);
+    if (g_restrict.fMailNews) {
+        EnableWindow(GetDlgItem(hDlg, IDC_EDIT_PROGRAMS_MAIL), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_EDIT_PROGRAMS_NEWS), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_EDIT_PROGRAMS_VSOURCE), FALSE);
 
-        EnableWindow( GetDlgItem(hDlg, IDC_OE_MAIL), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_OE_NEWS), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_OE_MAIL), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_OE_NEWS), FALSE);
 
-        EnableWindow( GetDlgItem(hDlg, IDC_MAIL_FIND), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_NEWS_FIND), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_VSOURCE_FIND), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_MAIL_FIND), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_NEWS_FIND), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_VSOURCE_FIND), FALSE);
 
-        EnableWindow( GetDlgItem(hDlg, IDC_MAIL_EDIT), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_NEWS_EDIT), FALSE);
-        EnableWindow( GetDlgItem(hDlg, IDC_VSOURCE_EDIT), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_MAIL_EDIT), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_NEWS_EDIT), FALSE);
+        EnableWindow(GetDlgItem(hDlg, IDC_VSOURCE_EDIT), FALSE);
     }
 
-    SendMessage( pPrg->hwndMail,    EM_LIMITTEXT, MAX_PATH, 0 );
-    SendMessage( pPrg->hwndNews,    EM_LIMITTEXT, MAX_PATH, 0 );
-    SendMessage( pPrg->hwndVSource, EM_LIMITTEXT, MAX_PATH, 0 );
+    SendMessage(pPrg->hwndMail, EM_LIMITTEXT, MAX_PATH, 0);
+    SendMessage(pPrg->hwndNews, EM_LIMITTEXT, MAX_PATH, 0);
+    SendMessage(pPrg->hwndVSource, EM_LIMITTEXT, MAX_PATH, 0);
 
 #endif /* !UNIX */
 
@@ -915,14 +842,10 @@ BOOL ProgramsDlgInit( HWND hDlg)
 
 
 // RegCopyKey()
-
 // Copies all the keys from hkeySrc down into hkeyRoot:pszDest.
-
 // History:
-
 // 7/ 8/96  t-gpease    created
-
-void RegCopyKey(HKEY hkeyRoot, const TCHAR *pszDest, HKEY hkeySrc)
+void RegCopyKey(HKEY hkeyRoot, const TCHAR* pszDest, HKEY hkeySrc)
 {
     HKEY    hkeyDest;
     HKEY    hkey;
@@ -932,23 +855,21 @@ void RegCopyKey(HKEY hkeyRoot, const TCHAR *pszDest, HKEY hkeySrc)
     DWORD   cbData;
     DWORD   Type;
     TCHAR   szName[MAX_PATH];
-    TCHAR   szData[MAX_URL_STRING+1];
+    TCHAR   szData[MAX_URL_STRING + 1];
 
     // open/create the destination key
-    if (RegCreateKeyEx(hkeyRoot, pszDest, NULL, 0, NULL, KEY_READ|KEY_WRITE, NULL, &hkeyDest, &dw) == ERROR_SUCCESS)
-    {
-        i=0;
+    if (RegCreateKeyEx(hkeyRoot, pszDest, NULL, 0, NULL, KEY_READ | KEY_WRITE, NULL, &hkeyDest, &dw) == ERROR_SUCCESS) {
+        i = 0;
         // copy values of the key
-        while(1)
-        {
+        while (1) {
             // find next value
-            cb=ARRAYSIZE(szName);
-            cbData=sizeof(szData);
-            if (RegEnumValue(hkeySrc, i, szName, &cb, NULL, &Type, (LPBYTE)&szData, &cbData)!=ERROR_SUCCESS)
+            cb = ARRAYSIZE(szName);
+            cbData = sizeof(szData);
+            if (RegEnumValue(hkeySrc, i, szName, &cb, NULL, &Type, (LPBYTE)&szData, &cbData) != ERROR_SUCCESS)
                 break;  // not found... exit loop
 
             // make a copy of the value in new location
-            RegSetValueEx(hkeyDest, szName, NULL, Type, (CONST BYTE *)szData, cbData);
+            RegSetValueEx(hkeyDest, szName, NULL, Type, (CONST BYTE*)szData, cbData);
 
 #ifdef UNIX
             RegFlushKey(hkeyDest);
@@ -960,11 +881,9 @@ void RegCopyKey(HKEY hkeyRoot, const TCHAR *pszDest, HKEY hkeySrc)
         }   // while
 
         // look for more sub-keys in the source
-        for(i=0; cb=ARRAYSIZE(szName), RegEnumKey(hkeySrc, i, szName, cb)==ERROR_SUCCESS; i++)
-        {
+        for (i = 0; cb = ARRAYSIZE(szName), RegEnumKey(hkeySrc, i, szName, cb) == ERROR_SUCCESS; i++) {
             // open the sub-key
-            if (RegCreateKeyEx(hkeySrc, szName, NULL, 0, NULL, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS)
-            {
+            if (RegCreateKeyEx(hkeySrc, szName, NULL, 0, NULL, KEY_READ, NULL, &hkey, &dw) == ERROR_SUCCESS) {
                 RegCopyKey(hkeyDest, szName, hkey);// copy the sub-key
                 RegCloseKey(hkey);// close the key
             }   // if RegCreateKey()
@@ -983,7 +902,7 @@ void RegCopyKey(HKEY hkeyRoot, const TCHAR *pszDest, HKEY hkeySrc)
 
 // 7/ 8/96  t-gpease    created
 
-void CopyInfoTo(const TCHAR *pszKeyName, HKEY hkeyClient)
+void CopyInfoTo(const TCHAR* pszKeyName, HKEY hkeyClient)
 {
     HKEY    hkey;
     TCHAR   szName[MAX_PATH];
@@ -994,16 +913,14 @@ void CopyInfoTo(const TCHAR *pszKeyName, HKEY hkeyClient)
     StrCpyN(szName + len, pszKeyName, ARRAYSIZE(szName) - len);
 
     // make sure it has the protocol we are looking for
-    if (RegOpenKeyEx(hkeyClient, szName, NULL, KEY_READ|KEY_WRITE, &hkey) ==ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(hkeyClient, szName, NULL, KEY_READ | KEY_WRITE, &hkey) == ERROR_SUCCESS) {
         // Netscape Messenger registry patch: they are missing "URL Protocol" in the HKLM mailto branch
         // and we should set this value, otherwise we get the 68992 bug.  The source is changed rather
         // than the destination to protect against other programs copying the tree without the value.
         // Might as well check this for all clients rather than look for Netscape, since we don't
         // change any data if it exists.
-        if (lstrcmpi(pszKeyName, TSZMAILTOPROTOCOL) == 0 && RegQueryValueEx(hkey, TEXT("URL Protocol"), NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
-        {
-            RegSetValueEx(hkey, TEXT("URL Protocol"), 0, REG_SZ, (BYTE *) TEXT(""), sizeof(TCHAR));
+        if (lstrcmpi(pszKeyName, TSZMAILTOPROTOCOL) == 0 && RegQueryValueEx(hkey, TEXT("URL Protocol"), NULL, NULL, NULL, NULL) != ERROR_SUCCESS) {
+            RegSetValueEx(hkey, TEXT("URL Protocol"), 0, REG_SZ, (BYTE*)TEXT(""), sizeof(TCHAR));
         }
 
         SHDeleteKey(HKEY_CLASSES_ROOT, pszKeyName);// start by deleting all the old info
@@ -1037,35 +954,30 @@ void FindClient(LPCTSTR szProtocol, HWND hwndComboBox, int iSelected, LPCTSTR sz
     DWORD   dw;
 
     // get the name of the new client
-    if (CB_ERR!=SendMessage(hwndComboBox, CB_GETLBTEXT, (WPARAM)iSelected, (LPARAM)szCurrent))
-    {
+    if (CB_ERR != SendMessage(hwndComboBox, CB_GETLBTEXT, (WPARAM)iSelected, (LPARAM)szCurrent)) {
         // got the friendly name... now lets find the internal name
-        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, szPath, 0, NULL, 0, KEY_READ|KEY_WRITE, NULL, &hkey, &dw) == ERROR_SUCCESS)
-        {
+        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, szPath, 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkey, &dw) == ERROR_SUCCESS) {
             DWORD   cb;
 
             // we must search all the sub-keys for the correct friendly name
-            for(i=0;                    // always start with 0
-                cb=ARRAYSIZE(szKeyName),   // string size
-                ERROR_SUCCESS==RegEnumKeyEx(hkey, i, szKeyName, &cb, NULL, NULL, NULL, &ftLastWriteTime);
-                i++)                    // get next entry
+            for (i = 0;                    // always start with 0
+                 cb = ARRAYSIZE(szKeyName),   // string size
+                 ERROR_SUCCESS == RegEnumKeyEx(hkey, i, szKeyName, &cb, NULL, NULL, NULL, &ftLastWriteTime);
+                 i++)                    // get next entry
             {
                 // get more info on the entry
-                if (RegOpenKeyEx(hkey, szKeyName, 0, KEY_READ, &hkeyClient)==ERROR_SUCCESS)
-                {
+                if (RegOpenKeyEx(hkey, szKeyName, 0, KEY_READ, &hkeyClient) == ERROR_SUCCESS) {
                     // get the friendly name of the client
                     cb = sizeof(szFriendlyName);
                     if (RegQueryValueEx(hkeyClient, NULL, NULL, NULL, (LPBYTE)szFriendlyName, &cb)
-                        == ERROR_SUCCESS)
-                    {
+                        == ERROR_SUCCESS) {
                         // is it the one we are looking for?
-                        if (!StrCmp(szFriendlyName, szCurrent))
-                        {
+                        if (!StrCmp(szFriendlyName, szCurrent)) {
                             // yep... copy its info
                             CopyInfoTo(szProtocol, hkeyClient);
 
                             // make it the default handler
-                            cb = (lstrlen(szKeyName) + 1)*sizeof(TCHAR);
+                            cb = (lstrlen(szKeyName) + 1) * sizeof(TCHAR);
                             RegSetValueEx(hkey, NULL, NULL, REG_SZ, (LPBYTE)szKeyName, cb);
                         }
                     }
@@ -1093,15 +1005,12 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
 {
     int tmp;
 
-    if (pPrg->fChanged)
-    {
+    if (pPrg->fChanged) {
 #ifndef UNIX
         // Did the user have a chance to change this option?
-        if (pPrg->pfi)
-        {
+        if (pPrg->pfi) {
             HRESULT hrIEDefaultFTPClient = pPrg->pfi->IsIEDefautlFTPClient();
-            if (IsWindowVisible(GetDlgItem(pPrg->hDlg, IDC_PROGRAMS_IE_IS_FTPCLIENT)))
-            {
+            if (IsWindowVisible(GetDlgItem(pPrg->hDlg, IDC_PROGRAMS_IE_IS_FTPCLIENT))) {
                 // Yes, so see if they changed it.
                 pPrg->bIEIsFTPClient = IsDlgButtonChecked(pPrg->hDlg, IDC_PROGRAMS_IE_IS_FTPCLIENT);
 
@@ -1124,27 +1033,26 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
                         REGSTR_VAL_CHECKASSOC,
                         REG_SZ,
                         (LPVOID)szYesNo,
-                        (lstrlen(szYesNo)+1)*sizeof(TCHAR),
+                        (lstrlen(szYesNo) + 1) * sizeof(TCHAR),
                         SHREGSET_DEFAULT);
 #else
         // Set if OE in use
         SHSetValue(IE_USE_OE_MAIL_HKEY, IE_USE_OE_MAIL_KEY,
-            IE_USE_OE_MAIL_VALUE, REG_DWORD, (void*)&pPrg->dwUseOEMail,
-            sizeof(pPrg->dwUseOEMail));
+                   IE_USE_OE_MAIL_VALUE, REG_DWORD, (void*)&pPrg->dwUseOEMail,
+                   sizeof(pPrg->dwUseOEMail));
 
         // Set if OE in use
         SHSetValue(IE_USE_OE_NEWS_HKEY, IE_USE_OE_NEWS_KEY,
-            IE_USE_OE_NEWS_VALUE, REG_DWORD, (void*)&pPrg->dwUseOENews,
-            sizeof(pPrg->dwUseOENews));
+                   IE_USE_OE_NEWS_VALUE, REG_DWORD, (void*)&pPrg->dwUseOENews,
+                   sizeof(pPrg->dwUseOENews));
 #endif
 
         // Save the new default editor
 
 #ifndef UNIX
         // See if the selection was changed
-        tmp = (int) SendMessage(pPrg->hwndHtmlEdit, CB_GETCURSEL, 0, 0);
-        if (tmp != pPrg->iHtmlEditor)
-        {
+        tmp = (int)SendMessage(pPrg->hwndHtmlEdit, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iHtmlEditor) {
             pPrg->iHtmlEditor = tmp;
 
             // Get the text and hkey for the selected item
@@ -1152,25 +1060,22 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
             SendMessage(pPrg->hwndHtmlEdit, CB_GETLBTEXT, tmp, (LPARAM)szDefault);
             HKEY hkeyFrom = (HKEY)SendMessage(pPrg->hwndHtmlEdit, CB_GETITEMDATA, tmp, 0);
 
-            if (hkeyFrom && (INT_PTR)hkeyFrom != CB_ERR)
-            {
+            if (hkeyFrom && (INT_PTR)hkeyFrom != CB_ERR) {
 
                 // Save the selected item as the default editor
 
                 DWORD dw;
                 HKEY hkeyDest;
-                if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_DEFAULT_HTML_EDITOR, 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyDest, &dw))
-                {
+                if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_DEFAULT_HTML_EDITOR, 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyDest, &dw)) {
                     // Update the name of the default editor
-                    SHSetValue(hkeyDest, NULL, L"Description", REG_SZ, szDefault, CbFromCch(lstrlen(szDefault)+1));
+                    SHSetValue(hkeyDest, NULL, L"Description", REG_SZ, szDefault, CbFromCch(lstrlen(szDefault) + 1));
 
                     // Delete the old shell command (and all subkeys).  This purges keys such as DDEEXEC.
                     SHDeleteKey(hkeyDest, L"shell");
 
                     // Update the verb of the default editor
                     HKEY hkeyEdit;
-                    if (ERROR_SUCCESS == RegCreateKeyEx(hkeyDest, L"shell\\edit", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyEdit, &dw))
-                    {
+                    if (ERROR_SUCCESS == RegCreateKeyEx(hkeyDest, L"shell\\edit", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyEdit, &dw)) {
                         SHCopyKey(hkeyFrom, L"shell\\edit", hkeyEdit, 0);
                         RegCloseKey(hkeyEdit);
                     }
@@ -1180,15 +1085,13 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
 
                 // Also update Office's default editor
 
-                if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Shared\\HTML\\Default Editor", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyDest, &dw))
-                {
+                if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Shared\\HTML\\Default Editor", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyDest, &dw)) {
                     // Delete the old shell command (and all subkeys).  This purges keys such as DDEEXEC.
                     SHDeleteKey(hkeyDest, L"shell\\edit");
 
                     // Update the verb of the default editor
                     HKEY hkeyEdit;
-                    if (ERROR_SUCCESS == RegCreateKeyEx(hkeyDest, L"shell\\edit", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyEdit, &dw))
-                    {
+                    if (ERROR_SUCCESS == RegCreateKeyEx(hkeyDest, L"shell\\edit", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyEdit, &dw)) {
                         SHCopyKey(hkeyFrom, L"shell\\edit", hkeyEdit, 0);
                         RegCloseKey(hkeyEdit);
                     }
@@ -1201,17 +1104,14 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
                 // uses one of the above keys as the default editor.
 
                 HKEY hkeyHtm;
-                if (SUCCEEDED(AssocQueryKey(0, ASSOCKEY_SHELLEXECCLASS, L".htm", NULL, &hkeyHtm)))
-                {
-                    if (!IsHtmlStub(hkeyHtm, L"edit"))
-                    {
+                if (SUCCEEDED(AssocQueryKey(0, ASSOCKEY_SHELLEXECCLASS, L".htm", NULL, &hkeyHtm))) {
+                    if (!IsHtmlStub(hkeyHtm, L"edit")) {
                         // Delete the old shell command (and all subkeys).  This purges keys such as DDEEXEC.
                         SHDeleteKey(hkeyHtm, L"shell\\edit");
 
                         // Copy the edit verb to the .htm
                         HKEY hkeyEdit;
-                        if (ERROR_SUCCESS == RegCreateKeyEx(hkeyHtm, L"shell\\edit", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyEdit, &dw))
-                        {
+                        if (ERROR_SUCCESS == RegCreateKeyEx(hkeyHtm, L"shell\\edit", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hkeyEdit, &dw)) {
                             SHCopyKey(hkeyFrom, L"shell\\edit", hkeyEdit, 0);
                             RegCloseKey(hkeyEdit);
                         }
@@ -1229,9 +1129,8 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
 
         // is there a new client?
 #ifndef UNIX
-        tmp = (int) SendMessage(pPrg->hwndMail, CB_GETCURSEL, 0, 0);
-        if (tmp!=pPrg->iMail)
-        {
+        tmp = (int)SendMessage(pPrg->hwndMail, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iMail) {
             pPrg->iMail = tmp;
 
             // find it and copy its info
@@ -1240,11 +1139,10 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
             //Update the mail icon label
             UpdateMailIconLabel();
 #else
-        if (pPrg->iMail)
-        {
+        if (pPrg->iMail) {
             // copy its info
             FindEditClient(TSZMAILTOPROTOCOL, pPrg->hDlg, IDC_EDIT_PROGRAMS_MAIL,
-               REGSTR_PATH_MAILCLIENTS);
+                           REGSTR_PATH_MAILCLIENTS);
 #endif
             // tell the world that something has changed
             SendBroadcastMessage(WM_WININICHANGE, 0, (LPARAM)REGSTR_PATH_MAILCLIENTS);
@@ -1256,9 +1154,8 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
 
         // is there a new client?
 #ifndef UNIX
-        tmp = (int) SendMessage(pPrg->hwndNews, CB_GETCURSEL, 0, 0);
-        if (tmp!=pPrg->iNews)
-        {
+        tmp = (int)SendMessage(pPrg->hwndNews, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iNews) {
             pPrg->iNews = tmp;
 
             // find it and copy its info
@@ -1266,11 +1163,10 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
             FindClient(TEXT("snews"), pPrg->hwndNews, tmp, REGSTR_PATH_NEWSCLIENTS);
             FindClient(TEXT("nntp"), pPrg->hwndNews, tmp, REGSTR_PATH_NEWSCLIENTS);
 #else
-        if (pPrg->iNews)
-        {
+        if (pPrg->iNews) {
             // copy its info
             FindEditClient(TSZNEWSPROTOCOL, pPrg->hDlg, IDC_EDIT_PROGRAMS_NEWS,
-               REGSTR_PATH_NEWSCLIENTS);
+                           REGSTR_PATH_NEWSCLIENTS);
             //FindEditClient(TEXT("snews"), pPrg->hwndNews, REGSTR_PATH_NEWSCLIENTS);
             //FindEditClient(TEXT("nntp"), pPrg->hwndNews, REGSTR_PATH_NEWSCLIENTS);
 #endif
@@ -1285,9 +1181,8 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
 
         // is there a new client?
 #ifndef UNIX
-        tmp = (int) SendMessage(pPrg->hwndCall, CB_GETCURSEL, 0, 0);
-        if (tmp!=pPrg->iCall)
-        {
+        tmp = (int)SendMessage(pPrg->hwndCall, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iCall) {
             pPrg->iCall = tmp;
 
             // find it and copy its info
@@ -1297,11 +1192,10 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
             SendBroadcastMessage(WM_WININICHANGE, 0, (LPARAM)REGSTR_PATH_CALLCLIENTS);
         }
 #else
-        if (pPrg->iVSource)
-        {
+        if (pPrg->iVSource) {
             // copy its info
             FindEditClient(TSZVSOURCEPROTOCOL, pPrg->hDlg, IDC_EDIT_PROGRAMS_VSOURCE,
-               REGSTR_PATH_VSOURCECLIENTS);
+                           REGSTR_PATH_VSOURCECLIENTS);
 
             // tell the world that something has changed
             SendBroadcastMessage(WM_WININICHANGE, 0, (LPARAM)REGSTR_PATH_VSOURCECLIENTS);
@@ -1315,9 +1209,8 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
 
 
         // is there a new client?
-        tmp = (int) SendMessage(pPrg->hwndContact, CB_GETCURSEL, 0, 0);
-        if (tmp!=pPrg->iContact)
-        {
+        tmp = (int)SendMessage(pPrg->hwndContact, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iContact) {
             pPrg->iContact = tmp;
 
             // find it and copy its info
@@ -1327,14 +1220,11 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
             SendBroadcastMessage(WM_WININICHANGE, 0, (LPARAM)REGSTR_PATH_CONTACTCLIENTS);
         }
 
-
         // Save Calendar Client Info
 
-
         // is there a new client?
-        tmp = (int) SendMessage(pPrg->hwndCalendar, CB_GETCURSEL, 0, 0);
-        if (tmp!=pPrg->iCalendar)
-        {
+        tmp = (int)SendMessage(pPrg->hwndCalendar, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iCalendar) {
             pPrg->iCalendar = tmp;
 
             // find it and copy its info
@@ -1350,384 +1240,322 @@ void ProgramsDlgApplyNow(LPPROGRAMSPAGE pPrg)
 } // ProgramsDlgApplyNow()
 
 
-extern HRESULT ResetWebSettings(HWND hwnd, BOOL *pfChangedHomePage);
+extern HRESULT ResetWebSettings(HWND hwnd, BOOL * pfChangedHomePage);
 
 #ifndef UNIX
 
 // ProgramsOnCommand()
-
 // Handles "Programs" property page's window commands
-
 // History:
-
 // 6/20/96  t-gpease    created
-
 void ProgramsOnCommand(LPPROGRAMSPAGE pPrg, UINT id, UINT nCmd)
 {
 
     switch (id) {
+    case IDC_PROGRAMS_HTMLEDITOR_COMBO:
+    {
+        INT_PTR tmp;
 
-        case IDC_PROGRAMS_HTMLEDITOR_COMBO:
-        {
-            INT_PTR tmp;
-
-            // Is there a new editor?
-            tmp = SendMessage(pPrg->hwndHtmlEdit, CB_GETCURSEL, 0, 0);
-            if (tmp != pPrg->iHtmlEditor)
-            {
-                ENABLEAPPLY(pPrg->hDlg);
-                pPrg->fChanged = TRUE;
-            }
-        }
-        break;
-
-        case IDC_PROGRAMS_NEWS_COMBO:
-        {
-            INT_PTR tmp;
-            // is there a new client?
-            tmp = SendMessage(pPrg->hwndNews, CB_GETCURSEL, 0, 0);
-            if (tmp != pPrg->iNews)
-            {
-                ENABLEAPPLY(pPrg->hDlg);
-                pPrg->fChanged = TRUE;
-            }
-        }
-        break;
-
-
-        case IDC_PROGRAMS_MAIL_COMBO:
-        {
-            INT_PTR tmp;
-            // is there a new client?
-            tmp = SendMessage(pPrg->hwndMail, CB_GETCURSEL, 0, 0);
-            if (tmp != pPrg->iMail)
-            {
-                ENABLEAPPLY(pPrg->hDlg);
-                pPrg->fChanged = TRUE;
-            }
-        }
-        break;
-
-        case IDC_PROGRAMS_CALENDAR_COMBO:
-        {
-            INT_PTR tmp;
-            // is there a new client?
-            tmp = SendMessage(pPrg->hwndCalendar, CB_GETCURSEL, 0, 0);
-            if (tmp != pPrg->iCalendar)
-            {
-                ENABLEAPPLY(pPrg->hDlg);
-                pPrg->fChanged = TRUE;
-            }
-        }
-        break;
-
-        case IDC_PROGRAMS_CONTACT_COMBO:
-        {
-            INT_PTR tmp;
-            // is there a new client?
-            tmp = SendMessage(pPrg->hwndContact, CB_GETCURSEL, 0, 0);
-            if (tmp != pPrg->iContact)
-            {
-                ENABLEAPPLY(pPrg->hDlg);
-                pPrg->fChanged = TRUE;
-            }
-        }
-        break;
-
-        case IDC_PROGRAMS_CALL_COMBO:
-        {
-            INT_PTR tmp;
-            // is there a new client?
-            tmp = SendMessage(pPrg->hwndCall, CB_GETCURSEL, 0, 0);
-            if (tmp != pPrg->iCall)
-            {
-                ENABLEAPPLY(pPrg->hDlg);
-                pPrg->fChanged = TRUE;
-            }
-        }
-        break;
-
-        case IDC_RESETWEBSETTINGS:
-            {
-                BOOL fReloadHomePage;
-                ResetWebSettings(pPrg->hDlg,&fReloadHomePage);
-                if (fReloadHomePage)
-                    g_fReloadHomePage = TRUE;
-            }
-            break;
-
-        case IDC_PROGRAMS_IE_IS_FTPCLIENT:
-        case IDC_CHECK_ASSOCIATIONS_CHECKBOX:
+        // Is there a new editor?
+        tmp = SendMessage(pPrg->hwndHtmlEdit, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iHtmlEditor) {
             ENABLEAPPLY(pPrg->hDlg);
             pPrg->fChanged = TRUE;
-            break;
+        }
+    }
+    break;
+    case IDC_PROGRAMS_NEWS_COMBO:
+    {
+        INT_PTR tmp;
+        // is there a new client?
+        tmp = SendMessage(pPrg->hwndNews, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iNews) {
+            ENABLEAPPLY(pPrg->hDlg);
+            pPrg->fChanged = TRUE;
+        }
+    }
+    break;
+    case IDC_PROGRAMS_MAIL_COMBO:
+    {
+        INT_PTR tmp;
+        // is there a new client?
+        tmp = SendMessage(pPrg->hwndMail, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iMail) {
+            ENABLEAPPLY(pPrg->hDlg);
+            pPrg->fChanged = TRUE;
+        }
+    }
+    break;
+    case IDC_PROGRAMS_CALENDAR_COMBO:
+    {
+        INT_PTR tmp;
+        // is there a new client?
+        tmp = SendMessage(pPrg->hwndCalendar, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iCalendar) {
+            ENABLEAPPLY(pPrg->hDlg);
+            pPrg->fChanged = TRUE;
+        }
+    }
+    break;
+    case IDC_PROGRAMS_CONTACT_COMBO:
+    {
+        INT_PTR tmp;
+        // is there a new client?
+        tmp = SendMessage(pPrg->hwndContact, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iContact) {
+            ENABLEAPPLY(pPrg->hDlg);
+            pPrg->fChanged = TRUE;
+        }
+    }
+    break;
+    case IDC_PROGRAMS_CALL_COMBO:
+    {
+        INT_PTR tmp;
+        // is there a new client?
+        tmp = SendMessage(pPrg->hwndCall, CB_GETCURSEL, 0, 0);
+        if (tmp != pPrg->iCall) {
+            ENABLEAPPLY(pPrg->hDlg);
+            pPrg->fChanged = TRUE;
+        }
+    }
+    break;
+    case IDC_RESETWEBSETTINGS:
+    {
+        BOOL fReloadHomePage;
+        ResetWebSettings(pPrg->hDlg, &fReloadHomePage);
+        if (fReloadHomePage)
+            g_fReloadHomePage = TRUE;
+    }
+    break;
+    case IDC_PROGRAMS_IE_IS_FTPCLIENT:
+    case IDC_CHECK_ASSOCIATIONS_CHECKBOX:
+        ENABLEAPPLY(pPrg->hDlg);
+        pPrg->fChanged = TRUE;
+        break;
     } // switch
-
 } // ProgramsOnCommand()
 
 #else /* !UNIX */
 
 
 // ProgramsOnCommand()
-
 // Handles "Programs" property page's window commands
-
 // History:
-
 // 6/20/96  t-gpease    created
-
 void ProgramsOnCommand(LPPROGRAMSPAGE pPrg, UINT id, UINT nCmd)
 {
-
     switch (id) {
-
-        case IDC_EDIT_PROGRAMS_MAIL:
-        {
-            if (nCmd == EN_CHANGE)
-            {
-                if (pPrg->iMail != -1)
-                {
-                    ENABLEAPPLY(pPrg->hDlg);
-                    pPrg->iMail = 1;  //change has occoured
-                    pPrg->fChanged = TRUE;
-                }
+    case IDC_EDIT_PROGRAMS_MAIL:
+    {
+        if (nCmd == EN_CHANGE) {
+            if (pPrg->iMail != -1) {
+                ENABLEAPPLY(pPrg->hDlg);
+                pPrg->iMail = 1;  //change has occoured
+                pPrg->fChanged = TRUE;
             }
         }
-        break;
+    }
+    break;
+    case IDC_OE_MAIL:
+    {
+        pPrg->dwUseOEMail = IsDlgButtonChecked(pPrg->hDlg, IDC_OE_MAIL) == BST_CHECKED;
 
-        case IDC_OE_MAIL:
-        {
-            pPrg->dwUseOEMail = IsDlgButtonChecked(pPrg->hDlg,
-                IDC_OE_MAIL) == BST_CHECKED;
+        ENABLEAPPLY(pPrg->hDlg);
+        pPrg->fChanged = TRUE;
 
-            ENABLEAPPLY(pPrg->hDlg);
-            pPrg->fChanged = TRUE;
-
-            EnableWindow(pPrg->hwndMail, !pPrg->dwUseOEMail);
-            EnableWindow(pPrg->hwndMailEdit, !pPrg->dwUseOEMail);
-            EnableWindow(pPrg->hwndMailFind, !pPrg->dwUseOEMail);
-        }
-        break;
-
-        case IDC_EDIT_PROGRAMS_NEWS:
-        {
-            if (nCmd == EN_CHANGE)
-            {
-                if (pPrg->iNews != -1)
-                {
-                    ENABLEAPPLY(pPrg->hDlg);
-                    pPrg->iNews = 1;  //change has occoured
-                    pPrg->fChanged = TRUE;
-                }
+        EnableWindow(pPrg->hwndMail, !pPrg->dwUseOEMail);
+        EnableWindow(pPrg->hwndMailEdit, !pPrg->dwUseOEMail);
+        EnableWindow(pPrg->hwndMailFind, !pPrg->dwUseOEMail);
+    }
+    break;
+    case IDC_EDIT_PROGRAMS_NEWS:
+    {
+        if (nCmd == EN_CHANGE) {
+            if (pPrg->iNews != -1) {
+                ENABLEAPPLY(pPrg->hDlg);
+                pPrg->iNews = 1;  //change has occoured
+                pPrg->fChanged = TRUE;
             }
         }
-        break;
+    }
+    break;
+    case IDC_OE_NEWS:
+    {
+        pPrg->dwUseOENews = IsDlgButtonChecked(pPrg->hDlg, IDC_OE_NEWS) == BST_CHECKED;
 
-        case IDC_OE_NEWS:
-        {
-            pPrg->dwUseOENews = IsDlgButtonChecked(pPrg->hDlg,
-                IDC_OE_NEWS) == BST_CHECKED;
+        ENABLEAPPLY(pPrg->hDlg);
+        pPrg->fChanged = TRUE;
 
-            ENABLEAPPLY(pPrg->hDlg);
-            pPrg->fChanged = TRUE;
-
-            EnableWindow(pPrg->hwndNews, !pPrg->dwUseOENews);
-            EnableWindow(pPrg->hwndNewsEdit, !pPrg->dwUseOENews);
-            EnableWindow(pPrg->hwndNewsFind, !pPrg->dwUseOENews);
-        }
-        break;
-
-        case IDC_EDIT_PROGRAMS_VSOURCE:
-        {
-            if (nCmd == EN_CHANGE)
-            {
-                if (pPrg->iVSource != -1)
-                {
-                    ENABLEAPPLY(pPrg->hDlg);
-                    pPrg->iVSource = 1;  //change has occoured
-                    pPrg->fChanged = TRUE;
-                }
+        EnableWindow(pPrg->hwndNews, !pPrg->dwUseOENews);
+        EnableWindow(pPrg->hwndNewsEdit, !pPrg->dwUseOENews);
+        EnableWindow(pPrg->hwndNewsFind, !pPrg->dwUseOENews);
+    }
+    break;
+    case IDC_EDIT_PROGRAMS_VSOURCE:
+    {
+        if (nCmd == EN_CHANGE) {
+            if (pPrg->iVSource != -1) {
+                ENABLEAPPLY(pPrg->hDlg);
+                pPrg->iVSource = 1;  //change has occoured
+                pPrg->fChanged = TRUE;
             }
         }
-        break;
+    }
+    break;
+    case IDC_MAIL_EDIT:
+    {
+        HKEY hkeyProtocol;
+        DWORD dw;
 
-        case IDC_MAIL_EDIT:
-        {
-            HKEY hkeyProtocol;
-            DWORD dw;
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_MAILCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
+            break;
+        EditScript(hkeyProtocol);
+        RegCloseKey(hkeyProtocol);
+    }
+    break;
+    case IDC_NEWS_EDIT:
+    {
+        HKEY hkeyProtocol;
+        DWORD dw;
 
-            if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_MAILCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
-                break;
-            EditScript(hkeyProtocol);
-            RegCloseKey(hkeyProtocol);
-        }
-        break;
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_NEWSCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
+            break;
+        EditScript(hkeyProtocol);
+        RegCloseKey(hkeyProtocol);
+    }
+    break;
+    case IDC_VSOURCE_EDIT:
+    {
+        HKEY hkeyProtocol;
+        DWORD dw;
 
-        case IDC_NEWS_EDIT:
-        {
-            HKEY hkeyProtocol;
-            DWORD dw;
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_VSOURCECLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
+            break;
+        EditScript(hkeyProtocol);
+        RegCloseKey(hkeyProtocol);
+    }
+    break;
+    case IDC_MAIL_FIND:
+    {
+        HKEY hkeyProtocol;
+        DWORD dw;
 
-            if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_NEWSCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
-                break;
-            EditScript(hkeyProtocol);
-            RegCloseKey(hkeyProtocol);
-        }
-        break;
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_MAILCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
+            break;
+        FindScript(pPrg->hwndMail, hkeyProtocol);
+        RegCloseKey(hkeyProtocol);
+    }
+    break;
+    case IDC_NEWS_FIND:
+    {
+        HKEY hkeyProtocol;
+        DWORD dw;
 
-        case IDC_VSOURCE_EDIT:
-        {
-            HKEY hkeyProtocol;
-            DWORD dw;
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_NEWSCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
+            break;
+        FindScript(pPrg->hwndNews, hkeyProtocol);
+        RegCloseKey(hkeyProtocol);
+    }
+    break;
+    case IDC_VSOURCE_FIND:
+    {
+        HKEY hkeyProtocol;
+        DWORD dw;
 
-            if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_VSOURCECLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
-                break;
-            EditScript(hkeyProtocol);
-            RegCloseKey(hkeyProtocol);
-        }
-        break;
-
-        case IDC_MAIL_FIND:
-        {
-            HKEY hkeyProtocol;
-            DWORD dw;
-
-                if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_MAILCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
-                    break;
-            FindScript(pPrg->hwndMail, hkeyProtocol);
-            RegCloseKey(hkeyProtocol);
-        }
-        break;
-
-        case IDC_NEWS_FIND:
-        {
-            HKEY hkeyProtocol;
-            DWORD dw;
-
-            if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_NEWSCLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
-                break;
-            FindScript(pPrg->hwndNews, hkeyProtocol);
-            RegCloseKey(hkeyProtocol);
-        }
-        break;
-
-        case IDC_VSOURCE_FIND:
-        {
-            HKEY hkeyProtocol;
-            DWORD dw;
-
-            if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_VSOURCECLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
-                break;
-            FindScript(pPrg->hwndVSource, hkeyProtocol);
-            RegCloseKey(hkeyProtocol);
-        }
-        break;
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_VSOURCECLIENTS, 0, NULL, 0, KEY_READ, NULL, &hkeyProtocol, &dw) != ERROR_SUCCESS)
+            break;
+        FindScript(pPrg->hwndVSource, hkeyProtocol);
+        RegCloseKey(hkeyProtocol);
+    }
+    break;
     } // switch
-
 } // ProgramsOnCommand()
 
 #endif  /* !UNIX */
 
 
 // ProgramsDlgProc()
-
 // Handles window messages sent to the Programs Property Sheet.
-
 // History:
-
 // 6/20/96  t-gpease    created
-
-INT_PTR CALLBACK ProgramsDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam,
-                              LPARAM lParam)
+INT_PTR CALLBACK ProgramsDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     LPPROGRAMSPAGE pPrg;
 
     if (uMsg == WM_INITDIALOG)
-        return ProgramsDlgInit( hDlg );
+        return ProgramsDlgInit(hDlg);
     else
-        pPrg= (LPPROGRAMSPAGE) GetWindowLongPtr(hDlg, DWLP_USER);
+        pPrg = (LPPROGRAMSPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
 
     if (!pPrg)
         return FALSE;
 
     switch (uMsg) {
+    case WM_COMMAND:
+        ProgramsOnCommand(pPrg, LOWORD(wParam), HIWORD(wParam));
+        return TRUE;
+    case WM_NOTIFY:
+    {
+        NMHDR* lpnm = (NMHDR*)lParam;
 
-        case WM_COMMAND:
-            ProgramsOnCommand(pPrg, LOWORD(wParam), HIWORD(wParam));
+        ASSERT(lpnm);
+        switch (lpnm->code) {
+        case PSN_KILLACTIVE:
+#ifdef UNIX
+            if (!(FoundProgram(pPrg->hDlg, IDC_EDIT_PROGRAMS_MAIL) &&
+                  FoundProgram(pPrg->hDlg, IDC_EDIT_PROGRAMS_NEWS) &&
+                  FoundProgram(pPrg->hDlg, IDC_EDIT_PROGRAMS_VSOURCE))) {
+                MessageBox(pPrg->hDlg, TEXT("One (or more) program is not found or not executable."), NULL, MB_OK);
+                SetWindowLongPtr(hDlg, DWLP_MSGRESULT, TRUE);
+                return TRUE;
+            }
+
+            SetWindowLongPtr(hDlg, DWLP_MSGRESULT, FALSE);
             return TRUE;
 
-        case WM_NOTIFY:
-        {
-            NMHDR *lpnm = (NMHDR *) lParam;
-
-            ASSERT(lpnm);
-            switch (lpnm->code)
-            {
-                case PSN_KILLACTIVE:
-#ifdef UNIX
-                    if (!(FoundProgram(pPrg->hDlg, IDC_EDIT_PROGRAMS_MAIL) &&
-                          FoundProgram(pPrg->hDlg, IDC_EDIT_PROGRAMS_NEWS) &&
-                          FoundProgram(pPrg->hDlg, IDC_EDIT_PROGRAMS_VSOURCE)))
-                    {
-                        MessageBox(pPrg->hDlg, TEXT("One (or more) program is not found or not executable."), NULL, MB_OK);
-                        SetWindowLongPtr(hDlg, DWLP_MSGRESULT, TRUE);
-                        return TRUE;
-                    }
-
-                    SetWindowLongPtr(hDlg, DWLP_MSGRESULT, FALSE);
-                    return TRUE;
-
 #endif //UNIX
-                case PSN_QUERYCANCEL:
-                case PSN_RESET:
-                    SetWindowLongPtr(hDlg, DWLP_MSGRESULT, FALSE);
-                    return TRUE;
-
-                case PSN_APPLY:
-
-                    // Save Programs Dlg Stuff.
-
-                    ProgramsDlgApplyNow(pPrg);
-                    break;
-            }
+        case PSN_QUERYCANCEL:
+        case PSN_RESET:
+            SetWindowLongPtr(hDlg, DWLP_MSGRESULT, FALSE);
+            return TRUE;
+        case PSN_APPLY:
+            // Save Programs Dlg Stuff.
+            ProgramsDlgApplyNow(pPrg);
+            break;
         }
+    }
+    break;
+    case WM_HELP:                   // F1
+        ResWinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
+                   HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
         break;
 
-        case WM_HELP:                   // F1
-            ResWinHelp( (HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
-                        HELP_WM_HELP, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
-            break;
-
-        case WM_CONTEXTMENU:        // right mouse click
-            ResWinHelp( (HWND) wParam, IDS_HELPFILE,
-                        HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
-            break;
-
-        case WM_DESTROY:
-        {
+    case WM_CONTEXTMENU:        // right mouse click
+        ResWinHelp((HWND)wParam, IDS_HELPFILE,
+                   HELP_CONTEXTMENU, (DWORD_PTR)(LPSTR)mapIDCsToIDHs);
+        break;
+    case WM_DESTROY:
+    {
 #ifndef UNIX
-            // Free the data stored the HTML editor combo
-            int iMax = (int) SendMessage(pPrg->hwndHtmlEdit, CB_GETCOUNT, 0, 0);
-            HKEY hkey;
-            for (int i = 0; i < iMax; ++i)
-            {
-                hkey = (HKEY) SendMessage(pPrg->hwndHtmlEdit, CB_GETITEMDATA, i, 0);
-                if (hkey && (INT_PTR)hkey != CB_ERR)
-                {
-                    RegCloseKey(hkey);
-                }
+        // Free the data stored the HTML editor combo
+        int iMax = (int)SendMessage(pPrg->hwndHtmlEdit, CB_GETCOUNT, 0, 0);
+        HKEY hkey;
+        for (int i = 0; i < iMax; ++i) {
+            hkey = (HKEY)SendMessage(pPrg->hwndHtmlEdit, CB_GETITEMDATA, i, 0);
+            if (hkey && (INT_PTR)hkey != CB_ERR) {
+                RegCloseKey(hkey);
             }
-
-            if (pPrg)
-            {
-                if (pPrg->pfi)
-                    pPrg->pfi->Release();
-                LocalFree(pPrg);
-            }
-#endif
-            SetWindowLongPtr(hDlg, DWLP_USER, (LONG)NULL);
-            break;
         }
+
+        if (pPrg) {
+            if (pPrg->pfi)
+                pPrg->pfi->Release();
+            LocalFree(pPrg);
+        }
+#endif
+        SetWindowLongPtr(hDlg, DWLP_USER, (LONG)NULL);
+        break;
+    }
     }
     return FALSE;
 }
@@ -1753,52 +1581,42 @@ void UpdateMailIconLabel()
     *szOldLabel = 0;
 
     // check if the mail icon is even installed
-    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, c_szMailIcon, 0, KEY_READ, &hKey))
-    {
+    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, c_szMailIcon, 0, KEY_READ, &hKey)) {
         cbSize = sizeof(szOldLabel);
         // get the current mail icon label
-        if (ERROR_SUCCESS == RegQueryValue(HKEY_CLASSES_ROOT, c_szMailIconGuid, szOldLabel, (PLONG)&cbSize))
-        {
+        if (ERROR_SUCCESS == RegQueryValue(HKEY_CLASSES_ROOT, c_szMailIconGuid, szOldLabel, (PLONG)&cbSize)) {
             cbSize = sizeof(szDefClient);
             // get the default client's reg key
-            if (ERROR_SUCCESS == RegQueryValue(HKEY_LOCAL_MACHINE, c_szKeyMail, szDefClient, (PLONG)&cbSize) && cbSize)
-            {
+            if (ERROR_SUCCESS == RegQueryValue(HKEY_LOCAL_MACHINE, c_szKeyMail, szDefClient, (PLONG)&cbSize) && cbSize) {
                 wnsprintf(szTemp, ARRAYSIZE(szTemp), c_szRegFmt2, c_szKeyMail, szDefClient);
                 cbSize = sizeof(szDefClient);
                 // get the default client's display name
-                if (ERROR_SUCCESS == RegQueryValue(HKEY_LOCAL_MACHINE, szTemp, szDefClient, (PLONG)&cbSize) && cbSize)
-                {
+                if (ERROR_SUCCESS == RegQueryValue(HKEY_LOCAL_MACHINE, szTemp, szDefClient, (PLONG)&cbSize) && cbSize) {
                     cbSize = sizeof(szTemp);
                     // get the mail icon label format string
-                    if (ERROR_SUCCESS == RegQueryValueEx(hKey, c_szFormatClient, 0, NULL, (LPBYTE)szTemp, &cbSize))
-                    {
+                    if (ERROR_SUCCESS == RegQueryValueEx(hKey, c_szFormatClient, 0, NULL, (LPBYTE)szTemp, &cbSize)) {
                         wnsprintf(szNewLabel, ARRAYSIZE(szNewLabel), szTemp, szDefClient);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 cbSize = sizeof(szNewLabel);
                 // get the mail icon label format string
                 RegQueryValueEx(hKey, c_szFormatNoClient, 0, NULL, (LPBYTE)szNewLabel, &cbSize);
             }
         }
         // if the above succeeded, and the label is different
-        if (*szNewLabel && StrCmp(szNewLabel, szOldLabel))
-        {
-             IShellFolder *psf;
+        if (*szNewLabel && StrCmp(szNewLabel, szOldLabel)) {
+            IShellFolder* psf;
 
             // set the new label
-            RegSetValue(HKEY_CLASSES_ROOT, c_szMailIconGuid, REG_SZ, szNewLabel, (lstrlen(szNewLabel)+1)*sizeof(TCHAR));
+            RegSetValue(HKEY_CLASSES_ROOT, c_szMailIconGuid, REG_SZ, szNewLabel, (lstrlen(szNewLabel) + 1) * sizeof(TCHAR));
 
             // let the shell know that it changed
-            if (SUCCEEDED(SHGetDesktopFolder(&psf)))
-            {
+            if (SUCCEEDED(SHGetDesktopFolder(&psf))) {
                 LPITEMIDLIST pidl;
                 ULONG        chEaten;
 
-                if (SUCCEEDED(psf->ParseDisplayName(NULL, NULL, c_wszMailIconGuid, &chEaten, &pidl, NULL)))
-                {
+                if (SUCCEEDED(psf->ParseDisplayName(NULL, NULL, c_wszMailIconGuid, &chEaten, &pidl, NULL))) {
                     SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_IDLIST, pidl, NULL);
                     SHFree(pidl);
                 }

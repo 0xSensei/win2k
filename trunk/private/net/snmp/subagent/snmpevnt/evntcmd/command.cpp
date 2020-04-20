@@ -63,11 +63,11 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 
 
-TrapCommandItem::TrapCommandItem(CommandType comtype, CString * comm, CString * addr, HKEY key)
-                :CommandItem(comtype, comm, addr, 0, 0, 0, key)
+TrapCommandItem::TrapCommandItem(CommandType comtype, CString* comm, CString* addr, HKEY key)
+    :CommandItem(comtype, comm, addr, 0, 0, 0, key)
 {
     //  Store the community name and address for the request
-    //  ====================================================
+
 
     community = comm;
     address = addr;
@@ -107,89 +107,79 @@ TrapCommandItem::TrapCommandItem(CommandType comtype, CString * comm, CString * 
 
 
 
-CString * TrapCommandItem::Process(UniqueList * CommList, ReturnVal * success)
+CString* TrapCommandItem::Process(UniqueList* CommList, ReturnVal* success)
 {
-    CString * retchar = NULL;
-    CString * commname = new CString(*community);
-    CommListItem * tmp = new CommListItem(commname);
-    CString * addr = new CString(*address);
-    ListItem * addr_item = new ListItem(addr);
+    CString* retchar = NULL;
+    CString* commname = new CString(*community);
+    CommListItem* tmp = new CommListItem(commname);
+    CString* addr = new CString(*address);
+    ListItem* addr_item = new ListItem(addr);
     *success = RET_OK;
 
-    if (GetCommand() == AddTrap)
-    {
+    if (GetCommand() == AddTrap) {
         tmp->addresses.Add(addr_item);
-        CommListItem * tmp2 = (CommListItem *)CommList->Add(tmp);
+        CommListItem* tmp2 = (CommListItem*)CommList->Add(tmp);
 
         if (tmp2) //duplicate commname just add the address to it
         {
             addr_item = tmp->addresses.Pop(); //get the address
             delete tmp;                       //delete the duplicate
 
-            if(tmp2->addresses.Add(addr_item)) //add the address
+            if (tmp2->addresses.Add(addr_item)) //add the address
             {
                 retchar = WriteToBuff(IDS_MSG1);
                 delete addr_item;           //duplicate address delete it
                 *success = RET_NOTFOUND;    //indicate duplicate not added
             }
 
-            if(!retchar)
+            if (!retchar)
                 retchar = WriteToBuff(IDS_MSG2);
         }
 
-        if(!retchar)
+        if (!retchar)
             retchar = WriteToBuff(IDS_MSG3);
 
-    }
-    else //DeleteTrap
+    } else //DeleteTrap
     {
 
         //  Is the item in the current image?
-        //  =================================
+ 
 
-        CommListItem * tmp2 = (CommListItem *)CommList->FindItem(tmp, 0);
+        CommListItem* tmp2 = (CommListItem*)CommList->FindItem(tmp, 0);
 
-        if(tmp2)    //if it is in the image it will be removed.
+        if (tmp2)    //if it is in the image it will be removed.
         {
             POSITION p = tmp2->addresses.FindItem(addr_item);
             BOOL removed = FALSE;
 
-            if (p)
-            {
-                ListItem * del = tmp2->addresses.FindItem(addr_item, 0);
+            if (p) {
+                ListItem* del = tmp2->addresses.FindItem(addr_item, 0);
                 tmp2->addresses.RemoveAt(p);    //remove from the list
                 delete del;                     //delete the item from memory
                 retchar = WriteToBuff(IDS_MSG4);
                 removed = TRUE;
-            }
-            else
-            {
+            } else {
                 retchar = WriteToBuff(IDS_MSG5);
                 *success = RET_NOTFOUND;
             }
 
-            if (tmp2->addresses.IsEmpty())
-            {
+            if (tmp2->addresses.IsEmpty()) {
                 POSITION p2 = CommList->FindItem(tmp);
 
-                if (p2)
-                {
-                    CommListItem * del2 = (CommListItem *)CommList->FindItem(tmp, 0);
+                if (p2) {
+                    CommListItem* del2 = (CommListItem*)CommList->FindItem(tmp, 0);
                     CommList->RemoveAt(p2); //remove from the list
                     delete del2;            //delete the item from memory
 
-                    if (retchar)
-                    {
+                    if (retchar) {
                         delete retchar;
                         retchar = WriteToBuff(IDS_MSG6);
-                    }
-                    else
+                    } else
                         retchar = WriteToBuff(IDS_MSG7);
                 }
             }
 
-        }
-        else    //not in the image, say so and indicate not found
+        } else    //not in the image, say so and indicate not found
         {
             retchar = WriteToBuff(IDS_MSG8);
             *success = RET_NOTFOUND;
@@ -235,9 +225,9 @@ CString * TrapCommandItem::Process(UniqueList * CommList, ReturnVal * success)
 
 
 
-CommandItem::CommandItem(CommandType com, CString * log,
-                        CString * src, DWORD id,
-                        DWORD cnt, DWORD tm, HKEY key)
+CommandItem::CommandItem(CommandType com, CString* log,
+                         CString* src, DWORD id,
+                         DWORD cnt, DWORD tm, HKEY key)
 {
     //  Set the configuration values to be set in the registry
     //  ======================================================
@@ -250,9 +240,9 @@ CommandItem::CommandItem(CommandType com, CString * log,
 
 
     //  If the count is 0 make it 1, a valid value
-    //  ==========================================
+ 
 
-    if(cnt)
+    if (cnt)
         count = cnt;
     else
         count = 1;
@@ -292,31 +282,30 @@ CommandItem::CommandItem(CommandType com, CString * log,
 
 
 
-CString * CommandItem::ModifyRegistry(SourceItem * srcItem, ReturnVal * success)
+CString* CommandItem::ModifyRegistry(SourceItem* srcItem, ReturnVal* success)
 {
-    CString * retchar = NULL;
+    CString* retchar = NULL;
     *success = RET_OK;
 
 
     //  Get the command type and process the config request accordingly
-    //  ===============================================================
+ 
 
-    switch(command)
+    switch (command) {
+    case Add:       //Do the add process
     {
-        case Add:       //Do the add process
-        {
-            retchar = DoAdd(srcItem, success);      //modifies the success parameter
-            break;
-        }
+        retchar = DoAdd(srcItem, success);      //modifies the success parameter
+        break;
+    }
 
-        case Delete:    //Do the delete process
-        {
-            retchar = DoDelete(srcItem, success);   //modifies the success parameter
-            break;
-        }
+    case Delete:    //Do the delete process
+    {
+        retchar = DoDelete(srcItem, success);   //modifies the success parameter
+        break;
+    }
 
-        default:        //Should never get here!
-            break;
+    default:        //Should never get here!
+        break;
     }
 
     return retchar;     //value returned by DoAdd or DoDelete
@@ -355,10 +344,10 @@ CString * CommandItem::ModifyRegistry(SourceItem * srcItem, ReturnVal * success)
 
 
 
-CString * CommandItem::DoDelete(SourceItem * srcItem, ReturnVal * success)
+CString* CommandItem::DoDelete(SourceItem* srcItem, ReturnVal* success)
 {
 
-    CString * retchar = NULL;
+    CString* retchar = NULL;
     HKEY hkey;
     CString keyname;
     char evidstr[34];
@@ -373,18 +362,17 @@ CString * CommandItem::DoDelete(SourceItem * srcItem, ReturnVal * success)
 
 
     //  Open the key we need to delete so we can delete sub-keys
-    //  ========================================================
+ 
 
     LONG result = RegOpenKeyEx(hkey_machine, keyname,
-                                0, KEY_ALL_ACCESS, &hkey);
+                               0, KEY_ALL_ACCESS, &hkey);
 
-    if(result != ERROR_SUCCESS)
-    {
+    if (result != ERROR_SUCCESS) {
 
         //  Failed to open the key either it's not there or we have an error
-        //  ================================================================
+ 
 
-        if(result == ERROR_FILE_NOT_FOUND)
+        if (result == ERROR_FILE_NOT_FOUND)
             *success = RET_NOTFOUND;
         else
             *success = RET_BAD;
@@ -394,17 +382,16 @@ CString * CommandItem::DoDelete(SourceItem * srcItem, ReturnVal * success)
 
 
     //  Enumerate and delete all subkeys, then close and delete this key
-    //  ================================================================
+ 
 
     retchar = DeleteSubKeys(&hkey);
     RegCloseKey(hkey);
 
-    if(!retchar)    //Deleting all sub-keys worked.
+    if (!retchar)    //Deleting all sub-keys worked.
     {
         result = RegDeleteKey(hkey_machine, keyname);
 
-        if(result != ERROR_SUCCESS)
-        {
+        if (result != ERROR_SUCCESS) {
             *success = RET_BAD;
             return(WriteToBuff(IDS_MSG10));
         }
@@ -413,21 +400,21 @@ CString * CommandItem::DoDelete(SourceItem * srcItem, ReturnVal * success)
 
 
         //  If the last entry for this source is deleted, delete the source
-        //  ===============================================================
+ 
 
         CString keyN;
         keyN.LoadString(IDS_SNMP_AGENT);
         keyN += DirSep;
         keyN += *eventSource;
         result = RegOpenKeyEx(hkey_machine, keyN,
-                                0, KEY_ALL_ACCESS, &hkey);
+                              0, KEY_ALL_ACCESS, &hkey);
 
-        if(result == ERROR_SUCCESS) //this should always be true
+        if (result == ERROR_SUCCESS) //this should always be true
         {
             char Buffer[1024 + 1];
-            DWORD dwLength = 1024 +1;
+            DWORD dwLength = 1024 + 1;
             result = RegEnumKeyEx(hkey, 0, Buffer, &dwLength, NULL,
-                                NULL, NULL, NULL);
+                                  NULL, NULL, NULL);
             RegCloseKey(hkey);
 
             if (result == ERROR_NO_MORE_ITEMS) //we can delete it!
@@ -435,8 +422,7 @@ CString * CommandItem::DoDelete(SourceItem * srcItem, ReturnVal * success)
                 RegDeleteKey(hkey_machine, keyN);
             }
         }
-    }
-    else        //Deleteing all sub-keys failed
+    } else        //Deleteing all sub-keys failed
     {
         *success = RET_BAD;
     }
@@ -469,9 +455,9 @@ CString * CommandItem::DoDelete(SourceItem * srcItem, ReturnVal * success)
 
 
 
-CString * CommandItem::DeleteSubKeys(HKEY * hKey)
+CString* CommandItem::DeleteSubKeys(HKEY* hKey)
 {
-    CString * retchar = NULL;
+    CString* retchar = NULL;
     char Buffer[1024 + 1];
     DWORD dwLength;
     int i = 0;
@@ -480,24 +466,22 @@ CString * CommandItem::DeleteSubKeys(HKEY * hKey)
 
 
     //  Enumerate all subkeys and delete them
-    //  =====================================
+ 
 
-    while (TRUE)
-    {
+    while (TRUE) {
         dwLength = 1024 + 1;
         Result = RegEnumKeyEx(*hKey, i, Buffer, &dwLength, NULL,
-            NULL, NULL, NULL);
+                              NULL, NULL, NULL);
 
         if (Result != ERROR_SUCCESS)
             break;
 
-        if (dwLength > 0)
-        {
+        if (dwLength > 0) {
             CString CBuffer(Buffer);
 
 
             //  This will delete the key
-            //  ========================
+ 
 
             retchar = DeleteKey(hKey, &CBuffer);
 
@@ -510,7 +494,7 @@ CString * CommandItem::DeleteSubKeys(HKEY * hKey)
 
 
     //  Did we find a normal end condition?
-    //  ===================================
+ 
 
     if (Result == ERROR_NO_MORE_ITEMS)
         return retchar;                 //no errors
@@ -545,36 +529,33 @@ CString * CommandItem::DeleteSubKeys(HKEY * hKey)
 
 
 
-CString * CommandItem::DeleteKey(HKEY * hKey, CString * key)
+CString* CommandItem::DeleteKey(HKEY* hKey, CString* key)
 {
-    CString * retchar = NULL;
+    CString* retchar = NULL;
     HKEY hk;
 
 
     //  Open the key to be deleted so we can tell if it has any subkeys
-    //  ===============================================================
+ 
 
     LONG result = RegOpenKeyEx(*hKey, *key,
-                                0, KEY_ALL_ACCESS, &hk);
-    if(result != ERROR_SUCCESS)
-    {
+                               0, KEY_ALL_ACCESS, &hk);
+    if (result != ERROR_SUCCESS) {
         return(WriteToBuff(IDS_MSG13));
     }
 
 
     //  Enumerate and delete all subkeys, then close and delete this key
-    //  ================================================================
+ 
 
     retchar = DeleteSubKeys(&hk);
 
     RegCloseKey(hk);
 
-    if(!retchar)
-    {
+    if (!retchar) {
         result = RegDeleteKey(*hKey, *key); //delete the key
 
-        if(result != ERROR_SUCCESS)
-        {
+        if (result != ERROR_SUCCESS) {
             return(WriteToBuff(IDS_MSG14));
         }
     }
@@ -614,9 +595,9 @@ CString * CommandItem::DeleteKey(HKEY * hKey, CString * key)
 
 
 
-CString * CommandItem::DoAdd(SourceItem * srcItem, ReturnVal * success)
+CString* CommandItem::DoAdd(SourceItem* srcItem, ReturnVal* success)
 {
-    CString * retchar = NULL;
+    CString* retchar = NULL;
     HKEY hkey;
     DWORD createtype = REG_OPENED_EXISTING_KEY;
     CString keyname;
@@ -628,20 +609,17 @@ CString * CommandItem::DoAdd(SourceItem * srcItem, ReturnVal * success)
 
 
     //  Open the registry at the place where event config is
-    //  ====================================================
 
     LONG result = RegOpenKeyEx(hkey_machine, keyname,
-                                0, KEY_ALL_ACCESS, &hkey);
+                               0, KEY_ALL_ACCESS, &hkey);
 
-    if (result != ERROR_SUCCESS)
-    {
+    if (result != ERROR_SUCCESS) {
 
         //  Open or create the event source key to be modified
-        //  ==================================================
+ 
 
         result = RegCreateKeyEx(hkey_machine, keyname, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey, &createtype);
-        if(result != ERROR_SUCCESS)
-        {
+        if (result != ERROR_SUCCESS) {
             retchar = WriteToBuff(IDS_MSG15);
             *success = RET_BAD;
             return retchar;
@@ -649,34 +627,31 @@ CString * CommandItem::DoAdd(SourceItem * srcItem, ReturnVal * success)
 
 
         //  Make sure this has the correct settings
-        //  =======================================
+ 
 
         CString ValueApp;
         DWORD app = 1;
         ValueApp.LoadString(IDS_APPEND);
-        result = RegSetValueEx(hkey, ValueApp, 0, REG_DWORD, (CONST BYTE *)&app, 4);
-        if(result != ERROR_SUCCESS)
-        {
+        result = RegSetValueEx(hkey, ValueApp, 0, REG_DWORD, (CONST BYTE*) & app, 4);
+        if (result != ERROR_SUCCESS) {
             retchar = WriteToBuff(IDS_MSG15);
         }
 
         CString ValueEntOID;
         ValueEntOID.LoadString(IDS_ENTOID);
-        CMyString * entoid = (CMyString *)srcItem->GetEntOID();
+        CMyString* entoid = (CMyString*)srcItem->GetEntOID();
         LPTSTR buff2 = entoid->GetBuffer(1);
         DWORD buff2sz = entoid->GetBufferSize();
-        result = RegSetValueEx(hkey, ValueEntOID, 0, REG_SZ, (CONST BYTE *)buff2, buff2sz);
+        result = RegSetValueEx(hkey, ValueEntOID, 0, REG_SZ, (CONST BYTE*)buff2, buff2sz);
         entoid->ReleaseBuffer();
-        if(result != ERROR_SUCCESS)
-        {
+        if (result != ERROR_SUCCESS) {
             retchar = WriteToBuff(IDS_MSG15);
         }
 
-        if(retchar)
-        {
+        if (retchar) {
             RegCloseKey(hkey);
 
-            if(createtype == REG_CREATED_NEW_KEY)
+            if (createtype == REG_CREATED_NEW_KEY)
                 RegDeleteKey(hkey_machine, keyname);
 
             *success = RET_BAD;
@@ -691,14 +666,13 @@ CString * CommandItem::DoAdd(SourceItem * srcItem, ReturnVal * success)
 
 
     //  Open or create the event ID key to be modified
-    //  ==============================================
+ 
 
     result = RegCreateKeyEx(hkey, evidstr, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey2, &createtype2);
-    if(result != ERROR_SUCCESS)
-    {
+    if (result != ERROR_SUCCESS) {
         RegCloseKey(hkey);
 
-        if(createtype == REG_CREATED_NEW_KEY)
+        if (createtype == REG_CREATED_NEW_KEY)
             RegDeleteKey(hkey_machine, keyname);
 
         *success = RET_BAD;
@@ -710,20 +684,19 @@ CString * CommandItem::DoAdd(SourceItem * srcItem, ReturnVal * success)
 
 
     //  Set the count
-    //  =============
+ 
 
-    result = RegSetValueEx(hkey2, ValueCnt, 0, REG_DWORD, (CONST BYTE *)&count, 4);
+    result = RegSetValueEx(hkey2, ValueCnt, 0, REG_DWORD, (CONST BYTE*) & count, 4);
 
-    if(result != ERROR_SUCCESS)
-    {
+    if (result != ERROR_SUCCESS) {
         RegCloseKey(hkey2);
 
-        if(createtype2 == REG_CREATED_NEW_KEY)
+        if (createtype2 == REG_CREATED_NEW_KEY)
             RegDeleteKey(hkey, evidstr);
 
         RegCloseKey(hkey);
 
-        if(createtype == REG_CREATED_NEW_KEY)
+        if (createtype == REG_CREATED_NEW_KEY)
             RegDeleteKey(hkey_machine, keyname);
 
         *success = RET_BAD;
@@ -735,28 +708,25 @@ CString * CommandItem::DoAdd(SourceItem * srcItem, ReturnVal * success)
 
 
     //  If necessary, set the time
-    //  ==========================
+ 
 
-    if ((count > 1) && time)
-    {
-        result = RegSetValueEx(hkey2, ValueT, 0, REG_DWORD, (CONST BYTE *)&time, 4);
-        if(result != ERROR_SUCCESS)
-        {
+    if ((count > 1) && time) {
+        result = RegSetValueEx(hkey2, ValueT, 0, REG_DWORD, (CONST BYTE*) & time, 4);
+        if (result != ERROR_SUCCESS) {
             RegCloseKey(hkey2);
 
-            if(createtype2 == REG_CREATED_NEW_KEY)
+            if (createtype2 == REG_CREATED_NEW_KEY)
                 RegDeleteKey(hkey, evidstr);
 
             RegCloseKey(hkey);
 
-            if(createtype == REG_CREATED_NEW_KEY)
+            if (createtype == REG_CREATED_NEW_KEY)
                 RegDeleteKey(hkey_machine, keyname);
 
             *success = RET_BAD;
             return(WriteToBuff(IDS_MSG15));
         }
-    }
-    else
+    } else
         RegDeleteValue(hkey2, ValueT);
 
     CString ValueID;
@@ -764,18 +734,17 @@ CString * CommandItem::DoAdd(SourceItem * srcItem, ReturnVal * success)
 
 
     //  Set the fullid value
-    //  ====================
-    result = RegSetValueEx(hkey2, ValueID, 0, REG_DWORD, (CONST BYTE *)&eventID, 4);
-    if(result != ERROR_SUCCESS)
-    {
+ 
+    result = RegSetValueEx(hkey2, ValueID, 0, REG_DWORD, (CONST BYTE*) & eventID, 4);
+    if (result != ERROR_SUCCESS) {
         RegCloseKey(hkey2);
 
-        if(createtype2 == REG_CREATED_NEW_KEY)
+        if (createtype2 == REG_CREATED_NEW_KEY)
             RegDeleteKey(hkey, evidstr);
 
         RegCloseKey(hkey);
 
-        if(createtype == REG_CREATED_NEW_KEY)
+        if (createtype == REG_CREATED_NEW_KEY)
             RegDeleteKey(hkey_machine, keyname);
 
         *success = RET_BAD;
@@ -812,9 +781,9 @@ CString * CommandItem::DoAdd(SourceItem * srcItem, ReturnVal * success)
 
 
 
-CString * CommandItem::WriteToBuff(UINT mssgid)
+CString* CommandItem::WriteToBuff(UINT mssgid)
 {
-    CString * s = new CString;
+    CString* s = new CString;
     CString temp;
     temp.LoadString(IDS_PRAGMA);
     CString tab;
@@ -824,43 +793,41 @@ CString * CommandItem::WriteToBuff(UINT mssgid)
 
 
     //  First build the command line that is CommandItem was made from
-    //  ==============================================================
 
     *s += temp;
     *s += tab;
     temp.Empty();
     BOOL trap = FALSE;
 
-    switch (command)
+    switch (command) {
+    case Add:
     {
-        case Add:
-        {
-            temp.LoadString(IDS_ADD);
-            break;
-        }
+        temp.LoadString(IDS_ADD);
+        break;
+    }
 
-        case Delete:
-        {
-            temp.LoadString(IDS_DEL);
-            break;
-        }
+    case Delete:
+    {
+        temp.LoadString(IDS_DEL);
+        break;
+    }
 
-        case AddTrap:
-        {
-            trap = TRUE;
-            temp.LoadString(IDS_ADDTRAP);
-            break;
-        }
+    case AddTrap:
+    {
+        trap = TRUE;
+        temp.LoadString(IDS_ADDTRAP);
+        break;
+    }
 
-        case DeleteTrap:
-        {
-            trap = TRUE;
-            temp.LoadString(IDS_DELTRAP);
-            break;
-        }
+    case DeleteTrap:
+    {
+        trap = TRUE;
+        temp.LoadString(IDS_DELTRAP);
+        break;
+    }
 
-        default:  //huh!?!
-            break;
+    default:  //huh!?!
+        break;
     }
 
     *s += temp;
@@ -882,15 +849,13 @@ CString * CommandItem::WriteToBuff(UINT mssgid)
         _ultoa(eventID, tmp, 10);
         *s += tmp;
 
-        if (count)
-        {
+        if (count) {
             *s += tab;
             char tmp[34];
             _ultoa(count, tmp, 10);
             *s += tmp;
 
-            if (time)
-            {
+            if (time) {
                 *s += tab;
                 char tmp[34];
                 _ultoa(time, tmp, 10);
@@ -901,10 +866,8 @@ CString * CommandItem::WriteToBuff(UINT mssgid)
 
 
     //  Add the message from the resource specified by this method's parameter
-    //  ======================================================================
 
-    if (mssgid)
-    {
+    if (mssgid) {
         CString messg;
         messg.LoadString(mssgid);
         *s += tab;
@@ -923,11 +886,10 @@ CString * CommandItem::WriteToBuff(UINT mssgid)
 
 #endif  //EVENTCMT_OLD_LOG
 
-    *s += NL;
+    * s += NL;
 
 
     //  Return the CString object that we've built
-    //  ==========================================
 
     return s;
 }
@@ -940,18 +902,6 @@ CString * CommandItem::WriteToBuff(UINT mssgid)
 //  to the two CString members  eventLog and eventSource. (These are the same
 //  as commname and address for the  TrapCommandItem so they are not deleted in
 //  the TrapCommandItem destructor.)
-
-
-//  Parameters:
-
-//      none
-
-//  Returns:
-
-//      none
-
-
-
 CommandItem::~CommandItem()
 {
     delete eventLog;
@@ -961,71 +911,39 @@ CommandItem::~CommandItem()
 
 
 //  CommandItemQueue::~CommandItemQueue
-
 //  This is the CommandItemQueue class's only desstructor. If there are any
 //  items in the queue they are deleted.
-
-
-//  Parameters:
-
-//      none
-
-//  Returns:
-
-//      none
-
-
-
 CommandItemQueue::~CommandItemQueue()
 {
-    while(!IsEmpty())
-    {
-        CommandItem * com = RemoveHead();
+    while (!IsEmpty()) {
+        CommandItem* com = RemoveHead();
         delete com;
     }
 }
 
 
-
 //  SourceItem::SourceItem
-
 //  This is the SourceItem class's only constructor. This class is derived
 //  from the CObject class. This is so the MFC template storage classes can be
 //  used. It is used to store and obtain event source information so that SNMP
 //  trap translation configuration requests may be processed.
-
-
 //  Parameters:
-
 //      CString * src   The event source name.
-
 //      HKEY key        The registry key HKEY_LOCAL_MACHINE for the machine
 //                      that is being configured.
-
 //      BOOL E          A boolean indicating whether this Source is valid.
-
-
-//  Returns:
-
-//      none
-
-
-
-SourceItem::SourceItem(CString * src, HKEY key, BOOL E)
+SourceItem::SourceItem(CString* src, HKEY key, BOOL E)
 {
     EntOID = NULL;
     hkey_machine = key;
 
-    if(src)
-    {
+    if (src) {
         source = new CString(*src);
-    }
-    else
+    } else
         source = NULL;
 
 
     //  This sets the member Exists variable and if necessary creates an OID for the source
-    //  ===================================================================================
 
     SetExists(E);
 }
@@ -1054,25 +972,23 @@ void SourceItem::SetExists(BOOL E)
 {
 
     //  delete the old OID if there was one
-    //  ===================================
+ 
 
     if (EntOID)
         delete EntOID;
 
 
     //  if needed, create a new OID
-    //  ===========================
+ 
 
-    if (E)
-    {
+    if (E) {
         CString OID;
         _ultoa(source->GetLength(), OID.GetBuffer(20), 10);
         OID.ReleaseBuffer();
         OID += TEXT(".");
-        char * c = source->GetBuffer(1);
+        char* c = source->GetBuffer(1);
 
-        while (c && (*c != '\0'))
-        {
+        while (c && (*c != '\0')) {
             int a = *c;
             char str[34];
             _ultoa(a, str, 10);
@@ -1083,13 +999,12 @@ void SourceItem::SetExists(BOOL E)
 
         source->ReleaseBuffer();
         EntOID = new CString(OID);
-    }
-    else
+    } else
         EntOID = NULL;
 
 
     //  set the Exists member
-    //  =====================
+ 
 
     Exists = E;
 }
@@ -1116,43 +1031,40 @@ void SourceItem::SetExists(BOOL E)
 
 
 
-CString * SourceItem::GetDllName(CommandItem* Cmnd)
+CString* SourceItem::GetDllName(CommandItem* Cmnd)
 {
 
     //  Open the registry and get the key for the event source specified
-    //  ================================================================
 
-    CString * Dll = NULL;
+    CString* Dll = NULL;
     HKEY hkeyOpen;
     CString keyName;
     CString keyValue;
     CString DirSep;
     DirSep.LoadString(IDS_DIRSEP);
     DWORD valType;
-    char * buff;
-    char * buff2;
+    char* buff;
+    char* buff2;
     DWORD buffsz = 0;
 
     keyName.LoadString(IDS_KEYNAME);
-    CString * evlog = Cmnd->GetEventLog();
+    CString* evlog = Cmnd->GetEventLog();
     keyName += *evlog;
     keyName += DirSep;
-    CString * evsrc = Cmnd->GetEventSource();
+    CString* evsrc = Cmnd->GetEventSource();
     keyName += *evsrc;
 
 
     //  Get the key to the source from the registry
-    //  ===========================================
 
     LONG Result = RegOpenKeyEx(hkey_machine, keyName,
-                                0, KEY_ALL_ACCESS, &hkeyOpen);
+                               0, KEY_ALL_ACCESS, &hkeyOpen);
 
     if (Result != ERROR_SUCCESS)
         return Dll;
 
 
     //  Get the name and path to the message dll
-    //  ========================================
 
     keyValue.LoadString(IDS_VALUENAME);
     Result = RegQueryValueEx(hkeyOpen, keyValue, NULL, &valType, (unsigned char*)buff, &buffsz);
@@ -1165,14 +1077,11 @@ CString * SourceItem::GetDllName(CommandItem* Cmnd)
 
 
     //  first we found the size of the buffer needed, now get the name of the dll
-    //  =========================================================================
-
     buff = new char[buffsz + 1];
     Result = RegQueryValueEx(hkeyOpen, keyValue, NULL, &valType, (unsigned char*)buff, &buffsz);
     RegCloseKey(hkeyOpen);
 
-    if (Result != ERROR_SUCCESS)
-    {
+    if (Result != ERROR_SUCCESS) {
         delete buff;
         return Dll;
     }
@@ -1181,11 +1090,8 @@ CString * SourceItem::GetDllName(CommandItem* Cmnd)
 
 
     //  Remove any environment strings (e.g. %SystemRoot%)
-
     DWORD length = ExpandEnvironmentStrings(buff, buff2, 1);
-
-    if (!length)
-    {
+    if (!length) {
         delete buff;
         return Dll;
     }
@@ -1196,45 +1102,30 @@ CString * SourceItem::GetDllName(CommandItem* Cmnd)
 
     delete buff;
 
-    if(!buffsz)
-    {
+    if (!buffsz) {
         delete buff2;
         return Dll;
     }
 
-
     //  Create the CString for the return
-    //  =================================
-
     Dll = new CString(buff2);
     delete buff2;
     return Dll;
 }
 
 
-
 //  SourceItem::EnumerateEventIDMap
-
 //  This public method is called to get read and enumerate the message dll.
 //  This is so EventId values may be validated.
-
-
 //  Parameters:
-
 //      CommandItem* Cmnd   A pointer to a CommandItem which has this event
 //                          source
-
-
 //  Returns:
-
 //      BOOL                An indication of the success of this method. FALSE
 //                          if there was an error.
-
-
-
 BOOL SourceItem::EnumerateEventIDMap(CommandItem* Cmnd)
 {
-    CString * dllname;
+    CString* dllname;
     dllname = GetDllName(Cmnd);
 
     if (!dllname)
@@ -1242,10 +1133,10 @@ BOOL SourceItem::EnumerateEventIDMap(CommandItem* Cmnd)
 
 
     //  Load the message dll
-    //  ====================
+ 
 
     HINSTANCE hInstMsgFile = LoadLibraryEx(*dllname, NULL,
-        LOAD_LIBRARY_AS_DATAFILE);
+                                           LOAD_LIBRARY_AS_DATAFILE);
     delete dllname;
 
     if (hInstMsgFile == NULL)
@@ -1253,11 +1144,8 @@ BOOL SourceItem::EnumerateEventIDMap(CommandItem* Cmnd)
 
 
     //  Enumerate the message dll
-    //  =========================
-
     if (EnumResourceNames(hInstMsgFile, RT_MESSAGETABLE,
-        (ENUMRESNAMEPROC)ProcessMsgTable, (LONG)this) == FALSE)
-    {
+                          (ENUMRESNAMEPROC)ProcessMsgTable, (LONG)this) == FALSE) {
         FreeLibrary(hInstMsgFile);
         return FALSE;
     }
@@ -1276,17 +1164,17 @@ BOOL SourceItem::EnumerateEventIDMap(CommandItem* Cmnd)
 
 
 BOOL CALLBACK ProcessMsgTable(HANDLE hModule, LPCTSTR lpszType,
-    LPTSTR lpszName, LONG lParam)
+                              LPTSTR lpszName, LONG lParam)
 {
 
     SourceItem* src = (SourceItem*)(LPVOID)lParam;
 
 
     //  Found a message table.  Process it!
-    //  ===================================
+ 
 
     HRSRC hResource = FindResource((HINSTANCE)hModule, lpszName,
-        RT_MESSAGETABLE);
+                                   RT_MESSAGETABLE);
     if (hResource == NULL)
         return TRUE;
 
@@ -1301,11 +1189,10 @@ BOOL CALLBACK ProcessMsgTable(HANDLE hModule, LPCTSTR lpszType,
 
     ULONG ulBlock, ulId, ulOffset;
 
-    for (ulBlock=0; ulBlock<pMsgTable->NumberOfBlocks; ulBlock++)
-    {
+    for (ulBlock = 0; ulBlock < pMsgTable->NumberOfBlocks; ulBlock++) {
         ulOffset = pMsgTable->Blocks[ulBlock].OffsetToEntries;
         for (ulId = pMsgTable->Blocks[ulBlock].LowId;
-            ulId <= pMsgTable->Blocks[ulBlock].HighId; ulId++)
+             ulId <= pMsgTable->Blocks[ulBlock].HighId; ulId++)
 
         {
             src->eventIDs.SetAt((DWORD)ulId, 0);
@@ -1320,21 +1207,8 @@ BOOL CALLBACK ProcessMsgTable(HANDLE hModule, LPCTSTR lpszType,
 
 
 //  SourceItem::~SourceItem
-
 //  This is the SourceItem class's only desstructor. It frees any memory
 //  to the source name, the OID and the map of valid eventids.
-
-
-//  Parameters:
-
-//      none
-
-//  Returns:
-
-//      none
-
-
-
 SourceItem::~SourceItem()
 {
     if (source)
@@ -1352,58 +1226,32 @@ SourceItem::~SourceItem()
 
 
 //  SourceList::~SourceList
-
 //  This is the SourceList class's only desstructor. If there are any items in
 //  the queue they are deleted.
-
-
-//  Parameters:
-
-//      none
-
-//  Returns:
-
-//      none
-
-
-
 SourceList::~SourceList()
 {
-    while(!IsEmpty())
-    {
-        SourceItem * src = RemoveHead();
+    while (!IsEmpty()) {
+        SourceItem* src = RemoveHead();
         delete src;
     }
 }
 
 
-
 //  SourceList::FindItem
-
 //  This public method is called to find a particular SourceItem in this
 //  SourceList. The search is done by name.
-
-
 //  Parameters:
-
 //      CString * src   A pointer to a CString which has the event source
 //                      name being sought.
-
 //      SourceItem * i  A pointer to the source item if it was found. This is
 //                      NULL if the item wasn't found.
-
-
 //  Returns:
-
 //      int             An indication of the success of this method. This is
 //                      one of three values:
 //                      RET_OK          - The item is a valid event source
 //                      RET_BAD         - The item is an invalid event source
 //                      RET_NOT_FOUND   - The item was not found
-
-
-
-int SourceList::FindItem(CString * src, SourceItem *& i)
+int SourceList::FindItem(CString* src, SourceItem*& i)
 {
     POSITION p = GetHeadPosition();
     ReturnVal ret = RET_NOTFOUND;
@@ -1411,22 +1259,16 @@ int SourceList::FindItem(CString * src, SourceItem *& i)
 
 
     //  Step through the list searching for the event source
-    //  ====================================================
+    while (src && p) {
+        SourceItem* item = GetNext(p);
+        CString* temp = item->GetSource();
 
-    while (src && p)
-    {
-        SourceItem * item = GetNext(p);
-        CString * temp = item->GetSource();
-
-        if(*temp == *src)
-        {
+        if (*temp == *src) {
 
             //  The item has been found!
-            //  ========================
-
             i = item;
 
-            if(item->GetExists())
+            if (item->GetExists())
                 ret = RET_OK;   //valid event source
             else
                 ret = RET_BAD;  //invalid event source
@@ -1441,26 +1283,12 @@ int SourceList::FindItem(CString * src, SourceItem *& i)
 
 
 //  UniqueList::~UniqueList
-
 //  This is the UniqueList class's only desstructor. If there are any items in
 //  the queue they are deleted.
-
-
-//  Parameters:
-
-//      none
-
-//  Returns:
-
-//      none
-
-
-
 UniqueList::~UniqueList()
 {
-    while(!IsEmpty())
-    {
-        ListItem * item = RemoveHead();
+    while (!IsEmpty()) {
+        ListItem* item = RemoveHead();
         delete item;
     }
 }
@@ -1488,21 +1316,16 @@ UniqueList::~UniqueList()
 
 
 
-ListItem * UniqueList::FindItem(ListItem * item, int dummy)
+ListItem* UniqueList::FindItem(ListItem* item, int dummy)
 {
-
     //  Reset the list and step through it trying to find the item
-    //  ==========================================================
-
     POSITION p = GetHeadPosition();
-    ListItem * ret = NULL;
+    ListItem* ret = NULL;
 
-    while (item && p)
-    {
-        ListItem * i = GetNext(p);
+    while (item && p) {
+        ListItem* i = GetNext(p);
 
-        if(i->CompareFunc(item) == 0)
-        {
+        if (i->CompareFunc(item) == 0) {
             ret = i;    //found it!
             break;
         }
@@ -1512,26 +1335,16 @@ ListItem * UniqueList::FindItem(ListItem * item, int dummy)
 }
 
 
-
 //  UniqueList::FindItem
-
 //  This public method is called to find a particular ListItem in this
 //  UniqueList. The search is done by comparing the contents of the ListItem
 //  pointed to by the first parameter (using ListItem::CompareFunc).
-
-
 //  Parameters:
-
 //      ListItem * item     A pointer to a ListItem to be found.
-
 //  Returns:
-
 //      POSITION            The POSITION of the item in the list. NULL if the
 //                          item is not found.
-
-
-
-POSITION UniqueList::FindItem(ListItem * item)
+POSITION UniqueList::FindItem(ListItem* item)
 {
     POSITION p = GetHeadPosition();
     POSITION ret = p;
@@ -1539,17 +1352,12 @@ POSITION UniqueList::FindItem(ListItem * item)
     if (!item)
         return NULL;
 
-
     //  Reset the list and step through it trying to find the item
-    //  ==========================================================
-
-    while (item && p)
-    {
+    while (item && p) {
         ret = p;  //the current position
-        ListItem * i = GetNext(p);
+        ListItem* i = GetNext(p);
 
-        if(i->CompareFunc(item) == 0)
-        {
+        if (i->CompareFunc(item) == 0) {
             //the current position will be returned
             break;
         }
@@ -1563,29 +1371,20 @@ POSITION UniqueList::FindItem(ListItem * item)
 
 
 //  UniqueList::Add
-
 //  This public method is called to add a ListItem into this UniqueList. The
 //  ListItem is not added if it is already present in the list. If this is the
 //  case a pointer to the matching item in the list is returned.
-
-
 //  Parameters:
-
 //      ListItem * newItem  A pointer to the ListItem to be added.
-
 //  Returns:
-
 //      ListItem *          A pointer to the item if is in the list. NULL if
 //                          the item was not found and was added.
-
-
-
-ListItem * UniqueList::Add(ListItem* newItem)
+ListItem* UniqueList::Add(ListItem* newItem)
 {
-    ListItem * ret = NULL;
+    ListItem* ret = NULL;
     ret = FindItem(newItem, 0);
 
-    if(ret)
+    if (ret)
         return ret;
     else
         AddTail(newItem);
@@ -1594,25 +1393,13 @@ ListItem * UniqueList::Add(ListItem* newItem)
 }
 
 
-
 //  ListItem::ListItem
-
 //  This is the ListItem class's only constructor. This class is derived from
 //  the CObject class. This is so the MFC template storage classes can be
 //  used. It is used to store a CString value in a list.
-
-
 //  Parameters:
-
 //      CString * str   A pointer to the CString object to be stored.
-
-//  Returns:
-
-//      none
-
-
-
-ListItem::ListItem(CString * str)
+ListItem::ListItem(CString* str)
 {
     string = str;
 }
@@ -1620,21 +1407,8 @@ ListItem::ListItem(CString * str)
 
 
 //  ListItem::~ListItem
-
 //  This is the ListItem class's only destructor. It frees the memory used
 //  to store the CString members.
-
-
-//  Parameters:
-
-//      none
-
-//  Returns:
-
-//      none
-
-
-
 ListItem::~ListItem()
 {
     delete string;
@@ -1643,28 +1417,19 @@ ListItem::~ListItem()
 
 
 //  ListItem::CompareFunc
-
 //  This public method is used to compare the contents of the ListItem pointed
 //  to by the first parameter to the contents of this ListItem.
-
-
 //  Parameters:
-
 //      ListItem * item     A pointer to the ListItem whose contents will be
 //                          compared to this ListItem's contents.
-
 //  Returns:
-
 //      int                 An indication of the outcome of the comparison. 0
 //                          if there is a match, 1 otherwise.
-
-
-
-int ListItem::CompareFunc(ListItem * item)
+int ListItem::CompareFunc(ListItem* item)
 {
-    CString * temp = item->GetString();
+    CString* temp = item->GetString();
 
-    if(*temp == *string)
+    if (*temp == *string)
         return 0;
     else
         return 1;
@@ -1685,51 +1450,31 @@ int ListItem::CompareFunc(ListItem * item)
 
 
 //  Parameters:
-
 //      CString * str   A pointer to the CString object to be stored.
-
-//  Returns:
-
-//      none
-
-
-
-CommListItem::CommListItem(CString * str)
-            :ListItem(str)
+CommListItem::CommListItem(CString* str)
+    :ListItem(str)
 {
-//nothing to do
+    //nothing to do
 }
 
 
-
 //  CommListItem::GetAddresses
-
 //  This public method is called to get the trap destination addresses for the
 //  community name that is stored in this object's CString member.
-
-
 //  Parameters:
-
 //      HKEY * hkey     A pointer to the open registry key of the SNMP trap
 //                      destination root key.
-
 //  Returns:
-
 //      BOOL            A boolean indicating the success of the method. TRUE
 //                      if there were no errors, FALSE otherwise.
-
-
-
-BOOL CommListItem::GetAddresses(HKEY * hkey)
+BOOL CommListItem::GetAddresses(HKEY* hkey)
 {
     HKEY hkeyOpen;
 
-    CString *temp = GetString();
+    CString* temp = GetString();
 
     //  Open the registry key for this community name
-    //  =============================================
-    LONG Result = RegOpenKeyEx(*hkey, *temp,
-                                0, KEY_READ, &hkeyOpen);
+    LONG Result = RegOpenKeyEx(*hkey, *temp, 0, KEY_READ, &hkeyOpen);
 
     if (Result != ERROR_SUCCESS)
         return FALSE;
@@ -1739,29 +1484,23 @@ BOOL CommListItem::GetAddresses(HKEY * hkey)
     char Data[1024 + 1];
     DWORD DataLength;
     DWORD type;
-
     int i = 0;
 
-
     //  Enumerate all the values (addresses) under this key
-    //  ===================================================
-
-    while (TRUE)
-    {
+    while (TRUE) {
         NameLength = 1024 + 1;
         DataLength = 1024 + 1;
         Result = RegEnumValue(hkeyOpen, i, Name, &NameLength, NULL,
-                                &type, (unsigned char*)Data, &DataLength);
+                              &type, (unsigned char*)Data, &DataLength);
 
         if (Result != ERROR_SUCCESS)
             break;
 
-        if ((NameLength > 0) && (DataLength > 0) && (type == REG_SZ))
-        {
-            CString * str = new CString(Data);
-            ListItem * item = new ListItem(str);
+        if ((NameLength > 0) && (DataLength > 0) && (type == REG_SZ)) {
+            CString* str = new CString(Data);
+            ListItem* item = new ListItem(str);
 
-            if(addresses.Add(item)) //shouldn't be duplicates but check anyway
+            if (addresses.Add(item)) //shouldn't be duplicates but check anyway
                 delete item;
         }
 
@@ -1770,12 +1509,9 @@ BOOL CommListItem::GetAddresses(HKEY * hkey)
 
     RegCloseKey(hkeyOpen);
 
-
     //  Did we find a normal end condition?
-    //  ===================================
     if (Result == ERROR_NO_MORE_ITEMS)
         return TRUE;
 
     return FALSE;
-
 }

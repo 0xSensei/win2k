@@ -133,7 +133,7 @@ CRegBlob::Init(
 
     // allocate buffer if necessary
     if (_dwBufferLimit) {
-        _pBuffer = (BYTE *)GlobalAlloc(GPTR, _dwBufferLimit);
+        _pBuffer = (BYTE*)GlobalAlloc(GPTR, _dwBufferLimit);
         if (NULL == _pBuffer)
             return GetLastError();
     }
@@ -218,7 +218,7 @@ CRegBlob::WriteString(
 
 DWORD
 CRegBlob::ReadString(
-    LPCSTR * ppszString
+    LPCSTR* ppszString
 )
 {
     DWORD dwLen, dwBytes = 0;
@@ -246,7 +246,7 @@ CRegBlob::WriteBytes(
     DWORD dwByteCount
 )
 {
-    BYTE * pNewBuffer;
+    BYTE* pNewBuffer;
 
     // can only do this on write blob
     if (FALSE == _fWrite)
@@ -254,7 +254,7 @@ CRegBlob::WriteBytes(
 
     // grow buffer if necessary
     if (_dwBufferLimit - _dwOffset < dwByteCount) {
-        pNewBuffer = (BYTE *)GlobalReAlloc(_pBuffer, _dwBufferLimit + BLOB_BUFF_GRANULARITY, GMEM_ZEROINIT);
+        pNewBuffer = (BYTE*)GlobalReAlloc(_pBuffer, _dwBufferLimit + BLOB_BUFF_GRANULARITY, GMEM_ZEROINIT);
         if (NULL == pNewBuffer) {
             // failed to get more memory
             return 0;
@@ -543,17 +543,17 @@ FindBaseProxyKey(
             SHGetValue(HKEY_LOCAL_MACHINE, INTERNET_POLICY_KEY,
                        TEXT("ProxySettingsPerUser"), &dwType, &dwValue, &dwSize) &&
             0 == dwValue) {
-            SHInterlockedCompareExchange((void **)&g_hkeyBase, HKEY_LOCAL_MACHINE, 0);
+            SHInterlockedCompareExchange((void**)&g_hkeyBase, HKEY_LOCAL_MACHINE, 0);
         } else {
 
             // Find an HKCU equivalent for this process
 
             if (PLATFORM_TYPE_WIN95 == GlobalPlatformType ||
                 NULL == (hkeyBase = GetClientUserHandle(KEY_QUERY_VALUE | KEY_SET_VALUE))) {
-                SHInterlockedCompareExchange((void **)&g_hkeyBase, HKEY_CURRENT_USER, 0);
+                SHInterlockedCompareExchange((void**)&g_hkeyBase, HKEY_CURRENT_USER, 0);
             } else  // !Win95 and hkeyBase was sucessfully returned
             {
-                if (SHInterlockedCompareExchange((void **)&g_hkeyBase, hkeyBase, 0)) {
+                if (SHInterlockedCompareExchange((void**)&g_hkeyBase, hkeyBase, 0)) {
                     RegCloseKey(hkeyBase); // race, free the copy
                 }
             }
@@ -661,7 +661,7 @@ ReadProxySettings(
         // read interface ips
         r.ReadBytes(&pInfo->dwDetectedInterfaceIpCount, sizeof(DWORD));
         if (pInfo->dwDetectedInterfaceIpCount) {
-            pInfo->pdwDetectedInterfaceIp = (DWORD *)GlobalAlloc(GPTR, sizeof(DWORD) * pInfo->dwDetectedInterfaceIpCount);
+            pInfo->pdwDetectedInterfaceIp = (DWORD*)GlobalAlloc(GPTR, sizeof(DWORD) * pInfo->dwDetectedInterfaceIpCount);
             if (pInfo->pdwDetectedInterfaceIp) {
                 for (i = 0; i < pInfo->dwDetectedInterfaceIpCount; i++) {
                     r.ReadBytes(&pInfo->pdwDetectedInterfaceIp[i], sizeof(DWORD));
@@ -1088,7 +1088,7 @@ QueryPerConnOptions(
             pszCopy = info.lpszLastKnownGoodAutoConfigUrl;
             break;
         case INTERNET_PER_CONN_AUTOCONFIG_LAST_DETECT_TIME:
-            *(LONGLONG *) &(pList->pOptions[i].Value.ftValue) = *(LONGLONG *) &(info.ftLastKnownDetectTime);
+            *(LONGLONG*)&(pList->pOptions[i].Value.ftValue) = *(LONGLONG*)&(info.ftLastKnownDetectTime);
             break;
 
         default:
@@ -1320,12 +1320,12 @@ Return Value:
         if (pProxy->dwFlags & PROXY_TYPE_PROXY)
             dwValue = 1;
         DEBUG_PRINT(DIALUP, INFO, ("Setting legacy enabled=%d\n", dwValue));
-        if (ERROR_SUCCESS != RegSetValueEx(hKey, szRegValProxyEnabled, 0, REG_DWORD, (BYTE *)&dwValue, sizeof(DWORD)))
+        if (ERROR_SUCCESS != RegSetValueEx(hKey, szRegValProxyEnabled, 0, REG_DWORD, (BYTE*)&dwValue, sizeof(DWORD)))
             fSuccess = FALSE;
 
         // write server
         if (pProxy->lpszProxy) {
-            if (ERROR_SUCCESS != RegSetValueEx(hKey, REGSTR_VAL_PROXYSERVER, 0, REG_SZ, (BYTE *)pProxy->lpszProxy, lstrlen(pProxy->lpszProxy)))
+            if (ERROR_SUCCESS != RegSetValueEx(hKey, REGSTR_VAL_PROXYSERVER, 0, REG_SZ, (BYTE*)pProxy->lpszProxy, lstrlen(pProxy->lpszProxy)))
                 fSuccess = FALSE;
         } else {
             RegDeleteValue(hKey, REGSTR_VAL_PROXYSERVER);
@@ -1334,7 +1334,7 @@ Return Value:
 
         // write override
         if (pProxy->lpszProxyBypass) {
-            if (ERROR_SUCCESS != RegSetValueEx(hKey, REGSTR_VAL_PROXYOVERRIDE, 0, REG_SZ, (BYTE *)pProxy->lpszProxyBypass, lstrlen(pProxy->lpszProxyBypass)))
+            if (ERROR_SUCCESS != RegSetValueEx(hKey, REGSTR_VAL_PROXYOVERRIDE, 0, REG_SZ, (BYTE*)pProxy->lpszProxyBypass, lstrlen(pProxy->lpszProxyBypass)))
                 fSuccess = FALSE;
         } else {
             RegDeleteValue(hKey, REGSTR_VAL_PROXYOVERRIDE);
@@ -1343,7 +1343,7 @@ Return Value:
 
         // write autoconfig url
         if ((pProxy->dwFlags & PROXY_TYPE_AUTO_PROXY_URL) && pProxy->lpszAutoconfigUrl) {
-            if (ERROR_SUCCESS != RegSetValueEx(hKey, szLegacyAutoConfigURL, 0, REG_SZ, (BYTE *)pProxy->lpszAutoconfigUrl, lstrlen(pProxy->lpszAutoconfigUrl))) {
+            if (ERROR_SUCCESS != RegSetValueEx(hKey, szLegacyAutoConfigURL, 0, REG_SZ, (BYTE*)pProxy->lpszAutoconfigUrl, lstrlen(pProxy->lpszAutoconfigUrl))) {
                 fSuccess = FALSE;
             }
         } else {

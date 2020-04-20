@@ -32,14 +32,14 @@ BOOL g_bSettingsChange = FALSE;
 // WARNING: Keep the MAX_NOCOM and MAX_NOCOMEXT constants in sync with
 // the following string arrays.
 
-TCHAR * g_NoCompressFiles[] = { TEXT("NTLDR"),
+TCHAR* g_NoCompressFiles[] = {TEXT("NTLDR"),
                                 TEXT("OSLOADER.EXE"),
                                 TEXT("PAGEFILE.SYS"),
                                 TEXT("NTDETECT.COM"),
                                 TEXT("EXPLORER.EXE"),
 };
 
-TCHAR * g_NoCompressExts[] = { TEXT("PAL") };
+TCHAR* g_NoCompressExts[] = {TEXT("PAL")};
 
 #define MAX_NOCOM    5  // Keep in sync with number of files in NoCompressFiles list
 #define MAX_NOCOMEXT 1  // Keep in sync with number of exts in NoCompressExts list
@@ -123,9 +123,9 @@ CCompCleanerClassFactory::~CCompCleanerClassFactory()
 
 */
 STDMETHODIMP CCompCleanerClassFactory::QueryInterface(
-                                                      REFIID          riid,
-                                                      LPVOID FAR *ppv
-                                                      )
+    REFIID          riid,
+    LPVOID FAR* ppv
+)
 {
     MiDebugMsg((0, TEXT("CCCCF::QueryInterface")));
     *ppv = NULL;
@@ -133,13 +133,12 @@ STDMETHODIMP CCompCleanerClassFactory::QueryInterface(
 
     //Is it an interface we support
 
-    if (IsEqualIID(riid, IID_IUnknown))
-    {
+    if (IsEqualIID(riid, IID_IUnknown)) {
 
         //Typecast to the requested interface so C++ sets up
         //the virtual tables correctly
 
-        *ppv = (LPUNKNOWN)(LPCLASSFACTORY) this;
+        *ppv = (LPUNKNOWN)(LPCLASSFACTORY)this;
 
         AddRef();
 
@@ -147,8 +146,7 @@ STDMETHODIMP CCompCleanerClassFactory::QueryInterface(
     }
 
 
-    if (IsEqualIID(riid, IID_IClassFactory))
-    {
+    if (IsEqualIID(riid, IID_IClassFactory)) {
 
         //Typecast to the requested interface so C++ sets up
         //the virtual tables correctly
@@ -223,10 +221,10 @@ STDMETHODIMP_(ULONG) CCompCleanerClassFactory::Release()
 
 */
 STDMETHODIMP CCompCleanerClassFactory::CreateInstance(
-                                                      LPUNKNOWN   pUnkOuter,
-                                                      REFIID          riid,
-                                                      LPVOID *        ppvObj
-                                                      )
+    LPUNKNOWN   pUnkOuter,
+    REFIID          riid,
+    LPVOID* ppvObj
+)
 {
     MiDebugMsg((0, TEXT("CCCCF::CreateInstance")));
 
@@ -235,12 +233,11 @@ STDMETHODIMP CCompCleanerClassFactory::CreateInstance(
 
     //Shell extensions typically don't support aggregation (inheritance)
 
-    if (pUnkOuter)
-    {
+    if (pUnkOuter) {
 
         //Error - we don't support aggregation
 
-        return ResultFromScode (CLASS_E_NOAGGREGATION);
+        return ResultFromScode(CLASS_E_NOAGGREGATION);
     }
 
 
@@ -248,16 +245,15 @@ STDMETHODIMP CCompCleanerClassFactory::CreateInstance(
     //Create an instance of the 'Comp Cleaner' object
 
     LPCCOMPCLEANER pCompCleaner = new CCompCleaner();
-    if (NULL == pCompCleaner)
-    {
+    if (NULL == pCompCleaner) {
         //Error - not enough memory
-        return ResultFromScode (E_OUTOFMEMORY);
+        return ResultFromScode(E_OUTOFMEMORY);
     }
 
 
     //Make sure the new object likes the requested interface
 
-    HRESULT hr = pCompCleaner->QueryInterface (riid, ppvObj);
+    HRESULT hr = pCompCleaner->QueryInterface(riid, ppvObj);
     if (FAILED(hr))
         delete pCompCleaner;
 
@@ -280,9 +276,9 @@ STDMETHODIMP CCompCleanerClassFactory::LockServer(BOOL fLock)
 {
     MiDebugMsg((0, TEXT("CCCCF::LockServer")));
     if (fLock)
-        incDllLockCount ();
+        incDllLockCount();
     else
-        decDllLockCount ();
+        decDllLockCount();
 
     return NOERROR;
 }
@@ -309,8 +305,8 @@ CCompCleaner::CCompCleaner()
 
     //Set to default values
 
-    m_cRef                 = 0L;
-    m_lpdObject        = NULL;
+    m_cRef = 0L;
+    m_lpdObject = NULL;
 
     cbSpaceUsed.QuadPart = 0;
     cbSpaceFreed.QuadPart = 0;
@@ -377,9 +373,9 @@ CCompCleaner::~CCompCleaner()
 
 */
 STDMETHODIMP CCompCleaner::QueryInterface(
-                                          REFIID          riid,
-                                          LPVOID FAR *ppv
-                                          )
+    REFIID          riid,
+    LPVOID FAR* ppv
+)
 {
     MiDebugMsg((0, TEXT("CCompCleaner::QueryInterface")));
     *ppv = NULL;
@@ -387,13 +383,12 @@ STDMETHODIMP CCompCleaner::QueryInterface(
 
     //Check for IUnknown interface request
 
-    if (IsEqualIID (riid, IID_IUnknown))
-    {
+    if (IsEqualIID(riid, IID_IUnknown)) {
 
         //Typecast to the requested interface so C++ sets up
         //the virtual tables correctly
 
-        *ppv = (LPUNKNOWN) this;
+        *ppv = (LPUNKNOWN)this;
         AddRef();
         return NOERROR;
     }
@@ -401,13 +396,12 @@ STDMETHODIMP CCompCleaner::QueryInterface(
 
     //Check for IEmptyVolumeCache interface request
 
-    if (IsEqualIID (riid, IID_IEmptyVolumeCache))
-    {
+    if (IsEqualIID(riid, IID_IEmptyVolumeCache)) {
 
         //Typecast to the requested interface so C++ sets up
         //the virtual tables correctly
 
-        *ppv = (IEmptyVolumeCache*) this;
+        *ppv = (IEmptyVolumeCache*)this;
         AddRef();
         return NOERROR;
     }
@@ -415,13 +409,12 @@ STDMETHODIMP CCompCleaner::QueryInterface(
 
     //Check for IEmptyVolumeCache2 interface request
 
-    if (IsEqualIID (riid, IID_IEmptyVolumeCache2))
-    {
+    if (IsEqualIID(riid, IID_IEmptyVolumeCache2)) {
 
         //Typecast to the requested interface so C++ sets up
         //the virtual tables correctly
 
-        *ppv = (IEmptyVolumeCache2*) this;
+        *ppv = (IEmptyVolumeCache2*)this;
         AddRef();
         return NOERROR;
     }
@@ -445,7 +438,7 @@ STDMETHODIMP CCompCleaner::QueryInterface(
 */
 STDMETHODIMP_(ULONG) CCompCleaner::AddRef()
 {
-    MiDebugMsg((0, TEXT("CCompCleaner::AddRef Ref is %d"), (m_cRef+1)));
+    MiDebugMsg((0, TEXT("CCompCleaner::AddRef Ref is %d"), (m_cRef + 1)));
 
     return ++m_cRef;
 }
@@ -463,7 +456,7 @@ STDMETHODIMP_(ULONG) CCompCleaner::AddRef()
 */
 STDMETHODIMP_(ULONG) CCompCleaner::Release()
 {
-    MiDebugMsg((0, TEXT("CCompCleaner::Release Ref is %d"), (m_cRef-1)));
+    MiDebugMsg((0, TEXT("CCompCleaner::Release Ref is %d"), (m_cRef - 1)));
 
 
     //Decrement and check
@@ -491,12 +484,12 @@ STDMETHODIMP_(ULONG) CCompCleaner::Release()
 
 */
 STDMETHODIMP CCompCleaner::Initialize(
-                                      HKEY        hRegKey,
-                                      LPCWSTR pszVolume,
-                                      LPWSTR  *ppwszDisplayName,
-                                      LPWSTR  *ppwszDescription,
-                                      DWORD   *pdwFlags
-                                      )
+    HKEY        hRegKey,
+    LPCWSTR pszVolume,
+    LPWSTR* ppwszDisplayName,
+    LPWSTR* ppwszDescription,
+    DWORD* pdwFlags
+)
 {
     TCHAR   acsVolume[MAX_PATH];
     TCHAR   szFileSystemName[MAX_PATH];
@@ -513,13 +506,10 @@ STDMETHODIMP CCompCleaner::Initialize(
 
     GetVersionEx(&osver);
 
-    if (VER_PLATFORM_WIN32_NT != osver.dwPlatformId)
-    {
+    if (VER_PLATFORM_WIN32_NT != osver.dwPlatformId) {
         MiDebugMsg((0, TEXT("CCompCleaner::Initialize platform is not NT")));
         return S_FALSE;
-    }
-    else
-    {
+    } else {
         MiDebugMsg((0, TEXT("CCompCleaner::Initialize platform is Windows NT")));
     }
 
@@ -530,8 +520,7 @@ STDMETHODIMP CCompCleaner::Initialize(
     // If the allocation fails, then we will return NULL which will cause
     // cleanmgr.exe to read the name from the registry.
 
-    if (*ppwszDisplayName = (LPWSTR)CoTaskMemAlloc(DISPLAYNAME_LENGTH * sizeof(WCHAR)))
-    {
+    if (*ppwszDisplayName = (LPWSTR)CoTaskMemAlloc(DISPLAYNAME_LENGTH * sizeof(WCHAR))) {
 #ifndef UNICODE
         CHAR szDisplayA[DISPLAYNAME_LENGTH];
         LoadString(g_hDllModule, IDS_COMPCLEANER_DISP, szDisplayA, DISPLAYNAME_LENGTH);
@@ -546,8 +535,7 @@ STDMETHODIMP CCompCleaner::Initialize(
     // If the allocation fails, then we will return NULL which will cause
     // cleanmgr.exe to read the description from the registry.
 
-    if (*ppwszDescription = (LPWSTR)CoTaskMemAlloc(DESCRIPTION_LENGTH * sizeof(WCHAR)))
-    {
+    if (*ppwszDescription = (LPWSTR)CoTaskMemAlloc(DESCRIPTION_LENGTH * sizeof(WCHAR))) {
 #ifndef UNICODE
         CHAR szDescA[DESCRIPTION_LENGTH];
         LoadString(g_hDllModule, IDS_COMPCLEANER_DESC, szDescA, DESCRIPTION_LENGTH);
@@ -566,12 +554,10 @@ STDMETHODIMP CCompCleaner::Initialize(
     //          return S_FALSE;
     //}
 
-    if (*pdwFlags & EVCF_SETTINGSMODE)
-    {
+    if (*pdwFlags & EVCF_SETTINGSMODE) {
         MiDebugMsg((0, TEXT("CCompCleaner::Initialize: Settings mode")));
         bSettingsMode = TRUE;
-    }
-    else bSettingsMode = FALSE;
+    } else bSettingsMode = FALSE;
 
 
     //Tell the cache manager to disable this item by default
@@ -607,7 +593,7 @@ STDMETHODIMP CCompCleaner::Initialize(
 
 
     WideCharToMultiByte(CP_ACP, 0, pszVolume, MAX_PATH, acsVolume,
-        MAX_PATH, NULL, NULL);
+                        MAX_PATH, NULL, NULL);
 
 #else
     lstrcpy(acsVolume, (LPTSTR)pszVolume);
@@ -618,14 +604,13 @@ STDMETHODIMP CCompCleaner::Initialize(
     MiDebugMsg((0, TEXT("CCompCleaner::Initialize acsVolume is %s"), acsVolume));
 
     if (!GetVolumeInformation(acsVolume,
-        NULL,
-        0,
-        NULL,
-        NULL,
-        &fFileSystemFlags,
-        szFileSystemName,
-        MAX_PATH))
-    {
+                              NULL,
+                              0,
+                              NULL,
+                              NULL,
+                              &fFileSystemFlags,
+                              szFileSystemName,
+                              MAX_PATH)) {
 
 
         // An error occurred getting the volume information.
@@ -646,8 +631,7 @@ STDMETHODIMP CCompCleaner::Initialize(
     }
 
 
-    if  (!(fFileSystemFlags & FS_FILE_COMPRESSION))
-    {
+    if (!(fFileSystemFlags & FS_FILE_COMPRESSION)) {
 
         // Strange... an NTFS volume that doesn't support file compression?
         // This cleaner can't work on volumes that don't support comp.
@@ -681,14 +665,14 @@ STDMETHODIMP CCompCleaner::Initialize(
 
 */
 STDMETHODIMP CCompCleaner::InitializeEx(
-                                        HKEY hRegKey,
-                                        LPCWSTR pcwszVolume,
-                                        LPCWSTR pcwszKeyName,
-                                        LPWSTR *ppwszDisplayName,
-                                        LPWSTR *ppwszDescription,
-                                        LPWSTR *ppwszBtnText,
-                                        DWORD *pdwFlags
-                                        )
+    HKEY hRegKey,
+    LPCWSTR pcwszVolume,
+    LPCWSTR pcwszKeyName,
+    LPWSTR* ppwszDisplayName,
+    LPWSTR* ppwszDescription,
+    LPWSTR* ppwszBtnText,
+    DWORD* pdwFlags
+)
 {
 
     MiDebugMsg((0, TEXT("CCompCleaner::InitializeEx")));
@@ -697,8 +681,7 @@ STDMETHODIMP CCompCleaner::InitializeEx(
     // Allocate memory for the ButtonText string and load the string.
     // If we can't allocate the memory, leave the pointer NULL.
 
-    if (*ppwszBtnText = (LPWSTR)CoTaskMemAlloc(BUTTONTEXT_LENGTH * sizeof(WCHAR)))
-    {
+    if (*ppwszBtnText = (LPWSTR)CoTaskMemAlloc(BUTTONTEXT_LENGTH * sizeof(WCHAR))) {
 #ifndef UNICODE
         CHAR szButtonA[BUTTONTEXT_LENGTH];
         LoadString(g_hDllModule, IDS_COMPCLEANER_BUTTON, szButtonA, BUTTONTEXT_LENGTH);
@@ -712,10 +695,10 @@ STDMETHODIMP CCompCleaner::InitializeEx(
     // Now let the IEmptyVolumeCache version 1 Init function do the rest
 
     return(Initialize(hRegKey,
-        pcwszVolume,
-        ppwszDisplayName,
-        ppwszDescription,
-        pdwFlags));
+                      pcwszVolume,
+                      ppwszDisplayName,
+                      ppwszDescription,
+                      pdwFlags));
 }
 
 /*
@@ -730,21 +713,20 @@ STDMETHODIMP CCompCleaner::InitializeEx(
 
 */
 STDMETHODIMP CCompCleaner::GetSpaceUsed(
-                                        DWORDLONG                   *pdwSpaceUsed,
-                                        IEmptyVolumeCacheCallBack   *picb
-                                        )
+    DWORDLONG* pdwSpaceUsed,
+    IEmptyVolumeCacheCallBack* picb
+)
 {
     DWORD i;
 
     MiDebugMsg((0, TEXT("CCompCleaner::GetSpaceUsed")));
 
-    cbSpaceUsed.QuadPart  = 0L;
+    cbSpaceUsed.QuadPart = 0L;
 
 
     // If the list is already built, free it before refreshing it.
 
-    if (head)
-    {
+    if (head) {
         FreeList(head);
         head = NULL;
         dwDaysForCurrentList = 0;
@@ -770,8 +752,8 @@ STDMETHODIMP CCompCleaner::GetSpaceUsed(
 
 */
 STDMETHODIMP CCompCleaner::Purge(
-                                 DWORDLONG                  dwSpaceToFree,
-                                 IEmptyVolumeCacheCallBack  *picb)
+    DWORDLONG                  dwSpaceToFree,
+    IEmptyVolumeCacheCallBack* picb)
 
 {
     MiDebugMsg((0, TEXT("CCompCleaner::Purge")));
@@ -783,10 +765,8 @@ STDMETHODIMP CCompCleaner::Purge(
     // the Days for the current LAD, we need to rebuild the
     // the file list with the current setting.
 
-    if (dwDaysForCurrentList != dwDaysForCurrentLAD)
-    {
-        if (head)
-        {
+    if (dwDaysForCurrentList != dwDaysForCurrentLAD) {
+        if (head) {
             MiDebugMsg((0, TEXT("CCompCleaner::Purge Current list out of sync, rebuilding")));
             FreeList(head);
             head = NULL;
@@ -803,8 +783,8 @@ STDMETHODIMP CCompCleaner::Purge(
     //Send the last notification to the cleanup manager
 
     picb->PurgeProgress(cbSpaceFreed.QuadPart,
-        (cbSpaceUsed.QuadPart - cbSpaceFreed.QuadPart),
-        EVCCBF_LASTNOTIFICATION, NULL);
+                        (cbSpaceUsed.QuadPart - cbSpaceFreed.QuadPart),
+                        EVCCBF_LASTNOTIFICATION, NULL);
 
 
     // Free the list of files and invalidate the dwDaysForCurrentList
@@ -835,17 +815,17 @@ STDMETHODIMP CCompCleaner::Purge(
 */
 INT_PTR CALLBACK
 ViewFilesDlgProc(
-                 HWND hDlg,
-                 UINT Msg,
-                 WPARAM wParam,
-                 LPARAM lParam
-                 )
+    HWND hDlg,
+    UINT Msg,
+    WPARAM wParam,
+    LPARAM lParam
+)
 {
     HWND hwndList;
     LV_ITEM lviItem;
     PCLEANFILESTRUCT pCleanFile;
 
-    switch(Msg) {
+    switch (Msg) {
 
     case WM_INITDIALOG:
         hwndList = GetDlgItem(hDlg, IDC_COMP_LIST);
@@ -853,7 +833,7 @@ ViewFilesDlgProc(
 
         ListView_DeleteAllItems(hwndList);
 
-        while(pCleanFile) {
+        while (pCleanFile) {
 
             lviItem.mask = LVIF_TEXT | LVIF_IMAGE;
             lviItem.iSubItem = 0;
@@ -904,11 +884,11 @@ ViewFilesDlgProc(
 */
 INT_PTR CALLBACK
 SettingsDlgProc(
-                HWND hDlg,
-                UINT Msg,
-                WPARAM wParam,
-                LPARAM lParam
-                )
+    HWND hDlg,
+    UINT Msg,
+    WPARAM wParam,
+    LPARAM lParam
+)
 {
     HKEY hCompClenReg;                          // Handle to our registry path
     DWORD dwDisposition;                        // Foo crap for the reg calls
@@ -920,7 +900,7 @@ SettingsDlgProc(
     static PCLEANFILESTRUCT pCleanFile; // Pointer to our file list
 #endif // DEBUG
 
-    switch(Msg) {
+    switch (Msg) {
 
     case WM_INITDIALOG:
 
@@ -930,18 +910,16 @@ SettingsDlgProc(
 
         // Set the range for the Days spin control (1 to 500)
 
-        SendDlgItemMessage(hDlg, IDC_COMP_SPIN, UDM_SETRANGE, 0, (LPARAM) MAKELONG ((short) MAX_DAYS, (short) MIN_DAYS));
+        SendDlgItemMessage(hDlg, IDC_COMP_SPIN, UDM_SETRANGE, 0, (LPARAM)MAKELONG((short)MAX_DAYS, (short)MIN_DAYS));
 
 
         // Get the current user setting for # days and init
         // the spin control edit box
 
-        if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_LOCAL_MACHINE, COMPCLN_REGPATH, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hCompClenReg, &dwDisposition))
-        {
+        if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_LOCAL_MACHINE, COMPCLN_REGPATH, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hCompClenReg, &dwDisposition)) {
             dwByteCount = sizeof(dwNumDays);
 
-            if (ERROR_SUCCESS == RegQueryValueEx(hCompClenReg, TEXT("Days"), NULL, NULL, (LPBYTE) &dwNumDays, &dwByteCount))
-            {
+            if (ERROR_SUCCESS == RegQueryValueEx(hCompClenReg, TEXT("Days"), NULL, NULL, (LPBYTE)&dwNumDays, &dwByteCount)) {
 
                 // Got day count from registry, make sure it's
                 // not too big or too small.
@@ -950,9 +928,7 @@ SettingsDlgProc(
                 if (dwNumDays < MIN_DAYS) dwNumDays = MIN_DAYS;
 
                 SetDlgItemInt(hDlg, IDC_COMP_EDIT, dwNumDays, FALSE);
-            }
-            else
-            {
+            } else {
 
                 // Failed to get the day count from the registry
                 // so just use the default.
@@ -960,9 +936,7 @@ SettingsDlgProc(
 
                 SetDlgItemInt(hDlg, IDC_COMP_EDIT, DEFAULT_DAYS, FALSE);
             }
-        }
-        else
-        {
+        } else {
 
             // Failed to get the day count from the registry
             // so just use the default.
@@ -1005,10 +979,9 @@ SettingsDlgProc(
             if (DaysOut < MIN_DAYS) DaysOut = MIN_DAYS;
 
 
-            if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_LOCAL_MACHINE, COMPCLN_REGPATH, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hCompClenReg, &dwDisposition))
-            {
+            if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_LOCAL_MACHINE, COMPCLN_REGPATH, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hCompClenReg, &dwDisposition)) {
                 dwNumDays = (DWORD)DaysOut;
-                RegSetValueEx(hCompClenReg, TEXT("Days"), 0, REG_DWORD, (LPBYTE) &dwNumDays, sizeof(dwNumDays));
+                RegSetValueEx(hCompClenReg, TEXT("Days"), 0, REG_DWORD, (LPBYTE)&dwNumDays, sizeof(dwNumDays));
                 RegCloseKey(hCompClenReg);
             }
 
@@ -1018,8 +991,7 @@ SettingsDlgProc(
             // If the user has changed the setting we need
             // to recalculate the list of files.
 
-            if (DaysIn != DaysOut)
-            {
+            if (DaysIn != DaysOut) {
                 g_bSettingsChange = TRUE;
             }
 
@@ -1062,13 +1034,10 @@ STDMETHODIMP CCompCleaner::ShowProperties(HWND hwnd)
     // If the settings have changed we need to recalculate the
     // LAD Filetime.
 
-    if (g_bSettingsChange)
-    {
+    if (g_bSettingsChange) {
         CalcLADFileTime();
         return S_OK;                // Tell CleanMgr that settings have changed.
-    }
-    else
-    {
+    } else {
         return S_FALSE;         // Tell CleanMgr no settings changed.
     }
 
@@ -1086,7 +1055,7 @@ STDMETHODIMP CCompCleaner::ShowProperties(HWND hwnd)
 **                          Adapted for Compression Cleaner by DSchott (6/98)
 
 */
-STDMETHODIMP CCompCleaner::Deactivate(DWORD   *pdwFlags)
+STDMETHODIMP CCompCleaner::Deactivate(DWORD* pdwFlags)
 {
     MiDebugMsg((0, TEXT("CCompCleaner::Deactivate")));
 
@@ -1161,8 +1130,7 @@ bIsDontCompressFile(LPTSTR lpFullPath)
     // Start at the end of lpFullPath and work backwards
     lpCurrent = CharPrev(lpFullPath, lpFullPath + lstrlen(lpFullPath));
 
-    while ((lpCurrent > lpFullPath) && (!lpFile))
-    {
+    while ((lpCurrent > lpFullPath) && (!lpFile)) {
         if ((*lpCurrent == TEXT('.')) && (!lpExt)) lpExt = CharNext(lpCurrent);
         if ((*lpCurrent == TEXT('\\')) || (*lpCurrent == TEXT(':'))) lpFile = CharNext(lpCurrent);
         lpCurrent = CharPrev(lpFullPath, lpCurrent);
@@ -1176,10 +1144,8 @@ bIsDontCompressFile(LPTSTR lpFullPath)
     // See if this file is in the g_NoCompressFiles list.
 
 
-    for (i = 0; i < MAX_NOCOM; i++)
-    {
-        if (!lstrcmpi(lpFile, g_NoCompressFiles[i]))
-        {
+    for (i = 0; i < MAX_NOCOM; i++) {
+        if (!lstrcmpi(lpFile, g_NoCompressFiles[i])) {
             MiDebugMsg((0, TEXT("File is in No Compress list: %s"), lpFile));
             return TRUE;
         }
@@ -1189,12 +1155,9 @@ bIsDontCompressFile(LPTSTR lpFullPath)
     // file ain't one of them.  Does our current file have a no compress
     // extension?
 
-    if (lpExt)
-    {
-        for (i = 0; i < MAX_NOCOMEXT; i++)
-        {
-            if (!lstrcmpi(lpExt, g_NoCompressExts[i]))
-            {
+    if (lpExt) {
+        for (i = 0; i < MAX_NOCOMEXT; i++) {
+            if (!lstrcmpi(lpExt, g_NoCompressExts[i])) {
                 MiDebugMsg((0, TEXT("File has No Compress extension: %s"), lpFile));
                 return TRUE;
             }
@@ -1222,8 +1185,8 @@ bIsDontCompressFile(LPTSTR lpFullPath)
 */
 BOOL
 bIsFileOpen(
-            LPTSTR lpFile,
-            LPFILETIME lpftFileLastAccess)
+    LPTSTR lpFile,
+    LPFILETIME lpftFileLastAccess)
 {
     HANDLE hFile = NULL;
     DWORD  dwResult = 0;
@@ -1241,8 +1204,7 @@ bIsFileOpen(
     bFileWasRO = FALSE;
     dwAttributes = GetFileAttributes(lpFile);
 
-    if ((0xFFFFFFFF != dwAttributes) && (dwAttributes & FILE_ATTRIBUTE_READONLY))
-    {
+    if ((0xFFFFFFFF != dwAttributes) && (dwAttributes & FILE_ATTRIBUTE_READONLY)) {
         bFileWasRO = TRUE;
         SetFileAttributes(lpFile, FILE_ATTRIBUTE_NORMAL);
     }
@@ -1250,18 +1212,16 @@ bIsFileOpen(
     SetLastError(0);
 
     hFile = CreateFile(lpFile, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL, NULL);
+                       FILE_ATTRIBUTE_NORMAL, NULL);
 
-    if (INVALID_HANDLE_VALUE == hFile)
-    {
+    if (INVALID_HANDLE_VALUE == hFile) {
         dwResult = GetLastError();
 
-        if ((ERROR_SHARING_VIOLATION == dwResult) || (ERROR_ACCESS_DENIED == dwResult))
-        {
+        if ((ERROR_SHARING_VIOLATION == dwResult) || (ERROR_ACCESS_DENIED == dwResult)) {
 
             //File is currently open by someone or not accessible to this user.
 
-            MiDebugMsg((0, TEXT("CCompCleaner::bIsFileOpen error opening: %s"), lpFile ));
+            MiDebugMsg((0, TEXT("CCompCleaner::bIsFileOpen error opening: %s"), lpFile));
 
             if (bFileWasRO) SetFileAttributes(lpFile, dwAttributes);
             return TRUE;
@@ -1290,7 +1250,7 @@ bIsFileOpen(
 **
 
 */
-void CCompCleaner::BuildList(IEmptyVolumeCacheCallBack *picb)
+void CCompCleaner::BuildList(IEmptyVolumeCacheCallBack* picb)
 {
     LPTSTR          lpSingleFolder;
 
@@ -1343,10 +1303,9 @@ void CCompCleaner::CalcLADFileTime()
 
     dwDaysLastAccessed = DEFAULT_DAYS;
 
-    if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_LOCAL_MACHINE, COMPCLN_REGPATH, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hCompClenReg, &dwDisposition))
-    {
+    if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_LOCAL_MACHINE, COMPCLN_REGPATH, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hCompClenReg, &dwDisposition)) {
         dwByteCount = sizeof(dwDaysLastAccessed);
-        RegQueryValueEx(hCompClenReg, TEXT("Days"), NULL, NULL, (LPBYTE) &dwDaysLastAccessed, &dwByteCount);
+        RegQueryValueEx(hCompClenReg, TEXT("Days"), NULL, NULL, (LPBYTE)&dwDaysLastAccessed, &dwByteCount);
         RegCloseKey(hCompClenReg);
     }
 
@@ -1359,8 +1318,7 @@ void CCompCleaner::CalcLADFileTime()
 
     //Determine the LastAccessedTime
 
-    if (dwDaysLastAccessed != 0)
-    {
+    if (dwDaysLastAccessed != 0) {
         ULARGE_INTEGER  ulTemp, ulLastAccessTime;
         FILETIME        ft;
 
@@ -1407,8 +1365,8 @@ void CCompCleaner::CalcLADFileTime()
 
 */
 BOOL
-CCompCleaner::WalkForUsedSpace( PTCHAR  lpPath,
-                               IEmptyVolumeCacheCallBack *picb)
+CCompCleaner::WalkForUsedSpace(PTCHAR  lpPath,
+                               IEmptyVolumeCacheCallBack* picb)
 {
     BOOL                    bRet = TRUE;
     BOOL                    bFind = TRUE;
@@ -1427,28 +1385,23 @@ CCompCleaner::WalkForUsedSpace( PTCHAR  lpPath,
     //and recurse through the rest of the directories
 
     dwAttributes = GetFileAttributes(lpPath);
-    if (dwAttributes & FILE_ATTRIBUTE_DIRECTORY)
-    {
+    if (dwAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 
         //Enum through the MULTI_SZ filelist
 
 
-        for (lpSingleFile = &(filelist[0]); *lpSingleFile; lpSingleFile += lstrlen(lpSingleFile) + 1)
-        {
+        for (lpSingleFile = &(filelist[0]); *lpSingleFile; lpSingleFile += lstrlen(lpSingleFile) + 1) {
             lstrcpy(szFindPath, lpPath);
-            if ( !PathAppend(szFindPath, lpSingleFile) )
-            {
+            if (!PathAppend(szFindPath, lpSingleFile)) {
                 // Failure here means the file name is too long, just ignore that file
                 continue;
             }
 
             bFind = TRUE;
             hFind = FindFirstFile(szFindPath, &wd);
-            while (hFind != INVALID_HANDLE_VALUE && bFind)
-            {
+            while (hFind != INVALID_HANDLE_VALUE && bFind) {
                 lstrcpy(szAddFile, lpPath);
-                if ( !PathAppend(szAddFile, wd.cFileName) )
-                {
+                if (!PathAppend(szAddFile, wd.cFileName)) {
                     // Failure here means the file name is too long, just ignore that file
                     continue;
                 }
@@ -1500,8 +1453,7 @@ CCompCleaner::WalkForUsedSpace( PTCHAR  lpPath,
 
                 //Check if this is a subdirectory.
 
-                if (wd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                {
+                if (wd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                     dwFileSize.HighPart = 0;
                     dwFileSize.LowPart = 0;
                     AddFileToList(szAddFile, dwFileSize, TRUE);
@@ -1512,12 +1464,11 @@ CCompCleaner::WalkForUsedSpace( PTCHAR  lpPath,
                 //one of those files we ain't supposed to compress...
 
                 else if ((bIsFileOpen(szAddFile, &wd.ftLastAccessTime) == FALSE) &&
-                    (!(wd.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)) &&
-                    (!(wd.dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED)) &&
-                    (!(wd.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE)) &&
-                    (bLastAccessisOK(wd.ftLastAccessTime)) &&
-                    (!bIsDontCompressFile(szAddFile)))
-                {
+                         (!(wd.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)) &&
+                         (!(wd.dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED)) &&
+                         (!(wd.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE)) &&
+                         (bLastAccessisOK(wd.ftLastAccessTime)) &&
+                         (!bIsDontCompressFile(szAddFile))) {
                     dwFileSize.HighPart = wd.nFileSizeHigh;
                     dwFileSize.LowPart = wd.nFileSizeLow;
                     AddFileToList(szAddFile, dwFileSize, FALSE);
@@ -1527,12 +1478,9 @@ CCompCleaner::WalkForUsedSpace( PTCHAR  lpPath,
                 //CallBack the cleanup Manager to update the UI
 
 
-                if ((dwCount++ % 10) == 0)
-                {
-                    if (picb)
-                    {
-                        if (picb->ScanProgress(cbSpaceUsed.QuadPart, 0, NULL) == E_ABORT)
-                        {
+                if ((dwCount++ % 10) == 0) {
+                    if (picb) {
+                        if (picb->ScanProgress(cbSpaceUsed.QuadPart, 0, NULL) == E_ABORT) {
 
                             //User aborted
 
@@ -1553,26 +1501,22 @@ CCompCleaner::WalkForUsedSpace( PTCHAR  lpPath,
         //Recurse through all of the directories
 
         lstrcpy(szFindPath, lpPath);
-        if (PathAppend(szFindPath, TEXT("*.*")))
-        {
+        if (PathAppend(szFindPath, TEXT("*.*"))) {
             bFind = TRUE;
             hFind = FindFirstFile(szFindPath, &wd);
-            while (hFind != INVALID_HANDLE_VALUE && bFind)
-            {
+            while (hFind != INVALID_HANDLE_VALUE && bFind) {
 
                 //This is a directory
 
                 if ((wd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
                     (lstrcmp(wd.cFileName, TEXT(".")) != 0) &&
-                    (lstrcmp(wd.cFileName, TEXT("..")) != 0))
-                {
+                    (lstrcmp(wd.cFileName, TEXT("..")) != 0)) {
                     lstrcpy(szAddFile, lpPath);
                     if (szAddFile[lstrlen(szAddFile) - 1] != TCHAR('\\'))
                         lstrcat(szAddFile, TEXT("\\"));
 
                     lstrcat(szAddFile, wd.cFileName);
-                    if (WalkForUsedSpace(szAddFile, picb) == FALSE)
-                    {
+                    if (WalkForUsedSpace(szAddFile, picb) == FALSE) {
 
                         //User canceled
 
@@ -1586,11 +1530,9 @@ CCompCleaner::WalkForUsedSpace( PTCHAR  lpPath,
 
             FindClose(hFind);
         }
-    }
-    else
-    {
+    } else {
         MiDebugMsg((0, TEXT("CCompCleaner::WalkForUsedSpace -> %s is NOT a directory!"),
-            lpPath));
+                    lpPath));
     }
 
     return bRet;
@@ -1608,19 +1550,18 @@ CCompCleaner::WalkForUsedSpace( PTCHAR  lpPath,
 */
 BOOL
 CCompCleaner::AddFileToList(
-                            PTCHAR  lpFile,
-                            ULARGE_INTEGER  filesize,
-                            BOOL bDirectory)
+    PTCHAR  lpFile,
+    ULARGE_INTEGER  filesize,
+    BOOL bDirectory)
 {
     BOOL                bRet = TRUE;
     PCLEANFILESTRUCT    pNew;
 
     pNew = (PCLEANFILESTRUCT)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(CLEANFILESTRUCT));
 
-    if (pNew == NULL)
-    {
+    if (pNew == NULL) {
         MiDebugMsg((0, TEXT("CCompCleaner::AddFileToList -> ERROR HeapAlloc() failed with error %d"),
-            GetLastError()));
+                    GetLastError()));
         return FALSE;
     }
 
@@ -1636,7 +1577,7 @@ CCompCleaner::AddFileToList(
 
     head = pNew;
 
-    cbSpaceUsed.QuadPart += (filesize.QuadPart * 4 /10);
+    cbSpaceUsed.QuadPart += (filesize.QuadPart * 4 / 10);
 
     return bRet;
 }
@@ -1653,8 +1594,8 @@ CCompCleaner::AddFileToList(
 */
 void
 CCompCleaner::PurgeFiles(
-                         IEmptyVolumeCacheCallBack *picb,
-                         BOOL bDoDirectories)
+    IEmptyVolumeCacheCallBack* picb,
+    BOOL bDoDirectories)
 
 {
     PCLEANFILESTRUCT        pCleanFile = head;
@@ -1668,16 +1609,14 @@ CCompCleaner::PurgeFiles(
     MiDebugMsg((0, TEXT("CCompCleaner::PurgeFiles")));
     cbSpaceFreed.QuadPart = 0;
 
-    while (pCleanFile)
-    {
+    while (pCleanFile) {
         ulCompressedSize.QuadPart = pCleanFile->ulFileSize.QuadPart;
 
 
         //Remove a file
 
 
-        if (!pCleanFile->bDirectory)
-        {
+        if (!pCleanFile->bDirectory) {
 
             // If the file is read only, we need to remove the
             // R/O attribute long enough to compress the file.
@@ -1685,55 +1624,49 @@ CCompCleaner::PurgeFiles(
             bFileWasRO = FALSE;
             dwAttributes = GetFileAttributes(pCleanFile->file);
 
-            if ((0xFFFFFFFF != dwAttributes) && (dwAttributes & FILE_ATTRIBUTE_READONLY))
-            {
+            if ((0xFFFFFFFF != dwAttributes) && (dwAttributes & FILE_ATTRIBUTE_READONLY)) {
                 bFileWasRO = TRUE;
                 SetFileAttributes(pCleanFile->file, FILE_ATTRIBUTE_NORMAL);
             }
 
-           hFile = CreateFile(pCleanFile->file,
-               GENERIC_READ | GENERIC_WRITE,
-               FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
-               NULL,
-               OPEN_EXISTING,
-               FILE_ATTRIBUTE_NORMAL,
-               NULL);
+            hFile = CreateFile(pCleanFile->file,
+                               GENERIC_READ | GENERIC_WRITE,
+                               FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
+                               NULL,
+                               OPEN_EXISTING,
+                               FILE_ATTRIBUTE_NORMAL,
+                               NULL);
 
-           if (INVALID_HANDLE_VALUE == hFile)
-           {
-               MiDebugMsg((0, TEXT("CCompCleaner::PurgeFiles CreateFile() %s failed with error %d"),
-                   pCleanFile->file, GetLastError()));
-           }
-           else if (DeviceIoControl(hFile,
-               FSCTL_SET_COMPRESSION,
-               &InBuffer,
-               sizeof(InBuffer),
-               NULL,
-               0,
-               &dwBytesReturned,
-               NULL))
-           {
+            if (INVALID_HANDLE_VALUE == hFile) {
+                MiDebugMsg((0, TEXT("CCompCleaner::PurgeFiles CreateFile() %s failed with error %d"),
+                            pCleanFile->file, GetLastError()));
+            } else if (DeviceIoControl(hFile,
+                                       FSCTL_SET_COMPRESSION,
+                                       &InBuffer,
+                                       sizeof(InBuffer),
+                                       NULL,
+                                       0,
+                                       &dwBytesReturned,
+                                       NULL)) {
 
 #ifdef DEBUG
-               MiDebugMsg((0, TEXT("CCompCleaner::PurgeFiles successfully compressed %s"),
-                   pCleanFile->file));
+                MiDebugMsg((0, TEXT("CCompCleaner::PurgeFiles successfully compressed %s"),
+                            pCleanFile->file));
 #endif // DEBUG
 
-               // Get the compressed file size so we can figure out
-               // how much space we gained by compressing.
-               ulCompressedSize.LowPart = GetCompressedFileSize(pCleanFile->file,
-                   &ulCompressedSize.HighPart);
-           }
-           else
-           {
-               MiDebugMsg((0, TEXT("CCompCleaner::PurgeFiles DeviceIoControl %s failed with error %d"),
-                   pCleanFile->file, GetLastError()));
-           }
+                // Get the compressed file size so we can figure out
+                // how much space we gained by compressing.
+                ulCompressedSize.LowPart = GetCompressedFileSize(pCleanFile->file,
+                                                                 &ulCompressedSize.HighPart);
+            } else {
+                MiDebugMsg((0, TEXT("CCompCleaner::PurgeFiles DeviceIoControl %s failed with error %d"),
+                            pCleanFile->file, GetLastError()));
+            }
 
-           if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
+            if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-           // Restore the file attributes if needed
-           if (bFileWasRO) SetFileAttributes(pCleanFile->file, dwAttributes);
+            // Restore the file attributes if needed
+            if (bFileWasRO) SetFileAttributes(pCleanFile->file, dwAttributes);
 
         }
 
@@ -1748,8 +1681,7 @@ CCompCleaner::PurgeFiles(
         //Call back the cleanup manager to update the progress bar
 
         if (picb->PurgeProgress(cbSpaceFreed.QuadPart, (cbSpaceUsed.QuadPart - cbSpaceFreed.QuadPart),
-            0, NULL) == E_ABORT)
-        {
+                                0, NULL) == E_ABORT) {
 
             //User aborted so stop removing files
 
@@ -1783,8 +1715,7 @@ CCompCleaner::FreeList(PCLEANFILESTRUCT pCleanFile)
 
     MiDebugMsg((0, TEXT("CCompCleaner::FreeList")));
 
-    while (pCleanFile)
-    {
+    while (pCleanFile) {
         pNext = pCleanFile->pNext;
         HeapFree(GetProcessHeap(), 0, pCleanFile);
         pCleanFile = pNext;
@@ -1792,9 +1723,3 @@ CCompCleaner::FreeList(PCLEANFILESTRUCT pCleanFile)
 
     return;
 }
-
-/*
-
-** End of File
-
-*/

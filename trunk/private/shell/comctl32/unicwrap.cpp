@@ -759,7 +759,7 @@ BOOL IsCharSpaceW(WCHAR wch)
     default:   nType = 0x00; break;
     }
 
-    return (adwData[abIndex[nType][(wch >> __INDEX_SHIFT)& __INDEX_MASK]]
+    return (adwData[abIndex[nType][(wch >> __INDEX_SHIFT) & __INDEX_MASK]]
             >> (wch & __BIT_MASK)) & 1;
 }
 
@@ -847,7 +847,7 @@ BOOL IsCharXDigitW(WCHAR wch)
     default:   nType = 0x00; break;
     }
 
-    return (adwData[abIndex[nType][(wch >> __INDEX_SHIFT)& __INDEX_MASK]]
+    return (adwData[abIndex[nType][(wch >> __INDEX_SHIFT) & __INDEX_MASK]]
             >> (wch & __BIT_MASK)) & 1;
 }
 
@@ -2302,7 +2302,7 @@ BOOL GetMenuItemInfoWrap(
         memcpy(lpmiiW, &miiA, FIELD_OFFSET(MENUITEMINFOW, dwTypeData));
     } else {
         fRet = GetMenuItemInfoA(hMenu, uItem, fByPosition,
-            (LPMENUITEMINFOA)lpmiiW);
+                                (LPMENUITEMINFOA)lpmiiW);
     }
 
     return fRet;
@@ -3294,7 +3294,7 @@ DWORD GetCharacterPlacementWrap(
     ASSERT(lpResults->lpClass == NULL);
 
     dwRet = GetCharacterPlacementA(hdc, strText, nCount, nMaxExtent,
-        (LPGCP_RESULTSA)lpResults,
+                                   (LPGCP_RESULTSA)lpResults,
                                    dwFlags);
     return dwRet;
 }
@@ -3315,7 +3315,7 @@ BOOL GetCharWidthWrap(
         // Convert string
         ch = (WCHAR)iFirstChar;
         WideCharToMultiByte(CP_ACP, 0, &ch, 1,
-            (char*)&mbChar, 2, NULL, NULL);
+                            (char*)&mbChar, 2, NULL, NULL);
     }
 
     return (GetCharWidthA(hdc, iFirstChar, iLastChar, lpBuffer));
@@ -3983,7 +3983,7 @@ BOOL SetMenuItemInfoWrap(
         fRet = SetMenuItemInfoA(hMenu, uItem, fByPosition, &miiA);
     } else {
         fRet = SetMenuItemInfoA(hMenu, uItem, fByPosition,
-            (LPCMENUITEMINFOA)lpmiiW);
+                                (LPCMENUITEMINFOA)lpmiiW);
     }
 
     return fRet;

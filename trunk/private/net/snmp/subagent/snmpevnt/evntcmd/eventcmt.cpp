@@ -1,5 +1,3 @@
-
-
 //  Copyright (c) 1996, Microsoft Corporation
 
 //  File:  EVENTCMT.CPP
@@ -9,18 +7,12 @@
 //  Author: Nadir Ahmed (nadira@microsoft.com)
 
 //  History:
-
 //      nadira   03/20/96  Created.
 
-
-
-
 //  Public Includes
-//  ===============
 
 
 //  Private includes
-//  ================
 
 #include "stdafx.h"
 
@@ -35,12 +27,10 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 
 //  Defines
-//  =======
 #define EVENTCMT_LINE_LENGTH 500
 
 
 //  Moved to eventcmt.h.
-//  ====================
 
 //  #define EVENTCMT_SYSTEM_MODE 0
 //  #define EVENTCMT_CUSTOM_MODE 1
@@ -48,33 +38,20 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 
 //  Globals
-//  =======
 
 
-
-//============================================================================
 //  EventConfigModifier::EventConfigModifier
-
 //  This is the EventConfigModifier class's only constructor. This class checks
 //  the command arguments, connects to and opens the target machines registry.
 //  Handles writing to the eventcmt.log. Reads in the configuration file, builds
 //  lists of configuration items to be added/deleted and processes these lists.
 //  Starts and stops the SNMP service if necessary and generates a status mif.
-
-
 //  Parameters:
-
 //      LPCSTR CmdLine      This is a space separated list of arguments.
-
 //      LPCSTR machine      The machine name whose configuration is to be
 //                          modified.
-
 //  Returns:
-
 //      none
-
-//============================================================================
-
 EventConfigModifier::EventConfigModifier(LPCSTR CmdLine, LPCSTR machine)
 {
     nl.LoadString(IDS_NL);
@@ -85,82 +62,48 @@ EventConfigModifier::EventConfigModifier(LPCSTR CmdLine, LPCSTR machine)
     NL = nl;
 #endif  //EVENTCMT_OLD_LOG
 
-    if(CmdLine)
+    if (CmdLine)
         CommandLine = CmdLine;
 
     if (machine)
         Machine = machine;
 
-//  This class variable's condition indicates whether an ERROR status mif has been written
-//  ======================================================================================
-
+    //  This class variable's condition indicates whether an ERROR status mif has been written
     PrevStatus = TRUE;
 
 
-//  This class variable's condition indicates whether the SNMP config has been modified
-//  ===================================================================================
-
+    //  This class variable's condition indicates whether the SNMP config has been modified
     SNMPModified = FALSE;
 
 
-//  This class variable's condition indicates whether help needs to be printed
-//  ==========================================================================
-
+    //  This class variable's condition indicates whether help needs to be printed
     Printhelp = FALSE;
 }
 
 
-//============================================================================
 //  EventConfigModifier::~EventConfigModifier
-
 //  This is the EventConfigModifier class's only destructor.
-
-
-//  Parameters:
-
-//      none
-
-//  Returns:
-
-//      none
-
-//============================================================================
-
 EventConfigModifier::~EventConfigModifier()
 {
 }
 
 
-//============================================================================
+
 //  EventConfigModifier::SetError
-
 //  This private method sets the error code that the Main() method returns.
-
-
 //  Parameters:
-
 //      DWORD val       The error code to be set. If this has already been set
 //                      return.
-
-//  Returns:
-
-//      none
-
-//============================================================================
-
 void EventConfigModifier::SetError(DWORD val)
 {
     //  Check the current error state. Only add the code if it is new.
-    //  ==============================================================
-
-    if(EvCmtReturnCode & val)
+    if (EvCmtReturnCode & val)
         return;
     else
         EvCmtReturnCode += val;
 }
 
 
-//============================================================================
 //  EventConfigModifier::ProcessCommandLine
 
 //  This private method processes the command line that was passed to the class
@@ -175,42 +118,25 @@ void EventConfigModifier::SetError(DWORD val)
 //  /DEFAULT        - only run if the current config has default settings
 //  /SETCUSTOM      - set this config to have custom settings
 //  /NOSTOPSTART    - do not stop and start the snmp service
-
-
-//  Parameters:
-
-//      none
-
 //  Returns:
-
 //      BOOL        True if there were no errors, False otherwise
-
-//============================================================================
-
 BOOL EventConfigModifier::ProcessCommandLine()
 {
-
     //  return FALSE if there is no command line
-    //  ========================================
-
-    if (!CommandLine.GetLength())
-    {
+    if (!CommandLine.GetLength()) {
         SetError(EVCMT_BAD_ARGS);
         return FALSE;
     }
 
     LONG Result;
 
-    if (Machine.GetLength())
-    {
+    if (Machine.GetLength()) {
         Result = RegConnectRegistry(Machine.GetBuffer(1), HKEY_LOCAL_MACHINE, &hkey_machine);
         Machine.ReleaseBuffer();
-    }
-    else
+    } else
         Result = RegConnectRegistry(NULL, HKEY_LOCAL_MACHINE, &hkey_machine);
 
-    if (Result != ERROR_SUCCESS)
-    {
+    if (Result != ERROR_SUCCESS) {
         StatusMif(IDS_NO_REG_CNT, FALSE);
         SetError(EVCMT_REG_CNNCT_FAILED);
         return FALSE;
@@ -223,7 +149,7 @@ BOOL EventConfigModifier::ProcessCommandLine()
     SetCustom = FALSE;
     SNMPStopStart = TRUE;
     CString tempbuff(CommandLine);
-    CString * next = CStringStrtok(&tempbuff);
+    CString* next = CStringStrtok(&tempbuff);
     CString help;
     help.LoadString(IDS_ARG_HELP);
     CString helph;
@@ -231,22 +157,16 @@ BOOL EventConfigModifier::ProcessCommandLine()
     CString isHelp(*next);
     isHelp.MakeUpper();
 
-    if ((isHelp == helph) || (isHelp == help))
-    {
+    if ((isHelp == helph) || (isHelp == help)) {
         Printhelp = TRUE;
-    }
-    else
-    {
+    } else {
         //  return FALSE if there is no file specified
         //  ==========================================
 
-        if (next)
-        {
+        if (next) {
             CommandFile = *next;    //set the config file.
             delete next;
-        }
-        else
-        {
+        } else {
             RegCloseKey(hkey_machine);
             return FALSE;
         }
@@ -255,16 +175,12 @@ BOOL EventConfigModifier::ProcessCommandLine()
 
         UniqueList commandargs;
 
-
         //  get all the other arguments into a list for processing
-        //  ======================================================
-
-        while (next)
-        {
+        while (next) {
             //check miff
-            ListItem * tempL = new ListItem(next);
+            ListItem* tempL = new ListItem(next);
 
-            if(commandargs.Add(tempL))
+            if (commandargs.Add(tempL))
                 delete tempL;
 
             next = CStringStrtok(&tempbuff);
@@ -289,18 +205,15 @@ BOOL EventConfigModifier::ProcessCommandLine()
         //  process all the command args
         //  ============================
 
-        while (!commandargs.IsEmpty())
-        {
-            ListItem * item = commandargs.RemoveHead();
-            CString * tmp = item->GetString();
+        while (!commandargs.IsEmpty()) {
+            ListItem* item = commandargs.RemoveHead();
+            CString* tmp = item->GetString();
             tmp->MakeUpper();
 
-            if (*tmp == NoMif)
-            {
+            if (*tmp == NoMif) {
                 StatusMifWritten = TRUE;    //no status mif so indicate that one has been written
                 PrevStatus = FALSE;         //an error mif so another will not be written
-            }
-            else if (*tmp == NoLog)
+            } else if (*tmp == NoLog)
                 LogWanted = FALSE;          //no information to be added to the log file
 
             else if (*tmp == Mode)
@@ -315,21 +228,17 @@ BOOL EventConfigModifier::ProcessCommandLine()
             else if ((*tmp == help) || (*tmp == helph))
                 Printhelp = TRUE;           //we're gonna print help!
 
-            else
-            {
+            else {
                 validArgs = FALSE;          //invalid arg specified
             }
 
             delete item;
         }
 
-        if (Printhelp)
-        {
+        if (Printhelp) {
             validArgs = TRUE;
             StatusMifWritten = TRUE;    //no staus mif if we print help
-        }
-        else if (!validArgs)
-        {
+        } else if (!validArgs) {
             StatusMifWritten = FALSE;   //want a status mif generated if there was an error above!
             PrevStatus = TRUE;          //no error mif has been written yet.
             RegCloseKey(hkey_machine);
@@ -338,16 +247,16 @@ BOOL EventConfigModifier::ProcessCommandLine()
         }
 
 #ifndef EVENTCMT_OLD_LOG
-/*
-        if (LogWanted)
-        {
-            CString logname;
-            logname.LoadString(IDS_LOG_FILE);
+        /*
+                if (LogWanted)
+                {
+                    CString logname;
+                    logname.LoadString(IDS_LOG_FILE);
 
-            if (ERROR_SUCCESS != SMSCliLogInitialize(logname))
-                LogWanted = FALSE;
-        }
-*/
+                    if (ERROR_SUCCESS != SMSCliLogInitialize(logname))
+                        LogWanted = FALSE;
+                }
+        */
 #endif EVENTCMT_OLD_LOG
 
     }
@@ -380,10 +289,10 @@ BOOL EventConfigModifier::ProcessCommandLine()
 
 //============================================================================
 
-BOOL EventConfigModifier::ReadLineIn(HANDLE * h_file, CString * Line, DWORD * startpoint)
+BOOL EventConfigModifier::ReadLineIn(HANDLE* h_file, CString* Line, DWORD* startpoint)
 {
     Line->Empty();          //make sure the CString we're writing to is empty
-    TCHAR buff[EVENTCMT_LINE_LENGTH +1];    //a buffer to read into
+    TCHAR buff[EVENTCMT_LINE_LENGTH + 1];    //a buffer to read into
     DWORD bytesRead;                    //the number of bytes read from the file
     OVERLAPPED overlapped;
     overlapped.OffsetHigh = 0;
@@ -391,11 +300,9 @@ BOOL EventConfigModifier::ReadLineIn(HANDLE * h_file, CString * Line, DWORD * st
 
 
     //  This next loop will run until we read a newline or an EOF
-    //  =========================================================
 
-    while(TRUE)
-    {
-        memset(buff, 0, sizeof(TCHAR)*(EVENTCMT_LINE_LENGTH +1));
+    while (TRUE) {
+        memset(buff, 0, sizeof(TCHAR) * (EVENTCMT_LINE_LENGTH + 1));
         overlapped.Offset = *startpoint; //set the start point for the next read
         int x = 0;
         bytesRead = 0;
@@ -404,8 +311,7 @@ BOOL EventConfigModifier::ReadLineIn(HANDLE * h_file, CString * Line, DWORD * st
         //  Do the actual read from the file
         //  ================================
 
-        if (!ReadFile(*h_file, &buff, EVENTCMT_LINE_LENGTH, &bytesRead, &overlapped))
-        {
+        if (!ReadFile(*h_file, &buff, EVENTCMT_LINE_LENGTH, &bytesRead, &overlapped)) {
             DWORD e = GetLastError();
             return FALSE;
         }
@@ -421,17 +327,16 @@ BOOL EventConfigModifier::ReadLineIn(HANDLE * h_file, CString * Line, DWORD * st
         //  This loop will see if we have read a newline if yes, build the CString
         //  ======================================================================
 
-        while(x < tmp.GetLength())
-        {
-            if(tmp.GetAt(x) == nl.GetAt(0)) //we've found a newline
+        while (x < tmp.GetLength()) {
+            if (tmp.GetAt(x) == nl.GetAt(0)) //we've found a newline
             {
                 *startpoint = *startpoint + x + 1;  //adjust startpoint for the next read
 
-                for(int i = 0; i < x - 1; i++)
+                for (int i = 0; i < x - 1; i++)
                     *Line += tmp.GetAt(i);
 
-                if(tmp.GetAt(x-1) != linefeed.GetAt(0)) //don't want char before \n if it is \r
-                    *Line += tmp.GetAt(x-1);
+                if (tmp.GetAt(x - 1) != linefeed.GetAt(0)) //don't want char before \n if it is \r
+                    *Line += tmp.GetAt(x - 1);
 
                 return TRUE;
             }
@@ -479,23 +384,21 @@ void EventConfigModifier::ReadConfigIn()
     //  ====================================
 
     HANDLE hfile = CreateFile(CommandFile,
-                        GENERIC_READ,
-                        FILE_SHARE_READ,
-                        NULL,
-                        OPEN_EXISTING,
-                        FILE_ATTRIBUTE_NORMAL,
-                        NULL);
+                              GENERIC_READ,
+                              FILE_SHARE_READ,
+                              NULL,
+                              OPEN_EXISTING,
+                              FILE_ATTRIBUTE_NORMAL,
+                              NULL);
 
-    if (hfile == INVALID_HANDLE_VALUE)
-    {
+    if (hfile == INVALID_HANDLE_VALUE) {
         DWORD err = GetLastError();
         StatusMif(IDS_IFILE, FALSE);
         SetError(EVCMT_BAD_INPUT_FILE);
         return;
-    }
-    else // we have an open file
+    } else // we have an open file
     {
-        CString * next;
+        CString* next;
         CString msg1str;
         msg1str += NL;
         msg1str += NL;
@@ -513,8 +416,7 @@ void EventConfigModifier::ReadConfigIn()
         //  this loop reads and processes the file line by line
         //  ===================================================
 
-        while (ReadLineIn(&hfile, &buff, &Offset))
-        {
+        while (ReadLineIn(&hfile, &buff, &Offset)) {
             CString comment;
             comment.LoadString(IDS_COMMENT);
             CBuff = buff;
@@ -524,8 +426,7 @@ void EventConfigModifier::ReadConfigIn()
                 continue; //blank line
 
             // Is it a comment, if it is just skip it.
-            if (CBuff.GetAt(0) == comment.GetAt(0))
-            {
+            if (CBuff.GetAt(0) == comment.GetAt(0)) {
                 CString msg;
                 msg.LoadString(IDS_MSG17);
                 wholebuff += msg;
@@ -534,7 +435,7 @@ void EventConfigModifier::ReadConfigIn()
                 continue;
             }
 
-            next = CStringStrtok (&CBuff);  //get the first token from the line
+            next = CStringStrtok(&CBuff);  //get the first token from the line
             CString prag;
             prag.LoadString(IDS_PRAGMA);
             if (next && (*next != prag))    //first token not #pragma - log an error
@@ -548,8 +449,7 @@ void EventConfigModifier::ReadConfigIn()
                     badlines++;
                     SetError(EVCMT_INVALID_COMMAND);
                     StatusMif(IDS_SYNTAX_ERROR, FALSE);
-                }
-                else        //it is a comment, say so in the log
+                } else        //it is a comment, say so in the log
                 {
                     CString msg;
                     msg.LoadString(IDS_MSG17);
@@ -563,7 +463,7 @@ void EventConfigModifier::ReadConfigIn()
             }
 
             delete next;
-            next = CStringStrtok (&CBuff);  //get the next token from the string
+            next = CStringStrtok(&CBuff);  //get the next token from the string
 
             if (next)                       //this should be the command type
             {
@@ -576,8 +476,8 @@ void EventConfigModifier::ReadConfigIn()
                 AddTCom.LoadString(IDS_ADDTRAP);    //add_trap_dest
                 CString DelTCom;
                 DelTCom.LoadString(IDS_DELTRAP);    //delete_trap_dest
-                CommandItem * com;
-                TrapCommandItem * tcom;
+                CommandItem* com;
+                TrapCommandItem* tcom;
 
                 if (*next == AddCom)                            //add translation config
                 {
@@ -588,8 +488,7 @@ void EventConfigModifier::ReadConfigIn()
                         com->SetCommand(Add);   //set the command type
                         CommandQ.Add(com);      //add it to the list
                         goodlines++;            //increment the numer of good commands found
-                    }
-                    else        //GetCommandArgs failed, bad args - set the error and mif
+                    } else        //GetCommandArgs failed, bad args - set the error and mif
                     {
                         badlines++;         //increment the numer of bad commands found
                         SetError(EVCMT_INVALID_COMMAND);
@@ -597,8 +496,7 @@ void EventConfigModifier::ReadConfigIn()
                         delete next;
                         continue;
                     }
-                }
-                else if (*next == DelCom)   //delete translation config
+                } else if (*next == DelCom)   //delete translation config
                 {
                     com = GetCommandArgs(&wholebuff, &CBuff);
 
@@ -607,8 +505,7 @@ void EventConfigModifier::ReadConfigIn()
                         com->SetCommand(Delete);    //set the command type
                         CommandQ.Add(com);          //add it to the list
                         goodlines++;                //increment the numer of good commands found
-                    }
-                    else        //GetCommandArgs failed, bad args - set the error and mif
+                    } else        //GetCommandArgs failed, bad args - set the error and mif
                     {
                         badlines++;         //increment the numer of bad commands found
                         SetError(EVCMT_INVALID_COMMAND);
@@ -616,10 +513,9 @@ void EventConfigModifier::ReadConfigIn()
                         delete next;
                         continue;
                     }
-                }
-                else if (*next == AddTCom)  //add trap config
+                } else if (*next == AddTCom)  //add trap config
                 {
-                    if(!SNMPinstalled)      //no snmp, set error and mif
+                    if (!SNMPinstalled)      //no snmp, set error and mif
                     {
                         CString msg;
                         msg.LoadString(IDS_MSG50);
@@ -639,8 +535,7 @@ void EventConfigModifier::ReadConfigIn()
                         tcom->SetCommand(AddTrap);  //set the command type
                         TrapQ.Add(tcom);            //add it to the list
                         goodlines++;
-                    }
-                    else            //GetTrapCommandArgs failed set error and mif
+                    } else            //GetTrapCommandArgs failed set error and mif
                     {
                         badlines++;
                         SetError(EVCMT_INVALID_COMMAND);
@@ -648,10 +543,9 @@ void EventConfigModifier::ReadConfigIn()
                         delete next;
                         continue;
                     }
-                }
-                else if (*next == DelTCom)  //add trap config
+                } else if (*next == DelTCom)  //add trap config
                 {
-                    if(!SNMPinstalled)      //no snmp, set error and mif
+                    if (!SNMPinstalled)      //no snmp, set error and mif
                     {
                         CString msg;
                         msg.LoadString(IDS_MSG50);
@@ -671,8 +565,7 @@ void EventConfigModifier::ReadConfigIn()
                         tcom->SetCommand(DeleteTrap);   //set the command type
                         TrapQ.Add(tcom);                //add it to the list
                         goodlines++;
-                    }
-                    else            //GetTrapCommandArgs failed set error and mif
+                    } else            //GetTrapCommandArgs failed set error and mif
                     {
                         badlines++;
                         SetError(EVCMT_INVALID_COMMAND);
@@ -680,8 +573,7 @@ void EventConfigModifier::ReadConfigIn()
                         delete next;
                         continue;
                     }
-                }
-                else    //we don't have a valid command type set error and mif
+                } else    //we don't have a valid command type set error and mif
                 {
                     CString msg;
                     msg.LoadString(IDS_MSG19);
@@ -756,15 +648,15 @@ void EventConfigModifier::ReadConfigIn()
 
 //============================================================================
 
-TrapCommandItem * EventConfigModifier::GetTrapCommandArgs(CString * buffer, CString * comline)
+TrapCommandItem* EventConfigModifier::GetTrapCommandArgs(CString* buffer, CString* comline)
 {
-    TrapCommandItem * newCom = NULL;
-    CString * comm;
-    CString * addr;
+    TrapCommandItem* newCom = NULL;
+    CString* comm;
+    CString* addr;
     comm = MyStrtok(comline);
 
 
-    if(!comm)   //error no community name
+    if (!comm)   //error no community name
     {
         CString add;
         add.LoadString(IDS_MSG23);
@@ -776,7 +668,7 @@ TrapCommandItem * EventConfigModifier::GetTrapCommandArgs(CString * buffer, CStr
 
     addr = MyStrtok(comline);
 
-    if(!addr)   //error no address specified
+    if (!addr)   //error no address specified
     {
         delete comm;
 
@@ -788,9 +680,9 @@ TrapCommandItem * EventConfigModifier::GetTrapCommandArgs(CString * buffer, CStr
         return newCom;
     }
 
-    CString * extra = CStringStrtok(comline);
+    CString* extra = CStringStrtok(comline);
 
-    if(extra)   //error too many arguments
+    if (extra)   //error too many arguments
     {
         delete comm;
         delete addr;
@@ -809,7 +701,7 @@ TrapCommandItem * EventConfigModifier::GetTrapCommandArgs(CString * buffer, CStr
     //  ============================================================================
 
     newCom = new TrapCommandItem(AddTrap, //just for a default value
-                                comm, addr, hkey_machine);
+                                 comm, addr, hkey_machine);
 
     CString add;
     add.LoadString(IDS_MSG27);
@@ -844,9 +736,9 @@ TrapCommandItem * EventConfigModifier::GetTrapCommandArgs(CString * buffer, CStr
 
 //============================================================================
 
-CString * EventConfigModifier::CStringStrtok(CString * In)
+CString* EventConfigModifier::CStringStrtok(CString* In)
 {
-    CString * ret = NULL;
+    CString* ret = NULL;
     BOOL    more;
     int     i;
 
@@ -867,10 +759,8 @@ CString * EventConfigModifier::CStringStrtok(CString * In)
     //  ========================================================================
 
     more = TRUE;
-    for (i = 0; i < In->GetLength(); i++)
-    {
-        for (int j = 0; more && j < wSpace.GetLength(); j++)
-        {
+    for (i = 0; i < In->GetLength(); i++) {
+        for (int j = 0; more && j < wSpace.GetLength(); j++) {
             if (In->GetAt(i) == wSpace.GetAt(j))
                 more = FALSE;
         }
@@ -884,10 +774,9 @@ CString * EventConfigModifier::CStringStrtok(CString * In)
     //  Copy the string upto this point to the string that we return
     //  ============================================================
 
-    for (int k = 0; k < i; k++)
-    {
+    for (int k = 0; k < i; k++) {
         *ret += In->GetAt(k);
-        In->SetAt(k,tab.GetAt(0));
+        In->SetAt(k, tab.GetAt(0));
     }
 
     In->TrimLeft(); //remove leading whitespace from the input string
@@ -919,9 +808,9 @@ CString * EventConfigModifier::CStringStrtok(CString * In)
 
 //============================================================================
 
-CString * EventConfigModifier::MyStrtok(CString * In)
+CString* EventConfigModifier::MyStrtok(CString* In)
 {
-    CString * ret = CStringStrtok(In);
+    CString* ret = CStringStrtok(In);
 
     if (!ret)   //nothing (maybe whitespace) in input string
         return ret;
@@ -940,13 +829,11 @@ CString * EventConfigModifier::MyStrtok(CString * In)
     //  i.e. for multiple worded quoted strings e.g. "Print Manager"
     //  =====================================================================
 
-    while ( (temp.GetAt(0) == quote.GetAt(0)) &&
-                (temp.GetAt(length - 1) != quote.GetAt(0)) )
-    {
-        CString * extra = CStringStrtok(In); //Get the next token
+    while ((temp.GetAt(0) == quote.GetAt(0)) &&
+           (temp.GetAt(length - 1) != quote.GetAt(0))) {
+        CString* extra = CStringStrtok(In); //Get the next token
 
-        if (!extra)
-        {
+        if (!extra) {
             ret = new CString(temp);
             return ret; //return the string with the quote!
         }
@@ -962,9 +849,8 @@ CString * EventConfigModifier::MyStrtok(CString * In)
     //  ==================================================================================
 
     if ((length > 1) &&
-            (temp.GetAt(0) == quote.GetAt(0)) &&
-            (temp.GetAt(length - 1) == quote.GetAt(0)))
-    {
+        (temp.GetAt(0) == quote.GetAt(0)) &&
+        (temp.GetAt(length - 1) == quote.GetAt(0))) {
         temp.SetAt(0, tab.GetAt(0));
         temp.TrimLeft();
         length = temp.GetLength();
@@ -973,8 +859,7 @@ CString * EventConfigModifier::MyStrtok(CString * In)
         length = temp.GetLength();
     }
 
-    if (length)
-    {
+    if (length) {
         ret = new CString(temp);    //create the return string from what we have built
     }
 
@@ -1007,20 +892,20 @@ CString * EventConfigModifier::MyStrtok(CString * In)
 
 //============================================================================
 
-CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * comline)
+CommandItem* EventConfigModifier::GetCommandArgs(CString* buffer, CString* comline)
 {
-    CommandItem * newCom = NULL;
-    CString * evlog;
-    CString * evsrc;
-    CString * evid;
-    CString * evcnt;
-    CString * evtm;
+    CommandItem* newCom = NULL;
+    CString* evlog;
+    CString* evsrc;
+    CString* evid;
+    CString* evcnt;
+    CString* evtm;
     DWORD evtid = 0;
     DWORD evtcount = 0;
     DWORD evttime = 0;
     evlog = MyStrtok(comline);
 
-    if(!evlog)  //no eventlog argument
+    if (!evlog)  //no eventlog argument
     {
         CString add;
         add.LoadString(IDS_MSG28);
@@ -1032,7 +917,7 @@ CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * co
 
     evsrc = MyStrtok(comline);
 
-    if(!evsrc)  //no event source argument
+    if (!evsrc)  //no event source argument
     {
         delete evlog;
 
@@ -1046,7 +931,7 @@ CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * co
 
     evid = MyStrtok(comline);
 
-    if(evid)    //eventid argument has to be converted into a DWORD
+    if (evid)    //eventid argument has to be converted into a DWORD
     {
         BOOL badstr = StrToDword(evid, &evtid); //convert the id into a DWORD
         delete evid;
@@ -1066,8 +951,7 @@ CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * co
             return newCom;
         }
 
-    }
-    else    //no eventid argument was specified
+    } else    //no eventid argument was specified
     {
         delete evlog;
         delete evsrc;
@@ -1083,12 +967,10 @@ CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * co
     //now the count if there is one
     evcnt = MyStrtok(comline);
 
-    if(evcnt)
-    {
+    if (evcnt) {
         BOOL badstr = StrToDword(evcnt, &evtcount);
 
-        if (badstr || !evtcount)
-        {
+        if (badstr || !evtcount) {
             delete evlog;
             delete evsrc;
             delete evcnt;
@@ -1105,12 +987,10 @@ CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * co
         //now get the time if there is one specified...
         evtm = MyStrtok(comline);
 
-        if (evtm)
-        {
+        if (evtm) {
             badstr = StrToDword(evtm, &evttime);
 
-            if (badstr || (evttime && (evtcount < 2)))
-            {
+            if (badstr || (evttime && (evtcount < 2))) {
                 delete evlog;
                 delete evsrc;
                 delete evcnt;
@@ -1126,10 +1006,9 @@ CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * co
             }
 
             // if there are more arguments, that's too many...
-            CString * extra = CStringStrtok(comline);
+            CString* extra = CStringStrtok(comline);
 
-            if(extra)
-            {
+            if (extra) {
                 delete evlog;
                 delete evsrc;
                 delete evcnt;
@@ -1144,19 +1023,14 @@ CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * co
                 WriteToLog(buffer);
                 return newCom;
             }
-        }
-        else
-        {
+        } else {
             evtm = NULL;
         }
-    }
-    else
-    {
+    } else {
         // if there are more arguments, that's too many...
-        CString * extra = CStringStrtok(comline);
+        CString* extra = CStringStrtok(comline);
 
-        if(extra)
-        {
+        if (extra) {
             delete evlog;
             delete evsrc;
             delete extra;
@@ -1179,15 +1053,14 @@ CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * co
     //  ======================================================================
 
     newCom = new CommandItem(Add, //just for a default value
-                                evlog, evsrc, evtid,
-                                evtcount, evttime, hkey_machine);
+                             evlog, evsrc, evtid,
+                             evtcount, evttime, hkey_machine);
 
 
     //  Delete the temporary storage for the count and time
     //  ===================================================
 
-    if(evcnt)
-    {
+    if (evcnt) {
         delete evcnt;
 
         if (evtm)
@@ -1225,20 +1098,18 @@ CommandItem * EventConfigModifier::GetCommandArgs(CString * buffer, CString * co
 
 //============================================================================
 
-BOOL EventConfigModifier::StrToDword(CString * str, DWORD * num)
+BOOL EventConfigModifier::StrToDword(CString* str, DWORD* num)
 {
-    char * str1 = str->GetBuffer(1);
-    char * tmp = str1;
+    char* str1 = str->GetBuffer(1);
+    char* tmp = str1;
     BOOL badstr = FALSE;
 
 
     //  The following loop steps through the CString checking for non numerics
     //  ======================================================================
 
-    while (tmp && (*tmp != '\0'))
-    {
-        if ((*tmp < '0') || (*tmp > '9'))
-        {
+    while (tmp && (*tmp != '\0')) {
+        if ((*tmp < '0') || (*tmp > '9')) {
             badstr = TRUE;
             break;
         }
@@ -1247,8 +1118,7 @@ BOOL EventConfigModifier::StrToDword(CString * str, DWORD * num)
 
     if (badstr)
         *num = 0;
-    else
-    {
+    else {
         tmp = str1;
         *num = strtoul(str1, &tmp, 10);
     }
@@ -1277,36 +1147,35 @@ BOOL EventConfigModifier::StrToDword(CString * str, DWORD * num)
 
 //============================================================================
 
-void EventConfigModifier::WriteToLog(CString * inbuf)
+void EventConfigModifier::WriteToLog(CString* inbuf)
 {
-    if(!LogWanted)  //command switch stated no log wanted.
+    if (!LogWanted)  //command switch stated no log wanted.
         return;
 
 #ifdef EVENTCMT_OLD_LOG
 
     DWORD errnum = 0;
     LPTSTR buff = inbuf->GetBuffer(1);
-    CMyString * inbuf2 = (CMyString *)inbuf;
+    CMyString* inbuf2 = (CMyString*)inbuf;
     DWORD buffsz = inbuf2->GetBufferSize() - 1;
     DWORD justwritten = 0;
 
     if (!WriteFile(hFile,
-                buff,
-                buffsz,
-                &justwritten,
-                NULL))
-    {
-     // It didn't work get the error condition
-     // ======================================
+                   buff,
+                   buffsz,
+                   &justwritten,
+                   NULL)) {
+        // It didn't work get the error condition
+        // ======================================
 
         errnum = GetLastError();
 
     }
-        inbuf->ReleaseBuffer();
+    inbuf->ReleaseBuffer();
 
 #else   //EVENTCMT_OLD_LOG
 
-//  SMSCliLog(*inbuf);
+    //  SMSCliLog(*inbuf);
 
 #endif  //EVENTCMT_OLD_LOG
 
@@ -1345,14 +1214,12 @@ DWORD EventConfigModifier::Main()
     //  Get the config file name and any command switches
     //  =================================================
 
-    if (!ProcessCommandLine())
-    {
+    if (!ProcessCommandLine()) {
         StatusMif(IDS_INVALIDARGS, FALSE);
         return EvCmtReturnCode;
     }
 
-    if (Printhelp)
-    {
+    if (Printhelp) {
         PrintHelp();
         return EvCmtReturnCode;
     }
@@ -1375,7 +1242,7 @@ DWORD EventConfigModifier::Main()
         //  Process the list of translation events
         //  ======================================
 
-        if(!CommandQ.IsEmpty())
+        if (!CommandQ.IsEmpty())
             ProcessCommandQ();
 
         //  Unlock our bit of the registry so others may edit it
@@ -1389,17 +1256,16 @@ DWORD EventConfigModifier::Main()
         //  Process the list of trap destinations
         //  =====================================
 
-        if(!TrapQ.IsEmpty())
+        if (!TrapQ.IsEmpty())
             ProcessTrapQ();
 
 #ifdef EVENTCMT_OLD_LOG
-        if(closeHandle) //to our log file
+        if (closeHandle) //to our log file
             CloseHandle(hFile);
 #endif  //EVENTCMT_OLD_LOG
 
         StatusMif(IDS_SUCCESS, TRUE);
-    }
-    else    //CheckInstallations failed
+    } else    //CheckInstallations failed
         StatusMif(IDS_INSTALL, FALSE);
 
 
@@ -1416,8 +1282,8 @@ void EventConfigModifier::PrintHelp()
     msg.LoadString(IDS_HELP_MSG);
     CString title;
     title.LoadString(IDS_HELP_BOX);
-    MessageBox(NULL, msg, title, MB_ICONINFORMATION|MB_OK|MB_SETFOREGROUND
-                |MB_DEFAULT_DESKTOP_ONLY|MB_SYSTEMMODAL);
+    MessageBox(NULL, msg, title, MB_ICONINFORMATION | MB_OK | MB_SETFOREGROUND
+               | MB_DEFAULT_DESKTOP_ONLY | MB_SYSTEMMODAL);
 }
 
 //============================================================================
@@ -1453,12 +1319,10 @@ void EventConfigModifier::StatusMif(UINT mess_id, BOOL status)
     //  type was an error or the current call is not for an error
     //  ===============================================================
 
-    if(StatusMifWritten)
-    {
-        if(status || !PrevStatus)
+    if (StatusMifWritten) {
+        if (status || !PrevStatus)
             return;
-    }
-    else    //no previous mif, indicate there is.
+    } else    //no previous mif, indicate there is.
     {
         StatusMifWritten = TRUE;
     }
@@ -1493,20 +1357,19 @@ void EventConfigModifier::StatusMif(UINT mess_id, BOOL status)
     //  Declare the function we will use to write the mif
     //  =================================================
 
-    DWORD (WINAPI *InstallStatusMIF) (const char *, const char*, const char*,
-                                        const char*, const char *, const char *,
-                                        const char *, BOOL);
+    DWORD(WINAPI * InstallStatusMIF) (const char*, const char*, const char*,
+                                      const char*, const char*, const char*,
+                                      const char*, BOOL);
 
 
     //  Load the dll which will write the mif for us
     //  ============================================
 
-    if (hInstLibrary = LoadLibrary(statmifdll))
-    {
-        InstallStatusMIF = (DWORD (WINAPI *)(const char *, const char*, const char*,
-                                        const char*, const char *, const char *,
-                                        const char *, BOOL))
-                                        GetProcAddress(hInstLibrary, "InstallStatusMIF");
+    if (hInstLibrary = LoadLibrary(statmifdll)) {
+        InstallStatusMIF = (DWORD(WINAPI*)(const char*, const char*, const char*,
+                                           const char*, const char*, const char*,
+                                           const char*, BOOL))
+            GetProcAddress(hInstLibrary, "InstallStatusMIF");
 
         if (InstallStatusMIF) //we loaded the dll and have the function we need!
         {
@@ -1515,10 +1378,9 @@ void EventConfigModifier::StatusMif(UINT mess_id, BOOL status)
             //  =============
 
             if (!InstallStatusMIF(filename, manufacturer, product, version,
-                                    locale, serno, message, status ))
-            {
+                                  locale, serno, message, status)) {
 #ifdef EVENTCMT_OLD_LOG
-                if(closeHandle)
+                if (closeHandle)
 #endif  //EVENTCMT_OLD_LOG
 
                 {
@@ -1528,11 +1390,10 @@ void EventConfigModifier::StatusMif(UINT mess_id, BOOL status)
                     add += NL;
                     WriteToLog(&add);
                 }
-            }
-            else    //we wrote the mif, log it.
+            } else    //we wrote the mif, log it.
             {
 #ifdef EVENTCMT_OLD_LOG
-                if(closeHandle)
+                if (closeHandle)
 #endif  //EVENTCMT_OLD_LOG
 
                 {
@@ -1544,11 +1405,10 @@ void EventConfigModifier::StatusMif(UINT mess_id, BOOL status)
                     WriteToLog(&add);
                 }
             }
-        }
-        else    //failed to load the function we need, log it.
+        } else    //failed to load the function we need, log it.
         {
 #ifdef EVENTCMT_OLD_LOG
-            if(closeHandle)
+            if (closeHandle)
 #endif  //EVENTCMT_OLD_LOG
 
             {
@@ -1560,11 +1420,10 @@ void EventConfigModifier::StatusMif(UINT mess_id, BOOL status)
         }
 
         FreeLibrary(hInstLibrary);
-    }
-    else    //failed to load the dll, log it.
+    } else    //failed to load the dll, log it.
     {
 #ifdef EVENTCMT_OLD_LOG
-        if(closeHandle)
+        if (closeHandle)
 #endif  //EVENTCMT_OLD_LOG
 
         {
@@ -1621,13 +1480,11 @@ BOOL EventConfigModifier::CheckInstallations()
     //  ==================
 
     LONG Result = RegOpenKeyEx(hkey_machine, keyName, 0, KEY_EXECUTE, &hkeyOpen);
-    if (Result != ERROR_SUCCESS)
-    {
+    if (Result != ERROR_SUCCESS) {
         SetError(EVCMT_NO_SNMP);
         SNMPinstalled = FALSE;
         StatusMif(IDS_NO_SNMP_INSTALLED, FALSE);
-    }
-    else
+    } else
         SNMPinstalled = TRUE;
 
     RegCloseKey(hkeyOpen);
@@ -1639,8 +1496,7 @@ BOOL EventConfigModifier::CheckInstallations()
     //  =============================================
 
     Result = RegOpenKeyEx(hkey_machine, keyName, 0, KEY_EXECUTE, &hkeyOpen);
-    if (Result != ERROR_SUCCESS)
-    {
+    if (Result != ERROR_SUCCESS) {
         SetError(EVCMT_NO_SNMP_XN);
         return FALSE;
     }
@@ -1654,8 +1510,7 @@ BOOL EventConfigModifier::CheckInstallations()
     keyName.Empty();
     keyName.LoadString(IDS_LOCK_REG);
     Result = RegCreateKeyEx(hkey_machine, keyName, 0, NULL, REG_OPTION_VOLATILE, KEY_ALL_ACCESS, NULL, &hkeyOpen, &createtype);
-    if (Result != ERROR_SUCCESS)
-    {
+    if (Result != ERROR_SUCCESS) {
         StatusMif(IDS_NOT_LOCKED, FALSE);
         SetError(EVCMT_LOCK_FAIL);
         return FALSE;
@@ -1663,8 +1518,7 @@ BOOL EventConfigModifier::CheckInstallations()
 
     RegCloseKey(hkeyOpen);
 
-    if (createtype == REG_OPENED_EXISTING_KEY)
-    {
+    if (createtype == REG_OPENED_EXISTING_KEY) {
         StatusMif(IDS_REG_LOCKED, FALSE);
         SetError(EVCMT_LOCK_OUT);
         return FALSE;
@@ -1673,8 +1527,7 @@ BOOL EventConfigModifier::CheckInstallations()
     keyName.Empty();
     keyName.LoadString(IDS_BASE_KEY);
     Result = RegOpenKeyEx(hkey_machine, keyName, 0, KEY_ALL_ACCESS, &hkeyOpen);
-    if (Result != ERROR_SUCCESS)
-    {
+    if (Result != ERROR_SUCCESS) {
         SetError(EVCMT_REG_FAIL);
         return FALSE;
     }
@@ -1694,16 +1547,14 @@ BOOL EventConfigModifier::CheckInstallations()
     //  /DEFAULT was NOT a command line switch
     //  ======================================
 
-    if (MandatoryMode)
-    {
+    if (MandatoryMode) {
         //  Set the mode required
         //  =====================
 
         keyName.Empty();
         keyName.LoadString(IDS_CONF_TYPE);
-        Result = RegSetValueEx(hkeyOpen, keyName, 0, REG_DWORD, (CONST BYTE *)&mode, 4);
-        if (Result != ERROR_SUCCESS)
-        {
+        Result = RegSetValueEx(hkeyOpen, keyName, 0, REG_DWORD, (CONST BYTE*) & mode, 4);
+        if (Result != ERROR_SUCCESS) {
             RegCloseKey(hkeyOpen);
             keyName.Empty();
             keyName.LoadString(IDS_LOCK_REG);
@@ -1713,8 +1564,7 @@ BOOL EventConfigModifier::CheckInstallations()
             return FALSE;
         }
 
-    }
-    else    // /DEFAULT specified, only run if allowed
+    } else    // /DEFAULT specified, only run if allowed
     {
         TCHAR val[1024 + 1];
         DWORD valsz;
@@ -1729,16 +1579,14 @@ BOOL EventConfigModifier::CheckInstallations()
 
         valsz = 1024 + 1;
         Result = RegQueryValueEx(hkeyOpen, Conftype, NULL,
-                                    &type, (unsigned char*)val, &valsz);
+                                 &type, (unsigned char*)val, &valsz);
 
         if (Result != ERROR_SUCCESS)    //didn't find the key for the mode
         {
             if (Result == ERROR_FILE_NOT_FOUND) //it's not there!
             {
                 gotmode = FALSE;
-            }
-            else
-            {
+            } else {
                 RegCloseKey(hkeyOpen);
                 keyName.Empty();
                 keyName.LoadString(IDS_LOCK_REG);
@@ -1746,38 +1594,32 @@ BOOL EventConfigModifier::CheckInstallations()
                 SetError(EVCMT_REG_FAIL);
                 return FALSE;
             }
-        }
-        else                        //got the key now what's the current mode
+        } else                        //got the key now what's the current mode
         {
-            if (valsz > 0)
-            {
-                if (type == REG_DWORD)
-                {
-                    mode =  * ((DWORD *)val);
+            if (valsz > 0) {
+                if (type == REG_DWORD) {
+                    mode = *((DWORD*)val);
                     gotmode = TRUE;
                 }
             }
         }
 
-        if (!gotmode || (mode == EVENTCMT_REQUST_MODE))
-        {
-         // No current mode or default requested
-         // ====================================
+        if (!gotmode || (mode == EVENTCMT_REQUST_MODE)) {
+            // No current mode or default requested
+            // ====================================
 
             if (SetCustom)  //Set to Custom mode requested
             {
                 mode = EVENTCMT_CUSTOM_MODE;
-            }
-            else            //Set to default mode
+            } else            //Set to default mode
             {
                 mode = EVENTCMT_SYSTEM_MODE;
             }
 
             keyName.Empty();
             keyName.LoadString(IDS_CONF_TYPE);
-            Result = RegSetValueEx(hkeyOpen, keyName, 0, REG_DWORD, (CONST BYTE *)&mode, 4);
-            if (Result != ERROR_SUCCESS)
-            {
+            Result = RegSetValueEx(hkeyOpen, keyName, 0, REG_DWORD, (CONST BYTE*) & mode, 4);
+            if (Result != ERROR_SUCCESS) {
                 RegCloseKey(hkeyOpen);
                 keyName.Empty();
                 keyName.LoadString(IDS_LOCK_REG);
@@ -1789,10 +1631,9 @@ BOOL EventConfigModifier::CheckInstallations()
 
         }
 
-        else if (gotmode && (mode == EVENTCMT_CUSTOM_MODE))
-        {
-         // The current mode is Custom
-         // ==========================
+        else if (gotmode && (mode == EVENTCMT_CUSTOM_MODE)) {
+            // The current mode is Custom
+            // ==========================
 
             RegCloseKey(hkeyOpen);
             keyName.Empty();
@@ -1803,17 +1644,15 @@ BOOL EventConfigModifier::CheckInstallations()
             return FALSE;
         }
 
-        else if (gotmode && (mode == EVENTCMT_SYSTEM_MODE) && SetCustom)
-        {
-         // The current mode is the default and /SETCUSTOM specified
-         // ========================================================
+        else if (gotmode && (mode == EVENTCMT_SYSTEM_MODE) && SetCustom) {
+            // The current mode is the default and /SETCUSTOM specified
+            // ========================================================
 
             mode = EVENTCMT_CUSTOM_MODE;
             keyName.Empty();
             keyName.LoadString(IDS_CONF_TYPE);
-            Result = RegSetValueEx(hkeyOpen, keyName, 0, REG_DWORD, (CONST BYTE *)&mode, 4);
-            if (Result != ERROR_SUCCESS)
-            {
+            Result = RegSetValueEx(hkeyOpen, keyName, 0, REG_DWORD, (CONST BYTE*) & mode, 4);
+            if (Result != ERROR_SUCCESS) {
                 RegCloseKey(hkeyOpen);
                 keyName.Empty();
                 keyName.LoadString(IDS_LOCK_REG);
@@ -1856,8 +1695,7 @@ void EventConfigModifier::ProcessTrapQ()
 
     TrapCommandItem* TCmnd = (TrapCommandItem*)TrapQ.Pop();
 
-    if (!TCmnd)
-    {
+    if (!TCmnd) {
         CString sstr;
         sstr += NL;
         sstr += NL;
@@ -1875,8 +1713,7 @@ void EventConfigModifier::ProcessTrapQ()
     //  in memory and then write the changes back once we have finished
     //  ===============================================================
 
-    if (!ReadSNMPRegistry())
-    {
+    if (!ReadSNMPRegistry()) {
         CString sstr;
         sstr += NL;
         sstr += NL;
@@ -1886,7 +1723,7 @@ void EventConfigModifier::ProcessTrapQ()
         sstr += NL;
         sstr += NL;
         WriteToLog(&sstr);
-        StatusMif(IDS_REGREAD,FALSE);
+        StatusMif(IDS_REGREAD, FALSE);
         SetError(EVCMT_REG_FAIL);
         return;
     }
@@ -1896,33 +1733,29 @@ void EventConfigModifier::ProcessTrapQ()
     //  CommNames as you go to build a new registry image.
     //  ==================================================
 
-    while (TCmnd)
-    {
+    while (TCmnd) {
         //  Process the current configuration request
         //  =========================================
         ReturnVal retval;
-        CString * msg = TCmnd->Process(&CommNames, &retval);
+        CString* msg = TCmnd->Process(&CommNames, &retval);
 
-        if(retval != RET_OK)                    //No change was made...
+        if (retval != RET_OK)                    //No change was made...
         {
             if (retval == RET_BAD)                      //An error occurred
             {
                 StatusMif(IDS_SYNTAX_ERROR, FALSE);
                 SetError(EVCMT_INVALID_COMMAND);
-            }
-            else  if (TCmnd->GetCommand() != AddTrap)   //RET_NOT_FOUND && DeleteTrap
+            } else  if (TCmnd->GetCommand() != AddTrap)   //RET_NOT_FOUND && DeleteTrap
             {
                 StatusMif(IDS_DEL_MISS_ENTRY, TRUE);
             }
 
-        }
-        else                                    //Successful modification
+        } else                                    //Successful modification
         {
             SNMPModified = TRUE;
         }
 
-        if (msg)
-        {
+        if (msg) {
             WriteToLog(msg);
             delete msg;
         }
@@ -1940,15 +1773,11 @@ void EventConfigModifier::ProcessTrapQ()
     //  all changes to the registry and stop the SNMP service
     //  ========================================================
 
-    if (SNMPModified)
-    {
-        if (WriteSNMPRegistry())
-        {
+    if (SNMPModified) {
+        if (WriteSNMPRegistry()) {
             StopSNMP();
         }
-    }
-    else
-    {
+    } else {
         CString sstr;
         sstr += NL;
         sstr += NL;
@@ -1978,8 +1807,7 @@ void EventConfigModifier::StopSNMP()
     //  Check that /NOSTOPSTART was NOT specified
     //  =========================================
 
-    if (!SNMPStopStart)
-    {
+    if (!SNMPStopStart) {
         SetError(EVCMT_SNMP_STOPSTART);
         return;
     }
@@ -1990,17 +1818,14 @@ void EventConfigModifier::StopSNMP()
 
     SC_HANDLE services;
 
-    if (Machine.GetLength())
-    {
+    if (Machine.GetLength()) {
         services = OpenSCManager(Machine,           //the remote machine
-                                "ServicesActive",   //active services
-                                GENERIC_EXECUTE);   //want to interrogate, start and stop a service
-    }
-    else
-    {
+                                 "ServicesActive",   //active services
+                                 GENERIC_EXECUTE);   //want to interrogate, start and stop a service
+    } else {
         services = OpenSCManager(NULL,              //NULL for local machine
-                                "ServicesActive",   //active services
-                                GENERIC_EXECUTE);   //want to interrogate, start and stop a service
+                                 "ServicesActive",   //active services
+                                 GENERIC_EXECUTE);   //want to interrogate, start and stop a service
     }
 
     if (!services)  //didn't connect to the service control manager, log it
@@ -2030,7 +1855,7 @@ void EventConfigModifier::StopSNMP()
     //  ================================
 
     SC_HANDLE snmp_service = OpenService(services, "SNMP", SERVICE_CONTROL_INTERROGATE |
-                                            SERVICE_START | SERVICE_STOP);
+                                         SERVICE_START | SERVICE_STOP);
 
     if (!snmp_service)  //didn't get a handle to the SNMP service, log it
     {
@@ -2061,34 +1886,26 @@ void EventConfigModifier::StopSNMP()
     //  Send the message to stop the service
     //  ====================================
 
-    if (!ControlService(snmp_service, SERVICE_CONTROL_STOP, &stat))
-    {
+    if (!ControlService(snmp_service, SERVICE_CONTROL_STOP, &stat)) {
         DWORD its_broke = GetLastError();
         BOOL flag_error = FALSE;
 
-        if (stat.dwCurrentState == SERVICE_STOP_PENDING)
-        {
+        if (stat.dwCurrentState == SERVICE_STOP_PENDING) {
             Sleep(10000);   //ten second wait
 
-            if (ControlService(snmp_service, SERVICE_CONTROL_INTERROGATE, &stat))
-            {
+            if (ControlService(snmp_service, SERVICE_CONTROL_INTERROGATE, &stat)) {
                 if (stat.dwCurrentState != SERVICE_STOPPED) //has it stopped?
                 {
                     flag_error = TRUE; //raise an error
                 }
-            }
-            else
-            {
+            } else {
                 flag_error = TRUE;  //couldn't contact service? raise error!
             }
-        }
-        else if (stat.dwCurrentState != SERVICE_STOPPED && its_broke != ERROR_SERVICE_NOT_ACTIVE)
-        {
+        } else if (stat.dwCurrentState != SERVICE_STOPPED && its_broke != ERROR_SERVICE_NOT_ACTIVE) {
             flag_error = TRUE;  //raise an error if the service is not stopped.
         }
 
-        if (flag_error)
-        {
+        if (flag_error) {
             CloseServiceHandle(snmp_service);
             CloseServiceHandle(services);
             CString sstr;
@@ -2140,8 +1957,7 @@ void EventConfigModifier::StartSNMP()
     //  were no errors in stopping the SNMP service earlier
     //  ===================================================
 
-    if (!SNMPStopStart)
-    {
+    if (!SNMPStopStart) {
         return;
     }
 
@@ -2150,17 +1966,14 @@ void EventConfigModifier::StartSNMP()
 
     SC_HANDLE services;
 
-    if (Machine.GetLength())
-    {
+    if (Machine.GetLength()) {
         services = OpenSCManager(Machine,   //the remote machine
-                                "ServicesActive",   //active services
-                                GENERIC_EXECUTE);   //want to interrogate, start and stop a service
-    }
-    else
-    {
+                                 "ServicesActive",   //active services
+                                 GENERIC_EXECUTE);   //want to interrogate, start and stop a service
+    } else {
         services = OpenSCManager(NULL,      //NULL for local machine
-                                "ServicesActive",   //active services
-                                GENERIC_EXECUTE);   //want to interrogate, start and stop a service
+                                 "ServicesActive",   //active services
+                                 GENERIC_EXECUTE);   //want to interrogate, start and stop a service
     }
 
     if (!services)  //didn't connect to the service control manager, log it
@@ -2194,7 +2007,7 @@ void EventConfigModifier::StartSNMP()
     //  ================================
 
     SC_HANDLE snmp_service = OpenService(services, "SNMP", SERVICE_CONTROL_INTERROGATE |
-                                            SERVICE_START | SERVICE_STOP);
+                                         SERVICE_START | SERVICE_STOP);
 
     if (!snmp_service)  //failed to get the handle, log it
     {
@@ -2228,12 +2041,10 @@ void EventConfigModifier::StartSNMP()
     //  Try to start the SNMP service
     //  =============================
 
-    if (!StartService(snmp_service, 0, NULL))
-    {
+    if (!StartService(snmp_service, 0, NULL)) {
         DWORD its_broke = GetLastError();
 
-        if (its_broke == ERROR_SERVICE_ALREADY_RUNNING)
-        {
+        if (its_broke == ERROR_SERVICE_ALREADY_RUNNING) {
             if (!SNMPModified) //we didn't stop the service so don't report an error or try again.
             {
                 CloseServiceHandle(snmp_service);
@@ -2247,8 +2058,7 @@ void EventConfigModifier::StartSNMP()
             {
                 flag_error = TRUE;  //we made changes and can't stop/start snmp, error.
             }
-        }
-        else        //it didn't start and it's not running, raise an error
+        } else        //it didn't start and it's not running, raise an error
         {
             flag_error = TRUE;
         }
@@ -2265,8 +2075,7 @@ void EventConfigModifier::StartSNMP()
         sstr += NL;
         sstr += NL;
         WriteToLog(&sstr);
-    }
-    else            //there was an error, log it
+    } else            //there was an error, log it
     {
         CString sstr;
         sstr += NL;
@@ -2319,8 +2128,7 @@ BOOL EventConfigModifier::WriteSNMPRegistry()
     //  ===========================================================
 
     LONG Result = RegOpenKeyEx(hkey_machine, keyName, 0, KEY_ALL_ACCESS, &hkeyOpen);
-    if (Result != ERROR_SUCCESS)
-    {
+    if (Result != ERROR_SUCCESS) {
         CString sstr;
         sstr += NL;
         sstr += NL;
@@ -2339,8 +2147,7 @@ BOOL EventConfigModifier::WriteSNMPRegistry()
     //  Delete all trap destinations
     //  ============================
 
-    if(!DeleteSNMPRegistry(&hkeyOpen))
-    {
+    if (!DeleteSNMPRegistry(&hkeyOpen)) {
         CString sstr;
         sstr += NL;
         sstr += NL;
@@ -2376,13 +2183,12 @@ BOOL EventConfigModifier::WriteSNMPRegistry()
     //  destination address under that community name create a value
     //  ============================================================
 
-    CommListItem * Comm = (CommListItem *)CommNames.Pop();
+    CommListItem* Comm = (CommListItem*)CommNames.Pop();
 
-    while (Comm)
-    {
+    while (Comm) {
         HKEY hkey;
         DWORD createtype;
-        CString * commkey = Comm->GetString();
+        CString* commkey = Comm->GetString();
         Result = RegCreateKeyEx(hkeyOpen, *commkey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey, &createtype);
         if (Result != ERROR_SUCCESS)    //failed to create this key, log it and continue
         {
@@ -2400,7 +2206,7 @@ BOOL EventConfigModifier::WriteSNMPRegistry()
             sstr += NL;
             WriteToLog(&sstr);
             delete Comm;
-            CommListItem * Comm = (CommListItem *)CommNames.Pop();
+            CommListItem* Comm = (CommListItem*)CommNames.Pop();
             StatusMif(IDS_REGWRITE, FALSE);
             SetError(EVCMT_REG_FAIL);
             continue;
@@ -2410,18 +2216,17 @@ BOOL EventConfigModifier::WriteSNMPRegistry()
         //  Add the addresses for this community name
         //  =========================================
 
-        ListItem * addr = Comm->addresses.Pop();
+        ListItem* addr = Comm->addresses.Pop();
         int x = 1;
 
-        while (addr)
-        {
+        while (addr) {
             char str[34];
             _ultoa(x, str, 10);
-            CMyString * addrstr = (CMyString *)addr->GetString();
+            CMyString* addrstr = (CMyString*)addr->GetString();
             LPTSTR val = addrstr->GetBuffer(1);
             DWORD valsz = addrstr->GetBufferSize();
 
-            Result = RegSetValueEx(hkey, str, 0, REG_SZ, (const unsigned char*) val, valsz);
+            Result = RegSetValueEx(hkey, str, 0, REG_SZ, (const unsigned char*)val, valsz);
             if (Result != ERROR_SUCCESS)    //failed to create this value, log it and continue.
             {
                 CString sstr;
@@ -2451,7 +2256,7 @@ BOOL EventConfigModifier::WriteSNMPRegistry()
 
         RegCloseKey(hkey);
         delete Comm;
-        Comm = (CommListItem *)CommNames.Pop();
+        Comm = (CommListItem*)CommNames.Pop();
     }
 
 
@@ -2497,7 +2302,7 @@ BOOL EventConfigModifier::WriteSNMPRegistry()
 
 //============================================================================
 
-BOOL EventConfigModifier::DeleteSNMPRegistry(HKEY * hkey)
+BOOL EventConfigModifier::DeleteSNMPRegistry(HKEY* hkey)
 {
     HKEY hkeyOpen;
     char Buffer[1024 + 1];
@@ -2510,20 +2315,18 @@ BOOL EventConfigModifier::DeleteSNMPRegistry(HKEY * hkey)
     //  and delete them by recursively calling this method.
     //  ===================================================
 
-    while (TRUE)
-    {
+    while (TRUE) {
 
         //  Get a key below the root
         //  ========================
         dwLength = 1024 + 1;
         Result = RegEnumKeyEx(*hkey, i, Buffer, &dwLength, NULL,
-                             NULL, NULL, NULL);
+                              NULL, NULL, NULL);
 
         if (Result != ERROR_SUCCESS)
             break;
 
-        if (dwLength > 0)
-        {
+        if (dwLength > 0) {
             Result = RegOpenKeyEx(*hkey, Buffer, 0, KEY_ALL_ACCESS, &hkeyOpen);
             if (Result != ERROR_SUCCESS)
                 break;
@@ -2533,13 +2336,10 @@ BOOL EventConfigModifier::DeleteSNMPRegistry(HKEY * hkey)
             //  if there are none then delete this key
             //  ======================================
 
-            if (!DeleteSNMPRegistry(&hkeyOpen))
-            {
+            if (!DeleteSNMPRegistry(&hkeyOpen)) {
                 RegCloseKey(hkeyOpen);
                 return FALSE;
-            }
-            else
-            {
+            } else {
                 RegCloseKey(hkeyOpen);
                 Result = RegDeleteKey(*hkey, Buffer);
 
@@ -2605,19 +2405,17 @@ BOOL EventConfigModifier::ReadSNMPRegistry()
     //  For each community name construct a list of addresses.
     //  ======================================================
 
-    while (NoError)
-    {
+    while (NoError) {
         dwLength = 1024 + 1;
         Result = RegEnumKeyEx(hkeyOpen, i, Buffer, &dwLength, NULL,
-                             NULL, NULL, NULL);
+                              NULL, NULL, NULL);
 
         if (Result != ERROR_SUCCESS)
             break;
 
-        if (dwLength > 0)
-        {
-            CString * str = new CString(Buffer);
-            CommListItem * item = new CommListItem(str);
+        if (dwLength > 0) {
+            CString* str = new CString(Buffer);
+            CommListItem* item = new CommListItem(str);
             CommNames.Add(item); //There can't be duplicates (it's a regkey)
             NoError = item->GetAddresses(&hkeyOpen);
         }
@@ -2669,98 +2467,37 @@ void EventConfigModifier::ProcessCommandQ()
     //  Loop through the queue of commands
     //  ==================================
 
-    while (Cmnd)
-    {
-        SourceItem * src = (SourceItem *) NULL;
+    while (Cmnd) {
+        SourceItem* src = (SourceItem*)NULL;
 
-        switch (SourceL.FindItem(Cmnd->GetEventSource(), src))
+        switch (SourceL.FindItem(Cmnd->GetEventSource(), src)) {
+        case RET_BAD: //write to log - invalid event source
         {
-            case RET_BAD: //write to log - invalid event source
-            {
-                CString * msg = Cmnd->WriteToBuff(IDS_MSG29);
-                WriteToLog(msg);
-                delete msg;
-                StatusMif(IDS_SOURCE_ERROR, FALSE);
-                SetError(EVCMT_INVALID_COMMAND);
-                break;
-            }
+            CString* msg = Cmnd->WriteToBuff(IDS_MSG29);
+            WriteToLog(msg);
+            delete msg;
+            StatusMif(IDS_SOURCE_ERROR, FALSE);
+            SetError(EVCMT_INVALID_COMMAND);
+            break;
+        }
 
-            case RET_NOTFOUND: //get the msg dll and enumerate the eventids
-            {
-                src = new SourceItem(Cmnd->GetEventSource(), hkey_machine);
+        case RET_NOTFOUND: //get the msg dll and enumerate the eventids
+        {
+            src = new SourceItem(Cmnd->GetEventSource(), hkey_machine);
 #ifdef EVENTCMT_VALIDATE_ID
-                BOOL Is_OK = src->EnumerateEventIDMap(Cmnd);
+            BOOL Is_OK = src->EnumerateEventIDMap(Cmnd);
 #else //EVENTCMT_VALIDATE_ID
-                BOOL Is_OK = TRUE;
+            BOOL Is_OK = TRUE;
 #endif //EVENTCMT_VALIDATE_ID
-                src->SetExists(Is_OK);
+            src->SetExists(Is_OK);
 
 
-                //  We have a valid event source (always TRUE if EVENTCMT_VALIDATE_ID==FALSE)
-                //  =========================================================================
+            //  We have a valid event source (always TRUE if EVENTCMT_VALIDATE_ID==FALSE)
+            //  =========================================================================
 
-                if (Is_OK)
-                {
+            if (Is_OK) {
 #ifdef EVENTCMT_VALIDATE_ID
-                    //validate eventid
-                    DWORD val;
-
-                    if (src->eventIDs.Lookup(Cmnd->GetEventID(), val))
-#endif //EVENTCMT_VALIDATE_ID
-                    {
-                        ReturnVal retval;
-
-
-                        //  Valid evntID, make the necessary change to the registry
-                        //  =======================================================
-
-                        CString * msg = Cmnd->ModifyRegistry(src, &retval);
-
-                        if (retval != RET_OK)
-                        {
-                            if(retval == RET_BAD)
-                            {
-                                StatusMif(IDS_REGERROR, FALSE);
-                                SetError(EVCMT_REG_FAIL);
-                            }
-                            else
-                                StatusMif(IDS_DEL_MISS_ENTRY, TRUE);
-
-                        }
-
-                        if (msg) //this should always be true!
-                        {
-                            WriteToLog(msg);
-                            delete msg;
-                        }
-                    }
-#ifdef EVENTCMT_VALIDATE_ID
-                    else    //The event id was not in the message dll
-                    {
-                        CString * msg = Cmnd->WriteToBuff(IDS_MSG30);
-                        WriteToLog(msg);
-                        StatusMif(IDS_EVENTID_ERROR, FALSE);
-                        SetError(EVCMT_INVALID_COMMAND);
-                        delete msg;
-                    }
-#endif //EVENTCMT_VALIDATE_ID
-                }
-                else
-                {
-                    CString * msg = Cmnd->WriteToBuff(IDS_MSG29);
-                    WriteToLog(msg);
-                    StatusMif(IDS_SOURCE_ERROR, FALSE);
-                    SetError(EVCMT_INVALID_COMMAND);
-                    delete msg;
-                }
-
-                SourceL.Add(src);
-                break;
-            }
-
-            case RET_OK:    //valid event source
-            {
-#ifdef EVENTCMT_VALIDATE_ID
+                //validate eventid
                 DWORD val;
 
                 if (src->eventIDs.Lookup(Cmnd->GetEventID(), val))
@@ -2772,42 +2509,92 @@ void EventConfigModifier::ProcessCommandQ()
                     //  Valid evntID, make the necessary change to the registry
                     //  =======================================================
 
-                    CString * log = Cmnd->ModifyRegistry(src, &retval);
+                    CString* msg = Cmnd->ModifyRegistry(src, &retval);
 
-                    if (retval != RET_OK)
-                    {
-                        if(retval == RET_BAD)
-                        {
+                    if (retval != RET_OK) {
+                        if (retval == RET_BAD) {
                             StatusMif(IDS_REGERROR, FALSE);
                             SetError(EVCMT_REG_FAIL);
-                        }
-                        else
+                        } else
                             StatusMif(IDS_DEL_MISS_ENTRY, TRUE);
 
                     }
 
-                    if (log) //this should always be true!
+                    if (msg) //this should always be true!
                     {
-                        WriteToLog(log);
-                        delete log;
+                        WriteToLog(msg);
+                        delete msg;
                     }
                 }
 #ifdef EVENTCMT_VALIDATE_ID
-                else    //invalid event source (never true if EVENTCMT_VALIDATE_ID==FALSE)
+                else    //The event id was not in the message dll
                 {
-                    CString * log = Cmnd->WriteToBuff(IDS_MSG30);
-                    WriteToLog(log);
-                    StatusMif(IDS_SYNTAX_ERROR, FALSE);
+                    CString* msg = Cmnd->WriteToBuff(IDS_MSG30);
+                    WriteToLog(msg);
+                    StatusMif(IDS_EVENTID_ERROR, FALSE);
                     SetError(EVCMT_INVALID_COMMAND);
-                    delete log;
+                    delete msg;
                 }
 #endif //EVENTCMT_VALIDATE_ID
-
-                break;
+            } else {
+                CString* msg = Cmnd->WriteToBuff(IDS_MSG29);
+                WriteToLog(msg);
+                StatusMif(IDS_SOURCE_ERROR, FALSE);
+                SetError(EVCMT_INVALID_COMMAND);
+                delete msg;
             }
 
-            default: //huh?!
-                break;
+            SourceL.Add(src);
+            break;
+        }
+
+        case RET_OK:    //valid event source
+        {
+#ifdef EVENTCMT_VALIDATE_ID
+            DWORD val;
+
+            if (src->eventIDs.Lookup(Cmnd->GetEventID(), val))
+#endif //EVENTCMT_VALIDATE_ID
+            {
+                ReturnVal retval;
+
+
+                //  Valid evntID, make the necessary change to the registry
+                //  =======================================================
+
+                CString* log = Cmnd->ModifyRegistry(src, &retval);
+
+                if (retval != RET_OK) {
+                    if (retval == RET_BAD) {
+                        StatusMif(IDS_REGERROR, FALSE);
+                        SetError(EVCMT_REG_FAIL);
+                    } else
+                        StatusMif(IDS_DEL_MISS_ENTRY, TRUE);
+
+                }
+
+                if (log) //this should always be true!
+                {
+                    WriteToLog(log);
+                    delete log;
+                }
+            }
+#ifdef EVENTCMT_VALIDATE_ID
+            else    //invalid event source (never true if EVENTCMT_VALIDATE_ID==FALSE)
+            {
+                CString* log = Cmnd->WriteToBuff(IDS_MSG30);
+                WriteToLog(log);
+                StatusMif(IDS_SYNTAX_ERROR, FALSE);
+                SetError(EVCMT_INVALID_COMMAND);
+                delete log;
+            }
+#endif //EVENTCMT_VALIDATE_ID
+
+            break;
+        }
+
+        default: //huh?!
+            break;
         }
 
         //  Delete the current command (just processed) and get the next one
@@ -2848,12 +2635,10 @@ void EventConfigModifier::Load()
     //  Check that a log file is wanted, if it is open the log
     //  ======================================================
 
-    if(LogWanted)
-    {
+    if (LogWanted) {
         goodresult = OpenLogFile();
         closeHandle = goodresult;
-    }
-    else
+    } else
         closeHandle = FALSE;
 #endif  //EVENTCMT_OLD_LOG
 
@@ -2908,29 +2693,25 @@ BOOL EventConfigModifier::OpenLogFile()
     DirSep.LoadString(IDS_DIRSEP);
     TCHAR logfilebuff[1024 + 1];
     DWORD BufferSize = 1024 + 1;
-    CString * path = NULL;
+    CString* path = NULL;
 
 
     //  First try and find the client logs dir
     //  ======================================
 
     DWORD Result = GetSMSPath(GETPATH_CLIENT_LOG_DIR,
-                                logfilebuff, BufferSize);
+                              logfilebuff, BufferSize);
 
-    if (Result != GETPATH_NO_ERROR)
-    {
+    if (Result != GETPATH_NO_ERROR) {
         //  Now try and find the SMS ADMIN UI log
         //  =====================================
 
         path = GetRegStr(hkey_machine, IDS_SMS_TRACE, CString("TraceFilename"));
 
-        if (path)
-        {
-            for(int j = path->GetLength() - 1; j > 1; j--)
-            {
-                if (path->GetAt(j) == DirSep.GetAt(0))
-                {
-                    for (int k = j+1; k < path->GetLength(); k++)
+        if (path) {
+            for (int j = path->GetLength() - 1; j > 1; j--) {
+                if (path->GetAt(j) == DirSep.GetAt(0)) {
+                    for (int k = j + 1; k < path->GetLength(); k++)
                         path->SetAt(k, tab.GetAt(0));
 
                     path->TrimRight();
@@ -2938,10 +2719,9 @@ BOOL EventConfigModifier::OpenLogFile()
                 }
             }
 
-            if (!(path->GetAt(1) == DirSep.GetAt(0)) || !(path->GetAt(2) == DirSep.GetAt(0)))
-            {
-                CString * drive = GetRegStr(hkey_machine, IDS_SMS_INSTALL,
-                                        CString("Installation Directory"));
+            if (!(path->GetAt(1) == DirSep.GetAt(0)) || !(path->GetAt(2) == DirSep.GetAt(0))) {
+                CString* drive = GetRegStr(hkey_machine, IDS_SMS_INSTALL,
+                                           CString("Installation Directory"));
 
                 for (int l = 2; l < drive->GetLength(); l++)
                     drive->SetAt(l, tab.GetAt(0));
@@ -2953,8 +2733,7 @@ BOOL EventConfigModifier::OpenLogFile()
 
             logfile += *path;
         }
-    }
-    else
+    } else
         logfile = logfilebuff;
 
     if (path)
@@ -2966,12 +2745,10 @@ BOOL EventConfigModifier::OpenLogFile()
     //  Still no path! Try $TEMP
     //  ========================
 
-    if (loglength == 0)
-    {
-        CString * temp = GetRegStr(HKEY_CURRENT_USER, IDS_TEMP, CString("temp"));
+    if (loglength == 0) {
+        CString* temp = GetRegStr(HKEY_CURRENT_USER, IDS_TEMP, CString("temp"));
 
-        if (temp)
-        {
+        if (temp) {
             logfile += *temp;
             delete temp;
         }
@@ -2983,7 +2760,7 @@ BOOL EventConfigModifier::OpenLogFile()
 
     loglength = logfile.GetLength() - 1;
 
-    if(logfile.GetAt(loglength) != DirSep.GetAt(0))
+    if (logfile.GetAt(loglength) != DirSep.GetAt(0))
         logfile += DirSep;
 
     logfile += logname;
@@ -2993,17 +2770,16 @@ BOOL EventConfigModifier::OpenLogFile()
     //  ========================================
 
     hFile = CreateFile(logfile,
-                        GENERIC_WRITE,
-                        0,
-                        NULL,
-                        CREATE_ALWAYS,
-                        FILE_ATTRIBUTE_NORMAL |
-                        //FILE_FLAG_OVERLAPPED |
-                        FILE_FLAG_WRITE_THROUGH,
-                        NULL);
+                       GENERIC_WRITE,
+                       0,
+                       NULL,
+                       CREATE_ALWAYS,
+                       FILE_ATTRIBUTE_NORMAL |
+                       //FILE_FLAG_OVERLAPPED |
+                       FILE_FLAG_WRITE_THROUGH,
+                       NULL);
 
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
+    if (hFile == INVALID_HANDLE_VALUE) {
         DWORD err = GetLastError(); // didn't work
         return FALSE;
     }
@@ -3042,45 +2818,32 @@ BOOL EventConfigModifier::OpenLogFile()
 
 //============================================================================
 
-CString *  EventConfigModifier::GetRegStr(HKEY openhkey, UINT id, CString name)
+CString* EventConfigModifier::GetRegStr(HKEY openhkey, UINT id, CString name)
 {
-    CString * ret = NULL;
+    CString* ret = NULL;
     HKEY hkey;
     CString key;
 
-
     //  Load the registry key name
-    //  ==========================
-
     key.LoadString(id);
 
-
     //  Open the registry key that is to be read
-    //  ========================================
-
     LONG Result = RegOpenKeyEx(openhkey, key, 0, KEY_EXECUTE, &hkey);
     if (Result != ERROR_SUCCESS)
         return ret;
 
-    TCHAR val[1024 + 1] ;
+    TCHAR val[1024 + 1];
     DWORD valsz;
     DWORD type;
 
-
     //  Read the registry key for the value requested
-    //  =============================================
-
-    Result = RegQueryValueEx(hkey, name, NULL, &type,
-                            (unsigned char*)val, &valsz);
-
-    if (Result != ERROR_SUCCESS)
-    {
+    Result = RegQueryValueEx(hkey, name, NULL, &type, (unsigned char*)val, &valsz);
+    if (Result != ERROR_SUCCESS) {
         RegCloseKey(hkey);
         return FALSE;
     }
 
-    if (valsz > 0)
-    {
+    if (valsz > 0) {
         ret = new CString(val);
     }
 

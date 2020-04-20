@@ -43,7 +43,7 @@
 #define MAILTO_OPTION         TEXT(" mailto ")
 
 #ifndef NO_IME
-extern IMultiLanguage *g_pMultiLanguage;
+extern IMultiLanguage* g_pMultiLanguage;
 #endif
 
 #define OE_MAIL_COMMAND_KEY TEXT("Software\\Clients\\Mail\\Outlook Express\\shell\\open\\command")
@@ -51,39 +51,34 @@ extern IMultiLanguage *g_pMultiLanguage;
 #define MAILTO_URL_HEADER TEXT("mailto:")
 #define IE_HOME_ENVIRONMENT TEXT("MWDEV")
 
-HRESULT _UnixLaunchOE(TCHAR *pszRecips, UINT nRecips)
+HRESULT _UnixLaunchOE(TCHAR* pszRecips, UINT nRecips)
 {
     HRESULT     hr = S_OK;
-    TCHAR       *tszCommand = NULL;
+    TCHAR* tszCommand = NULL;
     TCHAR       tszIEHome[MAX_PATH];
     DWORD       cchIEHome;
     DWORD       cchCommand;
     DWORD       dwDisposition;
-    TCHAR       *pchPos;
+    TCHAR* pchPos;
     BOOL        bMailed;
     STARTUPINFO stInfo;
     HKEY        hkey = NULL;
     int         i;
 
     cchIEHome = GetEnvironmentVariable(IE_HOME_ENVIRONMENT, tszIEHome, MAX_PATH);
-    if (cchIEHome)
-    {
+    if (cchIEHome) {
         _tcscat(tszIEHome, TEXT("/bin"));
-    }
-    else
-    {
+    } else {
         return E_FAIL;
     }
 
     hr = RegCreateKeyEx(HKEY_LOCAL_MACHINE, OE_MAIL_COMMAND_KEY, 0, NULL, 0, KEY_READ, NULL, &hkey, &dwDisposition);
-    if (hr != ERROR_SUCCESS)
-    {
+    if (hr != ERROR_SUCCESS) {
         goto Cleanup;
     }
 
     hr = RegQueryValueEx(hkey, OE_URL_COMMAND_NAME, NULL, NULL, (LPBYTE)NULL, &cchCommand);
-    if (hr != ERROR_SUCCESS)
-    {
+    if (hr != ERROR_SUCCESS) {
         goto Cleanup;
     }
     cchCommand += _tcslen(tszIEHome) + _tcslen(MAILTO_URL_HEADER) + _tcslen(pszRecips) + 1;
@@ -94,13 +89,12 @@ HRESULT _UnixLaunchOE(TCHAR *pszRecips, UINT nRecips)
     dwDisposition = _tcslen(tszCommand);
 
     hr = RegQueryValueEx(hkey, OE_URL_COMMAND_NAME, NULL, NULL, (LPBYTE)(&tszCommand[dwDisposition]), &cchCommand);
-    if (hr != ERROR_SUCCESS)
-    {
+    if (hr != ERROR_SUCCESS) {
         goto Cleanup;
     }
     _tcscat(tszCommand, MAILTO_URL_HEADER);
 
-    for (i = 1; i < nRecips; i ++)
+    for (i = 1; i < nRecips; i++)
         *(pszRecips + _tcslen(pszRecips)) = TEXT(';');
     _tcscat(tszCommand, pszRecips);
 
@@ -110,7 +104,7 @@ HRESULT _UnixLaunchOE(TCHAR *pszRecips, UINT nRecips)
     bMailed = CreateProcess(NULL, tszCommand, NULL, NULL, FALSE, DETACHED_PROCESS, NULL, NULL, &stInfo, NULL);
 
 Cleanup:
-    if ( hkey != NULL )
+    if (hkey != NULL)
         RegCloseKey(hkey);
 
     if (tszCommand)
@@ -120,7 +114,7 @@ Cleanup:
 }
 
 HRESULT
-CMailtoProtocol::LaunchUnixClient(TCHAR *aRecips, UINT nRecips)
+CMailtoProtocol::LaunchUnixClient(TCHAR* aRecips, UINT nRecips)
 {
     HRESULT         hr = S_OK;
 
@@ -130,8 +124,8 @@ CMailtoProtocol::LaunchUnixClient(TCHAR *aRecips, UINT nRecips)
     int             i;
     HKEY    hkey = NULL;
     DWORD   dw;
-    TCHAR *pchPos;
-     BOOL bMailed;
+    TCHAR* pchPos;
+    BOOL bMailed;
     STARTUPINFO stInfo;
 
     DWORD dwType;
@@ -140,13 +134,11 @@ CMailtoProtocol::LaunchUnixClient(TCHAR *aRecips, UINT nRecips)
 
     hr = SHGetValue(IE_USE_OE_MAIL_HKEY, IE_USE_OE_MAIL_KEY, IE_USE_OE_MAIL_VALUE,
                     &dwType, (void*)&dwUseOEMail, &dwSize);
-    if ((hr) && (dwType != REG_DWORD))
-    {
+    if ((hr) && (dwType != REG_DWORD)) {
         // The default value for mail is FALSE
         dwUseOEMail = FALSE;
     }
-    if (dwUseOEMail)
-    {
+    if (dwUseOEMail) {
         return _UnixLaunchOE(aRecips, nRecips);
     }
 
@@ -157,29 +149,26 @@ CMailtoProtocol::LaunchUnixClient(TCHAR *aRecips, UINT nRecips)
         goto Cleanup;
     dw = pdlUrlLen;
     hr = RegQueryValueEx(hkey, REGSTR_PATH_CURRENT, NULL, NULL, (LPBYTE)tszCommand, &dw);
-    if (hr != ERROR_SUCCESS)
-    {
+    if (hr != ERROR_SUCCESS) {
         RegCloseKey(hkey);
         goto Cleanup;
     }
 
     dw = ExpandEnvironmentStrings(tszCommand, tszExpandedCommand, pdlUrlLen);
-    if (!dw)
-     {
+    if (!dw) {
         _tcscpy(tszExpandedCommand, tszCommand);
-     }
+    }
     _tcscpy(tszCommand, TEXT("X "));
     _tcscat(tszCommand, tszExpandedCommand);
     for (i = _tcslen(tszCommand); i > 0; i--)
-    if (tszCommand[i] == '/')
-    {
-        tszCommand[i] = '\0';
-        break;
-    }
+        if (tszCommand[i] == '/') {
+            tszCommand[i] = '\0';
+            break;
+        }
     _tcscat(tszCommand, MAILTO_OPTION);
     nCommandSize = _tcslen(tszCommand);
-    for (i = 1; i < nRecips; i ++)
-    *(aRecips + _tcslen(aRecips)) = ' ';
+    for (i = 1; i < nRecips; i++)
+        *(aRecips + _tcslen(aRecips)) = ' ';
     _tcscat(tszCommand, aRecips);
 
     memset(&stInfo, 0, sizeof(stInfo));

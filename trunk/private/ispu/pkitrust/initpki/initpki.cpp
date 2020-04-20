@@ -48,26 +48,25 @@ void RegisterEnterpriseStores()
             CERT_SYSTEM_STORE_LOCAL_MACHINE_ENTERPRISE,
             NULL,           // pSystemStoreInfo
             NULL            // pvReserved
-            );
+        );
     }
 }
 
-void RemoveCert(HCERTSTORE hStore, BYTE *pThumbPrint)
+void RemoveCert(HCERTSTORE hStore, BYTE* pThumbPrint)
 {
     PCERT_CONTEXT   pCertContext;
     CRYPT_HASH_BLOB CryptHashBlob;
 
-    CryptHashBlob.cbData    = SHA1_HASH_LENGTH;
-    CryptHashBlob.pbData    = pThumbPrint;
+    CryptHashBlob.cbData = SHA1_HASH_LENGTH;
+    CryptHashBlob.pbData = pThumbPrint;
 
-    pCertContext = (PCERT_CONTEXT)CertFindCertificateInStore(  hStore,
-                                                X509_ASN_ENCODING,
-                                                0,
-                                                CERT_FIND_SHA1_HASH,
-                                                &CryptHashBlob,
-                                                NULL);
-    if (pCertContext)
-    {
+    pCertContext = (PCERT_CONTEXT)CertFindCertificateInStore(hStore,
+                                                             X509_ASN_ENCODING,
+                                                             0,
+                                                             CERT_FIND_SHA1_HASH,
+                                                             &CryptHashBlob,
+                                                             NULL);
+    if (pCertContext) {
         CertDeleteCertificateFromStore(pCertContext);
     }
 }
@@ -113,46 +112,38 @@ BYTE CertRemoveList[][SHA1_HASH_LENGTH] =
 //  Synopsis:   blech!
 
 
-HRESULT PurgeExpiringCertsFromStores ()
+HRESULT PurgeExpiringCertsFromStores()
 {
     DWORD       cRemove;
     DWORD       cStores;
     HCERTSTORE  hStore;
     HKEY        hKey;
-    char        *pszStores[] = { "SPC", "ROOT", NULL };
+    char* pszStores[] = {"SPC", "ROOT", NULL};
 
 
     //  HACKHACK!  no crypt32 UI about the root store.
 
     if (RegCreateHKCUKeyExU(HKEY_CURRENT_USER, ROOT_STORE_REGPATH,
-                            0, NULL, 0, NULL, NULL, &hKey, NULL) != ERROR_SUCCESS)
-    {
+                            0, NULL, 0, NULL, NULL, &hKey, NULL) != ERROR_SUCCESS) {
         return(HRESULT_FROM_WIN32(GetLastError()));
     }
 
     cStores = 0;
 
-    while (pszStores[cStores])
-    {
-        if (strcmp(pszStores[cStores], "ROOT") == 0)
-        {
+    while (pszStores[cStores]) {
+        if (strcmp(pszStores[cStores], "ROOT") == 0) {
             hStore = CertOpenStore(CERT_STORE_PROV_REG, 0, NULL, 0, (LPVOID)hKey);
-        }
-        else
-        {
+        } else {
             hStore = CertOpenStore(CERT_STORE_PROV_SYSTEM_A, 0, NULL,
                                    CERT_SYSTEM_STORE_LOCAL_MACHINE |
                                    CERT_STORE_NO_CRYPT_RELEASE_FLAG,
                                    pszStores[cStores]);
         }
 
-        if (hStore)
-        {
+        if (hStore) {
             cRemove = 0;
-            while (CertRemoveList[cRemove][0] != 0x00)
-            {
-                if (hStore)
-                {
+            while (CertRemoveList[cRemove][0] != 0x00) {
+                if (hStore) {
                     RemoveCert(hStore, &CertRemoveList[cRemove][0]);
                 }
 
@@ -165,13 +156,13 @@ HRESULT PurgeExpiringCertsFromStores ()
         cStores++;
     }
 
-    return( S_OK );
+    return(S_OK);
 }
 
 PCCERT_CONTEXT FindCertificateInOtherStore(
     IN HCERTSTORE hOtherStore,
     IN PCCERT_CONTEXT pCert
-    )
+)
 {
     BYTE rgbHash[SHA1_HASH_LENGTH];
     CRYPT_DATA_BLOB HashBlob;
@@ -179,27 +170,27 @@ PCCERT_CONTEXT FindCertificateInOtherStore(
     HashBlob.pbData = rgbHash;
     HashBlob.cbData = SHA1_HASH_LENGTH;
     if (!CertGetCertificateContextProperty(
-            pCert,
-            CERT_SHA1_HASH_PROP_ID,
-            rgbHash,
-            &HashBlob.cbData
-            ) || SHA1_HASH_LENGTH != HashBlob.cbData)
+        pCert,
+        CERT_SHA1_HASH_PROP_ID,
+        rgbHash,
+        &HashBlob.cbData
+    ) || SHA1_HASH_LENGTH != HashBlob.cbData)
         return NULL;
 
     return CertFindCertificateInStore(
-            hOtherStore,
-            0,                  // dwCertEncodingType
-            0,                  // dwFindFlags
-            CERT_FIND_SHA1_HASH,
-            (const void *) &HashBlob,
-            NULL                //pPrevCertContext
-            );
+        hOtherStore,
+        0,                  // dwCertEncodingType
+        0,                  // dwFindFlags
+        CERT_FIND_SHA1_HASH,
+        (const void*)&HashBlob,
+        NULL                //pPrevCertContext
+    );
 }
 
 BOOL IsCertificateInOtherStore(
     IN HCERTSTORE hOtherStore,
     IN PCCERT_CONTEXT pCert
-    )
+)
 {
     PCCERT_CONTEXT pOtherCert;
 
@@ -213,7 +204,7 @@ BOOL IsCertificateInOtherStore(
 void DeleteCertificateFromOtherStore(
     IN HCERTSTORE hOtherStore,
     IN PCCERT_CONTEXT pCert
-    )
+)
 {
     PCCERT_CONTEXT pOtherCert;
 
@@ -224,7 +215,7 @@ void DeleteCertificateFromOtherStore(
 PCCRL_CONTEXT FindCrlInOtherStore(
     IN HCERTSTORE hOtherStore,
     IN PCCRL_CONTEXT pCrl
-    )
+)
 {
     PCCRL_CONTEXT pOtherCrl;
     BYTE rgbHash[SHA1_HASH_LENGTH];
@@ -232,11 +223,11 @@ PCCRL_CONTEXT FindCrlInOtherStore(
 
     cbHash = SHA1_HASH_LENGTH;
     if (!CertGetCRLContextProperty(
-            pCrl,
-            CERT_SHA1_HASH_PROP_ID,
-            rgbHash,
-            &cbHash
-            ) || SHA1_HASH_LENGTH != cbHash)
+        pCrl,
+        CERT_SHA1_HASH_PROP_ID,
+        rgbHash,
+        &cbHash
+    ) || SHA1_HASH_LENGTH != cbHash)
         return NULL;
 
     pOtherCrl = NULL;
@@ -246,12 +237,12 @@ PCCRL_CONTEXT FindCrlInOtherStore(
 
         cbOtherHash = SHA1_HASH_LENGTH;
         if (CertGetCRLContextProperty(
-                pOtherCrl,
-                CERT_SHA1_HASH_PROP_ID,
-                rgbOtherHash,
-                &cbOtherHash
-                ) && SHA1_HASH_LENGTH == cbOtherHash &&
-                0 == memcmp(rgbOtherHash, rgbHash, SHA1_HASH_LENGTH))
+            pOtherCrl,
+            CERT_SHA1_HASH_PROP_ID,
+            rgbOtherHash,
+            &cbOtherHash
+        ) && SHA1_HASH_LENGTH == cbOtherHash &&
+            0 == memcmp(rgbOtherHash, rgbHash, SHA1_HASH_LENGTH))
             return pOtherCrl;
     }
 
@@ -261,7 +252,7 @@ PCCRL_CONTEXT FindCrlInOtherStore(
 BOOL IsCrlInOtherStore(
     IN HCERTSTORE hOtherStore,
     IN PCCRL_CONTEXT pCrl
-    )
+)
 {
     PCCRL_CONTEXT pOtherCrl;
 
@@ -275,7 +266,7 @@ BOOL IsCrlInOtherStore(
 void DeleteCrlFromOtherStore(
     IN HCERTSTORE hOtherStore,
     IN PCCRL_CONTEXT pCrl
-    )
+)
 {
     PCCRL_CONTEXT pOtherCrl;
 
@@ -295,13 +286,13 @@ void DeleteCrlFromOtherStore(
 
 HRESULT
 SpcReadSpcFromMemory(
-    IN BYTE *pbData,
+    IN BYTE* pbData,
     IN DWORD cbData,
     IN HCERTSTORE hCertStore,
     IN DWORD dwMsgAndCertEncodingType,
     IN DWORD dwFlags,
     IN OPTIONAL HCERTSTORE hLMStore
-    )
+)
 {
     HRESULT hr = S_OK;
     HCERTSTORE hSpcStore = NULL;
@@ -310,8 +301,7 @@ SpcReadSpcFromMemory(
     PCCERT_CONTEXT pCert = NULL;
     PCCRL_CONTEXT pCrl = NULL;
 
-    if (!(hCertStore))
-    {
+    if (!(hCertStore)) {
         goto InvalidArg;
     }
 
@@ -326,14 +316,12 @@ SpcReadSpcFromMemory(
                               hCryptProv,
                               CERT_STORE_NO_CRYPT_RELEASE_FLAG,
                               &sSpcBlob);
-    if (!hSpcStore)
-    {
+    if (!hSpcStore) {
         goto CertStoreError;
     }
 
     // Copy in the certificates from the caller.
-    while (pCert = CertEnumCertificatesInStore(hSpcStore, pCert))
-    {
+    while (pCert = CertEnumCertificatesInStore(hSpcStore, pCert)) {
         if (hLMStore && IsCertificateInOtherStore(hLMStore, pCert))
             // Certificate exists in LocalMachine. Delete it from
             // CurrentUser if it already exists there.
@@ -345,8 +333,7 @@ SpcReadSpcFromMemory(
                                              NULL);
     }
 
-    while (pCrl = CertEnumCRLsInStore(hSpcStore, pCrl))
-    {
+    while (pCrl = CertEnumCRLsInStore(hSpcStore, pCrl)) {
         if (hLMStore && IsCrlInOtherStore(hLMStore, pCrl))
             // CRL exists in LocalMachine. Delete it from
             // CurrentUser if it already exists there.
@@ -359,16 +346,15 @@ SpcReadSpcFromMemory(
     }
 
 
-    CommonReturn:
-        if (hSpcStore)
-        {
-            CertCloseStore(hSpcStore, 0);
-        }
-        return(hr);
+CommonReturn:
+    if (hSpcStore) {
+        CertCloseStore(hSpcStore, 0);
+    }
+    return(hr);
 
-    ErrorReturn:
-        SetLastError((DWORD)hr);
-        goto CommonReturn;
+ErrorReturn:
+    SetLastError((DWORD)hr);
+    goto CommonReturn;
 
     SET_HRESULT_EX(DBG_SS, InvalidArg, E_INVALIDARG);
     SET_HRESULT_EX(DBG_SS, CertStoreError, GetLastError());
@@ -382,7 +368,7 @@ HRESULT AddCertificates(
     IN DWORD dwOpenStoreFlags,
     IN LPCSTR pszResourceName,
     IN LPCSTR pszResourceType
-    )
+)
 {
     HRESULT    hr = S_OK;
     HCERTSTORE hCertStore = NULL;
@@ -396,76 +382,66 @@ HRESULT AddCertificates(
         0,                                  // dwEncodingType
         NULL,                               // hCryptProv
         dwOpenStoreFlags |
-            CERT_SYSTEM_STORE_UNPROTECTED_FLAG,
-        (const void *) pszStoreName
-        );
+        CERT_SYSTEM_STORE_UNPROTECTED_FLAG,
+        (const void*)pszStoreName
+    );
 
-    if (!(hCertStore))
-    {
+    if (!(hCertStore)) {
         return(GetLastError());
     }
 
     if (CERT_SYSTEM_STORE_LOCAL_MACHINE !=
-            (dwOpenStoreFlags & CERT_SYSTEM_STORE_LOCATION_MASK))
-    {
+        (dwOpenStoreFlags & CERT_SYSTEM_STORE_LOCATION_MASK)) {
         hLMStore = CertOpenStore(
             CERT_STORE_PROV_SYSTEM_REGISTRY_A,
             0,                                  // dwEncodingType
             NULL,                               // hCryptProv
             CERT_SYSTEM_STORE_LOCAL_MACHINE |
-                CERT_STORE_READONLY_FLAG |
-                CERT_SYSTEM_STORE_UNPROTECTED_FLAG,
-            (const void *) pszStoreName
-            );
+            CERT_STORE_READONLY_FLAG |
+            CERT_SYSTEM_STORE_UNPROTECTED_FLAG,
+            (const void*)pszStoreName
+        );
     }
 
 
     hrsrc = FindResourceA(hModule, pszResourceName, pszResourceType);
-    if ( hrsrc != NULL )
-    {
+    if (hrsrc != NULL) {
         HGLOBAL hglobRes;
 
         hglobRes = LoadResource(hModule, hrsrc);
-        if ( hglobRes != NULL )
-        {
+        if (hglobRes != NULL) {
             ULONG cbRes;
             BYTE* pbRes;
 
             cbRes = SizeofResource(hModule, hrsrc);
-            pbRes = (BYTE *)LockResource(hglobRes);
+            pbRes = (BYTE*)LockResource(hglobRes);
 
-            hr = SpcReadSpcFromMemory(  pbRes,
-                                        cbRes,
-                                        hCertStore,
-                                        PKCS_7_ASN_ENCODING | X509_ASN_ENCODING,
-                                        0,
-                                        hLMStore);
+            hr = SpcReadSpcFromMemory(pbRes,
+                                      cbRes,
+                                      hCertStore,
+                                      PKCS_7_ASN_ENCODING | X509_ASN_ENCODING,
+                                      0,
+                                      hLMStore);
 
             UnlockResource(hglobRes);
             FreeResource(hglobRes);
 
-        }
-        else
-        {
+        } else {
             hr = HRESULT_FROM_WIN32(GetLastError());
         }
-    }
-    else
-    {
+    } else {
         hr = HRESULT_FROM_WIN32(GetLastError());
     }
 
-    if ( hCertStore != NULL )
-    {
+    if (hCertStore != NULL) {
         CertCloseStore(hCertStore, CERT_CLOSE_STORE_FORCE_FLAG);
     }
 
-    if ( hLMStore != NULL )
-    {
+    if (hLMStore != NULL) {
         CertCloseStore(hLMStore, CERT_CLOSE_STORE_FORCE_FLAG);
     }
 
-    return( hr );
+    return(hr);
 }
 
 HRESULT AddCurrentUserCACertificates()
@@ -475,7 +451,7 @@ HRESULT AddCurrentUserCACertificates()
         CERT_SYSTEM_STORE_CURRENT_USER,
         MAKEINTRESOURCE(IDR_CAS),
         "CAS"
-        );
+    );
 }
 HRESULT AddLocalMachineCACertificates()
 {
@@ -484,7 +460,7 @@ HRESULT AddLocalMachineCACertificates()
         CERT_SYSTEM_STORE_LOCAL_MACHINE,
         MAKEINTRESOURCE(IDR_CAS),
         "CAS"
-        );
+    );
 }
 
 HRESULT AddCurrentUserRootCertificates()
@@ -494,7 +470,7 @@ HRESULT AddCurrentUserRootCertificates()
         CERT_SYSTEM_STORE_CURRENT_USER,
         MAKEINTRESOURCE(IDR_ROOTS),
         "ROOTS"
-        );
+    );
 }
 HRESULT AddLocalMachineRootCertificates()
 {
@@ -503,28 +479,28 @@ HRESULT AddLocalMachineRootCertificates()
         CERT_SYSTEM_STORE_LOCAL_MACHINE,
         MAKEINTRESOURCE(IDR_ROOTS),
         "ROOTS"
-        );
+    );
 }
 
 void CreateKey(
     IN HKEY hKey,
     IN LPCWSTR pwszSubKey
-    )
+)
 {
     LONG err;
     DWORD dwDisposition;
     HKEY hSubKey;
 
     if (ERROR_SUCCESS != (err = RegCreateKeyExU(
-            hKey,
-            pwszSubKey,
-            0,                      // dwReserved
-            NULL,                   // lpClass
-            REG_OPTION_NON_VOLATILE,
-            MAXIMUM_ALLOWED,
-            NULL,                   // lpSecurityAttributes
-            &hSubKey,
-            &dwDisposition))) {
+        hKey,
+        pwszSubKey,
+        0,                      // dwReserved
+        NULL,                   // lpClass
+        REG_OPTION_NON_VOLATILE,
+        MAXIMUM_ALLOWED,
+        NULL,                   // lpSecurityAttributes
+        &hSubKey,
+        &dwDisposition))) {
 #if DBG
         DbgPrintf(DBG_SS_CRYPT32, "RegCreateKeyEx(%S) returned error: %d 0x%x\n", pwszSubKey, err, err);
 #endif
@@ -538,16 +514,16 @@ void CreateKey(
 // then, this will cause its KeyIdentifier to be created.
 void UpdateMyKeyIdentifiers(
     IN DWORD dwOpenStoreFlags
-    )
+)
 {
     HCERTSTORE hStore;
     if (hStore = CertOpenStore(
-            CERT_STORE_PROV_SYSTEM_A,
-            0,                                  // dwEncodingType
-            NULL,                               // hCryptProv
-            dwOpenStoreFlags | CERT_STORE_ENUM_ARCHIVED_FLAG,
-            (const void *) "My"
-            )) {
+        CERT_STORE_PROV_SYSTEM_A,
+        0,                                  // dwEncodingType
+        NULL,                               // hCryptProv
+        dwOpenStoreFlags | CERT_STORE_ENUM_ARCHIVED_FLAG,
+        (const void*)"My"
+    )) {
         PCCERT_CONTEXT pCert = NULL;
         while (pCert = CertEnumCertificatesInStore(hStore, pCert)) {
             DWORD cbData = 0;
@@ -559,7 +535,7 @@ void UpdateMyKeyIdentifiers(
                 CERT_KEY_IDENTIFIER_PROP_ID,
                 NULL,                           // pvData
                 &cbData
-                );
+            );
         }
 
         CertCloseStore(hStore, 0);
@@ -572,57 +548,56 @@ void UpdateMyKeyIdentifiers(
 
 BOOL SetSoftPubKey(DWORD dwMask, BOOL fOn)
 {
-    DWORD    dwState=0;
-    DWORD    dwDisposition=0;
-    DWORD    dwType=0;
-    DWORD    cbData=0;
-    LPWSTR  wszState=REGNAME_WINTRUST_POLICY_FLAGS;
-    BOOL    fResult=FALSE;
+    DWORD    dwState = 0;
+    DWORD    dwDisposition = 0;
+    DWORD    dwType = 0;
+    DWORD    cbData = 0;
+    LPWSTR  wszState = REGNAME_WINTRUST_POLICY_FLAGS;
+    BOOL    fResult = FALSE;
 
-    HKEY    hKey=NULL;
+    HKEY    hKey = NULL;
 
 
     // Set the State in the registry
     if (ERROR_SUCCESS != RegCreateKeyExU(
-            HKEY_CURRENT_USER,
-            REGPATH_WINTRUST_POLICY_FLAGS,
-            0,          // dwReserved
-            NULL,       // lpszClass
-            REG_OPTION_NON_VOLATILE,
-            KEY_ALL_ACCESS,
-            NULL,       // lpSecurityAttributes
-            &hKey,
-            &dwDisposition))
+        HKEY_CURRENT_USER,
+        REGPATH_WINTRUST_POLICY_FLAGS,
+        0,          // dwReserved
+        NULL,       // lpszClass
+        REG_OPTION_NON_VOLATILE,
+        KEY_ALL_ACCESS,
+        NULL,       // lpSecurityAttributes
+        &hKey,
+        &dwDisposition))
         goto RegErr;
 
 
     dwState = 0;
     cbData = sizeof(dwState);
 
-    if(ERROR_SUCCESS != RegQueryValueExU
-    (   hKey,
-        wszState,
-        0,          // dwReserved
-        &dwType,
-        (BYTE *) &dwState,
-        &cbData
-        ))
+    if (ERROR_SUCCESS != RegQueryValueExU
+    (hKey,
+     wszState,
+     0,          // dwReserved
+     &dwType,
+     (BYTE*)&dwState,
+     &cbData
+    ))
         goto RegErr;
 
     if ((dwType != REG_DWORD) && (dwType != REG_BINARY))
         goto UnexpectedErr;
 
-    switch(dwMask)
-    {
-        case WTPF_IGNOREREVOCATIONONTS:
-        case WTPF_IGNOREREVOKATION:
-        case WTPF_IGNOREEXPIRATION:
-            // Revocation and expiration are a double negative so the bit set
-            // means revocation and expriation checking is off.
-            fOn = !fOn;
-            break;
-        default:
-            break;
+    switch (dwMask) {
+    case WTPF_IGNOREREVOCATIONONTS:
+    case WTPF_IGNOREREVOKATION:
+    case WTPF_IGNOREEXPIRATION:
+        // Revocation and expiration are a double negative so the bit set
+        // means revocation and expriation checking is off.
+        fOn = !fOn;
+        break;
+    default:
+        break;
     };
 
     if (fOn)
@@ -630,21 +605,21 @@ BOOL SetSoftPubKey(DWORD dwMask, BOOL fOn)
     else
         dwState &= ~dwMask;
 
-    if(ERROR_SUCCESS != RegSetValueExU(
+    if (ERROR_SUCCESS != RegSetValueExU(
         hKey,
         wszState,
         0,          // dwReserved
         REG_DWORD,
-        (BYTE *) &dwState,
+        (BYTE*)&dwState,
         sizeof(dwState)
-        ))
+    ))
         goto SetValueErr;
 
 
-    fResult=TRUE;
+    fResult = TRUE;
 
 CommonReturn:
-    if(hKey)
+    if (hKey)
         RegCloseKey(hKey);
 
     return fResult;
@@ -653,9 +628,9 @@ ErrorReturn:
 
     goto CommonReturn;
 
-TRACE_ERROR(RegErr);
-SET_ERROR(UnexpectedErr, E_UNEXPECTED);
-TRACE_ERROR(SetValueErr);
+    TRACE_ERROR(RegErr);
+    SET_ERROR(UnexpectedErr, E_UNEXPECTED);
+    TRACE_ERROR(SetValueErr);
 
 }
 
@@ -667,44 +642,43 @@ TRACE_ERROR(SetValueErr);
 //  Synopsis:
 //              Find the next token with space as the deliminator
 
-LPWSTR  GetNextRegToken(LPWSTR  pwsz, LPWSTR  pwszPreToken, BOOL  *pfEnd)
+LPWSTR  GetNextRegToken(LPWSTR  pwsz, LPWSTR  pwszPreToken, BOOL* pfEnd)
 {
-    LPWSTR  pwszStart=NULL;
-    LPWSTR  pwszSearch=NULL;
+    LPWSTR  pwszStart = NULL;
+    LPWSTR  pwszSearch = NULL;
 
-    if(NULL == pwsz)
+    if (NULL == pwsz)
         return NULL;
 
-    if(TRUE == (*pfEnd))
+    if (TRUE == (*pfEnd))
         return NULL;
 
-    pwszStart=pwsz;
+    pwszStart = pwsz;
 
-    if(pwszPreToken)
-        pwszStart=pwszPreToken + wcslen(pwszPreToken) + 1;
+    if (pwszPreToken)
+        pwszStart = pwszPreToken + wcslen(pwszPreToken) + 1;
 
     //skip the spaces
-    while((*pwszStart)==L' ')
+    while ((*pwszStart) == L' ')
         pwszStart++;
 
     //check for NULL
-    if(*pwszStart==L'\0')
+    if (*pwszStart == L'\0')
         return NULL;
 
-    pwszSearch=pwszStart;
+    pwszSearch = pwszStart;
 
-    while(((*pwszSearch) != L'\0') && ((*pwszSearch) !=L' ') )
+    while (((*pwszSearch) != L'\0') && ((*pwszSearch) != L' '))
         pwszSearch++;
 
-    if(*pwszSearch == L'\0')
-    {
-        *pfEnd=TRUE;
+    if (*pwszSearch == L'\0') {
+        *pfEnd = TRUE;
         return pwszStart;
     }
 
-    *pwszSearch=L'\0';
+    *pwszSearch = L'\0';
 
-    *pfEnd=FALSE;
+    *pfEnd = FALSE;
 
     return pwszStart;
 }
@@ -719,59 +693,54 @@ LPWSTR  GetNextRegToken(LPWSTR  pwsz, LPWSTR  pwszPreToken, BOOL  *pfEnd)
 
 HRESULT InitRegistryValue(LPWSTR pwszCommand)
 {
-    HRESULT            hr= E_FAIL;
+    HRESULT            hr = E_FAIL;
     DWORD              SoftPubFlags[] =
-                            {
-                            WTPF_TRUSTTEST | WTPF_TESTCANBEVALID,
-                            WTPF_IGNOREEXPIRATION,
-                            WTPF_IGNOREREVOKATION,
-                            WTPF_OFFLINEOK_IND,
-                            WTPF_OFFLINEOK_COM,
-                            WTPF_OFFLINEOKNBU_IND,
-                            WTPF_OFFLINEOKNBU_COM,
-                            WTPF_VERIFY_V1_OFF,
-                            WTPF_IGNOREREVOCATIONONTS,
-                            WTPF_ALLOWONLYPERTRUST
-                            };
+    {
+    WTPF_TRUSTTEST | WTPF_TESTCANBEVALID,
+    WTPF_IGNOREEXPIRATION,
+    WTPF_IGNOREREVOKATION,
+    WTPF_OFFLINEOK_IND,
+    WTPF_OFFLINEOK_COM,
+    WTPF_OFFLINEOKNBU_IND,
+    WTPF_OFFLINEOKNBU_COM,
+    WTPF_VERIFY_V1_OFF,
+    WTPF_IGNOREREVOCATIONONTS,
+    WTPF_ALLOWONLYPERTRUST
+    };
 
 
-    LPWSTR              pwszNextToken=NULL;
-    int                 iIndex=-1;
-    BOOL                fOn=FALSE;
-    int                 cFlags=sizeof(SoftPubFlags)/sizeof(SoftPubFlags[0]);
-    DWORD               cParam=0;
-    LPWSTR              pwszCopy=NULL;
-    BOOL                fPassThrough=FALSE;
+    LPWSTR              pwszNextToken = NULL;
+    int                 iIndex = -1;
+    BOOL                fOn = FALSE;
+    int                 cFlags = sizeof(SoftPubFlags) / sizeof(SoftPubFlags[0]);
+    DWORD               cParam = 0;
+    LPWSTR              pwszCopy = NULL;
+    BOOL                fPassThrough = FALSE;
 
     //make a copy of the command line since we will change it
-    pwszCopy=(LPWSTR)LocalAlloc(LPTR, (1+wcslen(pwszCommand)) * sizeof(WCHAR));
+    pwszCopy = (LPWSTR)LocalAlloc(LPTR, (1 + wcslen(pwszCommand)) * sizeof(WCHAR));
 
-    if(NULL== pwszCopy)
+    if (NULL == pwszCopy)
         goto MemoryErr;
 
     wcscpy(pwszCopy, pwszCommand);
 
-    while(pwszNextToken=GetNextRegToken(pwszCopy, pwszNextToken, &fPassThrough))
-    {
+    while (pwszNextToken = GetNextRegToken(pwszCopy, pwszNextToken, &fPassThrough)) {
 
-        if(-1 == iIndex)
-        {
-            iIndex=_wtoi(pwszNextToken);
+        if (-1 == iIndex) {
+            iIndex = _wtoi(pwszNextToken);
 
-            if((iIndex <= 0) || (iIndex > cFlags))
+            if ((iIndex <= 0) || (iIndex > cFlags))
                 goto InvalidArgErr;
 
             cParam++;
-        }
-        else
-        {
+        } else {
 
-            if(0 == _wcsicmp(pwszNextToken, L"true"))
-                fOn=TRUE;
-            else
-            {
-                if(0 == _wcsicmp(pwszNextToken, L"false"))
-                    fOn=FALSE;
+            if (0 == _wcsicmp(pwszNextToken, L"true"))
+                fOn = TRUE;
+            else {
+                if (0 == _wcsicmp(pwszNextToken, L"false"))
+                    fOn = FALSE;
                 else
                     goto InvalidArgErr;
             }
@@ -779,27 +748,26 @@ HRESULT InitRegistryValue(LPWSTR pwszCommand)
             cParam++;
 
             //set the registry value
-            if(!SetSoftPubKey(SoftPubFlags[iIndex-1],
-                              fOn))
-            {
-                hr=INITPKI_HRESULT_FROM_WIN32(GetLastError());
+            if (!SetSoftPubKey(SoftPubFlags[iIndex - 1],
+                               fOn)) {
+                hr = INITPKI_HRESULT_FROM_WIN32(GetLastError());
                 goto SetKeyErr;
             }
 
             //reset the value for dwIndex
-            iIndex=-1;
+            iIndex = -1;
         }
     }
 
     //we have to have even number of parameters
-    if( (0 != (cParam %2)) || (0 == cParam))
+    if ((0 != (cParam % 2)) || (0 == cParam))
         goto InvalidArgErr;
 
-    hr=S_OK;
+    hr = S_OK;
 
 CommonReturn:
 
-    if(pwszCopy)
+    if (pwszCopy)
         LocalFree((HLOCAL)pwszCopy);
 
     return hr;
@@ -808,9 +776,9 @@ ErrorReturn:
 
     goto CommonReturn;
 
-SET_ERROR(InvalidArgErr, E_INVALIDARG);
-SET_ERROR_VAR(SetKeyErr, hr);
-SET_ERROR(MemoryErr, E_OUTOFMEMORY);
+    SET_ERROR(InvalidArgErr, E_INVALIDARG);
+    SET_ERROR_VAR(SetKeyErr, hr);
+    SET_ERROR(MemoryErr, E_OUTOFMEMORY);
 }
 
 
@@ -823,14 +791,13 @@ SET_ERROR(MemoryErr, E_OUTOFMEMORY);
 
 BOOL WINAPI DllMain(HMODULE hInstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-    switch ( fdwReason )
-    {
+    switch (fdwReason) {
     case DLL_PROCESS_ATTACH:
-         hModule = hInstDLL;
-         break;
+        hModule = hInstDLL;
+        break;
     }
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -840,171 +807,166 @@ BOOL WINAPI DllMain(HMODULE hInstDLL, DWORD fdwReason, LPVOID lpvReserved)
 //  Synopsis:   dll installation entry point
 
 
-STDAPI DllInstall (BOOL fRegister, LPCSTR pszCommand)
+STDAPI DllInstall(BOOL fRegister, LPCSTR pszCommand)
 {
     HRESULT hr = S_OK;
     HRESULT hr2;
-    LPWSTR  pwszCommand=NULL;
+    LPWSTR  pwszCommand = NULL;
 
-    if ( fRegister == FALSE )
-    {
-        return( E_NOTIMPL );
+    if (fRegister == FALSE) {
+        return(E_NOTIMPL);
     }
 
-    switch ( *pszCommand )
-    {
+    switch (*pszCommand) {
         //letter S stands for setreg input parameters
         //the command line should look like following:
         //S 1 TRUE 2 FALSE 3 FALSE ...
         //pszCommand is ACTUALLY LPWSTR for BOTH
         //NT5, NT4 and Win95.
-        case 'S':
-        case 's':
-                pwszCommand=(LPWSTR)pszCommand;
+    case 'S':
+    case 's':
+        pwszCommand = (LPWSTR)pszCommand;
 
-                if(wcslen(pwszCommand) <= 2)
-                {
-                    hr=E_INVALIDARG;
-                }
-                else
-                {
-                    hr=InitRegistryValue((LPWSTR)(&(pwszCommand[1])));
-                }
-
-            break;
-        case 'M':
-        case 'm':
-            MoveCertificates( TRUE );
-            PurgeExpiringCertsFromStores();
-            break;
-
-        case 'U':
-        case 'u':
-            _AdjustPolicyFlags(psPolicySettings);
-
-            // Ensure we have a registry entry for the Group Policy
-            // SystemCertificates. On NT 4.0 or Win98, we emulate NT 5.0 GPT
-            // notification by doing a RegNotifyChangeKeyValue on this
-            // registry key.
-            CreateKey(HKEY_CURRENT_USER, GROUP_POLICY_STORE_REGPATH);
-
-            // Before adding to CurrentUser, will check if the root or CA
-            // already exists in LocalMachine. If it exists in
-            // LocalMachine and also exists in CurrentUser, will delete it
-            // from CurrentUser instead of adding.
-            hr = AddCurrentUserRootCertificates();
-            hr2 = AddCurrentUserCACertificates();
-            if (hr == ERROR_SUCCESS)
-                hr = hr2;
-
-            // Protect the CurrentUser roots and purge any existing
-            // protected CurrentUser roots also in LocalMachine
-
-            // Note, once the roots are protected, all subsequent adds are
-            // done by a special service executing with System privileges.
-            // This special service does secure attention sequence (SAS) UI
-            // before doing the add.
-
-            // Note, subsequent purges are exempt from UI. ie, this function
-            // doesn't do any SAS UI.
-            I_CertProtectFunction(
-                CERT_PROT_PURGE_LM_ROOTS_FUNC_ID,
-                0,                              // dwFlags
-                NULL,                           // pwszIn
-                NULL,                           // pbIn
-                0,                              // cbIn
-                NULL,                           // ppbOut
-                NULL                            // pcbOut
-                );
-
-            UpdateMyKeyIdentifiers(CERT_SYSTEM_STORE_CURRENT_USER);
-            break;
-
-        case 'B':
-        case 'b':
-        case 'R':
-        case 'r':
-        case 'A':
-        case 'a':
-            // Initialize HKLM registry locations used by PKI to
-            // only give Everyone KEY_READ access. Also gives the
-            // IEDirtyFlags registry key KEY_SET_VALUE access for
-            // Everyone.
-            InitializeHKLMAcls();
-
-            // Ensure we have a registry entry for the IEDirtyFlags
-            // This key should have already been created
-            // by InitializeHKLMAcls() for NT. Ensure its also there
-            // for Win95 and Win98
-            CreateKey(HKEY_LOCAL_MACHINE, CERT_IE_DIRTY_FLAGS_REGPATH);
-
-            MoveCertificates(TRUE);
-            PurgeExpiringCertsFromStores();
-
-            // Ensure we have a registry entry for the Group Policy
-            // SystemCertificates. On NT 4.0 or Win98, we emulate NT 5.0 GPT
-            // notification by doing a RegNotifyChangeKeyValue on this
-            // registry key.
-            CreateKey(HKEY_LOCAL_MACHINE, GROUP_POLICY_STORE_REGPATH);
-            CreateKey(HKEY_CURRENT_USER, GROUP_POLICY_STORE_REGPATH);
-
-            // Ensure we have existing predefined stores for the LocalMachine
-            // Enterprise system stores. These stores are periodically updated
-            // from the DS by a system service. RegNotifyChangeKeyValue is
-            // used to signal clients about Enterprise store changes.
-            RegisterEnterpriseStores();
-
-            // Our goal is to get the roots and CAs into LocalMachine.
-            // Note previously, they were only copied to CurrentUser.
-            AddLocalMachineRootCertificates();
-            AddLocalMachineCACertificates();
-
-            // If the above adds to LocalMachine failed, then, add
-            // to CurrentUser.
-
-            // Before adding to CurrentUser, will check if the root or CA
-            // already exists in LocalMachine. If it exists in
-            // LocalMachine and also exists in CurrentUser, will delete it
-            // from CurrentUser instead of adding.
-            hr = AddCurrentUserRootCertificates();
-            hr2 = AddCurrentUserCACertificates();
-            if (hr == ERROR_SUCCESS)
-                hr = hr2;
-
-            // Protect the CurrentUser roots and purge any existing
-            // protected CurrentUser roots also in LocalMachine
-
-            // Note, once the roots are protected, all subsequent adds are
-            // done by a special service executing with System privileges.
-            // This special service does secure attention sequence (SAS) UI
-            // before doing the add.
-
-            // Note, subsequent purges are exempt from UI. ie, this function
-            // doesn't do any SAS UI.
-            I_CertProtectFunction(
-                CERT_PROT_PURGE_LM_ROOTS_FUNC_ID,
-                0,                              // dwFlags
-                NULL,                           // pwszIn
-                NULL,                           // pbIn
-                0,                              // cbIn
-                NULL,                           // ppbOut
-                NULL                            // pcbOut
-                );
-
-            UpdateMyKeyIdentifiers(CERT_SYSTEM_STORE_CURRENT_USER);
-            UpdateMyKeyIdentifiers(CERT_SYSTEM_STORE_LOCAL_MACHINE);
-
-            CleanupRegistry();
-            hr2 = RegisterCryptoDlls(TRUE);
-            if (hr == ERROR_SUCCESS)
-                hr = hr2;
-            break;
-
-        default:
+        if (wcslen(pwszCommand) <= 2) {
             hr = E_INVALIDARG;
+        } else {
+            hr = InitRegistryValue((LPWSTR)(&(pwszCommand[1])));
+        }
+
+        break;
+    case 'M':
+    case 'm':
+        MoveCertificates(TRUE);
+        PurgeExpiringCertsFromStores();
+        break;
+
+    case 'U':
+    case 'u':
+        _AdjustPolicyFlags(psPolicySettings);
+
+        // Ensure we have a registry entry for the Group Policy
+        // SystemCertificates. On NT 4.0 or Win98, we emulate NT 5.0 GPT
+        // notification by doing a RegNotifyChangeKeyValue on this
+        // registry key.
+        CreateKey(HKEY_CURRENT_USER, GROUP_POLICY_STORE_REGPATH);
+
+        // Before adding to CurrentUser, will check if the root or CA
+        // already exists in LocalMachine. If it exists in
+        // LocalMachine and also exists in CurrentUser, will delete it
+        // from CurrentUser instead of adding.
+        hr = AddCurrentUserRootCertificates();
+        hr2 = AddCurrentUserCACertificates();
+        if (hr == ERROR_SUCCESS)
+            hr = hr2;
+
+        // Protect the CurrentUser roots and purge any existing
+        // protected CurrentUser roots also in LocalMachine
+
+        // Note, once the roots are protected, all subsequent adds are
+        // done by a special service executing with System privileges.
+        // This special service does secure attention sequence (SAS) UI
+        // before doing the add.
+
+        // Note, subsequent purges are exempt from UI. ie, this function
+        // doesn't do any SAS UI.
+        I_CertProtectFunction(
+            CERT_PROT_PURGE_LM_ROOTS_FUNC_ID,
+            0,                              // dwFlags
+            NULL,                           // pwszIn
+            NULL,                           // pbIn
+            0,                              // cbIn
+            NULL,                           // ppbOut
+            NULL                            // pcbOut
+        );
+
+        UpdateMyKeyIdentifiers(CERT_SYSTEM_STORE_CURRENT_USER);
+        break;
+
+    case 'B':
+    case 'b':
+    case 'R':
+    case 'r':
+    case 'A':
+    case 'a':
+        // Initialize HKLM registry locations used by PKI to
+        // only give Everyone KEY_READ access. Also gives the
+        // IEDirtyFlags registry key KEY_SET_VALUE access for
+        // Everyone.
+        InitializeHKLMAcls();
+
+        // Ensure we have a registry entry for the IEDirtyFlags
+        // This key should have already been created
+        // by InitializeHKLMAcls() for NT. Ensure its also there
+        // for Win95 and Win98
+        CreateKey(HKEY_LOCAL_MACHINE, CERT_IE_DIRTY_FLAGS_REGPATH);
+
+        MoveCertificates(TRUE);
+        PurgeExpiringCertsFromStores();
+
+        // Ensure we have a registry entry for the Group Policy
+        // SystemCertificates. On NT 4.0 or Win98, we emulate NT 5.0 GPT
+        // notification by doing a RegNotifyChangeKeyValue on this
+        // registry key.
+        CreateKey(HKEY_LOCAL_MACHINE, GROUP_POLICY_STORE_REGPATH);
+        CreateKey(HKEY_CURRENT_USER, GROUP_POLICY_STORE_REGPATH);
+
+        // Ensure we have existing predefined stores for the LocalMachine
+        // Enterprise system stores. These stores are periodically updated
+        // from the DS by a system service. RegNotifyChangeKeyValue is
+        // used to signal clients about Enterprise store changes.
+        RegisterEnterpriseStores();
+
+        // Our goal is to get the roots and CAs into LocalMachine.
+        // Note previously, they were only copied to CurrentUser.
+        AddLocalMachineRootCertificates();
+        AddLocalMachineCACertificates();
+
+        // If the above adds to LocalMachine failed, then, add
+        // to CurrentUser.
+
+        // Before adding to CurrentUser, will check if the root or CA
+        // already exists in LocalMachine. If it exists in
+        // LocalMachine and also exists in CurrentUser, will delete it
+        // from CurrentUser instead of adding.
+        hr = AddCurrentUserRootCertificates();
+        hr2 = AddCurrentUserCACertificates();
+        if (hr == ERROR_SUCCESS)
+            hr = hr2;
+
+        // Protect the CurrentUser roots and purge any existing
+        // protected CurrentUser roots also in LocalMachine
+
+        // Note, once the roots are protected, all subsequent adds are
+        // done by a special service executing with System privileges.
+        // This special service does secure attention sequence (SAS) UI
+        // before doing the add.
+
+        // Note, subsequent purges are exempt from UI. ie, this function
+        // doesn't do any SAS UI.
+        I_CertProtectFunction(
+            CERT_PROT_PURGE_LM_ROOTS_FUNC_ID,
+            0,                              // dwFlags
+            NULL,                           // pwszIn
+            NULL,                           // pbIn
+            0,                              // cbIn
+            NULL,                           // ppbOut
+            NULL                            // pcbOut
+        );
+
+        UpdateMyKeyIdentifiers(CERT_SYSTEM_STORE_CURRENT_USER);
+        UpdateMyKeyIdentifiers(CERT_SYSTEM_STORE_LOCAL_MACHINE);
+
+        CleanupRegistry();
+        hr2 = RegisterCryptoDlls(TRUE);
+        if (hr == ERROR_SUCCESS)
+            hr = hr2;
+        break;
+
+    default:
+        hr = E_INVALIDARG;
     }
 
-    return( hr );
+    return(hr);
 }
 
 STDAPI DllRegisterServer(void)
@@ -1019,8 +981,7 @@ STDAPI DllUnregisterServer(void)
 
 BOOL WINAPI InitializePKI(void)
 {
-    if (RegisterCryptoDlls(TRUE) != S_OK)
-    {
+    if (RegisterCryptoDlls(TRUE) != S_OK) {
         return(FALSE);
     }
 
