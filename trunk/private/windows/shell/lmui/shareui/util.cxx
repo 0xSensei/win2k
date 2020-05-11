@@ -411,10 +411,7 @@ DisplayLanmanError(
     WCHAR szCaption[100];
     LoadString(g_hInstance, IDS_MSGTITLE, szCaption, ARRAYLEN(szCaption));
 
-
     // get LanMan message from system message file.
-
-
     WCHAR szNetMsg[500];
     WCHAR szBuf[500];
 

@@ -459,10 +459,7 @@ Return Value:
 
                 if((Flags & SPQ_SCAN_INFORM_USER) && Queue->CopyNodeCount
                 && (Message = RetreiveAndFormatMessage(MSG_NO_NEED_TO_COPY))) {
-
-
                     // Overload TargetPath for use as the caption string.
-
                     GetWindowText(Window,TargetPath,sizeof(TargetPath)/sizeof(TargetPath[0]));
 
                     i = MessageBox(
@@ -475,33 +472,23 @@ Return Value:
                     MyFree(Message);
 
                     if(i == IDYES) {
-
                         // User wants to skip copying.
-
                         *Result = (Queue->DeleteNodeCount || Queue->RenameNodeCount || Queue->BackupNodeCount) ? 2 : 1;
                     } else {
-
                         // User wants to perform copy.
-
                         *Result = 0;
                     }
                 } else {
-
                     // Don't want to ask user. Set up Result based on whether
                     // there are items in the delete, rename or backup queues.
-
                     *Result = (Queue->DeleteNodeCount || Queue->RenameNodeCount || Queue->BackupNodeCount) ? 2 : 1;
                 }
             } else {
-
                 // Presence/validity check failed.
-
                 *Result = 0;
             }
 
-
             // Empty the copy queue if necessary.
-
             if(*Result) {
                 for(SourceMedia=Queue->SourceMediaList; Continue && SourceMedia; SourceMedia=SourceMedia->Next) {
                     for(QueueNode=SourceMedia->CopyQueue; QueueNode; QueueNode=TempNode) {

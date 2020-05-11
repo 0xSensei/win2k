@@ -489,23 +489,14 @@ AdminPwDlgProc(
             }
         }
 
-
         // Set focus to the password control
-
-
         SetFocus (GetDlgItem (hDlg, IDC_PASSWORD));
         return FALSE;
-
     case WM_COMMAND:
-
         switch (HIWORD(wParam)) {
-
         default:
-
             switch (LOWORD(wParam)) {
-
             case IDOK:
-
                 hOldCursor = SetCursor (LoadCursor(NULL, IDC_WAIT));
 
                 GetDlgItemText (hDlg, IDC_USER_NAME, Administrator, ARRAYSIZE(Administrator));
@@ -590,16 +581,12 @@ AdminPwDlgProc(
 
 
 //  IsNullGUID()
-
 //  Purpose:    Determines if the passed in GUID is all zeros
-
 //  Parameters: pguid   GUID to compare
-
 //  Return:     TRUE if the GUID is all zeros
 //              FALSE if not
 BOOL IsNullGUID (GUID *pguid)
 {
-
     return ( (pguid->Data1 == 0)    &&
              (pguid->Data2 == 0)    &&
              (pguid->Data3 == 0)    &&
@@ -635,19 +622,11 @@ DWORD GetMachineAccountInfo (BOOL * bNT4, BOOL *bStandalone)
     PDSROLE_PRIMARY_DOMAIN_INFO_BASIC pBasic;
     DWORD dwResult;
 
-
-
     // Set the default
-
-
     *bNT4 = FALSE;
     *bStandalone = FALSE;
 
-
-
     // Query the machine's role
-
-
     dwResult = DsRoleGetPrimaryDomainInformation(NULL, DsRolePrimaryDomainInfoBasic,
                                                  (PBYTE *)&pBasic);
 
@@ -656,42 +635,27 @@ DWORD GetMachineAccountInfo (BOOL * bNT4, BOOL *bStandalone)
         return dwResult;
     }
 
-
-
     // Check if the machine is running standalone (not part of any domain)
-
-
     if ((pBasic->MachineRole == DsRole_RoleStandaloneWorkstation)    ||
         (pBasic->MachineRole == DsRole_RoleStandaloneServer)) {
-
         *bStandalone = TRUE;
         DsRoleFreeMemory (pBasic);
         return ERROR_SUCCESS;
     }
 
-
-
     // Check if the machine is a domain controller.  If so, we know
     // this is a w2k domain
-
-
     if ((pBasic->MachineRole == DsRole_RoleBackupDomainController)   ||
         (pBasic->MachineRole == DsRole_RolePrimaryDomainController)) {
-
         DsRoleFreeMemory (pBasic);
         return ERROR_SUCCESS;
     }
 
-
-
     // Check if a GUID is present.  If so, this is a w2k domain
-
-
     if ((!(pBasic->Flags & DSROLE_PRIMARY_DOMAIN_GUID_PRESENT)) ||
         (IsNullGUID(&pBasic->DomainGuid))) {
             *bNT4 = TRUE;
     }
-
 
     DsRoleFreeMemory (pBasic);
 

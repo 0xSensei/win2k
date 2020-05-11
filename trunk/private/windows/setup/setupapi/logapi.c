@@ -357,21 +357,14 @@ Return Value:
                 );
     }
 
-
     if(!d) {
-
         // Give up.
-
         return NULL;
     }
 
-
     // Make duplicate using our memory system so user can free with MyFree().
-
     Message = DuplicateString (Buffer);
-
     LocalFree ((HLOCAL) Buffer);
-
     return Message;
 }
 

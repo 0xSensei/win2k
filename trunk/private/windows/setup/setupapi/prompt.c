@@ -3359,7 +3359,6 @@ Return Value:
                     SourceFile,
                     TargetFile
                     );
-
     if(!Message) {
         MyFree(ErrorText);
         return(DPROMPT_OUTOFMEMORY);

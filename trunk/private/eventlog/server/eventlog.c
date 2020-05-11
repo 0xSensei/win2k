@@ -1191,50 +1191,32 @@ TimeStampProc(
     ULONG    NewInterval;
     ULONG    rc;
 
-
     // Deregister the wait (note that we must do this even
     // if the WT_EXECUTEONLYONCE flag is set)
-
     ntStatus = RtlDeregisterWait(g_hTimestampWorkitem);
-
     if (!NT_SUCCESS(ntStatus)) {
-
         ElfDbgPrint(("[ELF] TimeStampProc: RtlDeregisterWait FAILED %#x\n",
                      ntStatus));
     }
 
     if (fWaitStatus == FALSE) {
-
-
         // The event log service is stopping
-
-
         return;
     }
 
-
     // Note:  NewInterval is specified in minutes
-
     NewInterval = (ULONG)((ULONG_PTR)Interval);
 
-
     //  The event timed out -- write a timestamp
-
-
     ElfWriteTimeStamp(EVENT_AbNormalShutdown, FALSE);
 
-
     // recheck the time stamp interval value
-
-
     rc = RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_RELIABILITY, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
     if (rc == ERROR_SUCCESS) {
         ValueSize = sizeof(ULONG);
         rc = RegQueryValueEx(hKey, REGSTR_VAL_LASTALIVEINTERVAL, 0, NULL, (PUCHAR)&NewInterval, &ValueSize);
         if (rc != ERROR_SUCCESS) {
-
             // Couldn't get the value -- stop timestamping
-
             return;
         }
 
@@ -1242,11 +1224,7 @@ TimeStampProc(
     }
 
     if (NewInterval != 0) {
-
-
         // Reregister the wait
-
-
         ntStatus = RtlRegisterWait(&g_hTimestampWorkitem,
                                    g_hTimestampEvent,
                                    TimeStampProc,           // Callback
@@ -1270,25 +1248,11 @@ SvcEntry_Eventlog(       // (ELF_main)
                   PSVCS_GLOBAL_DATA   SvcsGlobalData,
                   HANDLE              SvcRefHandle
 )
-
 /*
-
 Routine Description:
-
     This is the main routine for the Event Logging Service.
-
-
 Arguments:
-
     Command-line arguments.
-
-Return Value:
-
-    NONE
-
-Note:
-
-
 --*/
 {
     NTSTATUS           Status;
@@ -1299,9 +1263,7 @@ Note:
     BYTE               Buffer[ELF_MAX_REG_KEY_INFO_SIZE];
 
 #if DBG
-
     UNICODE_STRING     ValueName;
-
 #endif  // DBG
 
     PKEY_VALUE_FULL_INFORMATION ValueBuffer =
@@ -1681,11 +1643,8 @@ VOID
 ElfInitMessageBoxTitle(
     VOID
 )
-
 /*
-
 Routine Description:
-
     Obtains the title text for the message box used to display messages.
     If the title is successfully obtained from the message file, then
     that title is pointed to by GlobalAllocatedMsgTitle and
@@ -1696,12 +1655,8 @@ Routine Description:
     pointer stored in GlobalAllocatedMsgTitle and it should be freed when
     done with this buffer.
 
-Arguments:
-
 Return Value:
-
     none
-
 --*/
 {
     LPVOID      hModule;

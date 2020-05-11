@@ -4331,15 +4331,10 @@ Return Value:
                 }
 
                 if ( ReservedResource == FALSE) {
-
-
                     // count from 0 (header) 1 (first conflict) through to ConflictCount
-
                     for(ConflictIndex = 0; ConflictIndex <= ConflictCount; ConflictIndex ++) {
                         if (ConflictIndex == 0) {
-
                             // first pass through, do header message
-
                             vaArray[0] = szBuffer;
                             vaArray[1] = szSetting;
                             FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY ,
@@ -4347,12 +4342,8 @@ Return Value:
                                                 0,0,
                                                 szTemp,MAX_PATH,
                                                 (va_list*)vaArray); // FORMAT_MESSAGE_ARGUMENT_ARRAY
-
                         } else {
-
-
                             // obtain details for this conflict
-
                             ZeroMemory(&ConflictDetails,sizeof(ConflictDetails));
                             ConflictDetails.CD_ulSize = sizeof(ConflictDetails);
                             ConflictDetails.CD_ulMask = CM_CDMASK_DEVINST | CM_CDMASK_DESCRIPTION | CM_CDMASK_FLAGS;
@@ -4360,25 +4351,19 @@ Return Value:
                             Status = CM_Get_Resource_Conflict_Details(ConflictList,ConflictIndex-1,&ConflictDetails);
                             if (Status == CR_SUCCESS) {
                                 if ((ConflictDetails.CD_ulFlags & CM_CDFLAGS_RESERVED) != 0) {
-
                                     // treat as reserved - backtrack
-
                                     ReservedResource = TRUE;
                                     goto TreatAsReserved;
                                 } else {
                                     if (ConflictDetails.CD_szDescription[0] == 0) {
-
                                         // treat as reserved - backtrack
-
                                         ReservedResource = TRUE;
                                         goto TreatAsReserved;
                                     }
                                     wsprintf(szBuffer,TEXT("  %s\r\n"),ConflictDetails.CD_szDescription);
                                 }
                             } else {
-
                                 // treat as reserved
-
                                 ReservedResource = TRUE;
                                 goto TreatAsReserved;
                             }
@@ -4388,14 +4373,10 @@ Return Value:
                         ulNewLength = ulLength + lstrlen(szTemp);   // excluding terminating NUL
 
                         if ((ulNewLength+1) < ulBufferLen) {
-
                             // need to allocate more space - we'll double it and add some more every time
-
                             pszConflictList2 = MyRealloc(pszConflictList,(ulBufferLen+ulNewLength+1)  * sizeof(TCHAR));
                             if (pszConflictList2 != NULL) {
-
                                 // succeeded in resizing buffer
-
                                 pszConflictList = pszConflictList2;
                                 ulBufferLen = ulBufferLen+ulNewLength+1;
                             }
@@ -4404,13 +4385,9 @@ Return Value:
                             lstrcpy(pszConflictList + ulLength , szTemp);
                             ulLength = ulNewLength;
                         }
-
                     }
                 } else {
-
                     // there is some other problem with resource
-
-
                     vaArray[0] = szBuffer;
                     vaArray[1] = szSetting;
                     FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY ,
@@ -4422,14 +4399,10 @@ Return Value:
                     ulNewLength = ulLength + lstrlen(szTemp);   // excluding terminating NUL
 
                     if ((ulNewLength+1) < ulBufferLen) {
-
                         // need to allocate more space - we'll double it and add some more every time
-
                         pszConflictList2 = MyRealloc(pszConflictList,(ulBufferLen+ulNewLength+1)  * sizeof(TCHAR));
                         if (pszConflictList2 != NULL) {
-
                             // succeeded in resizing buffer
-
                             pszConflictList = pszConflictList2;
                             ulBufferLen = ulBufferLen+ulNewLength+1;
                         }
@@ -4440,17 +4413,12 @@ Return Value:
                     }
                 }
 
-
                 // Set the Conflict Overlay for this resource.
-
                 ListView_SetItemState(hwndResList, i,
                                INDEXTOOVERLAYMASK(IDI_CONFLICT - IDI_RESOURCEOVERLAYFIRST + 1),
                                LVIS_OVERLAYMASK);
-
             } else {
-
                 // resource is (aparently) working fine
-
                 ListView_SetItemState(hwndResList, i,
                                       INDEXTOOVERLAYMASK(0),
                                       LVIS_OVERLAYMASK);
@@ -4464,7 +4432,6 @@ Return Value:
                 MyFree(pResourceData);
             }
         } else {
-
             // couldn't make the resource descriptor
             AnyBadResources = TRUE;
         }

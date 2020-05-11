@@ -1443,9 +1443,8 @@ void DumpOutLastErrorString()
     // ...
     // Display the string.
     KdPrint(("%s\n", (LPCTSTR)lpMsgBuf));
-
-    // Free the buffer.
-    LocalFree(lpMsgBuf);
+    
+    LocalFree(lpMsgBuf);// Free the buffer.
 }
 #endif
 

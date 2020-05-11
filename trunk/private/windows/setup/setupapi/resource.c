@@ -448,9 +448,7 @@ Return Value:
     PTSTR Text = NULL;
     INT ret;
 
-
     // We should never be called if we're not interactive.
-
     MYASSERT(!(GlobalSetupFlags & PSPGF_NONINTERACTIVE));
 
     if(GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
@@ -458,22 +456,18 @@ Return Value:
     }
 
     try {
-
         va_start(arglist, Style);
         Text  = RetreiveAndFormatMessageV(TextMessageId, &arglist);
         va_end(arglist);
 
         if(Text) {
-
             // We are currently always beeping
             // BUGBUG (setupx) Is this the right thing to do?
-
             MessageBeep(Style & (MB_ICONHAND|MB_ICONEXCLAMATION|MB_ICONQUESTION|MB_ICONASTERISK));
             ret = MessageBox(hwndParent, Text, Title, Style);
         } else {
             ret = 0;
         }
-
     } except(EXCEPTION_EXECUTE_HANDLER) {
         ret = 0;
     }

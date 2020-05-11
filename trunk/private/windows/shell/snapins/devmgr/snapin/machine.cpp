@@ -2116,11 +2116,7 @@ CMachine::CmGetCompatibleIDs(
     return CR_SUCCESS == m_LastCR;
 }
 
-LPTSTR
-FormatString(
-    LPCTSTR format,
-    ...
-)
+LPTSTR FormatString(LPCTSTR format, ...)
 {
     LPTSTR str = NULL;
     va_list arglist;
@@ -2218,11 +2214,8 @@ STDAPI_(CONFIGRET) GetLocationInformation(
 
         LPTSTR UINumberBuffer = NULL;
 
-
         // Fill in the UINumber string
-
         UINumberBuffer = FormatString(UINumberDescFormat, UINumber);
-
         if (UINumberBuffer) {
             lstrcpy((LPTSTR)Location, UINumberBuffer);
             LocalFree(UINumberBuffer);
@@ -2230,10 +2223,7 @@ STDAPI_(CONFIGRET) GetLocationInformation(
             Location[0] = TEXT('\0');
         }
 
-
-        // If we also have LocationInformation then tack that on the end of the string
-        // as well.
-
+        // If we also have LocationInformation then tack that on the end of the string as well.
         if (*Buffer) {
             lstrcat((LPTSTR)Location, TEXT(" ("));
             lstrcat((LPTSTR)Location, Buffer);
@@ -2241,24 +2231,17 @@ STDAPI_(CONFIGRET) GetLocationInformation(
         }
     }
 
-
     // We don't have a UINumber but we do have LocationInformation
-
     else if (*Buffer) {
         ::LoadString(g_hInstance, IDS_LOCATION, Format, sizeof(Format) / sizeof(TCHAR));
         wsprintf((LPTSTR)Location, Format, Buffer);
     }
 
-
     // We don't have a UINumber or LocationInformation so we need to get a description
     // of the parent of this device.
-
     else {
         if ((LastCR = CM_Get_Parent_Ex(&dnParent, dn, 0, hMachine)) == CR_SUCCESS) {
-
-
             // Try the registry for FRIENDLYNAME
-
             Buffer[0] = TEXT('\0');
             ulSize = sizeof(Buffer);
             if (((LastCR = CM_Get_DevNode_Registry_Property_Ex(dnParent,
@@ -2270,10 +2253,7 @@ STDAPI_(CONFIGRET) GetLocationInformation(
                                                                hMachine
             )) != CR_SUCCESS) ||
                 !*Buffer) {
-
-
                 // Try the registry for DEVICEDESC
-
                 ulSize = sizeof(Buffer);
                 if (((LastCR = CM_Get_DevNode_Registry_Property_Ex(dnParent,
                                                                    CM_DRP_DEVICEDESC,
@@ -2284,7 +2264,6 @@ STDAPI_(CONFIGRET) GetLocationInformation(
                                                                    hMachine
                 )) != CR_SUCCESS) ||
                     !*Buffer) {
-
                     ulSize = sizeof(Buffer);
                     if (((LastCR = CM_Get_DevNode_Registry_Property_Ex(dnParent,
                                                                        CM_DRP_CLASS,
@@ -2295,10 +2274,7 @@ STDAPI_(CONFIGRET) GetLocationInformation(
                                                                        hMachine
                     )) != CR_SUCCESS) ||
                         !*Buffer) {
-
-
                         // no parent, or parent name.
-
                         Buffer[0] = TEXT('\0');
                     }
                 }

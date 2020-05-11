@@ -1829,34 +1829,24 @@ int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 }
 
 
-
-
 // FUNCTION: FormatStringWithArgs
 
 // DESCRIPTION:
-
 //    Formats a text string with variable arguments.
 
 // ARGUMENTS:
-
 //    pszFormat
 //       Address of format text string using %1,%2 etc. format specifiers.
-
 //    pszBuffer
 //       Address of destination buffer.
-
 //    nSize
 //       Number of characters in destination buffer.
-
 //    ...
 //       Variable length list of replacement parameters.
 
 // RETURNS:
-
 //    Returns number of characters copied to buffer.
 //    0 = Error.  GetLastError() if you're interested in why.
-
-
 static DWORD FormatStringWithArgs(LPCTSTR pszFormat, LPTSTR pszBuffer, DWORD nSize, ...)
 {
    DWORD dwCharCount   = 0;
@@ -1905,10 +1895,7 @@ static DWORD FormatStringWithArgs(LPCTSTR pszFormat, LPTSTR pszBuffer, DWORD nSi
 //    Returns number of characters copied to buffer.
 //    0 = Error.  GetLastError() if you're interested in why.
 //    Function does set last error to E_OUTOFMEMORY on LocalAlloc fail.
-
-
-static DWORD LoadStringWithArgs(HINSTANCE hInstance, UINT uId,
-                                           LPTSTR pszBuffer, DWORD nSize, ...)
+static DWORD LoadStringWithArgs(HINSTANCE hInstance, UINT uId, LPTSTR pszBuffer, DWORD nSize, ...)
 {
    DWORD dwCharCount = 0;
    LPTSTR pszFormat  = NULL;
@@ -1957,14 +1944,10 @@ static VOID CenterWindowInParent(HWND hwnd)
     HWND    hwndParent;
     LONG    Style;
 
-
     //  Get window rect.
-
     GetWindowRect(hwnd, &rect);
 
-
     //  Get parent rect.
-
     Style = GetWindowLong(hwnd, GWL_STYLE);
     if ((Style & WS_CHILD) == 0)
     {
@@ -1980,15 +1963,11 @@ static VOID CenterWindowInParent(HWND hwnd)
     }
     GetWindowRect(hwndParent, &rectParent);
 
-
     //  Center the child in the parent.
-
     rect.left = rectParent.left + (((rectParent.right - rectParent.left) - (rect.right - rect.left)) >> 1);
     rect.top  = rectParent.top +  (((rectParent.bottom - rectParent.top) - (rect.bottom - rect.top)) >> 1);
 
-
     //  Move the child into position.
-
     SetWindowPos( hwnd,
                   NULL,
                   rect.left,

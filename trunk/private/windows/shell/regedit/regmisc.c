@@ -47,7 +47,7 @@ CDECL
 LoadDynamicString(
     UINT StringID,
     ...
-    )
+)
 {
 
 #if 0
@@ -56,8 +56,8 @@ LoadDynamicString(
     va_list Marker = va_start(Marker, StringID);
 
     FormatMessage(FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-        (LPVOID) (DWORD) g_hInstance, StringID, 0, (LPTSTR) (PTSTR FAR *)
-        &pStr, 0, &Marker);
+                  (LPVOID)(DWORD)g_hInstance, StringID, 0, (LPTSTR)(PTSTR FAR *)
+                  & pStr, 0, &Marker);
 
 #else
 
@@ -70,7 +70,7 @@ LoadDynamicString(
     LoadString(g_hInstance, StringID, Buffer, ARRAYSIZE(Buffer));
 
     FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-        (LPVOID) (LPSTR) Buffer, 0, 0, (LPTSTR) (PTSTR FAR *) &pStr, 0, &Marker);
+                  (LPVOID)(LPSTR)Buffer, 0, 0, (LPTSTR)(PTSTR FAR *) & pStr, 0, &Marker);
 
     va_end(Marker);
 
@@ -121,7 +121,7 @@ VOID PASCAL CopyRegistry(HKEY hSourceKey, HKEY hDestinationKey)
         if (RegEnumKey(hSourceKey, EnumIndex++, g_KeyNameBuffer, MAXKEYNAME) != ERROR_SUCCESS)
             break;
 
-        if(RegOpenKeyEx(hSourceKey,g_KeyNameBuffer,0,KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE,&hSourceSubKey) == ERROR_SUCCESS) {
+        if (RegOpenKeyEx(hSourceKey, g_KeyNameBuffer, 0, KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE, &hSourceSubKey) == ERROR_SUCCESS) {
             if (RegCreateKey(hDestinationKey, g_KeyNameBuffer, &hDestinationSubKey) == ERROR_SUCCESS) {
                 CopyRegistry(hSourceSubKey, hDestinationSubKey);
                 RegCloseKey(hDestinationSubKey);
@@ -149,26 +149,20 @@ HBRUSH
 PASCAL
 CreateDitheredBrush(
     VOID
-    )
+)
 {
-
-    WORD graybits[] = {0x5555, 0xAAAA, 0x5555, 0xAAAA, 0x5555, 0xAAAA, 0x5555,
-        0xAAAA};
+    WORD graybits[] = {0x5555, 0xAAAA, 0x5555, 0xAAAA, 0x5555, 0xAAAA, 0x5555, 0xAAAA};
     HBRUSH hBrush;
     HBITMAP hBitmap;
 
     if ((hBitmap = CreateBitmap(8, 8, 1, 1, graybits)) != NULL) {
-
         hBrush = CreatePatternBrush(hBitmap);
         DeleteObject(hBitmap);
-
     }
-
     else
         hBrush = NULL;
 
     return hBrush;
-
 }
 
 /*
@@ -193,7 +187,7 @@ SendChildrenMessage(
     UINT Message,
     WPARAM wParam,
     LPARAM lParam
-    )
+)
 {
 
     HWND hChildWnd;
@@ -225,7 +219,7 @@ BOOL
 PASCAL
 MessagePump(
     HWND hDialogWnd
-    )
+)
 {
 
     MSG Msg;
@@ -260,7 +254,7 @@ LPTSTR
 PASCAL
 GetNextSubstring(
     LPTSTR lpString
-    )
+)
 {
 
     static LPTSTR lpLastString;
@@ -322,7 +316,7 @@ InternalMessageBox(
     LPCTSTR pszTitle,
     UINT fuStyle,
     ...
-    )
+)
 {
     TCHAR szTitle[80];
     TCHAR szFormat[512];
@@ -331,23 +325,17 @@ InternalMessageBox(
     int result;
     va_list ArgList;
 
-    if (HIWORD(pszTitle))
-    {
+    if (HIWORD(pszTitle)) {
         // do nothing
-    }
-    else
-    {
+    } else {
         // Allow this to be a resource ID
         LoadString(hInst, LOWORD(pszTitle), szTitle, ARRAYSIZE(szTitle));
         pszTitle = szTitle;
     }
 
-    if (HIWORD(pszFormat))
-    {
+    if (HIWORD(pszFormat)) {
         // do nothing
-    }
-    else
-    {
+    } else {
         // Allow this to be a resource ID
         LoadString(hInst, LOWORD(pszFormat), szFormat, ARRAYSIZE(szFormat));
         pszFormat = szFormat;
@@ -360,13 +348,10 @@ InternalMessageBox(
 
     va_end(ArgList);
 
-    if (fOk && pszMessage)
-    {
+    if (fOk && pszMessage) {
         result = MessageBox(hWnd, pszMessage, pszTitle, fuStyle | MB_SETFOREGROUND);
         LocalFree(pszMessage);
-    }
-    else
-    {
+    } else {
         return -1;
     }
 
@@ -393,7 +378,7 @@ LONG
 RegDeleteKeyRecursive(
     IN HKEY hKey,
     IN LPCTSTR lpszSubKey
-    )
+)
 
 /*++
 
@@ -432,7 +417,7 @@ Return Value:
     DWORD i;
     HKEY Key;
     LONG Status;
-    DWORD ClassLength=0;
+    DWORD ClassLength = 0;
     DWORD SubKeys;
     DWORD MaxSubKey;
     DWORD MaxClass;
@@ -453,7 +438,7 @@ Return Value:
         // So go ahead and try the delete call, but don't worry about
         // any subkeys.  If we have any, the delete will fail anyway.
 
-    return(RegDeleteKey(hKey,lpszSubKey));
+        return(RegDeleteKey(hKey, lpszSubKey));
     }
 
 
@@ -479,7 +464,7 @@ Return Value:
         return(Status);
     }
 
-    NameBuffer = (LPTSTR) LocalAlloc(LPTR, (MaxSubKey + 1)*sizeof(TCHAR));
+    NameBuffer = (LPTSTR)LocalAlloc(LPTR, (MaxSubKey + 1) * sizeof(TCHAR));
     if (NameBuffer == NULL) {
         RegCloseKey(Key);
         return(ERROR_NOT_ENOUGH_MEMORY);
@@ -488,14 +473,14 @@ Return Value:
 
     // Enumerate subkeys and apply ourselves to each one.
 
-    i=0;
+    i = 0;
     do {
         Status = RegEnumKey(Key,
                             i,
                             NameBuffer,
-                            MaxSubKey+1);
+                            MaxSubKey + 1);
         if (Status == ERROR_SUCCESS) {
-        Status = RegDeleteKeyRecursive(Key,NameBuffer);
+            Status = RegDeleteKeyRecursive(Key, NameBuffer);
         }
 
         if (Status != ERROR_SUCCESS) {
@@ -507,15 +492,12 @@ Return Value:
 
             ++i;
         }
+    } while ((Status != ERROR_NO_MORE_ITEMS) &&
+             (i < SubKeys));
 
-    } while ( (Status != ERROR_NO_MORE_ITEMS) &&
-              (i < SubKeys) );
-
-    LocalFree((HLOCAL) NameBuffer);
+    LocalFree((HLOCAL)NameBuffer);
     RegCloseKey(Key);
-    return(RegDeleteKey(hKey,lpszSubKey));
+    return(RegDeleteKey(hKey, lpszSubKey));
 
 }
 #endif
-
-
