@@ -3,19 +3,13 @@
 Copyright (c) 1989  Microsoft Corporation
 
 Module Name:
-
     LfsData.c
 
 Abstract:
-
     This module declares the global data used by the Log File Service.
 
 Author:
-
     Brian Andrew    [BrianAn]   20-June-1991
-
-Revision History:
-
 */
 
 #ifndef _LFSDATA_
@@ -23,14 +17,10 @@ Revision History:
 
 
 //  The global Lfs data record
-
-
 extern LFS_DATA LfsData;
 
 
 //  Various large integer constants.
-
-
 #define LfsMaximumFileSize (0x0000000100000000)
 
 extern LARGE_INTEGER LfsLi0;
@@ -38,8 +28,6 @@ extern LARGE_INTEGER LfsLi1;
 
 
 //  The following Lsn is used as a starting point in the file.
-
-
 extern LSN LfsStartingLsn;
 
 
@@ -57,49 +45,39 @@ extern LSN LfsStartingLsn;
 
 
 //  The global Lfs debug level variable, its values are:
-
 //      0x00000000      Always gets printed (used when about to bug check)
-
 //      0x00000001      Error conditions
 //      0x00000002      Debug hooks
 //      0x00000004      Catch exceptions before completing Irp
 //      0x00000008      Unwinding during error conditions
-
 //      0x00000010      Lfs initialization
 //      0x00000020      Lfs query log records
 //      0x00000040      Lfs write log records
 //      0x00000080      Lfs registry routines
-
 //      0x00000100      Lfs worker thread routines
 //      0x00000200
 //      0x00000400
 //      0x00000800
-
 //      0x00001000      Log page support routines
 //      0x00002000      Lsn support routines
 //      0x00004000      Miscellaneous support routines
 //      0x00008000      Support routines for cache operations
-
 //      0x00010000      Structure support routines
 //      0x00020000      Verify/validate support routines
 //      0x00040000      Synchronization routines
 //      0x00080000      Log buffer support routines
-
 //      0x00100000      Support routines for manipulating log records
 //      0x00200000      Support routines for manipulation lfs restart areas
 //      0x00400000      Support routines for client restart operations
 //      0x00800000
-
 //      0x01000000
 //      0x02000000
 //      0x04000000
 //      0x08000000
-
 //      0x10000000
 //      0x20000000
 //      0x40000000
 //      0x80000000
-
 
 #ifdef LFSDBG
 
@@ -190,4 +168,3 @@ extern LONG LfsDebugTraceIndent;
 #endif // LFSDBG
 
 #endif // _LFSDATA_
-

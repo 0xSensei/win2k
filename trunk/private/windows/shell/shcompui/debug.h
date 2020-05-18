@@ -8,12 +8,9 @@
 //  FILE: DEBUG.H
 
 //  DESCRIPTION:
-
 //    Header for debug support in SHCOMPUI.DLL.
 
-
 //    REVISIONS:
-
 //    Date       Description                                         Programmer
 //    ---------- --------------------------------------------------- ----------
 //    09/15/95   Initial creation.                                   brianau
@@ -55,5 +52,3 @@ void WINAPI AssertFailed(LPCTSTR szFile, int line);
 void DbgOut(LPCTSTR fmt, ...);
 
 #endif
-
-
