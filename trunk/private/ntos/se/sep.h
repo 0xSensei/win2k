@@ -1,24 +1,16 @@
 /*++
-
 Copyright (c) 1989  Microsoft Corporation
 
 Module Name:
-
     sep.h
 
 Abstract:
-
     This module contains the internal (private) declarations needed by the
     Kernel mode security routines.
 
 Author:
-
     Gary Kimura (GaryKi) 31-Mar-1989
     Jim Kelly (JimK) 2-Mar-1990
-
-Revision History:
-
-
 */
 
 #ifndef _SEP_
@@ -105,8 +97,6 @@ Revision History:
 
 //  Macro to query whether or not control flags ALL on
 //  or not (ie, returns FALSE if any of the flags are not set)
-
-
 #define SepAreFlagsSet( Mask, Bits )                                           \
             (                                                                  \
             ((Mask) & ( Bits )) == ( Bits )                                    \
@@ -114,8 +104,6 @@ Revision History:
 
 
 //  Macro to set the specified control bits in the given Security Descriptor
-
-
 #define SepSetFlags( Mask, Bits )                                              \
             (                                                                  \
             ( Mask ) |= ( Bits )                                               \
@@ -123,8 +111,6 @@ Revision History:
 
 
 //  Macro to clear the passed control bits in the given Security Descriptor
-
-
 #define SepClearFlags( Mask, Bits )                                            \
             (                                                                  \
             ( Mask ) &= ~( Bits )                                              \
@@ -135,8 +121,6 @@ Revision History:
 
 
 // Macro to determine the size of a PRIVILEGE_SET
-
-
 #define SepPrivilegeSetSize( PrivilegeSet )                                    \
         ( ( PrivilegeSet ) == NULL ? 0 :                                       \
         ((( PrivilegeSet )->PrivilegeCount > 0)                                \
@@ -153,8 +137,6 @@ Revision History:
 
 
 //      Return the effective token from a SecurityContext
-
-
 #define EffectiveToken( SubjectSecurityContext ) (                            \
                  (SubjectSecurityContext)->ClientToken ?                      \
                  (SubjectSecurityContext)->ClientToken :                      \
@@ -164,15 +146,11 @@ Revision History:
 
 
 //      Return a pointer to the Sid of the User of a given token
-
-
 #define SepTokenUserSid( Token )   ((PTOKEN)(Token))->UserAndGroups->Sid
 
 
 
 //      Return the AuthenticationId from a given token
-
-
 #define SepTokenAuthenticationId( Token )   (((PTOKEN)(Token))->AuthenticationId)
 
 
@@ -184,37 +162,23 @@ Revision History:
 //     IN SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
 //     IN BOOLEAN ServerIsRemote
 //     )
-
 // Routine Description:
-
 //     Determine whether a client is trying to impersonate innappropriately
 //     This routine should only be called if a thread requesting impersonation
 //     is itself already impersonating a client of its own.  This routine
 //     indicates whether the client is attempting to violate the level of
 //     impersonation granted to it by its client.
-
 // Arguments:
-
-//     ImpersonationLevel - Is the impersonation level of the client's
-//         effective token.
-
+//     ImpersonationLevel - Is the impersonation level of the client's effective token.
 //     ServerIsRemote - Is a boolean flag indicating whether the client
 //         is requesting impersonation services to a remote system.  TRUE
 //         indicates the session is a remote session, FALSE indicates the
-//         session is a local session.  Delegation level is necessary to
-//         achieve a remote session.
-
+//         session is a local session.  Delegation level is necessary to achieve a remote session.
 // Return Value:
-
 //     TRUE - Indicates that the impersonation level of the client's client
 //         token is innapropriate for the attempted impersonation.
 //         An error (STATUS_BAD_IMPERSONATION_LEVEL) should be generated.
-
-//     FALSE - Indicates the impersonation attempt is not bad, and should
-//         be allowed.
-
-
-
+//     FALSE - Indicates the impersonation attempt is not bad, and should be allowed.
 #define SepBadImpersonationLevel(IL,SIR)  ((                                   \
             ((IL) == SecurityAnonymous) || ((IL) == SecurityIdentification) || \
             ( (SIR) && ((IL) != SecurityDelegation) )                          \
@@ -224,11 +188,7 @@ Revision History:
 
 
 
-// BOOL
-// IsValidElementCount(
-//      IN ULONG Count,
-//      IN <STRUCTURE>
-//      );
+// BOOL IsValidElementCount(IN ULONG Count, IN <STRUCTURE>);
 
 
 
@@ -300,61 +260,36 @@ typedef enum _SEP_LSA_WORK_ITEM_TAG {
 
 
 typedef struct _SEP_LSA_WORK_ITEM {
-
-
-    // This field must be the first field of this structure
-
-
-    LIST_ENTRY                      List;
-
+    LIST_ENTRY                      List;// This field must be the first field of this structure
 
     // Command Params Memory type
-
-
     SEP_RM_LSA_MEMORY_TYPE          CommandParamsMemoryType;
 
-
     // Tag describing what kind of structure we've got
-
-
     SEP_LSA_WORK_ITEM_TAG           Tag;
-
 
     // The following union contains the data to be passed
     // to LSA.
-
-
     union {
-
         PVOID                       BaseAddress;
         LUID                        LogonId;
-
     } CommandParams;
 
-
     // These fields must be filled in by the caller of SepRmCallLsa
-
-
     LSA_COMMAND_NUMBER              CommandNumber;
     ULONG                           CommandParamsLength;
     PVOID                           ReplyBuffer;
     ULONG                           ReplyBufferLength;
 
-
     // CleanupFunction (if specified) will be called with CleanupParameter
     // as its argument before the SEP_LSA_WORK_ITEM is freed by SepRmCallLsa
-
-
     PSEP_LSA_WORKER_CLEANUP_ROUTINE CleanupFunction;
     PVOID                           CleanupParameter;
-
 } SEP_LSA_WORK_ITEM, *PSEP_LSA_WORK_ITEM;
 
 
 typedef struct _SEP_WORK_ITEM {
-
     WORK_QUEUE_ITEM  WorkItem;
-
 } SEP_WORK_ITEM, *PSEP_WORK_ITEM;
 
 extern SEP_WORK_ITEM SepExWorkItem;
@@ -362,18 +297,10 @@ extern SEP_WORK_ITEM SepExWorkItem;
 
 //  Private Routines                                                     //
 
-BOOLEAN
-SepDevelopmentTest( VOID );      //Used only for development testing
-
-
-BOOLEAN
-SepInitializationPhase0( VOID );
-
-BOOLEAN
-SepInitializationPhase1( VOID );
-
-BOOLEAN
-SepVariableInitialization( VOID );
+BOOLEAN SepDevelopmentTest( VOID );      //Used only for development testing
+BOOLEAN SepInitializationPhase0( VOID );
+BOOLEAN SepInitializationPhase1( VOID );
+BOOLEAN SepVariableInitialization( VOID );
 
 NTSTATUS
 SepCreateToken(
@@ -401,29 +328,11 @@ SepCreateToken(
     IN PSECURITY_TOKEN_AUDIT_DATA AuditData OPTIONAL
     );
 
-NTSTATUS
-SepReferenceLogonSession(
-    IN PLUID LogonId
-    );
-
-VOID
-SepDeReferenceLogonSession(
-    IN PLUID LogonId
-    );
-
-VOID
-SepLockSubjectContext(
-    IN PSECURITY_SUBJECT_CONTEXT SubjectContext
-    );
-
-VOID
-SepFreeSubjectContext(
-    IN PSECURITY_SUBJECT_CONTEXT SubjectContext
-    );
-
-VOID
-SepGetDefaultsSubjectContext(
-    IN PSECURITY_SUBJECT_CONTEXT SubjectContext,
+NTSTATUS SepReferenceLogonSession(IN PLUID LogonId);
+VOID SepDeReferenceLogonSession(IN PLUID LogonId);
+VOID SepLockSubjectContext(IN PSECURITY_SUBJECT_CONTEXT SubjectContext);
+VOID SepFreeSubjectContext(IN PSECURITY_SUBJECT_CONTEXT SubjectContext);
+VOID SepGetDefaultsSubjectContext(IN PSECURITY_SUBJECT_CONTEXT SubjectContext,
     OUT PSID *Owner,
     OUT PSID *Group,
     OUT PSID *ServerOwner,
@@ -463,82 +372,19 @@ SepAuditAlarm (
     OUT PBOOLEAN GenerateOnClose
     );
 
-BOOLEAN
-SepSinglePrivilegeCheck (
-   LUID DesiredPrivilege,
-   IN PACCESS_TOKEN EffectiveToken,
-   IN KPROCESSOR_MODE PreviousMode
-   );
-
-NTSTATUS
-SepRmCallLsa(
-    PSEP_WORK_ITEM SepWorkItem
-    );
-
-BOOLEAN
-SepInitializeWorkList(
-    VOID
-    );
-
-BOOLEAN
-SepRmInitPhase0(
-    );
-
-VOID
-SepConcatenatePrivileges(
-    IN PPRIVILEGE_SET TargetPrivilegeSet,
-    IN ULONG TargetBufferSize,
-    IN PPRIVILEGE_SET SourcePrivilegeSet
-    );
-
-BOOLEAN
-SepTokenIsOwner(
-    IN PACCESS_TOKEN Token,
-    IN PSECURITY_DESCRIPTOR SecurityDescriptor,
-    IN BOOLEAN TokenLocked
-    );
-
-VOID
-SepPrintAcl (
-    IN PACL Acl
-    );
-
-VOID
-SepPrintSid(
-    IN PSID Sid
-    );
-
-VOID
-SepDumpSecurityDescriptor(
-    IN PSECURITY_DESCRIPTOR SecurityDescriptor,
-    IN PSZ TitleString
-    );
-
-BOOLEAN
-SepSidTranslation(
-    PSID Sid,
-    PSTRING AccountName
-    );
-
-VOID
-SepDumpTokenInfo(
-    IN PACCESS_TOKEN Token
-    );
-
-VOID
-SepDumpString(
-    IN PUNICODE_STRING String
-    );
-
-BOOLEAN
-SepSidInToken (
-    IN PACCESS_TOKEN Token,
-    IN PSID PrincipalSelfSid,
-    IN PSID Sid,
-    IN BOOLEAN DenyAce
-    );
-
-
+BOOLEAN SepSinglePrivilegeCheck (LUID DesiredPrivilege, IN PACCESS_TOKEN EffectiveToken, IN KPROCESSOR_MODE PreviousMode);
+NTSTATUS SepRmCallLsa(PSEP_WORK_ITEM SepWorkItem);
+BOOLEAN SepInitializeWorkList(VOID);
+BOOLEAN SepRmInitPhase0();
+VOID SepConcatenatePrivileges(IN PPRIVILEGE_SET TargetPrivilegeSet, IN ULONG TargetBufferSize, IN PPRIVILEGE_SET SourcePrivilegeSet);
+BOOLEAN SepTokenIsOwner(IN PACCESS_TOKEN Token, IN PSECURITY_DESCRIPTOR SecurityDescriptor, IN BOOLEAN TokenLocked);
+VOID SepPrintAcl (IN PACL Acl);
+VOID SepPrintSid(IN PSID Sid);
+VOID SepDumpSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, IN PSZ TitleString);
+BOOLEAN SepSidTranslation(PSID Sid, PSTRING AccountName);
+VOID SepDumpTokenInfo(IN PACCESS_TOKEN Token);
+VOID SepDumpString(IN PUNICODE_STRING String);
+BOOLEAN SepSidInToken (IN PACCESS_TOKEN Token, IN PSID PrincipalSelfSid, IN PSID Sid, IN BOOLEAN DenyAce);
 VOID
 SepExamineSacl(
     IN PACL Sacl,
@@ -565,71 +411,18 @@ SepAssemblePrivileges(
     );
 
 
-PUNICODE_STRING
-SepQueryTypeString(
-    IN PVOID Object
-    );
-
-
-POBJECT_NAME_INFORMATION
-SepQueryNameString(
-    IN PVOID Object
-    );
-
-BOOLEAN
-SepFilterPrivilegeAudits(
-    IN PPRIVILEGE_SET PrivilegeSet
-    );
-
-BOOLEAN
-SepQueueWorkItem(
-    IN PSEP_LSA_WORK_ITEM LsaWorkItem,
-    IN BOOLEAN ForceQueue
-    );
-
-PSEP_LSA_WORK_ITEM
-SepDequeueWorkItem(
-    VOID
-    );
-
-VOID
-SepAdtGenerateDiscardAudit(
-    VOID
-    );
-
-BOOLEAN
-SepAdtValidateAuditBounds(
-    ULONG Upper,
-    ULONG Lower
-    );
-
-NTSTATUS
-SepAdtInitializeCrashOnFail(
-    VOID
-    );
-
-BOOLEAN
-SepAdtInitializePrivilegeAuditing(
-    VOID
-    );
-
-NTSTATUS
-SepCopyProxyData (
-    OUT PSECURITY_TOKEN_PROXY_DATA * DestProxyData,
-    IN PSECURITY_TOKEN_PROXY_DATA SourceProxyData
-    );
-
-VOID
-SepFreeProxyData (
-    IN PSECURITY_TOKEN_PROXY_DATA ProxyData
-    );
-
-NTSTATUS
-SepProbeAndCaptureQosData(
-    IN PSECURITY_ADVANCED_QUALITY_OF_SERVICE CapturedSecurityQos
-    );
-
-PACCESS_TOKEN
-SeMakeAnonymousToken ();
+PUNICODE_STRING SepQueryTypeString(IN PVOID Object);
+POBJECT_NAME_INFORMATION SepQueryNameString(IN PVOID Object);
+BOOLEAN SepFilterPrivilegeAudits(IN PPRIVILEGE_SET PrivilegeSet);
+BOOLEAN SepQueueWorkItem(IN PSEP_LSA_WORK_ITEM LsaWorkItem, IN BOOLEAN ForceQueue);
+PSEP_LSA_WORK_ITEM SepDequeueWorkItem(VOID);
+VOID SepAdtGenerateDiscardAudit(VOID);
+BOOLEAN SepAdtValidateAuditBounds(ULONG Upper, ULONG Lower);
+NTSTATUS SepAdtInitializeCrashOnFail(VOID);
+BOOLEAN SepAdtInitializePrivilegeAuditing(VOID);
+NTSTATUS SepCopyProxyData (OUT PSECURITY_TOKEN_PROXY_DATA * DestProxyData, IN PSECURITY_TOKEN_PROXY_DATA SourceProxyData);
+VOID SepFreeProxyData (IN PSECURITY_TOKEN_PROXY_DATA ProxyData);
+NTSTATUS SepProbeAndCaptureQosData(IN PSECURITY_ADVANCED_QUALITY_OF_SERVICE CapturedSecurityQos);
+PACCESS_TOKEN SeMakeAnonymousToken ();
 
 #endif // _SEP_

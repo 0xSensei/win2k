@@ -53,9 +53,9 @@ SID_IDENTIFIER_AUTHORITY L32LocalSidAuthority = SECURITY_LOCAL_SID_AUTHORITY;
 #define COMMON_CREATE_THREADSD  0x00000004  // Whack the thread SD
 
 
+BOOL Logon32Initialize(IN PVOID    hMod, IN ULONG    Reason, IN PCONTEXT Context)
 //  Function:   Logon32Initialize
 //  Synopsis:   Initializes the critical section
-BOOL Logon32Initialize(IN PVOID    hMod, IN ULONG    Reason, IN PCONTEXT Context)
 {
     NTSTATUS    Status;
 
@@ -68,18 +68,17 @@ BOOL Logon32Initialize(IN PVOID    hMod, IN ULONG    Reason, IN PCONTEXT Context
 }
 
 
+PSID L32CreateLogonSid(PLUID LogonId OPTIONAL)
 /*
 * CreateLogonSid
 
 * Creates a logon sid for a new logon.
 
-* If LogonId is non NULL, on return the LUID that is part of the logon
-* sid is returned here.
+* If LogonId is non NULL, on return the LUID that is part of the logon sid is returned here.
 
 * History:
 * 12-05-91 Davidc       Created
 */
-PSID L32CreateLogonSid(PLUID LogonId OPTIONAL)
 {
     NTSTATUS Status;
     ULONG   Length;
@@ -114,17 +113,15 @@ PSID L32CreateLogonSid(PLUID LogonId OPTIONAL)
 }
 
 
+BOOL L32GetDefaultDomainName(PUNICODE_STRING     pDomainName)
 /*
     NAME:       GetDefaultDomainName
 
     SYNOPSIS:   Fills in the given array with the name of the default
                 domain to use for logon validation.
 
-    ENTRY:      pszDomainName - Pointer to a buffer that will receive
-                    the default domain name.
-
-                cchDomainName - The size (in charactesr) of the domain
-                    name buffer.
+    ENTRY:      pszDomainName - Pointer to a buffer that will receive the default domain name.
+                cchDomainName - The size (in charactesr) of the domain name buffer.
 
     RETURNS:    TRUE if successful, FALSE if not.
 
@@ -132,7 +129,6 @@ PSID L32CreateLogonSid(PLUID LogonId OPTIONAL)
         KeithMo     05-Dec-1994 Created.
         RichardW    10-Jan-95   Liberated from sockets and stuck in base
 */
-BOOL L32GetDefaultDomainName(PUNICODE_STRING     pDomainName)
 {
     OBJECT_ATTRIBUTES           ObjectAttributes;
     NTSTATUS                    NtStatus;
@@ -180,25 +176,18 @@ BOOL L32GetDefaultDomainName(PUNICODE_STRING     pDomainName)
                DomainInfo->DomainName.Buffer,
                DomainInfo->DomainName.Length);
 
-    // Null terminate it appropriately
-    Logon32DomainName[DomainInfo->DomainName.Length / sizeof(WCHAR)] = L'\0';
-
-    // Clean up
-    LsaFreeMemory((PVOID)DomainInfo);
-
-    // And init the string
-    RtlInitUnicodeString(pDomainName, Logon32DomainName);
-
+    Logon32DomainName[DomainInfo->DomainName.Length / sizeof(WCHAR)] = L'\0';// Null terminate it appropriately    
+    LsaFreeMemory((PVOID)DomainInfo);// Clean up    
+    RtlInitUnicodeString(pDomainName, Logon32DomainName);// And init the string
     return TRUE;
 }   // GetDefaultDomainName
 
 
-
+BOOL L32pInitLsa(void)
 //  Function:   L32pInitLsa
 //  Synopsis:   Initialize connection with LSA
 //  Arguments:  (none)
 //  History:    4-21-95   RichardW   Created
-BOOL L32pInitLsa(void)
 {
     char    MyName[MAX_PATH];
     char * ModuleName;
@@ -245,11 +234,7 @@ BOOL L32pInitLsa(void)
             HANDLE NewToken = NULL;
 
             // if that fails, try reverting and enabling privilege in process token.
-            TempStatus = NtSetInformationThread(
-                NtCurrentThread(),
-                ThreadImpersonationToken,
-                &NewToken,
-                sizeof(NewToken));
+            TempStatus = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, &NewToken, sizeof(NewToken));
             if (!NT_SUCCESS(TempStatus))
                 goto Cleanup;
 
@@ -322,13 +307,13 @@ Cleanup:
 }
 
 
+BOOL L32pNotifyMpr(PMSV1_0_INTERACTIVE_LOGON   NewLogon, PLUID LogonId)
 //  Function:   L32pNotifyMpr
 //  Synopsis:   Loads the MPR DLL and notifies the network providers (like
 //              csnw) so they know about this logon session and the credentials
 //  Arguments:  [NewLogon] -- New logon information
 //              [LogonId]  -- Logon ID
 //  History:    4-24-95   RichardW   Created
-BOOL L32pNotifyMpr(PMSV1_0_INTERACTIVE_LOGON   NewLogon, PLUID                       LogonId)
 {
     MSV1_0_INTERACTIVE_LOGON    OldLogon;
     LPWSTR                      LogonScripts;
@@ -351,16 +336,15 @@ BOOL L32pNotifyMpr(PMSV1_0_INTERACTIVE_LOGON   NewLogon, PLUID                  
     if (Logon32LogonNotify != NULL) {
         CopyMemory(&OldLogon, NewLogon, sizeof(OldLogon));
 
-        status = Logon32LogonNotify(
-            L"Windows NT Network Provider",
-            LogonId,
-            L"MSV1_0:Interactive",
-            (LPVOID)NewLogon,
-            L"MSV1_0:Interactive",
-            (LPVOID)&OldLogon,
-            L"SvcCtl",          // StationName
-            NULL,               // StationHandle
-            &LogonScripts);     // LogonScripts
+        status = Logon32LogonNotify(L"Windows NT Network Provider",
+                                    LogonId,
+                                    L"MSV1_0:Interactive",
+                                    (LPVOID)NewLogon,
+                                    L"MSV1_0:Interactive",
+                                    (LPVOID)&OldLogon,
+                                    L"SvcCtl",          // StationName
+                                    NULL,               // StationHandle
+                                    &LogonScripts);     // LogonScripts
         if (status == NO_ERROR) {
             if (LogonScripts != NULL) {
                 (void)LocalFree(LogonScripts);
@@ -374,25 +358,23 @@ BOOL L32pNotifyMpr(PMSV1_0_INTERACTIVE_LOGON   NewLogon, PLUID                  
 }
 
 
+NTSTATUS L32pLogonUser(IN HANDLE LsaHandle,
+                       IN ULONG AuthenticationPackage,
+                       IN SECURITY_LOGON_TYPE LogonType,
+                       IN PUNICODE_STRING UserName,
+                       IN PUNICODE_STRING Domain,
+                       IN PUNICODE_STRING Password,
+                       IN PSID LogonSid,
+                       OUT PLUID LogonId,
+                       OUT PHANDLE LogonToken,
+                       OUT PQUOTA_LIMITS Quotas,
+                       OUT PVOID * pProfileBuffer,
+                       OUT PULONG pProfileBufferLength,
+                       OUT PNTSTATUS pSubStatus
+)
 //  Function:   L32pLogonUser
 //  Synopsis:   Wraps up the call to LsaLogonUser
 //  History:    4-24-95   RichardW   Created
-NTSTATUS
-L32pLogonUser(
-    IN HANDLE LsaHandle,
-    IN ULONG AuthenticationPackage,
-    IN SECURITY_LOGON_TYPE LogonType,
-    IN PUNICODE_STRING UserName,
-    IN PUNICODE_STRING Domain,
-    IN PUNICODE_STRING Password,
-    IN PSID LogonSid,
-    OUT PLUID LogonId,
-    OUT PHANDLE LogonToken,
-    OUT PQUOTA_LIMITS Quotas,
-    OUT PVOID * pProfileBuffer,
-    OUT PULONG pProfileBufferLength,
-    OUT PNTSTATUS pSubStatus
-)
 {
     NTSTATUS Status;
     STRING OriginName;
@@ -467,8 +449,7 @@ L32pLogonUser(
         MsvNetAuthInfo->LogonDomainName.MaximumLength = Domain->Length;
 
         MsvNetAuthInfo->LogonDomainName.Buffer = (PWSTR)
-            ((PBYTE)(MsvNetAuthInfo->UserName.Buffer) +
-             MsvNetAuthInfo->UserName.MaximumLength);
+            ((PBYTE)(MsvNetAuthInfo->UserName.Buffer) + MsvNetAuthInfo->UserName.MaximumLength);
 
         RtlCopyMemory(MsvNetAuthInfo->LogonDomainName.Buffer, Domain->Buffer, Domain->Length);
 
@@ -499,18 +480,15 @@ L32pLogonUser(
             ((PBYTE)(MsvNetAuthInfo->Workstation.Buffer) +
              MsvNetAuthInfo->Workstation.MaximumLength);
 
-        MsvNetAuthInfo->CaseSensitiveChallengeResponse.Length =
-            NT_RESPONSE_LENGTH;
+        MsvNetAuthInfo->CaseSensitiveChallengeResponse.Length = NT_RESPONSE_LENGTH;
 
-        MsvNetAuthInfo->CaseSensitiveChallengeResponse.MaximumLength =
-            NT_RESPONSE_LENGTH;
+        MsvNetAuthInfo->CaseSensitiveChallengeResponse.MaximumLength = NT_RESPONSE_LENGTH;
 
         RtlCalculateNtOwfPassword(Password, &PasswordHash);
 
-        RtlCalculateNtResponse(
-            &Challenge.NtChallenge,
-            &PasswordHash,
-            (PNT_RESPONSE)MsvNetAuthInfo->CaseSensitiveChallengeResponse.Buffer);
+        RtlCalculateNtResponse(&Challenge.NtChallenge,
+                               &PasswordHash,
+                               (PNT_RESPONSE)MsvNetAuthInfo->CaseSensitiveChallengeResponse.Buffer);
 
         // Now do the painful LM compatible hash, so anyone who is maintaining
         // their account from a WfW machine will still have a password.
@@ -529,10 +507,9 @@ L32pLogonUser(
 
             ZeroMemory(LmPassword.Buffer, LmPassword.Length);
 
-            RtlCalculateLmResponse(
-                &Challenge.NtChallenge,
-                &LmPasswordHash,
-                (PLM_RESPONSE)MsvNetAuthInfo->CaseInsensitiveChallengeResponse.Buffer);
+            RtlCalculateLmResponse(&Challenge.NtChallenge,
+                                   &LmPasswordHash,
+                                   (PLM_RESPONSE)MsvNetAuthInfo->CaseInsensitiveChallengeResponse.Buffer);
         } else {
             // If we're here, the NT (supplied) password is longer than the
             // limit allowed for LM passwords.  NULL out the field, so that
@@ -568,8 +545,7 @@ L32pLogonUser(
         MsvAuthInfo->LogonDomainName.MaximumLength = MsvAuthInfo->LogonDomainName.Length;
 
         MsvAuthInfo->LogonDomainName.Buffer = (PWSTR)
-            ((PBYTE)(MsvAuthInfo->UserName.Buffer) +
-             MsvAuthInfo->UserName.MaximumLength);
+            ((PBYTE)(MsvAuthInfo->UserName.Buffer) + MsvAuthInfo->UserName.MaximumLength);
 
         RtlCopyMemory(MsvAuthInfo->LogonDomainName.Buffer, Domain->Buffer, Domain->Length);
 
@@ -581,8 +557,7 @@ L32pLogonUser(
         MsvAuthInfo->Password.MaximumLength = MsvAuthInfo->Password.Length;
 
         MsvAuthInfo->Password.Buffer = (PWSTR)
-            ((PBYTE)(MsvAuthInfo->LogonDomainName.Buffer) +
-             MsvAuthInfo->LogonDomainName.MaximumLength);
+            ((PBYTE)(MsvAuthInfo->LogonDomainName.Buffer) + MsvAuthInfo->LogonDomainName.MaximumLength);
 
         RtlCopyMemory(MsvAuthInfo->Password.Buffer, Password->Buffer, Password->Length);
     }
@@ -609,21 +584,20 @@ L32pLogonUser(
         TokenGroups->Groups[1].Attributes = SE_GROUP_MANDATORY | SE_GROUP_ENABLED | SE_GROUP_ENABLED_BY_DEFAULT;
 
         // Now try to log this sucker on
-        Status = LsaLogonUser(
-            LsaHandle,
-            &OriginName,
-            LogonType,
-            AuthenticationPackage,
-            AuthInfoBuf,
-            AuthInfoSize,
-            TokenGroups,
-            &SourceContext,
-            pProfileBuffer,
-            pProfileBufferLength,
-            LogonId,
-            LogonToken,
-            Quotas,
-            pSubStatus);
+        Status = LsaLogonUser(LsaHandle,
+                              &OriginName,
+                              LogonType,
+                              AuthenticationPackage,
+                              AuthInfoBuf,
+                              AuthInfoSize,
+                              TokenGroups,
+                              &SourceContext,
+                              pProfileBuffer,
+                              pProfileBufferLength,
+                              LogonId,
+                              LogonToken,
+                              Quotas,
+                              pSubStatus);
 
         RtlFreeSid(LocalSid);
     }
@@ -643,19 +617,16 @@ L32pLogonUser(
 }
 
 
+BOOL WINAPI LogonUserA(LPSTR       lpszUsername,
+                       LPSTR       lpszDomain,
+                       LPSTR       lpszPassword,
+                       DWORD       dwLogonType,
+                       DWORD       dwLogonProvider,
+                       HANDLE * phToken
+)
 //  Function:   LogonUserA
 //  Synopsis:   ANSI wrapper for LogonUserW.  See description below
 //  History:    4-25-95   RichardW   Created
-BOOL
-WINAPI
-LogonUserA(
-    LPSTR       lpszUsername,
-    LPSTR       lpszDomain,
-    LPSTR       lpszPassword,
-    DWORD       dwLogonType,
-    DWORD       dwLogonProvider,
-    HANDLE * phToken
-)
 {
     UNICODE_STRING Username;
     UNICODE_STRING Domain;
@@ -718,6 +689,13 @@ Cleanup:
 }
 
 
+BOOL WINAPI LogonUserW(PWSTR       lpszUsername,
+                       PWSTR       lpszDomain,
+                       PWSTR       lpszPassword,
+                       DWORD       dwLogonType,
+                       DWORD       dwLogonProvider,
+                       HANDLE * phToken
+)
 //  Function:   LogonUserW
 //  Synopsis:   Logs a user on via plaintext password, username and domain
 //              name via the LSA.
@@ -730,16 +708,6 @@ Cleanup:
 //  History:    4-25-95   RichardW   Created
 //  Notes:      Requires SeTcbPrivilege, and will enable it if not already
 //              present.
-BOOL
-WINAPI
-LogonUserW(
-    PWSTR       lpszUsername,
-    PWSTR       lpszDomain,
-    PWSTR       lpszPassword,
-    DWORD       dwLogonType,
-    DWORD       dwLogonProvider,
-    HANDLE * phToken
-)
 {
     NTSTATUS    Status;
     ULONG       PackageId;
@@ -848,21 +816,19 @@ LogonUserW(
     }
 
     // Attempt the logon
-    Status = L32pLogonUser(
-        Logon32LsaHandle,
-        (dwLogonProvider == LOGON32_PROVIDER_WINNT50) ?
-        Logon32NegoHandle : Logon32MsvHandle,
-        LogonType,
-        &Username,
-        &Domain,
-        &Password,
-        pLogonSid,
-        &LogonId,
-        phToken,
-        &Logon32QuotaLimits,
-        &Profile,
-        &ProfileLength,
-        &SubStatus);
+    Status = L32pLogonUser(Logon32LsaHandle,
+                           (dwLogonProvider == LOGON32_PROVIDER_WINNT50) ? Logon32NegoHandle : Logon32MsvHandle,
+                           LogonType,
+                           &Username,
+                           &Domain,
+                           &Password,
+                           pLogonSid,
+                           &LogonId,
+                           phToken,
+                           &Logon32QuotaLimits,
+                           &Profile,
+                           &ProfileLength,
+                           &SubStatus);
 
     // Done with logon sid, regardless of result:
     LocalFree(pLogonSid);
@@ -884,11 +850,11 @@ LogonUserW(
 }
 
 
+BOOL WINAPI ImpersonateLoggedOnUser(HANDLE  hToken)
 //  Function:   ImpersonateLoggedOnUser
 //  Synopsis:   Duplicates the token passed in if it is primary, and assigns
 //              it to the thread that called.
 //  History:    1-10-95   RichardW   Created
-BOOL WINAPI ImpersonateLoggedOnUser(HANDLE  hToken)
 {
     TOKEN_TYPE                  Type;
     ULONG                       cbType;
@@ -948,17 +914,15 @@ BOOL WINAPI ImpersonateLoggedOnUser(HANDLE  hToken)
 }
 
 
+BOOL L32SetProcessToken(PSECURITY_DESCRIPTOR    psd,
+                        HANDLE                  hProcess,
+                        HANDLE                  hThread,
+                        HANDLE                  hToken,
+                        BOOL                    AlreadyImpersonating
+)
 //  Function:   L32SetProcessToken
 //  Synopsis:   Sets the primary token for the new process.
 //  History:    4-25-95   RichardW   Created
-BOOL
-L32SetProcessToken(
-    PSECURITY_DESCRIPTOR    psd,
-    HANDLE                  hProcess,
-    HANDLE                  hThread,
-    HANDLE                  hToken,
-    BOOL                    AlreadyImpersonating
-)
 {
     NTSTATUS Status, AdjustStatus;
     PROCESS_ACCESS_TOKEN PrimaryTokenInfo;
@@ -1003,7 +967,8 @@ L32SetProcessToken(
     }
 
     if (NT_SUCCESS(Status)) {
-        // We now allow restricted tokens to passed in, so we don't fail if the privilege isn't held.  Let the kernel deal with the possibilities.
+        // We now allow restricted tokens to passed in, so we don't fail if the privilege isn't held.
+        // Let the kernel deal with the possibilities.
         Status = RtlAdjustPrivilege(SE_ASSIGNPRIMARYTOKEN_PRIVILEGE, TRUE, TRUE, &WasEnabled);
         if (!NT_SUCCESS(Status)) {
             WasEnabled = TRUE;     // Don't try to restore it.
@@ -1011,7 +976,10 @@ L32SetProcessToken(
 
         PrimaryTokenInfo.Token = TokenToAssign;
         PrimaryTokenInfo.Thread = hThread;
-        Status = NtSetInformationProcess(hProcess, ProcessAccessToken, (PVOID)&PrimaryTokenInfo, (ULONG)sizeof(PROCESS_ACCESS_TOKEN));
+        Status = NtSetInformationProcess(hProcess,
+                                         ProcessAccessToken,
+                                         (PVOID)&PrimaryTokenInfo,
+                                         (ULONG)sizeof(PROCESS_ACCESS_TOKEN));
         // Restore the privilege to its previous state
 
         if (!WasEnabled) {
@@ -1026,7 +994,10 @@ L32SetProcessToken(
         if (!AlreadyImpersonating) {
             NullHandle = NULL;
 
-            AdjustStatus = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, (PVOID)&NullHandle, sizeof(HANDLE));
+            AdjustStatus = NtSetInformationThread(NtCurrentThread(),
+                                                  ThreadImpersonationToken,
+                                                  (PVOID)&NullHandle,
+                                                  sizeof(HANDLE));
             if (NT_SUCCESS(Status)) {
                 Status = AdjustStatus;
             }
@@ -1046,11 +1017,11 @@ L32SetProcessToken(
 }
 
 
+BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating)
 //  Function:   L32SetProcessQuotas
 //  Synopsis:   Updates the quotas for the process
 //  Arguments:  [hProcess] --
 //  History:    4-25-95   RichardW   Created
-BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating)
 {
     NTSTATUS Status = STATUS_SUCCESS;
     NTSTATUS AdjustStatus = STATUS_SUCCESS;
@@ -1073,9 +1044,15 @@ BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating)
         if (RequestedLimits.PagedPoolLimit != 0) {
             Status = RtlAdjustPrivilege(SE_INCREASE_QUOTA_PRIVILEGE, TRUE, TRUE, &WasEnabled);
             if (NT_SUCCESS(Status)) {
-                Status = NtSetInformationProcess(hProcess, ProcessQuotaLimits, (PVOID)&RequestedLimits, (ULONG)sizeof(QUOTA_LIMITS));
+                Status = NtSetInformationProcess(hProcess,
+                                                 ProcessQuotaLimits,
+                                                 (PVOID)&RequestedLimits,
+                                                 (ULONG)sizeof(QUOTA_LIMITS));
                 if (!WasEnabled) {
-                    AdjustStatus = RtlAdjustPrivilege(SE_INCREASE_QUOTA_PRIVILEGE, WasEnabled, FALSE, &WasEnabled);
+                    AdjustStatus = RtlAdjustPrivilege(SE_INCREASE_QUOTA_PRIVILEGE,
+                                                      WasEnabled,
+                                                      FALSE,
+                                                      &WasEnabled);
                     if (NT_SUCCESS(Status)) {
                         Status = AdjustStatus;
                     }
@@ -1086,7 +1063,10 @@ BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating)
         if (!AlreadyImpersonating) {
             NullHandle = NULL;
 
-            AdjustStatus = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, (PVOID)&NullHandle, sizeof(HANDLE));
+            AdjustStatus = NtSetInformationThread(NtCurrentThread(),
+                                                  ThreadImpersonationToken,
+                                                  (PVOID)&NullHandle,
+                                                  sizeof(HANDLE));
             if (NT_SUCCESS(Status)) {
                 Status = AdjustStatus;
             }
@@ -1102,17 +1082,15 @@ BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating)
 }
 
 
+BOOL L32CommonCreate(DWORD   CreateFlags,
+                     HANDLE  hToken,
+                     LPPROCESS_INFORMATION   lpProcessInfo
+)
 //  Function:   L32CommonCreate
 //  Arguments:  [CreateFlags]     -- Flags (see top of file)
 //              [hToken]          -- Primary token to use
 //              [lpProcessInfo]   -- Process Info
 //  History:    1-20-95   RichardW   Created
-BOOL
-L32CommonCreate(
-    DWORD   CreateFlags,
-    HANDLE  hToken,
-    LPPROCESS_INFORMATION   lpProcessInfo
-)
 {
     PTOKEN_DEFAULT_DACL     pDefDacl;
     DWORD                   cDefDacl = 0;
@@ -1130,14 +1108,12 @@ L32CommonCreate(
     HANDLE                  hTempToken;
 #endif
 
-
     // Determine type of token, since a non primary token will not work
     // on a process.  Now, we could duplicate it into a primary token,
     // and whack it into the process, but that leaves the process possibly
     // without credentials.
 
-    Status = NtQueryInformationToken(hToken, TokenType,
-                                     (PUCHAR)&Type, sizeof(Type), &dummy);
+    Status = NtQueryInformationToken(hToken, TokenType, (PUCHAR)&Type, sizeof(Type), &dummy);
     if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         NtTerminateProcess(lpProcessInfo->hProcess, ERROR_ACCESS_DENIED);
@@ -1313,11 +1289,10 @@ L32CommonCreate(
             // That worked.  Now adjust the quota to be something reasonable
             Success = L32SetProcessQuotas(lpProcessInfo->hProcess, UsingImpToken);
             if ((!Success) && (hThreadToken != NULL) && (UsingImpToken == FALSE)) {
-                Status = NtSetInformationThread(
-                    NtCurrentThread(),
-                    ThreadImpersonationToken,
-                    (PVOID)&hThreadToken,
-                    sizeof(hThreadToken));
+                Status = NtSetInformationThread(NtCurrentThread(),
+                                                ThreadImpersonationToken,
+                                                (PVOID)&hThreadToken,
+                                                sizeof(hThreadToken));
                 UsingImpToken = TRUE;
                 Success = L32SetProcessQuotas(lpProcessInfo->hProcess, TRUE);
             }
@@ -1332,11 +1307,10 @@ L32CommonCreate(
                 RtlFreeHeap(RtlProcessHeap(), 0, pDefDacl);
 
                 if (hThreadToken) {
-                    Status = NtSetInformationThread(
-                        NtCurrentThread(),
-                        ThreadImpersonationToken,
-                        (PVOID)&hThreadToken,
-                        sizeof(hThreadToken));
+                    Status = NtSetInformationThread(NtCurrentThread(),
+                                                    ThreadImpersonationToken,
+                                                    (PVOID)&hThreadToken,
+                                                    sizeof(hThreadToken));
 
                     NtClose(hThreadToken);
                 }
@@ -1347,11 +1321,10 @@ L32CommonCreate(
 
         // If we were impersonating before, resume impersonating here
         if (hThreadToken) {
-            Status = NtSetInformationThread(
-                NtCurrentThread(),
-                ThreadImpersonationToken,
-                (PVOID)&hThreadToken,
-                sizeof(hThreadToken));
+            Status = NtSetInformationThread(NtCurrentThread(),
+                                            ThreadImpersonationToken,
+                                            (PVOID)&hThreadToken,
+                                            sizeof(hThreadToken));
 
             // Done with this now.
             NtClose(hThreadToken);
@@ -1371,6 +1344,12 @@ L32CommonCreate(
 }
 
 
+PWCHAR MarshallString(PCWSTR pSource,
+                      PCHAR  pBase,
+                      ULONG  MaxSize,
+                      PCHAR * ppPtr,
+                      PULONG pCount
+)
 //   MarshallString
 //    Marshall in a UNICODE_NULL terminated WCHAR string
 //  ENTRY:
@@ -1389,14 +1368,6 @@ L32CommonCreate(
 //  EXIT:
 //    NULL - Error
 //    !=NULL "normalized" pointer to the string in reference to pBase
-PWCHAR
-MarshallString(
-    PCWSTR pSource,
-    PCHAR  pBase,
-    ULONG  MaxSize,
-    PCHAR * ppPtr,
-    PULONG pCount
-)
 {
     ULONG Len;
     PCHAR ptr;
@@ -1422,8 +1393,8 @@ MarshallString(
     return((PWCHAR)ptr);
 }
 
-#if DBG
 
+#if DBG
 void DumpOutLastErrorString()
 {
     LPVOID  lpMsgBuf;
@@ -1446,13 +1417,12 @@ void DumpOutLastErrorString()
 }
 #endif
 
+
 #ifdef DBG
 #define    DBG_DumpOutLastError    DumpOutLastErrorString();
 #else
 #define    DBG_DumpOutLastError
 #endif
-
-
 
 
 // This function was originally defined in  \nt\private\ole32\dcomss\olescm\execclt.cxx
@@ -1475,22 +1445,19 @@ void DumpOutLastErrorString()
 
 // EXIT:
 //  STATUS_SUCCESS - no error
-
-BOOL
-CreateRemoteSessionProcessW(
-    ULONG  SessionId,
-    BOOL   System,
-    HANDLE hToken,
-    PCWSTR lpszImageName,
-    PCWSTR lpszCommandLine,
-    PSECURITY_ATTRIBUTES psaProcess,    // these are ignored on the session side, set to NULL
-    PSECURITY_ATTRIBUTES psaThread,     // these are ignored on the session side, set to NULL
-    BOOL   fInheritHandles,
-    DWORD  fdwCreate,
-    LPVOID lpvEnvionment,
-    LPCWSTR lpszCurDir,
-    LPSTARTUPINFOW pStartInfo,
-    LPPROCESS_INFORMATION pProcInfo
+BOOL CreateRemoteSessionProcessW(ULONG  SessionId,
+                                 BOOL   System,
+                                 HANDLE hToken,
+                                 PCWSTR lpszImageName,
+                                 PCWSTR lpszCommandLine,
+                                 PSECURITY_ATTRIBUTES psaProcess,    // these are ignored on the session side, set to NULL
+                                 PSECURITY_ATTRIBUTES psaThread,     // these are ignored on the session side, set to NULL
+                                 BOOL   fInheritHandles,
+                                 DWORD  fdwCreate,
+                                 LPVOID lpvEnvionment,
+                                 LPCWSTR lpszCurDir,
+                                 LPSTARTUPINFOW pStartInfo,
+                                 LPPROCESS_INFORMATION pProcInfo
 )
 {
     BOOL            Result;
@@ -1683,7 +1650,8 @@ CreateRemoteSessionProcessW(
 
     // We copy the PROCESS_INFO structure from the reply to the caller.
 
-    // The remote site has duplicated the handles into our process space for hProcess and hThread so that they will behave like CreateProcessW()
+    // The remote site has duplicated the handles into our process space for hProcess and 
+    // hThread so that they will behave like CreateProcessW()
     RtlMoveMemory(pProcInfo, &Rep.ProcInfo, sizeof(PROCESS_INFORMATION));
 
 Cleanup:
@@ -1730,23 +1698,20 @@ BOOL WINAPI CreateProcessAsUserW(HANDLE  hToken,
 
     if (!GetTokenInformation(hToken, TokenSessionId, &clientSessionID, sizeof(DWORD), &resultLength)) {
         // get the access token for the client of this call
-        // get token instead of process since the client might have only
-        // impersonated the thread, not the process
-
+        // get token instead of process since the client might have only impersonated the thread, not the process
         DBG_DumpOutLastError;
         ASSERT(FALSE);
         currentSessionID = 0;
 
-        // We should probably return FALSE here, but at this time we don't want to alter the
-        // non-Hydra code-execution-flow at all.
+        // We should probably return FALSE here, 
+        // but at this time we don't want to alter the non-Hydra code-execution-flow at all.
     }
 
-    // KdPrint(("logon32.c: CreateProcessAsUserW(): clientSessionID = %d, currentSessionID = %d \n",
-    //    clientSessionID, currentSessionID ));
+    // KdPrint(("logon32.c: CreateProcessAsUserW(): clientSessionID = %d, currentSessionID = %d \n", clientSessionID, currentSessionID ));
 
     if (clientSessionID != currentSessionID) {
-        // If the client session ID is not the same as the current session ID, then, we are attempting
-        // to create a process on a remote session from the current session.
+        // If the client session ID is not the same as the current session ID, then,
+        // we are attempting to create a process on a remote session from the current session.
         // This block of code is used to accomplish such process creation, it is Terminal-Server specific
 
         BOOL        bHaveImpersonated;
@@ -1762,18 +1727,15 @@ BOOL WINAPI CreateProcessAsUserW(HANDLE  hToken,
         dwCreationFlags &= ~CREATE_SUSPENDED;
 
         // Stop impersonating before doing the WinStationCreateProcess.
-        // The remote winstation exec thread will launch the app under
-        // the users context. We must not be impersonating because this
-        // call only lets SYSTEM request the remote execute.
+        // The remote winstation exec thread will launch the app under the users context.
+        // We must not be impersonating because this call only lets SYSTEM request the remote execute.
         hCurrentThread = GetCurrentThread();
 
         // Init bHaveImpersonated to the FALSE state
         bHaveImpersonated = FALSE;
 
-        // Since the caller of this function (runas-> SecLogon service ) has already
-        // impersonated the new (target) user, we do the OpenThreadToken with
-        // OpenAsSelf = TRUE
-
+        // Since the caller of this function (runas-> SecLogon service ) has already impersonated the new (target) user,
+        // we do the OpenThreadToken with OpenAsSelf = TRUE
         if (OpenThreadToken(hCurrentThread, TOKEN_QUERY, TRUE, &hPrevToken)) {
             bHaveImpersonated = TRUE;
 
@@ -1799,7 +1761,10 @@ BOOL WINAPI CreateProcessAsUserW(HANDLE  hToken,
 
         // Undo the effect of RevertToSelf() if we had impersoanted
         if (bHaveImpersonated) {
-            Status = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, &hPrevToken, sizeof(hPrevToken));
+            Status = NtSetInformationThread(NtCurrentThread(),
+                                            ThreadImpersonationToken,
+                                            &hPrevToken,
+                                            sizeof(hPrevToken));
             NtClose(hPrevToken);
         }
 
@@ -1808,9 +1773,7 @@ BOOL WINAPI CreateProcessAsUserW(HANDLE  hToken,
         } else {
             return FALSE;
         }
-    } else
-        // this is the standard non-Hydra related call block
-    {
+    } else {// this is the standard non-Hydra related call block
         if (!CreateProcessW(lpApplicationName,
                             lpCommandLine,
                             lpProcessAttributes,
@@ -1924,20 +1887,19 @@ BOOL CreateRemoteSessionProcessA(ULONG  SessionId,
     unicodeStartupInfo.lpReserved = unicodeReserved.Buffer;
     unicodeStartupInfo.lpTitle = unicodeTitle.Buffer;
 
-    rc = CreateRemoteSessionProcessW(
-        SessionId,
-        System,
-        hToken,
-        unicodeAppName.Buffer,
-        unicodeCommandLine.Buffer,
-        lpProcessAttributes,
-        lpThreadAttributes,
-        bInheritHandles,
-        dwCreationFlags,
-        lpEnvironment,
-        unicodeCurDir.Buffer,
-        &unicodeStartupInfo,
-        lpProcessInformation);
+    rc = CreateRemoteSessionProcessW(SessionId,
+                                     System,
+                                     hToken,
+                                     unicodeAppName.Buffer,
+                                     unicodeCommandLine.Buffer,
+                                     lpProcessAttributes,
+                                     lpThreadAttributes,
+                                     bInheritHandles,
+                                     dwCreationFlags,
+                                     lpEnvironment,
+                                     unicodeCurDir.Buffer,
+                                     &unicodeStartupInfo,
+                                     lpProcessInformation);
 
 Cleanup:
 
@@ -2041,9 +2003,7 @@ BOOL WINAPI CreateProcessAsUserA(HANDLE  hToken,
         bHaveImpersonated = FALSE;
 
         // Since the caller of this function (runas-> SecLogon service ) has already
-        // impersonated the new (target) user, we do the OpenThreadToken with
-        // OpenAsSelf = TRUE
-
+        // impersonated the new (target) user, we do the OpenThreadToken with OpenAsSelf = TRUE
         if (OpenThreadToken(hCurrentThread, TOKEN_QUERY, TRUE, &hPrevToken)) {
             bHaveImpersonated = TRUE;
 
@@ -2088,9 +2048,7 @@ BOOL WINAPI CreateProcessAsUserA(HANDLE  hToken,
         } else {
             return FALSE;
         }
-    } else
-        // this is the standard non-Hydra related call block
-    {
+    } else {// this is the standard non-Hydra related call block
         if (!CreateProcessA(lpApplicationName,
                             lpCommandLine,
                             lpProcessAttributes,

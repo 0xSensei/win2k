@@ -1,26 +1,18 @@
 /*++
-
 Copyright (c) 1989  Microsoft Corporation
 
 Module Name:
-
     seurtl.c
 
 Abstract:
-
     This Module implements many security rtl routines defined in nturtl.h
 
 Author:
-
     Robert Reichel  (RobertRe)  1-Mar-1991
 
 Environment:
-
     Pure Runtime Library Routine
     User mode callable only
-
-Revision History:
-
 --*/
 
 
@@ -32,14 +24,7 @@ Revision History:
 #include "ldrp.h"
 
 
-
-
-
-
-
 //    Exported Procedures                                                    //
-
-
 
 
 #if WHEN_LSAUDLL_MOVED_TO_NTDLL
@@ -51,19 +36,15 @@ RtlGetPrimaryDomain(
     OUT PUSHORT          RequiredNameLength,
     OUT PSID             PrimaryDomainSid OPTIONAL,
     OUT PULONG           RequiredSidLength
-    )
-
+)
 /*++
-
 Routine Description:
-
     This procedure opens the LSA policy object and retrieves
     the primary domain information for this machine.
 
 Arguments:
 
-    SidLength - Specifies the length of the PrimaryDomainSid
-        parameter.
+    SidLength - Specifies the length of the PrimaryDomainSid parameter.
 
     PrimaryDomainPresent - Receives a boolean value indicating
         whether this machine has a primary domain or not. TRUE
@@ -102,13 +83,7 @@ Return Value:
         LsaOpenPolicy()
         LsaQueryInformationPolicy()
         RtlCopySid()
-
-
 --*/
-
-
-
-
 {
     NTSTATUS Status, IgnoreStatus;
     OBJECT_ATTRIBUTES ObjectAttributes;
@@ -116,20 +91,13 @@ Return Value:
     SECURITY_QUALITY_OF_SERVICE SecurityQualityOfService;
     PPOLICY_PRIMARY_DOMAIN_INFO PrimaryDomainInfo;
 
-
-
     // Set up the Security Quality Of Service
-
-
     SecurityQualityOfService.Length = sizeof(SECURITY_QUALITY_OF_SERVICE);
     SecurityQualityOfService.ImpersonationLevel = SecurityImpersonation;
     SecurityQualityOfService.ContextTrackingMode = SECURITY_DYNAMIC_TRACKING;
     SecurityQualityOfService.EffectiveOnly = FALSE;
 
-
     // Set up the object attributes to open the Lsa policy object
-
-
     InitializeObjectAttributes(&ObjectAttributes,
                                NULL,
                                0L,
@@ -139,18 +107,12 @@ Return Value:
 
 
     // Open the local LSA policy object
-
-
-    Status = LsaOpenPolicy( NULL,
-                            &ObjectAttributes,
-                            POLICY_VIEW_LOCAL_INFORMATION,
-                            &LsaHandle
-                          );
+    Status = LsaOpenPolicy(NULL,
+                           &ObjectAttributes,
+                           POLICY_VIEW_LOCAL_INFORMATION,
+                           &LsaHandle);
     if (NT_SUCCESS(Status)) {
-
-
         // Get the primary domain info
-
         Status = LsaQueryInformationPolicy(LsaHandle,
                                            PolicyPrimaryDomainInformation,
                                            (PVOID *)&PrimaryDomainInfo);
@@ -159,63 +121,32 @@ Return Value:
     }
 
     if (NT_SUCCESS(Status)) {
-
-
         // Is there a primary domain?
-
-
         if (PrimaryDomainInfo->Sid != NULL) {
-
-
             // Yes
-
-
             (*PrimaryDomainPresent) = TRUE;
             (*RequiredNameLength) = PrimaryDomainInfo->Name.Length;
-            (*RequiredSidLength)  = RtlLengthSid(PrimaryDomainInfo->Sid);
-
-
-
+            (*RequiredSidLength) = RtlLengthSid(PrimaryDomainInfo->Sid);
 
             // Copy the name
-
-
-            if (PrimaryDomainName->MaximumLength >=
-                PrimaryDomainInfo->Name.Length) {
-                RtlCopyUnicodeString(
-                    PrimaryDomainName,
-                    &PrimaryDomainInfo->Name
-                    );
+            if (PrimaryDomainName->MaximumLength >= PrimaryDomainInfo->Name.Length) {
+                RtlCopyUnicodeString(PrimaryDomainName, &PrimaryDomainInfo->Name);
             } else {
                 Status = STATUS_BUFFER_TOO_SMALL;
             }
 
-
-
             // Copy the SID (if appropriate)
-
-
             if (PrimaryDomainSid != NULL && NT_SUCCESS(Status)) {
-
-                Status = RtlCopySid(SidLength,
-                                    PrimaryDomainSid,
-                                    PrimaryDomainInfo->Sid
-                                    );
+                Status = RtlCopySid(SidLength, PrimaryDomainSid, PrimaryDomainInfo->Sid);
             }
         } else {
-
             (*PrimaryDomainPresent) = FALSE;
         }
 
-
         // We're finished with the buffer returned by LSA
-
-
         IgnoreStatus = LsaFreeMemory(PrimaryDomainInfo);
         ASSERT(NT_SUCCESS(IgnoreStatus));
-
     }
-
 
     return(Status);
 }
@@ -223,20 +154,18 @@ Return Value:
 
 
 NTSTATUS
-RtlNewSecurityObjectEx (
+RtlNewSecurityObjectEx(
     IN PSECURITY_DESCRIPTOR ParentDescriptor OPTIONAL,
     IN PSECURITY_DESCRIPTOR CreatorDescriptor OPTIONAL,
     OUT PSECURITY_DESCRIPTOR * NewDescriptor,
-    IN GUID *ObjectType OPTIONAL,
+    IN GUID * ObjectType OPTIONAL,
     IN BOOLEAN IsDirectoryObject,
     IN ULONG AutoInheritFlags,
     IN HANDLE Token OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping
-    )
+)
 /*++
-
 Routine Description:
-
     See RtlpNewSecurityObject.
 
                               - - WARNING - -
@@ -245,50 +174,36 @@ Routine Description:
     type of object.  This service is explicitly not for use by the
     executive for executive objects and must not be called from kernel
     mode.
-
 Arguments:
-
     See RtlpNewSecurityObject.
-
 Return Value:
-
     See RtlpNewSecurityObject.
-
 --*/
 {
-
-
     // Simple call the newer RtlpNewSecurityObject
-
-
-    return RtlpNewSecurityObject (
-                ParentDescriptor,
-                CreatorDescriptor,
-                NewDescriptor,
-                ObjectType,
-                IsDirectoryObject,
-                AutoInheritFlags,
-                Token,
-                GenericMapping );
-
+    return RtlpNewSecurityObject(
+        ParentDescriptor,
+        CreatorDescriptor,
+        NewDescriptor,
+        ObjectType,
+        IsDirectoryObject,
+        AutoInheritFlags,
+        Token,
+        GenericMapping);
 }
 
 
-
-
 NTSTATUS
-RtlNewSecurityObject (
+RtlNewSecurityObject(
     IN PSECURITY_DESCRIPTOR ParentDescriptor OPTIONAL,
     IN PSECURITY_DESCRIPTOR CreatorDescriptor OPTIONAL,
     OUT PSECURITY_DESCRIPTOR * NewDescriptor,
     IN BOOLEAN IsDirectoryObject,
     IN HANDLE Token,
     IN PGENERIC_MAPPING GenericMapping
-    )
+)
 /*++
-
 Routine Description:
-
     See RtlpNewSecurityObject.
 
                               - - WARNING - -
@@ -299,132 +214,93 @@ Routine Description:
     mode.
 
 Arguments:
-
     See RtlpNewSecurityObject.
-
 Return Value:
-
     See RtlpNewSecurityObject.
-
 --*/
 {
-
-
     // Simple call the newer RtlpNewSecurityObject
-
-
-    return RtlpNewSecurityObject (
-                ParentDescriptor,
-                CreatorDescriptor,
-                NewDescriptor,
-                NULL,   // No ObjectType
-                IsDirectoryObject,
-                0,      // No Automatic inheritance
-                Token,
-                GenericMapping );
-
+    return RtlpNewSecurityObject(
+        ParentDescriptor,
+        CreatorDescriptor,
+        NewDescriptor,
+        NULL,   // No ObjectType
+        IsDirectoryObject,
+        0,      // No Automatic inheritance
+        Token,
+        GenericMapping);
 }
 
 
-
 NTSTATUS
-RtlSetSecurityObject (
+RtlSetSecurityObject(
     IN SECURITY_INFORMATION SecurityInformation,
     IN PSECURITY_DESCRIPTOR ModificationDescriptor,
-    IN OUT PSECURITY_DESCRIPTOR *ObjectsSecurityDescriptor,
+    IN OUT PSECURITY_DESCRIPTOR * ObjectsSecurityDescriptor,
     IN PGENERIC_MAPPING GenericMapping,
     IN HANDLE Token OPTIONAL
-    )
+)
 /*++
-
 Routine Description:
-
     See RtlpSetSecurityObject.
-
 Arguments:
-
     See RtlpSetSecurityObject.
-
 Return Value:
-
     See RtlpSetSecurityObject.
-
 --*/
-
 {
-
-
     // Simply call RtlpSetSecurityObject specifying no auto inheritance.
-
-
-    return RtlpSetSecurityObject( NULL,
-                                  SecurityInformation,
-                                  ModificationDescriptor,
-                                  ObjectsSecurityDescriptor,
-                                  0,   // No AutoInheritance
-                                  PagedPool,
-                                  GenericMapping,
-                                  Token );
+    return RtlpSetSecurityObject(NULL,
+                                 SecurityInformation,
+                                 ModificationDescriptor,
+                                 ObjectsSecurityDescriptor,
+                                 0,   // No AutoInheritance
+                                 PagedPool,
+                                 GenericMapping,
+                                 Token);
 }
 
 
 
 NTSTATUS
-RtlSetSecurityObjectEx (
+RtlSetSecurityObjectEx(
     IN SECURITY_INFORMATION SecurityInformation,
     IN PSECURITY_DESCRIPTOR ModificationDescriptor,
-    IN OUT PSECURITY_DESCRIPTOR *ObjectsSecurityDescriptor,
+    IN OUT PSECURITY_DESCRIPTOR * ObjectsSecurityDescriptor,
     IN ULONG AutoInheritFlags,
     IN PGENERIC_MAPPING GenericMapping,
     IN HANDLE Token OPTIONAL
-    )
+)
 /*++
-
 Routine Description:
-
     See RtlpSetSecurityObject.
-
 Arguments:
-
     See RtlpSetSecurityObject.
-
 Return Value:
-
     See RtlpSetSecurityObject.
-
 --*/
-
 {
-
-
     // Simply call RtlpSetSecurityObject specifying no auto inheritance.
-
-
-    return RtlpSetSecurityObject( NULL,
-                                  SecurityInformation,
-                                  ModificationDescriptor,
-                                  ObjectsSecurityDescriptor,
-                                  AutoInheritFlags,
-                                  PagedPool,
-                                  GenericMapping,
-                                  Token );
+    return RtlpSetSecurityObject(NULL,
+                                 SecurityInformation,
+                                 ModificationDescriptor,
+                                 ObjectsSecurityDescriptor,
+                                 AutoInheritFlags,
+                                 PagedPool,
+                                 GenericMapping,
+                                 Token);
 }
 
 
-
-
-
 NTSTATUS
-RtlQuerySecurityObject (
+RtlQuerySecurityObject(
     IN PSECURITY_DESCRIPTOR ObjectDescriptor,
     IN SECURITY_INFORMATION SecurityInformation,
     OUT PSECURITY_DESCRIPTOR ResultantDescriptor,
     IN ULONG DescriptorLength,
     OUT PULONG ReturnLength
-    )
-
+)
 /*++
-
 Routine Description:
 
     Query information from a protected server object's existing security
@@ -446,11 +322,9 @@ Routine Description:
 
 Arguments:
 
-    ObjectDescriptor - Points to a pointer to a security descriptor to be
-        queried.
+    ObjectDescriptor - Points to a pointer to a security descriptor to be queried.
 
-    SecurityInformation - Identifies the security information being
-        requested.
+    SecurityInformation - Identifies the security information being requested.
 
     ResultantDescriptor - Points to buffer to receive the resultant
         security descriptor.  The resultant security descriptor will
@@ -458,15 +332,13 @@ Arguments:
         parameter.
 
     DescriptorLength - Is an unsigned integer which indicates the length,
-        in bytes, of the buffer provided to receive the resultant
-        descriptor.
+        in bytes, of the buffer provided to receive the resultant descriptor.
 
     ReturnLength - Receives an unsigned integer indicating the actual
         number of bytes needed in the ResultantDescriptor to store the
         requested information.  If the value returned is greater than the
         value passed via the DescriptorLength parameter, then
         STATUS_BUFFER_TOO_SMALL is returned and no information is returned.
-
 
 Return Value:
 
@@ -478,11 +350,8 @@ Return Value:
 
     STATUS_BAD_DESCRIPTOR_FORMAT - Indicates the provided object's security
         descriptor was not in self-relative format.
-
 --*/
-
 {
-
     PSID Group;
     PSID Owner;
     PACL Dacl;
@@ -496,10 +365,8 @@ Return Value:
     PCHAR Field;
     PCHAR Base;
 
-
     PISECURITY_DESCRIPTOR IObjectDescriptor;
     PISECURITY_DESCRIPTOR_RELATIVE IResultantDescriptor;
-
 
     IResultantDescriptor = (PISECURITY_DESCRIPTOR_RELATIVE)ResultantDescriptor;
     IObjectDescriptor = (PISECURITY_DESCRIPTOR)ObjectDescriptor;
@@ -511,61 +378,50 @@ Return Value:
 
 
     if (SecurityInformation & GROUP_SECURITY_INFORMATION) {
-
         Group = RtlpGroupAddrSecurityDescriptor(IObjectDescriptor);
         GroupSize = LongAlignSize(SeLengthSid(Group));
     }
 
     if (SecurityInformation & DACL_SECURITY_INFORMATION) {
-
-        Dacl = RtlpDaclAddrSecurityDescriptor( IObjectDescriptor );
-
+        Dacl = RtlpDaclAddrSecurityDescriptor(IObjectDescriptor);
         if (Dacl != NULL) {
             DaclSize = LongAlignSize(Dacl->AclSize);
         }
     }
 
     if (SecurityInformation & SACL_SECURITY_INFORMATION) {
-
-        Sacl = RtlpSaclAddrSecurityDescriptor( IObjectDescriptor );
-
+        Sacl = RtlpSaclAddrSecurityDescriptor(IObjectDescriptor);
         if (Sacl != NULL) {
             SaclSize = LongAlignSize(Sacl->AclSize);
         }
-
     }
 
     if (SecurityInformation & OWNER_SECURITY_INFORMATION) {
-
-        Owner = RtlpOwnerAddrSecurityDescriptor ( IObjectDescriptor );
+        Owner = RtlpOwnerAddrSecurityDescriptor(IObjectDescriptor);
         OwnerSize = LongAlignSize(SeLengthSid(Owner));
     }
 
-    *ReturnLength = sizeof( SECURITY_DESCRIPTOR_RELATIVE ) +
-                    GroupSize +
-                    DaclSize  +
-                    SaclSize  +
-                    OwnerSize;
+    *ReturnLength = sizeof(SECURITY_DESCRIPTOR_RELATIVE) +
+        GroupSize +
+        DaclSize +
+        SaclSize +
+        OwnerSize;
 
     if (*ReturnLength > DescriptorLength) {
-        return( STATUS_BUFFER_TOO_SMALL );
+        return(STATUS_BUFFER_TOO_SMALL);
     }
 
-    RtlCreateSecurityDescriptor(
-        IResultantDescriptor,
-        SECURITY_DESCRIPTOR_REVISION
-        );
+    RtlCreateSecurityDescriptor(IResultantDescriptor, SECURITY_DESCRIPTOR_REVISION);
 
-    RtlpSetControlBits( IResultantDescriptor, SE_SELF_RELATIVE );
+    RtlpSetControlBits(IResultantDescriptor, SE_SELF_RELATIVE);
 
     Base = (PCHAR)(IResultantDescriptor);
-    Field =  Base + (ULONG)sizeof(SECURITY_DESCRIPTOR_RELATIVE);
+    Field = Base + (ULONG)sizeof(SECURITY_DESCRIPTOR_RELATIVE);
 
     if (SecurityInformation & SACL_SECURITY_INFORMATION) {
-
         if (SaclSize > 0) {
-            RtlMoveMemory( Field, Sacl, SaclSize );
-            IResultantDescriptor->Sacl = RtlPointerToOffset(Base,Field);
+            RtlMoveMemory(Field, Sacl, SaclSize);
+            IResultantDescriptor->Sacl = RtlPointerToOffset(Base, Field);
             Field += SaclSize;
         }
 
@@ -573,14 +429,13 @@ Return Value:
             IResultantDescriptor,
             IObjectDescriptor,
             SE_SACL_PRESENT | SE_SACL_DEFAULTED
-            );
+        );
     }
 
     if (SecurityInformation & DACL_SECURITY_INFORMATION) {
-
         if (DaclSize > 0) {
-            RtlMoveMemory( Field, Dacl, DaclSize );
-            IResultantDescriptor->Dacl = RtlPointerToOffset(Base,Field);
+            RtlMoveMemory(Field, Dacl, DaclSize);
+            IResultantDescriptor->Dacl = RtlPointerToOffset(Base, Field);
             Field += DaclSize;
         }
 
@@ -588,14 +443,13 @@ Return Value:
             IResultantDescriptor,
             IObjectDescriptor,
             SE_DACL_PRESENT | SE_DACL_DEFAULTED
-            );
+        );
     }
 
     if (SecurityInformation & OWNER_SECURITY_INFORMATION) {
-
         if (OwnerSize > 0) {
-            RtlMoveMemory( Field, Owner, OwnerSize );
-            IResultantDescriptor->Owner = RtlPointerToOffset(Base,Field);
+            RtlMoveMemory(Field, Owner, OwnerSize);
+            IResultantDescriptor->Owner = RtlPointerToOffset(Base, Field);
             Field += OwnerSize;
         }
 
@@ -603,42 +457,32 @@ Return Value:
             IResultantDescriptor,
             IObjectDescriptor,
             SE_OWNER_DEFAULTED
-            );
-
+        );
     }
 
     if (SecurityInformation & GROUP_SECURITY_INFORMATION) {
-
         if (GroupSize > 0) {
-            RtlMoveMemory( Field, Group, GroupSize );
-            IResultantDescriptor->Group = RtlPointerToOffset(Base,Field);
+            RtlMoveMemory(Field, Group, GroupSize);
+            IResultantDescriptor->Group = RtlPointerToOffset(Base, Field);
         }
 
         RtlpPropagateControlBits(
             IResultantDescriptor,
             IObjectDescriptor,
             SE_GROUP_DEFAULTED
-            );
+        );
     }
 
-    return( STATUS_SUCCESS );
-
+    return(STATUS_SUCCESS);
 }
 
 
-
-
-
 NTSTATUS
-RtlDeleteSecurityObject (
+RtlDeleteSecurityObject(
     IN OUT PSECURITY_DESCRIPTOR * ObjectDescriptor
-    )
-
-
+)
 /*++
-
 Routine Description:
-
     Delete a protected server object's security descriptor.
 
     This procedure, called only from user mode, is used to delete a
@@ -652,24 +496,15 @@ Routine Description:
     type of object.  This service is explicitly not for use by the
     executive for executive objects and must not be called from kernel
     mode.
-
-
 Arguments:
-
-    ObjectDescriptor - Points to a pointer to a security descriptor to be
-        deleted.
-
-
+    ObjectDescriptor - Points to a pointer to a security descriptor to be deleted.
 Return Value:
-
     STATUS_SUCCESS - The operation was successful.
-
 --*/
-
 {
-    RtlFreeHeap( RtlProcessHeap(), 0, (PVOID)*ObjectDescriptor );
+    RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)*ObjectDescriptor);
 
-    return( STATUS_SUCCESS );
+    return(STATUS_SUCCESS);
 
 }
 
@@ -688,7 +523,7 @@ RtlNewInstanceSecurityObject(
     IN BOOLEAN IsDirectoryObject,
     IN HANDLE Token,
     IN PGENERIC_MAPPING GenericMapping
-    )
+)
 
 /*++
 
@@ -748,70 +583,49 @@ Arguments:
         the mapping between each generic right to specific rights.
 
 Return Value:
-
     return-value - Description of conditions needed to return value. - or -
     None.
-
 --*/
-
 {
-
     TOKEN_STATISTICS ClientTokenStatistics;
     ULONG ReturnLength;
     NTSTATUS Status;
 
-
-
-
     // Get the current token modified LUID
-
-
-
     Status = NtQueryInformationToken(
-                 Token,                        // Handle
-                 TokenStatistics,              // TokenInformationClass
-                 &ClientTokenStatistics,       // TokenInformation
-                 sizeof(TOKEN_STATISTICS),     // TokenInformationLength
-                 &ReturnLength                 // ReturnLength
-                 );
+        Token,                        // Handle
+        TokenStatistics,              // TokenInformationClass
+        &ClientTokenStatistics,       // TokenInformation
+        sizeof(TOKEN_STATISTICS),     // TokenInformationLength
+        &ReturnLength                 // ReturnLength
+    );
 
-    if ( !NT_SUCCESS( Status )) {
-        return( Status );
+    if (!NT_SUCCESS(Status)) {
+        return(Status);
     }
 
     *NewClientTokenModifiedId = ClientTokenStatistics.ModifiedId;
 
-    if ( RtlEqualLuid(NewClientTokenModifiedId, OldClientTokenModifiedId) ) {
-
-        if ( !(ParentDescriptorChanged || CreatorDescriptorChanged) ) {
-
-
+    if (RtlEqualLuid(NewClientTokenModifiedId, OldClientTokenModifiedId)) {
+        if (!(ParentDescriptorChanged || CreatorDescriptorChanged)) {
             // The old security descriptor is valid for this new instance
             // of the object type as well.  Pass back success and NULL for
             // the NewDescriptor.
-
-
             *NewDescriptor = NULL;
-            return( STATUS_SUCCESS );
-
+            return(STATUS_SUCCESS);
         }
     }
 
-
     // Something has changed, take the long route and build a new
     // descriptor
-
-
-    return( RtlNewSecurityObject( ParentDescriptor,
-                                  CreatorDescriptor,
-                                  NewDescriptor,
-                                  IsDirectoryObject,
-                                  Token,
-                                  GenericMapping
-                                  ));
+    return(RtlNewSecurityObject(ParentDescriptor,
+                                CreatorDescriptor,
+                                NewDescriptor,
+                                IsDirectoryObject,
+                                Token,
+                                GenericMapping
+    ));
 }
-
-
 
 
 NTSTATUS
@@ -822,12 +636,9 @@ RtlNewSecurityGrantedAccess(
     IN HANDLE Token OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
     OUT PACCESS_MASK RemainingDesiredAccess
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine implements privilege policy by examining the bits in
     a DesiredAccess mask and adjusting them based on privilege checks.
 
@@ -844,11 +655,9 @@ Arguments:
     DesiredAccess - Supplies the user's desired access mask
 
     Privileges - Supplies a pointer to an empty buffer in which will
-        be returned a privilege set describing any privileges that were
-        used to gain access.
+        be returned a privilege set describing any privileges that were used to gain access.
 
-        Note that this is not an optional parameter, that is, enough
-        room for a single privilege must always be passed.
+        Note that this is not an optional parameter, that is, enough room for a single privilege must always be passed.
 
     Length - Supplies the length of the Privileges parameter in bytes.
         If the supplies length is not adequate to store the entire
@@ -859,29 +668,18 @@ Arguments:
         specified as null, then the token on the thread is opened and
         examined to see if it is an impersonation token.  If it is,
         then it must be at SecurityIdentification level or higher.  If
-        it is not an impersonation token, the operation proceeds
-        normally.
+        it is not an impersonation token, the operation proceeds normally.
 
-    GenericMapping - Supplies the generic mapping associated with this
-        object type.
+    GenericMapping - Supplies the generic mapping associated with this object type.
 
-    RemainingDesiredAccess - Returns the DesiredAccess mask after any bits
-        have been masked off.  If no access types could be granted, this
-        mask will be identical to the one passed in.
+    RemainingDesiredAccess - Returns the DesiredAccess mask after any bits have been masked off.
+        If no access types could be granted, this mask will be identical to the one passed in.
 
 Return Value:
-
     STATUS_SUCCESS - The operation completed successfully.
-
-    STATUS_BUFFER_TOO_SMALL - The passed buffer was not large enough
-        to contain the information being returned.
-
-    STATUS_BAD_IMPERSONATION_LEVEL - The caller or passed token was
-        impersonating, but not at a high enough level.
-
-
+    STATUS_BUFFER_TOO_SMALL - The passed buffer was not large enough to contain the information being returned.
+    STATUS_BAD_IMPERSONATION_LEVEL - The caller or passed token was impersonating, but not at a high enough level.
 --*/
-
 {
     PRIVILEGE_SET RequiredPrivilege;
     BOOLEAN Result = FALSE;
@@ -894,8 +692,6 @@ Return Value:
     ULONG SizeRequired;
     ULONG PrivilegeNumber = 0;
 
-
-
     //  If the caller hasn't passed a token, call the kernel and get
     //  his impersonation token.  This call will fail if the caller is
     //  not impersonating a client, so if the caller is not
@@ -903,19 +699,19 @@ Return Value:
     //  token.
 
 
-    if (!ARGUMENT_PRESENT( Token )) {
+    if (!ARGUMENT_PRESENT(Token)) {
 
         Status = NtOpenThreadToken(
-                     NtCurrentThread(),
-                     TOKEN_QUERY,
-                     TRUE,
-                     &ThreadToken
-                     );
+            NtCurrentThread(),
+            TOKEN_QUERY,
+            TRUE,
+            &ThreadToken
+        );
 
         TokenPassed = FALSE;
 
-        if (!NT_SUCCESS( Status )) {
-            return( Status );
+        if (!NT_SUCCESS(Status)) {
+            return(Status);
         }
 
     } else {
@@ -925,23 +721,23 @@ Return Value:
     }
 
     Status = NtQueryInformationToken(
-                 ThreadToken,                  // Handle
-                 TokenStatistics,              // TokenInformationClass
-                 &ThreadTokenStatistics,       // TokenInformation
-                 sizeof(TOKEN_STATISTICS),     // TokenInformationLength
-                 &ReturnLength                 // ReturnLength
-                 );
+        ThreadToken,                  // Handle
+        TokenStatistics,              // TokenInformationClass
+        &ThreadTokenStatistics,       // TokenInformation
+        sizeof(TOKEN_STATISTICS),     // TokenInformationLength
+        &ReturnLength                 // ReturnLength
+    );
 
-    ASSERT( NT_SUCCESS(Status) );
+    ASSERT(NT_SUCCESS(Status));
 
     RtlMapGenericMask(
         &DesiredAccess,
         GenericMapping
-        );
+    );
 
     *RemainingDesiredAccess = DesiredAccess;
 
-    if ( DesiredAccess & ACCESS_SYSTEM_SECURITY ) {
+    if (DesiredAccess & ACCESS_SYSTEM_SECURITY) {
 
         RequiredPrivilege.PrivilegeCount = 1;
         RequiredPrivilege.Control = PRIVILEGE_SET_ALL_NECESSARY;
@@ -954,74 +750,64 @@ Return Value:
 
 
         Status = NtPrivilegeCheck(
-                     ThreadToken,
-                     &RequiredPrivilege,
-                     &Result
-                     );
+            ThreadToken,
+            &RequiredPrivilege,
+            &Result
+        );
 
-        if ( (!NT_SUCCESS ( Status )) || (!Result) ) {
+        if ((!NT_SUCCESS(Status)) || (!Result)) {
 
             if (!TokenPassed) {
-                NtClose( ThreadToken );
+                NtClose(ThreadToken);
             }
 
-            if ( !NT_SUCCESS( Status )) {
-                return( Status );
+            if (!NT_SUCCESS(Status)) {
+                return(Status);
             }
 
-            if ( !Result ) {
-                return( STATUS_PRIVILEGE_NOT_HELD );
+            if (!Result) {
+                return(STATUS_PRIVILEGE_NOT_HELD);
             }
-
         }
-
 
         // We have the required privilege, turn off the bit in
         // copy of the input mask and remember that we need to return
         // this privilege.
-
-
         *RemainingDesiredAccess &= ~ACCESS_SYSTEM_SECURITY;
     }
 
     if (!TokenPassed) {
-        NtClose( ThreadToken );
+        NtClose(ThreadToken);
     }
 
     SizeRequired = sizeof(PRIVILEGE_SET);
 
-    if ( SizeRequired > *Length ) {
+    if (SizeRequired > * Length) {
         *Length = SizeRequired;
-        return( STATUS_BUFFER_TOO_SMALL );
+        return(STATUS_BUFFER_TOO_SMALL);
     }
 
     if (Result) {
-
         Privileges->PrivilegeCount = 1;
         Privileges->Control = 0;
         Privileges->Privilege[PrivilegeNumber].Luid = RtlConvertLongToLuid(SE_SECURITY_PRIVILEGE);
         Privileges->Privilege[PrivilegeNumber].Attributes = SE_PRIVILEGE_USED_FOR_ACCESS;
-
     } else {
-
         Privileges->PrivilegeCount = 0;
         Privileges->Control = 0;
         Privileges->Privilege[PrivilegeNumber].Luid = RtlConvertLongToLuid(0);
         Privileges->Privilege[PrivilegeNumber].Attributes = 0;
-
     }
 
-    return( STATUS_SUCCESS );
-
+    return(STATUS_SUCCESS);
 }
-
 
 
 NTSTATUS
 RtlCopySecurityDescriptor(
     IN PSECURITY_DESCRIPTOR InputSecurityDescriptor,
-    OUT PSECURITY_DESCRIPTOR *OutputSecurityDescriptor
-    )
+    OUT PSECURITY_DESCRIPTOR * OutputSecurityDescriptor
+)
 
 /*++
 
@@ -1052,17 +838,12 @@ Return Value:
 
     STATUS_NO_MEMORY - There was not enough memory available to the current
         process to complete this operation.
-
 --*/
-
 {
-
     PACL Dacl;
     PACL Sacl;
-
     PSID Owner;
     PSID PrimaryGroup;
-
     ULONG DaclSize;
     ULONG OwnerSize;
     ULONG PrimaryGroupSize;
@@ -1070,7 +851,7 @@ Return Value:
     ULONG TotalSize;
 
     PISECURITY_DESCRIPTOR ISecurityDescriptor =
-                            (PISECURITY_DESCRIPTOR)InputSecurityDescriptor;
+        (PISECURITY_DESCRIPTOR)InputSecurityDescriptor;
 
 
     RtlpQuerySecurityDescriptor(
@@ -1083,21 +864,21 @@ Return Value:
         &DaclSize,
         &Sacl,
         &SaclSize
-        );
+    );
 
     TotalSize = sizeof(SECURITY_DESCRIPTOR) +
-                OwnerSize +
-                PrimaryGroupSize +
-                DaclSize +
-                SaclSize;
+        OwnerSize +
+        PrimaryGroupSize +
+        DaclSize +
+        SaclSize;
 
-    *OutputSecurityDescriptor = RtlAllocateHeap( RtlProcessHeap(), MAKE_TAG( SE_TAG ), TotalSize );
-    if ( *OutputSecurityDescriptor == NULL ) {
-        return( STATUS_NO_MEMORY );
+    *OutputSecurityDescriptor = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(SE_TAG), TotalSize);
+    if (*OutputSecurityDescriptor == NULL) {
+        return(STATUS_NO_MEMORY);
     }
-    RtlMoveMemory( *OutputSecurityDescriptor, ISecurityDescriptor, TotalSize);
+    RtlMoveMemory(*OutputSecurityDescriptor, ISecurityDescriptor, TotalSize);
 
-    return( STATUS_SUCCESS );
+    return(STATUS_SUCCESS);
 }
 
 
@@ -1109,7 +890,7 @@ RtlpInitializeAllowedAce(
     IN  UCHAR AceFlags,
     IN  ACCESS_MASK Mask,
     IN  PSID AllowedSid
-    )
+)
 /*++
 
 Routine Description:
@@ -1144,10 +925,10 @@ Return Value:
     AllowedAce->Mask = Mask;
 
     return RtlCopySid(
-               RtlLengthSid(AllowedSid),
-               &(AllowedAce->SidStart),
-               AllowedSid
-               );
+        RtlLengthSid(AllowedSid),
+        &(AllowedAce->SidStart),
+        AllowedSid
+    );
 }
 
 
@@ -1159,7 +940,7 @@ RtlpInitializeDeniedAce(
     IN  UCHAR AceFlags,
     IN  ACCESS_MASK Mask,
     IN  PSID DeniedSid
-    )
+)
 /*++
 
 Routine Description:
@@ -1194,10 +975,10 @@ Return Value:
     DeniedAce->Mask = Mask;
 
     return RtlCopySid(
-               RtlLengthSid(DeniedSid),
-               &(DeniedAce->SidStart),
-               DeniedSid
-               );
+        RtlLengthSid(DeniedSid),
+        &(DeniedAce->SidStart),
+        DeniedSid
+    );
 }
 
 
@@ -1209,7 +990,7 @@ RtlpInitializeAuditAce(
     IN  UCHAR AceFlags,
     IN  ACCESS_MASK Mask,
     IN  PSID AuditSid
-    )
+)
 /*++
 
 Routine Description:
@@ -1232,9 +1013,7 @@ Arguments:
         audited.
 
 Return Value:
-
     Returns status from RtlCopySid.
-
 --*/
 {
     AuditAce->Header.AceType = SYSTEM_AUDIT_ACE_TYPE;
@@ -1244,10 +1023,10 @@ Return Value:
     AuditAce->Mask = Mask;
 
     return RtlCopySid(
-               RtlLengthSid(AuditSid),
-               &(AuditAce->SidStart),
-               AuditSid
-               );
+        RtlLengthSid(AuditSid),
+        &(AuditAce->SidStart),
+        AuditSid
+    );
 }
 
 NTSTATUS
@@ -1256,8 +1035,8 @@ RtlCreateAndSetSD(
     IN  ULONG AceCount,
     IN  PSID OwnerSid OPTIONAL,
     IN  PSID GroupSid OPTIONAL,
-    OUT PSECURITY_DESCRIPTOR *NewDescriptor
-    )
+    OUT PSECURITY_DESCRIPTOR * NewDescriptor
+)
 /*++
 
 Routine Description:
@@ -1329,7 +1108,6 @@ Return Value:
 
 --*/
 {
-
     NTSTATUS ntstatus = STATUS_SUCCESS;
     ULONG i;
 
@@ -1361,7 +1139,7 @@ Return Value:
     PVOID HeapHandle = RtlProcessHeap();
 
 
-    ASSERT( AceCount > 0 );
+    ASSERT(AceCount > 0);
 
 
     // Compute the total size of the DACL and SACL ACEs and the maximum
@@ -1378,17 +1156,14 @@ Return Value:
             AceSize += sizeof(ACCESS_ALLOWED_ACE);
             DaclSize += AceSize;
             break;
-
         case ACCESS_DENIED_ACE_TYPE:
             AceSize += sizeof(ACCESS_DENIED_ACE);
             DaclSize += AceSize;
             break;
-
         case SYSTEM_AUDIT_ACE_TYPE:
             AceSize += sizeof(SYSTEM_AUDIT_ACE);
             SaclSize += AceSize;
             break;
-
         default:
             return STATUS_INVALID_PARAMETER;
         }
@@ -1405,59 +1180,49 @@ Return Value:
 
 
     Size = SECURITY_DESCRIPTOR_MIN_LENGTH;
-    if ( DaclSize != sizeof(ACL) ) {
+    if (DaclSize != sizeof(ACL)) {
         Size += DaclSize;
     }
-    if ( SaclSize != sizeof(ACL) ) {
+    if (SaclSize != sizeof(ACL)) {
         Size += SaclSize;
     }
 
-    if ((AbsoluteSd = RtlAllocateHeap(HeapHandle, MAKE_TAG( SE_TAG ), Size)) == NULL) {
+    if ((AbsoluteSd = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), Size)) == NULL) {
         ntstatus = STATUS_NO_MEMORY;
         goto Cleanup;
     }
 
-
     // Initialize the Dacl and Sacl
-
-
     CurrentAvailable = (PCHAR)AbsoluteSd + SECURITY_DESCRIPTOR_MIN_LENGTH;
 
-    if ( DaclSize != sizeof(ACL) ) {
+    if (DaclSize != sizeof(ACL)) {
         Dacl = (PACL)CurrentAvailable;
         CurrentAvailable += DaclSize;
 
-        ntstatus = RtlCreateAcl( Dacl, DaclSize, ACL_REVISION );
-
-        if ( !NT_SUCCESS(ntstatus) ) {
+        ntstatus = RtlCreateAcl(Dacl, DaclSize, ACL_REVISION);
+        if (!NT_SUCCESS(ntstatus)) {
             goto Cleanup;
         }
     }
 
-    if ( SaclSize != sizeof(ACL) ) {
+    if (SaclSize != sizeof(ACL)) {
         Sacl = (PACL)CurrentAvailable;
         CurrentAvailable += SaclSize;
 
-        ntstatus = RtlCreateAcl( Sacl, SaclSize, ACL_REVISION );
-
-        if ( !NT_SUCCESS(ntstatus) ) {
+        ntstatus = RtlCreateAcl(Sacl, SaclSize, ACL_REVISION);
+        if (!NT_SUCCESS(ntstatus)) {
             goto Cleanup;
         }
     }
 
 
     // Allocate a temporary buffer big enough for the biggest ACE.
-
-
-    if ((MaxAce = RtlAllocateHeap(HeapHandle, MAKE_TAG( SE_TAG ), MaxAceSize)) == NULL ) {
+    if ((MaxAce = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), MaxAceSize)) == NULL) {
         ntstatus = STATUS_NO_MEMORY;
         goto Cleanup;
     }
 
-
     // Initialize each ACE, and append it into the end of the DACL or SACL.
-
-
     for (i = 0; i < AceCount; i++) {
         ULONG AceSize;
         PACL CurrentAcl;
@@ -1466,61 +1231,55 @@ Return Value:
 
         switch (AceData[i].AceType) {
         case ACCESS_ALLOWED_ACE_TYPE:
-
             AceSize += sizeof(ACCESS_ALLOWED_ACE);
             CurrentAcl = Dacl;
             ntstatus = RtlpInitializeAllowedAce(
-                           MaxAce,
-                           (USHORT) AceSize,
-                           AceData[i].InheritFlags,
-                           AceData[i].AceFlags,
-                           AceData[i].Mask,
-                           *(AceData[i].Sid)
-                           );
+                MaxAce,
+                (USHORT)AceSize,
+                AceData[i].InheritFlags,
+                AceData[i].AceFlags,
+                AceData[i].Mask,
+                *(AceData[i].Sid)
+            );
             break;
-
         case ACCESS_DENIED_ACE_TYPE:
             AceSize += sizeof(ACCESS_DENIED_ACE);
             CurrentAcl = Dacl;
             ntstatus = RtlpInitializeDeniedAce(
-                           MaxAce,
-                           (USHORT) AceSize,
-                           AceData[i].InheritFlags,
-                           AceData[i].AceFlags,
-                           AceData[i].Mask,
-                           *(AceData[i].Sid)
-                           );
+                MaxAce,
+                (USHORT)AceSize,
+                AceData[i].InheritFlags,
+                AceData[i].AceFlags,
+                AceData[i].Mask,
+                *(AceData[i].Sid)
+            );
             break;
-
         case SYSTEM_AUDIT_ACE_TYPE:
             AceSize += sizeof(SYSTEM_AUDIT_ACE);
             CurrentAcl = Sacl;
             ntstatus = RtlpInitializeAuditAce(
-                           MaxAce,
-                           (USHORT) AceSize,
-                           AceData[i].InheritFlags,
-                           AceData[i].AceFlags,
-                           AceData[i].Mask,
-                           *(AceData[i].Sid)
-                           );
+                MaxAce,
+                (USHORT)AceSize,
+                AceData[i].InheritFlags,
+                AceData[i].AceFlags,
+                AceData[i].Mask,
+                *(AceData[i].Sid)
+            );
             break;
         }
 
-        if ( !NT_SUCCESS( ntstatus ) ) {
+        if (!NT_SUCCESS(ntstatus)) {
             goto Cleanup;
         }
 
-
         // Append the initialized ACE to the end of DACL or SACL
-
-
-        if (! NT_SUCCESS (ntstatus = RtlAddAce(
-                                         CurrentAcl,
-                                         ACL_REVISION,
-                                         MAXULONG,
-                                         MaxAce,
-                                         AceSize
-                                         ))) {
+        if (!NT_SUCCESS(ntstatus = RtlAddAce(
+            CurrentAcl,
+            ACL_REVISION,
+            MAXULONG,
+            MaxAce,
+            AceSize
+        ))) {
             goto Cleanup;
         }
     }
@@ -1535,74 +1294,63 @@ Return Value:
     // Sacl  = Sacl
 
 
-    if (! NT_SUCCESS(ntstatus = RtlCreateSecurityDescriptor(
-                                    AbsoluteSd,
-                                    SECURITY_DESCRIPTOR_REVISION
-                                    ))) {
+    if (!NT_SUCCESS(ntstatus = RtlCreateSecurityDescriptor(
+        AbsoluteSd,
+        SECURITY_DESCRIPTOR_REVISION
+    ))) {
         goto Cleanup;
     }
 
-    if (! NT_SUCCESS(ntstatus = RtlSetOwnerSecurityDescriptor(
-                                    AbsoluteSd,
-                                    OwnerSid,
-                                    FALSE
-                                    ))) {
+    if (!NT_SUCCESS(ntstatus = RtlSetOwnerSecurityDescriptor(
+        AbsoluteSd,
+        OwnerSid,
+        FALSE
+    ))) {
         goto Cleanup;
     }
 
-    if (! NT_SUCCESS(ntstatus = RtlSetGroupSecurityDescriptor(
-                                    AbsoluteSd,
-                                    GroupSid,
-                                    FALSE
-                                    ))) {
+    if (!NT_SUCCESS(ntstatus = RtlSetGroupSecurityDescriptor(
+        AbsoluteSd,
+        GroupSid,
+        FALSE
+    ))) {
         goto Cleanup;
     }
 
-    if (! NT_SUCCESS(ntstatus = RtlSetDaclSecurityDescriptor(
-                                    AbsoluteSd,
-                                    TRUE,
-                                    Dacl,
-                                    FALSE
-                                    ))) {
+    if (!NT_SUCCESS(ntstatus = RtlSetDaclSecurityDescriptor(
+        AbsoluteSd,
+        TRUE,
+        Dacl,
+        FALSE
+    ))) {
         goto Cleanup;
     }
 
-    if (! NT_SUCCESS(ntstatus = RtlSetSaclSecurityDescriptor(
-                                    AbsoluteSd,
-                                    FALSE,
-                                    Sacl,
-                                    FALSE
-                                    ))) {
+    if (!NT_SUCCESS(ntstatus = RtlSetSaclSecurityDescriptor(
+        AbsoluteSd,
+        FALSE,
+        Sacl,
+        FALSE
+    ))) {
         goto Cleanup;
     }
-
 
     // Done
-
-
     ntstatus = STATUS_SUCCESS;
 
-
     // Clean up
-
-
 Cleanup:
 
     // Either return the security descriptor to the caller or delete it
-
-
-    if ( NT_SUCCESS( ntstatus ) ) {
+    if (NT_SUCCESS(ntstatus)) {
         *NewDescriptor = AbsoluteSd;
-    } else if ( AbsoluteSd != NULL ) {
-        (void) RtlFreeHeap(HeapHandle, 0, AbsoluteSd);
+    } else if (AbsoluteSd != NULL) {
+        (void)RtlFreeHeap(HeapHandle, 0, AbsoluteSd);
     }
 
-
     // Delete the temporary ACE
-
-
-    if ( MaxAce != NULL ) {
-        (void) RtlFreeHeap(HeapHandle, 0, MaxAce);
+    if (MaxAce != NULL) {
+        (void)RtlFreeHeap(HeapHandle, 0, MaxAce);
     }
     return ntstatus;
 }
@@ -1616,10 +1364,9 @@ RtlCreateUserSecurityObject(
     IN  PSID GroupSid,
     IN  BOOLEAN IsDirectoryObject,
     IN  PGENERIC_MAPPING GenericMapping,
-    OUT PSECURITY_DESCRIPTOR *NewDescriptor
-    )
+    OUT PSECURITY_DESCRIPTOR * NewDescriptor
+)
 /*++
-
 Routine Description:
 
     This function creates the DACL for the security descriptor based on
@@ -1700,7 +1447,6 @@ Arguments:
         which represents the user-mode object.
 
 Return Value:
-
     STATUS_SUCCESS - if successful
     STATUS_NO_MEMORY - if cannot allocate memory for DACL, ACEs, and
         security descriptor.
@@ -1709,23 +1455,21 @@ Return Value:
 
     NOTE : the user security object created by calling this function may be
                 freed up by calling RtlDeleteSecurityObject().
-
 --*/
 {
-
     NTSTATUS ntstatus;
     PSECURITY_DESCRIPTOR AbsoluteSd;
     HANDLE TokenHandle;
     PVOID HeapHandle = RtlProcessHeap();
 
     ntstatus = RtlCreateAndSetSD(AceData, AceCount, OwnerSid, GroupSid, &AbsoluteSd);
-    if (! NT_SUCCESS(ntstatus)) {
+    if (!NT_SUCCESS(ntstatus)) {
         return ntstatus;
     }
 
     ntstatus = NtOpenProcessToken(NtCurrentProcess(), TOKEN_QUERY, &TokenHandle);
-    if (! NT_SUCCESS(ntstatus)) {
-        (void) RtlFreeHeap(HeapHandle, 0, AbsoluteSd);
+    if (!NT_SUCCESS(ntstatus)) {
+        (void)RtlFreeHeap(HeapHandle, 0, AbsoluteSd);
         return ntstatus;
     }
 
@@ -1735,17 +1479,17 @@ Return Value:
     // hold the relative security descriptor so the memory allocated for the
     // DACL, ACEs, and the absolute descriptor can be freed.
     ntstatus = RtlNewSecurityObject(
-                   NULL,                   // Parent descriptor
-                   AbsoluteSd,             // Creator descriptor
-                   NewDescriptor,          // Pointer to new descriptor
-                   IsDirectoryObject,      // Is directory object
-                   TokenHandle,            // Token
-                   GenericMapping          // Generic mapping
-                   );
-    (void) NtClose(TokenHandle);
+        NULL,                   // Parent descriptor
+        AbsoluteSd,             // Creator descriptor
+        NewDescriptor,          // Pointer to new descriptor
+        IsDirectoryObject,      // Is directory object
+        TokenHandle,            // Token
+        GenericMapping          // Generic mapping
+    );
+    (void)NtClose(TokenHandle);
 
     // Free dynamic memory before returning
-    (void) RtlFreeHeap(HeapHandle, 0, AbsoluteSd);
+    (void)RtlFreeHeap(HeapHandle, 0, AbsoluteSd);
     return ntstatus;
 }
 
@@ -1754,13 +1498,12 @@ NTSTATUS
 RtlConvertToAutoInheritSecurityObject(
     IN PSECURITY_DESCRIPTOR ParentDescriptor OPTIONAL,
     IN PSECURITY_DESCRIPTOR CurrentSecurityDescriptor,
-    OUT PSECURITY_DESCRIPTOR *NewSecurityDescriptor,
-    IN GUID *ObjectType OPTIONAL,
+    OUT PSECURITY_DESCRIPTOR * NewSecurityDescriptor,
+    IN GUID * ObjectType OPTIONAL,
     IN BOOLEAN IsDirectoryObject,
     IN PGENERIC_MAPPING GenericMapping
-    )
+)
 /*++
-
 Routine Description:
 
     This is a converts a security descriptor whose ACLs are not marked
@@ -1795,32 +1538,21 @@ Arguments:
         the mapping between each generic right to specific rights.
 
 Return Value:
-
     STATUS_SUCCESS - The operation was successful.
-
     STATUS_UNKNOWN_REVISION - Indicates the source ACL is a revision that
         is unknown to this routine.  (Only revision 2 ACLs are support by this routine.)
-
     STATUS_INVALID_ACL - The structure of one of the ACLs in invalid.
-
-
-
 --*/
 {
-
-
     // Simply call the corresponding Rtlp routine telling it which allocator
     //  to use.
-
-
     return RtlpConvertToAutoInheritSecurityObject(
-                            ParentDescriptor,
-                            CurrentSecurityDescriptor,
-                            NewSecurityDescriptor,
-                            ObjectType,
-                            IsDirectoryObject,
-                            GenericMapping );
-
+        ParentDescriptor,
+        CurrentSecurityDescriptor,
+        NewSecurityDescriptor,
+        ObjectType,
+        IsDirectoryObject,
+        GenericMapping);
 }
 
 
@@ -1846,118 +1578,104 @@ Routine Description:
 Arguments:
 
     pAcl - Receives a pointer to an ACL to apply to the named pipe
-        being created.  Guaranteed to be NULL on return if an error
-        occurs.
+        being created.  Guaranteed to be NULL on return if an error occurs.
 
         This must be freed by calling RtlFreeHeap.
 
 Return Value:
-
     NT Status.
-
 --*/
 {
-    SID_IDENTIFIER_AUTHORITY    NtAuthority         = SECURITY_NT_AUTHORITY;
+    SID_IDENTIFIER_AUTHORITY    NtAuthority = SECURITY_NT_AUTHORITY;
     SID_IDENTIFIER_AUTHORITY    CreatorSidAuthority = SECURITY_CREATOR_SID_AUTHORITY;
-    SID_IDENTIFIER_AUTHORITY    WorldSidAuthority   = SECURITY_WORLD_SID_AUTHORITY;
+    SID_IDENTIFIER_AUTHORITY    WorldSidAuthority = SECURITY_WORLD_SID_AUTHORITY;
 
-    ULONG AclSize         = 0;
-    NTSTATUS Status       = STATUS_SUCCESS;
-    ULONG ReturnLength    = 0;
+    ULONG AclSize = 0;
+    NTSTATUS Status = STATUS_SUCCESS;
+    ULONG ReturnLength = 0;
     PTOKEN_OWNER OwnerSid = NULL;
 
     HANDLE hToken;
 
-
     // Initialize OUT parameters
-
-
     *pAcl = NULL;
 
-
     // Open thread token
-
-
-    Status = NtOpenThreadToken(
-                 NtCurrentThread(),
-                 TOKEN_QUERY,
-                 TRUE,
-                 &hToken
-                 );
+    Status = NtOpenThreadToken(NtCurrentThread(), TOKEN_QUERY, TRUE, &hToken);
     if (STATUS_NO_TOKEN == Status) {
         // Not impersonating, get process token
         Status = NtOpenProcessToken(NtCurrentProcess(), TOKEN_QUERY, &hToken);
     }
 
-    if (NT_SUCCESS( Status )) {
+    if (NT_SUCCESS(Status)) {
         // Get the default owner
-        Status = NtQueryInformationToken (hToken, TokenOwner, NULL, 0, &ReturnLength);
+        Status = NtQueryInformationToken(hToken, TokenOwner, NULL, 0, &ReturnLength);
         if (STATUS_BUFFER_TOO_SMALL == Status) {
-            OwnerSid = (PTOKEN_OWNER)RtlAllocateHeap( RtlProcessHeap(), 0, ReturnLength );
+            OwnerSid = (PTOKEN_OWNER)RtlAllocateHeap(RtlProcessHeap(), 0, ReturnLength);
             if (OwnerSid) {
-                Status = NtQueryInformationToken (hToken, TokenOwner, OwnerSid, ReturnLength, &ReturnLength);
-                if (NT_SUCCESS( Status )) {
+                Status = NtQueryInformationToken(hToken, TokenOwner, OwnerSid, ReturnLength, &ReturnLength);
+                if (NT_SUCCESS(Status)) {
                     // Compute the size needed
                     UCHAR SidBuffer[16];
-                    ASSERT( 16 == RtlLengthRequiredSid( 2 ));
+                    ASSERT(16 == RtlLengthRequiredSid(2));
 
-                    AclSize += RtlLengthRequiredSid( 1 );   // LocalSystem Sid
-                    AclSize += RtlLengthRequiredSid( 2 );   // Administrators
-                    AclSize += RtlLengthRequiredSid( 1 );   // Everyone (World)
+                    AclSize += RtlLengthRequiredSid(1);   // LocalSystem Sid
+                    AclSize += RtlLengthRequiredSid(2);   // Administrators
+                    AclSize += RtlLengthRequiredSid(1);   // Everyone (World)
 
-                    AclSize += RtlLengthSid( OwnerSid->Owner );   // Owner
+                    AclSize += RtlLengthSid(OwnerSid->Owner);   // Owner
 
-                    AclSize += sizeof( ACL );               // Header
-                    AclSize += 4 * (sizeof( ACCESS_ALLOWED_ACE ) - sizeof( ULONG ));
+                    AclSize += sizeof(ACL);               // Header
+                    AclSize += 4 * (sizeof(ACCESS_ALLOWED_ACE) - sizeof(ULONG));
 
                     // Allocate the Acl out of the local process heap
-                    *pAcl = (PACL)RtlAllocateHeap( RtlProcessHeap(), 0, AclSize );
+                    *pAcl = (PACL)RtlAllocateHeap(RtlProcessHeap(), 0, AclSize);
                     if (*pAcl != NULL) {
-                        RtlCreateAcl( *pAcl, AclSize, ACL_REVISION );
+                        RtlCreateAcl(*pAcl, AclSize, ACL_REVISION);
 
                         // Create each SID in turn and copy the resultant ACE into the new ACL
 
                         // Local System - Generic All
-                        RtlInitializeSid( SidBuffer, &NtAuthority, 1);
-                        *(RtlSubAuthoritySid( SidBuffer, 0 )) = SECURITY_LOCAL_SYSTEM_RID;
-                        RtlAddAccessAllowedAce( *pAcl, ACL_REVISION, GENERIC_ALL, (PSID)SidBuffer );
+                        RtlInitializeSid(SidBuffer, &NtAuthority, 1);
+                        *(RtlSubAuthoritySid(SidBuffer, 0)) = SECURITY_LOCAL_SYSTEM_RID;
+                        RtlAddAccessAllowedAce(*pAcl, ACL_REVISION, GENERIC_ALL, (PSID)SidBuffer);
 
                         // Admins - Generic All
-                        RtlInitializeSid( SidBuffer, &NtAuthority, 2);
-                        *(RtlSubAuthoritySid( SidBuffer, 0 )) = SECURITY_BUILTIN_DOMAIN_RID;
-                        *(RtlSubAuthoritySid( SidBuffer, 1 )) = DOMAIN_ALIAS_RID_ADMINS;
-                        RtlAddAccessAllowedAce( *pAcl, ACL_REVISION, GENERIC_ALL, (PSID)SidBuffer );
+                        RtlInitializeSid(SidBuffer, &NtAuthority, 2);
+                        *(RtlSubAuthoritySid(SidBuffer, 0)) = SECURITY_BUILTIN_DOMAIN_RID;
+                        *(RtlSubAuthoritySid(SidBuffer, 1)) = DOMAIN_ALIAS_RID_ADMINS;
+                        RtlAddAccessAllowedAce(*pAcl, ACL_REVISION, GENERIC_ALL, (PSID)SidBuffer);
 
                         // Owner - Generic All
-                        RtlAddAccessAllowedAce( *pAcl, ACL_REVISION, GENERIC_ALL, OwnerSid->Owner );
+                        RtlAddAccessAllowedAce(*pAcl, ACL_REVISION, GENERIC_ALL, OwnerSid->Owner);
 
                         // World - Generic Read
-                        RtlInitializeSid( SidBuffer, &WorldSidAuthority, 1 );
-                        *(RtlSubAuthoritySid( SidBuffer, 0 )) = SECURITY_WORLD_RID;
-                        RtlAddAccessAllowedAce( *pAcl, ACL_REVISION, GENERIC_READ, (PSID)SidBuffer );
+                        RtlInitializeSid(SidBuffer, &WorldSidAuthority, 1);
+                        *(RtlSubAuthoritySid(SidBuffer, 0)) = SECURITY_WORLD_RID;
+                        RtlAddAccessAllowedAce(*pAcl, ACL_REVISION, GENERIC_READ, (PSID)SidBuffer);
                     } else {
                         Status = STATUS_NO_MEMORY;
                     }
                 }
 
-                RtlFreeHeap( RtlProcessHeap(), 0, OwnerSid );
+                RtlFreeHeap(RtlProcessHeap(), 0, OwnerSid);
             } else {
                 Status = STATUS_NO_MEMORY;
             }
         }
 
-        NtClose( hToken );
+        NtClose(hToken);
     }
 
-    if (!NT_SUCCESS( Status )) {
+    if (!NT_SUCCESS(Status)) {
         // Something failed, clean up OUT
         // parameters.
 
         if (*pAcl != NULL) {
-            RtlFreeHeap( RtlProcessHeap(), 0, *pAcl );
+            RtlFreeHeap(RtlProcessHeap(), 0, *pAcl);
             *pAcl = NULL;
         }
     }
 
-    return( Status );
+    return(Status);
 }

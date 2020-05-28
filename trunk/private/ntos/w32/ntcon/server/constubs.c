@@ -1,19 +1,11 @@
 /*++
-
 Copyright (c) 1985 - 1999, Microsoft Corporation
 
 Module Name:
-
     constubs.c
 
-Abstract:
-
 Author:
-
     KazuM Mar.05.1992
-
-Revision History:
-
 --*/
 
 #include "precomp.h"
@@ -25,24 +17,14 @@ ULONG
 SrvGetConsoleCharType(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine check character type.
-
 Arguments:
-
     m - message containing api parameters
-
     ReplyStatus - Indicates whether to reply to the dll port.
-
-Return Value:
-
 --*/
-
 {
     NTSTATUS Status;
     PCONSOLE_CHAR_TYPE_MSG a = (PCONSOLE_CHAR_TYPE_MSG)&m->u.ApiMessageData;
@@ -55,7 +37,7 @@ Return Value:
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -65,7 +47,7 @@ Return Value:
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
 
         ScreenInfo = HandleData->Buffer.ScreenBuffer;
@@ -77,9 +59,8 @@ Return Value:
         if (a->coordCheck.X >= ScreenInfo->ScreenBufferSize.X ||
             a->coordCheck.Y >= ScreenInfo->ScreenBufferSize.Y) {
             Status = STATUS_INVALID_PARAMETER;
-        }
-        else {
-            RowIndex = (ScreenInfo->BufferInfo.TextInfo.FirstRow+a->coordCheck.Y) % ScreenInfo->ScreenBufferSize.Y;
+        } else {
+            RowIndex = (ScreenInfo->BufferInfo.TextInfo.FirstRow + a->coordCheck.Y) % ScreenInfo->ScreenBufferSize.Y;
             Row = &ScreenInfo->BufferInfo.TextInfo.Rows[RowIndex];
             Char = &Row->CharRow.Chars[a->coordCheck.X];
             if (!CONSOLE_IS_DBCS_OUTPUTCP(ScreenInfo->Console))
@@ -94,7 +75,7 @@ Return Value:
     }
 
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -102,24 +83,14 @@ ULONG
 SrvSetConsoleLocalEUDC(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine sets Local EUDC Font.
-
 Arguments:
-
     m - message containing api parameters
-
     ReplyStatus - Indicates whether to reply to the dll port.
-
-Return Value:
-
 --*/
-
 {
     PCONSOLE_LOCAL_EUDC_MSG a = (PCONSOLE_LOCAL_EUDC_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -130,7 +101,7 @@ Return Value:
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -140,10 +111,10 @@ Return Value:
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (!NT_SUCCESS(Status)) {
         UnlockConsole(Console);
-        return((ULONG) Status);
+        return((ULONG)Status);
     }
 
     if (!CsrValidateMessageBuffer(m, &a->FontFace, ((a->FontSize.X + 7) / 8), a->FontSize.Y)) {
@@ -151,19 +122,17 @@ Return Value:
         return STATUS_INVALID_PARAMETER;
     }
 
-    Source[0] = (char)(a->CodePoint >> 8) ;
-    Source[1] = (char)(a->CodePoint & 0x00ff) ;
-    Source[2] = 0 ;
-    ConvertOutputToUnicode(Console->OutputCP,Source,2,Target,1);
+    Source[0] = (char)(a->CodePoint >> 8);
+    Source[1] = (char)(a->CodePoint & 0x00ff);
+    Source[2] = 0;
+    ConvertOutputToUnicode(Console->OutputCP, Source, 2, Target, 1);
 
-    if (IsEudcRange(Console,Target[0]))
-    {
-        Status = RegisterLocalEUDC(Console,Target[0],a->FontSize,a->FontFace);
+    if (IsEudcRange(Console, Target[0])) {
+        Status = RegisterLocalEUDC(Console, Target[0], a->FontSize, a->FontFace);
         if (NT_SUCCESS(Status)) {
             ((PEUDC_INFORMATION)(Console->EudcInformation))->LocalVDMEudcMode = TRUE;
         }
-    }
-    else {
+    } else {
         UnlockConsole(Console);
         return (ULONG)STATUS_INVALID_PARAMETER;
     }
@@ -177,24 +146,14 @@ ULONG
 SrvSetConsoleCursorMode(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine sets Cursor Mode.
-
 Arguments:
-
     m - message containing api parameters
-
     ReplyStatus - Indicates whether to reply to the dll port.
-
-Return Value:
-
 --*/
-
 {
     PCONSOLE_CURSOR_MODE_MSG a = (PCONSOLE_CURSOR_MODE_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -203,7 +162,7 @@ Return Value:
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -213,14 +172,14 @@ Return Value:
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (!NT_SUCCESS(Status)) {
         UnlockConsole(Console);
-        return((ULONG) Status);
+        return((ULONG)Status);
     }
 
-    HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorBlink = (BOOLEAN)a->Blink ;
-    HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorDBEnable = (BOOLEAN)a->DBEnable ;
+    HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorBlink = (BOOLEAN)a->Blink;
+    HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorDBEnable = (BOOLEAN)a->DBEnable;
 
     UnlockConsole(Console);
     return Status;
@@ -232,24 +191,14 @@ ULONG
 SrvGetConsoleCursorMode(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine gets Cursor Mode.
-
 Arguments:
-
     m - message containing api parameters
-
     ReplyStatus - Indicates whether to reply to the dll port.
-
-Return Value:
-
 --*/
-
 {
     PCONSOLE_CURSOR_MODE_MSG a = (PCONSOLE_CURSOR_MODE_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -258,7 +207,7 @@ Return Value:
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -268,14 +217,14 @@ Return Value:
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (!NT_SUCCESS(Status)) {
         UnlockConsole(Console);
-        return((ULONG) Status);
+        return((ULONG)Status);
     }
 
-    a->Blink = HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorBlink ;
-    a->DBEnable = HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorDBEnable ;
+    a->Blink = HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorBlink;
+    a->DBEnable = HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorDBEnable;
 
     UnlockConsole(Console);
     return Status;
@@ -286,14 +235,10 @@ ULONG
 SrvRegisterConsoleOS2(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
   This function calls NEC PC-98 machine's only.
-
 --*/
-
 {
     PCONSOLE_REGISTEROS2_MSG a = (PCONSOLE_REGISTEROS2_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -302,17 +247,16 @@ SrvRegisterConsoleOS2(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
 #if defined(i386)
     {
         if (!a->fOs2Register) {
-            Console->Flags &= ~ CONSOLE_OS2_REGISTERED;
+            Console->Flags &= ~CONSOLE_OS2_REGISTERED;
             ResizeWindow(Console->CurrentScreenBuffer, &Console->Os2SavedWindowRect, FALSE);
-        }
-        else {
+        } else {
             Console->Flags |= CONSOLE_OS2_REGISTERED;
             Console->Os2SavedWindowRect = Console->CurrentScreenBuffer->Window;
         }
@@ -328,14 +272,10 @@ ULONG
 SrvSetConsoleOS2OemFormat(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
   This function calls NEC PC-98 machine's only.
-
 --*/
-
 {
     PCONSOLE_SETOS2OEMFORMAT_MSG a = (PCONSOLE_SETOS2OEMFORMAT_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -343,7 +283,7 @@ SrvSetConsoleOS2OemFormat(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -351,8 +291,7 @@ SrvSetConsoleOS2OemFormat(
     {
         if (!a->fOs2OemFormat) {
             Console->Flags &= ~CONSOLE_OS2_OEM_FORMAT;
-        }
-        else {
+        } else {
             Console->Flags |= CONSOLE_OS2_OEM_FORMAT;
         }
     }
@@ -368,24 +307,15 @@ ULONG
 SrvGetConsoleNlsMode(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine gets NLS mode for input.
-
 Arguments:
-
     m - message containing api parameters
-
     ReplyStatus - Indicates whether to reply to the dll port.
-
 Return Value:
-
 --*/
-
 {
     NTSTATUS Status;
     PCONSOLE_NLS_MODE_MSG a = (PCONSOLE_NLS_MODE_MSG)&m->u.ApiMessageData;
@@ -395,7 +325,7 @@ Return Value:
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -405,19 +335,19 @@ Return Value:
                                  CONSOLE_INPUT_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (!NT_SUCCESS(Status)) {
         goto SrvGetConsoleNlsModeFailure;
     }
 
     Status = NtDuplicateObject(CONSOLE_CLIENTPROCESSHANDLE(),
-                       a->hEvent,
-                       NtCurrentProcess(),
-                       &hEvent,
-                       0,
-                       FALSE,
-                       DUPLICATE_SAME_ACCESS
-                       );
+                               a->hEvent,
+                               NtCurrentProcess(),
+                               &hEvent,
+                               0,
+                               FALSE,
+                               DUPLICATE_SAME_ACCESS
+    );
     if (!NT_SUCCESS(Status)) {
         goto SrvGetConsoleNlsModeFailure;
     }
@@ -425,45 +355,37 @@ Return Value:
     /*
      * Caller should set FALSE on a->Ready.
      */
-    if (a->Ready == FALSE)
-    {
+    if (a->Ready == FALSE) {
         a->Ready = HandleData->Buffer.InputBuffer->ImeMode.ReadyConversion;
 
-        if (a->Ready == FALSE)
-        {
+        if (a->Ready == FALSE) {
             /*
              * If not ready ImeMode.Conversion,
              * then get conversion status from ConIME.
              */
             Status = QueueConsoleMessage(Console,
-                        CM_GET_NLSMODE,
-                        (WPARAM)hEvent,
-                        0L
-                       );
+                                         CM_GET_NLSMODE,
+                                         (WPARAM)hEvent,
+                                         0L
+            );
             if (!NT_SUCCESS(Status)) {
                 goto SrvGetConsoleNlsModeFailure;
             }
-        }
-        else
-        {
-            if (! HandleData->Buffer.InputBuffer->ImeMode.Disable) {
+        } else {
+            if (!HandleData->Buffer.InputBuffer->ImeMode.Disable) {
                 a->NlsMode = ImmConversionToConsole(
-                                 HandleData->Buffer.InputBuffer->ImeMode.Conversion );
-            }
-            else {
+                    HandleData->Buffer.InputBuffer->ImeMode.Conversion);
+            } else {
                 a->NlsMode = 0;
             }
             NtSetEvent(hEvent, NULL);
             NtClose(hEvent);
         }
-    }
-    else
-    {
-        if (! HandleData->Buffer.InputBuffer->ImeMode.Disable) {
+    } else {
+        if (!HandleData->Buffer.InputBuffer->ImeMode.Disable) {
             a->NlsMode = ImmConversionToConsole(
-                             HandleData->Buffer.InputBuffer->ImeMode.Conversion );
-        }
-        else {
+                HandleData->Buffer.InputBuffer->ImeMode.Conversion);
+        } else {
             a->NlsMode = 0;
         }
         NtSetEvent(hEvent, NULL);
@@ -471,7 +393,7 @@ Return Value:
     }
 
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
 
 SrvGetConsoleNlsModeFailure:
     if (hEvent) {
@@ -479,7 +401,7 @@ SrvGetConsoleNlsModeFailure:
         NtClose(hEvent);
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
 
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
@@ -488,24 +410,14 @@ ULONG
 SrvSetConsoleNlsMode(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine sets NLS mode for input.
-
 Arguments:
-
     m - message containing api parameters
-
     ReplyStatus - Indicates whether to reply to the dll port.
-
-Return Value:
-
 --*/
-
 {
     PCONSOLE_NLS_MODE_MSG a = (PCONSOLE_NLS_MODE_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -515,7 +427,7 @@ Return Value:
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -525,28 +437,28 @@ Return Value:
                                  CONSOLE_INPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (!NT_SUCCESS(Status)) {
         goto SrvSetConsoleNlsModeFailure;
     }
 
     Status = NtDuplicateObject(CONSOLE_CLIENTPROCESSHANDLE(),
-                       a->hEvent,
-                       NtCurrentProcess(),
-                       &hEvent,
-                       0,
-                       FALSE,
-                       DUPLICATE_SAME_ACCESS
-                       );
+                               a->hEvent,
+                               NtCurrentProcess(),
+                               &hEvent,
+                               0,
+                               FALSE,
+                               DUPLICATE_SAME_ACCESS
+    );
     if (!NT_SUCCESS(Status)) {
         goto SrvSetConsoleNlsModeFailure;
     }
 
     Status = QueueConsoleMessage(Console,
-                CM_SET_NLSMODE,
-                (WPARAM)hEvent,
-                a->NlsMode
-               );
+                                 CM_SET_NLSMODE,
+                                 (WPARAM)hEvent,
+                                 a->NlsMode
+    );
     if (!NT_SUCCESS(Status)) {
         goto SrvSetConsoleNlsModeFailure;
     }
@@ -569,24 +481,14 @@ ULONG
 SrvRegisterConsoleIME(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine register console IME on the current desktop.
-
 Arguments:
-
     m - message containing api parameters
-
     ReplyStatus - Indicates whether to reply to the dll port.
-
-Return Value:
-
 --*/
-
 {
     PCONSOLE_REGISTER_CONSOLEIME_MSG a = (PCONSOLE_REGISTER_CONSOLEIME_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -601,9 +503,7 @@ Return Value:
         return STATUS_INVALID_PARAMETER;
     }
 
-
     // Connect to the windowstation and desktop.
-
 
     if (!CsrImpersonateClient(NULL)) {
         return (ULONG)STATUS_BAD_IMPERSONATION_LEVEL;
@@ -615,8 +515,8 @@ Return Value:
     else
         RtlInitUnicodeString(&strDesktopName, L"Default");
     hdesk = NtUserResolveDesktop(
-            Process->ProcessHandle,
-            &strDesktopName, FALSE, &hwinsta);
+        Process->ProcessHandle,
+        &strDesktopName, FALSE, &hwinsta);
 
     CsrRevertToSelf();
 
@@ -631,7 +531,7 @@ Return Value:
                                       a->dwConsoleIMEThreadId,
                                       REGCONIME_REGISTER,
                                       &a->dwConsoleThreadId
-                                     );
+    );
 
 
     return ((ULONG)Status);
@@ -642,24 +542,15 @@ ULONG
 SrvUnregisterConsoleIME(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine unregister console IME on the current desktop.
-
 Arguments:
-
     m - message containing api parameters
-
     ReplyStatus - Indicates whether to reply to the dll port.
-
 Return Value:
-
 --*/
-
 {
     PCONSOLE_UNREGISTER_CONSOLEIME_MSG a = (PCONSOLE_UNREGISTER_CONSOLEIME_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -676,7 +567,7 @@ Return Value:
                                       a->dwConsoleIMEThreadId,
                                       REGCONIME_UNREGISTER,
                                       NULL
-                                     );
+    );
 
 
     return ((ULONG)Status);

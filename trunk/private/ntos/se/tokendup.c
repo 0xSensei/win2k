@@ -43,13 +43,9 @@ NtDuplicateToken(
     IN BOOLEAN EffectiveOnly,
     IN TOKEN_TYPE TokenType,
     OUT PHANDLE NewTokenHandle
-    )
-
+)
 /*++
-
-
 Routine Description:
-
     Create a new token that is a duplicate of an existing token.
 
 Arguments:
@@ -111,10 +107,8 @@ Return Value:
         requested for the duplicate token is not compatible with the
         level of the source token.  The duplicate token may not be assigned
         a level greater than that of the source token.
-
 --*/
 {
-
     PTOKEN Token;
     PTOKEN NewToken;
     KPROCESSOR_MODE PreviousMode;
@@ -131,49 +125,33 @@ Return Value:
 
     PreviousMode = KeGetPreviousMode();
 
-
     //  Probe parameters
-
-
     if (PreviousMode != KernelMode) {
-
         try {
-
-
             // Make sure the TokenType is valid
-
-
-            if ( (TokenType < TokenPrimary) || (TokenType > TokenImpersonation) ) {
+            if ((TokenType < TokenPrimary) || (TokenType > TokenImpersonation)) {
                 return(STATUS_INVALID_PARAMETER);
             }
 
 
             //  Make sure we can write the handle
-
-
             ProbeForWriteHandle(NewTokenHandle);
-
-
-        } except(EXCEPTION_EXECUTE_HANDLER) {
+        } except(EXCEPTION_EXECUTE_HANDLER)
+        {
             return GetExceptionCode();
         }  // end_try
-
     } //end_if
 
-
-
     Status = SeCaptureSecurityQos(
-                 ObjectAttributes,
-                 PreviousMode,
-                 &SecurityQosPresent,
-                 &SecurityQos
-                 );
+        ObjectAttributes,
+        PreviousMode,
+        &SecurityQosPresent,
+        &SecurityQos
+    );
 
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
-
-
 
     //  Check the handle's access to the existing token and get
     //  a pointer to that token.  Pick up the default desired
@@ -181,18 +159,17 @@ Return Value:
 
 
     Status = ObReferenceObjectByHandle(
-                 ExistingTokenHandle,    // Handle
-                 TOKEN_DUPLICATE,        // DesiredAccess
-                 SepTokenObjectType,     // ObjectType
-                 PreviousMode,           // AccessMode
-                 (PVOID *)&Token,        // Object
-                 &HandleInformation      // GrantedAccess
-                 );
+        ExistingTokenHandle,    // Handle
+        TOKEN_DUPLICATE,        // DesiredAccess
+        SepTokenObjectType,     // ObjectType
+        PreviousMode,           // AccessMode
+        (PVOID *)&Token,        // Object
+        &HandleInformation      // GrantedAccess
+    );
 
-    if ( !NT_SUCCESS(Status) ) {
-
+    if (!NT_SUCCESS(Status)) {
         if (SecurityQosPresent) {
-            SeFreeCapturedSecurityQos( &SecurityQos );
+            SeFreeCapturedSecurityQos(&SecurityQos);
         }
         return Status;
     }
@@ -201,153 +178,116 @@ Return Value:
 #ifdef TOKEN_DEBUG
 
 
-// Debug
-    SepAcquireTokenReadLock( Token );
+    // Debug
+    SepAcquireTokenReadLock(Token);
     DbgPrint("\n");
     DbgPrint("\n");
     DbgPrint("Token being duplicated: \n");
-    SepDumpToken( Token );
-    SepReleaseTokenReadLock( Token );
-// Debug
+    SepDumpToken(Token);
+    SepReleaseTokenReadLock(Token);
+    // Debug
 
 
 #endif //TOKEN_DEBUG
 
-
-
     // Check to see if an alternate desired access mask was provided.
-
-
     if (ARGUMENT_PRESENT((PVOID)(ULONG_PTR)DesiredAccess)) {
-
         EffectiveDesiredAccess = DesiredAccess;
-
     } else {
-
         EffectiveDesiredAccess = HandleInformation.GrantedAccess;
     }
 
-
-
     //  If no impersonation level was specified, pick one up from
     //  the source token.
-
-
-    if ( !SecurityQosPresent ) {
-
+    if (!SecurityQosPresent) {
         SecurityQos.ImpersonationLevel = Token->ImpersonationLevel;
-
     }
 
-
-
     if (Token->TokenType == TokenImpersonation) {
-
-
         // Make sure a legitimate transformation is being requested:
-
         //    (1) The impersonation level of a target duplicate must not
         //        exceed that of the source token.
 
+        ASSERT(SecurityDelegation > SecurityImpersonation);
+        ASSERT(SecurityImpersonation > SecurityIdentification);
+        ASSERT(SecurityIdentification > SecurityAnonymous);
 
+        if ((SecurityQos.ImpersonationLevel > Token->ImpersonationLevel)) {
 
-        ASSERT( SecurityDelegation     > SecurityImpersonation );
-        ASSERT( SecurityImpersonation  > SecurityIdentification );
-        ASSERT( SecurityIdentification > SecurityAnonymous );
-
-        if ( (SecurityQos.ImpersonationLevel > Token->ImpersonationLevel) ) {
-
-            ObDereferenceObject( (PVOID)Token );
+            ObDereferenceObject((PVOID)Token);
             if (SecurityQosPresent) {
-                SeFreeCapturedSecurityQos( &SecurityQos );
+                SeFreeCapturedSecurityQos(&SecurityQos);
             }
             return STATUS_BAD_IMPERSONATION_LEVEL;
         }
-
     }
-
 
     // If we are producing a Primary token from an impersonation
     // token, then specify an impersonation level of at least
     // Impersonate.
 
-
-    if ( (Token->TokenType == TokenImpersonation) &&
-         (TokenType == TokenPrimary)              &&
-         (Token->ImpersonationLevel <  SecurityImpersonation)
-       ) {
-        ObDereferenceObject( (PVOID)Token );
+    if ((Token->TokenType == TokenImpersonation) &&
+        (TokenType == TokenPrimary) &&
+        (Token->ImpersonationLevel < SecurityImpersonation)
+        ) {
+        ObDereferenceObject((PVOID)Token);
         if (SecurityQosPresent) {
-            SeFreeCapturedSecurityQos( &SecurityQos );
+            SeFreeCapturedSecurityQos(&SecurityQos);
         }
         return STATUS_BAD_IMPERSONATION_LEVEL;
     }
 
 
     //  Duplicate the existing token
-
-
     NewToken = NULL;
     Status = SepDuplicateToken(
-                 Token,
-                 ObjectAttributes,
-                 EffectiveOnly,
-                 TokenType,
-                 SecurityQos.ImpersonationLevel,
-                 PreviousMode,
-                 &NewToken
-                 );
-
-
+        Token,
+        ObjectAttributes,
+        EffectiveOnly,
+        TokenType,
+        SecurityQos.ImpersonationLevel,
+        PreviousMode,
+        &NewToken
+    );
     if (NT_SUCCESS(Status)) {
-
-
         //  Insert the new token
-
-
-        Status = ObInsertObject( NewToken,
-                                 NULL,
-                                 EffectiveDesiredAccess,
-                                 0,
-                                 (PVOID *)NULL,
-                                 &LocalHandle
-                                 );
-
-        if (!NT_SUCCESS( Status )) {
+        Status = ObInsertObject(NewToken,
+                                NULL,
+                                EffectiveDesiredAccess,
+                                0,
+                                (PVOID *)NULL,
+                                &LocalHandle
+        );
+        if (!NT_SUCCESS(Status)) {
 #ifdef TOKEN_DEBUG
-            DbgPrint( "SE: ObInsertObject failed (%x) for token at %x\n", Status, NewToken );
+            DbgPrint("SE: ObInsertObject failed (%x) for token at %x\n", Status, NewToken);
+#endif
+        }
+    } else
+        if (NewToken != NULL) {
+#ifdef TOKEN_DEBUG
+            DbgPrint("SE: SepDuplicateToken failed (%x) but allocated token at %x\n", Status, NewToken);
 #endif
         }
 
-    } else
-    if (NewToken != NULL) {
-#ifdef TOKEN_DEBUG
-        DbgPrint( "SE: SepDuplicateToken failed (%x) but allocated token at %x\n", Status, NewToken );
-#endif
-    }
-
 
     //  We no longer need our reference to the source token
-
-
-    ObDereferenceObject( (PVOID)Token );
+    ObDereferenceObject((PVOID)Token);
 
     if (SecurityQosPresent) {
-        SeFreeCapturedSecurityQos( &SecurityQos );
+        SeFreeCapturedSecurityQos(&SecurityQos);
     }
 
     // BUGWARNING Probably need to audit here
 
 
     //  Return the new handle
-
-
     if (NT_SUCCESS(Status)) {
         try { *NewTokenHandle = LocalHandle; }
-            except(EXCEPTION_EXECUTE_HANDLER) { return GetExceptionCode(); }
+        except(EXCEPTION_EXECUTE_HANDLER) { return GetExceptionCode(); }
     }
 
-   return Status;
+    return Status;
 }
 
 
@@ -359,15 +299,10 @@ SepDuplicateToken(
     IN TOKEN_TYPE TokenType,
     IN SECURITY_IMPERSONATION_LEVEL ImpersonationLevel OPTIONAL,
     IN KPROCESSOR_MODE RequestorMode,
-    OUT PTOKEN *DuplicateToken
-    )
-
-
+    OUT PTOKEN * DuplicateToken
+)
 /*++
-
-
 Routine Description:
-
     This routine does the bulk of the work to actually duplicate
     a token.  This routine assumes all access validation and argument
     probing (except the ObjectAttributes) has been performed.
@@ -413,15 +348,11 @@ Arguments:
         No exceptions are expected when tring to set this OUT value.
 
 Return Value:
-
     STATUS_SUCCESS - The service successfully completed the requested
         operation.
-
-
 --*/
 {
     NTSTATUS Status;
-
     PTOKEN NewToken;
     PULONG DynamicPart;
     ULONG PagedPoolSize;
@@ -437,53 +368,53 @@ Return Value:
 
     PAGED_CODE();
 
-    ASSERT( sizeof(SECURITY_IMPERSONATION_LEVEL) <= sizeof(ULONG) );
+    ASSERT(sizeof(SECURITY_IMPERSONATION_LEVEL) <= sizeof(ULONG));
 
 
-    if ( TokenType == TokenImpersonation ) {
+    if (TokenType == TokenImpersonation) {
 
-        ASSERT( SecurityDelegation     > SecurityImpersonation );
-        ASSERT( SecurityImpersonation  > SecurityIdentification );
-        ASSERT( SecurityIdentification > SecurityAnonymous );
+        ASSERT(SecurityDelegation > SecurityImpersonation);
+        ASSERT(SecurityImpersonation > SecurityIdentification);
+        ASSERT(SecurityIdentification > SecurityAnonymous);
 
-        if ( (ImpersonationLevel > SecurityDelegation)  ||
-             (ImpersonationLevel < SecurityAnonymous) ) {
+        if ((ImpersonationLevel > SecurityDelegation) ||
+            (ImpersonationLevel < SecurityAnonymous)) {
 
             return STATUS_BAD_IMPERSONATION_LEVEL;
         }
     }
 
     // Increment the reference count for this logon session This can not fail, since there is already a token in this logon session.
-    Status = SepReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-    ASSERT( NT_SUCCESS(Status) );
+    Status = SepReferenceLogonSession(&(ExistingToken->AuthenticationId));
+    ASSERT(NT_SUCCESS(Status));
 
     // Note that the size of the dynamic portion of a token can not change once established.
 
     //  Allocate the dynamic portion
     DynamicPart = (PULONG)ExAllocatePoolWithTag(PagedPool, ExistingToken->DynamicCharged, 'dTeS');
     if (DynamicPart == NULL) {
-        SepDeReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-        return( STATUS_INSUFFICIENT_RESOURCES );
+        SepDeReferenceLogonSession(&(ExistingToken->AuthenticationId));
+        return(STATUS_INSUFFICIENT_RESOURCES);
     }
 
     if (ARGUMENT_PRESENT(ExistingToken->ProxyData)) {
         Status = SepCopyProxyData(&NewProxyData, ExistingToken->ProxyData);
         if (!NT_SUCCESS(Status)) {
-            SepDeReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-            ExFreePool( DynamicPart );
-            return( Status );
+            SepDeReferenceLogonSession(&(ExistingToken->AuthenticationId));
+            ExFreePool(DynamicPart);
+            return(Status);
         }
     } else {
         NewProxyData = NULL;
     }
 
-    if (ARGUMENT_PRESENT( ExistingToken->AuditData )) {
-        NewAuditData = ExAllocatePool( PagedPool, sizeof( SECURITY_TOKEN_AUDIT_DATA ));
+    if (ARGUMENT_PRESENT(ExistingToken->AuditData)) {
+        NewAuditData = ExAllocatePool(PagedPool, sizeof(SECURITY_TOKEN_AUDIT_DATA));
         if (NewAuditData == NULL) {
-            SepFreeProxyData( NewProxyData );
-            SepDeReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-            ExFreePool( DynamicPart );
-            return( STATUS_INSUFFICIENT_RESOURCES );
+            SepFreeProxyData(NewProxyData);
+            SepDeReferenceLogonSession(&(ExistingToken->AuthenticationId));
+            ExFreePool(DynamicPart);
+            return(STATUS_INSUFFICIENT_RESOURCES);
         } else {
             *NewAuditData = *(ExistingToken->AuditData);
         }
@@ -494,30 +425,30 @@ Return Value:
     //  Create a new object
     TokenBodyLength = (ULONG)sizeof(TOKEN) + ExistingToken->VariableLength;
     NonPagedPoolSize = TokenBodyLength;
-    PagedPoolSize    = ExistingToken->DynamicCharged;
+    PagedPoolSize = ExistingToken->DynamicCharged;
     Status = ObCreateObject(
-                 RequestorMode,      // ProbeMode
-                 SepTokenObjectType, // ObjectType
-                 ObjectAttributes,   // ObjectAttributes
-                 RequestorMode,      // OwnershipMode
-                 NULL,               // ParseContext
-                 TokenBodyLength,    // ObjectBodySize
-                 PagedPoolSize,      // PagedPoolCharge
-                 NonPagedPoolSize,   // NonPagedPoolCharge
-                 (PVOID *)&NewToken  // Return pointer to object
-                 );
+        RequestorMode,      // ProbeMode
+        SepTokenObjectType, // ObjectType
+        ObjectAttributes,   // ObjectAttributes
+        RequestorMode,      // OwnershipMode
+        NULL,               // ParseContext
+        TokenBodyLength,    // ObjectBodySize
+        PagedPoolSize,      // PagedPoolCharge
+        NonPagedPoolSize,   // NonPagedPoolCharge
+        (PVOID *)&NewToken  // Return pointer to object
+    );
     if (!NT_SUCCESS(Status)) {
-        SepDeReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-        ExFreePool( DynamicPart );
-        SepFreeProxyData( NewProxyData );
+        SepDeReferenceLogonSession(&(ExistingToken->AuthenticationId));
+        ExFreePool(DynamicPart);
+        SepFreeProxyData(NewProxyData);
         if (NewAuditData != NULL) {
-            ExFreePool( NewAuditData );
+            ExFreePool(NewAuditData);
         }
         return Status;
     }
 
     //  acquire exclusive access to the source token
-    SepAcquireTokenReadLock( ExistingToken );
+    SepAcquireTokenReadLock(ExistingToken);
 
     // Main Body initialization
 
@@ -540,7 +471,7 @@ Return Value:
     NewToken->SessionId = ExistingToken->SessionId;
 
     // The following fields differ in the new token.
-    ExAllocateLocallyUniqueId( &(NewToken->TokenId) );
+    ExAllocateLocallyUniqueId(&(NewToken->TokenId));
     NewToken->ParentTokenId = ExistingToken->ParentTokenId;
     NewToken->TokenInUse = FALSE;
     NewToken->TokenType = TokenType;
@@ -548,11 +479,11 @@ Return Value:
 
     //  Copy and initialize the variable part.
     //  The variable part is assumed to be position independent.
-    RtlCopyMemory( (PVOID)&(NewToken->VariablePart), (PVOID)&(ExistingToken->VariablePart), ExistingToken->VariableLength);
+    RtlCopyMemory((PVOID) & (NewToken->VariablePart), (PVOID) & (ExistingToken->VariablePart), ExistingToken->VariableLength);
 
     //  Set the address of the UserAndGroups array.
-    ASSERT( ARGUMENT_PRESENT(ExistingToken->UserAndGroups ) );
-    ASSERT( (ULONG_PTR)(ExistingToken->UserAndGroups) >= (ULONG_PTR)(&(ExistingToken->VariablePart)) );
+    ASSERT(ARGUMENT_PRESENT(ExistingToken->UserAndGroups));
+    ASSERT((ULONG_PTR)(ExistingToken->UserAndGroups) >= (ULONG_PTR)(&(ExistingToken->VariablePart)));
 
     FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->UserAndGroups) - (ULONG_PTR)(&(ExistingToken->VariablePart)));
     NewToken->UserAndGroups = (PSID_AND_ATTRIBUTES)(FieldOffset + (ULONG_PTR)(&(NewToken->VariablePart)));
@@ -563,15 +494,15 @@ Return Value:
 
     while (Index < ExistingToken->UserAndGroupCount) {
         FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->UserAndGroups[Index].Sid) - (ULONG_PTR)(&(ExistingToken->VariablePart)));
-        NewToken->UserAndGroups[Index].Sid = (PSID)( FieldOffset + (ULONG_PTR)(&(NewToken->VariablePart)) );
+        NewToken->UserAndGroups[Index].Sid = (PSID)(FieldOffset + (ULONG_PTR)(&(NewToken->VariablePart)));
         Index += 1;
     }
 
     //  Set the address of the RestrictedSids array.
-    if (ARGUMENT_PRESENT(ExistingToken->RestrictedSids ) ) {
-        ASSERT( (ULONG_PTR)(ExistingToken->RestrictedSids) >= (ULONG_PTR)(&(ExistingToken->VariablePart)) );
+    if (ARGUMENT_PRESENT(ExistingToken->RestrictedSids)) {
+        ASSERT((ULONG_PTR)(ExistingToken->RestrictedSids) >= (ULONG_PTR)(&(ExistingToken->VariablePart)));
         FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->RestrictedSids) - (ULONG_PTR)(&(ExistingToken->VariablePart)));
-        NewToken->RestrictedSids = (PSID_AND_ATTRIBUTES)(FieldOffset + (ULONG_PTR)(&(NewToken->VariablePart)) );
+        NewToken->RestrictedSids = (PSID_AND_ATTRIBUTES)(FieldOffset + (ULONG_PTR)(&(NewToken->VariablePart)));
 
         //  Now go through and change the address of each SID pointer
         //  for the user and groups
@@ -579,7 +510,7 @@ Return Value:
 
         while (Index < ExistingToken->RestrictedSidCount) {
             FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->RestrictedSids[Index].Sid) - (ULONG_PTR)(&(ExistingToken->VariablePart)));
-            NewToken->RestrictedSids[Index].Sid = (PSID)( FieldOffset + (ULONG_PTR)(&(NewToken->VariablePart)) );
+            NewToken->RestrictedSids[Index].Sid = (PSID)(FieldOffset + (ULONG_PTR)(&(NewToken->VariablePart)));
             Index += 1;
         }
     } else {
@@ -588,8 +519,8 @@ Return Value:
 
     // If present, set the address of the privileges
     if (ExistingToken->PrivilegeCount > 0) {
-        ASSERT( ARGUMENT_PRESENT(ExistingToken->Privileges ) );
-        ASSERT( (ULONG_PTR)(ExistingToken->Privileges) >= (ULONG_PTR)(&(ExistingToken->VariablePart)) );
+        ASSERT(ARGUMENT_PRESENT(ExistingToken->Privileges));
+        ASSERT((ULONG_PTR)(ExistingToken->Privileges) >= (ULONG_PTR)(&(ExistingToken->VariablePart)));
         FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->Privileges) - (ULONG_PTR)(&(ExistingToken->VariablePart)));
         NewToken->Privileges = (PLUID_AND_ATTRIBUTES)(FieldOffset + (ULONG_PTR)(&(NewToken->VariablePart)));
     } else {
@@ -598,13 +529,13 @@ Return Value:
 
     //  Copy and initialize the dynamic part.
     //  The dynamic part is assumed to be position independent.
-    RtlCopyMemory( (PVOID)DynamicPart, (PVOID)(ExistingToken->DynamicPart), ExistingToken->DynamicCharged);
+    RtlCopyMemory((PVOID)DynamicPart, (PVOID)(ExistingToken->DynamicPart), ExistingToken->DynamicCharged);
 
     NewToken->DynamicPart = DynamicPart;
 
     // If present, set the address of the default Dacl
     if (ARGUMENT_PRESENT(ExistingToken->DefaultDacl)) {
-        ASSERT( (ULONG_PTR)(ExistingToken->DefaultDacl) >= (ULONG_PTR)(ExistingToken->DynamicPart) );
+        ASSERT((ULONG_PTR)(ExistingToken->DefaultDacl) >= (ULONG_PTR)(ExistingToken->DynamicPart));
         FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->DefaultDacl) - (ULONG_PTR)(ExistingToken->DynamicPart));
         NewToken->DefaultDacl = (PACL)(FieldOffset + (ULONG_PTR)DynamicPart);
     } else {
@@ -613,7 +544,7 @@ Return Value:
 
     // Set the address of the primary group
     ASSERT(ARGUMENT_PRESENT(ExistingToken->PrimaryGroup));
-    ASSERT( (ULONG_PTR)(ExistingToken->PrimaryGroup) >= (ULONG_PTR)(ExistingToken->DynamicPart) );
+    ASSERT((ULONG_PTR)(ExistingToken->PrimaryGroup) >= (ULONG_PTR)(ExistingToken->DynamicPart));
     FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->PrimaryGroup) - (ULONG_PTR)(ExistingToken->DynamicPart));
     NewToken->PrimaryGroup = (PACL)(FieldOffset + (ULONG_PTR)(DynamicPart));
 
@@ -628,45 +559,30 @@ Return Value:
 
 
     if (EffectiveOnly) {
-        SepMakeTokenEffectiveOnly( NewToken );
+        SepMakeTokenEffectiveOnly(NewToken);
     }
 
 
 #ifdef TOKEN_DEBUG
-
-
-// Debug
+    // Debug
     DbgPrint("\n");
     DbgPrint("\n");
     DbgPrint("\n");
     DbgPrint("Duplicate token:\n");
-    SepDumpToken( NewToken );
-// Debug
-
-
+    SepDumpToken(NewToken);
+    // Debug
 #endif //TOKEN_DEBUG
 
-
     // Release the source token.
-
-
-    SepReleaseTokenReadLock( ExistingToken );
-
+    SepReleaseTokenReadLock(ExistingToken);
 
     (*DuplicateToken) = NewToken;
     return Status;
 }
 
 
-VOID
-SepMakeTokenEffectiveOnly(
-    IN PTOKEN Token
-    )
-
-
+VOID SepMakeTokenEffectiveOnly(IN PTOKEN Token)
 /*++
-
-
 Routine Description:
 
     This routine eliminates all but the effective groups and privileges from
@@ -687,49 +603,33 @@ Routine Description:
     being modified.
 
 Arguments:
-
     Token - Points to the token to be made effective only.
-
 Return Value:
-
     None.
-
 --*/
 {
-
     ULONG Index;
     ULONG ElementCount;
 
     PAGED_CODE();
 
-
     // Walk the privilege array, discarding any lapsed privileges
-
-
     ElementCount = Token->PrivilegeCount;
     Index = 0;
 
     while (Index < ElementCount) {
-
-
         // If this privilege is not enabled, replace it with the one at
         // the end of the array and reduce the size of the array by one.
         // Otherwise, move on to the next entry in the array.
 
-
-        if ( !(SepTokenPrivilegeAttributes(Token,Index) & SE_PRIVILEGE_ENABLED)
+        if (!(SepTokenPrivilegeAttributes(Token, Index) & SE_PRIVILEGE_ENABLED)
             ) {
-
             (Token->Privileges)[Index] =
                 (Token->Privileges)[ElementCount - 1];
             ElementCount -= 1;
-
         } else {
-
             Index += 1;
-
         }
-
     } // endwhile
 
     Token->PrivilegeCount = ElementCount;
@@ -740,43 +640,29 @@ Return Value:
 
 
     ElementCount = Token->UserAndGroupCount;
-    ASSERT( ElementCount >= 1 );        // Must be at least a user ID
+    ASSERT(ElementCount >= 1);        // Must be at least a user ID
     Index = 1;   // Start at the first group, not the user ID.
 
     while (Index < ElementCount) {
-
-
         // If this group is not enabled, replace it with the one at
         // the end of the array and reduce the size of the array by one.
 
-
-        if ( !(SepTokenGroupAttributes(Token, Index) & SE_GROUP_ENABLED) &&
-             !(SepTokenGroupAttributes(Token, Index) & SE_GROUP_USE_FOR_DENY_ONLY) ) {
-
-
+        if (!(SepTokenGroupAttributes(Token, Index) & SE_GROUP_ENABLED) &&
+            !(SepTokenGroupAttributes(Token, Index) & SE_GROUP_USE_FOR_DENY_ONLY)) {
             // Reset the TOKEN_HAS_ADMIN_GROUP flag
-
-
             if (RtlEqualSid(
-                    Token->UserAndGroups[Index].Sid,
-                    SeAliasAdminsSid
-                    )) {
+                Token->UserAndGroups[Index].Sid,
+                SeAliasAdminsSid
+            )) {
                 Token->TokenFlags &= ~TOKEN_HAS_ADMIN_GROUP;
             }
-
 
             (Token->UserAndGroups)[Index] =
                 (Token->UserAndGroups)[ElementCount - 1];
             ElementCount -= 1;
-
-
-
         } else {
-
             Index += 1;
-
         }
-
     } // endwhile
 
     Token->UserAndGroupCount = ElementCount;
@@ -786,15 +672,13 @@ Return Value:
 
 
 BOOLEAN
-SepSidInSidAndAttributes (
+SepSidInSidAndAttributes(
     IN PSID_AND_ATTRIBUTES SidAndAttributes,
     IN ULONG SidCount,
     IN PSID PrincipalSelfSid,
     IN PSID Sid
-    )
-
+)
 /*++
-
 Routine Description:
 
     Checks to see if a given SID is in the given token.
@@ -814,18 +698,13 @@ Arguments:
 
         The parameter should be NULL if the object does not represent a principal.
 
-
     Sid - Pointer to the SID of interest
 
 Return Value:
-
     A value of TRUE indicates that the SID is in the token, FALSE
     otherwise.
-
 --*/
-
 {
-
     ULONG i;
     PISID MatchSid;
     ULONG SidLength;
@@ -836,31 +715,26 @@ Return Value:
     PAGED_CODE();
 
 
-    if (!ARGUMENT_PRESENT( SidAndAttributes ) ) {
+    if (!ARGUMENT_PRESENT(SidAndAttributes)) {
         return(FALSE);
     }
-
 
     // If Sid is the constant PrincipalSelfSid,
     //  replace it with the passed in PrincipalSelfSid.
 
 
-    if ( PrincipalSelfSid != NULL &&
-         RtlEqualSid( SePrincipalSelfSid, Sid ) ) {
+    if (PrincipalSelfSid != NULL &&
+        RtlEqualSid(SePrincipalSelfSid, Sid)) {
         Sid = PrincipalSelfSid;
     }
 
 
     // Get the length of the source SID since this only needs to be computed
     // once.
-
-
     SidLength = 8 + (4 * ((PISID)Sid)->SubAuthorityCount);
 
 
     // Get address of user/group array and number of user/groups.
-
-
     TokenSid = SidAndAttributes;
     UserAndGroupCount = SidCount;
 
@@ -868,10 +742,8 @@ Return Value:
     // Scan through the user/groups and attempt to find a match with the
     // specified SID.
 
-
-    for (i = 0 ; i < UserAndGroupCount ; i += 1) {
+    for (i = 0; i < UserAndGroupCount; i += 1) {
         MatchSid = (PISID)TokenSid->Sid;
-
 
         // If the SID revision and length matches, then compare the SIDs
         // for equality.
@@ -901,10 +773,8 @@ SepRemoveDisabledGroupsAndPrivileges(
     IN PSID_AND_ATTRIBUTES GroupsToDisable,
     IN ULONG PrivilegeCount,
     IN PLUID_AND_ATTRIBUTES PrivilegesToDelete
-    )
+)
 /*++
-
-
 Routine Description:
 
     This routine eliminates all groups and privileges that are marked
@@ -924,29 +794,18 @@ Routine Description:
     being modified.
 
 Arguments:
-
     Token - Points to the token to be made effective only.
-
     Flags - Flags indicating additional filtering. The flags may be:
-
                 DISABLE_ALL_GROUPS  - disable all groups in token
                 DELETE_ALL_PRIVILEGES - Disable all privileges
-
     GroupCount - Count of groups to be removed
-
     GroupsToDisable - Groups to disable and mark with SE_GROUP_USE_FOR_DENY_ONLY
-
     PrivilegeCount - Count of privileges to remove
-
     PrivilegesToDelete - List of privileges to remove
-
 Return Value:
-
     None.
-
 --*/
 {
-
     ULONG Index;
     ULONG Index2;
     ULONG ElementCount;
@@ -956,42 +815,33 @@ Return Value:
 
 
     // Walk the privilege array, discarding any lapsed privileges
-
-
     ElementCount = Token->PrivilegeCount;
     Index = 0;
 
     while (Index < ElementCount) {
-
-
         // If the caller asked us to disable all privileges except change
         // notify, do so now.
 
-
         if (((Flags & DISABLE_MAX_PRIVILEGE) != 0) &&
-              !RtlEqualLuid(
+            !RtlEqualLuid(
                 &Token->Privileges[Index].Luid,
                 &SeChangeNotifyPrivilege
-                )) {
-
+            )) {
             (Token->Privileges)[Index] =
                 (Token->Privileges)[ElementCount - 1];
             ElementCount -= 1;
-
         } else {
-
-
             // If this privilege is in the list of those to be removed, replace it
             // with the one at the end of the array and reduce the size of the
             // array by one.  Otherwise, move on to the next entry in the array.
 
 
             Found = FALSE;
-            for (Index2 = 0; Index2 < PrivilegeCount ; Index2++ ) {
+            for (Index2 = 0; Index2 < PrivilegeCount; Index2++) {
                 if (RtlEqualLuid(
-                        &Token->Privileges[Index].Luid,
-                        &PrivilegesToDelete[Index2].Luid
-                        )) {
+                    &Token->Privileges[Index].Luid,
+                    &PrivilegesToDelete[Index2].Luid
+                )) {
                     (Token->Privileges)[Index] =
                         (Token->Privileges)[ElementCount - 1];
                     ElementCount -= 1;
@@ -1000,18 +850,15 @@ Return Value:
                     // If this was SeChangeNotifyPrivilege, we need to turn off
                     // the TOKEN_HAS_TRAVERSE_PRIVILEGE in the token
 
-
                     if (RtlEqualLuid(
-                            &PrivilegesToDelete[Index2].Luid,
-                            &SeChangeNotifyPrivilege
-                            )) {
+                        &PrivilegesToDelete[Index2].Luid,
+                        &SeChangeNotifyPrivilege
+                    )) {
                         Token->TokenFlags &= ~TOKEN_HAS_TRAVERSE_PRIVILEGE;
                     }
 
-
                     Found = TRUE;
                     break;
-
                 }
             }
 
@@ -1023,57 +870,42 @@ Return Value:
 
     Token->PrivilegeCount = ElementCount;
 
-
     // Walk the UserAndGroups array marking any disabled groups.
 
-
     ElementCount = Token->UserAndGroupCount;
-    ASSERT( ElementCount >= 1 );        // Must be at least a user ID
+    ASSERT(ElementCount >= 1);        // Must be at least a user ID
     Index = 0;   // Start at the first group, not the user ID.
 
     while (Index < ElementCount) {
-
-
         // If this group is not enabled, replace it with the one at
         // the end of the array and reduce the size of the array by one.
-
-
-        if ( SepSidInSidAndAttributes(
-                GroupsToDisable,
-                GroupCount,
-                NULL,           // no principal self sid
-                Token->UserAndGroups[Index].Sid
-                )){
+        if (SepSidInSidAndAttributes(
+            GroupsToDisable,
+            GroupCount,
+            NULL,           // no principal self sid
+            Token->UserAndGroups[Index].Sid
+        )) {
 
             (Token->UserAndGroups)[Index].Attributes &= ~(SE_GROUP_ENABLED | SE_GROUP_ENABLED_BY_DEFAULT);
             (Token->UserAndGroups)[Index].Attributes |= SE_GROUP_USE_FOR_DENY_ONLY;
 
 
             // If this was the owner, reset the owner to be the user
-
-
             if (Index == Token->DefaultOwnerIndex) {
                 Token->DefaultOwnerIndex = 0;
             }
 
-
             // If this is the admins sid, turn off the admin group flag
-
-
             if (RtlEqualSid(
-                    Token->UserAndGroups[Index].Sid,
-                    SeAliasAdminsSid
-                    )) {
-
+                Token->UserAndGroups[Index].Sid,
+                SeAliasAdminsSid
+            )) {
                 Token->TokenFlags &= ~TOKEN_HAS_ADMIN_GROUP;
             }
         }
 
         Index += 1;
-
-
     } // endwhile
-
 
     return;
 }
@@ -1084,12 +916,9 @@ SeCopyClientToken(
     IN PACCESS_TOKEN ClientToken,
     IN SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
     IN KPROCESSOR_MODE RequestorMode,
-    OUT PACCESS_TOKEN *DuplicateToken
-    )
-
+    OUT PACCESS_TOKEN * DuplicateToken
+)
 /*++
-
-
 Routine Description:
 
     This routine copies a client's token as part of establishing a client
@@ -1119,11 +948,8 @@ Arguments:
         No exceptions are expected when tring to set this OUT value.
 
 Return Value:
-
     STATUS_SUCCESS - The service successfully completed the requested
         operation.
-
-
 --*/
 {
     NTSTATUS Status;
@@ -1138,42 +964,36 @@ Return Value:
         0,
         NULL,
         NULL
-        );
+    );
 
     Status = SepDuplicateToken(
-                 (PTOKEN)ClientToken,              // ExistingToken
-                 &ObjectAttributes,                // ObjectAttributes
-                 FALSE,                            // EffectiveOnly
-                 TokenImpersonation,               // TokenType  (target)
-                 ImpersonationLevel,               // ImpersonationLevel
-                 RequestorMode,                    // RequestorMode
-                 &NewToken                         // DuplicateToken
-                 );
+        (PTOKEN)ClientToken,              // ExistingToken
+        &ObjectAttributes,                // ObjectAttributes
+        FALSE,                            // EffectiveOnly
+        TokenImpersonation,               // TokenType  (target)
+        ImpersonationLevel,               // ImpersonationLevel
+        RequestorMode,                    // RequestorMode
+        &NewToken                         // DuplicateToken
+    );
 
     (*DuplicateToken) = (PACCESS_TOKEN)NewToken;
 
     return Status;
-
 }
 
 
-
 NTSTATUS
-NtFilterToken (
+NtFilterToken(
     IN HANDLE ExistingTokenHandle,
     IN ULONG Flags,
     IN PTOKEN_GROUPS SidsToDisable OPTIONAL,
     IN PTOKEN_PRIVILEGES PrivilegesToDelete OPTIONAL,
     IN PTOKEN_GROUPS RestrictedSids OPTIONAL,
     OUT PHANDLE NewTokenHandle
-    )
+)
 /*++
-
-
 Routine Description:
-
     Create a new token that is a subset of an existing token.
-
 Arguments:
 
     ExistingTokenHandle - Is a handle to a token already open for
@@ -1212,11 +1032,8 @@ Return Value:
     STATUS_INVALID_PARAMETER - Indicates one or more of the parameter values
         was invalid.  This value is returned if the target token is not
         an impersonation token.
-
-
 --*/
 {
-
     PTOKEN Token;
     PTOKEN NewToken;
     KPROCESSOR_MODE PreviousMode;
@@ -1246,85 +1063,63 @@ Return Value:
 
 
     //  Probe parameters
-
-
-
     try {
-
-
-
         //  Make sure we can write the handle
-
-
         ProbeForWriteHandle(NewTokenHandle);
 
 
         //  Capture Sids to remove
-
-
         if (ARGUMENT_PRESENT(SidsToDisable)) {
-            ProbeForRead( SidsToDisable, sizeof(TOKEN_GROUPS), sizeof(ULONG) );
+            ProbeForRead(SidsToDisable, sizeof(TOKEN_GROUPS), sizeof(ULONG));
 
             CapturedGroupCount = SidsToDisable->GroupCount;
             Status = SeCaptureSidAndAttributesArray(
-                        SidsToDisable->Groups,
-                        CapturedGroupCount,
-                        PreviousMode,
-                        NULL, 0,
-                        PagedPool,
-                        TRUE,
-                        &CapturedGroups,
-                        &CapturedGroupsLength
-                        );
-
+                SidsToDisable->Groups,
+                CapturedGroupCount,
+                PreviousMode,
+                NULL, 0,
+                PagedPool,
+                TRUE,
+                &CapturedGroups,
+                &CapturedGroupsLength
+            );
         }
 
-
         //  Capture PrivilegesToDelete
-
-
         if (NT_SUCCESS(Status) && ARGUMENT_PRESENT(PrivilegesToDelete)) {
-            ProbeForRead( PrivilegesToDelete, sizeof(TOKEN_PRIVILEGES), sizeof(ULONG) );
+            ProbeForRead(PrivilegesToDelete, sizeof(TOKEN_PRIVILEGES), sizeof(ULONG));
 
             CapturedPrivilegeCount = PrivilegesToDelete->PrivilegeCount;
             Status = SeCaptureLuidAndAttributesArray(
-                         PrivilegesToDelete->Privileges,
-                         CapturedPrivilegeCount,
-                         PreviousMode,
-                         NULL, 0,
-                         PagedPool,
-                         TRUE,
-                         &CapturedPrivileges,
-                         &CapturedPrivilegesLength
-                         );
-
+                PrivilegesToDelete->Privileges,
+                CapturedPrivilegeCount,
+                PreviousMode,
+                NULL, 0,
+                PagedPool,
+                TRUE,
+                &CapturedPrivileges,
+                &CapturedPrivilegesLength
+            );
         }
 
-
         //  Capture Restricted Sids
-
-
         if (NT_SUCCESS(Status) && ARGUMENT_PRESENT(RestrictedSids)) {
-            ProbeForRead( RestrictedSids, sizeof(TOKEN_GROUPS), sizeof(ULONG) );
+            ProbeForRead(RestrictedSids, sizeof(TOKEN_GROUPS), sizeof(ULONG));
 
             CapturedSidCount = RestrictedSids->GroupCount;
             Status = SeCaptureSidAndAttributesArray(
-                        RestrictedSids->Groups,
-                        CapturedSidCount,
-                        PreviousMode,
-                        NULL, 0,
-                        PagedPool,
-                        TRUE,
-                        &CapturedSids,
-                        &CapturedSidsLength
-                        );
-
+                RestrictedSids->Groups,
+                CapturedSidCount,
+                PreviousMode,
+                NULL, 0,
+                PagedPool,
+                TRUE,
+                &CapturedSids,
+                &CapturedSidsLength
+            );
         }
-
-
-
-    } except(EXCEPTION_EXECUTE_HANDLER) {
-
+    } except(EXCEPTION_EXECUTE_HANDLER)
+    {
         Status = GetExceptionCode();
     }  // end_try
 
@@ -1334,10 +1129,7 @@ Return Value:
 
 
     // Check that the attribtes are all zero for the restricted sids
-
-
-    for (Index = 0; Index < CapturedSidCount ; Index++ )
-    {
+    for (Index = 0; Index < CapturedSidCount; Index++) {
         if (CapturedSids[Index].Attributes != 0) {
             Status = STATUS_INVALID_PARAMETER;
             goto Cleanup;
@@ -1347,113 +1139,83 @@ Return Value:
     //  Check the handle's access to the existing token and get
     //  a pointer to that token.  Pick up the default desired
     //  access mask from the handle while we're at it.
-
-
     Status = ObReferenceObjectByHandle(
-                 ExistingTokenHandle,    // Handle
-                 TOKEN_DUPLICATE,        // DesiredAccess
-                 SepTokenObjectType,     // ObjectType
-                 PreviousMode,           // AccessMode
-                 (PVOID *)&Token,        // Object
-                 &HandleInformation      // GrantedAccess
-                 );
-
-    if ( !NT_SUCCESS(Status) ) {
-
+        ExistingTokenHandle,    // Handle
+        TOKEN_DUPLICATE,        // DesiredAccess
+        SepTokenObjectType,     // ObjectType
+        PreviousMode,           // AccessMode
+        (PVOID *)&Token,        // Object
+        &HandleInformation      // GrantedAccess
+    );
+    if (!NT_SUCCESS(Status)) {
         goto Cleanup;
     }
 
 
 #ifdef TOKEN_DEBUG
-
-
-// Debug
-    SepAcquireTokenReadLock( Token );
+    // Debug
+    SepAcquireTokenReadLock(Token);
     DbgPrint("\n");
     DbgPrint("\n");
     DbgPrint("Token being filtered: \n");
-    SepDumpToken( Token );
-    SepReleaseTokenReadLock( Token );
-// Debug
-
-
+    SepDumpToken(Token);
+    SepReleaseTokenReadLock(Token);
+    // Debug
 #endif //TOKEN_DEBUG
 
-
-
     // Check to see if an alternate desired access mask was provided.
-
-
-
     EffectiveDesiredAccess = HandleInformation.GrantedAccess;
 
-
-
-
     //  Filter the existing token
-
-
     NewToken = NULL;
     Status = SepFilterToken(
-                 Token,
-                 PreviousMode,
-                 Flags,
-                 CapturedGroupCount,
-                 CapturedGroups,
-                 CapturedPrivilegeCount,
-                 CapturedPrivileges,
-                 CapturedSidCount,
-                 CapturedSids,
-                 CapturedSidsLength,
-                 &NewToken
-                 );
-
-
+        Token,
+        PreviousMode,
+        Flags,
+        CapturedGroupCount,
+        CapturedGroups,
+        CapturedPrivilegeCount,
+        CapturedPrivileges,
+        CapturedSidCount,
+        CapturedSids,
+        CapturedSidsLength,
+        &NewToken
+    );
     if (NT_SUCCESS(Status)) {
-
-
         //  Insert the new token
-
-
-        Status = ObInsertObject( NewToken,
-                                 NULL,
-                                 EffectiveDesiredAccess,
-                                 0,
-                                 (PVOID *)NULL,
-                                 &LocalHandle
-                                 );
-
-        if (!NT_SUCCESS( Status )) {
+        Status = ObInsertObject(NewToken,
+                                NULL,
+                                EffectiveDesiredAccess,
+                                0,
+                                (PVOID *)NULL,
+                                &LocalHandle
+        );
+        if (!NT_SUCCESS(Status)) {
 #ifdef TOKEN_DEBUG
-            DbgPrint( "SE: ObInsertObject failed (%x) for token at %x\n", Status, NewToken );
+            DbgPrint("SE: ObInsertObject failed (%x) for token at %x\n", Status, NewToken);
+#endif
+        }
+    } else
+        if (NewToken != NULL) {
+#ifdef TOKEN_DEBUG
+            DbgPrint("SE: SepFilterToken failed (%x) but allocated token at %x\n", Status, NewToken);
 #endif
         }
 
-    } else
-    if (NewToken != NULL) {
-#ifdef TOKEN_DEBUG
-        DbgPrint( "SE: SepFilterToken failed (%x) but allocated token at %x\n", Status, NewToken );
-#endif
-    }
-
-
     //  We no longer need our reference to the source token
-
-
-    ObDereferenceObject( (PVOID)Token );
+    ObDereferenceObject((PVOID)Token);
 
 
     // BUGWARNING Probably need to audit here
 
 
     //  Return the new handle
-
-
     if (NT_SUCCESS(Status)) {
         try { *NewTokenHandle = LocalHandle; }
-            except(EXCEPTION_EXECUTE_HANDLER) {
+        except(EXCEPTION_EXECUTE_HANDLER)
+        {
             Status = GetExceptionCode();
-            }
+        }
     }
 
 Cleanup:
@@ -1463,7 +1225,7 @@ Cleanup:
             CapturedGroups,
             PreviousMode,
             TRUE
-            );
+        );
     }
 
     if (CapturedPrivileges != NULL) {
@@ -1471,7 +1233,7 @@ Cleanup:
             CapturedPrivileges,
             PreviousMode,
             TRUE
-            );
+        );
     }
 
     if (CapturedSids != NULL) {
@@ -1479,27 +1241,24 @@ Cleanup:
             CapturedSids,
             PreviousMode,
             TRUE
-            );
+        );
     }
 
-   return Status;
+    return Status;
 }
 
 
 NTSTATUS
-SeFilterToken (
+SeFilterToken(
     IN PACCESS_TOKEN ExistingToken,
     IN ULONG Flags,
     IN PTOKEN_GROUPS SidsToDisable OPTIONAL,
     IN PTOKEN_PRIVILEGES PrivilegesToDelete OPTIONAL,
     IN PTOKEN_GROUPS RestrictedSids OPTIONAL,
     OUT PACCESS_TOKEN * NewToken
-    )
+)
 /*++
-
-
 Routine Description:
-
     Create a new token that is a subset of an existing token.
 
 Arguments:
@@ -1540,11 +1299,8 @@ Return Value:
     STATUS_INVALID_PARAMETER - Indicates one or more of the parameter values
         was invalid.  This value is returned if the target token is not
         an impersonation token.
-
-
 --*/
 {
-
     PTOKEN Token;
     PTOKEN FilteredToken = NULL;
     KPROCESSOR_MODE PreviousMode;
@@ -1572,144 +1328,101 @@ Return Value:
 
     PreviousMode = KeGetPreviousMode();
 
-
     //  Probe parameters
-
-
     *NewToken = NULL;
 
-
-
     //  Capture Sids to remove
-
-
     if (ARGUMENT_PRESENT(SidsToDisable)) {
-
         CapturedGroupCount = SidsToDisable->GroupCount;
         CapturedGroups = SidsToDisable->Groups;
-
     }
 
-
     //  Capture PrivilegesToDelete
-
-
     if (ARGUMENT_PRESENT(PrivilegesToDelete)) {
-
         CapturedPrivilegeCount = PrivilegesToDelete->PrivilegeCount;
         CapturedPrivileges = PrivilegesToDelete->Privileges;
-
     }
 
 
     //  Capture Restricted Sids
-
-
     if (ARGUMENT_PRESENT(RestrictedSids)) {
-
         CapturedSidCount = RestrictedSids->GroupCount;
         CapturedSids = RestrictedSids->Groups;
 
-
         // Check that the attribtes are all zero for the restricted sids
-
-
-        for (Index = 0; Index < CapturedSidCount ; Index++ ) {
+        for (Index = 0; Index < CapturedSidCount; Index++) {
             if (CapturedSids[Index].Attributes != 0) {
                 return(STATUS_INVALID_PARAMETER);
             }
         }
-
     }
-
-
-
 
     //  Check the handle's access to the existing token and get
     //  a pointer to that token.  Pick up the default desired
     //  access mask from the handle while we're at it.
-
-
-    Token = (PTOKEN) ExistingToken;
-
+    Token = (PTOKEN)ExistingToken;
 
 #ifdef TOKEN_DEBUG
-
-
-// Debug
-    SepAcquireTokenReadLock( Token );
+    // Debug
+    SepAcquireTokenReadLock(Token);
     DbgPrint("\n");
     DbgPrint("\n");
     DbgPrint("Token being filtered: \n");
-    SepDumpToken( Token );
-    SepReleaseTokenReadLock( Token );
-// Debug
-
-
+    SepDumpToken(Token);
+    SepReleaseTokenReadLock(Token);
+    // Debug
 #endif //TOKEN_DEBUG
 
-
-
     //  Filter the existing token
-
-
     Status = SepFilterToken(
-                 Token,
-                 KernelMode,
-                 Flags,
-                 CapturedGroupCount,
-                 CapturedGroups,
-                 CapturedPrivilegeCount,
-                 CapturedPrivileges,
-                 CapturedSidCount,
-                 CapturedSids,
-                 CapturedSidsLength,
-                 &FilteredToken
-                 );
-
+        Token,
+        KernelMode,
+        Flags,
+        CapturedGroupCount,
+        CapturedGroups,
+        CapturedPrivilegeCount,
+        CapturedPrivileges,
+        CapturedSidCount,
+        CapturedSids,
+        CapturedSidsLength,
+        &FilteredToken
+    );
 
     if (NT_SUCCESS(Status)) {
-
-
         //  Insert the new token
+        Status = ObInsertObject(FilteredToken,
+                                NULL,
+                                0,
+                                0,
+                                (PVOID *)NULL,
+                                &LocalHandle
+        );
 
-
-        Status = ObInsertObject( FilteredToken,
-                                 NULL,
-                                 0,
-                                 0,
-                                 (PVOID *)NULL,
-                                 &LocalHandle
-                                 );
-
-        if (!NT_SUCCESS( Status )) {
+        if (!NT_SUCCESS(Status)) {
 #ifdef TOKEN_DEBUG
-            DbgPrint( "SE: ObInsertObject failed (%x) for token at %x\n", Status, NewToken );
+            DbgPrint("SE: ObInsertObject failed (%x) for token at %x\n", Status, NewToken);
 #endif
         } else {
             Status = ObReferenceObjectByHandle(
-                        LocalHandle,
-                        TOKEN_IMPERSONATE,
-                        SepTokenObjectType,
-                        KernelMode,
-                        (PVOID * ) NewToken,
-                        NULL                    // granted acess
-                        );
+                LocalHandle,
+                TOKEN_IMPERSONATE,
+                SepTokenObjectType,
+                KernelMode,
+                (PVOID *)NewToken,
+                NULL                    // granted acess
+            );
 
-            (VOID) NtClose(LocalHandle);
-
+            (VOID)NtClose(LocalHandle);
         }
-
     } else if (NewToken != NULL) {
 #ifdef TOKEN_DEBUG
-        DbgPrint( "SE: SepFilterToken failed (%x) but allocated token at %x\n", Status, NewToken );
+        DbgPrint("SE: SepFilterToken failed (%x) but allocated token at %x\n", Status, NewToken);
 #endif
     }
 
-
-
-   return Status;
+    return Status;
 }
+
 
 NTSTATUS
 SeFastFilterToken(
@@ -1724,9 +1437,8 @@ SeFastFilterToken(
     IN PSID_AND_ATTRIBUTES RestrictedSids OPTIONAL,
     IN ULONG SidLength,
     OUT PACCESS_TOKEN * FilteredToken
-    )
+)
 /*++
-
 Routine Description:
 
     This is a fast wrapper for the Ps code to filter a token
@@ -1772,21 +1484,19 @@ Return Value:
 
     STATUS_SUCCESS - The service successfully completed the requested
         operation.
-
-
 --*/
 {
-    return SepFilterToken( (PTOKEN) ExistingToken,
-                           RequestorMode,
-                           Flags,
-                           GroupCount,
-                           GroupsToDisable,
-                           PrivilegeCount,
-                           PrivilegesToDelete,
-                           SidCount,
-                           RestrictedSids,
-                           SidLength,
-                           (PTOKEN *) FilteredToken );
+    return SepFilterToken((PTOKEN)ExistingToken,
+                          RequestorMode,
+                          Flags,
+                          GroupCount,
+                          GroupsToDisable,
+                          PrivilegeCount,
+                          PrivilegesToDelete,
+                          SidCount,
+                          RestrictedSids,
+                          SidLength,
+                          (PTOKEN *)FilteredToken);
 }
 
 
@@ -1804,10 +1514,8 @@ SepFilterToken(
     IN PSID_AND_ATTRIBUTES RestrictedSids OPTIONAL,
     IN ULONG SidLength,
     OUT PTOKEN * FilteredToken
-    )
+)
 /*++
-
-
 Routine Description:
 
     This routine does the bulk of the work to actually filter
@@ -1856,15 +1564,11 @@ Arguments:
         No exceptions are expected when tring to set this OUT value.
 
 Return Value:
-
     STATUS_SUCCESS - The service successfully completed the requested
         operation.
-
-
 --*/
 {
     NTSTATUS Status;
-
     PTOKEN NewToken;
     PULONG DynamicPart;
     ULONG PagedPoolSize;
@@ -1874,23 +1578,20 @@ Return Value:
     ULONG_PTR NextFree;
     PSID NextSidFree;
     ULONG VariableLength;
-
     ULONG Index;
-
     PSECURITY_TOKEN_PROXY_DATA NewProxyData;
     PSECURITY_TOKEN_AUDIT_DATA NewAuditData;
-    OBJECT_ATTRIBUTES ObjA ;
-
+    OBJECT_ATTRIBUTES ObjA;
 
     PAGED_CODE();
 
-    ASSERT( sizeof(SECURITY_IMPERSONATION_LEVEL) <= sizeof(ULONG) );
+    ASSERT(sizeof(SECURITY_IMPERSONATION_LEVEL) <= sizeof(ULONG));
 
 
     // Increment the reference count for this logon session
     // This can not fail, since there is already a token in this logon session.
-    Status = SepReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-    ASSERT( NT_SUCCESS(Status) );
+    Status = SepReferenceLogonSession(&(ExistingToken->AuthenticationId));
+    ASSERT(NT_SUCCESS(Status));
 
     // Note that the size of the dynamic portion of a token can not change
     // once established.
@@ -1898,28 +1599,28 @@ Return Value:
     //  Allocate the dynamic portion
     DynamicPart = (PULONG)ExAllocatePoolWithTag(PagedPool, ExistingToken->DynamicCharged, 'dTeS');
     if (DynamicPart == NULL) {
-        SepDeReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-        return( STATUS_INSUFFICIENT_RESOURCES );
+        SepDeReferenceLogonSession(&(ExistingToken->AuthenticationId));
+        return(STATUS_INSUFFICIENT_RESOURCES);
     }
 
     if (ARGUMENT_PRESENT(ExistingToken->ProxyData)) {
         Status = SepCopyProxyData(&NewProxyData, ExistingToken->ProxyData);
         if (!NT_SUCCESS(Status)) {
-            SepDeReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-            ExFreePool( DynamicPart );
-            return( Status );
+            SepDeReferenceLogonSession(&(ExistingToken->AuthenticationId));
+            ExFreePool(DynamicPart);
+            return(Status);
         }
     } else {
         NewProxyData = NULL;
     }
 
-    if (ARGUMENT_PRESENT( ExistingToken->AuditData )) {
-        NewAuditData = ExAllocatePool( PagedPool, sizeof( SECURITY_TOKEN_AUDIT_DATA ));
+    if (ARGUMENT_PRESENT(ExistingToken->AuditData)) {
+        NewAuditData = ExAllocatePool(PagedPool, sizeof(SECURITY_TOKEN_AUDIT_DATA));
         if (NewAuditData == NULL) {
-            SepFreeProxyData( NewProxyData );
-            SepDeReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-            ExFreePool( DynamicPart );
-            return( STATUS_INSUFFICIENT_RESOURCES );
+            SepFreeProxyData(NewProxyData);
+            SepDeReferenceLogonSession(&(ExistingToken->AuthenticationId));
+            ExFreePool(DynamicPart);
+            return(STATUS_INSUFFICIENT_RESOURCES);
         } else {
             *NewAuditData = *(ExistingToken->AuditData);
         }
@@ -1931,45 +1632,36 @@ Return Value:
     VariableLength = ExistingToken->VariableLength + SidLength;
     TokenBodyLength = (ULONG)sizeof(TOKEN) + VariableLength;
     NonPagedPoolSize = TokenBodyLength;
-    PagedPoolSize    = ExistingToken->DynamicCharged;
-    InitializeObjectAttributes( &ObjA, NULL, 0, NULL, NULL );
+    PagedPoolSize = ExistingToken->DynamicCharged;
+    InitializeObjectAttributes(&ObjA, NULL, 0, NULL, NULL);
     Status = ObCreateObject(
-                 RequestorMode,      // ProbeMode
-                 SepTokenObjectType, // ObjectType
-                 NULL,               // ObjectAttributes
-                 RequestorMode,      // OwnershipMode
-                 NULL,               // ParseContext
-                 TokenBodyLength,    // ObjectBodySize
-                 PagedPoolSize,      // PagedPoolCharge
-                 NonPagedPoolSize,   // NonPagedPoolCharge
-                 (PVOID *)&NewToken  // Return pointer to object
-                 );
+        RequestorMode,      // ProbeMode
+        SepTokenObjectType, // ObjectType
+        NULL,               // ObjectAttributes
+        RequestorMode,      // OwnershipMode
+        NULL,               // ParseContext
+        TokenBodyLength,    // ObjectBodySize
+        PagedPoolSize,      // PagedPoolCharge
+        NonPagedPoolSize,   // NonPagedPoolCharge
+        (PVOID *)&NewToken  // Return pointer to object
+    );
     if (!NT_SUCCESS(Status)) {
-        SepDeReferenceLogonSession( &(ExistingToken->AuthenticationId) );
-        ExFreePool( DynamicPart );
-        SepFreeProxyData( NewProxyData );
+        SepDeReferenceLogonSession(&(ExistingToken->AuthenticationId));
+        ExFreePool(DynamicPart);
+        SepFreeProxyData(NewProxyData);
         if (NewAuditData != NULL) {
-            ExFreePool( NewAuditData );
+            ExFreePool(NewAuditData);
         }
         return Status;
     }
 
-
-
     //  acquire exclusive access to the source token
-
-
-    SepAcquireTokenReadLock( ExistingToken );
-
-
+    SepAcquireTokenReadLock(ExistingToken);
 
     // Main Body initialization
 
-
-
     // The following fields are unchanged from the source token.
     // Although some may change if EffectiveOnly has been specified.
-
 
     NewToken->AuthenticationId = ExistingToken->AuthenticationId;
     NewToken->ExpirationTime = ExistingToken->ExpirationTime;
@@ -1986,44 +1678,32 @@ Return Value:
     NewToken->ProxyData = NewProxyData;
     NewToken->AuditData = NewAuditData;
 
-
-
     // The following fields differ in the new token.
-
-
 
     // Allocate a new modified Id to distinguish this token from the orignial
     // token.
-
-
-    ExAllocateLocallyUniqueId( &(NewToken->ModifiedId) );
-    ExAllocateLocallyUniqueId( &(NewToken->TokenId) );
+    ExAllocateLocallyUniqueId(&(NewToken->ModifiedId));
+    ExAllocateLocallyUniqueId(&(NewToken->TokenId));
     NewToken->ParentTokenId = ExistingToken->TokenId;
     NewToken->TokenInUse = FALSE;
     NewToken->TokenType = ExistingToken->TokenType;
     NewToken->ImpersonationLevel = ExistingToken->ImpersonationLevel;
 
-
-
-
     // Compute the beginning portion of the variable part, which contains the
     // sid & attributes arrays and the privilege set.
-
-
 
     // First copy the privileges. We will later remove the ones that are
     // to be deleted.
 
-
     NextFree = (ULONG_PTR)(&NewToken->VariablePart);
     NewToken->Privileges = (PLUID_AND_ATTRIBUTES)NextFree;
-    RtlCopyLuidAndAttributesArray( ExistingToken->PrivilegeCount,
-                                   ExistingToken->Privileges,
-                                   (PLUID_AND_ATTRIBUTES)NextFree
-                                   );
+    RtlCopyLuidAndAttributesArray(ExistingToken->PrivilegeCount,
+                                  ExistingToken->Privileges,
+                                  (PLUID_AND_ATTRIBUTES)NextFree
+    );
 
     NextFree += (ExistingToken->PrivilegeCount * (ULONG)sizeof(LUID_AND_ATTRIBUTES));
-    VariableLength -= ( (ExistingToken->PrivilegeCount * (ULONG)sizeof(LUID_AND_ATTRIBUTES)) );
+    VariableLength -= ((ExistingToken->PrivilegeCount * (ULONG)sizeof(LUID_AND_ATTRIBUTES)));
 
 
     // Figure out the count of SIDs. This is the count of users&groups +
@@ -2033,45 +1713,38 @@ Return Value:
 
 #define MAX(_x_,_y_) ((_x_) > (_y_) ? (_x_) : (_y_))
 
-    NextSidFree = (PSID) (NextFree + (ExistingToken->UserAndGroupCount +
-                                      MAX(ExistingToken->RestrictedSidCount,SidCount)) * sizeof(SID_AND_ATTRIBUTES));
+    NextSidFree = (PSID)(NextFree + (ExistingToken->UserAndGroupCount +
+                                     MAX(ExistingToken->RestrictedSidCount, SidCount)) * sizeof(SID_AND_ATTRIBUTES));
 
-    NewToken->UserAndGroups = (PSID_AND_ATTRIBUTES) NextFree;
-
+    NewToken->UserAndGroups = (PSID_AND_ATTRIBUTES)NextFree;
 
     // Copy in the existing users & groups. We will later flag the ones
     // to be disabled.
-
-
     Status = RtlCopySidAndAttributesArray(
-                 ExistingToken->UserAndGroupCount,
-                 ExistingToken->UserAndGroups,
-                 VariableLength,
-                 (PSID_AND_ATTRIBUTES)NextFree,
-                 NextSidFree,
-                 &NextSidFree,
-                 &VariableLength
-                 );
-
-
+        ExistingToken->UserAndGroupCount,
+        ExistingToken->UserAndGroups,
+        VariableLength,
+        (PSID_AND_ATTRIBUTES)NextFree,
+        NextSidFree,
+        &NextSidFree,
+        &VariableLength
+    );
     ASSERT(NT_SUCCESS(Status));
     NextFree += (ExistingToken->UserAndGroupCount * (ULONG)sizeof(SID_AND_ATTRIBUTES));
-
 
     // Now add all the existing restricted sids. We need to take the
     // intersection of the two sets.
 
+    NewToken->RestrictedSids = (PSID_AND_ATTRIBUTES)NextFree;
 
-    NewToken->RestrictedSids = (PSID_AND_ATTRIBUTES) NextFree;
-
-    for (Index = 0; Index < SidCount ; Index++ ) {
-        if ( ( ExistingToken->RestrictedSidCount == 0 ) ||
+    for (Index = 0; Index < SidCount; Index++) {
+        if ((ExistingToken->RestrictedSidCount == 0) ||
             SepSidInSidAndAttributes(
                 ExistingToken->RestrictedSids,
                 ExistingToken->RestrictedSidCount,
                 NULL,                           // no self sid
                 RestrictedSids[Index].Sid
-                )) {
+            )) {
             Status = RtlCopySidAndAttributesArray(1, &RestrictedSids[Index], VariableLength, (PSID_AND_ATTRIBUTES)NextFree, NextSidFree, &NextSidFree, &VariableLength);
             ASSERT(NT_SUCCESS(Status));
             NextFree += sizeof(SID_AND_ATTRIBUTES);
@@ -2085,10 +1758,9 @@ Return Value:
     // that gives us more access than the original,
     // which we don't want.
     if ((ExistingToken->RestrictedSidCount != 0) && (NewToken->RestrictedSidCount == 0)) {
-        SepReleaseTokenReadLock( ExistingToken );
+        SepReleaseTokenReadLock(ExistingToken);
 
         Status = STATUS_INVALID_PARAMETER;
-
 
         // Cleanup.  ObDereferenceObject will cause the logon
         // session to be dereferenced, and will free the proxy data
@@ -2098,77 +1770,43 @@ Return Value:
         // the object manager when the token object is
         // being freed.
 
-
-        ExFreePool( DynamicPart );
-
+        ExFreePool(DynamicPart);
 
         // Do this so we don't crash trying to free whatever
         // junk is pointed to by DynamicPart.
 
-
         NewToken->DynamicPart = NULL;
-
-        ObDereferenceObject( NewToken );
-
+        ObDereferenceObject(NewToken);
         return(Status);
     }
 
-
     // If there are any restricted sids in the token, turn on the restricted
     // flag
-
-
     if (NewToken->RestrictedSidCount > 0) {
         NewToken->TokenFlags |= TOKEN_IS_RESTRICTED;
     }
 
-
     //  Copy and initialize the dynamic part.
     //  The dynamic part is assumed to be position independent.
-
-
-    RtlCopyMemory( (PVOID)DynamicPart,
-                  (PVOID)(ExistingToken->DynamicPart),
-                  ExistingToken->DynamicCharged
-                  );
-
+    RtlCopyMemory((PVOID)DynamicPart, (PVOID)(ExistingToken->DynamicPart), ExistingToken->DynamicCharged);
     NewToken->DynamicPart = DynamicPart;
 
-
     // If present, set the address of the default Dacl
-
-
     if (ARGUMENT_PRESENT(ExistingToken->DefaultDacl)) {
+        ASSERT((ULONG_PTR)(ExistingToken->DefaultDacl) >= (ULONG_PTR)(ExistingToken->DynamicPart));
 
-        ASSERT( (ULONG_PTR)(ExistingToken->DefaultDacl) >=
-                (ULONG_PTR)(ExistingToken->DynamicPart) );
-
-        FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->DefaultDacl) -
-                              (ULONG_PTR)(ExistingToken->DynamicPart));
-
+        FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->DefaultDacl) - (ULONG_PTR)(ExistingToken->DynamicPart));
         NewToken->DefaultDacl = (PACL)(FieldOffset + (ULONG_PTR)DynamicPart);
-
     } else {
-
         NewToken->DefaultDacl = NULL;
     }
 
-
-
     // Set the address of the primary group
-
-
     ASSERT(ARGUMENT_PRESENT(ExistingToken->PrimaryGroup));
+    ASSERT((ULONG_PTR)(ExistingToken->PrimaryGroup) >= (ULONG_PTR)(ExistingToken->DynamicPart));
 
-    ASSERT( (ULONG_PTR)(ExistingToken->PrimaryGroup) >=
-            (ULONG_PTR)(ExistingToken->DynamicPart) );
-
-    FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->PrimaryGroup) -
-                          (ULONG_PTR)(ExistingToken->DynamicPart));
-
+    FieldOffset = (ULONG)((ULONG_PTR)(ExistingToken->PrimaryGroup) - (ULONG_PTR)(ExistingToken->DynamicPart));
     NewToken->PrimaryGroup = (PACL)(FieldOffset + (ULONG_PTR)(DynamicPart));
-
-
 
     // For the time being, take the easy way to generating an "EffectiveOnly"
     // duplicate.  That is, use the same space required of the original, just
@@ -2178,27 +1816,25 @@ Return Value:
     // worthwhile to recalculate the actual space needed and copy only the
     // effective IDs/privileges into the new token.
 
-
     SepRemoveDisabledGroupsAndPrivileges(
         NewToken,
         Flags,
         GroupCount,
         GroupsToDisable,
         PrivilegeCount,
-        PrivilegesToDelete
-        );
+        PrivilegesToDelete);
 
 #ifdef TOKEN_DEBUG
-// Debug
+    // Debug
     DbgPrint("\n");
     DbgPrint("\n");
     DbgPrint("\n");
     DbgPrint("Filter token:\n");
-    SepDumpToken( NewToken );
-// Debug
+    SepDumpToken(NewToken);
+    // Debug
 #endif //TOKEN_DEBUG
 
-    SepReleaseTokenReadLock( ExistingToken );// Release the source token.
+    SepReleaseTokenReadLock(ExistingToken);// Release the source token.
 
     (*FilteredToken) = NewToken;
     return Status;

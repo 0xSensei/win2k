@@ -15,7 +15,7 @@ Author:
 #pragma hdrstop
 
 
-CONST PCSR_API_ROUTINE ConsoleServerApiDispatchTable[ ConsolepMaxApiNumber - ConsolepOpenConsole ] = {
+CONST PCSR_API_ROUTINE ConsoleServerApiDispatchTable[ConsolepMaxApiNumber - ConsolepOpenConsole] = {
     (PCSR_API_ROUTINE)SrvOpenConsole,
     (PCSR_API_ROUTINE)SrvGetConsoleInput,
     (PCSR_API_ROUTINE)SrvWriteConsoleInput,
@@ -104,7 +104,7 @@ CONST PCSR_API_ROUTINE ConsoleServerApiDispatchTable[ ConsolepMaxApiNumber - Con
     (PCSR_API_ROUTINE)SrvGetConsoleLangId
 };
 
-CONST BOOLEAN ConsoleServerApiServerValidTable[ ConsolepMaxApiNumber - ConsolepOpenConsole ] = {
+CONST BOOLEAN ConsoleServerApiServerValidTable[ConsolepMaxApiNumber - ConsolepOpenConsole] = {
     FALSE,     // OpenConsole
     FALSE,     // GetConsoleInput,
     FALSE,     // WriteConsoleInput,
@@ -194,7 +194,7 @@ CONST BOOLEAN ConsoleServerApiServerValidTable[ ConsolepMaxApiNumber - ConsolepO
 };
 
 #if DBG
-PSZ ConsoleServerApiNameTable[ ConsolepMaxApiNumber - ConsolepOpenConsole ] = {
+PSZ ConsoleServerApiNameTable[ConsolepMaxApiNumber - ConsolepOpenConsole] = {
     "SrvOpenConsole",
     "SrvGetConsoleInput",
     "SrvWriteConsoleInput",
@@ -321,7 +321,7 @@ BOOL gfLoadConIme;
 VOID LoadLinkInfo(PCONSOLE_INFO ConsoleInfo, LPWSTR Title, LPDWORD TitleLength, LPWSTR CurDir, LPWSTR AppName)
 {
     DWORD dwLinkLen;
-    WCHAR LinkName[ MAX_PATH+1 ];
+    WCHAR LinkName[MAX_PATH + 1];
     LNKPROPNTCONSOLE linkprops;
     LPWSTR pszIconLocation;
     int nIconIndex;
@@ -346,18 +346,18 @@ VOID LoadLinkInfo(PCONSOLE_INFO ConsoleInfo, LPWSTR Title, LPDWORD TitleLength, 
         DWORD oldLen;
 
         // Get the filename of the link (TitleLength is BYTES, not CHARS)
-        dwLinkLen = (DWORD)(min(*TitleLength,(MAX_PATH+1)*sizeof(WCHAR)));
-        RtlCopyMemory(LinkName,Title,dwLinkLen);
-        LinkName[ MAX_PATH ] = (WCHAR)0;
+        dwLinkLen = (DWORD)(min(*TitleLength, (MAX_PATH + 1) * sizeof(WCHAR)));
+        RtlCopyMemory(LinkName, Title, dwLinkLen);
+        LinkName[MAX_PATH] = (WCHAR)0;
 
         // Get the title for the window, which is effectively the link file name
         oldLen = *TitleLength;
-        *TitleLength = GetTitleFromLinkName( LinkName, Title );
+        *TitleLength = GetTitleFromLinkName(LinkName, Title);
         if (*TitleLength < oldLen)
-            Title[ *TitleLength / sizeof(WCHAR) ] = L'\0';
+            Title[*TitleLength / sizeof(WCHAR)] = L'\0';
 
         // try to get console properties from the link
-        Success =  GetLinkProperties( LinkName,&linkprops,sizeof(linkprops));
+        Success = GetLinkProperties(LinkName, &linkprops, sizeof(linkprops));
         if (Success == LINK_NOINFO) {
             ConsoleInfo->dwStartupFlags &= (~STARTF_TITLEISLINKNAME);
             goto NormalInit;
@@ -382,44 +382,43 @@ VOID LoadLinkInfo(PCONSOLE_INFO ConsoleInfo, LPWSTR Title, LPDWORD TitleLength, 
         ConsoleInfo->wFillAttribute = linkprops.console_props.wFillAttribute;
         ConsoleInfo->wPopupFillAttribute = linkprops.console_props.wPopupFillAttribute;
 
-        RtlCopyMemory( &ConsoleInfo->dwScreenBufferSize, &linkprops.console_props.dwScreenBufferSize, sizeof(NT_CONSOLE_PROPS) - FIELD_OFFSET(NT_CONSOLE_PROPS, dwScreenBufferSize));
+        RtlCopyMemory(&ConsoleInfo->dwScreenBufferSize, &linkprops.console_props.dwScreenBufferSize, sizeof(NT_CONSOLE_PROPS) - FIELD_OFFSET(NT_CONSOLE_PROPS, dwScreenBufferSize));
         ConsoleInfo->uCodePage = linkprops.fe_console_props.uCodePage;
 
 #if 0
         {
             INT i;
 
-            DbgPrint("[LoadLinkInfo Properties for %ws]\n", Title );
-            DbgPrint("    wFillAttribute      = 0x%04X\n", ConsoleInfo->wFillAttribute );
-            DbgPrint("    wPopupFillAttribute = 0x%04X\n", ConsoleInfo->wPopupFillAttribute );
-            DbgPrint("    dwScreenBufferSize  = (%d , %d)\n", ConsoleInfo->dwScreenBufferSize.X, ConsoleInfo->dwScreenBufferSize.Y );
-            DbgPrint("    dwWindowSize        = (%d , %d)\n", ConsoleInfo->dwWindowSize.X, ConsoleInfo->dwWindowSize.Y );
-            DbgPrint("    dwWindowOrigin      = (%d , %d)\n", ConsoleInfo->dwWindowOrigin.X, ConsoleInfo->dwWindowOrigin.Y );
-            DbgPrint("    nFont               = 0x%X\n", ConsoleInfo->nFont );
-            DbgPrint("    nInputBufferSize    = 0x%X\n", ConsoleInfo->nInputBufferSize );
-            DbgPrint("    dwFontSize          = (%d , %d)\n", ConsoleInfo->dwFontSize.X, ConsoleInfo->dwFontSize.Y );
-            DbgPrint("    uFontFamily         = 0x%08X\n", ConsoleInfo->uFontFamily );
-            DbgPrint("    uFontWeight         = 0x%08X\n", ConsoleInfo->uFontWeight );
-            DbgPrint("    FaceName            = %ws\n", ConsoleInfo->FaceName );
-            DbgPrint("    uCursorSize         = %d\n", ConsoleInfo->uCursorSize );
-            DbgPrint("    bFullScreen         = %s\n", ConsoleInfo->bFullScreen ? "TRUE" : "FALSE" );
-            DbgPrint("    bQuickEdit          = %s\n", ConsoleInfo->bQuickEdit  ? "TRUE" : "FALSE" );
-            DbgPrint("    bInsertMode         = %s\n", ConsoleInfo->bInsertMode ? "TRUE" : "FALSE" );
-            DbgPrint("    bAutoPosition       = %s\n", ConsoleInfo->bAutoPosition ? "TRUE" : "FALSE" );
-            DbgPrint("    uHistoryBufferSize  = %d\n", ConsoleInfo->uHistoryBufferSize );
-            DbgPrint("    uNumHistoryBuffers  = %d\n", ConsoleInfo->uNumberOfHistoryBuffers );
-            DbgPrint("    bHistoryNoDup       = %s\n", ConsoleInfo->bHistoryNoDup ? "TRUE" : "FALSE" );
-            DbgPrint("    ColorTable = [" );
-            i=0;
-            while( i < 16 )
-            {
+            DbgPrint("[LoadLinkInfo Properties for %ws]\n", Title);
+            DbgPrint("    wFillAttribute      = 0x%04X\n", ConsoleInfo->wFillAttribute);
+            DbgPrint("    wPopupFillAttribute = 0x%04X\n", ConsoleInfo->wPopupFillAttribute);
+            DbgPrint("    dwScreenBufferSize  = (%d , %d)\n", ConsoleInfo->dwScreenBufferSize.X, ConsoleInfo->dwScreenBufferSize.Y);
+            DbgPrint("    dwWindowSize        = (%d , %d)\n", ConsoleInfo->dwWindowSize.X, ConsoleInfo->dwWindowSize.Y);
+            DbgPrint("    dwWindowOrigin      = (%d , %d)\n", ConsoleInfo->dwWindowOrigin.X, ConsoleInfo->dwWindowOrigin.Y);
+            DbgPrint("    nFont               = 0x%X\n", ConsoleInfo->nFont);
+            DbgPrint("    nInputBufferSize    = 0x%X\n", ConsoleInfo->nInputBufferSize);
+            DbgPrint("    dwFontSize          = (%d , %d)\n", ConsoleInfo->dwFontSize.X, ConsoleInfo->dwFontSize.Y);
+            DbgPrint("    uFontFamily         = 0x%08X\n", ConsoleInfo->uFontFamily);
+            DbgPrint("    uFontWeight         = 0x%08X\n", ConsoleInfo->uFontWeight);
+            DbgPrint("    FaceName            = %ws\n", ConsoleInfo->FaceName);
+            DbgPrint("    uCursorSize         = %d\n", ConsoleInfo->uCursorSize);
+            DbgPrint("    bFullScreen         = %s\n", ConsoleInfo->bFullScreen ? "TRUE" : "FALSE");
+            DbgPrint("    bQuickEdit          = %s\n", ConsoleInfo->bQuickEdit ? "TRUE" : "FALSE");
+            DbgPrint("    bInsertMode         = %s\n", ConsoleInfo->bInsertMode ? "TRUE" : "FALSE");
+            DbgPrint("    bAutoPosition       = %s\n", ConsoleInfo->bAutoPosition ? "TRUE" : "FALSE");
+            DbgPrint("    uHistoryBufferSize  = %d\n", ConsoleInfo->uHistoryBufferSize);
+            DbgPrint("    uNumHistoryBuffers  = %d\n", ConsoleInfo->uNumberOfHistoryBuffers);
+            DbgPrint("    bHistoryNoDup       = %s\n", ConsoleInfo->bHistoryNoDup ? "TRUE" : "FALSE");
+            DbgPrint("    ColorTable = [");
+            i = 0;
+            while (i < 16) {
                 DbgPrint("\n         ");
                 DbgPrint("0x%08X ", ConsoleInfo->ColorTable[i++]);
                 DbgPrint("0x%08X ", ConsoleInfo->ColorTable[i++]);
                 DbgPrint("0x%08X ", ConsoleInfo->ColorTable[i++]);
                 DbgPrint("0x%08X ", ConsoleInfo->ColorTable[i++]);
             }
-            DbgPrint( "]\n\n" );
+            DbgPrint("]\n\n");
         }
 #endif
 
@@ -453,14 +452,14 @@ NormalInit:
 
     CsrRevertToSelf();
 
-    if (! IsValidCodePage(ConsoleInfo->uCodePage)) {    // fail safe
+    if (!IsValidCodePage(ConsoleInfo->uCodePage)) {    // fail safe
         ConsoleInfo->uCodePage = OEMCP;
     }
 
     if (!(ConsoleInfo->dwStartupFlags & STARTF_TITLEISLINKNAME)) {
         CONSOLE_REGISTRY_INFO RegInfo;
 
-DefaultInit:
+    DefaultInit:
         // read values from the registry
         RegInfo = DefaultRegInfo;
         GetRegistryValues(Title, &RegInfo);
@@ -509,7 +508,7 @@ DefaultInit:
 }
 
 
-BOOL InitWindowClass( VOID )
+BOOL InitWindowClass(VOID)
 {
     WNDCLASSEX wc;
     BOOL retval;
@@ -517,20 +516,20 @@ BOOL InitWindowClass( VOID )
 
     ghNormalCursor = LoadCursor(NULL, IDC_ARROW);
     ASSERT(ghModuleWin != NULL);
-    ghDefaultIcon       = LoadIcon(ghModuleWin, MAKEINTRESOURCE(IDI_CONSOLE));
-    ghDefaultSmIcon     = LoadImage(ghModuleWin, MAKEINTRESOURCE(IDI_CONSOLE), IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), LR_SHARED);
-    wc.hIcon            = ghDefaultIcon;
-    wc.cbSize           = sizeof(WNDCLASSEX);
-    wc.style            = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
-    wc.lpfnWndProc      = ConsoleWindowProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = GWL_CONSOLE_WNDALLOC;
-    wc.hInstance        = ghInstance;
-    wc.hCursor          = ghNormalCursor;
-    wc.hbrBackground    = CreateSolidBrush(DefaultRegInfo.ColorTable[LOBYTE(DefaultRegInfo.ScreenFill.Attributes >> 4) & 0xF]);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = CONSOLE_WINDOW_CLASS;
-    wc.hIconSm          = ghDefaultSmIcon;
+    ghDefaultIcon = LoadIcon(ghModuleWin, MAKEINTRESOURCE(IDI_CONSOLE));
+    ghDefaultSmIcon = LoadImage(ghModuleWin, MAKEINTRESOURCE(IDI_CONSOLE), IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), LR_SHARED);
+    wc.hIcon = ghDefaultIcon;
+    wc.cbSize = sizeof(WNDCLASSEX);
+    wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+    wc.lpfnWndProc = ConsoleWindowProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = GWL_CONSOLE_WNDALLOC;
+    wc.hInstance = ghInstance;
+    wc.hCursor = ghNormalCursor;
+    wc.hbrBackground = CreateSolidBrush(DefaultRegInfo.ColorTable[LOBYTE(DefaultRegInfo.ScreenFill.Attributes >> 4) & 0xF]);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = CONSOLE_WINDOW_CLASS;
+    wc.hIconSm = ghDefaultSmIcon;
 
     atomConsoleClass = RegisterClassEx(&wc);
     retval = (atomConsoleClass != 0);
@@ -564,11 +563,11 @@ NTSTATUS InitWindowsStuff(HDESK hdesk, LPDWORD lpdwThreadId)
             InitializeDbcsMisc();
 #endif
             FullScreenInitialized = InitializeFullScreen();
-            
+
             GetRegistryValues(L"", &DefaultRegInfo);// read the registry values
-            
+
             Status = InitializeScrollBuffer();// allocate buffer for scrolling
-            ASSERT (NT_SUCCESS(Status));
+            ASSERT(NT_SUCCESS(Status));
             if (!NT_SUCCESS(Status))
                 goto ErrorExit;
         }
@@ -587,7 +586,7 @@ NTSTATUS InitWindowsStuff(HDESK hdesk, LPDWORD lpdwThreadId)
 
         // can't call CreateThread from server
         Status = RtlCreateUserThread(NtCurrentProcess(),
-                                     (PSECURITY_DESCRIPTOR) NULL,
+                                     (PSECURITY_DESCRIPTOR)NULL,
                                      TRUE,
                                      0,
                                      0,
@@ -596,14 +595,14 @@ NTSTATUS InitWindowsStuff(HDESK hdesk, LPDWORD lpdwThreadId)
                                      &InputThreadInitInfo,
                                      &InputThreadInitInfo.ThreadHandle,
                                      &ClientId
-                                    );
+        );
         if (!NT_SUCCESS(Status)) {
             NtClose(InputThreadInitInfo.InitCompleteEventHandle);
             CloseDesktop(InputThreadInitInfo.DesktopHandle);
             goto ErrorExit;
         }
 
-        CsrAddStaticServerThread(InputThreadInitInfo.ThreadHandle,&ClientId,0);
+        CsrAddStaticServerThread(InputThreadInitInfo.ThreadHandle, &ClientId, 0);
         NtResumeThread(InputThreadInitInfo.ThreadHandle, NULL);
         NtWaitForSingleObject(InputThreadInitInfo.InitCompleteEventHandle, FALSE, NULL);
         NtClose(InputThreadInitInfo.InitCompleteEventHandle);
@@ -613,7 +612,7 @@ NTSTATUS InitWindowsStuff(HDESK hdesk, LPDWORD lpdwThreadId)
         }
 
         *lpdwThreadId = HandleToUlong(ClientId.UniqueThread);
-        fOneTimeInitialized=TRUE;
+        fOneTimeInitialized = TRUE;
     } else {
         *lpdwThreadId = ConsoleDesktopInfo.dwThreadId;
     }
@@ -656,49 +655,49 @@ Arguments:
     InitWin32HeapStubs();
 
     pConHeap = Win32HeapCreate(
-                              "CH_Head",
-                              "CH_Tail",
-                              HEAP_GROWABLE | HEAP_CLASS_5 |
+        "CH_Head",
+        "CH_Tail",
+        HEAP_GROWABLE | HEAP_CLASS_5 |
 #if DBG
-                              HEAP_TAIL_CHECKING_ENABLED,
+        HEAP_TAIL_CHECKING_ENABLED,
 #else
-                              0,
+        0,
 #endif
-                              NULL,             // HeapBase
-                              64 * 1024,        // ReserveSize
-                              4096,             // CommitSize
-                              NULL,             // Lock to use for serialization
-                              NULL);            // GrowthThreshold
+        NULL,             // HeapBase
+        64 * 1024,        // ReserveSize
+        4096,             // CommitSize
+        NULL,             // Lock to use for serialization
+        NULL);            // GrowthThreshold
 
-    // pConHeap = RtlProcessHeap();
+// pConHeap = RtlProcessHeap();
 
     if (pConHeap == NULL) {
         return STATUS_NO_MEMORY;
     }
 
-    dwConBaseTag = Win32HeapCreateTag( pConHeap,
-                                     0,
-                                     L"CON!",
-                                     L"TMP\0"
-                                     L"BMP\0"
-                                     L"ALIAS\0"
-                                     L"HISTORY\0"
-                                     L"TITLE\0"
-                                     L"HANDLE\0"
-                                     L"CONSOLE\0"
-                                     L"ICON\0"
-                                     L"BUFFER\0"
-                                     L"WAIT\0"
-                                     L"FONT\0"
-                                     L"SCREEN\0"
+    dwConBaseTag = Win32HeapCreateTag(pConHeap,
+                                      0,
+                                      L"CON!",
+                                      L"TMP\0"
+                                      L"BMP\0"
+                                      L"ALIAS\0"
+                                      L"HISTORY\0"
+                                      L"TITLE\0"
+                                      L"HANDLE\0"
+                                      L"CONSOLE\0"
+                                      L"ICON\0"
+                                      L"BUFFER\0"
+                                      L"WAIT\0"
+                                      L"FONT\0"
+                                      L"SCREEN\0"
 #if defined(FE_SB)
-                                     L"TMP DBCS\0"
-                                     L"SCREEN DBCS\0"
-                                     L"EUDC\0"
-                                     L"CONVAREA\0"
-                                     L"IME\0"
+                                      L"TMP DBCS\0"
+                                      L"SCREEN DBCS\0"
+                                      L"EUDC\0"
+                                      L"CONVAREA\0"
+                                      L"IME\0"
 #endif
-                                   );
+    );
     Status = InitializeConsoleHandleTable();
     if (!NT_SUCCESS(Status)) {
         return Status;
@@ -740,7 +739,7 @@ Arguments:
     gfIsDBCSACP = !!IsAvailableFarEastCodePage(WINDOWSCP);
 #endif
 
-    return( STATUS_SUCCESS );
+    return(STATUS_SUCCESS);
 }
 
 
@@ -757,7 +756,7 @@ VOID AddProcessToList(IN OUT PCONSOLE_INFORMATION Console, IN OUT PCONSOLE_PROCE
 
     ProcessHandleRecord->ProcessHandle = ProcessHandle;
     ProcessHandleRecord->TerminateCount = 0;
-    InsertHeadList(&Console->ProcessHandleList,&ProcessHandleRecord->ListLink);
+    InsertHeadList(&Console->ProcessHandleList, &ProcessHandleRecord->ListLink);
 
     SetProcessFocus(ProcessHandleRecord->Process, Console->Flags & CONSOLE_HAS_FOCUS);
 }
@@ -771,7 +770,7 @@ PCONSOLE_PROCESS_HANDLE FindProcessInList(IN PCONSOLE_INFORMATION Console, IN HA
     ListHead = &Console->ProcessHandleList;
     ListNext = ListHead->Flink;
     while (ListNext != ListHead) {
-        ProcessHandleRecord = CONTAINING_RECORD( ListNext, CONSOLE_PROCESS_HANDLE, ListLink );
+        ProcessHandleRecord = CONTAINING_RECORD(ListNext, CONSOLE_PROCESS_HANDLE, ListLink);
         if (ProcessHandleRecord->ProcessHandle == ProcessHandle) {
             return ProcessHandleRecord;
         }
@@ -789,7 +788,7 @@ VOID RemoveProcessFromList(IN OUT PCONSOLE_INFORMATION Console, IN HANDLE Proces
     ListHead = &Console->ProcessHandleList;
     ListNext = ListHead->Flink;
     while (ListNext != ListHead) {
-        ProcessHandleRecord = CONTAINING_RECORD( ListNext, CONSOLE_PROCESS_HANDLE, ListLink );
+        ProcessHandleRecord = CONTAINING_RECORD(ListNext, CONSOLE_PROCESS_HANDLE, ListLink);
         ListNext = ListNext->Flink;
         if (ProcessHandleRecord->ProcessHandle == ProcessHandle) {
             RemoveEntryList(&ProcessHandleRecord->ListLink);
@@ -797,7 +796,7 @@ VOID RemoveProcessFromList(IN OUT PCONSOLE_INFORMATION Console, IN HANDLE Proces
             return;
         }
     }
-    ASSERT (FALSE);
+    ASSERT(FALSE);
 }
 
 
@@ -811,7 +810,7 @@ SetUpConsole(
     IN PCONSOLE_PER_PROCESS_DATA ProcessData,
     IN BOOLEAN WindowVisible,
     IN PUNICODE_STRING pstrDesktopName
-    )
+)
 {
     NTSTATUS Status;
     PCONSOLE_INFORMATION Console;
@@ -852,7 +851,7 @@ SetUpConsole(
 
     // We need to see if we were spawned from a link.
     // If we were, we need to call back into the shell to try to get all the console information from the link.
-    LoadLinkInfo( ConsoleInfo, Title, &TitleLength, CurDir, AppName );
+    LoadLinkInfo(ConsoleInfo, Title, &TitleLength, CurDir, AppName);
 
     LockConsoleHandleTable();
 
@@ -875,7 +874,7 @@ SetUpConsole(
                              ConsoleInfo,
                              WindowVisible,
                              ConsoleThreadId
-                             );
+    );
     if (!NT_SUCCESS(Status)) {
         FreeConsoleHandle(ConsoleInfo->ConsoleHandle);
         UnlockConsoleHandleTable();
@@ -884,8 +883,8 @@ SetUpConsole(
         return Status;
     }
     CONSOLE_SETCONSOLEHANDLE(ConsoleInfo->ConsoleHandle);
-    Status = DereferenceConsoleHandle(ConsoleInfo->ConsoleHandle,&Console);
-    ASSERT (NT_SUCCESS(Status));
+    Status = DereferenceConsoleHandle(ConsoleInfo->ConsoleHandle, &Console);
+    ASSERT(NT_SUCCESS(Status));
 
     // increment console reference count
     Console->RefCount++;
@@ -897,10 +896,8 @@ SetUpConsole(
     UnlockConsoleHandleTable();
 
 #if defined(FE_IME)
-    if (CONSOLE_IS_IME_ENABLED())
-    {
-        if (WindowVisible)
-        {
+    if (CONSOLE_IS_IME_ENABLED()) {
+        if (WindowVisible) {
             InitConsoleIMEStuff(Console->hDesk, ConsoleThreadId, Console);
         }
     }
@@ -932,14 +929,14 @@ Arguments:
     CONSOLE_PROCESS_INFO cpi;
 
     if (p == NULL ||
-        *ConnectionInfoLength != sizeof( *p ) ||
+        *ConnectionInfoLength != sizeof(*p) ||
         p->AppNameLength > sizeof(p->AppName) ||
         p->CurDirLength > sizeof(p->CurDir) ||
         p->TitleLength > sizeof(p->Title)) {
 
         KdPrint(("CONSRV: bad connection info\n"));
         ASSERT(FALSE);
-        return( STATUS_UNSUCCESSFUL );
+        return(STATUS_UNSUCCESSFUL);
     }
 
 
@@ -983,14 +980,12 @@ Arguments:
         cpi.dwFlags = (p->ConsoleInfo.ConsoleHandle != NULL) ? 0 : CPI_NEWPROCESSWINDOW;
 
         NtUserConsoleControl(ConsoleNotifyConsoleApplication,
-                &cpi, sizeof(CONSOLE_PROCESS_INFO));
+                             &cpi, sizeof(CONSOLE_PROCESS_INFO));
 
 
         // create console
-
-
         if (p->ConsoleInfo.ConsoleHandle == NULL) {
-            ProcessHandleRecord = ConsoleHeapAlloc(MAKE_TAG( HANDLE_TAG ),sizeof(CONSOLE_PROCESS_HANDLE));
+            ProcessHandleRecord = ConsoleHeapAlloc(MAKE_TAG(HANDLE_TAG), sizeof(CONSOLE_PROCESS_HANDLE));
             if (ProcessHandleRecord == NULL) {
                 Status = STATUS_NO_MEMORY;
                 goto ErrorExit;
@@ -1010,12 +1005,12 @@ Arguments:
 
 
             if (p->DesktopLength) {
-                strDesktopName.Buffer = ConsoleHeapAlloc(MAKE_TAG( TMP_TAG ), p->DesktopLength);
+                strDesktopName.Buffer = ConsoleHeapAlloc(MAKE_TAG(TMP_TAG), p->DesktopLength);
                 if (strDesktopName.Buffer == NULL) {
                     Status = STATUS_NO_MEMORY;
                     goto ErrorExit;
                 }
-                Status = NtReadVirtualMemory(Process->ProcessHandle,(PVOID)p->Desktop,strDesktopName.Buffer,p->DesktopLength,NULL);
+                Status = NtReadVirtualMemory(Process->ProcessHandle, (PVOID)p->Desktop, strDesktopName.Buffer, p->DesktopLength, NULL);
                 if (!NT_SUCCESS(Status)) {
                     ConsoleHeapFree(strDesktopName.Buffer);
                     goto ErrorExit;
@@ -1028,13 +1023,13 @@ Arguments:
 
             ProcessData->RootProcess = TRUE;
             Status = SetUpConsole(&p->ConsoleInfo,
-                                    p->TitleLength,
-                                    p->Title,
-                                    p->CurDir,
-                                    p->AppName,
-                                    ProcessData,
-                                    p->WindowVisible,
-                                    &strDesktopName);
+                                  p->TitleLength,
+                                  p->Title,
+                                  p->CurDir,
+                                  p->AppName,
+                                  ProcessData,
+                                  p->WindowVisible,
+                                  &strDesktopName);
             if (p->DesktopLength)
                 ConsoleHeapFree(strDesktopName.Buffer);
             if (!NT_SUCCESS(Status)) {
@@ -1045,15 +1040,14 @@ Arguments:
 
             ConsolePlaySound();
 
-            Status = RevalidateConsole(p->ConsoleInfo.ConsoleHandle,&Console);
-            ASSERT (NT_SUCCESS(Status));
-        }
-        else {
+            Status = RevalidateConsole(p->ConsoleInfo.ConsoleHandle, &Console);
+            ASSERT(NT_SUCCESS(Status));
+        } else {
             ProcessHandleRecord = NULL;
             ProcessData->RootProcess = FALSE;
 
             Status = STATUS_SUCCESS;
-            if (!(NT_SUCCESS(RevalidateConsole(p->ConsoleInfo.ConsoleHandle,&Console))) ) {
+            if (!(NT_SUCCESS(RevalidateConsole(p->ConsoleInfo.ConsoleHandle, &Console)))) {
                 Status = STATUS_PROCESS_IS_TERMINATING;
                 goto ErrorExit;
             }
@@ -1064,22 +1058,22 @@ Arguments:
             }
 
             if (!MapHandle(CONSOLE_CLIENTPROCESSHANDLE(),
-                            Console->InitEvents[INITIALIZATION_SUCCEEDED],
-                            &p->ConsoleInfo.InitEvents[INITIALIZATION_SUCCEEDED]
-                            ) ||
+                           Console->InitEvents[INITIALIZATION_SUCCEEDED],
+                           &p->ConsoleInfo.InitEvents[INITIALIZATION_SUCCEEDED]
+            ) ||
                 !MapHandle(CONSOLE_CLIENTPROCESSHANDLE(),
-                            Console->InitEvents[INITIALIZATION_FAILED],
-                            &p->ConsoleInfo.InitEvents[INITIALIZATION_FAILED]
-                            ) ||
+                           Console->InitEvents[INITIALIZATION_FAILED],
+                           &p->ConsoleInfo.InitEvents[INITIALIZATION_FAILED]
+                ) ||
                 !MapHandle(CONSOLE_CLIENTPROCESSHANDLE(),
-                            Console->InputBuffer.InputWaitEvent,
-                            &p->ConsoleInfo.InputWaitHandle
-                            )) {
+                           Console->InputBuffer.InputWaitEvent,
+                           &p->ConsoleInfo.InputWaitHandle
+                )) {
                 Status = STATUS_NO_MEMORY;
                 goto ErrorExit;
             }
 
-            ProcessHandleRecord = FindProcessInList(Console,CONSOLE_CLIENTPROCESSHANDLE());
+            ProcessHandleRecord = FindProcessInList(Console, CONSOLE_CLIENTPROCESSHANDLE());
             if (ProcessHandleRecord) {
                 ProcessHandleRecord->CtrlRoutine = p->CtrlRoutine;
                 ProcessHandleRecord->PropRoutine = p->PropRoutine;
@@ -1092,38 +1086,38 @@ Arguments:
             // Associate the correct window station with client process
             // so they can do Global atom calls.
 
-            if (DuplicateHandle( NtCurrentProcess(),
-                                 Console->hWinSta,
-                                 Process->ProcessHandle,
-                                 &ConsoleWindowStationInfo.hwinsta,
-                                 0,
-                                 FALSE,
-                                 DUPLICATE_SAME_ACCESS
-                               )
-               ) {
+            if (DuplicateHandle(NtCurrentProcess(),
+                                Console->hWinSta,
+                                Process->ProcessHandle,
+                                &ConsoleWindowStationInfo.hwinsta,
+                                0,
+                                FALSE,
+                                DUPLICATE_SAME_ACCESS
+            )
+                ) {
                 ConsoleWindowStationInfo.dwProcessId = HandleToUlong(CONSOLE_CLIENTPROCESSID());
                 NtUserConsoleControl(ConsoleWindowStationProcess,
-                        &ConsoleWindowStationInfo, sizeof(ConsoleWindowStationInfo));
+                                     &ConsoleWindowStationInfo, sizeof(ConsoleWindowStationInfo));
 
-                }
+            }
 
             if (ProcessHandleRecord) {
                 ProcessHandleRecord->Process = Process;
                 ProcessHandleRecord->CtrlRoutine = p->CtrlRoutine;
                 ProcessHandleRecord->PropRoutine = p->PropRoutine;
-                AddProcessToList(Console,ProcessHandleRecord,CONSOLE_CLIENTPROCESSHANDLE());
+                AddProcessToList(Console, ProcessHandleRecord, CONSOLE_CLIENTPROCESSHANDLE());
             }
             SetProcessForegroundRights(Process,
                                        Console->Flags & CONSOLE_HAS_FOCUS);
             AllocateCommandHistory(Console,
-                            p->AppNameLength,
-                            p->AppName,
-                            CONSOLE_CLIENTPROCESSHANDLE());
+                                   p->AppNameLength,
+                                   p->AppName,
+                                   CONSOLE_CLIENTPROCESSHANDLE());
             UnlockConsole(Console);
 
         } else {
-ErrorExit:
-            CONSOLE_SETCONSOLEAPPFROMPROCESSDATA(ProcessData,FALSE);
+        ErrorExit:
+            CONSOLE_SETCONSOLEAPPFROMPROCESSDATA(ProcessData, FALSE);
             if (ProcessHandleRecord)
                 ConsoleHeapFree(ProcessHandleRecord);
             if (Console) {
@@ -1134,21 +1128,17 @@ ErrorExit:
             }
         }
     } else if (ProcessData->ConsoleHandle != NULL) {
-
-
         // This is a non-console app with a reference to a
         // reference to a parent console.  Dereference the
         // console.
-
-
         RemoveConsole(ProcessData, Process->ProcessHandle, 0);
     }
 
-    return( Status );
+    return(Status);
 }
 
 
-NTSTATUS RemoveConsole(IN PCONSOLE_PER_PROCESS_DATA ProcessData,IN HANDLE ProcessHandle,IN HANDLE ProcessId)
+NTSTATUS RemoveConsole(IN PCONSOLE_PER_PROCESS_DATA ProcessData, IN HANDLE ProcessHandle, IN HANDLE ProcessId)
 {
     ULONG i;
     PHANDLE_DATA HandleData;
@@ -1182,10 +1172,10 @@ NTSTATUS RemoveConsole(IN PCONSOLE_PER_PROCESS_DATA ProcessData,IN HANDLE Proces
             ProcessHandleList.CtrlRoutine = CtrlRoutine;
             UnlockConsole(Console);
             CreateCtrlThread(&ProcessHandleList,
-                            1,
-                            NULL,
-                            SYSTEM_ROOT_CONSOLE_EVENT,
-                            TRUE);
+                             1,
+                             NULL,
+                             SYSTEM_ROOT_CONSOLE_EVENT,
+                             TRUE);
             NtClose(ProcessHandleList.ProcessHandle);
             Status = RevalidateConsole(ConsoleHandle, &Console);
             ASSERT(NT_SUCCESS(Status));
@@ -1202,28 +1192,24 @@ NTSTATUS RemoveConsole(IN PCONSOLE_PER_PROCESS_DATA ProcessData,IN HANDLE Proces
     }
 
     if (ProcessHandle != NULL) {
-        RemoveProcessFromList(Console,ProcessHandle);
-        FreeCommandHistory(Console,ProcessHandle);
+        RemoveProcessFromList(Console, ProcessHandle);
+        FreeCommandHistory(Console, ProcessHandle);
     }
 
     ASSERT(Console->RefCount);
 
-
     // close the process's handles.
-
-
-    for (i=0;i<ProcessData->HandleTableSize;i++) {
+    for (i = 0; i < ProcessData->HandleTableSize; i++) {
         if (ProcessData->HandleTablePtr[i].HandleType != CONSOLE_FREE_HANDLE) {
             Status = DereferenceIoHandleNoCheck(ProcessData,
-                                                (HANDLE) i,
+                                                (HANDLE)i,
                                                 &HandleData
-                                               );
-            ASSERT (NT_SUCCESS(Status));
+            );
+            ASSERT(NT_SUCCESS(Status));
             if (HandleData->HandleType & CONSOLE_INPUT_HANDLE) {
-                Status = CloseInputHandle(ProcessData,Console,HandleData,(HANDLE) i);
-            }
-            else {
-                Status = CloseOutputHandle(ProcessData,Console,HandleData,(HANDLE) i,FALSE);
+                Status = CloseInputHandle(ProcessData, Console, HandleData, (HANDLE)i);
+            } else {
+                Status = CloseOutputHandle(ProcessData, Console, HandleData, (HANDLE)i, FALSE);
             }
         }
     }
@@ -1244,7 +1230,7 @@ NTSTATUS RemoveConsole(IN PCONSOLE_PER_PROCESS_DATA ProcessData,IN HANDLE Proces
         PCONVERSIONAREA_INFORMATION ConvAreaInfoNext;
 
         ConvAreaInfo = Console->ConsoleIme.ConvAreaRoot;
-        while(ConvAreaInfo) {
+        while (ConvAreaInfo) {
             ConvAreaInfoNext = ConvAreaInfo->ConvAreaNext;
             FreeConvAreaScreenBuffer(ConvAreaInfo->ScreenBuffer);
             ConsoleHeapFree(ConvAreaInfo);
@@ -1259,11 +1245,10 @@ NTSTATUS RemoveConsole(IN PCONSOLE_PER_PROCESS_DATA ProcessData,IN HANDLE Proces
         }
 #endif
         FreeCon(Console);
-    }
-    else {
+    } else {
         UnlockConsole(Console);
     }
-    return( STATUS_SUCCESS );
+    return(STATUS_SUCCESS);
 }
 
 //NTSTATUS
@@ -1289,10 +1274,9 @@ Arguments:
     // or connect to an existing console.
 
 
-    if ( ProcessData->ConsoleHandle == NULL ) {
+    if (ProcessData->ConsoleHandle == NULL) {
 #if defined(FE_IME)
-        if (ProcessData->hDesk )
-        {
+        if (ProcessData->hDesk) {
 
             // If this process is a Console IME,
             // should unregister console IME on this desktop.
@@ -1304,9 +1288,9 @@ Arguments:
     }
 
     RemoveConsole(ProcessData,
-            CONSOLE_FROMPROCESSPROCESSHANDLE(Process),
-            Process->ClientId.UniqueProcess);
-    CONSOLE_SETCONSOLEAPPFROMPROCESSDATA(ProcessData,FALSE);
+                  CONSOLE_FROMPROCESSPROCESSHANDLE(Process),
+                  Process->ClientId.UniqueProcess);
+    CONSOLE_SETCONSOLEAPPFROMPROCESSDATA(ProcessData, FALSE);
     return;
 }
 
@@ -1314,7 +1298,7 @@ ULONG
 SrvAllocConsole(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_ALLOC_MSG a = (PCONSOLE_ALLOC_MSG)&m->u.ApiMessageData;
     PCONSOLE_PER_PROCESS_DATA ProcessData;
@@ -1342,7 +1326,7 @@ SrvAllocConsole(
     else
         RtlInitUnicodeString(&strDesktopName, L"Default");
 
-    ProcessHandleRecord = ConsoleHeapAlloc(MAKE_TAG( HANDLE_TAG ),sizeof(CONSOLE_PROCESS_HANDLE));
+    ProcessHandleRecord = ConsoleHeapAlloc(MAKE_TAG(HANDLE_TAG), sizeof(CONSOLE_PROCESS_HANDLE));
     if (ProcessHandleRecord == NULL) {
         return (ULONG)STATUS_NO_MEMORY;
     }
@@ -1361,19 +1345,19 @@ SrvAllocConsole(
     }
     CONSOLE_SETCONSOLEAPP(TRUE);
     Process->Flags |= CSR_PROCESS_CONSOLEAPP;
-    Status = RevalidateConsole(a->ConsoleInfo->ConsoleHandle,&Console);
-    ASSERT (NT_SUCCESS(Status));
+    Status = RevalidateConsole(a->ConsoleInfo->ConsoleHandle, &Console);
+    ASSERT(NT_SUCCESS(Status));
     ProcessHandleRecord->Process = CSR_SERVER_QUERYCLIENTTHREAD()->Process;
     ProcessHandleRecord->CtrlRoutine = a->CtrlRoutine;
     ProcessHandleRecord->PropRoutine = a->PropRoutine;
-    ASSERT (!(Console->Flags & CONSOLE_SHUTTING_DOWN));
-    AddProcessToList(Console,ProcessHandleRecord,CONSOLE_CLIENTPROCESSHANDLE());
+    ASSERT(!(Console->Flags & CONSOLE_SHUTTING_DOWN));
+    AddProcessToList(Console, ProcessHandleRecord, CONSOLE_CLIENTPROCESSHANDLE());
     SetProcessForegroundRights(Process,
                                Console->Flags & CONSOLE_HAS_FOCUS);
-    (HANDLE) AllocateCommandHistory(Console,
-                           a->AppNameLength,
-                           a->AppName,
-                           CONSOLE_CLIENTPROCESSHANDLE());
+    (HANDLE)AllocateCommandHistory(Console,
+                                   a->AppNameLength,
+                                   a->AppName,
+                                   CONSOLE_CLIENTPROCESSHANDLE());
 
     UnlockConsole(Console);
 
@@ -1385,20 +1369,20 @@ ULONG
 SrvFreeConsole(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_FREE_MSG a = (PCONSOLE_FREE_MSG)&m->u.ApiMessageData;
     PCONSOLE_PER_PROCESS_DATA ProcessData;
     NTSTATUS Status;
 
     ProcessData = CONSOLE_PERPROCESSDATA();
-    ASSERT (CONSOLE_GETCONSOLEAPPFROMPROCESSDATA(ProcessData));
+    ASSERT(CONSOLE_GETCONSOLEAPPFROMPROCESSDATA(ProcessData));
 
-    ASSERT(CONSOLE_GETCONSOLEHANDLEFROMPROCESSDATA(ProcessData)==a->ConsoleHandle);
+    ASSERT(CONSOLE_GETCONSOLEHANDLEFROMPROCESSDATA(ProcessData) == a->ConsoleHandle);
 
     Status = RemoveConsole(ProcessData,
-            CONSOLE_CLIENTPROCESSHANDLE(),
-            CONSOLE_CLIENTPROCESSID());
+                           CONSOLE_CLIENTPROCESSHANDLE(),
+                           CONSOLE_CLIENTPROCESSID());
 
     if (NT_SUCCESS(Status)) {
         CONSOLE_SETCONSOLEAPP(FALSE);
@@ -1413,7 +1397,7 @@ NTSTATUS MyRegOpenKey(IN HANDLE hKey, IN LPWSTR lpSubKey, OUT PHANDLE phResult)
     OBJECT_ATTRIBUTES   Obja;
     UNICODE_STRING      SubKey;
 
-    RtlInitUnicodeString( &SubKey, lpSubKey );// Convert the subkey to a counted Unicode string.
+    RtlInitUnicodeString(&SubKey, lpSubKey);// Convert the subkey to a counted Unicode string.
 
     // Initialize the OBJECT_ATTRIBUTES structure and open the key.
     InitializeObjectAttributes(&Obja, &SubKey, OBJ_CASE_INSENSITIVE, hKey, NULL);
@@ -1426,7 +1410,7 @@ MyRegQueryValue(
     IN LPWSTR lpValueName,
     IN DWORD dwValueLength,
     OUT LPBYTE lpData
-    )
+)
 {
     UNICODE_STRING ValueName;
     ULONG BufferLength;
@@ -1438,10 +1422,10 @@ MyRegQueryValue(
     // Convert the subkey to a counted Unicode string.
 
 
-    RtlInitUnicodeString( &ValueName, lpValueName );
+    RtlInitUnicodeString(&ValueName, lpValueName);
 
     BufferLength = FIELD_OFFSET(KEY_VALUE_PARTIAL_INFORMATION, Data) + dwValueLength;
-    KeyValueInformation = ConsoleHeapAlloc(MAKE_TAG( TMP_TAG ),BufferLength);
+    KeyValueInformation = ConsoleHeapAlloc(MAKE_TAG(TMP_TAG), BufferLength);
     if (KeyValueInformation == NULL)
         return STATUS_NO_MEMORY;
 
@@ -1469,7 +1453,7 @@ MyRegQueryValueEx(
     IN DWORD dwValueLength,
     OUT LPBYTE lpData,
     OUT LPDWORD lpDataLength
-    )
+)
 {
     UNICODE_STRING ValueName;
     ULONG BufferLength;
@@ -1479,9 +1463,9 @@ MyRegQueryValueEx(
 
 
     // Convert the subkey to a counted Unicode string.
-    RtlInitUnicodeString( &ValueName, lpValueName );
+    RtlInitUnicodeString(&ValueName, lpValueName);
     BufferLength = FIELD_OFFSET(KEY_VALUE_PARTIAL_INFORMATION, Data) + dwValueLength;
-    KeyValueInformation = ConsoleHeapAlloc(MAKE_TAG( TMP_TAG ),BufferLength);
+    KeyValueInformation = ConsoleHeapAlloc(MAKE_TAG(TMP_TAG), BufferLength);
     if (KeyValueInformation == NULL)
         return STATUS_NO_MEMORY;
 
@@ -1489,8 +1473,7 @@ MyRegQueryValueEx(
     if (NT_SUCCESS(Status)) {
         ASSERT(KeyValueInformation->DataLength <= dwValueLength);
         RtlCopyMemory(lpData, KeyValueInformation->Data, KeyValueInformation->DataLength);
-        if (lpDataLength)
-        {
+        if (lpDataLength) {
             *lpDataLength = KeyValueInformation->DataLength;
         }
     }
@@ -1506,7 +1489,7 @@ MyRegEnumValue(
     OUT LPWSTR lpValueName,
     OUT DWORD dwDataLength,
     OUT LPBYTE lpData
-    )
+)
 {
     ULONG BufferLength;
     ULONG ResultLength;
@@ -1518,30 +1501,30 @@ MyRegEnumValue(
 
 
     BufferLength = sizeof(KEY_VALUE_FULL_INFORMATION) + dwValueLength + dwDataLength;
-    KeyValueInformation = ConsoleHeapAlloc(MAKE_TAG( TMP_TAG ),BufferLength);
+    KeyValueInformation = ConsoleHeapAlloc(MAKE_TAG(TMP_TAG), BufferLength);
     if (KeyValueInformation == NULL)
         return STATUS_NO_MEMORY;
 
     Status = NtEnumerateValueKey(
-                hKey,
-                dwIndex,
-                KeyValueFullInformation,
-                KeyValueInformation,
-                BufferLength,
-                &ResultLength
-                );
+        hKey,
+        dwIndex,
+        KeyValueFullInformation,
+        KeyValueInformation,
+        BufferLength,
+        &ResultLength
+    );
     if (NT_SUCCESS(Status)) {
         ASSERT(KeyValueInformation->NameLength <= dwValueLength);
         RtlMoveMemory(lpValueName,
                       KeyValueInformation->Name,
                       KeyValueInformation->NameLength);
-        lpValueName[ KeyValueInformation->NameLength >> 1 ] = UNICODE_NULL;
+        lpValueName[KeyValueInformation->NameLength >> 1] = UNICODE_NULL;
 
 
         ASSERT(KeyValueInformation->DataLength <= dwDataLength);
         RtlMoveMemory(lpData,
-            (PBYTE)KeyValueInformation + KeyValueInformation->DataOffset,
-            KeyValueInformation->DataLength);
+                      (PBYTE)KeyValueInformation + KeyValueInformation->DataOffset,
+                      KeyValueInformation->DataLength);
         if (KeyValueInformation->Type == REG_SZ) {
             if (KeyValueInformation->DataLength + sizeof(WCHAR) > dwDataLength) {
                 KeyValueInformation->DataLength -= sizeof(WCHAR);
@@ -1564,7 +1547,7 @@ TranslateConsoleTitle(
     PUSHORT pcbTranslatedTitle,
     BOOL Unexpand,
     BOOL Substitute
-    )
+)
 /*++
 
 Routine Description:
@@ -1596,9 +1579,9 @@ Note:
 
 --*/
 {
-    USHORT cbConsoleTitle,i;
+    USHORT cbConsoleTitle, i;
     USHORT cbSystemRoot;
-    LPWSTR TranslatedConsoleTitle,Tmp;
+    LPWSTR TranslatedConsoleTitle, Tmp;
 
     cbConsoleTitle = (USHORT)((lstrlenW(ConsoleTitle) + 1) * sizeof(WCHAR));
     cbSystemRoot = (USHORT)(lstrlenW(USER_SHARED_DATA->NtSystemRoot) * sizeof(WCHAR));
@@ -1614,7 +1597,7 @@ Note:
         cbSystemRoot = 0;
     }
 
-    Tmp = TranslatedConsoleTitle = ConsoleHeapAlloc(MAKE_TAG( TITLE_TAG ),cbSystemRoot + cbConsoleTitle);
+    Tmp = TranslatedConsoleTitle = ConsoleHeapAlloc(MAKE_TAG(TITLE_TAG), cbSystemRoot + cbConsoleTitle);
     if (TranslatedConsoleTitle == NULL) {
         return NULL;
     }
@@ -1622,7 +1605,7 @@ Note:
     RtlCopyMemory(TranslatedConsoleTitle, SYSTEM_ROOT, cbSystemRoot);
     (PBYTE)TranslatedConsoleTitle += cbSystemRoot;
 
-    for (i=0;i<cbConsoleTitle;i+=sizeof(WCHAR)) {
+    for (i = 0; i < cbConsoleTitle; i += sizeof(WCHAR)) {
         if (Substitute && *ConsoleTitle == '\\') {
             *TranslatedConsoleTitle++ = (WCHAR)'_';
         } else {
@@ -1644,7 +1627,7 @@ ConsoleClientShutdown(
     PCSR_PROCESS Process,
     ULONG Flags,
     BOOLEAN fFirstPass
-    )
+)
 {
     PCONSOLE_INFORMATION Console;
     PCONSOLE_PER_PROCESS_DATA ProcessData;
@@ -1657,22 +1640,17 @@ ConsoleClientShutdown(
 
 
     // Find the console associated with this process
-
-
     ProcessData = CONSOLE_FROMPROCESSPERPROCESSDATA(Process);
 
 
     // If this process is not a console app, stop right here unless
     // this is the second pass of shutdown, in which case we'll take
     // it.
-
-
     if (!ProcessData || !CONSOLE_GETCONSOLEAPPFROMPROCESSDATA(ProcessData)) {
 #if defined(FE_IME)
         if (fFirstPass &&
             (ProcessData->ConsoleHandle == NULL) &&
-            (ProcessData->hDesk != NULL))
-        {
+            (ProcessData->hDesk != NULL)) {
 
             // If this process is a Console IME,
             // should unregister console IME on this desktop.
@@ -1688,44 +1666,36 @@ ConsoleClientShutdown(
 
 
     // Find the console structure pointer.
-
-
     ConsoleHandle = CONSOLE_GETCONSOLEHANDLEFROMPROCESSDATA(ProcessData);
     Status = RevalidateConsole(
-            ConsoleHandle,
-            &Console);
+        ConsoleHandle,
+        &Console);
 
     if (!NT_SUCCESS(Status)) {
         return SHUTDOWN_UNKNOWN_PROCESS;
-        }
+    }
 
 
     // If this is the invisible WOW console, return UNKNOWN so USER
     // enumerates 16-bit gui apps.
-
-
     if ((Console->Flags & CONSOLE_NO_WINDOW) &&
         (Console->Flags & CONSOLE_WOW_REGISTERED)) {
         UnlockConsole(Console);
         return SHUTDOWN_UNKNOWN_PROCESS;
-        }
+    }
 
 
     // Sometimes the console structure is around even though the
     // hWnd has been NULLed out. In this case, go to non-console
     // process shutdown.
-
-
     hWnd = Console->hWnd;
     if (hWnd == NULL || !IsWindow(hWnd)) {
         UnlockConsole(Console);
         return NonConsoleProcessShutdown(Process, Flags);
-        }
+    }
 
 
     // Make a copy of the console termination event
-
-
     Status = NtDuplicateObject(NtCurrentProcess(),
                                Console->TerminationEvent,
                                NtCurrentProcess(),
@@ -1733,7 +1703,7 @@ ConsoleClientShutdown(
                                0,
                                FALSE,
                                DUPLICATE_SAME_ACCESS
-                               );
+    );
     if (!NT_SUCCESS(Status)) {
         UnlockConsole(Console);
         return NonConsoleProcessShutdown(Process, Flags);
@@ -1741,8 +1711,6 @@ ConsoleClientShutdown(
 
 
     // Attach to the desktop.
-
-
     utudi.hThread = Console->InputThreadInfo->ThreadHandle;
     utudi.drdRestore.pdeskRestore = NULL;
     Status = NtUserSetInformationThread(NtCurrentThread(),
@@ -1757,19 +1725,14 @@ ConsoleClientShutdown(
 
 
     // We're done looking at this process structure, so dereference it.
-
     CsrDereferenceProcess(Process);
 
 
     // Synchronously talk to this console.
-
-
     Status = ShutdownConsole(ConsoleHandle, Flags);
 
 
     // Detach from the desktop.
-
-
     utudi.hThread = NULL;
     NtUserSetInformationThread(NtCurrentThread(),
                                UserThreadUseDesktop,
@@ -1819,7 +1782,7 @@ ULONG
 NonConsoleProcessShutdown(
     PCSR_PROCESS Process,
     DWORD dwFlags
-    )
+)
 {
     CONSOLE_PROCESS_TERMINATION_RECORD TerminateRecord;
     DWORD EventType;
@@ -1827,12 +1790,12 @@ NonConsoleProcessShutdown(
     HANDLE ProcessHandle;
 
     Success = DuplicateHandle(NtCurrentProcess(),
-            Process->ProcessHandle,
-            NtCurrentProcess(),
-            &ProcessHandle,
-            0,
-            FALSE,
-            DUPLICATE_SAME_ACCESS);
+                              Process->ProcessHandle,
+                              NtCurrentProcess(),
+                              &ProcessHandle,
+                              0,
+                              FALSE,
+                              DUPLICATE_SAME_ACCESS);
 
     if (!Success)
         ProcessHandle = Process->ProcessHandle;
@@ -1848,10 +1811,10 @@ NonConsoleProcessShutdown(
         EventType = CTRL_SHUTDOWN_EVENT;
 
     CreateCtrlThread(&TerminateRecord,
-            1,
-            NULL,
-            EventType,
-            TRUE);
+                     1,
+                     NULL,
+                     EventType,
+                     TRUE);
 
     if (Success)
         CloseHandle(ProcessHandle);
@@ -1859,28 +1822,15 @@ NonConsoleProcessShutdown(
     return SHUTDOWN_KNOWN_PROCESS;
 }
 
+
 VOID
-InitializeConsoleAttributes( VOID )
-
+InitializeConsoleAttributes(VOID)
 /*++
-
 Routine Description:
-
     This routine initializes default attributes from the current
     user's registry values. It gets called during logon/logoff.
-
-Arguments:
-
-    none
-
-Return Value:
-
-    none
-
 --*/
-
 {
-
     // Store default values in structure and mark it
     // as invalid (by resetting LastWriteTime).
 
@@ -1908,31 +1858,28 @@ Return Value:
     DefaultRegInfo.HistoryBufferSize = DEFAULT_NUMBER_OF_COMMANDS;
     DefaultRegInfo.NumberOfHistoryBuffers = DEFAULT_NUMBER_OF_BUFFERS;
     DefaultRegInfo.HistoryNoDup = FALSE;
-    DefaultRegInfo.ColorTable[ 0] = RGB(0,   0,   0   );
-    DefaultRegInfo.ColorTable[ 1] = RGB(0,   0,   0x80);
-    DefaultRegInfo.ColorTable[ 2] = RGB(0,   0x80,0   );
-    DefaultRegInfo.ColorTable[ 3] = RGB(0,   0x80,0x80);
-    DefaultRegInfo.ColorTable[ 4] = RGB(0x80,0,   0   );
-    DefaultRegInfo.ColorTable[ 5] = RGB(0x80,0,   0x80);
-    DefaultRegInfo.ColorTable[ 6] = RGB(0x80,0x80,0   );
-    DefaultRegInfo.ColorTable[ 7] = RGB(0xC0,0xC0,0xC0);
-    DefaultRegInfo.ColorTable[ 8] = RGB(0x80,0x80,0x80);
-    DefaultRegInfo.ColorTable[ 9] = RGB(0,   0,   0xFF);
-    DefaultRegInfo.ColorTable[10] = RGB(0,   0xFF,0   );
-    DefaultRegInfo.ColorTable[11] = RGB(0,   0xFF,0xFF);
-    DefaultRegInfo.ColorTable[12] = RGB(0xFF,0,   0   );
-    DefaultRegInfo.ColorTable[13] = RGB(0xFF,0,   0xFF);
-    DefaultRegInfo.ColorTable[14] = RGB(0xFF,0xFF,0   );
-    DefaultRegInfo.ColorTable[15] = RGB(0xFF,0xFF,0xFF);
+    DefaultRegInfo.ColorTable[0] = RGB(0, 0, 0);
+    DefaultRegInfo.ColorTable[1] = RGB(0, 0, 0x80);
+    DefaultRegInfo.ColorTable[2] = RGB(0, 0x80, 0);
+    DefaultRegInfo.ColorTable[3] = RGB(0, 0x80, 0x80);
+    DefaultRegInfo.ColorTable[4] = RGB(0x80, 0, 0);
+    DefaultRegInfo.ColorTable[5] = RGB(0x80, 0, 0x80);
+    DefaultRegInfo.ColorTable[6] = RGB(0x80, 0x80, 0);
+    DefaultRegInfo.ColorTable[7] = RGB(0xC0, 0xC0, 0xC0);
+    DefaultRegInfo.ColorTable[8] = RGB(0x80, 0x80, 0x80);
+    DefaultRegInfo.ColorTable[9] = RGB(0, 0, 0xFF);
+    DefaultRegInfo.ColorTable[10] = RGB(0, 0xFF, 0);
+    DefaultRegInfo.ColorTable[11] = RGB(0, 0xFF, 0xFF);
+    DefaultRegInfo.ColorTable[12] = RGB(0xFF, 0, 0);
+    DefaultRegInfo.ColorTable[13] = RGB(0xFF, 0, 0xFF);
+    DefaultRegInfo.ColorTable[14] = RGB(0xFF, 0xFF, 0);
+    DefaultRegInfo.ColorTable[15] = RGB(0xFF, 0xFF, 0xFF);
 #if defined(FE_SB) // scotthsu
     DefaultRegInfo.CodePage = OEMCP;
 #endif
     DefaultRegInfo.LastWriteTime = 0;
 
-
     // Get system metrics for this user
-
-
     InitializeSystemMetrics();
 }
 
@@ -1941,27 +1888,17 @@ VOID
 GetRegistryValues(
     IN LPWSTR ConsoleTitle,
     OUT PCONSOLE_REGISTRY_INFO RegInfo
-    )
-
+)
 /*++
-
 Routine Description:
-
     This routine reads in values from the registry and places them
     in the supplied structure.
-
 Arguments:
-
     ConsoleTitle - name of subkey to open
-
     RegInfo - pointer to structure to receive information
-
 Return Value:
-
     none
-
 --*/
-
 {
     HANDLE hCurrentUserKey;
     HANDLE hConsoleKey;
@@ -1977,8 +1914,6 @@ Return Value:
 
 
     // Impersonate the client process
-
-
     if (!CsrImpersonateClient(NULL)) {
         KdPrint(("CONSRV: GetRegistryValues Impersonate failed\n"));
         return;
@@ -1986,8 +1921,6 @@ Return Value:
 
 
     // Open the current user registry key
-
-
     Status = RtlOpenCurrentUser(MAXIMUM_ALLOWED, &hCurrentUserKey);
     if (!NT_SUCCESS(Status)) {
         CsrRevertToSelf();
@@ -1996,8 +1929,6 @@ Return Value:
 
 
     // Open the console registry key
-
-
     Status = MyRegOpenKey(hCurrentUserKey,
                           CONSOLE_REGISTRY_STRING,
                           &hConsoleKey);
@@ -2027,10 +1958,7 @@ Return Value:
         }
     }
 
-
     // Open the console title subkey
-
-
     TranslatedConsoleTitle = TranslateConsoleTitle(ConsoleTitle, NULL, TRUE, TRUE);
     if (TranslatedConsoleTitle == NULL) {
         NtClose(hConsoleKey);
@@ -2039,15 +1967,15 @@ Return Value:
         return;
     }
     Status = MyRegOpenKey(hConsoleKey,
-                         TranslatedConsoleTitle,
-                         &hTitleKey);
+                          TranslatedConsoleTitle,
+                          &hTitleKey);
     ConsoleHeapFree(TranslatedConsoleTitle);
     if (!NT_SUCCESS(Status)) {
         TranslatedConsoleTitle = TranslateConsoleTitle(ConsoleTitle, NULL, FALSE, TRUE);
         if (TranslatedConsoleTitle) {
             Status = MyRegOpenKey(hConsoleKey,
-                                 TranslatedConsoleTitle,
-                                 &hTitleKey);
+                                  TranslatedConsoleTitle,
+                                  &hTitleKey);
             ConsoleHeapFree(TranslatedConsoleTitle);
         }
     }
@@ -2060,52 +1988,42 @@ Return Value:
 
 
     // Initial screen fill
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_FILLATTR,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_FILLATTR,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->ScreenFill.Attributes = (WORD)dwValue;
     }
 
 
     // Initial popup fill
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_POPUPATTR,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_POPUPATTR,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->PopupFill.Attributes = (WORD)dwValue;
     }
 
 
     // Initial insert mode
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_INSERTMODE,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_INSERTMODE,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->InsertMode = !!dwValue;
     }
 
 
     // Initial quick edit mode
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_QUICKEDIT,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_QUICKEDIT,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->QuickEdit = !!dwValue;
     }
 
 #ifdef i386
 
     // Initial full screen mode
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_FULLSCR,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_FULLSCR,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->FullScreen = !!dwValue;
     }
 #endif
@@ -2116,8 +2034,8 @@ Return Value:
 
 
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_CODEPAGE,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_CODEPAGE,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->CodePage = (UINT)dwValue;
 
         // If this routine specified default settings for console property,
@@ -2131,21 +2049,18 @@ Return Value:
         // It means, this code doesn't care user defined property.
         // Content of user defined property has responsibility to themselves.
 
-        if ( wcscmp(ConsoleTitle,L"") == 0 &&
-             IsAvailableFarEastCodePage( RegInfo->CodePage ) &&
-             OEMCP != RegInfo->CodePage ) {
+        if (wcscmp(ConsoleTitle, L"") == 0 &&
+            IsAvailableFarEastCodePage(RegInfo->CodePage) &&
+            OEMCP != RegInfo->CodePage) {
             RegInfo->CodePage = OEMCP;
         }
     }
 #endif
 
-
     // Initial screen buffer size
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_BUFFERSIZE,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_BUFFERSIZE,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->ScreenBufferSize.X = LOWORD(dwValue);
         RegInfo->ScreenBufferSize.Y = HIWORD(dwValue);
         if (RegInfo->ScreenBufferSize.X <= 0)
@@ -2156,11 +2071,9 @@ Return Value:
 
 
     // Initial window size
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_WINDOWSIZE,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_WINDOWSIZE,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->WindowSize.X = LOWORD(dwValue);
         RegInfo->WindowSize.Y = HIWORD(dwValue);
         if (RegInfo->WindowSize.X <= 0)
@@ -2175,11 +2088,9 @@ Return Value:
 
 
     // Initial window position
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_WINDOWPOS,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_WINDOWPOS,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->WindowOrigin.X = LOWORD(dwValue);
         RegInfo->WindowOrigin.Y = HIWORD(dwValue);
         RegInfo->AutoPosition = FALSE;
@@ -2187,143 +2098,115 @@ Return Value:
 
 
     // Initial font size
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_FONTSIZE,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_FONTSIZE,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->FontSize.X = LOWORD(dwValue);
         RegInfo->FontSize.Y = HIWORD(dwValue);
     }
 
 
     // Initial font family
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_FONTFAMILY,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_FONTFAMILY,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->FontFamily = dwValue;
     }
 
 
     // Initial font weight
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_FONTWEIGHT,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_FONTWEIGHT,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->FontWeight = dwValue;
     }
 
 
     // Initial font face name
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_FACENAME,
-                       sizeof(awchFaceName), (PBYTE)awchFaceName))) {
+                                   CONSOLE_REGISTRY_FACENAME,
+                                   sizeof(awchFaceName), (PBYTE)awchFaceName))) {
         RtlCopyMemory(RegInfo->FaceName, awchFaceName, sizeof(awchFaceName));
         RegInfo->FaceName[NELEM(RegInfo->FaceName) - 1] = 0;
     }
 
 
     // Initial cursor size
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_CURSORSIZE,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_CURSORSIZE,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->CursorSize = dwValue;
     }
 
 
     // Initial history buffer size
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_HISTORYSIZE,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_HISTORYSIZE,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->HistoryBufferSize = dwValue;
     }
 
 
     // Initial number of history buffers
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_HISTORYBUFS,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_HISTORYBUFS,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->NumberOfHistoryBuffers = dwValue;
     }
 
-
     // Initial history duplication mode
-
-
     if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                       CONSOLE_REGISTRY_HISTORYNODUP,
-                       sizeof(dwValue), (PBYTE)&dwValue))) {
+                                   CONSOLE_REGISTRY_HISTORYNODUP,
+                                   sizeof(dwValue), (PBYTE)&dwValue))) {
         RegInfo->HistoryNoDup = dwValue;
     }
 
-    for (i=0; i<16; i++) {
+    for (i = 0; i < 16; i++) {
         wsprintf(awchBuffer, CONSOLE_REGISTRY_COLORTABLE, i);
         if (NT_SUCCESS(MyRegQueryValue(hTitleKey, awchBuffer,
-                           sizeof(dwValue), (PBYTE)&dwValue))) {
-            RegInfo->ColorTable[ i ] = dwValue;
+                                       sizeof(dwValue), (PBYTE)&dwValue))) {
+            RegInfo->ColorTable[i] = dwValue;
         }
     }
 
     if (RegInfo == &DefaultRegInfo) {
-
         // If the common (default) setting has been changed,
 
-
-
         // Get registry for conime flag
-
         if (NT_SUCCESS(MyRegQueryValue(hConsoleKey, CONSOLE_REGISTRY_LOAD_CONIME, sizeof dwValue, (PBYTE)&dwValue))) {
             gfLoadConIme = (dwValue != 0);
         } else {
             gfLoadConIme = TRUE;
         }
 
-
         // get extended edit mode and keys from registry.
-
         if (NT_SUCCESS(MyRegQueryValue(hConsoleKey,
-                CONSOLE_REGISTRY_EXTENDEDEDITKEY,
-                sizeof dwValue,
-                (PBYTE)&dwValue)) &&
-                dwValue <= 1) {
-
+                                       CONSOLE_REGISTRY_EXTENDEDEDITKEY,
+                                       sizeof dwValue,
+                                       (PBYTE)&dwValue)) &&
+            dwValue <= 1) {
             ExtKeyDefBuf buf;
-
             gExtendedEditKey = dwValue;
 
 
             // Initialize Extended Edit keys
-
             InitExtendedEditKeys(NULL);
 
             if (NT_SUCCESS(MyRegQueryValue(hConsoleKey,
-                        CONSOLE_REGISTRY_EXTENDEDEDITKEY_CUSTOM,
-                        sizeof buf,
-                        (PBYTE)&buf))) {
+                                           CONSOLE_REGISTRY_EXTENDEDEDITKEY_CUSTOM,
+                                           sizeof buf,
+                                           (PBYTE)&buf))) {
                 InitExtendedEditKeys(&buf);
             }
-    #if DBG
+#if DBG
             else {
                 DbgPrint("Error reading ExtendedEditkeyCustom.\n");
             }
-    #endif
-        }
-        else {
+#endif
+        } else {
             gExtendedEditKey = 0;
             DBGPRINT(("Error reading ExtendedEditkey.\n"));
         }
-
 
         // Word delimiters
 
@@ -2331,7 +2214,7 @@ Return Value:
             // If extended edit key is given, provide extended word delimiters
             // by default.
             memcpy((LPBYTE)gaWordDelimChars, (LPBYTE)gaWordDelimCharsDefault,
-                    sizeof gaWordDelimChars[0] * WORD_DELIM_MAX);
+                   sizeof gaWordDelimChars[0] * WORD_DELIM_MAX);
         } else {
             // Otherwise, stick to the original word delimiter.
             gaWordDelimChars[0] = L'\0';
@@ -2339,9 +2222,9 @@ Return Value:
 
         // Read word delimiters from registry
         if (NT_SUCCESS(MyRegQueryValue(hConsoleKey,
-                    CONSOLE_REGISTRY_WORD_DELIM,
-                    sizeof awchBuffer,
-                    (PBYTE)awchBuffer))) {
+                                       CONSOLE_REGISTRY_WORD_DELIM,
+                                       sizeof awchBuffer,
+                                       (PBYTE)awchBuffer))) {
             // OK, copy it to the word delimiter array.
             wcsncpy(gaWordDelimChars, awchBuffer, WORD_DELIM_MAX);
             gaWordDelimChars[WORD_DELIM_MAX - 1] = 0;
@@ -2349,83 +2232,69 @@ Return Value:
 
 
         // Read Trim Zero Heading flag
-
         if (NT_SUCCESS(MyRegQueryValue(hTitleKey,
-                           CONSOLE_REGISTRY_TRIMZEROHEADINGS,
-                           sizeof(dwValue), (PBYTE)&dwValue))) {
+                                       CONSOLE_REGISTRY_TRIMZEROHEADINGS,
+                                       sizeof(dwValue), (PBYTE)&dwValue))) {
             gfTrimLeadingZeros = dwValue;
         } else {
             gfTrimLeadingZeros = FALSE;
         }
     }
 
-
-
     // Close the registry keys
-
-
     NtClose(hTitleKey);
     NtClose(hConsoleKey);
     NtClose(hCurrentUserKey);
     CsrRevertToSelf();
 }
 
-NTSTATUS
-GetConsoleLangId(
-    IN UINT OutputCP,
-    OUT LANGID* pLangId
-    )
+
+NTSTATUS GetConsoleLangId(IN UINT OutputCP, OUT LANGID * pLangId)
 {
     NTSTATUS Status;
 
-    if (CONSOLE_IS_DBCS_ENABLED()){
+    if (CONSOLE_IS_DBCS_ENABLED()) {
         if (pLangId != NULL) {
             switch (OutputCP) {
-                case 932:
-                    *pLangId = MAKELANGID( LANG_JAPANESE, SUBLANG_DEFAULT );
-                    break;
-                case 949:
-                    *pLangId = MAKELANGID( LANG_KOREAN, SUBLANG_KOREAN );
-                    break;
-                case 936:
-                    *pLangId = MAKELANGID( LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED );
-                    break;
-                case 950:
-                    *pLangId = MAKELANGID( LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL );
-                    break;
-                default:
-                    *pLangId = MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US );
-                    break;
+            case 932:
+                *pLangId = MAKELANGID(LANG_JAPANESE, SUBLANG_DEFAULT);
+                break;
+            case 949:
+                *pLangId = MAKELANGID(LANG_KOREAN, SUBLANG_KOREAN);
+                break;
+            case 936:
+                *pLangId = MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED);
+                break;
+            case 950:
+                *pLangId = MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL);
+                break;
+            default:
+                *pLangId = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
+                break;
             }
         }
         Status = STATUS_SUCCESS;
-    }
-    else {
+    } else {
         Status = STATUS_NOT_SUPPORTED;
     }
 
     return Status;
 }
 
-ULONG
-SrvGetConsoleLangId(
-    IN OUT PCSR_API_MSG m,
-    IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+
+ULONG SrvGetConsoleLangId(IN OUT PCSR_API_MSG m, IN OUT PCSR_REPLY_STATUS ReplyStatus)
 {
     PCONSOLE_LANGID_MSG a = (PCONSOLE_LANGID_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
     PCONSOLE_INFORMATION Console;
 
-    Status = ApiPreamble(a->ConsoleHandle,
-                         &Console
-                        );
+    Status = ApiPreamble(a->ConsoleHandle, &Console);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
     Status = GetConsoleLangId(Console->OutputCP, &a->LangId);
 
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
