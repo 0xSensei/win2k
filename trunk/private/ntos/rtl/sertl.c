@@ -27,25 +27,25 @@ Environment:
 
 // BUG, BUG does anybody use this routine - no prototype in ntrtl.h
 
-ULONG RtlLengthUsedSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor);
+ULONG RtlLengthUsedSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor);
 
 #undef RtlEqualLuid
 
-NTSYSAPI BOOLEAN NTAPI RtlEqualLuid (PLUID Luid1,PLUID Luid2);
-NTSTATUS RtlpConvertAclToAutoInherit (
+NTSYSAPI BOOLEAN NTAPI RtlEqualLuid(PLUID Luid1, PLUID Luid2);
+NTSTATUS RtlpConvertAclToAutoInherit(
     IN PACL ParentAcl OPTIONAL,
     IN PACL ChildAcl,
-    IN GUID *ObjectType OPTIONAL,
+    IN GUID * ObjectType OPTIONAL,
     IN BOOLEAN IsDirectoryObject,
     IN PSID OwnerSid,
     IN PSID GroupSid,
     IN PGENERIC_MAPPING GenericMapping,
-    OUT PACL *NewAcl,
+    OUT PACL * NewAcl,
     OUT PULONG NewGenericControl
-    );
+);
 
 BOOLEAN
-RtlpCopyEffectiveAce (
+RtlpCopyEffectiveAce(
     IN PACE_HEADER OldAce,
     IN BOOLEAN AutoInherit,
     IN BOOLEAN WillGenerateInheritAce,
@@ -54,19 +54,20 @@ RtlpCopyEffectiveAce (
     IN PSID ServerOwnerSid OPTIONAL,
     IN PSID ServerGroupSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
-    IN GUID *NewObjectType OPTIONAL,
-    IN OUT PVOID *AcePosition,
+    IN GUID * NewObjectType OPTIONAL,
+    IN OUT PVOID * AcePosition,
     OUT PULONG NewAceLength,
     OUT PACL NewAcl,
     OUT PBOOLEAN ObjectAceInherited OPTIONAL,
     OUT PBOOLEAN EffectiveAceMapped,
     OUT PBOOLEAN AclOverflowed
-    );
+);
 
 typedef enum {
-     CopyInheritedAces,
-     CopyNonInheritedAces,
-     CopyAllAces } ACE_TYPE_TO_COPY;
+    CopyInheritedAces,
+    CopyNonInheritedAces,
+    CopyAllAces
+} ACE_TYPE_TO_COPY;
 
 NTSTATUS
 RtlpCopyAces(
@@ -81,10 +82,10 @@ RtlpCopyAces(
     IN PSID ServerGroupSid OPTIONAL,
     OUT PULONG NewAclSizeParam,
     OUT PACL NewAcl
-    );
+);
 
 NTSTATUS
-RtlpGenerateInheritedAce (
+RtlpGenerateInheritedAce(
     IN PACE_HEADER OldAce,
     IN BOOLEAN IsDirectoryObject,
     IN BOOLEAN AutoInherit,
@@ -93,12 +94,12 @@ RtlpGenerateInheritedAce (
     IN PSID ServerOwnerSid OPTIONAL,
     IN PSID ServerGroupSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
-    IN GUID *NewObjectType OPTIONAL,
+    IN GUID * NewObjectType OPTIONAL,
     OUT PULONG NewAceLength,
     OUT PACL NewAcl,
     OUT PULONG NewAceExtraLength,
     OUT PBOOLEAN ObjectAceInherited
-    );
+);
 
 NTSTATUS
 RtlpGenerateInheritAcl(
@@ -110,14 +111,14 @@ RtlpGenerateInheritAcl(
     IN PSID ServerOwnerSid OPTIONAL,
     IN PSID ServerGroupSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
-    IN GUID *NewObjectType OPTIONAL,
+    IN GUID * NewObjectType OPTIONAL,
     OUT PULONG NewAclSizeParam,
     OUT PACL NewAcl,
     OUT PBOOLEAN ObjectAceInherited
-    );
+);
 
 NTSTATUS
-RtlpInheritAcl2 (
+RtlpInheritAcl2(
     IN PACL DirectoryAcl,
     IN PACL ChildAcl,
     IN ULONG ChildGenericControl,
@@ -130,15 +131,15 @@ RtlpInheritAcl2 (
     IN PSID ServerGroupSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
     IN BOOLEAN IsSacl,
-    IN GUID *NewObjectType OPTIONAL,
+    IN GUID * NewObjectType OPTIONAL,
     IN PULONG AclBufferSize,
     IN OUT PUCHAR AclBuffer,
     OUT PBOOLEAN NewAclExplicitlyAssigned,
     OUT PULONG NewGenericControl
-    );
+);
 
 NTSTATUS
-RtlpComputeMergedAcl (
+RtlpComputeMergedAcl(
     IN PACL CurrentAcl,
     IN ULONG CurrentGenericControl,
     IN PACL ModificationAcl,
@@ -147,12 +148,12 @@ RtlpComputeMergedAcl (
     IN PSID ClientGroupSid,
     IN PGENERIC_MAPPING GenericMapping,
     IN BOOLEAN IsSacl,
-    OUT PACL *NewAcl,
+    OUT PACL * NewAcl,
     OUT PULONG NewGenericControl
-    );
+);
 
 NTSTATUS
-RtlpComputeMergedAcl2 (
+RtlpComputeMergedAcl2(
     IN PACL CurrentAcl,
     IN ULONG CurrentGenericControl,
     IN PACL ModificationAcl,
@@ -164,26 +165,26 @@ RtlpComputeMergedAcl2 (
     IN PULONG AclBufferSize,
     IN OUT PUCHAR AclBuffer,
     OUT PULONG NewGenericControl
-    );
+);
 
-BOOLEAN RtlpCompareAces(IN PKNOWN_ACE InheritedAce,IN PKNOWN_ACE ChildAce,IN PSID OwnerSid,IN PSID GroupSid);
-BOOLEAN RtlpCompareKnownObjectAces(IN PKNOWN_OBJECT_ACE InheritedAce,IN PKNOWN_OBJECT_ACE ChildAce,IN PSID OwnerSid OPTIONAL,IN PSID GroupSid OPTIONAL);
-BOOLEAN RtlpCompareKnownAces(IN PKNOWN_ACE InheritedAce,IN PKNOWN_ACE ChildAce,IN PSID OwnerSid OPTIONAL,IN PSID GroupSid OPTIONAL);
-BOOLEAN RtlpIsDuplicateAce(IN PACL Acl,IN PKNOWN_ACE NewAce,IN GUID *ObjectType OPTIONAL);
-NTSTATUS RtlpCreateServerAcl(IN PACL Acl,IN BOOLEAN AclUntrusted,IN PSID ServerSid,OUT PACL *ServerAcl,OUT BOOLEAN *ServerAclAllocated);
+BOOLEAN RtlpCompareAces(IN PKNOWN_ACE InheritedAce, IN PKNOWN_ACE ChildAce, IN PSID OwnerSid, IN PSID GroupSid);
+BOOLEAN RtlpCompareKnownObjectAces(IN PKNOWN_OBJECT_ACE InheritedAce, IN PKNOWN_OBJECT_ACE ChildAce, IN PSID OwnerSid OPTIONAL, IN PSID GroupSid OPTIONAL);
+BOOLEAN RtlpCompareKnownAces(IN PKNOWN_ACE InheritedAce, IN PKNOWN_ACE ChildAce, IN PSID OwnerSid OPTIONAL, IN PSID GroupSid OPTIONAL);
+BOOLEAN RtlpIsDuplicateAce(IN PACL Acl, IN PKNOWN_ACE NewAce, IN GUID * ObjectType OPTIONAL);
+NTSTATUS RtlpCreateServerAcl(IN PACL Acl, IN BOOLEAN AclUntrusted, IN PSID ServerSid, OUT PACL * ServerAcl, OUT BOOLEAN * ServerAclAllocated);
 
 NTSTATUS
 RtlpGetDefaultsSubjectContext(
     HANDLE ClientToken,
-    OUT PTOKEN_OWNER *OwnerInfo,
-    OUT PTOKEN_PRIMARY_GROUP *GroupInfo,
-    OUT PTOKEN_DEFAULT_DACL *DefaultDaclInfo,
-    OUT PTOKEN_OWNER *ServerOwner,
-    OUT PTOKEN_PRIMARY_GROUP *ServerGroup
-    );
+    OUT PTOKEN_OWNER * OwnerInfo,
+    OUT PTOKEN_PRIMARY_GROUP * GroupInfo,
+    OUT PTOKEN_DEFAULT_DACL * DefaultDaclInfo,
+    OUT PTOKEN_OWNER * ServerOwner,
+    OUT PTOKEN_PRIMARY_GROUP * ServerGroup
+);
 
-BOOLEAN RtlpValidateSDOffsetAndSize (IN ULONG Offset,IN ULONG Length,IN ULONG MinLength,OUT PULONG MaxLength);
-BOOLEAN RtlValidRelativeSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptorInput,IN ULONG SecurityDescriptorLength,IN SECURITY_INFORMATION RequiredInformation);
+BOOLEAN RtlpValidateSDOffsetAndSize(IN ULONG Offset, IN ULONG Length, IN ULONG MinLength, OUT PULONG MaxLength);
+BOOLEAN RtlValidRelativeSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptorInput, IN ULONG SecurityDescriptorLength, IN SECURITY_INFORMATION RequiredInformation);
 
 #if defined(ALLOC_PRAGMA) && defined(NTOS_KERNEL_RUNTIME)
 #pragma alloc_text(PAGE,RtlRunEncodeUnicodeString)
@@ -309,7 +310,7 @@ BOOLEAN RtlpVerboseConvert = FALSE;
 
 
 
-VOID RtlRunEncodeUnicodeString(PUCHAR Seed OPTIONAL,PUNICODE_STRING String)
+VOID RtlRunEncodeUnicodeString(PUCHAR Seed OPTIONAL, PUNICODE_STRING String)
 /*++
 Routine Description:
     This function performs a trivial XOR run-encoding of a string.
@@ -336,23 +337,21 @@ Return Value:
     // If a seed wasn't passed, use the 2nd byte of current time.
     // This byte seems to be sufficiently random (by observation).
     if ((*Seed) == 0) {
-        Status = NtQuerySystemTime ( &Time );
+        Status = NtQuerySystemTime(&Time);
         ASSERT(NT_SUCCESS(Status));
 
         LocalSeed = (PUCHAR)((PVOID)&Time);
         i = 1;
-        (*Seed) = LocalSeed[ i ];
+        (*Seed) = LocalSeed[i];
 
         // Occasionally, this byte could be zero.
         // That would cause the string to become un-decodable, since 0 is the magic value that causes us to re-gen the seed.
         // This loop makes sure that we never end up with a zero byte (unless time is zero, as well).
-        while ( ((*Seed) == 0) && ( i < sizeof( Time ) ) )
-        {
-            (*Seed) |= LocalSeed[ i++ ] ;
+        while (((*Seed) == 0) && (i < sizeof(Time))) {
+            (*Seed) |= LocalSeed[i++];
         }
 
-        if ( (*Seed) == 0 )
-        {
+        if ((*Seed) == 0) {
             (*Seed) = 1;
         }
     }
@@ -365,7 +364,7 @@ Return Value:
     }
 
     // Now transform the rest of the string
-    for (i=1; i<S->Length; i++) {
+    for (i = 1; i < S->Length; i++) {
         //  There are export issues that cause us to want to keep this algorithm simple.
         //  Please don't change it without checking with JimK first.  Thanks.
 
@@ -373,7 +372,7 @@ Return Value:
         //  this algorithm is designed to not produce a wide character of zero as long a the seed is not zero.
 
         // Simple running XOR with the previous byte and the seed value.
-        S->Buffer[i] ^= (S->Buffer[i-1]^(*Seed));
+        S->Buffer[i] ^= (S->Buffer[i - 1] ^ (*Seed));
     }
 }
 
@@ -399,9 +398,9 @@ Return Value:
     S = (PSTRING)((PVOID)String);
 
     // Transform the end of the string
-    for (i=S->Length; i>1; i--) {
+    for (i = S->Length; i > 1; i--) {
         // a simple running XOR with the previous byte and the seed value.
-        S->Buffer[i-1] ^= (S->Buffer[i-2]^Seed);
+        S->Buffer[i - 1] ^= (S->Buffer[i - 2] ^ Seed);
     }
 
     // Finally, transform the initial byte
@@ -429,12 +428,12 @@ Return Value:
         return;
     }
 
-    RtlZeroMemory( (PVOID)String->Buffer, (ULONG)String->MaximumLength );
+    RtlZeroMemory((PVOID)String->Buffer, (ULONG)String->MaximumLength);
     String->Length = 0;
 }
 
 
-NTSTATUS RtlAdjustPrivilege(ULONG Privilege,BOOLEAN Enable,BOOLEAN Client,PBOOLEAN WasEnabled)
+NTSTATUS RtlAdjustPrivilege(ULONG Privilege, BOOLEAN Enable, BOOLEAN Client, PBOOLEAN WasEnabled)
 /*++
 Routine Description:
     This procedure enables or disables a privilege process-wide.
@@ -463,8 +462,8 @@ Return Value:
     LUID LuidPrivilege;
     PTOKEN_PRIVILEGES NewPrivileges, OldPrivileges;
     ULONG Length;
-    UCHAR Buffer1[sizeof(TOKEN_PRIVILEGES)+ ((1-ANYSIZE_ARRAY)*sizeof(LUID_AND_ATTRIBUTES))],
-        Buffer2[sizeof(TOKEN_PRIVILEGES)+ ((1-ANYSIZE_ARRAY)*sizeof(LUID_AND_ATTRIBUTES))];
+    UCHAR Buffer1[sizeof(TOKEN_PRIVILEGES) + ((1 - ANYSIZE_ARRAY) * sizeof(LUID_AND_ATTRIBUTES))],
+        Buffer2[sizeof(TOKEN_PRIVILEGES) + ((1 - ANYSIZE_ARRAY) * sizeof(LUID_AND_ATTRIBUTES))];
 
     RTL_PAGED_CODE();
 
@@ -473,9 +472,9 @@ Return Value:
 
     // Open the appropriate token...
     if (Client == TRUE) {
-        Status = NtOpenThreadToken(NtCurrentThread(),TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,FALSE,&Token);
+        Status = NtOpenThreadToken(NtCurrentThread(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, FALSE, &Token);
     } else {
-        Status = NtOpenProcessToken(NtCurrentProcess(),TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,&Token);
+        Status = NtOpenProcessToken(NtCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &Token);
     }
 
     if (!NT_SUCCESS(Status)) {
@@ -491,13 +490,13 @@ Return Value:
 
     // Adjust the privilege
     Status = NtAdjustPrivilegesToken(
-                 Token,                     // TokenHandle
-                 FALSE,                     // DisableAllPrivileges
-                 NewPrivileges,             // NewPrivileges
-                 sizeof(Buffer1),           // BufferLength
-                 OldPrivileges,             // PreviousState (OPTIONAL)
-                 &Length                    // ReturnLength
-                 );
+        Token,                     // TokenHandle
+        FALSE,                     // DisableAllPrivileges
+        NewPrivileges,             // NewPrivileges
+        sizeof(Buffer1),           // BufferLength
+        OldPrivileges,             // PreviousState (OPTIONAL)
+        &Length                    // ReturnLength
+    );
     TmpStatus = NtClose(Token);
     ASSERT(NT_SUCCESS(TmpStatus));
 
@@ -520,7 +519,7 @@ Return Value:
 }
 
 
-BOOLEAN RtlValidSid (IN PSID Sid)
+BOOLEAN RtlValidSid(IN PSID Sid)
 /*++
 Routine Description:
     This procedure validates an SID's structure.
@@ -530,25 +529,26 @@ Return Value:
     BOOLEAN - TRUE if the structure of Sid is valid.
 --*/
 {
-    PISID Isid = (PISID) Sid;
+    PISID Isid = (PISID)Sid;
     RTL_PAGED_CODE();
     // Make sure revision is SID_REVISION and sub authority count is not greater than maximum number of allowed sub-authorities.
     try {
-        if ( Isid != NULL && (Isid->Revision & 0x0f) == SID_REVISION) {
+        if (Isid != NULL && (Isid->Revision & 0x0f) == SID_REVISION) {
             if (Isid->SubAuthorityCount <= SID_MAX_SUB_AUTHORITIES) {
                 // Verify the memory actually contains the last subauthority
 #ifndef NTOS_KERNEL_RUNTIME
 #define ProbeAndReadUlongUM(Address) (*(volatile ULONG *)(Address))
                 if (Isid->SubAuthorityCount > 0) {
                     ProbeAndReadUlongUM(
-                        &Isid->SubAuthority[Isid->SubAuthorityCount-1]
-                        );
+                        &Isid->SubAuthority[Isid->SubAuthorityCount - 1]
+                    );
                 }
 #endif // !NTOS_KERNEL_RUNTIME
                 return TRUE;
-          }
+            }
         }
-    } except(EXCEPTION_EXECUTE_HANDLER) {
+    } except(EXCEPTION_EXECUTE_HANDLER)
+    {
         return FALSE;
     }
 
@@ -556,7 +556,7 @@ Return Value:
 }
 
 
-BOOLEAN RtlEqualSid (IN PSID Sid1,IN PSID Sid2)
+BOOLEAN RtlEqualSid(IN PSID Sid1, IN PSID Sid2)
 /*++
 Routine Description:
     This procedure tests two SID values for equality.
@@ -567,24 +567,24 @@ Return Value:
     BOOLEAN - TRUE if the value of Sid1 is equal to Sid2, and FALSE otherwise.
 --*/
 {
-   ULONG SidLength;
+    ULONG SidLength;
 
-   RTL_PAGED_CODE();
+    RTL_PAGED_CODE();
 
-   // Make sure they are the same revision
-   if ( ((SID *)Sid1)->Revision == ((SID *)Sid2)->Revision ) {
-       // Check the SubAuthorityCount first, because it's fast and can help us exit faster.
-       if ( *RtlSubAuthorityCountSid( Sid1 ) == *RtlSubAuthorityCountSid( Sid2 )) {
-           SidLength = SeLengthSid( Sid1 );
-           return( (BOOLEAN)RtlEqualMemory( Sid1, Sid2, SidLength) );
-       }
-   }
+    // Make sure they are the same revision
+    if (((SID *)Sid1)->Revision == ((SID *)Sid2)->Revision) {
+        // Check the SubAuthorityCount first, because it's fast and can help us exit faster.
+        if (*RtlSubAuthorityCountSid(Sid1) == *RtlSubAuthorityCountSid(Sid2)) {
+            SidLength = SeLengthSid(Sid1);
+            return((BOOLEAN)RtlEqualMemory(Sid1, Sid2, SidLength));
+        }
+    }
 
-   return( FALSE );
+    return(FALSE);
 }
 
 
-BOOLEAN RtlEqualPrefixSid (IN PSID Sid1,IN PSID Sid2)
+BOOLEAN RtlEqualPrefixSid(IN PSID Sid1, IN PSID Sid2)
 /*++
 Routine Description:
     This procedure tests two SID prefix values for equality.
@@ -599,20 +599,20 @@ Return Value:
     LONG Index;
 
     // Typecast to the opaque SID structures.
-    SID *ISid1 = Sid1;
-    SID *ISid2 = Sid2;
+    SID * ISid1 = Sid1;
+    SID * ISid2 = Sid2;
 
     RTL_PAGED_CODE();
 
     // Make sure they are the same revision
-    if (ISid1->Revision == ISid2->Revision ) {
+    if (ISid1->Revision == ISid2->Revision) {
         // Compare IdentifierAuthority values
-        if ( (ISid1->IdentifierAuthority.Value[0] == ISid2->IdentifierAuthority.Value[0])  &&
-             (ISid1->IdentifierAuthority.Value[1]== ISid2->IdentifierAuthority.Value[1])  &&
-             (ISid1->IdentifierAuthority.Value[2] == ISid2->IdentifierAuthority.Value[2])  &&
-             (ISid1->IdentifierAuthority.Value[3] == ISid2->IdentifierAuthority.Value[3])  &&
-             (ISid1->IdentifierAuthority.Value[4] == ISid2->IdentifierAuthority.Value[4])  &&
-             (ISid1->IdentifierAuthority.Value[5] == ISid2->IdentifierAuthority.Value[5])) {
+        if ((ISid1->IdentifierAuthority.Value[0] == ISid2->IdentifierAuthority.Value[0]) &&
+            (ISid1->IdentifierAuthority.Value[1] == ISid2->IdentifierAuthority.Value[1]) &&
+            (ISid1->IdentifierAuthority.Value[2] == ISid2->IdentifierAuthority.Value[2]) &&
+            (ISid1->IdentifierAuthority.Value[3] == ISid2->IdentifierAuthority.Value[3]) &&
+            (ISid1->IdentifierAuthority.Value[4] == ISid2->IdentifierAuthority.Value[4]) &&
+            (ISid1->IdentifierAuthority.Value[5] == ISid2->IdentifierAuthority.Value[5])) {
             // Compare SubAuthorityCount values
             if (ISid1->SubAuthorityCount == ISid2->SubAuthorityCount) {
                 if (ISid1->SubAuthorityCount == 0) {
@@ -639,7 +639,7 @@ Return Value:
 }
 
 
-ULONG RtlLengthRequiredSid (IN ULONG SubAuthorityCount)
+ULONG RtlLengthRequiredSid(IN ULONG SubAuthorityCount)
 /*++
 Routine Description:
     This routine returns the length, in bytes, required to store an SID with the specified number of Sub-Authorities.
@@ -667,8 +667,8 @@ NTSTATUS RtlAllocateAndInitializeSid(
     IN ULONG SubAuthority5,
     IN ULONG SubAuthority6,
     IN ULONG SubAuthority7,
-    OUT PSID *Sid
-    )
+    OUT PSID * Sid
+)
 /*++
 Routine Description:
     This function allocates and initializes a sid with the specified number of sub-authorities (up to 8).
@@ -693,11 +693,11 @@ Return Value:
 
     RTL_PAGED_CODE();
 
-    if ( SubAuthorityCount > 8 ) {
-        return( STATUS_INVALID_SID );
+    if (SubAuthorityCount > 8) {
+        return(STATUS_INVALID_SID);
     }
 
-    ISid = RtlAllocateHeap( RtlProcessHeap(), 0, RtlLengthRequiredSid(SubAuthorityCount));
+    ISid = RtlAllocateHeap(RtlProcessHeap(), 0, RtlLengthRequiredSid(SubAuthorityCount));
     if (ISid == NULL) {
         return(STATUS_NO_MEMORY);
     }
@@ -728,7 +728,7 @@ Return Value:
     }
 
     (*Sid) = ISid;
-    return( STATUS_SUCCESS );
+    return(STATUS_SUCCESS);
 }
 #endif // NTOS_KERNEL_RUNTIME
 
@@ -752,14 +752,14 @@ Arguments:
     //  Typecast to the opaque SID
     ISid = (PISID)Sid;
 
-    if ( SubAuthorityCount > SID_MAX_SUB_AUTHORITIES ) {
-        return( STATUS_INVALID_PARAMETER );
+    if (SubAuthorityCount > SID_MAX_SUB_AUTHORITIES) {
+        return(STATUS_INVALID_PARAMETER);
     }
 
     ISid->SubAuthorityCount = (UCHAR)SubAuthorityCount;
     ISid->Revision = 1;
     ISid->IdentifierAuthority = *IdentifierAuthority;
-    return( STATUS_SUCCESS );
+    return(STATUS_SUCCESS);
 }
 
 
@@ -777,7 +777,7 @@ Return Value:
 {
     RTL_PAGED_CODE();
 
-    if (RtlFreeHeap( RtlProcessHeap(), 0, Sid ))
+    if (RtlFreeHeap(RtlProcessHeap(), 0, Sid))
         return NULL;
     else
         return Sid;
@@ -815,7 +815,7 @@ Arguments:
 {
     RTL_PAGED_CODE();
 
-    return RtlpSubAuthoritySid( Sid, SubAuthority );
+    return RtlpSubAuthoritySid(Sid, SubAuthority);
 }
 
 
@@ -837,7 +837,7 @@ Arguments:
 }
 
 
-ULONG RtlLengthSid (IN PSID Sid)
+ULONG RtlLengthSid(IN PSID Sid)
 /*++
 Routine Description:
     This routine returns the length, in bytes, of a structurally valid SID.
@@ -853,7 +853,7 @@ Return Value:
 }
 
 
-NTSTATUS RtlCopySid (IN ULONG DestinationSidLength,OUT PSID DestinationSid,IN PSID SourceSid)
+NTSTATUS RtlCopySid(IN ULONG DestinationSidLength, OUT PSID DestinationSid, IN PSID SourceSid)
 /*++
 Routine Description:
     This routine copies the value of the source SID to the destination SID.
@@ -874,21 +874,21 @@ Return Value:
         return STATUS_BUFFER_TOO_SMALL;
     }
 
-    RtlMoveMemory( DestinationSid, SourceSid, SidLength );// Buffer is large enough
+    RtlMoveMemory(DestinationSid, SourceSid, SidLength);// Buffer is large enough
     return STATUS_SUCCESS;
 }
 
 
 NTSTATUS
-RtlCopySidAndAttributesArray (
+RtlCopySidAndAttributesArray(
     IN ULONG ArrayLength,
     IN PSID_AND_ATTRIBUTES Source,
     IN ULONG TargetSidBufferSize,
     OUT PSID_AND_ATTRIBUTES TargetArrayElement,
     OUT PSID TargetSid,
-    OUT PSID *NextTargetSid,
+    OUT PSID * NextTargetSid,
     OUT PULONG RemainingTargetSidBufferSize
-    )
+)
 /*++
 Routine Description:
     This routine copies the value of the source SID_AND_ATTRIBUTES array to the target.
@@ -919,7 +919,7 @@ Return Value:
     RTL_PAGED_CODE();
 
     while (Index < ArrayLength) {
-        NextSidLength = SeLengthSid( Source[Index].Sid );
+        NextSidLength = SeLengthSid(Source[Index].Sid);
         AlignedSidLength = PtrToUlong(LongAlign(NextSidLength));
 
         if (NextSidLength > RemainingLength) {
@@ -931,7 +931,7 @@ Return Value:
         TargetArrayElement[Index].Sid = NextSid;
         TargetArrayElement[Index].Attributes = Source[Index].Attributes;
 
-        RtlCopySid( NextSidLength, NextSid, Source[Index].Sid );
+        RtlCopySid(NextSidLength, NextSid, Source[Index].Sid);
         NextSid = (PSID)((PCHAR)NextSid + AlignedSidLength);
         Index += 1;
     } //end_while
@@ -955,38 +955,34 @@ Return Value:
     STATUS_INVALID_SID - The sid provided does not have a valid structure, or has too many sub-authorities (more than SID_MAX_SUB_AUTHORITIES).
 --*/
 {
-    ULONG   i ;
+    ULONG   i;
     PISID   iSid = (PISID)Sid;  // pointer to opaque structure
 
     RTL_PAGED_CODE();
 
-    if ( RtlValidSid( Sid ) != TRUE)
-    {
+    if (RtlValidSid(Sid) != TRUE) {
         return(STATUS_INVALID_SID);
     }
 
     // if the SID's IA value has 5 or 6 significant bytes, the representation will be in hex, with a 0x preceding.
     // Otherwise it will be in decimal, with at most 10 characters.
-    if (  (iSid->IdentifierAuthority.Value[0] != 0)  || (iSid->IdentifierAuthority.Value[1] != 0)  )
-    {
-        i = 14 ;    // 0x665544332211
-    }
-    else
-    {
-        i = 10 ;    // 4294967295 is the max ulong, at 10 chars
+    if ((iSid->IdentifierAuthority.Value[0] != 0) || (iSid->IdentifierAuthority.Value[1] != 0)) {
+        i = 14;    // 0x665544332211
+    } else {
+        i = 10;    // 4294967295 is the max ulong, at 10 chars
     }
 
-    i += 4 ;        // room for the S-1-
+    i += 4;        // room for the S-1-
 
     // for each sub authority, it is a max of 10 chars (for a ulong), plus the - separator
-    i += 11 * iSid->SubAuthorityCount ;
+    i += 11 * iSid->SubAuthorityCount;
 
-    *StringLength = i * sizeof( WCHAR );
-    return STATUS_SUCCESS ;
+    *StringLength = i * sizeof(WCHAR);
+    return STATUS_SUCCESS;
 }
 
 
-NTSTATUS RtlConvertSidToUnicodeString(PUNICODE_STRING UnicodeString,PSID Sid,BOOLEAN AllocateDestinationString)
+NTSTATUS RtlConvertSidToUnicodeString(PUNICODE_STRING UnicodeString, PSID Sid, BOOLEAN AllocateDestinationString)
 /*++
 Routine Description:
     This function generates a printable unicode string representation of a SID.
@@ -1021,95 +1017,81 @@ Return Value:
 --*/
 {
     NTSTATUS Status;
-    WCHAR UniBuffer[ 256 ];
-    PWSTR Offset ;
-    UNICODE_STRING LocalString ;
+    WCHAR UniBuffer[256];
+    PWSTR Offset;
+    UNICODE_STRING LocalString;
     UCHAR   i;
     ULONG   Tmp;
-    LARGE_INTEGER Auth ;
+    LARGE_INTEGER Auth;
     PISID   iSid = (PISID)Sid;  // pointer to opaque structure
 
     RTL_PAGED_CODE();
 
-    if (RtlValidSid( Sid ) != TRUE) {
+    if (RtlValidSid(Sid) != TRUE) {
         return(STATUS_INVALID_SID);
     }
 
-    if ( iSid->Revision != SID_REVISION )
-    {
-        return STATUS_INVALID_SID ;
+    if (iSid->Revision != SID_REVISION) {
+        return STATUS_INVALID_SID;
     }
 
-    wcscpy( UniBuffer, L"S-1-" );
+    wcscpy(UniBuffer, L"S-1-");
 
-    Offset = &UniBuffer[ 4 ];
+    Offset = &UniBuffer[4];
 
-    if (  (iSid->IdentifierAuthority.Value[0] != 0)  || (iSid->IdentifierAuthority.Value[1] != 0)     ){
+    if ((iSid->IdentifierAuthority.Value[0] != 0) || (iSid->IdentifierAuthority.Value[1] != 0)) {
         // Ugly hex dump.
-        Auth.HighPart = (LONG) (iSid->IdentifierAuthority.Value[ 0 ] << 8) + (LONG) iSid->IdentifierAuthority.Value[ 1 ] ;
-        Auth.LowPart = (ULONG)iSid->IdentifierAuthority.Value[5]          +
-                       (ULONG)(iSid->IdentifierAuthority.Value[4] <<  8)  +
-                       (ULONG)(iSid->IdentifierAuthority.Value[3] << 16)  +
-                       (ULONG)(iSid->IdentifierAuthority.Value[2] << 24);
-        Status = RtlLargeIntegerToUnicode(&Auth,16,256 - (LONG) (Offset - UniBuffer),Offset );
+        Auth.HighPart = (LONG)(iSid->IdentifierAuthority.Value[0] << 8) + (LONG)iSid->IdentifierAuthority.Value[1];
+        Auth.LowPart = (ULONG)iSid->IdentifierAuthority.Value[5] +
+            (ULONG)(iSid->IdentifierAuthority.Value[4] << 8) +
+            (ULONG)(iSid->IdentifierAuthority.Value[3] << 16) +
+            (ULONG)(iSid->IdentifierAuthority.Value[2] << 24);
+        Status = RtlLargeIntegerToUnicode(&Auth, 16, 256 - (LONG)(Offset - UniBuffer), Offset);
     } else {
-        Tmp = (ULONG)iSid->IdentifierAuthority.Value[5]          +
-              (ULONG)(iSid->IdentifierAuthority.Value[4] <<  8)  +
-              (ULONG)(iSid->IdentifierAuthority.Value[3] << 16)  +
-              (ULONG)(iSid->IdentifierAuthority.Value[2] << 24);
-        Status = RtlIntegerToUnicode(Tmp,10,256 - (LONG) (Offset - UniBuffer),Offset );
+        Tmp = (ULONG)iSid->IdentifierAuthority.Value[5] +
+            (ULONG)(iSid->IdentifierAuthority.Value[4] << 8) +
+            (ULONG)(iSid->IdentifierAuthority.Value[3] << 16) +
+            (ULONG)(iSid->IdentifierAuthority.Value[2] << 24);
+        Status = RtlIntegerToUnicode(Tmp, 10, 256 - (LONG)(Offset - UniBuffer), Offset);
     }
 
-    if ( !NT_SUCCESS( Status ) )
-    {
-        return Status ;
+    if (!NT_SUCCESS(Status)) {
+        return Status;
     }
 
-    for (i=0;i<iSid->SubAuthorityCount ;i++ ) {
-        while ( *Offset && ( Offset < &UniBuffer[ 255 ] ) )
-        {
-            Offset++ ;
+    for (i = 0; i < iSid->SubAuthorityCount; i++) {
+        while (*Offset && (Offset < &UniBuffer[255])) {
+            Offset++;
         }
 
-        *Offset++ = L'-' ;
+        *Offset++ = L'-';
 
-        Status = RtlIntegerToUnicode(iSid->SubAuthority[ i ],10,256 - (LONG) (Offset - UniBuffer),Offset );
-        if ( !NT_SUCCESS( Status ) )
-        {
-            return Status ;
+        Status = RtlIntegerToUnicode(iSid->SubAuthority[i], 10, 256 - (LONG)(Offset - UniBuffer), Offset);
+        if (!NT_SUCCESS(Status)) {
+            return Status;
         }
     }
 
-    if ( AllocateDestinationString )
-    {
-        if ( RtlCreateUnicodeString( UnicodeString, UniBuffer ) )
-        {
-            Status = STATUS_SUCCESS ;
+    if (AllocateDestinationString) {
+        if (RtlCreateUnicodeString(UnicodeString, UniBuffer)) {
+            Status = STATUS_SUCCESS;
+        } else {
+            Status = STATUS_NO_MEMORY;
         }
-        else
-        {
-            Status = STATUS_NO_MEMORY ;
-        }
-    }
-    else
-    {
-        while ( *Offset && ( Offset < &UniBuffer[ 255 ] ) )
-        {
-            Offset++ ;
+    } else {
+        while (*Offset && (Offset < &UniBuffer[255])) {
+            Offset++;
         }
 
-        Tmp = (ULONG) (Offset - UniBuffer) * sizeof( WCHAR );
-        if ( Tmp < UnicodeString->MaximumLength )
-        {
-            LocalString.Length = (USHORT) Tmp ;
-            LocalString.MaximumLength = LocalString.Length + sizeof( WCHAR );
-            LocalString.Buffer = UniBuffer ;
-            RtlCopyUnicodeString(UnicodeString,&LocalString );
-            Status = STATUS_SUCCESS ;
-        }
-        else
-        {
-            Status = STATUS_BUFFER_OVERFLOW ;
+        Tmp = (ULONG)(Offset - UniBuffer) * sizeof(WCHAR);
+        if (Tmp < UnicodeString->MaximumLength) {
+            LocalString.Length = (USHORT)Tmp;
+            LocalString.MaximumLength = LocalString.Length + sizeof(WCHAR);
+            LocalString.Buffer = UniBuffer;
+            RtlCopyUnicodeString(UnicodeString, &LocalString);
+            Status = STATUS_SUCCESS;
+        } else {
+            Status = STATUS_BUFFER_OVERFLOW;
         }
     }
 
@@ -1117,7 +1099,7 @@ Return Value:
 }
 
 
-BOOLEAN RtlEqualLuid (IN PLUID Luid1,IN PLUID Luid2)
+BOOLEAN RtlEqualLuid(IN PLUID Luid1, IN PLUID Luid2)
 /*++
 Routine Description:
     This procedure test two LUID values for equality.
@@ -1133,11 +1115,11 @@ Return Value:
 
     RTL_PAGED_CODE();
 
-    return((Luid1->HighPart == Luid2->HighPart) && (Luid1->LowPart  == Luid2->LowPart));
+    return((Luid1->HighPart == Luid2->HighPart) && (Luid1->LowPart == Luid2->LowPart));
 }
 
 
-VOID RtlCopyLuid (OUT PLUID DestinationLuid,IN PLUID SourceLuid)
+VOID RtlCopyLuid(OUT PLUID DestinationLuid, IN PLUID SourceLuid)
 /*++
 Routine Description:
     This routine copies the value of the source LUID to the destination LUID.
@@ -1152,7 +1134,7 @@ Arguments:
 }
 
 
-VOID RtlCopyLuidAndAttributesArray (IN ULONG ArrayLength,IN PLUID_AND_ATTRIBUTES Source,OUT PLUID_AND_ATTRIBUTES Target)
+VOID RtlCopyLuidAndAttributesArray(IN ULONG ArrayLength, IN PLUID_AND_ATTRIBUTES Source, OUT PLUID_AND_ATTRIBUTES Target)
 /*++
 Routine Description:
     This routine copies the value of the source LUID_AND_ATTRIBUTES array to the target.
@@ -1173,7 +1155,7 @@ Arguments:
 }
 
 
-NTSTATUS RtlCreateSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,IN ULONG Revision)
+NTSTATUS RtlCreateSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, IN ULONG Revision)
 /*++
 Routine Description:
     This procedure initializes a new "absolute format" security descriptor.
@@ -1191,9 +1173,9 @@ Return Value:
     // Check the requested revision
     if (Revision == SECURITY_DESCRIPTOR_REVISION) {
         // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-        SECURITY_DESCRIPTOR *ISecurityDescriptor = SecurityDescriptor;
+        SECURITY_DESCRIPTOR * ISecurityDescriptor = SecurityDescriptor;
 
-        RtlZeroMemory( ISecurityDescriptor, sizeof(SECURITY_DESCRIPTOR));
+        RtlZeroMemory(ISecurityDescriptor, sizeof(SECURITY_DESCRIPTOR));
         ISecurityDescriptor->Revision = SECURITY_DESCRIPTOR_REVISION;
         return STATUS_SUCCESS;
     }
@@ -1202,7 +1184,7 @@ Return Value:
 }
 
 
-NTSTATUS RtlCreateSecurityDescriptorRelative (IN PISECURITY_DESCRIPTOR_RELATIVE SecurityDescriptor,IN ULONG Revision)
+NTSTATUS RtlCreateSecurityDescriptorRelative(IN PISECURITY_DESCRIPTOR_RELATIVE SecurityDescriptor, IN ULONG Revision)
 /*++
 Routine Description:
     This procedure initializes a new "relative format" security descriptor.
@@ -1223,7 +1205,7 @@ Note:
     // Check the requested revision
     if (Revision == SECURITY_DESCRIPTOR_REVISION) {
         // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-        RtlZeroMemory( SecurityDescriptor, sizeof(SECURITY_DESCRIPTOR_RELATIVE));
+        RtlZeroMemory(SecurityDescriptor, sizeof(SECURITY_DESCRIPTOR_RELATIVE));
 
         SecurityDescriptor->Revision = SECURITY_DESCRIPTOR_REVISION;
         return STATUS_SUCCESS;
@@ -1233,7 +1215,7 @@ Note:
 }
 
 
-BOOLEAN RtlValidSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor)
+BOOLEAN RtlValidSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor)
 /*++
 Routine Description:
     This procedure validates a SecurityDescriptor's structure.
@@ -1250,7 +1232,7 @@ Return Value:
     PACL Sacl;
 
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1261,34 +1243,35 @@ Return Value:
         }
 
         // Validate each element contained in the security descriptor
-        Owner = RtlpOwnerAddrSecurityDescriptor( ISecurityDescriptor );
+        Owner = RtlpOwnerAddrSecurityDescriptor(ISecurityDescriptor);
         if (Owner != NULL) {
-            if (!RtlValidSid( Owner )) {
+            if (!RtlValidSid(Owner)) {
                 return FALSE;
             }
         }
 
-        Group = RtlpGroupAddrSecurityDescriptor( ISecurityDescriptor );
+        Group = RtlpGroupAddrSecurityDescriptor(ISecurityDescriptor);
         if (Group != NULL) {
-            if (!RtlValidSid( Group )) {
+            if (!RtlValidSid(Group)) {
                 return FALSE;
             }
         }
 
-        Dacl = RtlpDaclAddrSecurityDescriptor( ISecurityDescriptor );
-        if (Dacl != NULL ) {
-            if (!RtlValidAcl( Dacl )) {
+        Dacl = RtlpDaclAddrSecurityDescriptor(ISecurityDescriptor);
+        if (Dacl != NULL) {
+            if (!RtlValidAcl(Dacl)) {
                 return FALSE;
             }
         }
 
-        Sacl = RtlpSaclAddrSecurityDescriptor( ISecurityDescriptor );
-        if ( Sacl != NULL ) {
-            if (!RtlValidAcl( Sacl )) {
+        Sacl = RtlpSaclAddrSecurityDescriptor(ISecurityDescriptor);
+        if (Sacl != NULL) {
+            if (!RtlValidAcl(Sacl)) {
                 return FALSE;
             }
         }
-    } except(EXCEPTION_EXECUTE_HANDLER) {
+    } except(EXCEPTION_EXECUTE_HANDLER)
+    {
         return FALSE;
     }
 
@@ -1297,7 +1280,7 @@ Return Value:
 }
 
 
-ULONG RtlLengthSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor)
+ULONG RtlLengthSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor)
 /*++
 Routine Description:
     This routine returns the length, in bytes, necessary to capture a structurally valid SECURITY_DESCRIPTOR.
@@ -1314,7 +1297,7 @@ Return Value:
     PVOID Temp;
 
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = (SECURITY_DESCRIPTOR *)SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = (SECURITY_DESCRIPTOR *)SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1340,21 +1323,21 @@ Return Value:
 
     // Add in used length of Discretionary ACL
     Temp = RtlpDaclAddrSecurityDescriptor(ISecurityDescriptor);
-    if ( Temp != NULL ) {
-        sum += LongAlignSize(((PACL) Temp)->AclSize );
+    if (Temp != NULL) {
+        sum += LongAlignSize(((PACL)Temp)->AclSize);
     }
 
     // Add in used length of System Acl
     Temp = RtlpSaclAddrSecurityDescriptor(ISecurityDescriptor);
-    if ( Temp != NULL ) {
-        sum += LongAlignSize(((PACL) Temp)->AclSize );
+    if (Temp != NULL) {
+        sum += LongAlignSize(((PACL)Temp)->AclSize);
     }
 
     return sum;
 }
 
 
-ULONG RtlLengthUsedSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor)
+ULONG RtlLengthUsedSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor)
 /*++
 Routine Description:
     This routine returns the length, in bytes, in use in a structurally valid SECURITY_DESCRIPTOR.
@@ -1381,7 +1364,7 @@ Return Value:
     PVOID Temp;
 
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = (SECURITY_DESCRIPTOR *)SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = (SECURITY_DESCRIPTOR *)SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1407,15 +1390,15 @@ Return Value:
 
     // Add in used length of Discretionary ACL
     Temp = RtlpDaclAddrSecurityDescriptor(ISecurityDescriptor);
-    if ( Temp != NULL ) {
-        RtlQueryInformationAcl( Temp,(PVOID)&AclSize,sizeof(AclSize),AclSizeInformation );
+    if (Temp != NULL) {
+        RtlQueryInformationAcl(Temp, (PVOID)&AclSize, sizeof(AclSize), AclSizeInformation);
         sum += LongAlignSize(AclSize.AclBytesInUse);
     }
 
     // Add in used length of System Acl
     Temp = RtlpSaclAddrSecurityDescriptor(ISecurityDescriptor);
-    if ( Temp != NULL ) {
-        RtlQueryInformationAcl( Temp,(PVOID)&AclSize,sizeof(AclSize),AclSizeInformation );
+    if (Temp != NULL) {
+        RtlQueryInformationAcl(Temp, (PVOID)&AclSize, sizeof(AclSize), AclSizeInformation);
         sum += LongAlignSize(AclSize.AclBytesInUse);
     }
 
@@ -1423,25 +1406,25 @@ Return Value:
 }
 
 
-NTSTATUS RtlSetAttributesSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor,IN SECURITY_DESCRIPTOR_CONTROL Control,OUT PULONG Revision)
+NTSTATUS RtlSetAttributesSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, IN SECURITY_DESCRIPTOR_CONTROL Control, OUT PULONG Revision)
 {
     RTL_PAGED_CODE();
 
     // Always return the revision value - even if this isn't a valid security descriptor
     *Revision = ((SECURITY_DESCRIPTOR *)SecurityDescriptor)->Revision;
 
-    if ( ((SECURITY_DESCRIPTOR *)SecurityDescriptor)->Revision != SECURITY_DESCRIPTOR_REVISION ) {
+    if (((SECURITY_DESCRIPTOR *)SecurityDescriptor)->Revision != SECURITY_DESCRIPTOR_REVISION) {
         return STATUS_UNKNOWN_REVISION;
     }
 
     // BUGBUG: This is a worthless API.  There is no way to turn any of the bits off.
     // Use the newer RtlSetControlSecurityDescriptor.
     Control &= SE_VALID_CONTROL_BITS;
-    return RtlSetControlSecurityDescriptor ( SecurityDescriptor, Control, Control );
+    return RtlSetControlSecurityDescriptor(SecurityDescriptor, Control, Control);
 }
 
 
-NTSTATUS RtlGetControlSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,OUT PSECURITY_DESCRIPTOR_CONTROL Control,OUT PULONG Revision)
+NTSTATUS RtlGetControlSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, OUT PSECURITY_DESCRIPTOR_CONTROL Control, OUT PULONG Revision)
 /*++
 Routine Description:
     This procedure retrieves the control information from a security descriptor.
@@ -1461,8 +1444,8 @@ Return Value:
     // Always return the revision value - even if this isn't a valid security descriptor
     *Revision = ((SECURITY_DESCRIPTOR *)SecurityDescriptor)->Revision;
 
-    if ( ((SECURITY_DESCRIPTOR *)SecurityDescriptor)->Revision
-         != SECURITY_DESCRIPTOR_REVISION ) {
+    if (((SECURITY_DESCRIPTOR *)SecurityDescriptor)->Revision
+        != SECURITY_DESCRIPTOR_REVISION) {
         return STATUS_UNKNOWN_REVISION;
     }
 
@@ -1471,7 +1454,7 @@ Return Value:
 }
 
 
-NTSTATUS RtlSetControlSecurityDescriptor (IN PSECURITY_DESCRIPTOR pSecurityDescriptor,IN SECURITY_DESCRIPTOR_CONTROL ControlBitsOfInterest,IN SECURITY_DESCRIPTOR_CONTROL ControlBitsToSet)
+NTSTATUS RtlSetControlSecurityDescriptor(IN PSECURITY_DESCRIPTOR pSecurityDescriptor, IN SECURITY_DESCRIPTOR_CONTROL ControlBitsOfInterest, IN SECURITY_DESCRIPTOR_CONTROL ControlBitsToSet)
 /*++
 Routine Description:
     This procedure sets the control information in a security descriptor.
@@ -1496,7 +1479,7 @@ Return Value:
 --*/
 {
     // Ensure the caller passed valid bits.
-    if ( (ControlBitsOfInterest & ~SE_VALID_CONTROL_BITS) != 0 || (ControlBitsToSet & ~ControlBitsOfInterest) != 0 ) {
+    if ((ControlBitsOfInterest & ~SE_VALID_CONTROL_BITS) != 0 || (ControlBitsToSet & ~ControlBitsOfInterest) != 0) {
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -1506,7 +1489,7 @@ Return Value:
 }
 
 
-NTSTATUS RtlSetDaclSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,IN BOOLEAN DaclPresent,IN PACL Dacl OPTIONAL,IN BOOLEAN DaclDefaulted OPTIONAL)
+NTSTATUS RtlSetDaclSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, IN BOOLEAN DaclPresent, IN PACL Dacl OPTIONAL, IN BOOLEAN DaclDefaulted OPTIONAL)
 /*++
 Routine Description:
     This procedure sets the discretionary ACL information of an absolute format security descriptor.
@@ -1531,13 +1514,13 @@ Return Value:
 --*/
 {
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
     // Check the revision
     if (ISecurityDescriptor->Revision != SECURITY_DESCRIPTOR_REVISION) {
-       return STATUS_UNKNOWN_REVISION;
+        return STATUS_UNKNOWN_REVISION;
     }
 
     // Make sure the descriptor is absolute format
@@ -1568,7 +1551,7 @@ Return Value:
 }
 
 
-NTSTATUS RtlGetDaclSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,OUT PBOOLEAN DaclPresent,OUT PACL *Dacl,OUT PBOOLEAN DaclDefaulted)
+NTSTATUS RtlGetDaclSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, OUT PBOOLEAN DaclPresent, OUT PACL * Dacl, OUT PBOOLEAN DaclDefaulted)
 /*++
 Routine Description:
     This procedure retrieves the discretionary ACL information of a security descriptor.
@@ -1589,7 +1572,7 @@ Return Value:
 --*/
 {
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1599,17 +1582,17 @@ Return Value:
     }
 
     // Assign the DaclPresent flag value
-    *DaclPresent = RtlpAreControlBitsSet( ISecurityDescriptor, SE_DACL_PRESENT );
+    *DaclPresent = RtlpAreControlBitsSet(ISecurityDescriptor, SE_DACL_PRESENT);
     if (*DaclPresent) {
         *Dacl = RtlpDaclAddrSecurityDescriptor(ISecurityDescriptor);// Assign the ACL address.
-        *DaclDefaulted = RtlpAreControlBitsSet( ISecurityDescriptor, SE_DACL_DEFAULTED );// Assign DaclDefaulted flag.
+        *DaclDefaulted = RtlpAreControlBitsSet(ISecurityDescriptor, SE_DACL_DEFAULTED);// Assign DaclDefaulted flag.
     }
 
     return STATUS_SUCCESS;
 }
 
 
-NTSTATUS RtlSetSaclSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,IN BOOLEAN SaclPresent,IN PACL Sacl OPTIONAL,IN BOOLEAN SaclDefaulted OPTIONAL)
+NTSTATUS RtlSetSaclSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, IN BOOLEAN SaclPresent, IN PACL Sacl OPTIONAL, IN BOOLEAN SaclDefaulted OPTIONAL)
 /*++
 Routine Description:
     This procedure sets the system ACL information of an absolute security descriptor.
@@ -1632,7 +1615,7 @@ Return Value:
 --*/
 {
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1653,11 +1636,11 @@ Return Value:
         // Assign the ACL address if passed, otherwise set to null.
         ISecurityDescriptor->Sacl = NULL;
         if (ARGUMENT_PRESENT(Sacl)) {
-           ISecurityDescriptor->Sacl = Sacl;
+            ISecurityDescriptor->Sacl = Sacl;
         }
 
         // Assign SaclDefaulted flag if passed, otherwise clear it.
-        ISecurityDescriptor->Control &= ~ SE_SACL_DEFAULTED;
+        ISecurityDescriptor->Control &= ~SE_SACL_DEFAULTED;
         if (ARGUMENT_PRESENT(SaclDefaulted)) {
             ISecurityDescriptor->Control |= SE_SACL_DEFAULTED;
         }
@@ -1669,7 +1652,7 @@ Return Value:
 }
 
 
-NTSTATUS RtlGetSaclSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,OUT PBOOLEAN SaclPresent,OUT PACL *Sacl,OUT PBOOLEAN SaclDefaulted)
+NTSTATUS RtlGetSaclSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, OUT PBOOLEAN SaclPresent, OUT PACL * Sacl, OUT PBOOLEAN SaclDefaulted)
 /*++
 Routine Description:
     This procedure retrieves the system ACL information of a security descriptor.
@@ -1690,7 +1673,7 @@ Return Value:
 --*/
 {
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1700,17 +1683,17 @@ Return Value:
     }
 
     // Assign the SaclPresent flag value
-    *SaclPresent = RtlpAreControlBitsSet( ISecurityDescriptor, SE_SACL_PRESENT );
+    *SaclPresent = RtlpAreControlBitsSet(ISecurityDescriptor, SE_SACL_PRESENT);
     if (*SaclPresent) {
         *Sacl = RtlpSaclAddrSecurityDescriptor(ISecurityDescriptor);// Assign the ACL address.
-        *SaclDefaulted = RtlpAreControlBitsSet( ISecurityDescriptor, SE_SACL_DEFAULTED );// Assign SaclDefaulted flag.
+        *SaclDefaulted = RtlpAreControlBitsSet(ISecurityDescriptor, SE_SACL_DEFAULTED);// Assign SaclDefaulted flag.
     }
 
     return STATUS_SUCCESS;
 }
 
 
-NTSTATUS RtlSetOwnerSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,IN PSID Owner OPTIONAL,IN BOOLEAN OwnerDefaulted OPTIONAL)
+NTSTATUS RtlSetOwnerSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, IN PSID Owner OPTIONAL, IN BOOLEAN OwnerDefaulted OPTIONAL)
 /*++
 Routine Description:
     This procedure sets the owner information of an absolute security descriptor.
@@ -1731,7 +1714,7 @@ Return Value:
 --*/
 {
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1761,7 +1744,7 @@ Return Value:
 }
 
 
-NTSTATUS RtlGetOwnerSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,OUT PSID *Owner,OUT PBOOLEAN OwnerDefaulted)
+NTSTATUS RtlGetOwnerSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, OUT PSID * Owner, OUT PBOOLEAN OwnerDefaulted)
 /*++
 Routine Description:
     This procedure retrieves the owner information of a security descriptor.
@@ -1778,7 +1761,7 @@ Return Value:
 --*/
 {
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1788,12 +1771,12 @@ Return Value:
     }
 
     *Owner = RtlpOwnerAddrSecurityDescriptor(ISecurityDescriptor);// Return the Owner field value.
-    *OwnerDefaulted = RtlpAreControlBitsSet( ISecurityDescriptor, SE_OWNER_DEFAULTED );// Return the OwnerDefaulted flag value.
+    *OwnerDefaulted = RtlpAreControlBitsSet(ISecurityDescriptor, SE_OWNER_DEFAULTED);// Return the OwnerDefaulted flag value.
     return STATUS_SUCCESS;
 }
 
 
-NTSTATUS RtlSetGroupSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,IN PSID Group OPTIONAL,IN BOOLEAN GroupDefaulted OPTIONAL)
+NTSTATUS RtlSetGroupSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, IN PSID Group OPTIONAL, IN BOOLEAN GroupDefaulted OPTIONAL)
 /*++
 Routine Description:
     This procedure sets the primary group information of an absolute security descriptor.
@@ -1820,7 +1803,7 @@ Return Value:
 --*/
 {
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1850,7 +1833,7 @@ Return Value:
 }
 
 
-NTSTATUS RtlGetGroupSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptor,OUT PSID *Group,OUT PBOOLEAN GroupDefaulted)
+NTSTATUS RtlGetGroupSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, OUT PSID * Group, OUT PBOOLEAN GroupDefaulted)
 /*++
 Routine Description:
     This procedure retrieves the primary group information of a security descriptor.
@@ -1868,7 +1851,7 @@ Return Value:
 --*/
 {
     // Typecast to the opaque SECURITY_DESCRIPTOR structure.
-    SECURITY_DESCRIPTOR *ISecurityDescriptor = (SECURITY_DESCRIPTOR *)SecurityDescriptor;
+    SECURITY_DESCRIPTOR * ISecurityDescriptor = (SECURITY_DESCRIPTOR *)SecurityDescriptor;
 
     RTL_PAGED_CODE();
 
@@ -1881,13 +1864,13 @@ Return Value:
     *Group = RtlpGroupAddrSecurityDescriptor(ISecurityDescriptor);
 
     // Return the GroupDefaulted flag value.
-    *GroupDefaulted = RtlpAreControlBitsSet( ISecurityDescriptor, SE_GROUP_DEFAULTED );
+    *GroupDefaulted = RtlpAreControlBitsSet(ISecurityDescriptor, SE_GROUP_DEFAULTED);
 
     return STATUS_SUCCESS;
 }
 
 
-BOOLEAN RtlAreAllAccessesGranted(IN ACCESS_MASK GrantedAccess,IN ACCESS_MASK DesiredAccess)
+BOOLEAN RtlAreAllAccessesGranted(IN ACCESS_MASK GrantedAccess, IN ACCESS_MASK DesiredAccess)
 /*++
 Routine Description:
     This routine is used to check a desired access mask against a granted access mask.
@@ -1906,7 +1889,7 @@ Return Value:
 }
 
 
-BOOLEAN RtlAreAnyAccessesGranted(IN ACCESS_MASK GrantedAccess,IN ACCESS_MASK DesiredAccess)
+BOOLEAN RtlAreAnyAccessesGranted(IN ACCESS_MASK GrantedAccess, IN ACCESS_MASK DesiredAccess)
 /*++
 Routine Description:
     This routine is used to test whether any of a set of desired accesses are granted by a granted access mask.
@@ -1925,7 +1908,7 @@ Return Value:
 }
 
 
-VOID RtlMapGenericMask(IN OUT PACCESS_MASK AccessMask,IN PGENERIC_MAPPING GenericMapping)
+VOID RtlMapGenericMask(IN OUT PACCESS_MASK AccessMask, IN PGENERIC_MAPPING GenericMapping)
 /*++
 Routine Description:
     This routine maps all generic accesses in the provided access mask to specific and standard accesses according to the provided GenericMapping.
@@ -1936,9 +1919,9 @@ Arguments:
 {
     RTL_PAGED_CODE();
 
-//    // Make sure the pointer is properly aligned
+    //    // Make sure the pointer is properly aligned
 
-//    ASSERT( ((ULONG)AccessMask >> 2) << 2 == (ULONG)AccessMask );
+    //    ASSERT( ((ULONG)AccessMask >> 2) << 2 == (ULONG)AccessMask );
 
     if (*AccessMask & GENERIC_READ) {
         *AccessMask |= GenericMapping->GenericRead;
@@ -1991,22 +1974,22 @@ Return Value:
     Qos.ContextTrackingMode = SECURITY_DYNAMIC_TRACKING;
     Qos.EffectiveOnly = FALSE;
     ObjectAttributes.SecurityQualityOfService = &Qos;
-    Status = NtOpenProcessToken( NtCurrentProcess(), TOKEN_DUPLICATE, &Token1 );
+    Status = NtOpenProcessToken(NtCurrentProcess(), TOKEN_DUPLICATE, &Token1);
     if (NT_SUCCESS(Status)) {
         Status = NtDuplicateToken(
-                     Token1,
-                     TOKEN_IMPERSONATE,
-                     &ObjectAttributes,
-                     FALSE,                 //EffectiveOnly
-                     TokenImpersonation,
-                     &Token2
-                     );
+            Token1,
+            TOKEN_IMPERSONATE,
+            &ObjectAttributes,
+            FALSE,                 //EffectiveOnly
+            TokenImpersonation,
+            &Token2
+        );
         if (NT_SUCCESS(Status)) {
-            Status = NtSetInformationThread(NtCurrentThread(),ThreadImpersonationToken,&Token2,sizeof(HANDLE));
-            IgnoreStatus = NtClose( Token2 );
+            Status = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, &Token2, sizeof(HANDLE));
+            IgnoreStatus = NtClose(Token2);
         }
 
-        IgnoreStatus = NtClose( Token1 );
+        IgnoreStatus = NtClose(Token1);
     }
 
     return(Status);
@@ -2019,7 +2002,7 @@ Return Value:
 #ifndef NTOS_KERNEL_RUNTIME
 
 
-BOOLEAN RtlpValidOwnerSubjectContext(IN HANDLE Token,IN PSID Owner,IN BOOLEAN ServerObject,OUT PNTSTATUS ReturnStatus)
+BOOLEAN RtlpValidOwnerSubjectContext(IN HANDLE Token, IN PSID Owner, IN BOOLEAN ServerObject, OUT PNTSTATUS ReturnStatus)
 /*++
 Routine Description:
     This routine checks to see whether the provided SID is one the subject is authorized to assign as the owner of objects.
@@ -2046,7 +2029,7 @@ Return Value:
     RTL_PAGED_CODE();
 
     // Get the handle to the current process heap
-    if ( Owner == NULL ) {
+    if (Owner == NULL) {
         *ReturnStatus = STATUS_INVALID_OWNER;
         return(FALSE);
     }
@@ -2056,78 +2039,78 @@ Return Value:
     if (!ServerObject) {
         TokenToUse = Token;
     } else {
-        *ReturnStatus = NtOpenProcessToken(NtCurrentProcess(),TOKEN_QUERY,&TokenToUse);
-        if (!NT_SUCCESS( *ReturnStatus )) {
-            return( FALSE );
+        *ReturnStatus = NtOpenProcessToken(NtCurrentProcess(), TOKEN_QUERY, &TokenToUse);
+        if (!NT_SUCCESS(*ReturnStatus)) {
+            return(FALSE);
         }
     }
 
     HeapHandle = RtlProcessHeap();
 
     //  Get the User from the Token
-    *ReturnStatus = NtQueryInformationToken(TokenToUse,TokenUser,UserId,0,&ReturnLength);
-    if (!NT_SUCCESS( *ReturnStatus ) && (STATUS_BUFFER_TOO_SMALL != *ReturnStatus)) {
+    *ReturnStatus = NtQueryInformationToken(TokenToUse, TokenUser, UserId, 0, &ReturnLength);
+    if (!NT_SUCCESS(*ReturnStatus) && (STATUS_BUFFER_TOO_SMALL != *ReturnStatus)) {
         if (ServerObject) {
-            NtClose( TokenToUse );
+            NtClose(TokenToUse);
         }
-        return( FALSE );
+        return(FALSE);
     }
 
-    UserId = RtlAllocateHeap( HeapHandle, 0, ReturnLength );
+    UserId = RtlAllocateHeap(HeapHandle, 0, ReturnLength);
     if (UserId == NULL) {
         *ReturnStatus = STATUS_NO_MEMORY;
         if (ServerObject) {
-            NtClose( TokenToUse );
+            NtClose(TokenToUse);
         }
 
-        return( FALSE );
+        return(FALSE);
     }
 
-    *ReturnStatus = NtQueryInformationToken(TokenToUse,TokenUser,UserId,ReturnLength,&ReturnLength);
-    if (!NT_SUCCESS( *ReturnStatus )) {
-        RtlFreeHeap( HeapHandle, 0, (PVOID)UserId );
+    *ReturnStatus = NtQueryInformationToken(TokenToUse, TokenUser, UserId, ReturnLength, &ReturnLength);
+    if (!NT_SUCCESS(*ReturnStatus)) {
+        RtlFreeHeap(HeapHandle, 0, (PVOID)UserId);
         if (ServerObject) {
-            NtClose( TokenToUse );
+            NtClose(TokenToUse);
         }
-        return( FALSE );
+        return(FALSE);
     }
 
-    if ( RtlEqualSid( Owner, UserId->User.Sid ) ) {
-        RtlFreeHeap( HeapHandle, 0, (PVOID)UserId );
+    if (RtlEqualSid(Owner, UserId->User.Sid)) {
+        RtlFreeHeap(HeapHandle, 0, (PVOID)UserId);
         if (ServerObject) {
-            NtClose( TokenToUse );
+            NtClose(TokenToUse);
         }
-        return( TRUE );
+        return(TRUE);
     }
 
-    RtlFreeHeap( HeapHandle, 0, (PVOID)UserId );
+    RtlFreeHeap(HeapHandle, 0, (PVOID)UserId);
 
     // Get the groups from the Token
-    *ReturnStatus = NtQueryInformationToken(TokenToUse,TokenGroups,GroupIds,0,&ReturnLength);
-    if (!NT_SUCCESS( *ReturnStatus ) && (STATUS_BUFFER_TOO_SMALL != *ReturnStatus)) {
+    *ReturnStatus = NtQueryInformationToken(TokenToUse, TokenGroups, GroupIds, 0, &ReturnLength);
+    if (!NT_SUCCESS(*ReturnStatus) && (STATUS_BUFFER_TOO_SMALL != *ReturnStatus)) {
         if (ServerObject) {
-            NtClose( TokenToUse );
+            NtClose(TokenToUse);
         }
-        return( FALSE );
+        return(FALSE);
     }
 
-    GroupIds = RtlAllocateHeap( HeapHandle, 0, ReturnLength );
+    GroupIds = RtlAllocateHeap(HeapHandle, 0, ReturnLength);
     if (GroupIds == NULL) {
         *ReturnStatus = STATUS_NO_MEMORY;
         if (ServerObject) {
-            NtClose( TokenToUse );
+            NtClose(TokenToUse);
         }
-        return( FALSE );
+        return(FALSE);
     }
 
-    *ReturnStatus = NtQueryInformationToken(TokenToUse,TokenGroups,GroupIds,ReturnLength,&ReturnLength);
+    *ReturnStatus = NtQueryInformationToken(TokenToUse, TokenGroups, GroupIds, ReturnLength, &ReturnLength);
     if (ServerObject) {
-        NtClose( TokenToUse );
+        NtClose(TokenToUse);
     }
 
-    if (!NT_SUCCESS( *ReturnStatus )) {
-        RtlFreeHeap( HeapHandle, 0, GroupIds );
-        return( FALSE );
+    if (!NT_SUCCESS(*ReturnStatus)) {
+        RtlFreeHeap(HeapHandle, 0, GroupIds);
+        return(FALSE);
     }
 
     //  Walk through the list of group IDs looking for a match to the specified SID.  If one is found, make sure it may be assigned as an owner.
@@ -2135,10 +2118,10 @@ Return Value:
     //  This code is similar to that performed to set the default owner of a token (NtSetInformationToken).
     Index = 0;
     while (Index < GroupIds->GroupCount) {
-        Found = RtlEqualSid(Owner,GroupIds->Groups[Index].Sid);
-        if ( Found ) {
-            if ( RtlpIdAssignableAsOwner(GroupIds->Groups[Index])) {
-                RtlFreeHeap( HeapHandle, 0, GroupIds );
+        Found = RtlEqualSid(Owner, GroupIds->Groups[Index].Sid);
+        if (Found) {
+            if (RtlpIdAssignableAsOwner(GroupIds->Groups[Index])) {
+                RtlFreeHeap(HeapHandle, 0, GroupIds);
                 return TRUE;
             } else {
                 break;
@@ -2148,7 +2131,7 @@ Return Value:
         Index++;
     } //endwhile
 
-    RtlFreeHeap( HeapHandle, 0, GroupIds );
+    RtlFreeHeap(HeapHandle, 0, GroupIds);
 
     // If we are going to fail this call, check for Restore privilege, and succeed if he has it.
 
@@ -2159,12 +2142,12 @@ Return Value:
     PrivilegeSet.Control = PRIVILEGE_SET_ALL_NECESSARY;
     PrivilegeSet.Privilege[0].Luid = RtlConvertLongToLuid(SE_RESTORE_PRIVILEGE);
     PrivilegeSet.Privilege[0].Attributes = 0;
-    Status = NtPrivilegeCheck(Token,&PrivilegeSet,&HasPrivilege);
-    if (!NT_SUCCESS( Status )) {
+    Status = NtPrivilegeCheck(Token, &PrivilegeSet, &HasPrivilege);
+    if (!NT_SUCCESS(Status)) {
         HasPrivilege = FALSE;
     }
 
-    if ( HasPrivilege ) {
+    if (HasPrivilege) {
         return TRUE;
     } else {
         *ReturnStatus = STATUS_INVALID_OWNER;
@@ -2179,7 +2162,7 @@ Return Value:
 #endif  // WIN16
 
 
-VOID RtlpApplyAclToObject (IN PACL Acl,IN PGENERIC_MAPPING GenericMapping)
+VOID RtlpApplyAclToObject(IN PACL Acl, IN PGENERIC_MAPPING GenericMapping)
 /*++
 Routine Description:
     This is a private routine that maps Access Masks of an ACL so that they are applicable to the object type the ACL is being applied to.
@@ -2203,15 +2186,15 @@ Arguments:
 
     // Now walk the ACL, mapping each ACE as we go.
     for (i = 0, Ace = FirstAce(Acl); i < Acl->AceCount; i += 1, Ace = NextAce(Ace)) {
-        if (IsMSAceType( Ace )) {
-            RtlApplyAceToObject( Ace, GenericMapping );
+        if (IsMSAceType(Ace)) {
+            RtlApplyAceToObject(Ace, GenericMapping);
         }
     }
 }
 
 
 BOOLEAN
-RtlpCopyEffectiveAce (
+RtlpCopyEffectiveAce(
     IN PACE_HEADER OldAce,
     IN BOOLEAN AutoInherit,
     IN BOOLEAN WillGenerateInheritAce,
@@ -2220,14 +2203,14 @@ RtlpCopyEffectiveAce (
     IN PSID ServerOwnerSid OPTIONAL,
     IN PSID ServerGroupSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
-    IN GUID *NewObjectType OPTIONAL,
-    IN OUT PVOID *AcePosition,
+    IN GUID * NewObjectType OPTIONAL,
+    IN OUT PVOID * AcePosition,
     OUT PULONG NewAceLength,
     OUT PACL NewAcl,
     OUT PBOOLEAN ObjectAceInherited OPTIONAL,
     OUT PBOOLEAN EffectiveAceMapped,
     OUT PBOOLEAN AclOverflowed
-    )
+)
 /*++
 Routine Description:
     This routine copy a specified ACE into an ACL as an effective ACE.
@@ -2271,44 +2254,44 @@ Return Value:
     RTL_PAGED_CODE();
 
     // Allocate and initialize the universal SIDs we're going to need to look for inheritable ACEs.
-    ASSERT(RtlLengthRequiredSid( 1 ) == CREATOR_SID_SIZE);
-    RtlInitializeSid( (PSID)CreatorSid, &CreatorSidAuthority, 1 );
-    *(RtlpSubAuthoritySid( (PSID)CreatorSid, 0 )) = SECURITY_CREATOR_OWNER_RID;
+    ASSERT(RtlLengthRequiredSid(1) == CREATOR_SID_SIZE);
+    RtlInitializeSid((PSID)CreatorSid, &CreatorSidAuthority, 1);
+    *(RtlpSubAuthoritySid((PSID)CreatorSid, 0)) = SECURITY_CREATOR_OWNER_RID;
 
     LocalServerOwner = ARGUMENT_PRESENT(ServerOwnerSid) ? ServerOwnerSid : ClientOwnerSid;
     LocalServerGroup = ARGUMENT_PRESENT(ServerGroupSid) ? ServerGroupSid : ClientGroupSid;
 
     // Initialization
     *EffectiveAceMapped = FALSE;
-    if ( ARGUMENT_PRESENT(ObjectAceInherited)) {
+    if (ARGUMENT_PRESENT(ObjectAceInherited)) {
         *ObjectAceInherited = FALSE;
     }
     *AclOverflowed = FALSE;
     LengthRequired = (ULONG)OldAce->AceSize;
 
     // Process all MS ACE types specially
-    if ( IsMSAceType(OldAce) ) {
+    if (IsMSAceType(OldAce)) {
         ULONG Rid;
         PSID SidToCopy = NULL;
         ULONG AceHeaderToCopyLength;
         PACE_HEADER AceHeaderToCopy = OldAce;
         PSID ServerSidToCopy = NULL;
 
-        UCHAR DummyAce[sizeof(KNOWN_OBJECT_ACE)+sizeof(GUID)];
+        UCHAR DummyAce[sizeof(KNOWN_OBJECT_ACE) + sizeof(GUID)];
 
         // Grab the Sid pointer and access mask as a function of the ACE type
-        if (IsKnownAceType( OldAce ) ) {
+        if (IsKnownAceType(OldAce)) {
             SidToCopy = &((PKNOWN_ACE)OldAce)->SidStart;
             AceHeaderToCopyLength = FIELD_OFFSET(KNOWN_ACE, SidStart);
         } else if (IsCompoundAceType(OldAce)) {
-            SidToCopy = RtlCompoundAceClientSid( OldAce );
+            SidToCopy = RtlCompoundAceClientSid(OldAce);
             AceHeaderToCopyLength = FIELD_OFFSET(KNOWN_COMPOUND_ACE, SidStart);
-            ASSERT( FIELD_OFFSET(KNOWN_COMPOUND_ACE, Mask) == FIELD_OFFSET(KNOWN_ACE, Mask) );
+            ASSERT(FIELD_OFFSET(KNOWN_COMPOUND_ACE, Mask) == FIELD_OFFSET(KNOWN_ACE, Mask));
 
-            ServerSidToCopy = RtlCompoundAceServerSid( OldAce );// Compound ACEs have two SIDs (Map one now).
+            ServerSidToCopy = RtlCompoundAceServerSid(OldAce);// Compound ACEs have two SIDs (Map one now).
 
-            if (RtlEqualPrefixSid ( ServerSidToCopy, CreatorSid )) {
-                Rid = *RtlpSubAuthoritySid( ServerSidToCopy, 0 );
+            if (RtlEqualPrefixSid(ServerSidToCopy, CreatorSid)) {
+                Rid = *RtlpSubAuthoritySid(ServerSidToCopy, 0);
                 switch (Rid) {
                 case SECURITY_CREATOR_OWNER_RID:
                     ServerSidToCopy = ClientOwnerSid;
@@ -2316,7 +2299,7 @@ Return Value:
                     *EffectiveAceMapped = TRUE;
                     break;
                 case SECURITY_CREATOR_GROUP_RID:
-                    if ( ClientGroupSid != NULL ) {
+                    if (ClientGroupSid != NULL) {
                         ServerSidToCopy = ClientGroupSid;
                         LengthRequired = LengthRequired - CREATOR_SID_SIZE + SeLengthSid(ClientGroupSid);
                         *EffectiveAceMapped = TRUE;
@@ -2335,32 +2318,32 @@ Return Value:
                 }
 
                 // If we don't know what this SID is, just copy the original.
-                if ( !*EffectiveAceMapped ) {
-                    AceHeaderToCopyLength += SeLengthSid( ServerSidToCopy );
+                if (!*EffectiveAceMapped) {
+                    AceHeaderToCopyLength += SeLengthSid(ServerSidToCopy);
                     ServerSidToCopy = NULL;
                 }
             } else {
                 // We don't know what this SID is, just copy the original.
-                AceHeaderToCopyLength += SeLengthSid( ServerSidToCopy );
+                AceHeaderToCopyLength += SeLengthSid(ServerSidToCopy);
                 ServerSidToCopy = NULL;
             }
 
-        // Handle Object ACEs
+            // Handle Object ACEs
         } else {
-            GUID *InheritedObjectType;
+            GUID * InheritedObjectType;
 
-            SidToCopy = RtlObjectAceSid( OldAce );
-            AceHeaderToCopyLength = (ULONG) ((PUCHAR)SidToCopy - (PUCHAR)OldAce);
-            ASSERT( FIELD_OFFSET(KNOWN_OBJECT_ACE, Mask) == FIELD_OFFSET(KNOWN_ACE, Mask) );
+            SidToCopy = RtlObjectAceSid(OldAce);
+            AceHeaderToCopyLength = (ULONG)((PUCHAR)SidToCopy - (PUCHAR)OldAce);
+            ASSERT(FIELD_OFFSET(KNOWN_OBJECT_ACE, Mask) == FIELD_OFFSET(KNOWN_ACE, Mask));
 
             // Handle ACEs that are only inherited for a specific object type,
-            InheritedObjectType = RtlObjectAceInheritedObjectType( OldAce );
-            if ( ARGUMENT_PRESENT(ObjectAceInherited) && InheritedObjectType != NULL ) {
+            InheritedObjectType = RtlObjectAceInheritedObjectType(OldAce);
+            if (ARGUMENT_PRESENT(ObjectAceInherited) && InheritedObjectType != NULL) {
                 // If the object type doesn't match the inherited object type, don't inherit the ACE.
-                if ( NewObjectType == NULL || !RtlEqualMemory( InheritedObjectType,NewObjectType,sizeof(GUID) ) ) {
+                if (NewObjectType == NULL || !RtlEqualMemory(InheritedObjectType, NewObjectType, sizeof(GUID))) {
                     LengthRequired = 0;
 
-                // If the object type matches the inherited object type, Inherit an ACE with no inherited object type.
+                    // If the object type matches the inherited object type, Inherit an ACE with no inherited object type.
                 } else {
                     *ObjectAceInherited = TRUE;// Tell the caller we inherited an object type specific ACE.
 
@@ -2368,25 +2351,25 @@ Return Value:
                     //  deleting the inherited object type GUID for the effective ACE.
 
                     // Otherwise, leave it so the caller can merge the two ACEs.
-                    if ( !WillGenerateInheritAce ) {
+                    if (!WillGenerateInheritAce) {
                         *EffectiveAceMapped = TRUE;
 
                         // If an object type GUID is present, simply delete the inherited object type GUID.
-                        if ( RtlObjectAceObjectTypePresent( OldAce )) {
+                        if (RtlObjectAceObjectTypePresent(OldAce)) {
                             LengthRequired -= sizeof(GUID);
                             AceHeaderToCopyLength -= sizeof(GUID);
-                            RtlCopyMemory( DummyAce, OldAce, AceHeaderToCopyLength );
+                            RtlCopyMemory(DummyAce, OldAce, AceHeaderToCopyLength);
 
                             AceHeaderToCopy = (PACE_HEADER)DummyAce;
                             ((PKNOWN_OBJECT_ACE)AceHeaderToCopy)->Flags &= ~ACE_INHERITED_OBJECT_TYPE_PRESENT;
 
-                        // If an object type GUID is not present, convert the ACE to non-object type specific.
+                            // If an object type GUID is not present, convert the ACE to non-object type specific.
                         } else {
                             AceHeaderToCopyLength = AceHeaderToCopyLength - sizeof(GUID) + sizeof(KNOWN_ACE) - sizeof(KNOWN_OBJECT_ACE);
                             LengthRequired = LengthRequired - sizeof(GUID) + sizeof(KNOWN_ACE) - sizeof(KNOWN_OBJECT_ACE);
-                            RtlCopyMemory( DummyAce, OldAce, AceHeaderToCopyLength );
+                            RtlCopyMemory(DummyAce, OldAce, AceHeaderToCopyLength);
                             AceHeaderToCopy = (PACE_HEADER)DummyAce;
-                            AceHeaderToCopy->AceType = RtlBaseAceType[ OldAce->AceType ];
+                            AceHeaderToCopy->AceType = RtlBaseAceType[OldAce->AceType];
                         }
                     }
                 }
@@ -2394,27 +2377,27 @@ Return Value:
         }
 
         // Only proceed if we've not already determined to drop the ACE.
-        if ( LengthRequired != 0 ) {
+        if (LengthRequired != 0) {
             // If after mapping the access mask, the access mask is empty, then drop the ACE.
 
             // This is incompatible with NT 4.0 which simply mapped and left undefined access bits set.
 
             LocalMask = ((PKNOWN_ACE)(OldAce))->Mask;
-            RtlApplyGenericMask( OldAce, &LocalMask, GenericMapping);
+            RtlApplyGenericMask(OldAce, &LocalMask, GenericMapping);
 
-            if ( LocalMask != ((PKNOWN_ACE)(OldAce))->Mask ) {
+            if (LocalMask != ((PKNOWN_ACE)(OldAce))->Mask) {
                 *EffectiveAceMapped = TRUE;
             }
 
             // Mask off any bits that aren't meaningful
-            LocalMask &= ( STANDARD_RIGHTS_ALL | SPECIFIC_RIGHTS_ALL | ACCESS_SYSTEM_SECURITY );
+            LocalMask &= (STANDARD_RIGHTS_ALL | SPECIFIC_RIGHTS_ALL | ACCESS_SYSTEM_SECURITY);
             if (LocalMask == 0) {
                 LengthRequired = 0;
             } else {
                 // See if the SID in the ACE is one of the various CREATOR_* SIDs by
                 // comparing identifier authorities.
-                if (RtlEqualPrefixSid ( SidToCopy, CreatorSid )) {
-                    Rid = *RtlpSubAuthoritySid( SidToCopy, 0 );
+                if (RtlEqualPrefixSid(SidToCopy, CreatorSid)) {
+                    Rid = *RtlpSubAuthoritySid(SidToCopy, 0);
 
                     switch (Rid) {
                     case SECURITY_CREATOR_OWNER_RID:
@@ -2423,7 +2406,7 @@ Return Value:
                         *EffectiveAceMapped = TRUE;
                         break;
                     case SECURITY_CREATOR_GROUP_RID:
-                        if ( ClientGroupSid != NULL ) {
+                        if (ClientGroupSid != NULL) {
                             SidToCopy = ClientGroupSid;
                             LengthRequired = LengthRequired - CREATOR_SID_SIZE + SeLengthSid(ClientGroupSid);
                             *EffectiveAceMapped = TRUE;
@@ -2439,7 +2422,7 @@ Return Value:
                         LengthRequired = LengthRequired - CREATOR_SID_SIZE + SeLengthSid(LocalServerGroup);
                         *EffectiveAceMapped = TRUE;
                         break;
-                    default :
+                    default:
                         // We don't know what this SID is, just copy the original.
                         break;
                     }
@@ -2447,28 +2430,28 @@ Return Value:
 
                 // If the ACE doesn't fit,
                 //  just note the fact and don't copy the ACE.
-                if ( *AcePosition == NULL || LengthRequired > (ULONG)NewAcl->AclSize - ((PUCHAR)(*AcePosition) - (PUCHAR)NewAcl) ) {
+                if (*AcePosition == NULL || LengthRequired > (ULONG)NewAcl->AclSize - ((PUCHAR)(*AcePosition) - (PUCHAR)NewAcl)) {
                     *AclOverflowed = TRUE;
                 } else {
                     PUCHAR Target;
 
                     // Copy individual parts of the ACE separately.
                     Target = (PUCHAR)*AcePosition;
-                    RtlCopyMemory(Target,AceHeaderToCopy,AceHeaderToCopyLength );
+                    RtlCopyMemory(Target, AceHeaderToCopy, AceHeaderToCopyLength);
                     Target += AceHeaderToCopyLength;
 
                     // Now copy the correct server SID
-                    if ( ServerSidToCopy != NULL ) {
-                        RtlCopyMemory(Target,ServerSidToCopy,SeLengthSid(ServerSidToCopy));
+                    if (ServerSidToCopy != NULL) {
+                        RtlCopyMemory(Target, ServerSidToCopy, SeLengthSid(ServerSidToCopy));
                         Target += SeLengthSid(ServerSidToCopy);
                     }
 
                     // Now copy the correct SID
-                    RtlCopyMemory(Target,SidToCopy,SeLengthSid(SidToCopy));
+                    RtlCopyMemory(Target, SidToCopy, SeLengthSid(SidToCopy));
                     Target += SeLengthSid(SidToCopy);
 
                     // Set the size of the ACE accordingly
-                    if ( LengthRequired < (ULONG)(Target - (PUCHAR)*AcePosition) ) {
+                    if (LengthRequired < (ULONG)(Target - (PUCHAR)*AcePosition)) {
                         return FALSE;
                     }
                     LengthRequired = (ULONG)(Target - (PUCHAR)*AcePosition);
@@ -2480,17 +2463,17 @@ Return Value:
     } else {
         // If the ACE doesn't fit,
         //  just note the fact and don't copy the ACE.
-        if ( LengthRequired > (ULONG)NewAcl->AclSize - ((PUCHAR)*AcePosition - (PUCHAR)NewAcl) ) {
+        if (LengthRequired > (ULONG)NewAcl->AclSize - ((PUCHAR)*AcePosition - (PUCHAR)NewAcl)) {
             *AclOverflowed = TRUE;
         } else {
-            RtlCopyMemory(*AcePosition,OldAce,LengthRequired );// Not a known ACE type, copy ACE as is
-         }
+            RtlCopyMemory(*AcePosition, OldAce, LengthRequired);// Not a known ACE type, copy ACE as is
+        }
     }
 
     // If the ACE was actually kept, clear all the inherit flags and update the ACE count of the ACL.
-    if ( !*AclOverflowed && LengthRequired != 0 ) {
+    if (!*AclOverflowed && LengthRequired != 0) {
         ((PACE_HEADER)*AcePosition)->AceFlags &= ~VALID_INHERIT_FLAGS;
-        if ( AutoInherit ) {
+        if (AutoInherit) {
             ((PACE_HEADER)*AcePosition)->AceFlags |= INHERITED_ACE;
         }
         NewAcl->AceCount += 1;
@@ -2503,7 +2486,7 @@ Return Value:
     }
 
     // Move the Ace Position to where the next ACE goes.
-    if ( !*AclOverflowed ) {
+    if (!*AclOverflowed) {
         *AcePosition = ((PUCHAR)*AcePosition) + LengthRequired;
     }
 
@@ -2529,7 +2512,7 @@ RtlpCopyAces(
     IN PSID ServerGroupSid OPTIONAL,
     OUT PULONG NewAclSizeParam,
     OUT PACL NewAcl
-    )
+)
 /*++
 Routine Description:
     Copy ACEs from of an ACL and perform generic mapping.
@@ -2563,12 +2546,12 @@ Return Value:
     RTL_PAGED_CODE();
 
     // Validate the ACL.
-    if ( !ValidAclRevision(NewAcl) ) {
+    if (!ValidAclRevision(NewAcl)) {
         return STATUS_UNKNOWN_REVISION;
     }
 
     // Find where the first ACE goes.
-    if (!RtlFirstFreeAce( NewAcl, &AcePosition )) {
+    if (!RtlFirstFreeAce(NewAcl, &AcePosition)) {
         return STATUS_BAD_INHERITANCE_ACL;
     }
 
@@ -2591,9 +2574,9 @@ Return Value:
             break;
         }
 
-        if ( CopyAce ) {
+        if (CopyAce) {
             // If SIDs are to be mapped, do so (and potentially create up to two ACEs).
-            if ( MapSids ) {
+            if (MapSids) {
                 PVOID TempAcePosition;
                 ULONG EffectiveAceSize = 0;
                 BOOLEAN EffectiveAceMapped;
@@ -2602,29 +2585,29 @@ Return Value:
                 // Remember where the next ACE will be copied.
                 TempAcePosition = AcePosition;
                 NewAceSize = 0;
-                GenerateInheritAce = (((PACE_HEADER)OldAce)->AceFlags & (OBJECT_INHERIT_ACE|CONTAINER_INHERIT_ACE)) != 0;
+                GenerateInheritAce = (((PACE_HEADER)OldAce)->AceFlags & (OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE)) != 0;
 
                 // If the orginal ACE is an effective ACE, create an effective ACE.
-                if ( !(((PACE_HEADER)OldAce)->AceFlags & INHERIT_ONLY_ACE)) {
+                if (!(((PACE_HEADER)OldAce)->AceFlags & INHERIT_ONLY_ACE)) {
                     BOOLEAN LocalAclOverflowed;
 
                     // Copy the effective ACE into the ACL.
-                    if ( !RtlpCopyEffectiveAce (
-                                    OldAce,
-                                    FALSE,  // Don't set the auto inherit bit
-                                    GenerateInheritAce,
-                                    ClientOwnerSid,
-                                    ClientGroupSid,
-                                    ServerOwnerSid,
-                                    ServerGroupSid,
-                                    GenericMapping,
-                                    NULL,   // Always copy object ACES
-                                    &TempAcePosition,
-                                    &EffectiveAceSize,
-                                    NewAcl,
-                                    NULL,   // Always copy object ACES
-                                    &EffectiveAceMapped,
-                                    &LocalAclOverflowed ) ) {
+                    if (!RtlpCopyEffectiveAce(
+                        OldAce,
+                        FALSE,  // Don't set the auto inherit bit
+                        GenerateInheritAce,
+                        ClientOwnerSid,
+                        ClientGroupSid,
+                        ServerOwnerSid,
+                        ServerGroupSid,
+                        GenericMapping,
+                        NULL,   // Always copy object ACES
+                        &TempAcePosition,
+                        &EffectiveAceSize,
+                        NewAcl,
+                        NULL,   // Always copy object ACES
+                        &EffectiveAceMapped,
+                        &LocalAclOverflowed)) {
                         return STATUS_BAD_INHERITANCE_ACL;
                     }
 
@@ -2634,7 +2617,7 @@ Return Value:
                     NewAceSize += EffectiveAceSize;
 
                     // Reset any undesirable AceFlags.
-                    if ( !AclOverflowed ) {
+                    if (!AclOverflowed) {
                         ((PACE_HEADER)AcePosition)->AceFlags &= ~AceFlagsToReset;
                     }
                 }
@@ -2643,19 +2626,19 @@ Return Value:
 
                 // ASSERT: AcePosition points to where the effective ACE was copied
                 // ASSERT: TempAcePosition points to where the inheritable ACE should be copied
-                if ( GenerateInheritAce ) {
+                if (GenerateInheritAce) {
                     // If a effective ACE was created, and it wasn't mapped, avoid generating another ACE and simply merge the inheritance bits into the effective ACE.
-                    if ( EffectiveAceSize != 0 && !EffectiveAceMapped ) {
-                       // Copy the inherit bits from the original ACE.
-                       if ( !AclOverflowed ) {
+                    if (EffectiveAceSize != 0 && !EffectiveAceMapped) {
+                        // Copy the inherit bits from the original ACE.
+                        if (!AclOverflowed) {
                             ((PACE_HEADER)AcePosition)->AceFlags |= ((PACE_HEADER)OldAce)->AceFlags & (VALID_INHERIT_FLAGS);
                             ((PACE_HEADER)AcePosition)->AceFlags &= ~AceFlagsToReset;
-                       }
+                        }
 
-                    // Otherwise, generate an explicit inheritance ACE.
+                        // Otherwise, generate an explicit inheritance ACE.
 
-                    // But only if the access mask isn't zero.
-                    } else if ( !IsMSAceType(OldAce) || ((PKNOWN_ACE)(OldAce))->Mask != 0 ) {
+                        // But only if the access mask isn't zero.
+                    } else if (!IsMSAceType(OldAce) || ((PKNOWN_ACE)(OldAce))->Mask != 0) {
                         // Account for the new ACE being added to the ACL.
                         NewAceSize += (ULONG)(((PACE_HEADER)OldAce)->AceSize);
                         if (NewAceSize > 0xFFFF) {
@@ -2663,12 +2646,12 @@ Return Value:
                         }
 
                         // If the ACE doesn't fit, just note the fact and don't copy the ACE.
-                        if ( ((PACE_HEADER)OldAce)->AceSize > NewAcl->AclSize - ((PUCHAR)TempAcePosition - (PUCHAR)NewAcl) ) {
+                        if (((PACE_HEADER)OldAce)->AceSize > NewAcl->AclSize - ((PUCHAR)TempAcePosition - (PUCHAR)NewAcl)) {
                             AclOverflowed = TRUE;
                         } else {
                             // copy it as is, but make sure the InheritOnly bit is set.
-                            if ( !AclOverflowed ) {
-                                RtlCopyMemory(TempAcePosition,OldAce,((PACE_HEADER)OldAce)->AceSize);
+                            if (!AclOverflowed) {
+                                RtlCopyMemory(TempAcePosition, OldAce, ((PACE_HEADER)OldAce)->AceSize);
                                 ((PACE_HEADER)TempAcePosition)->AceFlags |= INHERIT_ONLY_ACE;
                                 ((PACE_HEADER)TempAcePosition)->AceFlags &= ~AceFlagsToReset;
                                 NewAcl->AceCount += 1;
@@ -2680,18 +2663,18 @@ Return Value:
                 NewAceSize = (ULONG)OldAce->AceSize;
 
                 // If the ACE doesn't fit, just note the fact and don't copy the ACE.
-                if ( AcePosition == NULL || NewAceSize > (ULONG)NewAcl->AclSize - ((PUCHAR)AcePosition - (PUCHAR)NewAcl) ) {
+                if (AcePosition == NULL || NewAceSize > (ULONG)NewAcl->AclSize - ((PUCHAR)AcePosition - (PUCHAR)NewAcl)) {
                     AclOverflowed = TRUE;
-                } else if ( !AclOverflowed ) {
+                } else if (!AclOverflowed) {
                     // Copy the ACE.
-                    RtlCopyMemory(AcePosition,OldAce,NewAceSize );
+                    RtlCopyMemory(AcePosition, OldAce, NewAceSize);
 
                     // Map the generic bits.
 
                     // Is it really right to map the generic bits on an ACE that's both effective and inheritable.
                     // Shouldn't this be split into two ACEs in that case?  Or just skip the mapping?
-                    if (IsMSAceType( AcePosition )) {
-                        RtlApplyAceToObject( (PACE_HEADER)AcePosition, GenericMapping );
+                    if (IsMSAceType(AcePosition)) {
+                        RtlApplyAceToObject((PACE_HEADER)AcePosition, GenericMapping);
                     }
 
                     // Reset any undesirable AceFlags.
@@ -2703,7 +2686,7 @@ Return Value:
             }
 
             // Move the Ace Position to where the next ACE goes.
-            if ( !AclOverflowed ) {
+            if (!AclOverflowed) {
                 AcePosition = ((PUCHAR)AcePosition) + NewAceSize;
             } else {
                 // On overflow, ensure no other ACEs are actually output to the buffer
@@ -2726,7 +2709,7 @@ Return Value:
 
 
 NTSTATUS
-RtlpInheritAcl2 (
+RtlpInheritAcl2(
     IN PACL DirectoryAcl,
     IN PACL ChildAcl,
     IN ULONG ChildGenericControl,
@@ -2739,12 +2722,12 @@ RtlpInheritAcl2 (
     IN PSID ServerGroupSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
     IN BOOLEAN IsSacl,
-    IN GUID *NewObjectType OPTIONAL,
+    IN GUID * NewObjectType OPTIONAL,
     IN PULONG AclBufferSize,
     IN OUT PUCHAR AclBuffer,
     OUT PBOOLEAN NewAclExplicitlyAssigned,
     OUT PULONG NewGenericControl
-    )
+)
 /*++
 Routine Description:
     This is a private routine that produces an inherited acl from a parent acl according to the rules of inheritance
@@ -2802,28 +2785,28 @@ Return Value:
 
     // Assume the ACL revision.
     AclRevision = ACL_REVISION;
-    RtlCreateAcl( (PACL)AclBuffer, *AclBufferSize, AclRevision );
+    RtlCreateAcl((PACL)AclBuffer, *AclBufferSize, AclRevision);
     *NewAclExplicitlyAssigned = FALSE;
     *NewGenericControl = AutoInherit ? SEP_ACL_AUTO_INHERITED : 0;
 
     // If the a current child ACL is not defaulted,
     //  the non-inherited ACEs from the current child ACL are to be preserved.
-    if ( (ChildGenericControl & SEP_ACL_DEFAULTED) == 0 ) {
+    if ((ChildGenericControl & SEP_ACL_DEFAULTED) == 0) {
         // The resultant ACL should be protected if the input ACL is
         //  protected.
-        if ( ChildGenericControl & SEP_ACL_PROTECTED ) {
+        if (ChildGenericControl & SEP_ACL_PROTECTED) {
             AclProtected = TRUE;
             *NewGenericControl |= SEP_ACL_PROTECTED;
         }
 
         // Only copy ACEs if the child ACL is actually present.
-        if ( (ChildGenericControl & (SEP_ACL_PRESENT|SEP_ACL_PROTECTED)) != 0 ) {
-            if ( ChildAcl != NULL ) {
+        if ((ChildGenericControl & (SEP_ACL_PRESENT | SEP_ACL_PROTECTED)) != 0) {
+            if (ChildAcl != NULL) {
                 ACE_TYPE_TO_COPY AceTypeToCopy;
                 UCHAR AceFlagsToReset;
                 BOOLEAN MapSids;
 
-                AclRevision = max( AclRevision, ChildAcl->AclRevision );
+                AclRevision = max(AclRevision, ChildAcl->AclRevision);
 
                 // Since we're explicitly using the ACL specified by the caller, we never want to return a NULL ACL.
                 //  Rather, if we have an ACL with no ACEs, we'll return exactly that.
@@ -2831,20 +2814,20 @@ Return Value:
                 NullAclOk = FALSE;
 
                 // If the caller doesn't understand auto inheritance, simply preserve the specified ACL 100% intact.
-                if ( !AutoInherit ) {
+                if (!AutoInherit) {
                     AceTypeToCopy = CopyAllAces;
                     AceFlagsToReset = 0;      // Don't turn off any ACE Flags
                     MapSids = FALSE;          // For backward compatibility
 
                 // If the child is protected, keep all of the ACEs turning off the INHERITED ACE flags.
-                } else if ( ChildGenericControl & SEP_ACL_PROTECTED ) {
+                } else if (ChildGenericControl & SEP_ACL_PROTECTED) {
                     AceTypeToCopy = CopyAllAces;
                     AceFlagsToReset = INHERITED_ACE; // Turn off all INHERITED_ACE flags
                     MapSids = TRUE;
 
-                // If the child is not protected, just copy the non-inherited ACEs.
+                    // If the child is not protected, just copy the non-inherited ACEs.
 
-                // (The inherited ACEs will be recomputed from the parent.)
+                    // (The inherited ACEs will be recomputed from the parent.)
                 } else {
                     AceTypeToCopy = CopyNonInheritedAces;
                     AceFlagsToReset = 0;      // Don't turn off any ACE Flags
@@ -2852,28 +2835,28 @@ Return Value:
                 }
 
                 // Copy the requested ACEs.
-                Status = RtlpCopyAces(ChildAcl,GenericMapping,AceTypeToCopy,AceFlagsToReset,MapSids,OwnerSid,GroupSid,ServerOwnerSid,ServerGroupSid,&ChildNewAclSize,(PACL)AclBuffer );
+                Status = RtlpCopyAces(ChildAcl, GenericMapping, AceTypeToCopy, AceFlagsToReset, MapSids, OwnerSid, GroupSid, ServerOwnerSid, ServerGroupSid, &ChildNewAclSize, (PACL)AclBuffer);
                 UsedChildNewAclSize = ChildNewAclSize;
-                if ( Status == STATUS_BUFFER_TOO_SMALL ) {
+                if (Status == STATUS_BUFFER_TOO_SMALL) {
                     AclOverflowed = TRUE;
                     Status = STATUS_SUCCESS;
                 }
 
-                if ( !NT_SUCCESS(Status) ) {
+                if (!NT_SUCCESS(Status)) {
                     return Status;
                 }
 
                 // If this ACL might be ignored later, remember the current state of the ACL.
-                if ( DefaultDescriptorForObject && ChildNewAclSize != 0 ) {
+                if (DefaultDescriptorForObject && ChildNewAclSize != 0) {
                     ChildAceCount = ((PACL)AclBuffer)->AceCount;
-                    if (!RtlFirstFreeAce( (PACL)AclBuffer, &ChildAcePosition ) ) {
+                    if (!RtlFirstFreeAce((PACL)AclBuffer, &ChildAcePosition)) {
                         return STATUS_BAD_INHERITANCE_ACL;
                     }
                 }
 
-            // If the ACL isn't protected, don't allow NULL ACL semantics.
-            //  (those semantics are ambiguous for auto inheritance)
-            } else if ( AutoInherit && !IsSacl && (ChildGenericControl & (SEP_ACL_PRESENT|SEP_ACL_PROTECTED)) == SEP_ACL_PRESENT ) {
+                // If the ACL isn't protected, don't allow NULL ACL semantics.
+                //  (those semantics are ambiguous for auto inheritance)
+            } else if (AutoInherit && !IsSacl && (ChildGenericControl & (SEP_ACL_PRESENT | SEP_ACL_PROTECTED)) == SEP_ACL_PRESENT) {
                 return STATUS_INVALID_ACL;
             }
 
@@ -2886,51 +2869,51 @@ Return Value:
     //      Inherit if there is no explicit child ACL (ignoring a defaulted child).
     //  If AutoInheriting,
     //      observe the protected flag.
-    if ( (!AutoInherit && (ChildGenericControl & SEP_ACL_PRESENT) == 0 || (ChildGenericControl & SEP_ACL_DEFAULTED) != 0) || (AutoInherit && !AclProtected) ) {
+    if ((!AutoInherit && (ChildGenericControl & SEP_ACL_PRESENT) == 0 || (ChildGenericControl & SEP_ACL_DEFAULTED) != 0) || (AutoInherit && !AclProtected)) {
         //  If there is no directory ACL, don't inherit from it.
-        if ( DirectoryAcl != NULL ) {
+        if (DirectoryAcl != NULL) {
             // If the DirectoryAcl is used, the revision of the Directory ACL is picked up.
-            if ( !ValidAclRevision(DirectoryAcl) ) {
+            if (!ValidAclRevision(DirectoryAcl)) {
                 return STATUS_UNKNOWN_REVISION;
             }
 
-            AclRevision = max( AclRevision, DirectoryAcl->AclRevision );
+            AclRevision = max(AclRevision, DirectoryAcl->AclRevision);
 
             // Inherit the Parent's ACL.
             Status = RtlpGenerateInheritAcl(
-                         DirectoryAcl,
-                         IsDirectoryObject,
-                         AutoInherit,
-                         OwnerSid,
-                         GroupSid,
-                         ServerOwnerSid,
-                         ServerGroupSid,
-                         GenericMapping,
-                         NewObjectType,
-                         &DirectoryNewAclSize,
-                         (PACL)AclBuffer,
-                         &ObjectAceInherited );
-            if ( Status == STATUS_BUFFER_TOO_SMALL ) {
+                DirectoryAcl,
+                IsDirectoryObject,
+                AutoInherit,
+                OwnerSid,
+                GroupSid,
+                ServerOwnerSid,
+                ServerGroupSid,
+                GenericMapping,
+                NewObjectType,
+                &DirectoryNewAclSize,
+                (PACL)AclBuffer,
+                &ObjectAceInherited);
+            if (Status == STATUS_BUFFER_TOO_SMALL) {
                 AclOverflowed = TRUE;
                 Status = STATUS_SUCCESS;
             }
 
-            if ( !NT_SUCCESS(Status) ) {
+            if (!NT_SUCCESS(Status)) {
                 return Status;
             }
 
             // If the default descriptor for the object should be ditched, because object specific ACEs were inherited from the directory, ditch them now.
-            if ( DefaultDescriptorForObject && ChildNewAclSize != 0 && ObjectAceInherited && !AclOverflowed ) {
+            if (DefaultDescriptorForObject && ChildNewAclSize != 0 && ObjectAceInherited && !AclOverflowed) {
                 // Compute the last used byte of the combined ACL
-                if (!RtlFirstFreeAce( (PACL)AclBuffer, &DirectoryAcePosition ) ) {
+                if (!RtlFirstFreeAce((PACL)AclBuffer, &DirectoryAcePosition)) {
                     return STATUS_BAD_INHERITANCE_ACL;
                 }
-                if ( DirectoryAcePosition == NULL ) {
+                if (DirectoryAcePosition == NULL) {
                     DirectoryAcePosition = AclBuffer + ((PACL)AclBuffer)->AclSize;
                 }
 
                 // Move all the inherited ACEs to the front of the ACL.
-                RtlMoveMemory( FirstAce( AclBuffer ), ChildAcePosition, (ULONG)(((PUCHAR)DirectoryAcePosition) - (PUCHAR)ChildAcePosition) );
+                RtlMoveMemory(FirstAce(AclBuffer), ChildAcePosition, (ULONG)(((PUCHAR)DirectoryAcePosition) - (PUCHAR)ChildAcePosition));
 
                 // Adjust the ACE count to remove the deleted ACEs
                 ((PACL)AclBuffer)->AceCount -= ChildAceCount;
@@ -2942,14 +2925,14 @@ Return Value:
     }
 
     // If this routine didn't build the ACL, tell the caller.
-    if ( DirectoryNewAclSize + UsedChildNewAclSize == 0) {
+    if (DirectoryNewAclSize + UsedChildNewAclSize == 0) {
         // If the ACL was not explicitly assigned, tell the caller to default the ACL.
-        if ( !(*NewAclExplicitlyAssigned) ) {
+        if (!(*NewAclExplicitlyAssigned)) {
             *AclBufferSize = 0;
             return STATUS_NO_INHERITANCE;
 
-        // If the Acl was explictly assigned, generate a NULL ACL based on the path taken above.
-        } else if ( NullAclOk ) {
+            // If the Acl was explictly assigned, generate a NULL ACL based on the path taken above.
+        } else if (NullAclOk) {
             *AclBufferSize = 0;
             return STATUS_SUCCESS;
         }
@@ -2957,26 +2940,26 @@ Return Value:
     }
 
     // And make sure we don't exceed the length limitations of an ACL (WORD)
-    if ( DirectoryNewAclSize + UsedChildNewAclSize + sizeof(ACL) > 0xFFFF) {
+    if (DirectoryNewAclSize + UsedChildNewAclSize + sizeof(ACL) > 0xFFFF) {
         return(STATUS_BAD_INHERITANCE_ACL);
     }
 
     // BUGBUG: The caller has to allocate a buffer large enough for ChildNewAclSize rather than UsedChildNewAclSize.  Due to the nature of my algorithm above.
     (*AclBufferSize) = DirectoryNewAclSize + ChildNewAclSize + sizeof(ACL);
 
-    if ( AclOverflowed ) {
+    if (AclOverflowed) {
         return STATUS_BUFFER_TOO_SMALL;
     }
 
     // Patch the real ACL size and revision into the ACL
-    ((PACL)AclBuffer)->AclSize = (USHORT) (DirectoryNewAclSize + UsedChildNewAclSize + sizeof(ACL));
-    ((PACL)AclBuffer)->AclRevision = (UCHAR) AclRevision;
+    ((PACL)AclBuffer)->AclSize = (USHORT)(DirectoryNewAclSize + UsedChildNewAclSize + sizeof(ACL));
+    ((PACL)AclBuffer)->AclRevision = (UCHAR)AclRevision;
     return STATUS_SUCCESS;
 }
 
 
 NTSTATUS
-RtlpInheritAcl (
+RtlpInheritAcl(
     IN PACL DirectoryAcl,
     IN PACL ChildAcl,
     IN ULONG ChildGenericControl,
@@ -2989,11 +2972,11 @@ RtlpInheritAcl (
     IN PSID ServerGroupSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
     IN BOOLEAN IsSacl,
-    IN GUID *NewObjectType OPTIONAL,
-    OUT PACL *NewAcl,
+    IN GUID * NewObjectType OPTIONAL,
+    OUT PACL * NewAcl,
     OUT PBOOLEAN NewAclExplicitlyAssigned,
     OUT PULONG NewGenericControl
-    )
+)
 /*++
 Routine Description:
     This is a private routine that produces an inherited acl from a parent acl according to the rules of inheritance
@@ -3031,9 +3014,9 @@ Return Value:
 {
 
 
-//   The logic in the ACL inheritance code must mirror the code for         //
-//   inheritance in the executive (in seassign.c).  Do not make changes     //
-//   here without also making changes in that module.                       //
+    //   The logic in the ACL inheritance code must mirror the code for         //
+    //   inheritance in the executive (in seassign.c).  Do not make changes     //
+    //   here without also making changes in that module.                       //
 
 
 
@@ -3058,58 +3041,58 @@ Return Value:
     // If that is too small, then use the buffer size determined on the first pass
 
     AclBufferSize = 1024;   // Typical maximum size of an ACL
-    for ( i=0; i<2 ; i++ ) {
+    for (i = 0; i < 2; i++) {
         // Allocate heap for the new ACL.
 #ifdef NTOS_KERNEL_RUNTIME
-        (*NewAcl) = ExAllocatePoolWithTag(PagedPool,AclBufferSize,'cAeS' );
+        (*NewAcl) = ExAllocatePoolWithTag(PagedPool, AclBufferSize, 'cAeS');
 #else // NTOS_KERNEL_RUNTIME
-        (*NewAcl) = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), AclBufferSize );
+        (*NewAcl) = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), AclBufferSize);
 #endif // NTOS_KERNEL_RUNTIME
 
-        if ((*NewAcl) == NULL ) {
-            return( STATUS_NO_MEMORY );
+        if ((*NewAcl) == NULL) {
+            return(STATUS_NO_MEMORY);
         }
 
         // Actually build the inherited ACL.
-        Status = RtlpInheritAcl2 (
-                    DirectoryAcl,
-                    ChildAcl,
-                    ChildGenericControl,
-                    IsDirectoryObject,
-                    AutoInherit,
-                    DefaultDescriptorForObject,
-                    OwnerSid,
-                    GroupSid,
-                    ServerOwnerSid,
-                    ServerGroupSid,
-                    GenericMapping,
-                    IsSacl,
-                    NewObjectType,
-                    &AclBufferSize,
-                    (PUCHAR) *NewAcl,
-                    NewAclExplicitlyAssigned,
-                    NewGenericControl );
-        if ( NT_SUCCESS(Status) ) {
+        Status = RtlpInheritAcl2(
+            DirectoryAcl,
+            ChildAcl,
+            ChildGenericControl,
+            IsDirectoryObject,
+            AutoInherit,
+            DefaultDescriptorForObject,
+            OwnerSid,
+            GroupSid,
+            ServerOwnerSid,
+            ServerGroupSid,
+            GenericMapping,
+            IsSacl,
+            NewObjectType,
+            &AclBufferSize,
+            (PUCHAR)*NewAcl,
+            NewAclExplicitlyAssigned,
+            NewGenericControl);
+        if (NT_SUCCESS(Status)) {
             // If a NULL ACL should be used, tell the caller.
-            if ( AclBufferSize == 0 ) {
+            if (AclBufferSize == 0) {
 #ifdef NTOS_KERNEL_RUNTIME
-                ExFreePool( *NewAcl );
+                ExFreePool(*NewAcl);
 #else // NTOS_KERNEL_RUNTIME
-                RtlFreeHeap( HeapHandle, 0, *NewAcl );
+                RtlFreeHeap(HeapHandle, 0, *NewAcl);
 #endif // NTOS_KERNEL_RUNTIME
-                *NewAcl = NULL;
+                * NewAcl = NULL;
             }
 
             break;
         } else {
 #ifdef NTOS_KERNEL_RUNTIME
-            ExFreePool( *NewAcl );
+            ExFreePool(*NewAcl);
 #else // NTOS_KERNEL_RUNTIME
-            RtlFreeHeap( HeapHandle, 0, *NewAcl );
+            RtlFreeHeap(HeapHandle, 0, *NewAcl);
 #endif // NTOS_KERNEL_RUNTIME
 
-            *NewAcl = NULL;
-            if ( Status != STATUS_BUFFER_TOO_SMALL ) {
+            * NewAcl = NULL;
+            if (Status != STATUS_BUFFER_TOO_SMALL) {
                 break;
             }
         }
@@ -3120,7 +3103,7 @@ Return Value:
 
 
 NTSTATUS
-RtlpGenerateInheritedAce (
+RtlpGenerateInheritedAce(
     IN PACE_HEADER OldAce,
     IN BOOLEAN IsDirectoryObject,
     IN BOOLEAN AutoInherit,
@@ -3129,12 +3112,12 @@ RtlpGenerateInheritedAce (
     IN PSID ServerOwnerSid OPTIONAL,
     IN PSID ServerGroupSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
-    IN GUID *NewObjectType OPTIONAL,
+    IN GUID * NewObjectType OPTIONAL,
     OUT PULONG NewAceLength,
     OUT PACL NewAcl,
     OUT PULONG NewAceExtraLength,
     OUT PBOOLEAN ObjectAceInherited
-    )
+)
 /*++
 Routine Description:
     This is a private routine that checks if the input ace is inheritable and produces 0, 1, or 2 inherited aces in the given buffer.
@@ -3235,46 +3218,46 @@ Return Value:
     RTL_PAGED_CODE();
 
     //  This is gross and ugly, but it's better than allocating virtual memory to hold the ClientSid, because that can fail, and propogating the error back is a tremendous pain
-    ASSERT(RtlLengthRequiredSid( 1 ) == CREATOR_SID_SIZE);
+    ASSERT(RtlLengthRequiredSid(1) == CREATOR_SID_SIZE);
     *ObjectAceInherited = FALSE;
     GenerateInheritAce = IsDirectoryObject && Propagate(OldAce);
 
     // Allocate and initialize the universal SIDs we're going to need to look for inheritable ACEs.
-    if (!RtlFirstFreeAce( NewAcl, &AcePosition ) ) {
+    if (!RtlFirstFreeAce(NewAcl, &AcePosition)) {
         return STATUS_BAD_INHERITANCE_ACL;
     }
 
     //  check to see if we will have a effective ACE (one mapped to the target object type).
-    if ( (IsDirectoryObject  && ContainerInherit(OldAce)) || (!IsDirectoryObject && ObjectInherit(OldAce))      ) {
+    if ((IsDirectoryObject && ContainerInherit(OldAce)) || (!IsDirectoryObject && ObjectInherit(OldAce))) {
         // Remember where the effective ACE will be copied to.
         EffectiveAcePosition = AcePosition;
 
         // Copy the effective ACE into the ACL.
-        if ( !RtlpCopyEffectiveAce (
-                        OldAce,
-                        AutoInherit,
-                        GenerateInheritAce,
-                        ClientOwnerSid,
-                        ClientGroupSid,
-                        ServerOwnerSid,
-                        ServerGroupSid,
-                        GenericMapping,
-                        NewObjectType,
-                        &AcePosition,
-                        &EffectiveAceSize,
-                        NewAcl,
-                        ObjectAceInherited,
-                        &EffectiveAceMapped,
-                        &AclOverflowed ) ) {
+        if (!RtlpCopyEffectiveAce(
+            OldAce,
+            AutoInherit,
+            GenerateInheritAce,
+            ClientOwnerSid,
+            ClientGroupSid,
+            ServerOwnerSid,
+            ServerGroupSid,
+            GenericMapping,
+            NewObjectType,
+            &AcePosition,
+            &EffectiveAceSize,
+            NewAcl,
+            ObjectAceInherited,
+            &EffectiveAceMapped,
+            &AclOverflowed)) {
             return STATUS_BAD_INHERITANCE_ACL;
         }
 
         // If the effective ACE is a duplicate of existing inherited ACEs, Don't really generate it.
-        if ( !AclOverflowed && EffectiveAceSize > 0 && EffectiveAcePosition != NULL && RtlpIsDuplicateAce(NewAcl,EffectiveAcePosition,NewObjectType ) ) {
+        if (!AclOverflowed && EffectiveAceSize > 0 && EffectiveAcePosition != NULL && RtlpIsDuplicateAce(NewAcl, EffectiveAcePosition, NewObjectType)) {
             // Truncate the ACE we just added.
             NewAcl->AceCount--;
             AcePosition = EffectiveAcePosition;
-            ExtraLengthRequired = max( ExtraLengthRequired, EffectiveAceSize );
+            ExtraLengthRequired = max(ExtraLengthRequired, EffectiveAceSize);
             EffectiveAceSize = 0;
         }
 
@@ -3282,21 +3265,21 @@ Return Value:
     }
 
     // If we are inheriting onto a container, then we may need to propagate the inheritance as well.
-    if ( GenerateInheritAce ) {
+    if (GenerateInheritAce) {
         // If a effective ACE was created, and it wasn't mapped, avoid generating another ACE and simply merge the inheritance bits into the effective ACE.
-        if ( EffectiveAceSize != 0 && !EffectiveAceMapped ) {
-           // Copy the inherit bits from the original ACE.
-           if ( !AclOverflowed ) {
-               ((PACE_HEADER)EffectiveAcePosition)->AceFlags |= ((PACE_HEADER)OldAce)->AceFlags & (CONTAINER_INHERIT_ACE | OBJECT_INHERIT_ACE);
-               if ( AutoInherit ) {
-                   ((PACE_HEADER)EffectiveAcePosition)->AceFlags |= INHERITED_ACE;
-               }
-           }
+        if (EffectiveAceSize != 0 && !EffectiveAceMapped) {
+            // Copy the inherit bits from the original ACE.
+            if (!AclOverflowed) {
+                ((PACE_HEADER)EffectiveAcePosition)->AceFlags |= ((PACE_HEADER)OldAce)->AceFlags & (CONTAINER_INHERIT_ACE | OBJECT_INHERIT_ACE);
+                if (AutoInherit) {
+                    ((PACE_HEADER)EffectiveAcePosition)->AceFlags |= INHERITED_ACE;
+                }
+            }
 
-        // Otherwise, generate an explicit inheritance ACE.
+            // Otherwise, generate an explicit inheritance ACE.
 
-        // But only if the access mask isn't zero.
-        } else if ( !IsMSAceType(OldAce) || ((PKNOWN_ACE)(OldAce))->Mask != 0 ) {
+            // But only if the access mask isn't zero.
+        } else if (!IsMSAceType(OldAce) || ((PKNOWN_ACE)(OldAce))->Mask != 0) {
             // Account for the new ACE being added to the ACL.
             LengthRequired += (ULONG)(((PACE_HEADER)OldAce)->AceSize);
             if (LengthRequired > 0xFFFF) {
@@ -3304,22 +3287,22 @@ Return Value:
             }
 
             // If the ACE doesn't fit, just note the fact and don't copy the ACE.
-            if ( ((PACE_HEADER)OldAce)->AceSize > NewAcl->AclSize - ((PUCHAR)AcePosition - (PUCHAR)NewAcl) ) {
+            if (((PACE_HEADER)OldAce)->AceSize > NewAcl->AclSize - ((PUCHAR)AcePosition - (PUCHAR)NewAcl)) {
                 AclOverflowed = TRUE;
-            } else if (!AclOverflowed){
+            } else if (!AclOverflowed) {
                 // copy it as is, but make sure the InheritOnly bit is set.
-                RtlCopyMemory(AcePosition,OldAce,((PACE_HEADER)OldAce)->AceSize);
+                RtlCopyMemory(AcePosition, OldAce, ((PACE_HEADER)OldAce)->AceSize);
 
                 ((PACE_HEADER)AcePosition)->AceFlags |= INHERIT_ONLY_ACE;
                 NewAcl->AceCount += 1;
-                if ( AutoInherit ) {
+                if (AutoInherit) {
                     ((PACE_HEADER)AcePosition)->AceFlags |= INHERITED_ACE;
 
                     // If the inheritance ACE is a duplicate of existing inherited ACEs, Don't really generate it.
-                    if ( RtlpIsDuplicateAce(NewAcl,AcePosition,NewObjectType ) ) {
+                    if (RtlpIsDuplicateAce(NewAcl, AcePosition, NewObjectType)) {
                         // Truncate the ACE we just added.
                         NewAcl->AceCount--;
-                        ExtraLengthRequired = max( ExtraLengthRequired, ((PACE_HEADER)OldAce)->AceSize );
+                        ExtraLengthRequired = max(ExtraLengthRequired, ((PACE_HEADER)OldAce)->AceSize);
                         LengthRequired -= (ULONG)(((PACE_HEADER)OldAce)->AceSize);
                     }
                 }
@@ -3344,11 +3327,11 @@ RtlpGenerateInheritAcl(
     IN PSID ServerOwnerSid OPTIONAL,
     IN PSID ServerGroupSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
-    IN GUID *NewObjectType OPTIONAL,
+    IN GUID * NewObjectType OPTIONAL,
     OUT PULONG NewAclSizeParam,
     OUT PACL NewAcl,
     OUT PBOOLEAN ObjectAceInherited
-    )
+)
 /*++
 Routine Description:
     This is a private routine that produces an inheritable ACL.
@@ -3392,30 +3375,30 @@ Return Value:
     for (i = 0, OldAce = FirstAce(Acl); i < Acl->AceCount; i += 1, OldAce = NextAce(OldAce)) {
         //  RtlpGenerateInheritedAce() will generate the ACE(s) necessary to inherit a single ACE.  This may be 0, 1, or more ACEs.
         Status = RtlpGenerateInheritedAce(
-                     OldAce,
-                     IsDirectoryObject,
-                     AutoInherit,
-                     ClientOwnerSid,
-                     ClientGroupSid,
-                     ServerOwnerSid,
-                     ServerGroupSid,
-                     GenericMapping,
-                     NewObjectType,
-                     &NewAceSize,
-                     NewAcl,
-                     &NewAceExtraSize,
-                     &LocalObjectAceInherited
-                     );
-        if ( Status == STATUS_BUFFER_TOO_SMALL ) {
+            OldAce,
+            IsDirectoryObject,
+            AutoInherit,
+            ClientOwnerSid,
+            ClientGroupSid,
+            ServerOwnerSid,
+            ServerGroupSid,
+            GenericMapping,
+            NewObjectType,
+            &NewAceSize,
+            NewAcl,
+            &NewAceExtraSize,
+            &LocalObjectAceInherited
+        );
+        if (Status == STATUS_BUFFER_TOO_SMALL) {
             AclOverflowed = TRUE;
             Status = STATUS_SUCCESS;
         }
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
-        if ( LocalObjectAceInherited ) {
+        if (LocalObjectAceInherited) {
             *ObjectAceInherited = TRUE;
         }
 
@@ -3425,20 +3408,20 @@ Return Value:
         // If a previous ACE needed 'extra' space, reduce that requirement by the size of this ACE.
 
         // The previous ACE can use this ACE's space temporarily
-        if ( NewAceSize > NewAclExtraSize ) {
-            NewAclExtraSize = 0 ;
+        if (NewAceSize > NewAclExtraSize) {
+            NewAclExtraSize = 0;
         } else {
             NewAclExtraSize -= NewAceSize;
         }
 
         // The 'extra' space needed is the larger of that needed by any previous ACE and that need by this ACE
-        NewAclExtraSize = max( NewAclExtraSize, NewAceExtraSize );
+        NewAclExtraSize = max(NewAclExtraSize, NewAceExtraSize);
     }
 
     // We only need to include the "ExtraSize" if we've overflowed.
     //  In those cases, the caller will allocate the size we requested and try again.
     //  Otherwise, the caller won't call back so we don't care if it knows about the extra size.
-    if ( AclOverflowed ) {
+    if (AclOverflowed) {
         (*NewAclSizeParam) = NewAclSize + NewAclExtraSize;
         return STATUS_BUFFER_TOO_SMALL;
     } else {
@@ -3449,7 +3432,7 @@ Return Value:
 
 
 NTSTATUS
-RtlpComputeMergedAcl2 (
+RtlpComputeMergedAcl2(
     IN PACL CurrentAcl,
     IN ULONG CurrentGenericControl,
     IN PACL ModificationAcl,
@@ -3461,7 +3444,7 @@ RtlpComputeMergedAcl2 (
     IN PULONG AclBufferSize,
     IN OUT PUCHAR AclBuffer,
     OUT PULONG NewGenericControl
-    )
+)
 /*++
 Routine Description:
     This routine implements the 'set' semantics for auto inheritance.
@@ -3510,39 +3493,39 @@ Return Value:
 
     // Assume the ACL revision.
     AclRevision = ACL_REVISION;
-    RtlCreateAcl( (PACL)AclBuffer, *AclBufferSize, AclRevision );
+    RtlCreateAcl((PACL)AclBuffer, *AclBufferSize, AclRevision);
 
     // This routine is only called for the AutoInheritance case.
     *NewGenericControl = SEP_ACL_AUTO_INHERITED;
 
     // If the new ACL is protected, simply use the new ACL with the INHERITED_ACE bits turned off.
-    if ( (ModificationGenericControl & SEP_ACL_PROTECTED) != 0 ) {
+    if ((ModificationGenericControl & SEP_ACL_PROTECTED) != 0) {
         // Set the Control bits for the resultant descriptor.
         *NewGenericControl |= SEP_ACL_PROTECTED;
 
         // Only copy the ACL if it is actually present
-        if ( ModificationAcl != NULL ) {
-            AclRevision = max( AclRevision, ModificationAcl->AclRevision );
+        if (ModificationAcl != NULL) {
+            AclRevision = max(AclRevision, ModificationAcl->AclRevision);
 
             // Copy all ACES, turn off the inherited bit, and generic map them.
             Status = RtlpCopyAces(
-                        ModificationAcl,
-                        GenericMapping,
-                        CopyAllAces,
-                        INHERITED_ACE,  // Turn off all INHERITED_ACE flags
-                        TRUE,           // Map sids as needed
-                        ClientOwnerSid,
-                        ClientGroupSid,
-                        ClientOwnerSid, // Not technically correct. s.b. server sid
-                        ClientGroupSid, // Not technically correct. s.b. server sid
-                        &ModificationNewAclSize,
-                        (PACL)AclBuffer );
-            if ( Status == STATUS_BUFFER_TOO_SMALL ) {
+                ModificationAcl,
+                GenericMapping,
+                CopyAllAces,
+                INHERITED_ACE,  // Turn off all INHERITED_ACE flags
+                TRUE,           // Map sids as needed
+                ClientOwnerSid,
+                ClientGroupSid,
+                ClientOwnerSid, // Not technically correct. s.b. server sid
+                ClientGroupSid, // Not technically correct. s.b. server sid
+                &ModificationNewAclSize,
+                (PACL)AclBuffer);
+            if (Status == STATUS_BUFFER_TOO_SMALL) {
                 AclOverflowed = TRUE;
                 Status = STATUS_SUCCESS;
             }
 
-            if ( !NT_SUCCESS(Status) ) {
+            if (!NT_SUCCESS(Status)) {
                 return Status;
             }
 
@@ -3550,149 +3533,149 @@ Return Value:
             NullAclOk = FALSE;
         }
 
-    // If the old ACL is protected but the new one isn't, simply use the new ACL as is.
+        // If the old ACL is protected but the new one isn't, simply use the new ACL as is.
 
-    // Rely on the caller to get the INHERITED_ACE bits right.
-    } else if ( (CurrentGenericControl & SEP_ACL_PROTECTED) != 0 ) {
+        // Rely on the caller to get the INHERITED_ACE bits right.
+    } else if ((CurrentGenericControl & SEP_ACL_PROTECTED) != 0) {
         // Only do the copy if the new ACL is specified.
-        if ( ModificationAcl != NULL ) {
-            AclRevision = max( AclRevision, ModificationAcl->AclRevision );
+        if (ModificationAcl != NULL) {
+            AclRevision = max(AclRevision, ModificationAcl->AclRevision);
 
             // Copy all ACES, and generic map them.
             Status = RtlpCopyAces(
-                        ModificationAcl,
-                        GenericMapping,
-                        CopyAllAces,
-                        0,
-                        TRUE,           // Map sids as needed
-                        ClientOwnerSid,
-                        ClientGroupSid,
-                        ClientOwnerSid, // Not technically correct. s.b. server sid
-                        ClientGroupSid, // Not technically correct. s.b. server sid
-                        &ModificationNewAclSize,
-                        (PACL)AclBuffer );
-            if ( Status == STATUS_BUFFER_TOO_SMALL ) {
+                ModificationAcl,
+                GenericMapping,
+                CopyAllAces,
+                0,
+                TRUE,           // Map sids as needed
+                ClientOwnerSid,
+                ClientGroupSid,
+                ClientOwnerSid, // Not technically correct. s.b. server sid
+                ClientGroupSid, // Not technically correct. s.b. server sid
+                &ModificationNewAclSize,
+                (PACL)AclBuffer);
+            if (Status == STATUS_BUFFER_TOO_SMALL) {
                 AclOverflowed = TRUE;
                 Status = STATUS_SUCCESS;
             }
 
-            if ( !NT_SUCCESS(Status) ) {
+            if (!NT_SUCCESS(Status)) {
                 return Status;
             }
 
             // If the caller specified an ACL with no ACES, make sure we generate an ACL with no ACES.
             NullAclOk = FALSE;
 
-        // Since the ACL isn't protected, don't allow NULL ACL semantics.
-        //  (those semantics are ambiguous for auto inheritance)
-        } else if ( !IsSacl ) {
+            // Since the ACL isn't protected, don't allow NULL ACL semantics.
+            //  (those semantics are ambiguous for auto inheritance)
+        } else if (!IsSacl) {
             return STATUS_INVALID_ACL;
         }
 
-    // If neither are protected, use the non-inherited ACEs from the new ACL, and preserve the inherited ACEs from the old ACL.
+        // If neither are protected, use the non-inherited ACEs from the new ACL, and preserve the inherited ACEs from the old ACL.
     } else {
         // NULL ACLs are always OK for a SACL.
         // NULL ACLs are never OK for a non-protected DACL.
         NullAclOk = IsSacl;
 
         // Only do the copy if the new ACL is specified.
-        if ( ModificationAcl != NULL ) {
-            AclRevision = max( AclRevision, ModificationAcl->AclRevision );
+        if (ModificationAcl != NULL) {
+            AclRevision = max(AclRevision, ModificationAcl->AclRevision);
 
             // Copy the non-inherited ACES, and generic map them.
             Status = RtlpCopyAces(
-                        ModificationAcl,
-                        GenericMapping,
-                        CopyNonInheritedAces,
-                        0,
-                        TRUE,           // Map sids as needed
-                        ClientOwnerSid,
-                        ClientGroupSid,
-                        ClientOwnerSid, // Not technically correct. s.b. server sid
-                        ClientGroupSid, // Not technically correct. s.b. server sid
-                        &ModificationNewAclSize,
-                        (PACL)AclBuffer );
-            if ( Status == STATUS_BUFFER_TOO_SMALL ) {
+                ModificationAcl,
+                GenericMapping,
+                CopyNonInheritedAces,
+                0,
+                TRUE,           // Map sids as needed
+                ClientOwnerSid,
+                ClientGroupSid,
+                ClientOwnerSid, // Not technically correct. s.b. server sid
+                ClientGroupSid, // Not technically correct. s.b. server sid
+                &ModificationNewAclSize,
+                (PACL)AclBuffer);
+            if (Status == STATUS_BUFFER_TOO_SMALL) {
                 AclOverflowed = TRUE;
                 Status = STATUS_SUCCESS;
             }
 
-            if ( !NT_SUCCESS(Status) ) {
+            if (!NT_SUCCESS(Status)) {
                 return Status;
             }
 
             // If the caller specified an ACL with no ACES, make sure we generate an ACL with no ACES.
 
             // If inherited aces were deleted, leave the flag alone allowing a NULL SACL to be generated.
-            if ( ModificationAcl->AceCount == 0 ) {
+            if (ModificationAcl->AceCount == 0) {
                 NullAclOk = FALSE;
             }
 
-        // Since the ACL isn't protected, don't allow NULL ACL semantics.
-        //  (those semantics are ambiguous for auto inheritance)
-        } else if ( !IsSacl ) {
+            // Since the ACL isn't protected, don't allow NULL ACL semantics.
+            //  (those semantics are ambiguous for auto inheritance)
+        } else if (!IsSacl) {
             return STATUS_INVALID_ACL;
         }
 
         // Only do the copy if the old ACL is specified.
-        if ( CurrentAcl != NULL ) {
-            AclRevision = max( AclRevision, CurrentAcl->AclRevision );
+        if (CurrentAcl != NULL) {
+            AclRevision = max(AclRevision, CurrentAcl->AclRevision);
 
             // Copy the inherited ACES, and generic map them.
 
             // Don't bother mapping the sids in these ACEs.  They got mapped during inheritance.
             Status = RtlpCopyAces(
-                        CurrentAcl,
-                        GenericMapping,
-                        CopyInheritedAces,
-                        0,
-                        FALSE,          // Don't map the sids,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        &CurrentNewAclSize,
-                        (PACL)AclBuffer );
-            if ( Status == STATUS_BUFFER_TOO_SMALL ) {
+                CurrentAcl,
+                GenericMapping,
+                CopyInheritedAces,
+                0,
+                FALSE,          // Don't map the sids,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                &CurrentNewAclSize,
+                (PACL)AclBuffer);
+            if (Status == STATUS_BUFFER_TOO_SMALL) {
                 AclOverflowed = TRUE;
                 Status = STATUS_SUCCESS;
             }
 
-            if ( !NT_SUCCESS(Status) ) {
+            if (!NT_SUCCESS(Status)) {
                 return Status;
             }
         }
     }
 
     // If this routine didn't build the ACL, tell the caller to use an explict NULL ACL
-    if ( ModificationNewAclSize + CurrentNewAclSize == 0) {
+    if (ModificationNewAclSize + CurrentNewAclSize == 0) {
         // If the Acl was explictly assigned, generate a NULL ACL based on the path taken above.
-        if ( NullAclOk ) {
+        if (NullAclOk) {
             *AclBufferSize = 0;
             return STATUS_SUCCESS;
         }
     }
 
     // And make sure we don't exceed the length limitations of an ACL (WORD)
-    if ( ModificationNewAclSize + CurrentNewAclSize + sizeof(ACL) > 0xFFFF) {
+    if (ModificationNewAclSize + CurrentNewAclSize + sizeof(ACL) > 0xFFFF) {
         return(STATUS_BAD_INHERITANCE_ACL);
     }
 
     (*AclBufferSize) = ModificationNewAclSize + CurrentNewAclSize + sizeof(ACL);
 
-    if ( AclOverflowed ) {
+    if (AclOverflowed) {
         return STATUS_BUFFER_TOO_SMALL;
     }
 
     // Patch the real ACL size and revision into the ACL
-    ((PACL)AclBuffer)->AclSize = (USHORT) *AclBufferSize;
-    ((PACL)AclBuffer)->AclRevision = (UCHAR) AclRevision;
+    ((PACL)AclBuffer)->AclSize = (USHORT)*AclBufferSize;
+    ((PACL)AclBuffer)->AclRevision = (UCHAR)AclRevision;
     return STATUS_SUCCESS;
 }
 
 
 NTSTATUS
-RtlpComputeMergedAcl (
+RtlpComputeMergedAcl(
     IN PACL CurrentAcl,
     IN ULONG CurrentGenericControl,
     IN PACL ModificationAcl,
@@ -3701,9 +3684,9 @@ RtlpComputeMergedAcl (
     IN PSID ClientGroupSid,
     IN PGENERIC_MAPPING GenericMapping,
     IN BOOLEAN IsSacl,
-    OUT PACL *NewAcl,
+    OUT PACL * NewAcl,
     OUT PULONG NewGenericControl
-    )
+)
 /*++
 Routine Description:
     This routine builds the actual ACL that should be set on an object.
@@ -3756,51 +3739,51 @@ Return Value:
     // First try to create the ACL in a fixed length buffer.
     // If that is too small, then use the buffer size determined on the first pass
     AclBufferSize = 1024;
-    for ( i=0; i<2 ; i++ ) {
+    for (i = 0; i < 2; i++) {
         // Allocate heap for the new ACL.
 #ifdef NTOS_KERNEL_RUNTIME
-        (*NewAcl) = ExAllocatePoolWithTag(PagedPool,AclBufferSize,'cAeS' );
+        (*NewAcl) = ExAllocatePoolWithTag(PagedPool, AclBufferSize, 'cAeS');
 #else // NTOS_KERNEL_RUNTIME
-        (*NewAcl) = RtlAllocateHeap( HeapHandle, 0, AclBufferSize );
+        (*NewAcl) = RtlAllocateHeap(HeapHandle, 0, AclBufferSize);
 #endif // NTOS_KERNEL_RUNTIME
-        if ((*NewAcl) == NULL ) {
-            return( STATUS_NO_MEMORY );
+        if ((*NewAcl) == NULL) {
+            return(STATUS_NO_MEMORY);
         }
 
         // Merge the ACLs
-        Status = RtlpComputeMergedAcl2 (
-                    CurrentAcl,
-                    CurrentGenericControl,
-                    ModificationAcl,
-                    ModificationGenericControl,
-                    ClientOwnerSid,
-                    ClientGroupSid,
-                    GenericMapping,
-                    IsSacl,
-                    &AclBufferSize,
-                    (PUCHAR) *NewAcl,
-                    NewGenericControl );
-        if ( NT_SUCCESS(Status) ) {
+        Status = RtlpComputeMergedAcl2(
+            CurrentAcl,
+            CurrentGenericControl,
+            ModificationAcl,
+            ModificationGenericControl,
+            ClientOwnerSid,
+            ClientGroupSid,
+            GenericMapping,
+            IsSacl,
+            &AclBufferSize,
+            (PUCHAR)*NewAcl,
+            NewGenericControl);
+        if (NT_SUCCESS(Status)) {
             // If a NULL ACL should be used, tell the caller.
-            if ( AclBufferSize == 0 ) {
+            if (AclBufferSize == 0) {
 #ifdef NTOS_KERNEL_RUNTIME
-                ExFreePool( *NewAcl );
+                ExFreePool(*NewAcl);
 #else // NTOS_KERNEL_RUNTIME
-                RtlFreeHeap( HeapHandle, 0, *NewAcl );
+                RtlFreeHeap(HeapHandle, 0, *NewAcl);
 #endif // NTOS_KERNEL_RUNTIME
-                *NewAcl = NULL;
+                * NewAcl = NULL;
             }
 
             break;
         } else {
 #ifdef NTOS_KERNEL_RUNTIME
-            ExFreePool( *NewAcl );
+            ExFreePool(*NewAcl);
 #else // NTOS_KERNEL_RUNTIME
-            RtlFreeHeap( HeapHandle, 0, *NewAcl );
+            RtlFreeHeap(HeapHandle, 0, *NewAcl);
 #endif // NTOS_KERNEL_RUNTIME
-            *NewAcl = NULL;
+            * NewAcl = NULL;
 
-            if ( Status != STATUS_BUFFER_TOO_SMALL ) {
+            if (Status != STATUS_BUFFER_TOO_SMALL) {
                 break;
             }
         }
@@ -3825,35 +3808,35 @@ NTSTATUS RtlDumpUserSid(VOID)
     PTOKEN_USER  User;
 
     // Attempt to open the impersonation token first
-    Status = NtOpenThreadToken(NtCurrentThread(),GENERIC_READ,FALSE,&TokenHandle);
-    if (!NT_SUCCESS( Status )) {
-        DbgPrint("Not impersonating, status = %X, trying process token\n",Status);
-        Status = NtOpenProcessToken(NtCurrentProcess(),GENERIC_READ,&TokenHandle);
-        if (!NT_SUCCESS( Status )) {
-            DbgPrint("Unable to open process token, status = %X\n",Status);
-            return( Status );
+    Status = NtOpenThreadToken(NtCurrentThread(), GENERIC_READ, FALSE, &TokenHandle);
+    if (!NT_SUCCESS(Status)) {
+        DbgPrint("Not impersonating, status = %X, trying process token\n", Status);
+        Status = NtOpenProcessToken(NtCurrentProcess(), GENERIC_READ, &TokenHandle);
+        if (!NT_SUCCESS(Status)) {
+            DbgPrint("Unable to open process token, status = %X\n", Status);
+            return(Status);
         }
     }
 
-    Status = NtQueryInformationToken (TokenHandle,TokenUser,Buffer,200,&ReturnLength);
-    if (!NT_SUCCESS( Status )) {
-        DbgPrint("Unable to query user sid, status = %X \n",Status);
+    Status = NtQueryInformationToken(TokenHandle, TokenUser, Buffer, 200, &ReturnLength);
+    if (!NT_SUCCESS(Status)) {
+        DbgPrint("Unable to query user sid, status = %X \n", Status);
         NtClose(TokenHandle);
-        return( Status );
+        return(Status);
     }
 
     User = (PTOKEN_USER)Buffer;
     pSid = User->User.Sid;
-    Status = RtlConvertSidToUnicodeString( &SidString, pSid, TRUE );
-    if (!NT_SUCCESS( Status )) {
-        DbgPrint("Unable to format sid string, status = %X \n",Status);
+    Status = RtlConvertSidToUnicodeString(&SidString, pSid, TRUE);
+    if (!NT_SUCCESS(Status)) {
+        DbgPrint("Unable to format sid string, status = %X \n", Status);
         NtClose(TokenHandle);
-        return( Status );
+        return(Status);
     }
 
-    DbgPrint("Current Sid = %wZ \n",&SidString);
-    RtlFreeUnicodeString( &SidString );
-    return( STATUS_SUCCESS );
+    DbgPrint("Current Sid = %wZ \n", &SidString);
+    RtlFreeUnicodeString(&SidString);
+    return(STATUS_SUCCESS);
 }
 #endif
 
@@ -3862,11 +3845,11 @@ NTSTATUS
 RtlpConvertToAutoInheritSecurityObject(
     IN PSECURITY_DESCRIPTOR ParentDescriptor OPTIONAL,
     IN PSECURITY_DESCRIPTOR CurrentSecurityDescriptor,
-    OUT PSECURITY_DESCRIPTOR *NewSecurityDescriptor,
-    IN GUID *ObjectType OPTIONAL,
+    OUT PSECURITY_DESCRIPTOR * NewSecurityDescriptor,
+    IN GUID * ObjectType OPTIONAL,
     IN BOOLEAN IsDirectoryObject,
     IN PGENERIC_MAPPING GenericMapping
-    )
+)
 /*++
 Routine Description:
     This routine a converts a security descriptor whose ACLs are not marked as AutoInherit to a security descriptor whose ACLs are marked as AutoInherit.
@@ -3926,76 +3909,76 @@ Return Value:
     CurrentDescriptor = CurrentSecurityDescriptor;
 
     // Validate the incoming security descriptor.
-    if (!RtlValidSecurityDescriptor ( CurrentDescriptor )) {
+    if (!RtlValidSecurityDescriptor(CurrentDescriptor)) {
         Status = STATUS_INVALID_SECURITY_DESCR;
         goto Cleanup;
     }
 
-    NewOwner = RtlpOwnerAddrSecurityDescriptor( CurrentDescriptor );
-    if ( NewOwner == NULL ) {
+    NewOwner = RtlpOwnerAddrSecurityDescriptor(CurrentDescriptor);
+    if (NewOwner == NULL) {
         Status = STATUS_INVALID_SECURITY_DESCR;
         goto Cleanup;
     }
 
-    NewGroup = RtlpGroupAddrSecurityDescriptor( CurrentDescriptor );
+    NewGroup = RtlpGroupAddrSecurityDescriptor(CurrentDescriptor);
 
     // Handle the SACL.
 
     // If the SACL isn't present, special case it.
-    CurrentSacl = RtlpSaclAddrSecurityDescriptor( CurrentDescriptor );
-    if ( CurrentSacl == NULL ) {
+    CurrentSacl = RtlpSaclAddrSecurityDescriptor(CurrentDescriptor);
+    if (CurrentSacl == NULL) {
         PACL ParentSacl;
 
         // Preserve the Acl Present bit and protected bit from the existing descriptor.
-        NewSaclControl |= CurrentDescriptor->Control & (SE_SACL_PROTECTED|SE_SACL_PRESENT);
+        NewSaclControl |= CurrentDescriptor->Control & (SE_SACL_PROTECTED | SE_SACL_PRESENT);
 
         // Always set the autoinherited bit.
         NewSaclControl |= SE_SACL_AUTO_INHERITED;
 
         // If the Parent also has a NULL SACL, just consider this SACL as inherited.
         //  otherwise, this SACL is protected.
-        ParentSacl = ARGUMENT_PRESENT(ParentDescriptor) ? RtlpSaclAddrSecurityDescriptor( ((SECURITY_DESCRIPTOR *)ParentDescriptor)) : NULL;
-        if ( ParentSacl != NULL) {
+        ParentSacl = ARGUMENT_PRESENT(ParentDescriptor) ? RtlpSaclAddrSecurityDescriptor(((SECURITY_DESCRIPTOR *)ParentDescriptor)) : NULL;
+        if (ParentSacl != NULL) {
             NewSaclControl |= SE_SACL_PROTECTED;
         }
 
-    // If the SACL is already converted, or if this object is at the root of the tree, simply leave it alone.
+        // If the SACL is already converted, or if this object is at the root of the tree, simply leave it alone.
 
-    // Don't force the Protect bit on at the root of the tree since it is semantically a no-op and gets in the way if the object is ever moved.
-    } else if ( RtlpAreControlBitsSet( CurrentDescriptor, SE_SACL_AUTO_INHERITED) || RtlpAreControlBitsSet( CurrentDescriptor, SE_SACL_PROTECTED ) || !ARGUMENT_PRESENT(ParentDescriptor) ) {
+        // Don't force the Protect bit on at the root of the tree since it is semantically a no-op and gets in the way if the object is ever moved.
+    } else if (RtlpAreControlBitsSet(CurrentDescriptor, SE_SACL_AUTO_INHERITED) || RtlpAreControlBitsSet(CurrentDescriptor, SE_SACL_PROTECTED) || !ARGUMENT_PRESENT(ParentDescriptor)) {
         // Preserve the Acl Present bit and protected bit from the existing descriptor.
-        NewSaclControl |= CurrentDescriptor->Control & (SE_SACL_PROTECTED|SE_SACL_PRESENT);
+        NewSaclControl |= CurrentDescriptor->Control & (SE_SACL_PROTECTED | SE_SACL_PRESENT);
 
         // Always set the autoinherited bit.
         NewSaclControl |= SE_SACL_AUTO_INHERITED;
 
         NewSacl = CurrentSacl;
 
-    // If the SACL is present, compute a new SACL with appropriate ACEs marked as inherited.
+        // If the SACL is present, compute a new SACL with appropriate ACEs marked as inherited.
     } else {
-        Status = RtlpConvertAclToAutoInherit (
-                    ARGUMENT_PRESENT(ParentDescriptor) ? RtlpSaclAddrSecurityDescriptor(((SECURITY_DESCRIPTOR *)ParentDescriptor)) : NULL,
-                    RtlpSaclAddrSecurityDescriptor(CurrentDescriptor),
-                    ObjectType,
-                    IsDirectoryObject,
-                    RtlpOwnerAddrSecurityDescriptor(CurrentDescriptor),
-                    RtlpGroupAddrSecurityDescriptor(CurrentDescriptor),
-                    GenericMapping,
-                    &NewSacl,
-                    &GenericControl );
-        if ( !NT_SUCCESS(Status) ) {
+        Status = RtlpConvertAclToAutoInherit(
+            ARGUMENT_PRESENT(ParentDescriptor) ? RtlpSaclAddrSecurityDescriptor(((SECURITY_DESCRIPTOR *)ParentDescriptor)) : NULL,
+            RtlpSaclAddrSecurityDescriptor(CurrentDescriptor),
+            ObjectType,
+            IsDirectoryObject,
+            RtlpOwnerAddrSecurityDescriptor(CurrentDescriptor),
+            RtlpGroupAddrSecurityDescriptor(CurrentDescriptor),
+            GenericMapping,
+            &NewSacl,
+            &GenericControl);
+        if (!NT_SUCCESS(Status)) {
             goto Cleanup;
         }
 
         NewSaclAllocated = TRUE;
-        NewSaclControl |= SE_SACL_PRESENT | SeControlGenericToSacl( GenericControl );
+        NewSaclControl |= SE_SACL_PRESENT | SeControlGenericToSacl(GenericControl);
     }
 
     // Handle the DACL.
 
     // If the DACL isn't present, special case it.
-    CurrentDacl = RtlpDaclAddrSecurityDescriptor( CurrentDescriptor );
-    if ( CurrentDacl == NULL ) {
+    CurrentDacl = RtlpDaclAddrSecurityDescriptor(CurrentDescriptor);
+    if (CurrentDacl == NULL) {
         // Preserve the Dacl Present bit from the existing descriptor.
         NewDaclControl |= CurrentDescriptor->Control & SE_DACL_PRESENT;
 
@@ -4003,43 +3986,43 @@ Return Value:
         // Force it protected.
         NewDaclControl |= SE_DACL_AUTO_INHERITED | SE_DACL_PROTECTED;
 
-    // If the DACL is already converted, or if this object is at the root of the tree, simply leave it alone.
+        // If the DACL is already converted, or if this object is at the root of the tree, simply leave it alone.
 
-    // Don't force the Protect bit on at the root of the tree since it is semantically a no-op and gets in the way if the object is ever moved.
-    } else if ( RtlpAreControlBitsSet( CurrentDescriptor, SE_DACL_AUTO_INHERITED) || RtlpAreControlBitsSet( CurrentDescriptor, SE_DACL_PROTECTED ) || !ARGUMENT_PRESENT(ParentDescriptor) ) {
+        // Don't force the Protect bit on at the root of the tree since it is semantically a no-op and gets in the way if the object is ever moved.
+    } else if (RtlpAreControlBitsSet(CurrentDescriptor, SE_DACL_AUTO_INHERITED) || RtlpAreControlBitsSet(CurrentDescriptor, SE_DACL_PROTECTED) || !ARGUMENT_PRESENT(ParentDescriptor)) {
         // Preserve the Acl Present bit and protected bit from the existing descriptor.
-        NewDaclControl |= CurrentDescriptor->Control & (SE_DACL_PROTECTED|SE_DACL_PRESENT);
+        NewDaclControl |= CurrentDescriptor->Control & (SE_DACL_PROTECTED | SE_DACL_PRESENT);
 
         // Always set the autoinherited bit.
         NewDaclControl |= SE_DACL_AUTO_INHERITED;
 
         NewDacl = CurrentDacl;
 
-    // If the DACL is present, compute a new DACL with appropriate ACEs marked as inherited.
+        // If the DACL is present, compute a new DACL with appropriate ACEs marked as inherited.
     } else {
-        Status = RtlpConvertAclToAutoInherit (
-                    ARGUMENT_PRESENT(ParentDescriptor) ? RtlpDaclAddrSecurityDescriptor(((SECURITY_DESCRIPTOR *)ParentDescriptor)) : NULL,
-                    RtlpDaclAddrSecurityDescriptor(CurrentDescriptor),
-                    ObjectType,
-                    IsDirectoryObject,
-                    RtlpOwnerAddrSecurityDescriptor(CurrentDescriptor),
-                    RtlpGroupAddrSecurityDescriptor(CurrentDescriptor),
-                    GenericMapping,
-                    &NewDacl,
-                    &GenericControl );
-        if ( !NT_SUCCESS(Status) ) {
+        Status = RtlpConvertAclToAutoInherit(
+            ARGUMENT_PRESENT(ParentDescriptor) ? RtlpDaclAddrSecurityDescriptor(((SECURITY_DESCRIPTOR *)ParentDescriptor)) : NULL,
+            RtlpDaclAddrSecurityDescriptor(CurrentDescriptor),
+            ObjectType,
+            IsDirectoryObject,
+            RtlpOwnerAddrSecurityDescriptor(CurrentDescriptor),
+            RtlpGroupAddrSecurityDescriptor(CurrentDescriptor),
+            GenericMapping,
+            &NewDacl,
+            &GenericControl);
+        if (!NT_SUCCESS(Status)) {
             goto Cleanup;
         }
 
         NewDaclAllocated = TRUE;
-        NewDaclControl |= SE_DACL_PRESENT | SeControlGenericToDacl( GenericControl );
+        NewDaclControl |= SE_DACL_PRESENT | SeControlGenericToDacl(GenericControl);
     }
 
     // Build the resultant security descriptor
 
     // Also map the ACEs for application to the target object type, if they haven't already been mapped.
     NewOwnerSize = LongAlignSize(SeLengthSid(NewOwner));
-    if ( NewGroup != NULL ) {
+    if (NewGroup != NULL) {
         NewGroupSize = LongAlignSize(SeLengthSid(NewGroup));
     } else {
         NewGroupSize = 0;
@@ -4057,56 +4040,56 @@ Return Value:
         NewDaclSize = 0;
     }
 
-    AllocationSize = LongAlignSize(sizeof(SECURITY_DESCRIPTOR_RELATIVE)) + NewOwnerSize + NewGroupSize + NewSaclSize  + NewDaclSize;
+    AllocationSize = LongAlignSize(sizeof(SECURITY_DESCRIPTOR_RELATIVE)) + NewOwnerSize + NewGroupSize + NewSaclSize + NewDaclSize;
 
     // Allocate and initialize the security descriptor as self-relative form.
 #ifdef NTOS_KERNEL_RUNTIME
-    INewDescriptor = ExAllocatePoolWithTag(PagedPool,AllocationSize,'dSeS' );
+    INewDescriptor = ExAllocatePoolWithTag(PagedPool, AllocationSize, 'dSeS');
 #else // NTOS_KERNEL_RUNTIME
-    INewDescriptor = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), AllocationSize );
+    INewDescriptor = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), AllocationSize);
 #endif // NTOS_KERNEL_RUNTIME
 
-    if ( INewDescriptor == NULL ) {
+    if (INewDescriptor == NULL) {
         Status = STATUS_NO_MEMORY;
         goto Cleanup;
     }
 
     // Initialize the security descriptor as self-relative form.
-    RtlCreateSecurityDescriptorRelative(INewDescriptor,SECURITY_DESCRIPTOR_REVISION);
+    RtlCreateSecurityDescriptorRelative(INewDescriptor, SECURITY_DESCRIPTOR_REVISION);
 
-    RtlpSetControlBits( INewDescriptor, SE_SELF_RELATIVE );
+    RtlpSetControlBits(INewDescriptor, SE_SELF_RELATIVE);
 
     Base = (PCHAR)(INewDescriptor);
-    Field =  Base + sizeof(SECURITY_DESCRIPTOR_RELATIVE);
+    Field = Base + sizeof(SECURITY_DESCRIPTOR_RELATIVE);
 
     // Copy the Sacl
-    RtlpSetControlBits( INewDescriptor, NewSaclControl );
-    if (NewSacl != NULL ) {
-        RtlCopyMemory( Field, NewSacl, NewSacl->AclSize );
-        INewDescriptor->Sacl = RtlPointerToOffset(Base,Field);
+    RtlpSetControlBits(INewDescriptor, NewSaclControl);
+    if (NewSacl != NULL) {
+        RtlCopyMemory(Field, NewSacl, NewSacl->AclSize);
+        INewDescriptor->Sacl = RtlPointerToOffset(Base, Field);
         Field += NewSaclSize;
     } else {
         INewDescriptor->Sacl = 0;
     }
 
     // Copy the Dacl
-    RtlpSetControlBits( INewDescriptor, NewDaclControl );
-    if (NewDacl != NULL ) {
-        RtlCopyMemory( Field, NewDacl, NewDacl->AclSize );
-        INewDescriptor->Dacl = RtlPointerToOffset(Base,Field);
+    RtlpSetControlBits(INewDescriptor, NewDaclControl);
+    if (NewDacl != NULL) {
+        RtlCopyMemory(Field, NewDacl, NewDacl->AclSize);
+        INewDescriptor->Dacl = RtlPointerToOffset(Base, Field);
         Field += NewDaclSize;
     } else {
         INewDescriptor->Dacl = 0;
     }
 
     // Assign the owner
-    RtlCopyMemory( Field, NewOwner, SeLengthSid(NewOwner) );
-    INewDescriptor->Owner = RtlPointerToOffset(Base,Field);
+    RtlCopyMemory(Field, NewOwner, SeLengthSid(NewOwner));
+    INewDescriptor->Owner = RtlPointerToOffset(Base, Field);
     Field += NewOwnerSize;
 
-    if ( NewGroup != NULL ) {
-        RtlCopyMemory( Field, NewGroup, SeLengthSid(NewGroup) );
-        INewDescriptor->Group = RtlPointerToOffset(Base,Field);
+    if (NewGroup != NULL) {
+        RtlCopyMemory(Field, NewGroup, SeLengthSid(NewGroup));
+        INewDescriptor->Group = RtlPointerToOffset(Base, Field);
     }
 
     Status = STATUS_SUCCESS;
@@ -4115,20 +4098,20 @@ Return Value:
 Cleanup:
     if (NewDaclAllocated) {
 #ifdef NTOS_KERNEL_RUNTIME
-            ExFreePool( NewDacl );
+        ExFreePool(NewDacl);
 #else // NTOS_KERNEL_RUNTIME
-            RtlFreeHeap( HeapHandle, 0, NewDacl );
+        RtlFreeHeap(HeapHandle, 0, NewDacl);
 #endif // NTOS_KERNEL_RUNTIME
     }
     if (NewSaclAllocated) {
 #ifdef NTOS_KERNEL_RUNTIME
-            ExFreePool( NewSacl );
+        ExFreePool(NewSacl);
 #else // NTOS_KERNEL_RUNTIME
-            RtlFreeHeap( HeapHandle, 0, NewSacl );
+        RtlFreeHeap(HeapHandle, 0, NewSacl);
 #endif // NTOS_KERNEL_RUNTIME
     }
 
-    *NewSecurityDescriptor = (PSECURITY_DESCRIPTOR) INewDescriptor;
+    *NewSecurityDescriptor = (PSECURITY_DESCRIPTOR)INewDescriptor;
     return Status;
 }
 
@@ -4149,7 +4132,7 @@ Cleanup:
              (((PACE_HEADER)(_Ace))->AceFlags & INHERIT_ONLY_ACE) ^ INHERIT_ONLY_ACE )
 
 
-BOOLEAN RtlpCompareAces(IN PKNOWN_ACE InheritedAce,IN PKNOWN_ACE ChildAce,IN PSID OwnerSid,IN PSID GroupSid)
+BOOLEAN RtlpCompareAces(IN PKNOWN_ACE InheritedAce, IN PKNOWN_ACE ChildAce, IN PSID OwnerSid, IN PSID GroupSid)
 /*++
 Routine Description:
     Compare two aces to see if they are "substantially" the same.
@@ -4169,18 +4152,18 @@ Return Value:
     BOOLEAN AcesCompare = FALSE;
 
     if (IsObjectAceType(InheritedAce) && IsObjectAceType(ChildAce)) {
-        AcesCompare = RtlpCompareKnownObjectAces( (PKNOWN_OBJECT_ACE)InheritedAce,(PKNOWN_OBJECT_ACE)ChildAce,OwnerSid,GroupSid);
+        AcesCompare = RtlpCompareKnownObjectAces((PKNOWN_OBJECT_ACE)InheritedAce, (PKNOWN_OBJECT_ACE)ChildAce, OwnerSid, GroupSid);
     } else {
         if (!IsObjectAceType(InheritedAce) && !IsObjectAceType(ChildAce)) {
-            AcesCompare = RtlpCompareKnownAces( InheritedAce,ChildAce,OwnerSid,GroupSid);
+            AcesCompare = RtlpCompareKnownAces(InheritedAce, ChildAce, OwnerSid, GroupSid);
         }
     }
 
-    return( AcesCompare );
+    return(AcesCompare);
 }
 
 
-BOOLEAN RtlpCompareKnownAces(IN PKNOWN_ACE InheritedAce,IN PKNOWN_ACE ChildAce,IN PSID OwnerSid OPTIONAL,IN PSID GroupSid OPTIONAL)
+BOOLEAN RtlpCompareKnownAces(IN PKNOWN_ACE InheritedAce, IN PKNOWN_ACE ChildAce, IN PSID OwnerSid OPTIONAL, IN PSID GroupSid OPTIONAL)
 /*++
 Routine Description:
     Compare two aces to see if they are "substantially" the same.
@@ -4197,7 +4180,7 @@ Return Value:
 --*/
 {
     NTSTATUS Status;
-    ACE_HEADER volatile *InheritedAceHdr = &InheritedAce->Header;
+    ACE_HEADER volatile * InheritedAceHdr = &InheritedAce->Header;
 
     RTL_PAGED_CODE();
 
@@ -4205,9 +4188,9 @@ Return Value:
     ASSERT(!IsObjectAceType(ChildAce));
 
     // If the Ace types are different, we don't match.
-    if ( RtlBaseAceType[ChildAce->Header.AceType] != RtlBaseAceType[InheritedAceHdr->AceType] ) {
+    if (RtlBaseAceType[ChildAce->Header.AceType] != RtlBaseAceType[InheritedAceHdr->AceType]) {
 #if DBG
-        if ( RtlpVerboseConvert ) {
+        if (RtlpVerboseConvert) {
             KdPrint(("AceType mismatch"));
         }
 #endif // DBG
@@ -4215,10 +4198,10 @@ Return Value:
     }
 
     // If this is a system ACE, ensure the SUCCESS/FAILURE flags match.
-    if ( RtlIsSystemAceType[ChildAce->Header.AceType] ) {
-        if ( (ChildAce->Header.AceFlags & (SUCCESSFUL_ACCESS_ACE_FLAG|FAILED_ACCESS_ACE_FLAG)) != (InheritedAceHdr->AceFlags & (SUCCESSFUL_ACCESS_ACE_FLAG|FAILED_ACCESS_ACE_FLAG)) ) {
+    if (RtlIsSystemAceType[ChildAce->Header.AceType]) {
+        if ((ChildAce->Header.AceFlags & (SUCCESSFUL_ACCESS_ACE_FLAG | FAILED_ACCESS_ACE_FLAG)) != (InheritedAceHdr->AceFlags & (SUCCESSFUL_ACCESS_ACE_FLAG | FAILED_ACCESS_ACE_FLAG))) {
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("System ace success/fail mismatch"));
             }
 #endif // DBG
@@ -4227,11 +4210,11 @@ Return Value:
     }
 
     // If the SID of the inherited ACE doesn't match, we don't match.
-    if ( !RtlEqualSid( (PSID)&ChildAce->SidStart, (PSID)&InheritedAce->SidStart )) {
+    if (!RtlEqualSid((PSID)&ChildAce->SidStart, (PSID)&InheritedAce->SidStart)) {
         // The inheritance algorithm only does SID mapping when building the effective ace.  So, we only check for a mapped SID if the child ACE is an effective ACE.
-        if ( AceFlagsInAce(ChildAce) != EFFECTIVE_ACE ) {
+        if (AceFlagsInAce(ChildAce) != EFFECTIVE_ACE) {
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("SID mismatch"));
             }
 #endif // DBG
@@ -4245,24 +4228,24 @@ Return Value:
 
         // If the InheritedAce contains a CreatorOwner/Group SID, do the another comparison of the SID in the child ACE with the
         //  real owner/group from the child security descriptor.
-        if ( OwnerSid != NULL || GroupSid != NULL ) {
+        if (OwnerSid != NULL || GroupSid != NULL) {
             SID_IDENTIFIER_AUTHORITY  CreatorSidAuthority = SECURITY_CREATOR_SID_AUTHORITY;
             ULONG CreatorSid[CREATOR_SID_SIZE];
 
             // Allocate and initialize the universal SIDs we're going to need to look for inheritable ACEs.
-            ASSERT(RtlLengthRequiredSid( 1 ) == CREATOR_SID_SIZE);
-            RtlInitializeSid( (PSID)CreatorSid, &CreatorSidAuthority, 1 );
-            *(RtlpSubAuthoritySid( (PSID)CreatorSid, 0 )) = SECURITY_CREATOR_OWNER_RID;
+            ASSERT(RtlLengthRequiredSid(1) == CREATOR_SID_SIZE);
+            RtlInitializeSid((PSID)CreatorSid, &CreatorSidAuthority, 1);
+            *(RtlpSubAuthoritySid((PSID)CreatorSid, 0)) = SECURITY_CREATOR_OWNER_RID;
 
-            if (RtlEqualPrefixSid ( (PSID)&InheritedAce->SidStart, CreatorSid )) {
+            if (RtlEqualPrefixSid((PSID)&InheritedAce->SidStart, CreatorSid)) {
                 ULONG Rid;
 
-                Rid = *RtlpSubAuthoritySid( (PSID)&InheritedAce->SidStart, 0 );
+                Rid = *RtlpSubAuthoritySid((PSID)&InheritedAce->SidStart, 0);
                 switch (Rid) {
                 case SECURITY_CREATOR_OWNER_RID:
-                    if ( OwnerSid == NULL || !RtlEqualSid( (PSID)&ChildAce->SidStart, OwnerSid )) {
+                    if (OwnerSid == NULL || !RtlEqualSid((PSID)&ChildAce->SidStart, OwnerSid)) {
 #if DBG
-                        if ( RtlpVerboseConvert ) {
+                        if (RtlpVerboseConvert) {
                             KdPrint(("SID mismatch (Creator Owner)"));
                         }
 #endif // DBG
@@ -4270,9 +4253,9 @@ Return Value:
                     }
                     break;
                 case SECURITY_CREATOR_GROUP_RID:
-                    if ( GroupSid == NULL || !RtlEqualSid( (PSID)&ChildAce->SidStart, GroupSid )) {
+                    if (GroupSid == NULL || !RtlEqualSid((PSID)&ChildAce->SidStart, GroupSid)) {
 #if DBG
-                        if ( RtlpVerboseConvert ) {
+                        if (RtlpVerboseConvert) {
                             KdPrint(("SID mismatch (Creator Group)"));
                         }
 #endif // DBG
@@ -4281,7 +4264,7 @@ Return Value:
                     break;
                 default:
 #if DBG
-                    if ( RtlpVerboseConvert ) {
+                    if (RtlpVerboseConvert) {
                         KdPrint(("SID mismatch (Creator)"));
                     }
 #endif // DBG
@@ -4289,7 +4272,7 @@ Return Value:
                 }
             } else {
 #if DBG
-                if ( RtlpVerboseConvert ) {
+                if (RtlpVerboseConvert) {
                     KdPrint(("SID mismatch"));
                 }
 #endif // DBG
@@ -4297,7 +4280,7 @@ Return Value:
             }
         } else {
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("SID mismatch"));
             }
 #endif // DBG
@@ -4309,7 +4292,7 @@ Return Value:
 }
 
 
-BOOLEAN RtlpCompareKnownObjectAces(IN PKNOWN_OBJECT_ACE InheritedAce,IN PKNOWN_OBJECT_ACE ChildAce,IN PSID OwnerSid OPTIONAL,IN PSID GroupSid OPTIONAL)
+BOOLEAN RtlpCompareKnownObjectAces(IN PKNOWN_OBJECT_ACE InheritedAce, IN PKNOWN_OBJECT_ACE ChildAce, IN PSID OwnerSid OPTIONAL, IN PSID GroupSid OPTIONAL)
 /*++
 Routine Description:
     Compare two aces to see if they are "substantially" the same.
@@ -4328,20 +4311,20 @@ Return Value:
 {
     NTSTATUS Status;
     BOOLEAN DoingObjectAces;
-    GUID *ChildObjectGuid;
-    GUID *InhObjectGuid;
-    GUID *ChildInheritedObjectGuid;
-    GUID *InhInheritedObjectGuid;
-    ACE_HEADER volatile *InheritedAceHdr = &InheritedAce->Header;
+    GUID * ChildObjectGuid;
+    GUID * InhObjectGuid;
+    GUID * ChildInheritedObjectGuid;
+    GUID * InhInheritedObjectGuid;
+    ACE_HEADER volatile * InheritedAceHdr = &InheritedAce->Header;
 
     RTL_PAGED_CODE();
 
     ASSERT(IsObjectAceType(InheritedAce));
     ASSERT(IsObjectAceType(ChildAce));
     // If the Ace types are different, we don't match.
-    if ( RtlBaseAceType[ChildAce->Header.AceType] != RtlBaseAceType[InheritedAceHdr->AceType] ) {
+    if (RtlBaseAceType[ChildAce->Header.AceType] != RtlBaseAceType[InheritedAceHdr->AceType]) {
 #if DBG
-        if ( RtlpVerboseConvert ) {
+        if (RtlpVerboseConvert) {
             KdPrint(("AceType mismatch"));
         }
 #endif // DBG
@@ -4349,11 +4332,11 @@ Return Value:
     }
 
     // If this is a system ACE, ensure the SUCCESS/FAILURE flags match.
-    if ( RtlIsSystemAceType[ChildAce->Header.AceType] ) {
-        if ( (ChildAce->Header.AceFlags & (SUCCESSFUL_ACCESS_ACE_FLAG|FAILED_ACCESS_ACE_FLAG)) !=
-             (InheritedAceHdr->AceFlags & (SUCCESSFUL_ACCESS_ACE_FLAG|FAILED_ACCESS_ACE_FLAG)) ) {
+    if (RtlIsSystemAceType[ChildAce->Header.AceType]) {
+        if ((ChildAce->Header.AceFlags & (SUCCESSFUL_ACCESS_ACE_FLAG | FAILED_ACCESS_ACE_FLAG)) !=
+            (InheritedAceHdr->AceFlags & (SUCCESSFUL_ACCESS_ACE_FLAG | FAILED_ACCESS_ACE_FLAG))) {
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("System ace success/fail mismatch"));
             }
 #endif // DBG
@@ -4369,10 +4352,10 @@ Return Value:
     InhInheritedObjectGuid = RtlObjectAceInheritedObjectType(InheritedAce);
 
     // If the InheritedObjectGuid is present in either ACE, they must be equal.
-    if ( ChildInheritedObjectGuid != NULL || InhInheritedObjectGuid != NULL ) {
-        if ( ChildInheritedObjectGuid == NULL || InhInheritedObjectGuid == NULL || !RtlpIsEqualGuid( ChildInheritedObjectGuid, InhInheritedObjectGuid )) {
+    if (ChildInheritedObjectGuid != NULL || InhInheritedObjectGuid != NULL) {
+        if (ChildInheritedObjectGuid == NULL || InhInheritedObjectGuid == NULL || !RtlpIsEqualGuid(ChildInheritedObjectGuid, InhInheritedObjectGuid)) {
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("InheritedObject GUID mismatch"));
             }
 #endif // DBG
@@ -4383,34 +4366,34 @@ Return Value:
     // If the ObjectGUID is present in either ACE, they must be equal.
 
     // Any missing object GUID defaults to the passed in object GUID.
-    if ( (ChildObjectGuid != NULL) && (InhObjectGuid != NULL) ) {
-        if (!RtlpIsEqualGuid( ChildObjectGuid, InhObjectGuid )) {
+    if ((ChildObjectGuid != NULL) && (InhObjectGuid != NULL)) {
+        if (!RtlpIsEqualGuid(ChildObjectGuid, InhObjectGuid)) {
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("Object GUID mismatch"));
             }
 #endif // DBG
-            return( FALSE );
+            return(FALSE);
         }
     } else {
         // One or both is NULL, if it's only one, they don't match.
-        if ( !((ChildObjectGuid == NULL) && (InhObjectGuid == NULL)) ) {
+        if (!((ChildObjectGuid == NULL) && (InhObjectGuid == NULL))) {
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("Object GUID mismatch"));
             }
 #endif // DBG
-            return( FALSE );
+            return(FALSE);
         }
     }
 
     // If the SID of the inherited ACE doesn't match, we don't match.
-    if ( !RtlEqualSid( RtlObjectAceSid(ChildAce), RtlObjectAceSid(InheritedAce))) {
+    if (!RtlEqualSid(RtlObjectAceSid(ChildAce), RtlObjectAceSid(InheritedAce))) {
         // The inheritance algorithm only does SID mapping when building the effective ace.
         //  So, we only check for a mapped SID if the child ACE is an effective ACE.
-        if ( AceFlagsInAce(ChildAce) != EFFECTIVE_ACE ) {
+        if (AceFlagsInAce(ChildAce) != EFFECTIVE_ACE) {
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("SID mismatch"));
             }
 #endif // DBG
@@ -4423,24 +4406,24 @@ Return Value:
 
         // If the InheritedAce contains a CreatorOwner/Group SID, do the another comparison of the SID in the child ACE with the
         //  real owner/group from the child security descriptor.
-        if ( OwnerSid != NULL || GroupSid != NULL ) {
+        if (OwnerSid != NULL || GroupSid != NULL) {
             SID_IDENTIFIER_AUTHORITY  CreatorSidAuthority = SECURITY_CREATOR_SID_AUTHORITY;
             ULONG CreatorSid[CREATOR_SID_SIZE];
 
             // Allocate and initialize the universal SIDs we're going to need to look for inheritable ACEs.
-            ASSERT(RtlLengthRequiredSid( 1 ) == CREATOR_SID_SIZE);
-            RtlInitializeSid( (PSID)CreatorSid, &CreatorSidAuthority, 1 );
-            *(RtlpSubAuthoritySid( (PSID)CreatorSid, 0 )) = SECURITY_CREATOR_OWNER_RID;
+            ASSERT(RtlLengthRequiredSid(1) == CREATOR_SID_SIZE);
+            RtlInitializeSid((PSID)CreatorSid, &CreatorSidAuthority, 1);
+            *(RtlpSubAuthoritySid((PSID)CreatorSid, 0)) = SECURITY_CREATOR_OWNER_RID;
 
-            if (RtlEqualPrefixSid ( RtlObjectAceSid(InheritedAce), CreatorSid )) {
+            if (RtlEqualPrefixSid(RtlObjectAceSid(InheritedAce), CreatorSid)) {
                 ULONG Rid;
 
-                Rid = *RtlpSubAuthoritySid( RtlObjectAceSid(InheritedAce), 0 );
+                Rid = *RtlpSubAuthoritySid(RtlObjectAceSid(InheritedAce), 0);
                 switch (Rid) {
                 case SECURITY_CREATOR_OWNER_RID:
-                    if ( OwnerSid == NULL || !RtlEqualSid( RtlObjectAceSid(ChildAce), OwnerSid )) {
+                    if (OwnerSid == NULL || !RtlEqualSid(RtlObjectAceSid(ChildAce), OwnerSid)) {
 #if DBG
-                        if ( RtlpVerboseConvert ) {
+                        if (RtlpVerboseConvert) {
                             KdPrint(("SID mismatch (Creator Owner)"));
                         }
 #endif // DBG
@@ -4448,9 +4431,9 @@ Return Value:
                     }
                     break;
                 case SECURITY_CREATOR_GROUP_RID:
-                    if ( GroupSid == NULL || !RtlEqualSid( RtlObjectAceSid(ChildAce), GroupSid )) {
+                    if (GroupSid == NULL || !RtlEqualSid(RtlObjectAceSid(ChildAce), GroupSid)) {
 #if DBG
-                        if ( RtlpVerboseConvert ) {
+                        if (RtlpVerboseConvert) {
                             KdPrint(("SID mismatch (Creator Group)"));
                         }
 #endif // DBG
@@ -4459,7 +4442,7 @@ Return Value:
                     break;
                 default:
 #if DBG
-                    if ( RtlpVerboseConvert ) {
+                    if (RtlpVerboseConvert) {
                         KdPrint(("SID mismatch (Creator)"));
                     }
 #endif // DBG
@@ -4467,7 +4450,7 @@ Return Value:
                 }
             } else {
 #if DBG
-                if ( RtlpVerboseConvert ) {
+                if (RtlpVerboseConvert) {
                     KdPrint(("SID mismatch"));
                 }
 #endif // DBG
@@ -4475,7 +4458,7 @@ Return Value:
             }
         } else {
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("SID mismatch"));
             }
 #endif // DBG
@@ -4488,17 +4471,17 @@ Return Value:
 
 
 NTSTATUS
-RtlpConvertAclToAutoInherit (
+RtlpConvertAclToAutoInherit(
     IN PACL ParentAcl OPTIONAL,
     IN PACL ChildAcl,
-    IN GUID *ObjectType OPTIONAL,
+    IN GUID * ObjectType OPTIONAL,
     IN BOOLEAN IsDirectoryObject,
     IN PSID OwnerSid,
     IN PSID GroupSid,
     IN PGENERIC_MAPPING GenericMapping,
-    OUT PACL *NewAcl,
+    OUT PACL * NewAcl,
     OUT PULONG NewGenericControl
-    )
+)
 /*++
 Routine Description:
     This is a private routine that produces an auto inherited acl from a ChildAcl that is not marked as auto inherited.
@@ -4572,7 +4555,7 @@ Return Value:
         ACCESS_MASK ContainerInheritMask;
         ACCESS_MASK ObjectInheritMask;
         ACCESS_MASK EffectiveMask;
-    } ACE_INFO, *PACE_INFO;
+    } ACE_INFO, * PACE_INFO;
 
     PACE_INFO ChildAceInfo = NULL;
     ULONG CreatorOwnerSid[CREATOR_SID_SIZE];
@@ -4593,23 +4576,23 @@ Return Value:
 #endif // NTOS_KERNEL_RUNTIME
 
     // Allocate and initialize the universal SIDs we're going to need to look for inheritable ACEs.
-    ASSERT(RtlLengthRequiredSid( 1 ) == CREATOR_SID_SIZE);
-    RtlInitializeSid( (PSID)CreatorOwnerSid, &CreatorSidAuthority, 1 );
-    *(RtlpSubAuthoritySid( (PSID)CreatorOwnerSid, 0 )) = SECURITY_CREATOR_OWNER_RID;
+    ASSERT(RtlLengthRequiredSid(1) == CREATOR_SID_SIZE);
+    RtlInitializeSid((PSID)CreatorOwnerSid, &CreatorSidAuthority, 1);
+    *(RtlpSubAuthoritySid((PSID)CreatorOwnerSid, 0)) = SECURITY_CREATOR_OWNER_RID;
 
-    RtlInitializeSid( (PSID)CreatorGroupSid, &CreatorSidAuthority, 1 );
-    *(RtlpSubAuthoritySid( (PSID)CreatorGroupSid, 0 )) = SECURITY_CREATOR_GROUP_RID;
+    RtlInitializeSid((PSID)CreatorGroupSid, &CreatorSidAuthority, 1);
+    *(RtlpSubAuthoritySid((PSID)CreatorGroupSid, 0)) = SECURITY_CREATOR_GROUP_RID;
 
     // Ensure the passed in ACLs are valid.
     *NewGenericControl = SEP_ACL_AUTO_INHERITED;
     *NewAcl = NULL;
 
-    if ( ParentAcl != NULL && !RtlValidAcl( ParentAcl ) ) {
+    if (ParentAcl != NULL && !RtlValidAcl(ParentAcl)) {
         Status = STATUS_INVALID_ACL;
         goto Cleanup;
     }
 
-    if (!RtlValidAcl( ChildAcl ) ) {
+    if (!RtlValidAcl(ChildAcl)) {
         Status = STATUS_INVALID_ACL;
         goto Cleanup;
     }
@@ -4618,38 +4601,38 @@ Return Value:
 
     // The inherited ACL is computed to NOT SID-map Creator Owner and Creator Group.
     // This allows use to later recognize the constant SIDs and special case them rather than mistakenly confuse them with the mapped SID.
-    Status = RtlpInheritAcl (
-                ParentAcl,
-                NULL,   // No explicit child ACL
-                0,      // No Child Generic Control
-                IsDirectoryObject,
-                TRUE,   // AutoInherit the DACL
-                FALSE,  // Not default descriptor for object
-                CreatorOwnerSid,   // Subsitute a constant SID
-                CreatorGroupSid,   // Subsitute a constant SID
-                CreatorOwnerSid,   // Server Owner (Technically incorrect, but OK since we don't support compound ACEs)
-                CreatorGroupSid,   // Server Group
-                GenericMapping,
-                TRUE,   // Is a SACL
-                ObjectType,
-                &InheritedAcl,
-                &AclExplicitlyAssigned,
-                &GenericControl );
-    if ( Status == STATUS_NO_INHERITANCE ) {
+    Status = RtlpInheritAcl(
+        ParentAcl,
+        NULL,   // No explicit child ACL
+        0,      // No Child Generic Control
+        IsDirectoryObject,
+        TRUE,   // AutoInherit the DACL
+        FALSE,  // Not default descriptor for object
+        CreatorOwnerSid,   // Subsitute a constant SID
+        CreatorGroupSid,   // Subsitute a constant SID
+        CreatorOwnerSid,   // Server Owner (Technically incorrect, but OK since we don't support compound ACEs)
+        CreatorGroupSid,   // Server Group
+        GenericMapping,
+        TRUE,   // Is a SACL
+        ObjectType,
+        &InheritedAcl,
+        &AclExplicitlyAssigned,
+        &GenericControl);
+    if (Status == STATUS_NO_INHERITANCE) {
         *NewGenericControl |= SEP_ACL_PROTECTED;
 #if DBG
-        if ( RtlpVerboseConvert ) {
-            KdPrint(("NO_INHERITANCE of the parent ACL\n" ));
+        if (RtlpVerboseConvert) {
+            KdPrint(("NO_INHERITANCE of the parent ACL\n"));
         }
 #endif // DBG
         Status = STATUS_SUCCESS;
         goto Cleanup;
     }
 
-    if ( !NT_SUCCESS(Status) ) {
+    if (!NT_SUCCESS(Status)) {
 #if DBG
-        if ( RtlpVerboseConvert ) {
-            KdPrint(("Can't build inherited ACL %lX\n", Status ));
+        if (RtlpVerboseConvert) {
+            KdPrint(("Can't build inherited ACL %lX\n", Status));
         }
 #endif // DBG
         goto Cleanup;
@@ -4657,12 +4640,12 @@ Return Value:
 
     // Allocate a work buffer describing the ChildAcl
 #ifdef NTOS_KERNEL_RUNTIME
-    ChildAceInfo = ExAllocatePoolWithTag(PagedPool,ChildAcl->AceCount * sizeof(ACE_INFO),'cAeS' );
+    ChildAceInfo = ExAllocatePoolWithTag(PagedPool, ChildAcl->AceCount * sizeof(ACE_INFO), 'cAeS');
 #else // NTOS_KERNEL_RUNTIME
-    ChildAceInfo = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), ChildAcl->AceCount * sizeof(ACE_INFO) );
+    ChildAceInfo = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), ChildAcl->AceCount * sizeof(ACE_INFO));
 #endif // NTOS_KERNEL_RUNTIME
 
-    if (ChildAceInfo == NULL ) {
+    if (ChildAceInfo == NULL) {
         Status = STATUS_NO_MEMORY;
         goto Cleanup;
     }
@@ -4671,26 +4654,26 @@ Return Value:
         ACCESS_MASK LocalMask;
         ULONG ChildAceFlags;
 
-        if ( !IsV4AceType(ChildAce) || IsCompoundAceType(ChildAce)) {
-             *NewGenericControl |= SEP_ACL_PROTECTED;
+        if (!IsV4AceType(ChildAce) || IsCompoundAceType(ChildAce)) {
+            *NewGenericControl |= SEP_ACL_PROTECTED;
 #if DBG
-             if ( RtlpVerboseConvert ) {
-                 KdPrint(("Inherited Ace type (%ld) not known\n", ChildAce->Header.AceType ));
-             }
+            if (RtlpVerboseConvert) {
+                KdPrint(("Inherited Ace type (%ld) not known\n", ChildAce->Header.AceType));
+            }
 #endif // DBG
-             Status = STATUS_SUCCESS;
-             goto Cleanup;
+            Status = STATUS_SUCCESS;
+            goto Cleanup;
         }
 
         // Compute the generic mapped mask for use in all comparisons.  The generic mapping will be undone if needed later.
 
         // All V4 aces have an access mask in the same location.
         LocalMask = ((PKNOWN_ACE)(ChildAce))->Mask;
-        RtlApplyGenericMask( ChildAce, &LocalMask, GenericMapping);
+        RtlApplyGenericMask(ChildAce, &LocalMask, GenericMapping);
 
         // Break the ACE into its component parts.
-        ChildAceFlags = AceFlagsInAce( ChildAce );
-        if ( ChildAceFlags & CONTAINER_INHERIT_ACE ) {
+        ChildAceFlags = AceFlagsInAce(ChildAce);
+        if (ChildAceFlags & CONTAINER_INHERIT_ACE) {
             ChildAceInfo[ChildAceIndex].OriginalContainerInheritMask = LocalMask;
             ChildAceInfo[ChildAceIndex].ContainerInheritMask = LocalMask;
         } else {
@@ -4698,7 +4681,7 @@ Return Value:
             ChildAceInfo[ChildAceIndex].ContainerInheritMask = 0;
         }
 
-        if ( ChildAceFlags & OBJECT_INHERIT_ACE ) {
+        if (ChildAceFlags & OBJECT_INHERIT_ACE) {
             ChildAceInfo[ChildAceIndex].OriginalObjectInheritMask = LocalMask;
             ChildAceInfo[ChildAceIndex].ObjectInheritMask = LocalMask;
         } else {
@@ -4706,7 +4689,7 @@ Return Value:
             ChildAceInfo[ChildAceIndex].ObjectInheritMask = 0;
         }
 
-        if ( ChildAceFlags & EFFECTIVE_ACE ) {
+        if (ChildAceFlags & EFFECTIVE_ACE) {
             ChildAceInfo[ChildAceIndex].OriginalEffectiveMask = LocalMask;
             ChildAceInfo[ChildAceIndex].EffectiveMask = LocalMask;
         } else {
@@ -4720,27 +4703,27 @@ Return Value:
         ACCESS_MASK LocalMask;
 
         // If the ACE isn't a valid version 4 ACE, this isn't an ACL we're interested in handling.
-        if ( !IsV4AceType(InheritedAce) || IsCompoundAceType(InheritedAce)) {
-             *NewGenericControl |= SEP_ACL_PROTECTED;
+        if (!IsV4AceType(InheritedAce) || IsCompoundAceType(InheritedAce)) {
+            *NewGenericControl |= SEP_ACL_PROTECTED;
 #if DBG
-             if ( RtlpVerboseConvert ) {
-                 KdPrint(("Inherited Ace type (%ld) not known\n", InheritedAce->Header.AceType ));
-             }
+            if (RtlpVerboseConvert) {
+                KdPrint(("Inherited Ace type (%ld) not known\n", InheritedAce->Header.AceType));
+            }
 #endif // DBG
-             Status = STATUS_SUCCESS;
-             goto Cleanup;
+            Status = STATUS_SUCCESS;
+            goto Cleanup;
         }
 
         // Compute the generic mapped mask for use in all comparisons.  The generic mapping will be undone if needed later.
 
         // All V4 aces have an access mask in the same location.
         LocalMask = ((PKNOWN_ACE)(InheritedAce))->Mask;
-        RtlApplyGenericMask( InheritedAce, &LocalMask, GenericMapping);
+        RtlApplyGenericMask(InheritedAce, &LocalMask, GenericMapping);
 
-        if ( LocalMask == 0 ) {
+        if (LocalMask == 0) {
 #if DBG
-            if ( RtlpVerboseConvert ) {
-                KdPrint(("Worthless INH ACE: %ld 0x%8.8lx\n", InheritedAceIndex, LocalMask ));
+            if (RtlpVerboseConvert) {
+                KdPrint(("Worthless INH ACE: %ld 0x%8.8lx\n", InheritedAceIndex, LocalMask));
             }
 #endif // DBG
             continue;
@@ -4748,37 +4731,37 @@ Return Value:
 
         // This ACE is some combination of an effective ACE, a container inherit ACE and an object inherit ACE.
         //  Process each of those attributes separately since they might be represented separately in the ChildAcl.
-        InheritedAceFlags = AceFlagsInAce( InheritedAce );
-        if  ( InheritedAceFlags == 0 ) {
+        InheritedAceFlags = AceFlagsInAce(InheritedAce);
+        if (InheritedAceFlags == 0) {
 #if DBG
-            if ( RtlpVerboseConvert ) {
-                KdPrint(("Worthless INH ACE: %ld 0x%lx\n", InheritedAceIndex, InheritedAceFlags ));
+            if (RtlpVerboseConvert) {
+                KdPrint(("Worthless INH ACE: %ld 0x%lx\n", InheritedAceIndex, InheritedAceFlags));
             }
 #endif // DBG
             continue;
         }
 
-        if ( InheritedAceFlags & CONTAINER_INHERIT_ACE ) {
+        if (InheritedAceFlags & CONTAINER_INHERIT_ACE) {
             OriginalInheritedContainerInheritMask = InheritedContainerInheritMask = LocalMask;
         } else {
             OriginalInheritedContainerInheritMask = InheritedContainerInheritMask = 0;
         }
 
-        if ( InheritedAceFlags & OBJECT_INHERIT_ACE ) {
+        if (InheritedAceFlags & OBJECT_INHERIT_ACE) {
             OriginalInheritedObjectInheritMask = InheritedObjectInheritMask = LocalMask;
         } else {
             OriginalInheritedObjectInheritMask = InheritedObjectInheritMask = 0;
         }
 
-        if ( InheritedAceFlags & EFFECTIVE_ACE ) {
+        if (InheritedAceFlags & EFFECTIVE_ACE) {
             OriginalInheritedEffectiveMask = InheritedEffectiveMask = LocalMask;
         } else {
             OriginalInheritedEffectiveMask = InheritedEffectiveMask = 0;
         }
 
 #if DBG
-        if ( RtlpVerboseConvert ) {
-            KdPrint(("Doing INH ACE:  %ld %8.8lX %8.8lX %8.8lX\n", InheritedAceIndex, InheritedEffectiveMask, InheritedContainerInheritMask, InheritedObjectInheritMask ));
+        if (RtlpVerboseConvert) {
+            KdPrint(("Doing INH ACE:  %ld %8.8lX %8.8lX %8.8lX\n", InheritedAceIndex, InheritedEffectiveMask, InheritedContainerInheritMask, InheritedObjectInheritMask));
         }
 #endif // DBG
 
@@ -4790,22 +4773,22 @@ Return Value:
             // Ensure the ACE represents the same principal and object,
 
 #if DBG
-            if ( RtlpVerboseConvert ) {
-                KdPrint(("Compare Child Ace: %ld ", ChildAceIndex ));
+            if (RtlpVerboseConvert) {
+                KdPrint(("Compare Child Ace: %ld ", ChildAceIndex));
             }
 #endif // DBG
 
-            if ( !RtlpCompareAces( InheritedAce,ChildAce,OwnerSid,GroupSid ) ) {
+            if (!RtlpCompareAces(InheritedAce, ChildAce, OwnerSid, GroupSid)) {
 #if DBG
-                if ( RtlpVerboseConvert ) {
-                    KdPrint(("\n" ));
+                if (RtlpVerboseConvert) {
+                    KdPrint(("\n"));
                 }
 #endif // DBG
                 continue;
             }
 #if DBG
-            if ( RtlpVerboseConvert ) {
-                KdPrint(("\n" ));
+            if (RtlpVerboseConvert) {
+                KdPrint(("\n"));
             }
 #endif // DBG
 
@@ -4819,8 +4802,8 @@ Return Value:
             InheritedObjectInheritMask &= ~ChildAceInfo[ChildAceIndex].OriginalObjectInheritMask;
 
 #if DBG
-            if ( RtlpVerboseConvert ) {
-                KdPrint(("New   INH MASKs %ld %8.8lX %8.8lX %8.8lX\n", InheritedAceIndex, InheritedEffectiveMask, InheritedContainerInheritMask, InheritedObjectInheritMask ));
+            if (RtlpVerboseConvert) {
+                KdPrint(("New   INH MASKs %ld %8.8lX %8.8lX %8.8lX\n", InheritedAceIndex, InheritedEffectiveMask, InheritedContainerInheritMask, InheritedObjectInheritMask));
             }
 #endif // DBG
 
@@ -4832,22 +4815,22 @@ Return Value:
             ChildAceInfo[ChildAceIndex].ObjectInheritMask &= ~OriginalInheritedObjectInheritMask;
 
 #if DBG
-            if ( RtlpVerboseConvert ) {
+            if (RtlpVerboseConvert) {
                 KdPrint(("New Child MASKs %ld %8.8lX %8.8lX %8.8lX\n",
-                    ChildAceIndex,
-                    ChildAceInfo[ChildAceIndex].EffectiveMask,
-                    ChildAceInfo[ChildAceIndex].ContainerInheritMask,
-                    ChildAceInfo[ChildAceIndex].ObjectInheritMask ));
+                         ChildAceIndex,
+                         ChildAceInfo[ChildAceIndex].EffectiveMask,
+                         ChildAceInfo[ChildAceIndex].ContainerInheritMask,
+                         ChildAceInfo[ChildAceIndex].ObjectInheritMask));
             }
 #endif // DBG
         }
 
         // If we couldn't process this inherited ACE, then the child ACL wasn't inherited.
-        if ( (InheritedEffectiveMask | InheritedContainerInheritMask | InheritedObjectInheritMask) != 0 ) {
+        if ((InheritedEffectiveMask | InheritedContainerInheritMask | InheritedObjectInheritMask) != 0) {
             *NewGenericControl |= SEP_ACL_PROTECTED;
 #if DBG
-            if ( RtlpVerboseConvert ) {
-                KdPrint(("INH ACE not completely matched: %ld %8.8lX %8.8lX %8.8lX\n", InheritedAceIndex, InheritedEffectiveMask, InheritedContainerInheritMask, InheritedObjectInheritMask ));
+            if (RtlpVerboseConvert) {
+                KdPrint(("INH ACE not completely matched: %ld %8.8lX %8.8lX %8.8lX\n", InheritedAceIndex, InheritedEffectiveMask, InheritedContainerInheritMask, InheritedObjectInheritMask));
             }
 #endif // DBG
             Status = STATUS_SUCCESS;
@@ -4871,39 +4854,39 @@ Return Value:
         ResultantMask = ChildAceInfo[ChildAceIndex].EffectiveMask | ChildAceInfo[ChildAceIndex].ContainerInheritMask | ChildAceInfo[ChildAceIndex].ObjectInheritMask;
 
         // Handle an inherited ACE
-        if ( ResultantMask == 0 ) {
+        if (ResultantMask == 0) {
             // Keep track of whether inherited "allow" and "deny" ACEs are found.
-            if ( RtlBaseAceType[ChildAce->Header.AceType] == ACCESS_ALLOWED_ACE_TYPE ) {
+            if (RtlBaseAceType[ChildAce->Header.AceType] == ACCESS_ALLOWED_ACE_TYPE) {
                 InheritedAllowFound = TRUE;
             }
 
-            if ( RtlBaseAceType[ChildAce->Header.AceType] == ACCESS_DENIED_ACE_TYPE ) {
+            if (RtlBaseAceType[ChildAce->Header.AceType] == ACCESS_DENIED_ACE_TYPE) {
                 InheritedDenyFound = TRUE;
             }
 
-        // Handle a non-inherited ACE
+            // Handle a non-inherited ACE
         } else {
             // Keep a running tab of the size of the non-inherited ACEs.
             NonInheritedAclSize += ChildAce->Header.AceSize;
 
             // Since non-inherited ACEs will be moved to the front of the ACL, we have to be careful that we don't move a deny ACE in front of a
             //  previously found inherited allow ACE (and vice-versa).  To do so would change the semantics of the ACL.
-            if ( RtlBaseAceType[ChildAce->Header.AceType] == ACCESS_ALLOWED_ACE_TYPE && InheritedDenyFound ) {
+            if (RtlBaseAceType[ChildAce->Header.AceType] == ACCESS_ALLOWED_ACE_TYPE && InheritedDenyFound) {
                 *NewGenericControl |= SEP_ACL_PROTECTED;
 #if DBG
-                if ( RtlpVerboseConvert ) {
-                    KdPrint(("Previous deny found Child ACE: %ld\n", ChildAceIndex ));
+                if (RtlpVerboseConvert) {
+                    KdPrint(("Previous deny found Child ACE: %ld\n", ChildAceIndex));
                 }
 #endif // DBG
                 Status = STATUS_SUCCESS;
                 goto Cleanup;
             }
 
-            if ( RtlBaseAceType[ChildAce->Header.AceType] == ACCESS_DENIED_ACE_TYPE && InheritedAllowFound ) {
+            if (RtlBaseAceType[ChildAce->Header.AceType] == ACCESS_DENIED_ACE_TYPE && InheritedAllowFound) {
                 *NewGenericControl |= SEP_ACL_PROTECTED;
 #if DBG
-                if ( RtlpVerboseConvert ) {
-                    KdPrint(("Previous allow found Child ACE: %ld\n", ChildAceIndex ));
+                if (RtlpVerboseConvert) {
+                    KdPrint(("Previous allow found Child ACE: %ld\n", ChildAceIndex));
                 }
 #endif // DBG
                 Status = STATUS_SUCCESS;
@@ -4917,27 +4900,27 @@ Return Value:
 
     // The Inherited ACL computed below is almost identical to InhertedAcl.
     // However, InheritedAcl didn't properly substitute the correct owner and group SID.
-    Status = RtlpInheritAcl (
-                ParentAcl,
-                NULL,   // No explicit child ACL
-                0,      // No Child Generic Control
-                IsDirectoryObject,
-                TRUE,   // AutoInherit the DACL
-                FALSE,  // Not default descriptor for object
-                OwnerSid,   // Subsitute a constant SID
-                GroupSid,   // Subsitute a constant SID
-                OwnerSid,   // Server Owner (Technically incorrect, but OK since we don't support compound ACEs)
-                GroupSid,   // Server Group
-                GenericMapping,
-                TRUE,   // Is a SACL
-                ObjectType,
-                &RealInheritedAcl,
-                &AclExplicitlyAssigned,
-                &GenericControl );
-    if ( !NT_SUCCESS(Status) ) {
+    Status = RtlpInheritAcl(
+        ParentAcl,
+        NULL,   // No explicit child ACL
+        0,      // No Child Generic Control
+        IsDirectoryObject,
+        TRUE,   // AutoInherit the DACL
+        FALSE,  // Not default descriptor for object
+        OwnerSid,   // Subsitute a constant SID
+        GroupSid,   // Subsitute a constant SID
+        OwnerSid,   // Server Owner (Technically incorrect, but OK since we don't support compound ACEs)
+        GroupSid,   // Server Group
+        GenericMapping,
+        TRUE,   // Is a SACL
+        ObjectType,
+        &RealInheritedAcl,
+        &AclExplicitlyAssigned,
+        &GenericControl);
+    if (!NT_SUCCESS(Status)) {
 #if DBG
-        if ( RtlpVerboseConvert ) {
-            KdPrint(("Can't build real inherited ACL %lX\n", Status ));
+        if (RtlpVerboseConvert) {
+            KdPrint(("Can't build real inherited ACL %lX\n", Status));
         }
 #endif // DBG
         goto Cleanup;
@@ -4945,11 +4928,11 @@ Return Value:
 
     // Allocate a buffer for the inherited ACL
 #ifdef NTOS_KERNEL_RUNTIME
-    *NewAcl = ExAllocatePoolWithTag(PagedPool,RealInheritedAcl->AclSize + NonInheritedAclSize,'cAeS' );
+    * NewAcl = ExAllocatePoolWithTag(PagedPool, RealInheritedAcl->AclSize + NonInheritedAclSize, 'cAeS');
 #else // NTOS_KERNEL_RUNTIME
-    *NewAcl = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), RealInheritedAcl->AclSize + NonInheritedAclSize );
+    * NewAcl = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), RealInheritedAcl->AclSize + NonInheritedAclSize);
 #endif // NTOS_KERNEL_RUNTIME
-    if ( *NewAcl == NULL ) {
+    if (*NewAcl == NULL) {
         Status = STATUS_NO_MEMORY;
         goto Cleanup;
     }
@@ -4958,16 +4941,16 @@ Return Value:
     // The inherited ACES are grabbed from real inherited ACL.
 
     // Build an ACL Header.
-    Status = RtlCreateAcl( *NewAcl,RealInheritedAcl->AclSize + NonInheritedAclSize,max( RealInheritedAcl->AclRevision, ChildAcl->AclRevision ) );
-    if ( !NT_SUCCESS(Status) ) {
+    Status = RtlCreateAcl(*NewAcl, RealInheritedAcl->AclSize + NonInheritedAclSize, max(RealInheritedAcl->AclRevision, ChildAcl->AclRevision));
+    if (!NT_SUCCESS(Status)) {
 #if DBG
-        if ( RtlpVerboseConvert ) {
-            KdPrint(("Can't create final ACL %lX\n", Status ));
+        if (RtlpVerboseConvert) {
+            KdPrint(("Can't create final ACL %lX\n", Status));
         }
 #endif // DBG
         // The only reason for failure would be if the combined ACL is too large.
         // So just create a protected ACL (better than a failure).
-        *NewGenericControl |= SEP_ACL_PROTECTED;
+        * NewGenericControl |= SEP_ACL_PROTECTED;
         Status = STATUS_SUCCESS;
         goto Cleanup;
     }
@@ -4979,52 +4962,52 @@ Return Value:
 
         // Copy the non-inherited ACE from the Child only if there's a non-zero access mask.
         ResultantMask = ChildAceInfo[ChildAceIndex].EffectiveMask | ChildAceInfo[ChildAceIndex].ContainerInheritMask | ChildAceInfo[ChildAceIndex].ObjectInheritMask;
-        if ( ResultantMask != 0 ) {
+        if (ResultantMask != 0) {
             PKNOWN_ACE NewAce;
             ULONG GenericBitToTry;
 
             // Use the original ChildAce as the template.
-            RtlCopyMemory( Where, ChildAce, ChildAce->Header.AceSize );
+            RtlCopyMemory(Where, ChildAce, ChildAce->Header.AceSize);
             NewAce = (PKNOWN_ACE)Where;
             NewAce->Header.AceFlags &= ~INHERITED_ACE;  // Clear stray bits
             Where += ChildAce->Header.AceSize;
 
-            (*NewAcl)->AceCount ++;
+            (*NewAcl)->AceCount++;
 
             // The AccessMask on the ACE are those access bits that didn't get matched by inherited ACEs.
             NewAce->Mask = ChildAce->Mask & ResultantMask;
             ResultantMask &= ~ChildAce->Mask;
 #if DBG
-            if ( RtlpVerboseConvert ) {
-                KdPrint(("Original non-inherited: %ld %8.8lX %8.8lX\n", ChildAceIndex, NewAce->Mask, ResultantMask ));
+            if (RtlpVerboseConvert) {
+                KdPrint(("Original non-inherited: %ld %8.8lX %8.8lX\n", ChildAceIndex, NewAce->Mask, ResultantMask));
             }
 #endif // DBG
 
             // Map any remaining bits back to generic access bits.
             // Doing so might expand the ResultantMask to beyond what was computed above.
             // Doing so will never expand the computed ACE to beyond what the original ChildAce granted.
-            ASSERT( GENERIC_WRITE == (GENERIC_READ >> 1));
-            ASSERT( GENERIC_EXECUTE == (GENERIC_WRITE >> 1));
-            ASSERT( GENERIC_ALL == (GENERIC_EXECUTE >> 1));
+            ASSERT(GENERIC_WRITE == (GENERIC_READ >> 1));
+            ASSERT(GENERIC_EXECUTE == (GENERIC_WRITE >> 1));
+            ASSERT(GENERIC_ALL == (GENERIC_EXECUTE >> 1));
 
             GenericBitToTry = GENERIC_READ;
-            while ( ResultantMask && GenericBitToTry >= GENERIC_ALL ) {
+            while (ResultantMask && GenericBitToTry >= GENERIC_ALL) {
                 // Only map generic bits that are in the ChildAce.
-                if ( GenericBitToTry & ChildAce->Mask ) {
+                if (GenericBitToTry & ChildAce->Mask) {
                     ACCESS_MASK GenericMask;
 
                     // Compute the real access mask corresponding to the Generic bit.
                     GenericMask = GenericBitToTry;
-                    RtlMapGenericMask( &GenericMask, GenericMapping );
+                    RtlMapGenericMask(&GenericMask, GenericMapping);
 
                     // If the current generic bit matches any of the bits remaining, set the generic bit in the current ACE.
-                    if ( (ResultantMask & GenericMask) != 0 ) {
+                    if ((ResultantMask & GenericMask) != 0) {
                         NewAce->Mask |= GenericBitToTry;
                         ResultantMask &= ~GenericMask;
                     }
 #if DBG
-                    if ( RtlpVerboseConvert ) {
-                        KdPrint(("Generic  non-inherited: %ld %8.8lX %8.8lX\n", ChildAceIndex, NewAce->Mask, ResultantMask ));
+                    if (RtlpVerboseConvert) {
+                        KdPrint(("Generic  non-inherited: %ld %8.8lX %8.8lX\n", ChildAceIndex, NewAce->Mask, ResultantMask));
                     }
 #endif // DBG
                 }
@@ -5034,11 +5017,11 @@ Return Value:
             }
 
             // This is really an internal error, but press on regardless.
-            ASSERT(ResultantMask == 0 );
+            ASSERT(ResultantMask == 0);
             NewAce->Mask |= ResultantMask;
 #if DBG
-            if ( RtlpVerboseConvert ) {
-                KdPrint(("Final    non-inherited: %ld %8.8lX %8.8lX\n", ChildAceIndex, NewAce->Mask, ResultantMask ));
+            if (RtlpVerboseConvert) {
+                KdPrint(("Final    non-inherited: %ld %8.8lX %8.8lX\n", ChildAceIndex, NewAce->Mask, ResultantMask));
             }
 #endif // DBG
         }
@@ -5046,64 +5029,64 @@ Return Value:
 
     // Copy the inherited ACES.
     //  Simply copy computed Inherited ACL.
-    RtlCopyMemory( Where, FirstAce(RealInheritedAcl), RealInheritedAcl->AclSize - (ULONG)(((PUCHAR)FirstAce(RealInheritedAcl)) - (PUCHAR)RealInheritedAcl));
+    RtlCopyMemory(Where, FirstAce(RealInheritedAcl), RealInheritedAcl->AclSize - (ULONG)(((PUCHAR)FirstAce(RealInheritedAcl)) - (PUCHAR)RealInheritedAcl));
     Where += RealInheritedAcl->AclSize - (ULONG)(((PUCHAR)FirstAce(RealInheritedAcl)) - (PUCHAR)RealInheritedAcl);
 
     (*NewAcl)->AceCount += RealInheritedAcl->AceCount;
-    ASSERT( (*NewAcl)->AclSize == Where - (PUCHAR)(*NewAcl) );
+    ASSERT((*NewAcl)->AclSize == Where - (PUCHAR)(*NewAcl));
 
     Status = STATUS_SUCCESS;
 
 Cleanup:
     // If successful, build the resultant autoinherited ACL.
-    if ( NT_SUCCESS(Status) ) {
+    if (NT_SUCCESS(Status)) {
         // If the Child ACL is protected, just build it as a copy of the original ACL
-        if ( *NewGenericControl & SEP_ACL_PROTECTED ) {
+        if (*NewGenericControl & SEP_ACL_PROTECTED) {
             // If we've already allocated a new ACL (and couldn't finish it for some reason), free it.
-            if ( *NewAcl != NULL) {
+            if (*NewAcl != NULL) {
 #ifdef NTOS_KERNEL_RUNTIME
-                ExFreePool( *NewAcl );
+                ExFreePool(*NewAcl);
 #else // NTOS_KERNEL_RUNTIME
-                RtlFreeHeap( HeapHandle, 0, *NewAcl );
+                RtlFreeHeap(HeapHandle, 0, *NewAcl);
 #endif // NTOS_KERNEL_RUNTIME
-                *NewAcl = NULL;
+                * NewAcl = NULL;
             }
 
             // Allocate a buffer for the protected ACL.
 #ifdef NTOS_KERNEL_RUNTIME
-            *NewAcl = ExAllocatePoolWithTag(PagedPool,ChildAcl->AclSize,'cAeS' );
+            * NewAcl = ExAllocatePoolWithTag(PagedPool, ChildAcl->AclSize, 'cAeS');
 #else // NTOS_KERNEL_RUNTIME
-            *NewAcl = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), ChildAcl->AclSize );
+            * NewAcl = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), ChildAcl->AclSize);
 #endif // NTOS_KERNEL_RUNTIME
-            if ( *NewAcl == NULL ) {
+            if (*NewAcl == NULL) {
                 Status = STATUS_NO_MEMORY;
             } else {
-                RtlCopyMemory( *NewAcl, ChildAcl, ChildAcl->AclSize );
+                RtlCopyMemory(*NewAcl, ChildAcl, ChildAcl->AclSize);
             }
         }
     }
 
-    if ( ChildAceInfo != NULL) {
+    if (ChildAceInfo != NULL) {
 #ifdef NTOS_KERNEL_RUNTIME
-        ExFreePool( ChildAceInfo );
+        ExFreePool(ChildAceInfo);
 #else // NTOS_KERNEL_RUNTIME
-        RtlFreeHeap( HeapHandle, 0, ChildAceInfo );
+        RtlFreeHeap(HeapHandle, 0, ChildAceInfo);
 #endif // NTOS_KERNEL_RUNTIME
     }
 
-    if ( InheritedAcl != NULL) {
+    if (InheritedAcl != NULL) {
 #ifdef NTOS_KERNEL_RUNTIME
-        ExFreePool( InheritedAcl );
+        ExFreePool(InheritedAcl);
 #else // NTOS_KERNEL_RUNTIME
-        RtlFreeHeap( HeapHandle, 0, InheritedAcl );
+        RtlFreeHeap(HeapHandle, 0, InheritedAcl);
 #endif // NTOS_KERNEL_RUNTIME
     }
 
-    if ( RealInheritedAcl != NULL) {
+    if (RealInheritedAcl != NULL) {
 #ifdef NTOS_KERNEL_RUNTIME
-        ExFreePool( RealInheritedAcl );
+        ExFreePool(RealInheritedAcl);
 #else // NTOS_KERNEL_RUNTIME
-        RtlFreeHeap( HeapHandle, 0, RealInheritedAcl );
+        RtlFreeHeap(HeapHandle, 0, RealInheritedAcl);
 #endif // NTOS_KERNEL_RUNTIME
     }
 
@@ -5111,7 +5094,7 @@ Cleanup:
 }
 
 
-BOOLEAN RtlpIsDuplicateAce(IN PACL Acl,IN PKNOWN_ACE NewAce,IN GUID *ObjectType OPTIONAL)
+BOOLEAN RtlpIsDuplicateAce(IN PACL Acl, IN PKNOWN_ACE NewAce, IN GUID * ObjectType OPTIONAL)
 /*++
 Routine Description:
     This routine determine if an ACE is a duplicate of an ACE already in an ACL.  If so, the NewAce can be removed from the end of the ACL.
@@ -5142,10 +5125,10 @@ Return Value:
     RTL_PAGED_CODE();
 
     // Ensure the passed in ACE is one this routine understands
-    if ( !IsV4AceType(NewAce) || IsCompoundAceType(NewAce)) {
+    if (!IsV4AceType(NewAce) || IsCompoundAceType(NewAce)) {
 #if DBG
-        if ( RtlpVerboseConvert ) {
-            KdPrint(("New Ace type (%ld) not known\n", NewAce->Header.AceType ));
+        if (RtlpVerboseConvert) {
+            KdPrint(("New Ace type (%ld) not known\n", NewAce->Header.AceType));
         }
 #endif // DBG
         RetVal = FALSE;
@@ -5153,10 +5136,10 @@ Return Value:
     }
 
     // This routine only works for ACEs marked as INHERITED.
-    if ( (NewAce->Header.AceFlags & INHERITED_ACE ) == 0 ) {
+    if ((NewAce->Header.AceFlags & INHERITED_ACE) == 0) {
 #if DBG
-        if ( RtlpVerboseConvert ) {
-            KdPrint(("New Ace type isn't inherited\n" ));
+        if (RtlpVerboseConvert) {
+            KdPrint(("New Ace type isn't inherited\n"));
         }
 #endif // DBG
         RetVal = FALSE;
@@ -5168,40 +5151,40 @@ Return Value:
     // All V4 aces have an access mask in the same location.
     LocalMask = ((PKNOWN_ACE)(NewAce))->Mask;
 
-    if ( NewAce->Header.AceFlags & CONTAINER_INHERIT_ACE ) {
+    if (NewAce->Header.AceFlags & CONTAINER_INHERIT_ACE) {
         NewAceContainerInheritMask = LocalMask;
     } else {
         NewAceContainerInheritMask = 0;
     }
 
-    if ( NewAce->Header.AceFlags & OBJECT_INHERIT_ACE ) {
+    if (NewAce->Header.AceFlags & OBJECT_INHERIT_ACE) {
         NewAceObjectInheritMask = LocalMask;
     } else {
         NewAceObjectInheritMask = 0;
     }
 
-    if ( (NewAce->Header.AceFlags & INHERIT_ONLY_ACE) == 0 ) {
+    if ((NewAce->Header.AceFlags & INHERIT_ONLY_ACE) == 0) {
         NewAceEffectiveMask = LocalMask;
     } else {
         NewAceEffectiveMask = 0;
     }
 #if DBG
-    if ( RtlpVerboseConvert ) {
-        KdPrint(("Starting MASKs:  %8.8lX %8.8lX %8.8lX", NewAceEffectiveMask, NewAceContainerInheritMask, NewAceObjectInheritMask ));
+    if (RtlpVerboseConvert) {
+        KdPrint(("Starting MASKs:  %8.8lX %8.8lX %8.8lX", NewAceEffectiveMask, NewAceContainerInheritMask, NewAceObjectInheritMask));
     }
 #endif // DBG
 
     // Walk through the ACL one ACE at a time.
     for (AceIndex = 0, AceFromAcl = FirstAce(Acl);
-         AceIndex < Acl->AceCount-1;    // NewAce is the last ACE
+         AceIndex < Acl->AceCount - 1;    // NewAce is the last ACE
          AceIndex += 1, AceFromAcl = NextAce(AceFromAcl)) {
         // If the ACE isn't a valid version 4 ACE, this isn't an ACE we're interested in handling.
-        if ( !IsV4AceType(AceFromAcl) || IsCompoundAceType(AceFromAcl)) {
+        if (!IsV4AceType(AceFromAcl) || IsCompoundAceType(AceFromAcl)) {
             continue;
         }
 
         // This routine only works for ACEs marked as INHERITED.
-        if ( (AceFromAcl->Header.AceFlags & INHERITED_ACE ) == 0 ) {
+        if ((AceFromAcl->Header.AceFlags & INHERITED_ACE) == 0) {
             continue;
         }
 
@@ -5210,39 +5193,39 @@ Return Value:
         //  Don't stop simply because we've matched once.
         //  Multiple ACEs in the one ACL may have been condensed into a single ACE in the other ACL in any combination (by any of our friendly ACL editors).
 #if DBG
-        if ( RtlpVerboseConvert ) {
-            KdPrint(("Compare Ace: %ld ", AceIndex ));
+        if (RtlpVerboseConvert) {
+            KdPrint(("Compare Ace: %ld ", AceIndex));
         }
 #endif // DBG
 
-        if ( RtlpCompareAces( AceFromAcl,NewAce,NULL,NULL ) ) {
+        if (RtlpCompareAces(AceFromAcl, NewAce, NULL, NULL)) {
             // Match the bits from the current ACE with bits from the New ACE.
 
             // All V4 aces have an access mask in the same location.
             LocalMask = ((PKNOWN_ACE)(AceFromAcl))->Mask;
 
-            if ( AceFromAcl->Header.AceFlags & CONTAINER_INHERIT_ACE ) {
+            if (AceFromAcl->Header.AceFlags & CONTAINER_INHERIT_ACE) {
                 NewAceContainerInheritMask &= ~LocalMask;
             }
 
-            if ( AceFromAcl->Header.AceFlags & OBJECT_INHERIT_ACE ) {
+            if (AceFromAcl->Header.AceFlags & OBJECT_INHERIT_ACE) {
                 NewAceObjectInheritMask &= ~LocalMask;
             }
 
-            if ( (AceFromAcl->Header.AceFlags & INHERIT_ONLY_ACE) == 0 ) {
+            if ((AceFromAcl->Header.AceFlags & INHERIT_ONLY_ACE) == 0) {
                 NewAceEffectiveMask &= ~LocalMask;
             }
 
 #if DBG
-            if ( RtlpVerboseConvert ) {
-                KdPrint(("Remaining MASKs:  %8.8lX %8.8lX %8.8lX", NewAceEffectiveMask, NewAceContainerInheritMask, NewAceObjectInheritMask ));
+            if (RtlpVerboseConvert) {
+                KdPrint(("Remaining MASKs:  %8.8lX %8.8lX %8.8lX", NewAceEffectiveMask, NewAceContainerInheritMask, NewAceObjectInheritMask));
             }
 #endif // DBG
 
             // If all bits have been matched in the New Ace, then this is a duplicate ACE.
-            if ( (NewAceEffectiveMask | NewAceContainerInheritMask | NewAceObjectInheritMask) == 0 ) {
+            if ((NewAceEffectiveMask | NewAceContainerInheritMask | NewAceObjectInheritMask) == 0) {
 #if DBG
-                if ( RtlpVerboseConvert ) {
+                if (RtlpVerboseConvert) {
                     KdPrint(("\n"));
                 }
 #endif // DBG
@@ -5251,8 +5234,8 @@ Return Value:
             }
         }
 #if DBG
-        if ( RtlpVerboseConvert ) {
-              KdPrint(("\n"));
+        if (RtlpVerboseConvert) {
+            KdPrint(("\n"));
         }
 #endif // DBG
     }
@@ -5267,7 +5250,7 @@ Cleanup:
 }
 
 
-NTSTATUS RtlpCreateServerAcl(IN PACL Acl,IN BOOLEAN AclUntrusted,IN PSID ServerSid,OUT PACL *ServerAcl,OUT BOOLEAN *ServerAclAllocated)
+NTSTATUS RtlpCreateServerAcl(IN PACL Acl, IN BOOLEAN AclUntrusted, IN PSID ServerSid, OUT PACL * ServerAcl, OUT BOOLEAN * ServerAclAllocated)
 /*++
 Routine Description:
     This routine takes an ACL and converts it into a server ACL.
@@ -5290,13 +5273,13 @@ Routine Description:
     if (Acl == NULL) {
         *ServerAclAllocated = FALSE;
         *ServerAcl = NULL;
-        return( STATUS_SUCCESS );
+        return(STATUS_SUCCESS);
     }
 
-    AceSizeAdjustment = sizeof( KNOWN_COMPOUND_ACE ) - sizeof( KNOWN_ACE );
-    ASSERT( sizeof( KNOWN_COMPOUND_ACE ) >= sizeof( KNOWN_ACE ) );
+    AceSizeAdjustment = sizeof(KNOWN_COMPOUND_ACE) - sizeof(KNOWN_ACE);
+    ASSERT(sizeof(KNOWN_COMPOUND_ACE) >= sizeof(KNOWN_ACE));
 
-    ServerSidSize = (USHORT)SeLengthSid( ServerSid );
+    ServerSidSize = (USHORT)SeLengthSid(ServerSid);
 
     // Do this in two passes.
     // First, determine how big the final result is going to be, and then allocate the space and make the changes.
@@ -5304,11 +5287,11 @@ Routine Description:
         // If it's an ACCESS_ALLOWED_ACE_TYPE, we'll need to add in the size of the Server SID.
         if (Ace->AceType == ACCESS_ALLOWED_ACE_TYPE) {
             // Simply add the size of the new Server SID plus whatever adjustment needs to be made to increase the size of the ACE.
-            RequiredSize += ( ServerSidSize + AceSizeAdjustment );
+            RequiredSize += (ServerSidSize + AceSizeAdjustment);
         } else {
-            if (AclUntrusted && Ace->AceType == ACCESS_ALLOWED_COMPOUND_ACE_TYPE ) {
+            if (AclUntrusted && Ace->AceType == ACCESS_ALLOWED_COMPOUND_ACE_TYPE) {
                 // Since the Acl is untrusted, we don't care what is in the server SID, we're going to replace it.
-                UntrustedSid = RtlCompoundAceServerSid( Ace );
+                UntrustedSid = RtlCompoundAceServerSid(Ace);
                 if ((USHORT)SeLengthSid(UntrustedSid) > ServerSidSize) {
                     RequiredSize += ((USHORT)SeLengthSid(UntrustedSid) - ServerSidSize);
                 } else {
@@ -5321,9 +5304,9 @@ Routine Description:
     }
 
 #ifdef NTOS_KERNEL_RUNTIME
-    (*ServerAcl) = (PACL)ExAllocatePoolWithTag( PagedPool, RequiredSize, 'cAeS' );
+    (*ServerAcl) = (PACL)ExAllocatePoolWithTag(PagedPool, RequiredSize, 'cAeS');
 #else // NTOS_KERNEL_RUNTIME
-    (*ServerAcl) = (PACL)RtlAllocateHeap( RtlProcessHeap(), MAKE_TAG( SE_TAG ), RequiredSize );
+    (*ServerAcl) = (PACL)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(SE_TAG), RequiredSize);
 #endif // NTOS_KERNEL_RUNTIME
 
     if ((*ServerAcl) == NULL) {
@@ -5333,31 +5316,31 @@ Routine Description:
     // Mark as allocated so caller knows to free it.
     *ServerAclAllocated = TRUE;
 
-    Status = RtlCreateAcl( (*ServerAcl), RequiredSize, ACL_REVISION3 );
-    ASSERT( NT_SUCCESS( Status ));
+    Status = RtlCreateAcl((*ServerAcl), RequiredSize, ACL_REVISION3);
+    ASSERT(NT_SUCCESS(Status));
 
-    for (i = 0, Ace = FirstAce(Acl), Target=FirstAce( *ServerAcl ); i < Acl->AceCount; i += 1, Ace = NextAce(Ace)) {
+    for (i = 0, Ace = FirstAce(Acl), Target = FirstAce(*ServerAcl); i < Acl->AceCount; i += 1, Ace = NextAce(Ace)) {
         // If it's an ACCESS_ALLOWED_ACE_TYPE, convert to a Server ACE.
-        if (Ace->AceType == ACCESS_ALLOWED_ACE_TYPE || (AclUntrusted && Ace->AceType == ACCESS_ALLOWED_COMPOUND_ACE_TYPE )) {
+        if (Ace->AceType == ACCESS_ALLOWED_ACE_TYPE || (AclUntrusted && Ace->AceType == ACCESS_ALLOWED_COMPOUND_ACE_TYPE)) {
             AcePosition = Target;
 
             if (Ace->AceType == ACCESS_ALLOWED_ACE_TYPE) {
-                ClientSid =  &((PKNOWN_ACE)Ace)->SidStart;
+                ClientSid = &((PKNOWN_ACE)Ace)->SidStart;
             } else {
-                ClientSid = RtlCompoundAceClientSid( Ace );
+                ClientSid = RtlCompoundAceClientSid(Ace);
             }
 
             // Copy up to the access mask.
-            RtlCopyMemory(Target,Ace,FIELD_OFFSET(KNOWN_ACE, SidStart));
+            RtlCopyMemory(Target, Ace, FIELD_OFFSET(KNOWN_ACE, SidStart));
 
             // Now copy the correct Server SID
             Target = ((PCHAR)Target + (UCHAR)(FIELD_OFFSET(KNOWN_COMPOUND_ACE, SidStart)));
 
-            RtlCopyMemory(Target,ServerSid,SeLengthSid(ServerSid));
+            RtlCopyMemory(Target, ServerSid, SeLengthSid(ServerSid));
             Target = ((PCHAR)Target + (UCHAR)SeLengthSid(ServerSid));
 
             // Now copy in the correct client SID.  We can copy this right out of the original ACE.
-            RtlCopyMemory(Target,ClientSid,SeLengthSid(ClientSid));
+            RtlCopyMemory(Target, ClientSid, SeLengthSid(ClientSid));
 
             Target = ((PCHAR)Target + SeLengthSid(ClientSid));
 
@@ -5369,7 +5352,7 @@ Routine Description:
             ((PKNOWN_COMPOUND_ACE)AcePosition)->CompoundAceType = COMPOUND_ACE_IMPERSONATION;
         } else {
             // Just copy the ACE as is.
-            RtlCopyMemory( Target, Ace, Ace->AceSize );
+            RtlCopyMemory(Target, Ace, Ace->AceSize);
 
             Target = ((PCHAR)Target + Ace->AceSize);
         }
@@ -5377,19 +5360,19 @@ Routine Description:
 
     (*ServerAcl)->AceCount = Acl->AceCount;
 
-    return( STATUS_SUCCESS );
+    return(STATUS_SUCCESS);
 }
 
 
 #ifndef NTOS_KERNEL_RUNTIME
 NTSTATUS RtlpGetDefaultsSubjectContext(
     HANDLE ClientToken,
-    OUT PTOKEN_OWNER *OwnerInfo,
-    OUT PTOKEN_PRIMARY_GROUP *GroupInfo,
-    OUT PTOKEN_DEFAULT_DACL *DefaultDaclInfo,
-    OUT PTOKEN_OWNER *ServerOwner,
-    OUT PTOKEN_PRIMARY_GROUP *ServerGroup
-    )
+    OUT PTOKEN_OWNER * OwnerInfo,
+    OUT PTOKEN_PRIMARY_GROUP * GroupInfo,
+    OUT PTOKEN_DEFAULT_DACL * DefaultDaclInfo,
+    OUT PTOKEN_OWNER * ServerOwner,
+    OUT PTOKEN_PRIMARY_GROUP * ServerGroup
+)
 {
     HANDLE PrimaryToken;
     PVOID HeapHandle;
@@ -5409,97 +5392,97 @@ NTSTATUS RtlpGetDefaultsSubjectContext(
     HeapHandle = RtlProcessHeap();
 
     // If the caller doesn't know the client token, simply don't return any information.
-    if ( ClientToken != NULL ) {
+    if (ClientToken != NULL) {
         // Obtain the default owner from the client.
         Status = NtQueryInformationToken(
-                     ClientToken,                        // Handle
-                     TokenOwner,                   // TokenInformationClass
-                     NULL,                         // TokenInformation
-                     0,                            // TokenInformationLength
-                     &TokenOwnerInfoSize           // ReturnLength
-                     );
-        if ( STATUS_BUFFER_TOO_SMALL != Status ) {
+            ClientToken,                        // Handle
+            TokenOwner,                   // TokenInformationClass
+            NULL,                         // TokenInformation
+            0,                            // TokenInformationLength
+            &TokenOwnerInfoSize           // ReturnLength
+        );
+        if (STATUS_BUFFER_TOO_SMALL != Status) {
             goto Cleanup;
         }
 
-        *OwnerInfo = RtlAllocateHeap( HeapHandle, MAKE_TAG( SE_TAG ), TokenOwnerInfoSize );
-        if ( *OwnerInfo == NULL ) {
+        *OwnerInfo = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), TokenOwnerInfoSize);
+        if (*OwnerInfo == NULL) {
             Status = STATUS_NO_MEMORY;
             goto Cleanup;
         }
 
         Status = NtQueryInformationToken(
-                     ClientToken,                        // Handle
-                     TokenOwner,                   // TokenInformationClass
-                     *OwnerInfo,               // TokenInformation
-                     TokenOwnerInfoSize,           // TokenInformationLength
-                     &TokenOwnerInfoSize           // ReturnLength
-                     );
-        if (!NT_SUCCESS( Status )) {
+            ClientToken,                        // Handle
+            TokenOwner,                   // TokenInformationClass
+            *OwnerInfo,               // TokenInformation
+            TokenOwnerInfoSize,           // TokenInformationLength
+            &TokenOwnerInfoSize           // ReturnLength
+        );
+        if (!NT_SUCCESS(Status)) {
             goto Cleanup;
         }
 
         // Obtain the default group from the client token.
         Status = NtQueryInformationToken(
-                     ClientToken,                        // Handle
-                     TokenPrimaryGroup,            // TokenInformationClass
-                     *GroupInfo,                   // TokenInformation
-                     0,                            // TokenInformationLength
-                     &TokenGroupInfoSize           // ReturnLength
-                     );
-        if ( STATUS_BUFFER_TOO_SMALL != Status ) {
+            ClientToken,                        // Handle
+            TokenPrimaryGroup,            // TokenInformationClass
+            *GroupInfo,                   // TokenInformation
+            0,                            // TokenInformationLength
+            &TokenGroupInfoSize           // ReturnLength
+        );
+        if (STATUS_BUFFER_TOO_SMALL != Status) {
             goto Cleanup;
         }
 
-        *GroupInfo = RtlAllocateHeap( HeapHandle, MAKE_TAG( SE_TAG ), TokenGroupInfoSize );
-        if ( *GroupInfo == NULL ) {
+        *GroupInfo = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), TokenGroupInfoSize);
+        if (*GroupInfo == NULL) {
             Status = STATUS_NO_MEMORY;
             goto Cleanup;
         }
 
         Status = NtQueryInformationToken(
-                     ClientToken,                  // Handle
-                     TokenPrimaryGroup,            // TokenInformationClass
-                     *GroupInfo,                   // TokenInformation
-                     TokenGroupInfoSize,           // TokenInformationLength
-                     &TokenGroupInfoSize           // ReturnLength
-                     );
-        if (!NT_SUCCESS( Status )) {
+            ClientToken,                  // Handle
+            TokenPrimaryGroup,            // TokenInformationClass
+            *GroupInfo,                   // TokenInformation
+            TokenGroupInfoSize,           // TokenInformationLength
+            &TokenGroupInfoSize           // ReturnLength
+        );
+        if (!NT_SUCCESS(Status)) {
             goto Cleanup;
         }
 
         Status = NtQueryInformationToken(
-                     ClientToken,                        // Handle
-                     TokenDefaultDacl,             // TokenInformationClass
-                     *DefaultDaclInfo,             // TokenInformation
-                     0,                            // TokenInformationLength
-                     &TokenDaclInfoSize            // ReturnLength
-                     );
-        if ( STATUS_BUFFER_TOO_SMALL != Status ) {
+            ClientToken,                        // Handle
+            TokenDefaultDacl,             // TokenInformationClass
+            *DefaultDaclInfo,             // TokenInformation
+            0,                            // TokenInformationLength
+            &TokenDaclInfoSize            // ReturnLength
+        );
+        if (STATUS_BUFFER_TOO_SMALL != Status) {
             goto Cleanup;
         }
 
-        *DefaultDaclInfo = RtlAllocateHeap( HeapHandle, MAKE_TAG( SE_TAG ), TokenDaclInfoSize );
-        if ( *DefaultDaclInfo == NULL ) {
+        *DefaultDaclInfo = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), TokenDaclInfoSize);
+        if (*DefaultDaclInfo == NULL) {
             Status = STATUS_NO_MEMORY;
             goto Cleanup;
         }
 
         Status = NtQueryInformationToken(
-                     ClientToken,                        // Handle
-                     TokenDefaultDacl,             // TokenInformationClass
-                     *DefaultDaclInfo,             // TokenInformation
-                     TokenDaclInfoSize,            // TokenInformationLength
-                     &TokenDaclInfoSize            // ReturnLength
-                     );
-        if (!NT_SUCCESS( Status )) {
+            ClientToken,                        // Handle
+            TokenDefaultDacl,             // TokenInformationClass
+            *DefaultDaclInfo,             // TokenInformation
+            TokenDaclInfoSize,            // TokenInformationLength
+            &TokenDaclInfoSize            // ReturnLength
+        );
+        if (!NT_SUCCESS(Status)) {
             goto Cleanup;
         }
     }
 
     // Now open the primary token to determine how to substitute for ServerOwner and ServerGroup.
-    Status = NtOpenProcessToken(NtCurrentProcess(),TOKEN_QUERY,&PrimaryToken);
-    if (!NT_SUCCESS( Status )) {
+    Status = NtOpenProcessToken(NtCurrentProcess(), TOKEN_QUERY, &PrimaryToken);
+    if (!NT_SUCCESS(Status)) {
         ClosePrimaryToken = FALSE;
         goto Cleanup;
     } else {
@@ -5507,110 +5490,110 @@ NTSTATUS RtlpGetDefaultsSubjectContext(
     }
 
     Status = NtQueryInformationToken(
-                 PrimaryToken,                 // Handle
-                 TokenOwner,                   // TokenInformationClass
-                 NULL,                         // TokenInformation
-                 0,                            // TokenInformationLength
-                 &ServerOwnerInfoSize          // ReturnLength
-                 );
-    if ( STATUS_BUFFER_TOO_SMALL != Status ) {
+        PrimaryToken,                 // Handle
+        TokenOwner,                   // TokenInformationClass
+        NULL,                         // TokenInformation
+        0,                            // TokenInformationLength
+        &ServerOwnerInfoSize          // ReturnLength
+    );
+    if (STATUS_BUFFER_TOO_SMALL != Status) {
         goto Cleanup;
     }
 
-    *ServerOwner = RtlAllocateHeap( HeapHandle, MAKE_TAG( SE_TAG ), ServerOwnerInfoSize );
-    if ( *ServerOwner == NULL ) {
+    *ServerOwner = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), ServerOwnerInfoSize);
+    if (*ServerOwner == NULL) {
         Status = STATUS_NO_MEMORY;
         goto Cleanup;
     }
 
     Status = NtQueryInformationToken(
-                 PrimaryToken,                 // Handle
-                 TokenOwner,                   // TokenInformationClass
-                 *ServerOwner,                 // TokenInformation
-                 ServerOwnerInfoSize,          // TokenInformationLength
-                 &ServerOwnerInfoSize          // ReturnLength
-                 );
-    if (!NT_SUCCESS( Status )) {
+        PrimaryToken,                 // Handle
+        TokenOwner,                   // TokenInformationClass
+        *ServerOwner,                 // TokenInformation
+        ServerOwnerInfoSize,          // TokenInformationLength
+        &ServerOwnerInfoSize          // ReturnLength
+    );
+    if (!NT_SUCCESS(Status)) {
         goto Cleanup;
     }
 
     // Find the server group.
     Status = NtQueryInformationToken(
-                 PrimaryToken,                 // Handle
-                 TokenPrimaryGroup,            // TokenInformationClass
-                 *ServerGroup,                 // TokenInformation
-                 0,                            // TokenInformationLength
-                 &ServerGroupInfoSize          // ReturnLength
-                 );
-    if ( STATUS_BUFFER_TOO_SMALL != Status ) {
+        PrimaryToken,                 // Handle
+        TokenPrimaryGroup,            // TokenInformationClass
+        *ServerGroup,                 // TokenInformation
+        0,                            // TokenInformationLength
+        &ServerGroupInfoSize          // ReturnLength
+    );
+    if (STATUS_BUFFER_TOO_SMALL != Status) {
         goto Cleanup;
     }
 
-    *ServerGroup = RtlAllocateHeap( HeapHandle, MAKE_TAG( SE_TAG ), ServerGroupInfoSize );
-    if ( *ServerGroup == NULL ) {
+    *ServerGroup = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), ServerGroupInfoSize);
+    if (*ServerGroup == NULL) {
         goto Cleanup;
     }
 
     Status = NtQueryInformationToken(
-                 PrimaryToken,                 // Handle
-                 TokenPrimaryGroup,            // TokenInformationClass
-                 *ServerGroup,                 // TokenInformation
-                 ServerGroupInfoSize,          // TokenInformationLength
-                 &ServerGroupInfoSize          // ReturnLength
-                 );
-    if (!NT_SUCCESS( Status )) {
+        PrimaryToken,                 // Handle
+        TokenPrimaryGroup,            // TokenInformationClass
+        *ServerGroup,                 // TokenInformation
+        ServerGroupInfoSize,          // TokenInformationLength
+        &ServerGroupInfoSize          // ReturnLength
+    );
+    if (!NT_SUCCESS(Status)) {
         goto Cleanup;
     }
 
-    NtClose( PrimaryToken );
-    return( STATUS_SUCCESS );
+    NtClose(PrimaryToken);
+    return(STATUS_SUCCESS);
 
 Cleanup:
     if (*OwnerInfo != NULL) {
-        RtlFreeHeap( HeapHandle, 0, (PVOID)*OwnerInfo );
+        RtlFreeHeap(HeapHandle, 0, (PVOID)*OwnerInfo);
         *OwnerInfo = NULL;
     }
 
     if (*GroupInfo != NULL) {
-        RtlFreeHeap( HeapHandle, 0, (PVOID)*GroupInfo );
+        RtlFreeHeap(HeapHandle, 0, (PVOID)*GroupInfo);
         *GroupInfo = NULL;
     }
 
     if (*DefaultDaclInfo != NULL) {
-        RtlFreeHeap( HeapHandle, 0, (PVOID)*DefaultDaclInfo );
+        RtlFreeHeap(HeapHandle, 0, (PVOID)*DefaultDaclInfo);
         *DefaultDaclInfo = NULL;
     }
 
     if (*ServerOwner != NULL) {
-        RtlFreeHeap( HeapHandle, 0, (PVOID)*ServerOwner );
+        RtlFreeHeap(HeapHandle, 0, (PVOID)*ServerOwner);
         *ServerOwner = NULL;
     }
 
     if (*ServerGroup != NULL) {
-        RtlFreeHeap( HeapHandle, 0, (PVOID)*ServerGroup );
+        RtlFreeHeap(HeapHandle, 0, (PVOID)*ServerGroup);
         *ServerGroup = NULL;
     }
 
-    if (ClosePrimaryToken  == TRUE) {
-        NtClose( PrimaryToken );
+    if (ClosePrimaryToken == TRUE) {
+        NtClose(PrimaryToken);
     }
 
-    return( Status );
+    return(Status);
 }
 #endif // NTOS_KERNEL_RUNTIME
 
 
 NTSTATUS
-RtlpNewSecurityObject (
+RtlpNewSecurityObject(
     IN PSECURITY_DESCRIPTOR ParentDescriptor OPTIONAL,
     IN PSECURITY_DESCRIPTOR CreatorDescriptor OPTIONAL,
     OUT PSECURITY_DESCRIPTOR * NewDescriptor,
-    IN GUID *ObjectType OPTIONAL,
+    IN GUID * ObjectType OPTIONAL,
     IN BOOLEAN IsDirectoryObject,
     IN ULONG AutoInheritFlags,
     IN HANDLE Token OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping
-    )
+)
 /*++
 Routine Description:
     The procedure is used to allocate and initialize a self-relative Security Descriptor for a new protected server's object.
@@ -5730,7 +5713,7 @@ Return Value:
         SeSecurityPrivilege privilege is needed to explicitly assign system ACLs to objects.
 --*/
 {
-    SECURITY_DESCRIPTOR *CapturedDescriptor;
+    SECURITY_DESCRIPTOR * CapturedDescriptor;
     SECURITY_DESCRIPTOR InCaseOneNotPassed;
     BOOLEAN SecurityDescriptorPassed;
     NTSTATUS Status;
@@ -5788,24 +5771,24 @@ Return Value:
     HeapHandle = RtlProcessHeap();// Get the handle to the current process heap
 
     // Ensure the token is an impersonation token.
-    if ( Token != NULL ) {
+    if (Token != NULL) {
         TOKEN_STATISTICS    ThreadTokenStatistics;
         ULONG ReturnLength;
         Status = NtQueryInformationToken(
-                     Token,                        // Handle
-                     TokenStatistics,              // TokenInformationClass
-                     &ThreadTokenStatistics,       // TokenInformation
-                     sizeof(TOKEN_STATISTICS),     // TokenInformationLength
-                     &ReturnLength                 // ReturnLength
-                     );
-        if (!NT_SUCCESS( Status )) {
-            return( Status );
+            Token,                        // Handle
+            TokenStatistics,              // TokenInformationClass
+            &ThreadTokenStatistics,       // TokenInformation
+            sizeof(TOKEN_STATISTICS),     // TokenInformationLength
+            &ReturnLength                 // ReturnLength
+        );
+        if (!NT_SUCCESS(Status)) {
+            return(Status);
         }
 
         //  If it is an impersonation token, then make sure it is at a high enough level.
         if (ThreadTokenStatistics.TokenType == TokenImpersonation) {
-            if (ThreadTokenStatistics.ImpersonationLevel < SecurityIdentification ) {
-                return( STATUS_BAD_IMPERSONATION_LEVEL );
+            if (ThreadTokenStatistics.ImpersonationLevel < SecurityIdentification) {
+                return(STATUS_BAD_IMPERSONATION_LEVEL);
             }
         }
     }
@@ -5829,13 +5812,13 @@ Return Value:
         CapturedDescriptor = &InCaseOneNotPassed;
     }
 
-    if ( CapturedDescriptor->Control & SE_SERVER_SECURITY ) {
+    if (CapturedDescriptor->Control & SE_SERVER_SECURITY) {
         ServerObject = TRUE;
     } else {
         ServerObject = FALSE;
     }
 
-    if ( CapturedDescriptor->Control & SE_DACL_UNTRUSTED ) {
+    if (CapturedDescriptor->Control & SE_DACL_UNTRUSTED) {
         DaclUntrusted = TRUE;
     } else {
         DaclUntrusted = FALSE;
@@ -5844,7 +5827,7 @@ Return Value:
     // Get the required information from the token.
 
     // Grab pointers to the default owner, primary group, and discretionary ACL.
-    if ( Token != NULL || ServerObject ) {
+    if (Token != NULL || ServerObject) {
 #ifdef NTOS_KERNEL_RUNTIME
         PSID TmpSubjectContextOwner = NULL;
         PSID TmpSubjectContextGroup = NULL;
@@ -5854,76 +5837,76 @@ Return Value:
         SIZE_T SubjectContextInfoSize = 0;
 
         // Lock the subject context for read access so that the pointers we copy out of it don't disappear on us at random
-        SeLockSubjectContext( SubjectSecurityContext );
+        SeLockSubjectContext(SubjectSecurityContext);
 
-        SepGetDefaultsSubjectContext(SubjectSecurityContext,&TmpSubjectContextOwner,&TmpSubjectContextGroup,&TmpServerOwner,&TmpServerGroup,&TmpSubjectContextDacl);
+        SepGetDefaultsSubjectContext(SubjectSecurityContext, &TmpSubjectContextOwner, &TmpSubjectContextGroup, &TmpServerOwner, &TmpServerGroup, &TmpSubjectContextDacl);
 
         // We can't keep the subject context locked, because we may have to do a privilege check later, which calls
         // PsLockProcessSecurityFields, which can cause a deadlock with PsImpersonateClient, which takes them in the reverse order.
 
         // Since we're giving up our read lock on the token, we need to copy all the stuff that we just got back.
         // Since it's not going to change, we can save some cycles and copy it all into a single chunck of memory.
-        SubjectContextInfoSize = SeLengthSid( TmpSubjectContextOwner ) +
-                                 SeLengthSid( TmpServerOwner )         +
-                                 (TmpSubjectContextGroup != NULL ? SeLengthSid( TmpSubjectContextGroup ) : 0) +
-                                 (TmpServerGroup         != NULL ? SeLengthSid( TmpServerGroup )         : 0) +
-                                 (TmpSubjectContextDacl  != NULL ? TmpSubjectContextDacl->AclSize        : 0);
-        SubjectContextInfo = ExAllocatePoolWithTag( PagedPool, SubjectContextInfoSize, 'dSeS');
+        SubjectContextInfoSize = SeLengthSid(TmpSubjectContextOwner) +
+            SeLengthSid(TmpServerOwner) +
+            (TmpSubjectContextGroup != NULL ? SeLengthSid(TmpSubjectContextGroup) : 0) +
+            (TmpServerGroup != NULL ? SeLengthSid(TmpServerGroup) : 0) +
+            (TmpSubjectContextDacl != NULL ? TmpSubjectContextDacl->AclSize : 0);
+        SubjectContextInfo = ExAllocatePoolWithTag(PagedPool, SubjectContextInfoSize, 'dSeS');
         if (SubjectContextInfo) {
             Base = SubjectContextInfo;// Copy in the data
 
             // There will always be an owner.
             SubjectContextOwner = (PSID)Base;
-            RtlCopySid( SeLengthSid( TmpSubjectContextOwner), Base, TmpSubjectContextOwner );
-            Base += SeLengthSid( TmpSubjectContextOwner);
+            RtlCopySid(SeLengthSid(TmpSubjectContextOwner), Base, TmpSubjectContextOwner);
+            Base += SeLengthSid(TmpSubjectContextOwner);
 
             // Groups may be NULL
             if (TmpSubjectContextGroup != NULL) {
                 SubjectContextGroup = (PSID)Base;
-                RtlCopySid( SeLengthSid( TmpSubjectContextGroup), Base, TmpSubjectContextGroup );
-                Base += SeLengthSid( TmpSubjectContextGroup );
+                RtlCopySid(SeLengthSid(TmpSubjectContextGroup), Base, TmpSubjectContextGroup);
+                Base += SeLengthSid(TmpSubjectContextGroup);
             } else {
                 SubjectContextGroup = NULL;
             }
 
             ServerOwner = (PSID)Base;
-            RtlCopySid( SeLengthSid( TmpServerOwner ), Base, TmpServerOwner );
-            Base += SeLengthSid( TmpServerOwner );
+            RtlCopySid(SeLengthSid(TmpServerOwner), Base, TmpServerOwner);
+            Base += SeLengthSid(TmpServerOwner);
 
             // Groups may be NULL
             if (TmpServerGroup != NULL) {
                 ServerGroup = (PSID)Base;
-                RtlCopySid( SeLengthSid( TmpServerGroup ), Base, TmpServerGroup );
-                Base += SeLengthSid( TmpServerGroup );
+                RtlCopySid(SeLengthSid(TmpServerGroup), Base, TmpServerGroup);
+                Base += SeLengthSid(TmpServerGroup);
             } else {
                 ServerGroup = NULL;
             }
 
             if (TmpSubjectContextDacl != NULL) {
                 SubjectContextDacl = (PACL)Base;
-                RtlCopyMemory( Base, TmpSubjectContextDacl, TmpSubjectContextDacl->AclSize );
+                RtlCopyMemory(Base, TmpSubjectContextDacl, TmpSubjectContextDacl->AclSize);
                 // Base += TmpSubjectContextDacl->AclSize;
             } else {
                 SubjectContextDacl = NULL;
             }
         } else {
-            SeUnlockSubjectContext( SubjectSecurityContext );
-            return( STATUS_INSUFFICIENT_RESOURCES );
+            SeUnlockSubjectContext(SubjectSecurityContext);
+            return(STATUS_INSUFFICIENT_RESOURCES);
         }
 
-        SeUnlockSubjectContext( SubjectSecurityContext );
+        SeUnlockSubjectContext(SubjectSecurityContext);
 
 #else // NTOS_KERNEL_RUNTIME
-        Status = RtlpGetDefaultsSubjectContext(Token,&TokenOwnerInfo,&TokenPrimaryGroupInfo,&TokenDefaultDaclInfo,&ServerOwnerInfo,&ServerGroupInfo);
-        if (!NT_SUCCESS( Status )) {
-            return( Status );
+        Status = RtlpGetDefaultsSubjectContext(Token, &TokenOwnerInfo, &TokenPrimaryGroupInfo, &TokenDefaultDaclInfo, &ServerOwnerInfo, &ServerGroupInfo);
+        if (!NT_SUCCESS(Status)) {
+            return(Status);
         }
 
         SubjectContextOwner = TokenOwnerInfo->Owner;
         SubjectContextGroup = TokenPrimaryGroupInfo->PrimaryGroup;
-        SubjectContextDacl  = TokenDefaultDaclInfo->DefaultDacl;
-        ServerOwner         = ServerOwnerInfo->Owner;
-        ServerGroup         = ServerGroupInfo->PrimaryGroup;
+        SubjectContextDacl = TokenDefaultDaclInfo->DefaultDacl;
+        ServerOwner = ServerOwnerInfo->Owner;
+        ServerGroup = ServerGroupInfo->PrimaryGroup;
 #endif // NTOS_KERNEL_RUNTIME
     }
 
@@ -5934,14 +5917,14 @@ Return Value:
         OwnerExplicitlyAssigned = TRUE;
     } else {
         // If the caller said to default the owner from the parent descriptor, grab it now.
-        if ( AutoInheritFlags & SEF_DEFAULT_OWNER_FROM_PARENT) {
-            if ( !ARGUMENT_PRESENT(ParentDescriptor) ) {
+        if (AutoInheritFlags & SEF_DEFAULT_OWNER_FROM_PARENT) {
+            if (!ARGUMENT_PRESENT(ParentDescriptor)) {
                 Status = STATUS_INVALID_OWNER;
                 goto Cleanup;
             }
             NewOwner = RtlpOwnerAddrSecurityDescriptor((SECURITY_DESCRIPTOR *)ParentDescriptor);
             OwnerExplicitlyAssigned = TRUE;
-            if ( NewOwner == NULL ) {
+            if (NewOwner == NULL) {
                 Status = STATUS_INVALID_OWNER;
                 goto Cleanup;
             }
@@ -5954,7 +5937,7 @@ Return Value:
             // If we've been asked to create a ServerObject, we need to make sure to pick up the new owner from the Primary token, not the client token.
             // If we're not impersonating, they will end up being the same.
             NewOwner = ServerObject ? ServerOwner : SubjectContextOwner;
-            if ( NewOwner == NULL ) {// Ensure an owner is now defined.
+            if (NewOwner == NULL) {// Ensure an owner is now defined.
                 Status = STATUS_NO_TOKEN;
                 goto Cleanup;
             }
@@ -5965,8 +5948,8 @@ Return Value:
     NewGroup = RtlpGroupAddrSecurityDescriptor(CapturedDescriptor);
     if (NewGroup == NULL) {
         // If the caller said to default the group from the parent descriptor, grab it now.
-        if ( AutoInheritFlags & SEF_DEFAULT_GROUP_FROM_PARENT) {
-            if ( !ARGUMENT_PRESENT(ParentDescriptor) ) {
+        if (AutoInheritFlags & SEF_DEFAULT_GROUP_FROM_PARENT) {
+            if (!ARGUMENT_PRESENT(ParentDescriptor)) {
                 Status = STATUS_INVALID_PRIMARY_GROUP;
                 goto Cleanup;
             }
@@ -5980,7 +5963,7 @@ Return Value:
     }
 
     if (NewGroup != NULL) {
-        if (!RtlValidSid( NewGroup )) {
+        if (!RtlValidSid(NewGroup)) {
             Status = STATUS_INVALID_PRIMARY_GROUP;
             goto Cleanup;
         }
@@ -5991,12 +5974,12 @@ Return Value:
 
     // Establish System Acl
     Status = RtlpInheritAcl(
-        ARGUMENT_PRESENT(ParentDescriptor) ? RtlpSaclAddrSecurityDescriptor(((SECURITY_DESCRIPTOR *) ParentDescriptor)) : NULL,
+        ARGUMENT_PRESENT(ParentDescriptor) ? RtlpSaclAddrSecurityDescriptor(((SECURITY_DESCRIPTOR *)ParentDescriptor)) : NULL,
         RtlpSaclAddrSecurityDescriptor(CapturedDescriptor),
         SeControlSaclToGeneric(CapturedDescriptor->Control),
         IsDirectoryObject,
-        (BOOLEAN) ((AutoInheritFlags & SEF_SACL_AUTO_INHERIT) != 0),
-        (BOOLEAN) ((AutoInheritFlags & SEF_DEFAULT_DESCRIPTOR_FOR_OBJECT) != 0),
+        (BOOLEAN)((AutoInheritFlags & SEF_SACL_AUTO_INHERIT) != 0),
+        (BOOLEAN)((AutoInheritFlags & SEF_DEFAULT_DESCRIPTOR_FOR_OBJECT) != 0),
         NewOwner,
         NewGroup,
         ServerOwner,
@@ -6010,15 +5993,14 @@ Return Value:
     if (NT_SUCCESS(Status)) {
         NewSaclInherited = TRUE;
         NewControlBits |= SE_SACL_PRESENT | SeControlGenericToSacl(GenericControl);
-    }
-    else if (Status == STATUS_NO_INHERITANCE) {
+    } else if (Status == STATUS_NO_INHERITANCE) {
         // Always set the auto inherit bit if the caller requested it.
         if (AutoInheritFlags & SEF_SACL_AUTO_INHERIT) {
             NewControlBits |= SE_SACL_AUTO_INHERITED;
         }
 
         // No inheritable ACL - check for a defaulted one.
-        if ( RtlpAreControlBitsSet( CapturedDescriptor, SE_SACL_PRESENT | SE_SACL_DEFAULTED ) ) {
+        if (RtlpAreControlBitsSet(CapturedDescriptor, SE_SACL_PRESENT | SE_SACL_DEFAULTED)) {
             // Reference the default ACL
             NewSacl = RtlpSaclAddrSecurityDescriptor(CapturedDescriptor);
             NewControlBits |= SE_SACL_PRESENT;
@@ -6033,34 +6015,34 @@ Return Value:
     }
 
     // Establish Discretionary Acl
-    Status = RtlpInheritAcl (
-                ARGUMENT_PRESENT(ParentDescriptor) ? RtlpDaclAddrSecurityDescriptor(((SECURITY_DESCRIPTOR *)ParentDescriptor)) : NULL,
-                RtlpDaclAddrSecurityDescriptor(CapturedDescriptor),
-                SeControlDaclToGeneric( CapturedDescriptor->Control ),
-                IsDirectoryObject,
-                (BOOLEAN)((AutoInheritFlags & SEF_DACL_AUTO_INHERIT) != 0),
-                (BOOLEAN)((AutoInheritFlags & SEF_DEFAULT_DESCRIPTOR_FOR_OBJECT) != 0),
-                NewOwner,
-                NewGroup,
-                ServerOwner,
-                ServerGroup,
-                GenericMapping,
-                FALSE,   // Is a DACL
-                ObjectType,
-                &NewDacl,
-                &DaclExplicitlyAssigned,
-                &GenericControl );
-    if ( NT_SUCCESS(Status) ) {
+    Status = RtlpInheritAcl(
+        ARGUMENT_PRESENT(ParentDescriptor) ? RtlpDaclAddrSecurityDescriptor(((SECURITY_DESCRIPTOR *)ParentDescriptor)) : NULL,
+        RtlpDaclAddrSecurityDescriptor(CapturedDescriptor),
+        SeControlDaclToGeneric(CapturedDescriptor->Control),
+        IsDirectoryObject,
+        (BOOLEAN)((AutoInheritFlags & SEF_DACL_AUTO_INHERIT) != 0),
+        (BOOLEAN)((AutoInheritFlags & SEF_DEFAULT_DESCRIPTOR_FOR_OBJECT) != 0),
+        NewOwner,
+        NewGroup,
+        ServerOwner,
+        ServerGroup,
+        GenericMapping,
+        FALSE,   // Is a DACL
+        ObjectType,
+        &NewDacl,
+        &DaclExplicitlyAssigned,
+        &GenericControl);
+    if (NT_SUCCESS(Status)) {
         NewDaclInherited = TRUE;
-        NewControlBits |= SE_DACL_PRESENT | SeControlGenericToDacl( GenericControl );
-    } else if ( Status == STATUS_NO_INHERITANCE ) {
+        NewControlBits |= SE_DACL_PRESENT | SeControlGenericToDacl(GenericControl);
+    } else if (Status == STATUS_NO_INHERITANCE) {
         // Always set the auto inherit bit if the caller requested it.
-        if ( AutoInheritFlags & SEF_DACL_AUTO_INHERIT) {
+        if (AutoInheritFlags & SEF_DACL_AUTO_INHERIT) {
             NewControlBits |= SE_DACL_AUTO_INHERITED;
         }
 
         // No inheritable ACL - check for a defaulted one.
-        if ( RtlpAreControlBitsSet( CapturedDescriptor, SE_DACL_PRESENT | SE_DACL_DEFAULTED ) ) {
+        if (RtlpAreControlBitsSet(CapturedDescriptor, SE_DACL_PRESENT | SE_DACL_DEFAULTED)) {
             // Reference the default ACL
             NewDacl = RtlpDaclAddrSecurityDescriptor(CapturedDescriptor);
             NewControlBits |= SE_DACL_PRESENT;
@@ -6069,7 +6051,7 @@ Return Value:
             // This counts as an explicit assignment.
             DaclExplicitlyAssigned = TRUE;
 
-        // Default to the DACL on the token.
+            // Default to the DACL on the token.
         } else if (ARGUMENT_PRESENT(SubjectContextDacl)) {
             NewDacl = SubjectContextDacl;
             NewControlBits |= SE_DACL_PRESENT;
@@ -6083,7 +6065,7 @@ Return Value:
 
     // NULL DACLs are problematic when ACEs are actually inherited from the parent DACL.
     // It is better to mark them as protected NOW (even if we don't end up inheriting any ACEs) to avoid confusion later.
-    if ( (AutoInheritFlags & SEF_DACL_AUTO_INHERIT) != 0 && NewDacl == NULL ) {
+    if ((AutoInheritFlags & SEF_DACL_AUTO_INHERIT) != 0 && NewDacl == NULL) {
         NewControlBits |= SE_DACL_PROTECTED;
     }
 
@@ -6093,9 +6075,9 @@ Return Value:
         // Anybody can assign any Discretionary ACL or group that they want to.
 
         //  See if the system ACL was explicitly specified
-        if ( SaclExplicitlyAssigned && (AutoInheritFlags & SEF_AVOID_PRIVILEGE_CHECK) == 0 ) {
+        if (SaclExplicitlyAssigned && (AutoInheritFlags & SEF_AVOID_PRIVILEGE_CHECK) == 0) {
             // Require a Token if we're to do the privilege check.
-            if ( Token == NULL ) {
+            if (Token == NULL) {
                 Status = STATUS_NO_TOKEN;
                 goto Cleanup;
             }
@@ -6110,14 +6092,14 @@ Return Value:
             PrivilegeSet.Control = PRIVILEGE_SET_ALL_NECESSARY;
             PrivilegeSet.Privilege[0].Luid = SeSecurityPrivilege;
             PrivilegeSet.Privilege[0].Attributes = 0;
-            HasPrivilege = SePrivilegeCheck(&PrivilegeSet,SubjectSecurityContext,RequestorMode);
-            if ( RequestorMode != KernelMode ) {
-                SePrivilegedServiceAuditAlarm (
+            HasPrivilege = SePrivilegeCheck(&PrivilegeSet, SubjectSecurityContext, RequestorMode);
+            if (RequestorMode != KernelMode) {
+                SePrivilegedServiceAuditAlarm(
                     NULL,                              // BUGWARNING need service name
                     SubjectSecurityContext,
                     &PrivilegeSet,
                     HasPrivilege
-                    );
+                );
             }
 
 #else // NTOS_KERNEL_RUNTIME
@@ -6128,34 +6110,34 @@ Return Value:
             PrivilegeSet.Control = PRIVILEGE_SET_ALL_NECESSARY;
             PrivilegeSet.Privilege[0].Luid = RtlConvertLongToLuid(SE_SECURITY_PRIVILEGE);
             PrivilegeSet.Privilege[0].Attributes = 0;
-            Status = NtPrivilegeCheck(Token,&PrivilegeSet,&HasPrivilege);
-            if (!NT_SUCCESS( Status )) {
+            Status = NtPrivilegeCheck(Token, &PrivilegeSet, &HasPrivilege);
+            if (!NT_SUCCESS(Status)) {
                 goto Cleanup;
             }
 #endif // NTOS_KERNEL_RUNTIME
 
-            if ( !HasPrivilege ) {
+            if (!HasPrivilege) {
                 Status = STATUS_PRIVILEGE_NOT_HELD;
                 goto Cleanup;
             }
         }
 
         // See if the owner field is one the requestor can assign
-        if (OwnerExplicitlyAssigned && (AutoInheritFlags & SEF_AVOID_OWNER_CHECK) == 0 ) {
+        if (OwnerExplicitlyAssigned && (AutoInheritFlags & SEF_AVOID_OWNER_CHECK) == 0) {
 #ifdef NTOS_KERNEL_RUNTIME
-            if (!SepValidOwnerSubjectContext(SubjectSecurityContext,NewOwner,ServerObject)) {
+            if (!SepValidOwnerSubjectContext(SubjectSecurityContext, NewOwner, ServerObject)) {
                 Status = STATUS_INVALID_OWNER;
                 goto Cleanup;
             }
 #else // NTOS_KERNEL_RUNTIME
 
             // Require a Token if we're to do the privilege check.
-            if ( Token == NULL ) {
+            if (Token == NULL) {
                 Status = STATUS_NO_TOKEN;
                 goto Cleanup;
             }
 
-            if (!RtlpValidOwnerSubjectContext(Token,NewOwner,ServerObject,&PassedStatus) ) {
+            if (!RtlpValidOwnerSubjectContext(Token, NewOwner, ServerObject, &PassedStatus)) {
                 Status = PassedStatus;
                 goto Cleanup;
             }
@@ -6164,8 +6146,8 @@ Return Value:
 
         // If the DACL was explictly assigned and this is a server object, convert the DACL to be a server DACL
         if (DaclExplicitlyAssigned && ServerObject) {
-            Status = RtlpCreateServerAcl(NewDacl,DaclUntrusted,ServerOwner,&ServerDacl,&ServerDaclAllocated);
-            if (!NT_SUCCESS( Status )) {
+            Status = RtlpCreateServerAcl(NewDacl, DaclUntrusted, ServerOwner, &ServerDacl, &ServerDaclAllocated);
+            if (!NT_SUCCESS(Status)) {
                 goto Cleanup;
             }
 
@@ -6188,23 +6170,23 @@ Return Value:
         NewSaclSize = 0;
     }
 
-    if ( (NewControlBits & SE_DACL_PRESENT) && (NewDacl != NULL)) {
+    if ((NewControlBits & SE_DACL_PRESENT) && (NewDacl != NULL)) {
         NewDaclSize = LongAlignSize(NewDacl->AclSize);
     } else {
         NewDaclSize = 0;
     }
 
-    AllocationSize = LongAlignSize(sizeof(SECURITY_DESCRIPTOR_RELATIVE)) + NewOwnerSize + NewGroupSize + NewSaclSize  + NewDaclSize;
+    AllocationSize = LongAlignSize(sizeof(SECURITY_DESCRIPTOR_RELATIVE)) + NewOwnerSize + NewGroupSize + NewSaclSize + NewDaclSize;
 
     // Allocate and initialize the security descriptor as self-relative form.
 
 #ifdef NTOS_KERNEL_RUNTIME
-    INewDescriptor = (PSECURITY_DESCRIPTOR)ExAllocatePoolWithTag( PagedPool, AllocationSize, 'dSeS');
+    INewDescriptor = (PSECURITY_DESCRIPTOR)ExAllocatePoolWithTag(PagedPool, AllocationSize, 'dSeS');
 #else // NTOS_KERNEL_RUNTIME
-    INewDescriptor = RtlAllocateHeap( HeapHandle, MAKE_TAG( SE_TAG ), AllocationSize );
+    INewDescriptor = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), AllocationSize);
 #endif // NTOS_KERNEL_RUNTIME
 
-    if ( INewDescriptor == NULL ) {
+    if (INewDescriptor == NULL) {
 #ifdef NTOS_KERNEL_RUNTIME
         Status = STATUS_INSUFFICIENT_RESOURCES;
 #else // NTOS_KERNEL_RUNTIME
@@ -6213,20 +6195,20 @@ Return Value:
         goto Cleanup;
     }
 
-    RtlCreateSecurityDescriptorRelative(INewDescriptor,SECURITY_DESCRIPTOR_REVISION);
-    RtlpSetControlBits( INewDescriptor, NewControlBits );
+    RtlCreateSecurityDescriptorRelative(INewDescriptor, SECURITY_DESCRIPTOR_REVISION);
+    RtlpSetControlBits(INewDescriptor, NewControlBits);
     Base = (PCHAR)(INewDescriptor);
-    Field =  Base + sizeof(SECURITY_DESCRIPTOR_RELATIVE);
+    Field = Base + sizeof(SECURITY_DESCRIPTOR_RELATIVE);
 
     // Map and Copy in the Sacl
     if (NewControlBits & SE_SACL_PRESENT) {
         if (NewSacl != NULL) {
-            RtlCopyMemory( Field, NewSacl, NewSacl->AclSize );
+            RtlCopyMemory(Field, NewSacl, NewSacl->AclSize);
             if (!NewSaclInherited) {
-                RtlpApplyAclToObject( (PACL)Field, GenericMapping );
+                RtlpApplyAclToObject((PACL)Field, GenericMapping);
             }
 
-            INewDescriptor->Sacl = RtlPointerToOffset(Base,Field);
+            INewDescriptor->Sacl = RtlPointerToOffset(Base, Field);
             Field += NewSaclSize;
         } else {
             INewDescriptor->Sacl = 0;
@@ -6236,12 +6218,12 @@ Return Value:
     // Map and Copy in the Dacl
     if (NewControlBits & SE_DACL_PRESENT) {
         if (NewDacl != NULL) {
-            RtlCopyMemory( Field, NewDacl, NewDacl->AclSize );
+            RtlCopyMemory(Field, NewDacl, NewDacl->AclSize);
             if (!NewDaclInherited) {
-                RtlpApplyAclToObject( (PACL)Field, GenericMapping );
+                RtlpApplyAclToObject((PACL)Field, GenericMapping);
             }
 
-            INewDescriptor->Dacl = RtlPointerToOffset(Base,Field);
+            INewDescriptor->Dacl = RtlPointerToOffset(Base, Field);
             Field += NewDaclSize;
         } else {
             INewDescriptor->Dacl = 0;
@@ -6249,13 +6231,13 @@ Return Value:
     }
 
     // Assign the owner
-    RtlCopyMemory( Field, NewOwner, SeLengthSid(NewOwner) );
-    INewDescriptor->Owner = RtlPointerToOffset(Base,Field);
+    RtlCopyMemory(Field, NewOwner, SeLengthSid(NewOwner));
+    INewDescriptor->Owner = RtlPointerToOffset(Base, Field);
     Field += NewOwnerSize;
 
     if (NewGroup != NULL) {
-        RtlCopyMemory( Field, NewGroup, SeLengthSid(NewGroup) );
-        INewDescriptor->Group = RtlPointerToOffset(Base,Field);
+        RtlCopyMemory(Field, NewGroup, SeLengthSid(NewGroup));
+        INewDescriptor->Group = RtlPointerToOffset(Base, Field);
     }
 
     Status = STATUS_SUCCESS;
@@ -6264,9 +6246,9 @@ Cleanup:
     // If we allocated memory for a Server DACL, free it now.
     if (ServerDaclAllocated) {
 #ifdef NTOS_KERNEL_RUNTIME
-        ExFreePool( ServerDacl );
+        ExFreePool(ServerDacl);
 #else // NTOS_KERNEL_RUNTIME
-        RtlFreeHeap(RtlProcessHeap(), 0, ServerDacl );
+        RtlFreeHeap(RtlProcessHeap(), 0, ServerDacl);
 #endif // NTOS_KERNEL_RUNTIME
     }
 
@@ -6277,49 +6259,49 @@ Cleanup:
 //     }
 
     if (SubjectContextInfo != NULL) {
-        ExFreePool( SubjectContextInfo );
+        ExFreePool(SubjectContextInfo);
     }
 
 #else // NTOS_KERNEL_RUNTIME
-    RtlFreeHeap( HeapHandle, 0, (PVOID)TokenOwnerInfo );
-    RtlFreeHeap( HeapHandle, 0, (PVOID)TokenPrimaryGroupInfo );
-    RtlFreeHeap( HeapHandle, 0, (PVOID)TokenDefaultDaclInfo );
-    RtlFreeHeap( HeapHandle, 0, (PVOID)ServerOwnerInfo );
-    RtlFreeHeap( HeapHandle, 0, (PVOID)ServerGroupInfo );
+    RtlFreeHeap(HeapHandle, 0, (PVOID)TokenOwnerInfo);
+    RtlFreeHeap(HeapHandle, 0, (PVOID)TokenPrimaryGroupInfo);
+    RtlFreeHeap(HeapHandle, 0, (PVOID)TokenDefaultDaclInfo);
+    RtlFreeHeap(HeapHandle, 0, (PVOID)ServerOwnerInfo);
+    RtlFreeHeap(HeapHandle, 0, (PVOID)ServerGroupInfo);
 #endif // NTOS_KERNEL_RUNTIME
 
-    if (NewSaclInherited && NewSacl != NULL ) {
+    if (NewSaclInherited && NewSacl != NULL) {
 #ifdef NTOS_KERNEL_RUNTIME
-        ExFreePool( NewSacl );
+        ExFreePool(NewSacl);
 #else // NTOS_KERNEL_RUNTIME
-        RtlFreeHeap( HeapHandle, 0, (PVOID)NewSacl );
+        RtlFreeHeap(HeapHandle, 0, (PVOID)NewSacl);
 #endif // NTOS_KERNEL_RUNTIME
     }
 
-    if (NewDaclInherited && NewDacl != NULL ) {
+    if (NewDaclInherited && NewDacl != NULL) {
 #ifdef NTOS_KERNEL_RUNTIME
-        ExFreePool( NewDacl );
+        ExFreePool(NewDacl);
 #else // NTOS_KERNEL_RUNTIME
-        RtlFreeHeap( HeapHandle, 0, (PVOID)NewDacl );
+        RtlFreeHeap(HeapHandle, 0, (PVOID)NewDacl);
 #endif // NTOS_KERNEL_RUNTIME
     }
 
-    *NewDescriptor = (PSECURITY_DESCRIPTOR) INewDescriptor;
+    *NewDescriptor = (PSECURITY_DESCRIPTOR)INewDescriptor;
     return Status;
 }
 
 
 NTSTATUS
-RtlpSetSecurityObject (
+RtlpSetSecurityObject(
     IN PVOID Object OPTIONAL,
     IN SECURITY_INFORMATION SecurityInformation,
     IN PSECURITY_DESCRIPTOR ModificationDescriptor,
-    IN OUT PSECURITY_DESCRIPTOR *ObjectsSecurityDescriptor,
+    IN OUT PSECURITY_DESCRIPTOR * ObjectsSecurityDescriptor,
     IN ULONG AutoInheritFlags,
     IN ULONG PoolType,
     IN PGENERIC_MAPPING GenericMapping,
     IN HANDLE Token OPTIONAL
-    )
+)
 /*++
 Routine Description:
     Modify an object's existing self-relative form security descriptor.
@@ -6421,7 +6403,7 @@ Return Value:
     // It is just a pointer to a security descriptor.
     PISECURITY_DESCRIPTOR IModificationDescriptor = (PISECURITY_DESCRIPTOR)ModificationDescriptor;
 
-    PISECURITY_DESCRIPTOR *IObjectsSecurityDescriptor = (PISECURITY_DESCRIPTOR *)(ObjectsSecurityDescriptor);
+    PISECURITY_DESCRIPTOR * IObjectsSecurityDescriptor = (PISECURITY_DESCRIPTOR *)(ObjectsSecurityDescriptor);
 
 #ifndef NTOS_KERNEL_RUNTIME
     PVOID HeapHandle;
@@ -6436,20 +6418,20 @@ Return Value:
 #endif // NTOS_KERNEL_RUNTIME
 
     //  Validate that the provided SD is in self-relative form
-    if ( !RtlpAreControlBitsSet(*IObjectsSecurityDescriptor, SE_SELF_RELATIVE) ) {
+    if (!RtlpAreControlBitsSet(*IObjectsSecurityDescriptor, SE_SELF_RELATIVE)) {
         Status = STATUS_BAD_DESCRIPTOR_FORMAT;
         goto Cleanup;
     }
 
     // Check to see if we need to edit the passed acl either because we're creating a server object, or because we were passed an untrusted ACL.
     if (ARGUMENT_PRESENT(ModificationDescriptor)) {
-        if ( RtlpAreControlBitsSet(IModificationDescriptor, SE_SERVER_SECURITY)) {
+        if (RtlpAreControlBitsSet(IModificationDescriptor, SE_SERVER_SECURITY)) {
             ServerObject = TRUE;
         } else {
             ServerObject = FALSE;
         }
 
-        if ( RtlpAreControlBitsSet(IModificationDescriptor, SE_DACL_UNTRUSTED)) {
+        if (RtlpAreControlBitsSet(IModificationDescriptor, SE_DACL_UNTRUSTED)) {
             DaclUntrusted = TRUE;
         } else {
             DaclUntrusted = FALSE;
@@ -6463,33 +6445,33 @@ Return Value:
 
     // if he's setting the owner field, make sure he's allowed to set that value as an owner.
     if (SecurityInformation & OWNER_SECURITY_INFORMATION) {
-        NewOwner = RtlpOwnerAddrSecurityDescriptor( IModificationDescriptor );
+        NewOwner = RtlpOwnerAddrSecurityDescriptor(IModificationDescriptor);
         NewOwnerPresent = TRUE;
-        if ((AutoInheritFlags & SEF_AVOID_PRIVILEGE_CHECK) == 0 ) {
+        if ((AutoInheritFlags & SEF_AVOID_PRIVILEGE_CHECK) == 0) {
 #ifdef NTOS_KERNEL_RUNTIME
-            SeCaptureSubjectContext( &SubjectContext );
-            if (!SepValidOwnerSubjectContext( &SubjectContext, NewOwner, ServerObject ) ) {
-                SeReleaseSubjectContext( &SubjectContext );
-                return( STATUS_INVALID_OWNER );
+            SeCaptureSubjectContext(&SubjectContext);
+            if (!SepValidOwnerSubjectContext(&SubjectContext, NewOwner, ServerObject)) {
+                SeReleaseSubjectContext(&SubjectContext);
+                return(STATUS_INVALID_OWNER);
             } else {
-                SeReleaseSubjectContext( &SubjectContext );
+                SeReleaseSubjectContext(&SubjectContext);
             }
 #else // NTOS_KERNEL_RUNTIME
-            if ( ARGUMENT_PRESENT( Token )) {
+            if (ARGUMENT_PRESENT(Token)) {
                 Status = NtQueryInformationToken(
-                             Token,                        // Handle
-                             TokenStatistics,              // TokenInformationClass
-                             &ThreadTokenStatistics,       // TokenInformation
-                             sizeof(TOKEN_STATISTICS),     // TokenInformationLength
-                             &ReturnLength                 // ReturnLength
-                             );
-                if (!NT_SUCCESS( Status )) {
+                    Token,                        // Handle
+                    TokenStatistics,              // TokenInformationClass
+                    &ThreadTokenStatistics,       // TokenInformation
+                    sizeof(TOKEN_STATISTICS),     // TokenInformationLength
+                    &ReturnLength                 // ReturnLength
+                );
+                if (!NT_SUCCESS(Status)) {
                     goto Cleanup;
                 }
 
                 //  If it is an impersonation token, then make sure it is at a high enough level.
                 if (ThreadTokenStatistics.TokenType == TokenImpersonation) {
-                    if (ThreadTokenStatistics.ImpersonationLevel < SecurityIdentification ) {
+                    if (ThreadTokenStatistics.ImpersonationLevel < SecurityIdentification) {
                         Status = STATUS_BAD_IMPERSONATION_LEVEL;
                         goto Cleanup;
                     }
@@ -6499,21 +6481,21 @@ Return Value:
                 goto Cleanup;
             }
 
-            if (!RtlpValidOwnerSubjectContext(Token,NewOwner,ServerObject,&Status) ) {
-                    Status = STATUS_INVALID_OWNER;
-                    goto Cleanup;
+            if (!RtlpValidOwnerSubjectContext(Token, NewOwner, ServerObject, &Status)) {
+                Status = STATUS_INVALID_OWNER;
+                goto Cleanup;
             }
 #endif // NTOS_KERNEL_RUNTIME
         }
     } else {
-        NewOwner = RtlpOwnerAddrSecurityDescriptor ( *IObjectsSecurityDescriptor );
+        NewOwner = RtlpOwnerAddrSecurityDescriptor(*IObjectsSecurityDescriptor);
         if (NewOwner == NULL) {
             Status = STATUS_INVALID_OWNER;
             goto Cleanup;
         }
     }
-    ASSERT( NewOwner != NULL );
-    if (!RtlValidSid( NewOwner )) {
+    ASSERT(NewOwner != NULL);
+    if (!RtlValidSid(NewOwner)) {
         Status = STATUS_INVALID_OWNER;
         goto Cleanup;
     }
@@ -6522,11 +6504,11 @@ Return Value:
         NewGroup = RtlpGroupAddrSecurityDescriptor(IModificationDescriptor);
         NewGroupPresent = TRUE;
     } else {
-        NewGroup = RtlpGroupAddrSecurityDescriptor( *IObjectsSecurityDescriptor );
+        NewGroup = RtlpGroupAddrSecurityDescriptor(*IObjectsSecurityDescriptor);
     }
 
     if (NewGroup != NULL) {
-        if (!RtlValidSid( NewGroup )) {
+        if (!RtlValidSid(NewGroup)) {
             Status = STATUS_INVALID_PRIMARY_GROUP;
             goto Cleanup;
         }
@@ -6538,36 +6520,36 @@ Return Value:
     if (SecurityInformation & DACL_SECURITY_INFORMATION) {
         // If AutoInherit is requested,
         //  build a merged ACL.
-        if ( AutoInheritFlags & SEF_DACL_AUTO_INHERIT ) {
+        if (AutoInheritFlags & SEF_DACL_AUTO_INHERIT) {
             Status = RtlpComputeMergedAcl(
-                        RtlpDaclAddrSecurityDescriptor( *IObjectsSecurityDescriptor ),
-                        SeControlDaclToGeneric( (*IObjectsSecurityDescriptor)->Control ),
-                        RtlpDaclAddrSecurityDescriptor( IModificationDescriptor ),
-                        SeControlDaclToGeneric( IModificationDescriptor->Control ),
-                        NewOwner,
-                        NewGroup,
-                        GenericMapping,
-                        FALSE,      // Not a SACL
-                        &LocalDacl,
-                        &GenericControl );
-            if ( !NT_SUCCESS(Status)) {
+                RtlpDaclAddrSecurityDescriptor(*IObjectsSecurityDescriptor),
+                SeControlDaclToGeneric((*IObjectsSecurityDescriptor)->Control),
+                RtlpDaclAddrSecurityDescriptor(IModificationDescriptor),
+                SeControlDaclToGeneric(IModificationDescriptor->Control),
+                NewOwner,
+                NewGroup,
+                GenericMapping,
+                FALSE,      // Not a SACL
+                &LocalDacl,
+                &GenericControl);
+            if (!NT_SUCCESS(Status)) {
                 goto Cleanup;
             }
 
             LocalDaclAllocated = TRUE;
             NewDacl = LocalDacl;
             NewControlBits |= SE_DACL_PRESENT;
-            NewControlBits |= SeControlGenericToDacl( GenericControl );
+            NewControlBits |= SeControlGenericToDacl(GenericControl);
 
-        // If AutoInherit isn't requested,
-        //  just grab a copy of the input DACL.
+            // If AutoInherit isn't requested,
+            //  just grab a copy of the input DACL.
         } else {
-            NewDacl = RtlpDaclAddrSecurityDescriptor( IModificationDescriptor );
+            NewDacl = RtlpDaclAddrSecurityDescriptor(IModificationDescriptor);
             NewControlBits |= SE_DACL_PRESENT;
             NewControlBits |= IModificationDescriptor->Control & SE_DACL_PROTECTED;
             // If the original caller claims he understands auto inheritance,
             //  preserve the AutoInherited flag.
-            if ( RtlpAreControlBitsSet(IModificationDescriptor, SE_DACL_AUTO_INHERIT_REQ|SE_DACL_AUTO_INHERITED) ) {
+            if (RtlpAreControlBitsSet(IModificationDescriptor, SE_DACL_AUTO_INHERIT_REQ | SE_DACL_AUTO_INHERITED)) {
                 NewControlBits |= SE_DACL_AUTO_INHERITED;
             }
         }
@@ -6580,89 +6562,89 @@ Return Value:
             PSID SubjectContextServerGroup;
             PACL SubjectContextDacl;
 
-            SeCaptureSubjectContext( &SubjectContext );
-            SepGetDefaultsSubjectContext(&SubjectContext,&SubjectContextOwner,&SubjectContextGroup,&SubjectContextServerOwner,&SubjectContextServerGroup,&SubjectContextDacl);
-            Status = RtlpCreateServerAcl(NewDacl,DaclUntrusted,SubjectContextServerOwner,&ServerDacl,&ServerAclAllocated);
-            SeReleaseSubjectContext( &SubjectContext );
+            SeCaptureSubjectContext(&SubjectContext);
+            SepGetDefaultsSubjectContext(&SubjectContext, &SubjectContextOwner, &SubjectContextGroup, &SubjectContextServerOwner, &SubjectContextServerGroup, &SubjectContextDacl);
+            Status = RtlpCreateServerAcl(NewDacl, DaclUntrusted, SubjectContextServerOwner, &ServerDacl, &ServerAclAllocated);
+            SeReleaseSubjectContext(&SubjectContext);
 #else // NTOS_KERNEL_RUNTIME
             PTOKEN_OWNER ServerSid;
 
             // Obtain the default Server SID to substitute in the ACL if necessary.
-            ServerOwnerInfoSize = RtlLengthRequiredSid( SID_MAX_SUB_AUTHORITIES );
-            ServerSid = RtlAllocateHeap( HeapHandle, MAKE_TAG( SE_TAG ), ServerOwnerInfoSize );
+            ServerOwnerInfoSize = RtlLengthRequiredSid(SID_MAX_SUB_AUTHORITIES);
+            ServerSid = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), ServerOwnerInfoSize);
             if (ServerSid == NULL) {
                 Status = STATUS_NO_MEMORY;
                 goto Cleanup;
             }
 
-            Status = NtOpenProcessToken(NtCurrentProcess(),TOKEN_QUERY,&PrimaryToken);
-            if (!NT_SUCCESS( Status )) {
-                RtlFreeHeap( HeapHandle, 0, ServerSid );
+            Status = NtOpenProcessToken(NtCurrentProcess(), TOKEN_QUERY, &PrimaryToken);
+            if (!NT_SUCCESS(Status)) {
+                RtlFreeHeap(HeapHandle, 0, ServerSid);
                 goto Cleanup;
             }
 
             Status = NtQueryInformationToken(
-                         PrimaryToken,                 // Handle
-                         TokenOwner,                   // TokenInformationClass
-                         ServerSid,                    // TokenInformation
-                         ServerOwnerInfoSize,          // TokenInformationLength
-                         &ServerOwnerInfoSize          // ReturnLength
-                         );
-            NtClose( PrimaryToken );
-            if (!NT_SUCCESS( Status )) {
-                RtlFreeHeap( HeapHandle, 0, ServerSid );
+                PrimaryToken,                 // Handle
+                TokenOwner,                   // TokenInformationClass
+                ServerSid,                    // TokenInformation
+                ServerOwnerInfoSize,          // TokenInformationLength
+                &ServerOwnerInfoSize          // ReturnLength
+            );
+            NtClose(PrimaryToken);
+            if (!NT_SUCCESS(Status)) {
+                RtlFreeHeap(HeapHandle, 0, ServerSid);
                 goto Cleanup;
             }
 
-            Status = RtlpCreateServerAcl(NewDacl,DaclUntrusted,ServerSid->Owner,&ServerDacl,&ServerAclAllocated);
-            RtlFreeHeap( HeapHandle, 0, ServerSid );
+            Status = RtlpCreateServerAcl(NewDacl, DaclUntrusted, ServerSid->Owner, &ServerDacl, &ServerAclAllocated);
+            RtlFreeHeap(HeapHandle, 0, ServerSid);
 #endif // NTOS_KERNEL_RUNTIME
 
-            if (!NT_SUCCESS( Status )) {
+            if (!NT_SUCCESS(Status)) {
                 goto Cleanup;
             }
 
             NewDacl = ServerDacl;
         }
     } else {
-        NewDacl = RtlpDaclAddrSecurityDescriptor( *IObjectsSecurityDescriptor );
+        NewDacl = RtlpDaclAddrSecurityDescriptor(*IObjectsSecurityDescriptor);
     }
 
     if (SecurityInformation & SACL_SECURITY_INFORMATION) {
         // If AutoInherit is requested,
         //  build a merged ACL.
-        if ( AutoInheritFlags & SEF_SACL_AUTO_INHERIT ) {
+        if (AutoInheritFlags & SEF_SACL_AUTO_INHERIT) {
             Status = RtlpComputeMergedAcl(
-                        RtlpSaclAddrSecurityDescriptor( *IObjectsSecurityDescriptor ),
-                        SeControlSaclToGeneric( (*IObjectsSecurityDescriptor)->Control ),
-                        RtlpSaclAddrSecurityDescriptor( IModificationDescriptor ),
-                        SeControlSaclToGeneric( IModificationDescriptor->Control ),
-                        NewOwner,
-                        NewGroup,
-                        GenericMapping,
-                        TRUE,      // Is a SACL
-                        &LocalSacl,
-                        &GenericControl );
-            if ( !NT_SUCCESS(Status)) {
+                RtlpSaclAddrSecurityDescriptor(*IObjectsSecurityDescriptor),
+                SeControlSaclToGeneric((*IObjectsSecurityDescriptor)->Control),
+                RtlpSaclAddrSecurityDescriptor(IModificationDescriptor),
+                SeControlSaclToGeneric(IModificationDescriptor->Control),
+                NewOwner,
+                NewGroup,
+                GenericMapping,
+                TRUE,      // Is a SACL
+                &LocalSacl,
+                &GenericControl);
+            if (!NT_SUCCESS(Status)) {
                 goto Cleanup;
             }
             LocalSaclAllocated = TRUE;
             NewSacl = LocalSacl;
             NewControlBits |= SE_SACL_PRESENT;
-            NewControlBits |= SeControlGenericToSacl( GenericControl );
+            NewControlBits |= SeControlGenericToSacl(GenericControl);
         } else {
-            NewSacl = RtlpSaclAddrSecurityDescriptor( IModificationDescriptor );
+            NewSacl = RtlpSaclAddrSecurityDescriptor(IModificationDescriptor);
             NewControlBits |= SE_SACL_PRESENT;
             NewControlBits |= IModificationDescriptor->Control & SE_SACL_PROTECTED;
 
             // If the original caller claims he understands auto inheritance,
             //  preserve the AutoInherited flag.
-            if ( RtlpAreControlBitsSet(IModificationDescriptor, SE_SACL_AUTO_INHERIT_REQ|SE_SACL_AUTO_INHERITED) ) {
+            if (RtlpAreControlBitsSet(IModificationDescriptor, SE_SACL_AUTO_INHERIT_REQ | SE_SACL_AUTO_INHERITED)) {
                 NewControlBits |= SE_SACL_AUTO_INHERITED;
             }
         }
     } else {
-        NewSacl = RtlpSaclAddrSecurityDescriptor( *IObjectsSecurityDescriptor );
+        NewSacl = RtlpSaclAddrSecurityDescriptor(*IObjectsSecurityDescriptor);
     }
 
     // Everything is assignable by the requestor.
@@ -6682,50 +6664,50 @@ Return Value:
         NewSaclSize = 0;
     }
 
-    if (NewDacl !=NULL) {
+    if (NewDacl != NULL) {
         NewDaclSize = LongAlignSize(NewDacl->AclSize);
     } else {
         NewDaclSize = 0;
     }
 
     AllocationSize = LongAlignSize(sizeof(SECURITY_DESCRIPTOR_RELATIVE)) +
-                     NewOwnerSize +
-                     NewGroupSize +
-                     NewSaclSize  +
-                     NewDaclSize;
+        NewOwnerSize +
+        NewGroupSize +
+        NewSaclSize +
+        NewDaclSize;
 
     // Allocate and initialize the security descriptor as self-relative form.
 
 #ifdef NTOS_KERNEL_RUNTIME
     NewDescriptor = ExAllocatePoolWithTag(PoolType, AllocationSize, 'dSeS');
 #else // NTOS_KERNEL_RUNTIME
-    NewDescriptor = RtlAllocateHeap( HeapHandle, MAKE_TAG( SE_TAG ), AllocationSize );
+    NewDescriptor = RtlAllocateHeap(HeapHandle, MAKE_TAG(SE_TAG), AllocationSize);
 #endif // NTOS_KERNEL_RUNTIME
 
-    if ( NewDescriptor == NULL ) {
+    if (NewDescriptor == NULL) {
         Status = STATUS_NO_MEMORY;
         goto Cleanup;
     }
 
-    Status = RtlCreateSecurityDescriptorRelative(NewDescriptor,SECURITY_DESCRIPTOR_REVISION);
-    ASSERT( NT_SUCCESS( Status ) );
+    Status = RtlCreateSecurityDescriptorRelative(NewDescriptor, SECURITY_DESCRIPTOR_REVISION);
+    ASSERT(NT_SUCCESS(Status));
 
 #ifdef NTOS_KERNEL_RUNTIME
     // We must check to make sure that the Group and Dacl size do not exceed the quota preallocated for this object's security when it was created.
 
     // Update SeComputeSecurityQuota if this changes.
-    if (ARGUMENT_PRESENT( Object )) {
-        Status = ObValidateSecurityQuota(Object,NewGroupSize + NewDaclSize);
-        if (!NT_SUCCESS( Status )) {
+    if (ARGUMENT_PRESENT(Object)) {
+        Status = ObValidateSecurityQuota(Object, NewGroupSize + NewDaclSize);
+        if (!NT_SUCCESS(Status)) {
             // The new information is too big.
-            ExFreePool( NewDescriptor );
+            ExFreePool(NewDescriptor);
             goto Cleanup;
         }
     }
 #endif // NTOS_KERNEL_RUNTIME
 
     Base = (PCHAR)NewDescriptor;
-    Field =  Base + sizeof(SECURITY_DESCRIPTOR_RELATIVE);
+    Field = Base + sizeof(SECURITY_DESCRIPTOR_RELATIVE);
 
     // Map and Copy in the Sacl
 
@@ -6747,7 +6729,7 @@ Return Value:
     //             }
     //         }
 
-    RtlpSetControlBits( NewDescriptor, NewControlBits );
+    RtlpSetControlBits(NewDescriptor, NewControlBits);
 
     if (IModificationDescriptor->Control & SE_RM_CONTROL_VALID) {
         NewDescriptor->Sbz1 = IModificationDescriptor->Sbz1;
@@ -6757,116 +6739,116 @@ Return Value:
     if (NewSacl == NULL) {
         NewDescriptor->Sacl = 0;
     } else {
-        RtlCopyMemory( Field, NewSacl, NewSacl->AclSize );
-        RtlpApplyAclToObject( (PACL)Field, GenericMapping );
-        NewDescriptor->Sacl = RtlPointerToOffset(Base,Field);
+        RtlCopyMemory(Field, NewSacl, NewSacl->AclSize);
+        RtlpApplyAclToObject((PACL)Field, GenericMapping);
+        NewDescriptor->Sacl = RtlPointerToOffset(Base, Field);
         Field += NewSaclSize;
     }
 
-    if ( (NewControlBits & SE_SACL_PRESENT) == 0 ) {
+    if ((NewControlBits & SE_SACL_PRESENT) == 0) {
         // Propagate the SE_SACL_DEFAULTED and SE_SACL_PRESENT bits from the old security descriptor into the new one.
-        RtlpPropagateControlBits(NewDescriptor,*IObjectsSecurityDescriptor,SE_SACL_DEFAULTED | SE_SACL_PRESENT | SE_SACL_PROTECTED);
+        RtlpPropagateControlBits(NewDescriptor, *IObjectsSecurityDescriptor, SE_SACL_DEFAULTED | SE_SACL_PRESENT | SE_SACL_PROTECTED);
     }
 
     // Fill in Dacl field in new SD
     if (NewDacl == NULL) {
         NewDescriptor->Dacl = 0;
     } else {
-        RtlCopyMemory( Field, NewDacl, NewDacl->AclSize );
-        RtlpApplyAclToObject( (PACL)Field, GenericMapping );
-        NewDescriptor->Dacl = RtlPointerToOffset(Base,Field);
+        RtlCopyMemory(Field, NewDacl, NewDacl->AclSize);
+        RtlpApplyAclToObject((PACL)Field, GenericMapping);
+        NewDescriptor->Dacl = RtlPointerToOffset(Base, Field);
         Field += NewDaclSize;
     }
 
-    if ( (NewControlBits & SE_DACL_PRESENT) == 0 ) {
+    if ((NewControlBits & SE_DACL_PRESENT) == 0) {
         // Propagate the SE_DACL_DEFAULTED and SE_DACL_PRESENT bits from the old security descriptor into the new one.
-        RtlpPropagateControlBits(NewDescriptor,*IObjectsSecurityDescriptor,SE_DACL_DEFAULTED | SE_DACL_PRESENT | SE_DACL_PROTECTED);
+        RtlpPropagateControlBits(NewDescriptor, *IObjectsSecurityDescriptor, SE_DACL_DEFAULTED | SE_DACL_PRESENT | SE_DACL_PROTECTED);
     }
 
-//         if new item {
-//             PRESENT=TRUE
-//             DEFAULTED=FALSE
-//             if (NULL) {
-//                 set new pointer to NULL
-//             } else {
-//                 copy into new SD
-//             }
-//         } else {
-//             copy PRESENT bit
-//             copy DEFAULTED bit
-//             if (NULL) {
-//                 set new pointer to NULL
-//             } else {
-//                 copy old one into new SD
-//             }
-//         }
+    //         if new item {
+    //             PRESENT=TRUE
+    //             DEFAULTED=FALSE
+    //             if (NULL) {
+    //                 set new pointer to NULL
+    //             } else {
+    //                 copy into new SD
+    //             }
+    //         } else {
+    //             copy PRESENT bit
+    //             copy DEFAULTED bit
+    //             if (NULL) {
+    //                 set new pointer to NULL
+    //             } else {
+    //                 copy old one into new SD
+    //             }
+    //         }
 
 
-    // Fill in Owner field in new SD
-    RtlCopyMemory( Field, NewOwner, SeLengthSid(NewOwner) );
-    NewDescriptor->Owner = RtlPointerToOffset(Base,Field);
+        // Fill in Owner field in new SD
+    RtlCopyMemory(Field, NewOwner, SeLengthSid(NewOwner));
+    NewDescriptor->Owner = RtlPointerToOffset(Base, Field);
     Field += NewOwnerSize;
 
     if (!NewOwnerPresent) {
         // Propagate the SE_OWNER_DEFAULTED bit from the old SD.
         // If a new owner is being assigned, we want to leave SE_OWNER_DEFAULTED off, which means leave it alone.
-        RtlpPropagateControlBits(NewDescriptor,*IObjectsSecurityDescriptor,SE_OWNER_DEFAULTED);
+        RtlpPropagateControlBits(NewDescriptor, *IObjectsSecurityDescriptor, SE_OWNER_DEFAULTED);
     } else {
-        ASSERT( !RtlpAreControlBitsSet( NewDescriptor, SE_OWNER_DEFAULTED ) );
+        ASSERT(!RtlpAreControlBitsSet(NewDescriptor, SE_OWNER_DEFAULTED));
     }
 
     // Fill in Group field in new SD
-    if ( NewGroup != NULL) {
-        RtlCopyMemory( Field, NewGroup, SeLengthSid(NewGroup) );
-        NewDescriptor->Group = RtlPointerToOffset(Base,Field);
+    if (NewGroup != NULL) {
+        RtlCopyMemory(Field, NewGroup, SeLengthSid(NewGroup));
+        NewDescriptor->Group = RtlPointerToOffset(Base, Field);
     }
 
     if (!NewGroupPresent) {
         // Propagate the SE_GROUP_DEFAULTED bit from the old SD
         // If a new owner is being assigned, we want to leave SE_GROUP_DEFAULTED off, which means leave it alone.
-        RtlpPropagateControlBits(NewDescriptor,*IObjectsSecurityDescriptor,SE_GROUP_DEFAULTED);
+        RtlpPropagateControlBits(NewDescriptor, *IObjectsSecurityDescriptor, SE_GROUP_DEFAULTED);
     } else {
-        ASSERT( !RtlpAreControlBitsSet( NewDescriptor, SE_GROUP_DEFAULTED ) );
+        ASSERT(!RtlpAreControlBitsSet(NewDescriptor, SE_GROUP_DEFAULTED));
     }
 
     // Free old descriptor
 
     // Kernel version doesn't free the old descriptor
 #ifndef NTOS_KERNEL_RUNTIME
-    RtlFreeHeap( HeapHandle, 0, (PVOID) *IObjectsSecurityDescriptor );
+    RtlFreeHeap(HeapHandle, 0, (PVOID)*IObjectsSecurityDescriptor);
 #endif // NTOS_KERNEL_RUNTIME
 
-    *ObjectsSecurityDescriptor = (PSECURITY_DESCRIPTOR)NewDescriptor;
+    * ObjectsSecurityDescriptor = (PSECURITY_DESCRIPTOR)NewDescriptor;
     Status = STATUS_SUCCESS;
 
 Cleanup:
-    if ( LocalDaclAllocated ) {
+    if (LocalDaclAllocated) {
 #ifdef NTOS_KERNEL_RUNTIME
-        ExFreePool( LocalDacl );
+        ExFreePool(LocalDacl);
 #else // NTOS_KERNEL_RUNTIME
-        RtlFreeHeap( HeapHandle, 0, LocalDacl );
+        RtlFreeHeap(HeapHandle, 0, LocalDacl);
 #endif // NTOS_KERNEL_RUNTIME
     }
-    if ( LocalSaclAllocated ) {
+    if (LocalSaclAllocated) {
 #ifdef NTOS_KERNEL_RUNTIME
-        ExFreePool( LocalSacl );
+        ExFreePool(LocalSacl);
 #else // NTOS_KERNEL_RUNTIME
-        RtlFreeHeap( HeapHandle, 0, LocalSacl );
+        RtlFreeHeap(HeapHandle, 0, LocalSacl);
 #endif // NTOS_KERNEL_RUNTIME
     }
     if (ServerAclAllocated) {
 #ifdef NTOS_KERNEL_RUNTIME
-        ExFreePool( ServerDacl );
+        ExFreePool(ServerDacl);
 #else // NTOS_KERNEL_RUNTIME
-        RtlFreeHeap( HeapHandle, 0, ServerDacl );
+        RtlFreeHeap(HeapHandle, 0, ServerDacl);
 #endif // NTOS_KERNEL_RUNTIME
     }
 
-    return( Status );
+    return(Status);
 }
 
 
-BOOLEAN RtlpValidateSDOffsetAndSize (IN ULONG   Offset,IN ULONG   Length,IN ULONG   MinLength,OUT PULONG MaxLength)
+BOOLEAN RtlpValidateSDOffsetAndSize(IN ULONG   Offset, IN ULONG   Length, IN ULONG   MinLength, OUT PULONG MaxLength)
 /*++
 Routine Description:
     This procedure validates offsets within a SecurityDescriptor.
@@ -6884,32 +6866,32 @@ Return Value:
 
     *MaxLength = 0;
     // Don't allow overlap with header just in case caller modifies control bits etc
-    if (Offset < sizeof (SECURITY_DESCRIPTOR_RELATIVE)) {
-       return FALSE;
+    if (Offset < sizeof(SECURITY_DESCRIPTOR_RELATIVE)) {
+        return FALSE;
     }
 
     // Don't allow offsets beyond the end of the buffer
     if (Offset >= Length) {
-       return FALSE;
+        return FALSE;
     }
 
     // Calculate maximim size of segment and check its limits
     Left = Length - Offset;
 
     if (Left < MinLength) {
-       return FALSE;
+        return FALSE;
     }
 
     // Reject unaligned offsets
-    if (Offset & (sizeof (ULONG) - 1)) {
-       return FALSE;
+    if (Offset & (sizeof(ULONG) - 1)) {
+        return FALSE;
     }
     *MaxLength = Left;
     return TRUE;
 }
 
 
-BOOLEAN RtlValidRelativeSecurityDescriptor (IN PSECURITY_DESCRIPTOR SecurityDescriptorInput, IN ULONG SecurityDescriptorLength, IN SECURITY_INFORMATION RequiredInformation)
+BOOLEAN RtlValidRelativeSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptorInput, IN ULONG SecurityDescriptorLength, IN SECURITY_INFORMATION RequiredInformation)
 /*++
 Routine Description:
     This procedure validates a SecurityDescriptor's structure contained within a flat buffer.
@@ -6943,16 +6925,16 @@ Return Value:
     }
 
     // Check the revision information.
-    if (((PISECURITY_DESCRIPTOR) SecurityDescriptorInput)->Revision != SECURITY_DESCRIPTOR_REVISION) {
+    if (((PISECURITY_DESCRIPTOR)SecurityDescriptorInput)->Revision != SECURITY_DESCRIPTOR_REVISION) {
         return FALSE;
     }
 
     // Make sure the passed SecurityDescriptor is in self-relative form
-    if (!(((PISECURITY_DESCRIPTOR) SecurityDescriptorInput)->Control & SE_SELF_RELATIVE)) {
+    if (!(((PISECURITY_DESCRIPTOR)SecurityDescriptorInput)->Control & SE_SELF_RELATIVE)) {
         return FALSE;
     }
 
-    SecurityDescriptor = (PISECURITY_DESCRIPTOR_RELATIVE) SecurityDescriptorInput;
+    SecurityDescriptor = (PISECURITY_DESCRIPTOR_RELATIVE)SecurityDescriptorInput;
 
     // Validate the owner if it's there and see if its allowed to be missing
     if (SecurityDescriptor->Owner == 0) {
@@ -6960,11 +6942,11 @@ Return Value:
             return FALSE;
         }
     } else {
-        if (!RtlpValidateSDOffsetAndSize (SecurityDescriptor->Owner,SecurityDescriptorLength,sizeof (SID),&MaxOwnerSidLength)) {
+        if (!RtlpValidateSDOffsetAndSize(SecurityDescriptor->Owner, SecurityDescriptorLength, sizeof(SID), &MaxOwnerSidLength)) {
             return FALSE;
         }
         // It is safe to reference the owner's SubAuthorityCount, compute the expected length of the SID
-        OwnerSid = (PSID)RtlOffsetToPointer (SecurityDescriptor, SecurityDescriptor->Owner);
+        OwnerSid = (PSID)RtlOffsetToPointer(SecurityDescriptor, SecurityDescriptor->Owner);
         if (OwnerSid->Revision != SID_REVISION) {
             return FALSE;
         }
@@ -6973,7 +6955,7 @@ Return Value:
             return FALSE;
         }
 
-        if (MaxOwnerSidLength < (ULONG) SeLengthSid (OwnerSid)) {
+        if (MaxOwnerSidLength < (ULONG)SeLengthSid(OwnerSid)) {
             return FALSE;
         }
     }
@@ -6987,11 +6969,11 @@ Return Value:
             return FALSE;
         }
     } else {
-        if (!RtlpValidateSDOffsetAndSize (SecurityDescriptor->Group, SecurityDescriptorLength, sizeof (SID), &MaxGroupSidLength)) {
+        if (!RtlpValidateSDOffsetAndSize(SecurityDescriptor->Group, SecurityDescriptorLength, sizeof(SID), &MaxGroupSidLength)) {
             return FALSE;
         }
         // It is safe to reference the group's SubAuthorityCount, compute the expected length of the SID
-        GroupSid = (PSID)RtlOffsetToPointer (SecurityDescriptor, SecurityDescriptor->Group);
+        GroupSid = (PSID)RtlOffsetToPointer(SecurityDescriptor, SecurityDescriptor->Group);
         if (GroupSid->Revision != SID_REVISION) {
             return FALSE;
         }
@@ -7000,30 +6982,30 @@ Return Value:
             return FALSE;
         }
 
-        if (MaxGroupSidLength < (ULONG) SeLengthSid (GroupSid)) {
-             return FALSE;
+        if (MaxGroupSidLength < (ULONG)SeLengthSid(GroupSid)) {
+            return FALSE;
         }
     }
 
     // Validate the DACL if it's there and check if its allowed to be missing.
-    if (!RtlpAreControlBitsSet (SecurityDescriptor, SE_DACL_PRESENT)) {
-// Some code does this kind of thing:
+    if (!RtlpAreControlBitsSet(SecurityDescriptor, SE_DACL_PRESENT)) {
+        // Some code does this kind of thing:
 
-// InitializeSecurityDescriptor (&sd, SECURITY_DESCRIPTOR_REVISION);
-// RegSetKeySecurity(hKey, DACL_SECURITY_INFORMATION, &sd) )
+        // InitializeSecurityDescriptor (&sd, SECURITY_DESCRIPTOR_REVISION);
+        // RegSetKeySecurity(hKey, DACL_SECURITY_INFORMATION, &sd) )
 
-// With the current system this works the same as passing in a NULL DACL but it looks
-// almost by accident
+        // With the current system this works the same as passing in a NULL DACL but it looks
+        // almost by accident
 
-//        if (RequiredInformation & DACL_SECURITY_INFORMATION) {
-//            return FALSE;
-//        }
+        //        if (RequiredInformation & DACL_SECURITY_INFORMATION) {
+        //            return FALSE;
+        //        }
     } else if (SecurityDescriptor->Dacl) {
-        if (!RtlpValidateSDOffsetAndSize (SecurityDescriptor->Dacl,SecurityDescriptorLength,sizeof (ACL),&MaxDaclLength)) {
+        if (!RtlpValidateSDOffsetAndSize(SecurityDescriptor->Dacl, SecurityDescriptorLength, sizeof(ACL), &MaxDaclLength)) {
             return FALSE;
         }
 
-        Dacl = (PACL) RtlOffsetToPointer (SecurityDescriptor,SecurityDescriptor->Dacl);
+        Dacl = (PACL)RtlOffsetToPointer(SecurityDescriptor, SecurityDescriptor->Dacl);
 
         // Make sure the DACL length fits within the bounds of the security descriptor.
         if (MaxDaclLength < Dacl->AclSize) {
@@ -7031,22 +7013,22 @@ Return Value:
         }
 
         // Make sure the ACL is structurally valid.
-        if (!RtlValidAcl (Dacl)) {
+        if (!RtlValidAcl(Dacl)) {
             return FALSE;
         }
     }
 
     // Validate the SACL if it's there and check if its allowed to be missing.
-    if (!RtlpAreControlBitsSet (SecurityDescriptor, SE_SACL_PRESENT)) {
-//        if (RequiredInformation & SACL_SECURITY_INFORMATION) {
-//            return FALSE;
-//        }
+    if (!RtlpAreControlBitsSet(SecurityDescriptor, SE_SACL_PRESENT)) {
+        //        if (RequiredInformation & SACL_SECURITY_INFORMATION) {
+        //            return FALSE;
+        //        }
     } else if (SecurityDescriptor->Sacl) {
-        if (!RtlpValidateSDOffsetAndSize (SecurityDescriptor->Sacl,SecurityDescriptorLength,sizeof (ACL),&MaxSaclLength)) {
+        if (!RtlpValidateSDOffsetAndSize(SecurityDescriptor->Sacl, SecurityDescriptorLength, sizeof(ACL), &MaxSaclLength)) {
             return FALSE;
         }
 
-        Sacl = (PACL) RtlOffsetToPointer (SecurityDescriptor,SecurityDescriptor->Sacl);
+        Sacl = (PACL)RtlOffsetToPointer(SecurityDescriptor, SecurityDescriptor->Sacl);
 
         // Make sure the SACL length fits within the bounds of the security descriptor.
         if (MaxSaclLength < Sacl->AclSize) {
@@ -7054,7 +7036,7 @@ Return Value:
         }
 
         // Make sure the ACL is structurally valid.
-        if (!RtlValidAcl (Sacl)) {
+        if (!RtlValidAcl(Sacl)) {
             return FALSE;
         }
     }
@@ -7063,7 +7045,7 @@ Return Value:
 }
 
 
-BOOLEAN RtlGetSecurityDescriptorRMControl(IN PSECURITY_DESCRIPTOR SecurityDescriptor,OUT PUCHAR RMControl)
+BOOLEAN RtlGetSecurityDescriptorRMControl(IN PSECURITY_DESCRIPTOR SecurityDescriptor, OUT PUCHAR RMControl)
 /*++
 Routine Description:
     This procedure returns the RM Control flags from a SecurityDescriptor if SE_RM_CONTROL_VALID flags is present in the control field.
@@ -7076,10 +7058,9 @@ Note:
     Parameter validation has already been done in Advapi.
 --*/
 {
-    PISECURITY_DESCRIPTOR ISecurityDescriptor = (PISECURITY_DESCRIPTOR) SecurityDescriptor;
+    PISECURITY_DESCRIPTOR ISecurityDescriptor = (PISECURITY_DESCRIPTOR)SecurityDescriptor;
 
-    if (!(ISecurityDescriptor->Control & SE_RM_CONTROL_VALID))
-    {
+    if (!(ISecurityDescriptor->Control & SE_RM_CONTROL_VALID)) {
         *RMControl = 0;
         return FALSE;
     }
@@ -7090,7 +7071,7 @@ Note:
 }
 
 
-VOID RtlSetSecurityDescriptorRMControl(IN OUT PSECURITY_DESCRIPTOR SecurityDescriptor,IN PUCHAR RMControl OPTIONAL)
+VOID RtlSetSecurityDescriptorRMControl(IN OUT PSECURITY_DESCRIPTOR SecurityDescriptor, IN PUCHAR RMControl OPTIONAL)
 /*++
 Routine Description:
     This procedure sets the RM Control flag in the control field of SecurityDescriptor and sets Sbz1 to the the byte to which RMContol points.
@@ -7102,7 +7083,7 @@ Note:
     Parameter validation has already been done in Advapi.
 --*/
 {
-    PISECURITY_DESCRIPTOR ISecurityDescriptor = (PISECURITY_DESCRIPTOR) SecurityDescriptor;
+    PISECURITY_DESCRIPTOR ISecurityDescriptor = (PISECURITY_DESCRIPTOR)SecurityDescriptor;
 
     if (ARGUMENT_PRESENT(RMControl)) {
         ISecurityDescriptor->Control |= SE_RM_CONTROL_VALID;

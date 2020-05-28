@@ -26,7 +26,7 @@ Revision History:
 #include <lmwksta.h>
 
 
-NTSTATUS MspStopImpersonating (VOID)
+NTSTATUS MspStopImpersonating(VOID)
 /*++
 Routine Description:
     Stop impersonating.  This is used to stop impersonating either ourselves (see MspDisableAdminsAlis) or a client.
@@ -40,16 +40,16 @@ Return Value:
     NtStatus = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, (PVOID)&Token, sizeof(Token));
 
 #if DBG
-    if ( !NT_SUCCESS(NtStatus) ) {
+    if (!NT_SUCCESS(NtStatus)) {
         KdPrint(("MspStopImpersonating: Cannot stop impersonating, status %x\n", NtStatus));
     }
 #endif \\DBG
 
-    return( NtStatus );
+    return(NtStatus);
 }
 
 
-NTSTATUS MspDisableAdminsAlias (VOID)
+NTSTATUS MspDisableAdminsAlias(VOID)
 /*++
 Routine Description:
     Remove the current thread from the Administrators alias.
@@ -66,12 +66,12 @@ Return Value:
     PSID                     AdminSid = NULL;
     SID                      LocalSystemSid = {SID_REVISION, 1, SECURITY_NT_AUTHORITY, SECURITY_LOCAL_SYSTEM_RID};
     BYTE                     GroupBuffer[sizeof(TOKEN_GROUPS) + sizeof(SID_AND_ATTRIBUTES)];
-    PTOKEN_GROUPS            TokenGroups = (PTOKEN_GROUPS) GroupBuffer;
+    PTOKEN_GROUPS            TokenGroups = (PTOKEN_GROUPS)GroupBuffer;
 
     // Make sure we aren't impersonating anyone else
     // (that will prevent the RtlImpersonateSelf() call from succeeding).
     Status = MspStopImpersonating();
-    if ( !NT_SUCCESS(Status) ) {
+    if (!NT_SUCCESS(Status)) {
         goto Cleanup;
     }
 
@@ -81,12 +81,12 @@ Return Value:
         goto Cleanup;
     }
     Status = NtOpenThreadToken(
-                NtCurrentThread(),
-                TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY,
-                TRUE,           // open as self
-                &TokenHandle
-                );
-    if ( !NT_SUCCESS(Status) ) {
+        NtCurrentThread(),
+        TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY,
+        TRUE,           // open as self
+        &TokenHandle
+    );
+    if (!NT_SUCCESS(Status)) {
         goto Cleanup;
     }
 
@@ -96,10 +96,10 @@ Return Value:
         2,                            // SubAuthorityCount
         SECURITY_BUILTIN_DOMAIN_RID,  // 32
         DOMAIN_ALIAS_RID_ADMINS,      // 544
-        0,0,0,0,0,0,
+        0, 0, 0, 0, 0, 0,
         &AdminSid
-        );
-    if ( !NT_SUCCESS(Status) ) {
+    );
+    if (!NT_SUCCESS(Status)) {
         KdPrint(("MspDisableAdminsAlias: RtlAllocateAndInitializeSid returns %x\n", Status));
         goto Cleanup;
     }
@@ -111,14 +111,14 @@ Return Value:
     TokenGroups->Groups[1].Sid = &LocalSystemSid;
     TokenGroups->Groups[1].Attributes = 0;   // SE_GROUP_ENABLED not on.
     Status = NtFilterToken(
-                 TokenHandle,
-                 0,                     // no flags
-                 TokenGroups,
-                 NULL,                  // no privileges
-                 NULL,                  // no restricted sids
-                 &FilteredToken
-                 );
-    if ( !NT_SUCCESS(Status) ) {
+        TokenHandle,
+        0,                     // no flags
+        TokenGroups,
+        NULL,                  // no privileges
+        NULL,                  // no restricted sids
+        &FilteredToken
+    );
+    if (!NT_SUCCESS(Status)) {
         KdPrint(("MspDisableAdminsAlias: NtFilter returns %x\n", Status));
         goto Cleanup;
     }
@@ -164,7 +164,7 @@ Arguments:
     PWSTR StartBuffer = NULL;
 
     // If the computername is NULL, a zero length string, or the name already begins with backslashes and is wide char null terminated, just use it unmodified.
-    if( (!ARGUMENT_PRESENT(ComputerName)) || ComputerName->Length == 0 ) {
+    if ((!ARGUMENT_PRESENT(ComputerName)) || ComputerName->Length == 0) {
         UncComputerName->Buffer = NULL;
         UncComputerName->Length = 0;
         UncComputerName->MaximumLength = 0;
@@ -180,7 +180,7 @@ Arguments:
         OutputNameMaximumLength -= (2 * sizeof(WCHAR));
     }
 
-    if ((ComputerName->Length + (USHORT) sizeof(WCHAR) <= ComputerName->MaximumLength) && (ComputerName->Buffer[ComputerName->Length/sizeof(WCHAR)] == UNICODE_NULL)) {
+    if ((ComputerName->Length + (USHORT)sizeof(WCHAR) <= ComputerName->MaximumLength) && (ComputerName->Buffer[ComputerName->Length / sizeof(WCHAR)] == UNICODE_NULL)) {
         IsNullTerminated = TRUE;
     }
 
@@ -204,7 +204,7 @@ Arguments:
 
     if (!HasBackslashes) {
         UncComputerName->Buffer[0] = UncComputerName->Buffer[1] = L'\\';
-        StartBuffer +=2;
+        StartBuffer += 2;
     }
 
     RtlCopyMemory(StartBuffer, ComputerName->Buffer, ComputerName->Length);
@@ -234,14 +234,14 @@ Returns:
 --*/
 {
     ULONG dwErr = ERROR_SUCCESS;
-    WCHAR LogFileName[ MAX_PATH + 1 ], BakFileName[ MAX_PATH + 1 ];
+    WCHAR LogFileName[MAX_PATH + 1], BakFileName[MAX_PATH + 1];
 
-    if ( !GetWindowsDirectoryW( LogFileName, sizeof( LogFileName )/sizeof( WCHAR ) ) ) {
+    if (!GetWindowsDirectoryW(LogFileName, sizeof(LogFileName) / sizeof(WCHAR))) {
         dwErr = GetLastError();
     } else {
-        wcscpy( BakFileName, LogFileName );
-        wcscat( LogFileName, MSVPASWD_LOGNAME );
-        wcscat( BakFileName, MSVPASWD_BAKNAME );
+        wcscpy(BakFileName, LogFileName);
+        wcscat(LogFileName, MSVPASWD_LOGNAME);
+        wcscat(BakFileName, MSVPASWD_BAKNAME);
 
         // Copy the existing (maybe) log file to a backup
 
@@ -249,20 +249,20 @@ Returns:
 
     // }
 
-        MsvPaswdLogFile = CreateFileW( LogFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
-        if ( MsvPaswdLogFile == INVALID_HANDLE_VALUE ) {
+        MsvPaswdLogFile = CreateFileW(LogFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (MsvPaswdLogFile == INVALID_HANDLE_VALUE) {
             dwErr = GetLastError();
             MsvPaswdLogFile = NULL;
         } else {
-            if( SetFilePointer( MsvPaswdLogFile, 0, 0, FILE_END ) == 0xFFFFFFFF ) {
+            if (SetFilePointer(MsvPaswdLogFile, 0, 0, FILE_END) == 0xFFFFFFFF) {
                 dwErr = GetLastError();
-                CloseHandle( MsvPaswdLogFile );
+                CloseHandle(MsvPaswdLogFile);
                 MsvPaswdLogFile = NULL;
             }
         }
     }
 
-    return( dwErr );
+    return(dwErr);
 }
 
 
@@ -276,12 +276,12 @@ Returns:
 {
     ULONG dwErr = ERROR_SUCCESS;
 
-    if ( MsvPaswdLogFile != NULL ) {
-        CloseHandle( MsvPaswdLogFile );
+    if (MsvPaswdLogFile != NULL) {
+        CloseHandle(MsvPaswdLogFile);
         MsvPaswdLogFile = NULL;
     }
 
-    return( dwErr );
+    return(dwErr);
 }
 
 
@@ -297,35 +297,35 @@ VOID MsvPaswdDebugDumpRoutine(IN LPSTR Format, va_list arglist)
     static BeginningOfLine = TRUE;
 
     // If we don't have an open log file, just bail
-    if ( MsvPaswdLogFile == NULL ) {
+    if (MsvPaswdLogFile == NULL) {
         return;
     }
 
     length = 0;
 
     // Handle the beginning of a new line.
-    if ( BeginningOfLine ) {
+    if (BeginningOfLine) {
         // If we're writing to the debug terminal, indicate this is a Netlogon message.
 
         // Put the timestamp at the begining of the line.
-        GetLocalTime( &SystemTime );
-        length += (ULONG) sprintf( &OutputBuffer[length], "%02u/%02u %02u:%02u:%02u ", SystemTime.wMonth, SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond );
+        GetLocalTime(&SystemTime);
+        length += (ULONG)sprintf(&OutputBuffer[length], "%02u/%02u %02u:%02u:%02u ", SystemTime.wMonth, SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond);
     }
 
     // Put a the information requested by the caller onto the line
-    length += (ULONG) vsprintf(&OutputBuffer[length], Format, arglist);
-    BeginningOfLine = (length > 0 && OutputBuffer[length-1] == '\n' );
-    if ( BeginningOfLine ) {
-        OutputBuffer[length-1] = '\r';
+    length += (ULONG)vsprintf(&OutputBuffer[length], Format, arglist);
+    BeginningOfLine = (length > 0 && OutputBuffer[length - 1] == '\n');
+    if (BeginningOfLine) {
+        OutputBuffer[length - 1] = '\r';
         OutputBuffer[length] = '\n';
-        OutputBuffer[length+1] = '\0';
+        OutputBuffer[length + 1] = '\0';
         length++;
     }
 
-    ASSERT( length <= sizeof( OutputBuffer ) / sizeof( CHAR ) );
+    ASSERT(length <= sizeof(OutputBuffer) / sizeof(CHAR));
 
     // Write the debug info to the log file.
-    if ( !WriteFile( MsvPaswdLogFile, OutputBuffer, length, &BytesWritten, NULL ) ) {
+    if (!WriteFile(MsvPaswdLogFile, OutputBuffer, length, &BytesWritten, NULL)) {
 
     }
 }
@@ -335,7 +335,7 @@ VOID MsvPaswdLogPrintRoutine(IN LPSTR Format, ...)
 {
     va_list arglist;
     va_start(arglist, Format);
-    MsvPaswdDebugDumpRoutine( Format, arglist );
+    MsvPaswdDebugDumpRoutine(Format, arglist);
     va_end(arglist);
 }
 
@@ -349,13 +349,13 @@ Returns:
 --*/
 {
     ULONG dwErr = ERROR_SUCCESS;
-    if ( MsvPaswdLogFile != NULL ) {
-        if( FlushFileBuffers( MsvPaswdLogFile ) == FALSE ) {
+    if (MsvPaswdLogFile != NULL) {
+        if (FlushFileBuffers(MsvPaswdLogFile) == FALSE) {
             dwErr = GetLastError();
         }
     }
 
-    return( dwErr );
+    return(dwErr);
 }
 
 
@@ -369,10 +369,10 @@ NTSTATUS MspChangePasswordSam(
     IN PUNICODE_STRING NewPassword,
     IN PLSA_CLIENT_REQUEST ClientRequest,
     IN BOOLEAN Impersonating,
-    OUT PDOMAIN_PASSWORD_INFORMATION *DomainPasswordInfo,
-    OUT PPOLICY_PRIMARY_DOMAIN_INFO *PrimaryDomainInfo OPTIONAL,
+    OUT PDOMAIN_PASSWORD_INFORMATION * DomainPasswordInfo,
+    OUT PPOLICY_PRIMARY_DOMAIN_INFO * PrimaryDomainInfo OPTIONAL,
     OUT PBOOLEAN Authoritative
-    )
+)
 /*++
 Routine Description:
     This routine is called by MspChangePassword to change the password on a Windows NT machine.
@@ -403,7 +403,7 @@ Return Value:
     *Authoritative = TRUE;
 
     // If we're impersonating (ie, winlogon impersonated its caller before calling us), impersonate again.  This allows us to get the name of the caller for auditing.
-    if ( Impersonating ) {
+    if (Impersonating) {
         Status = (*Lsap.ImpersonateClient)(ClientRequest);
     } else {
         // Since the System context is a member of the Administrators alias, when we connect with the local SAM we come in as an Administrator.
@@ -413,34 +413,33 @@ Return Value:
         Status = MspDisableAdminsAlias();
     }
 
-    if (!NT_SUCCESS( Status )) {
+    if (!NT_SUCCESS(Status)) {
         goto Cleanup;
     }
 
-    try
-    {
+    try {
         Status = SamChangePasswordUser2(UncComputerName, UserName, OldPassword, NewPassword);
     }
-    except (EXCEPTION_EXECUTE_HANDLER)
+    except(EXCEPTION_EXECUTE_HANDLER)
     {
         Status = GetExceptionCode();
     }
 
     MsvPaswdLogPrint(("SamChangePasswordUser2 on machine %wZ for user %wZ returned 0x%x\n", UncComputerName, UserName, Status));
 
-    if ( !NT_SUCCESS(Status) ) {
+    if (!NT_SUCCESS(Status)) {
 #ifdef COMPILED_BY_DEVELOPER
         KdPrint(("MspChangePasswordSam: SamChangePasswordUser2(%wZ) failed, status %x\n", UncComputerName, Status));
 #endif // COMPILED_BY_DEVELOPER
 
         // If we failed to connect and we were impersonating a client then we may want to try again using the NULL session.
         // Only try this if we found a server last try.  Otherwise, we'll subject our user to another long timeout.
-        if (( Impersonating ) &&
-            ( Status != STATUS_WRONG_PASSWORD ) &&
-            ( Status != STATUS_PASSWORD_RESTRICTION ) &&
-            ( Status != STATUS_ACCOUNT_RESTRICTION ) &&
-            ( Status != RPC_NT_SERVER_UNAVAILABLE) &&
-            ( Status != STATUS_INVALID_DOMAIN_ROLE) ) {
+        if ((Impersonating) &&
+            (Status != STATUS_WRONG_PASSWORD) &&
+            (Status != STATUS_PASSWORD_RESTRICTION) &&
+            (Status != STATUS_ACCOUNT_RESTRICTION) &&
+            (Status != RPC_NT_SERVER_UNAVAILABLE) &&
+            (Status != STATUS_INVALID_DOMAIN_ROLE)) {
             Status = MspDisableAdminsAlias();
             if (!NT_SUCCESS(Status)) {
                 goto Cleanup;
@@ -448,40 +447,40 @@ Return Value:
 
             Status = SamChangePasswordUser2(UncComputerName, UserName, OldPassword, NewPassword);
 
-            MsvPaswdLogPrint(("SamChangePasswordUser2 retry on machine %wZ for user %wZ returned 0x%x\n", UncComputerName, UserName, Status ));
+            MsvPaswdLogPrint(("SamChangePasswordUser2 retry on machine %wZ for user %wZ returned 0x%x\n", UncComputerName, UserName, Status));
 
 #ifdef COMPILED_BY_DEVELOPER
-            if ( !NT_SUCCESS(Status) ) {
+            if (!NT_SUCCESS(Status)) {
                 KdPrint(("MspChangePasswordSam: SamChangePasswordUser2(%wZ) (2nd attempt) failed, status %x\n", UncComputerName, Status));
-                }
+            }
 #endif // COMPILED_BY_DEVELOPER
         }
     }
 
-    if ( !NT_SUCCESS(Status) ) {
+    if (!NT_SUCCESS(Status)) {
 #ifdef COMPILED_BY_DEVELOPER
         KdPrint(("MspChangePasswordSam: Cannot change password for %wZ, status %x\n", UserName, Status));
 #endif // COMPILED_BY_DEVELOPER
-        if (Status == RPC_NT_SERVER_UNAVAILABLE || Status == RPC_S_SERVER_UNAVAILABLE ) {
+        if (Status == RPC_NT_SERVER_UNAVAILABLE || Status == RPC_S_SERVER_UNAVAILABLE) {
             Status = STATUS_CANT_ACCESS_DOMAIN_INFO;
         } else if (Status == STATUS_PASSWORD_RESTRICTION) {
             // Get the password restrictions for this domain and return them
 
             // Get the SID of the account domain from LSA
-            InitializeObjectAttributes( &LSAObjectAttributes,
-                                          NULL,             // Name
-                                          0,                // Attributes
-                                          NULL,             // Root
-                                          NULL );           // Security Descriptor
-            Status = LsaOpenPolicy( UncComputerName,&LSAObjectAttributes,POLICY_VIEW_LOCAL_INFORMATION,&LSAPolicyHandle );
-            if( !NT_SUCCESS(Status) ) {
+            InitializeObjectAttributes(&LSAObjectAttributes,
+                                       NULL,             // Name
+                                       0,                // Attributes
+                                       NULL,             // Root
+                                       NULL);           // Security Descriptor
+            Status = LsaOpenPolicy(UncComputerName, &LSAObjectAttributes, POLICY_VIEW_LOCAL_INFORMATION, &LSAPolicyHandle);
+            if (!NT_SUCCESS(Status)) {
                 KdPrint(("MspChangePasswordSam: LsaOpenPolicy(%wZ) failed, status %x\n", UncComputerName, Status));
                 LSAPolicyHandle = NULL;
                 goto Cleanup;
             }
 
-            Status = LsaQueryInformationPolicy(LSAPolicyHandle,PolicyAccountDomainInformation,(PVOID *) &AccountDomainInfo );
-            if( !NT_SUCCESS(Status) ) {
+            Status = LsaQueryInformationPolicy(LSAPolicyHandle, PolicyAccountDomainInformation, (PVOID *)&AccountDomainInfo);
+            if (!NT_SUCCESS(Status)) {
                 KdPrint(("MspChangePasswordSam: LsaQueryInformationPolicy(%wZ) failed, status %x\n", UncComputerName, Status));
                 AccountDomainInfo = NULL;
                 goto Cleanup;
@@ -495,22 +494,22 @@ Return Value:
             SecurityQos.ImpersonationLevel = SecurityIdentification;
             SecurityQos.ContextTrackingMode = SECURITY_STATIC_TRACKING;
             SecurityQos.EffectiveOnly = FALSE;
-            Status = SamConnect(UncComputerName,&SamHandle,SAM_SERVER_LOOKUP_DOMAIN,&ObjectAttributes);
-            if ( !NT_SUCCESS(Status) ) {
+            Status = SamConnect(UncComputerName, &SamHandle, SAM_SERVER_LOOKUP_DOMAIN, &ObjectAttributes);
+            if (!NT_SUCCESS(Status)) {
                 KdPrint(("MspChangePasswordSam: Cannot open sam on %wZ, status %x\n", UncComputerName, Status));
                 DomainHandle = NULL;
                 goto Cleanup;
             }
 
             // Open the Account domain in SAM.
-            Status = SamOpenDomain(SamHandle,GENERIC_EXECUTE,AccountDomainInfo->DomainSid,&DomainHandle);
-            if ( !NT_SUCCESS(Status) ) {
+            Status = SamOpenDomain(SamHandle, GENERIC_EXECUTE, AccountDomainInfo->DomainSid, &DomainHandle);
+            if (!NT_SUCCESS(Status)) {
                 KdPrint(("MspChangePasswordSam: Cannot open domain on %wZ, status %x\n", UncComputerName, Status));
                 DomainHandle = NULL;
                 goto Cleanup;
             }
 
-            Status = SamQueryInformationDomain(DomainHandle,DomainPasswordInformation,(PVOID *)DomainPasswordInfo );
+            Status = SamQueryInformationDomain(DomainHandle, DomainPasswordInformation, (PVOID *)DomainPasswordInfo);
             if (!NT_SUCCESS(Status)) {
                 *DomainPasswordInfo = NULL;
             } else {
@@ -523,32 +522,32 @@ Return Value:
 
 Cleanup:
     // If the only problem is that this is a BDC, Return the domain name back to the caller.
-    if ( (Status == STATUS_BACKUP_CONTROLLER || Status == STATUS_INVALID_DOMAIN_ROLE) && PrimaryDomainInfo != NULL ) {
+    if ((Status == STATUS_BACKUP_CONTROLLER || Status == STATUS_INVALID_DOMAIN_ROLE) && PrimaryDomainInfo != NULL) {
         NTSTATUS TempStatus;
 
         // Open the LSA if we haven't already.
         if (LSAPolicyHandle == NULL) {
-            InitializeObjectAttributes( &LSAObjectAttributes,
-                                        NULL,             // Name
-                                        0,                // Attributes
-                                        NULL,             // Root
-                                        NULL );           // Security Descriptor
-            TempStatus = LsaOpenPolicy( UncComputerName,&LSAObjectAttributes,POLICY_VIEW_LOCAL_INFORMATION,&LSAPolicyHandle );
-            if( !NT_SUCCESS(TempStatus) ) {
+            InitializeObjectAttributes(&LSAObjectAttributes,
+                                       NULL,             // Name
+                                       0,                // Attributes
+                                       NULL,             // Root
+                                       NULL);           // Security Descriptor
+            TempStatus = LsaOpenPolicy(UncComputerName, &LSAObjectAttributes, POLICY_VIEW_LOCAL_INFORMATION, &LSAPolicyHandle);
+            if (!NT_SUCCESS(TempStatus)) {
                 KdPrint(("MspChangePasswordSam: LsaOpenPolicy(%wZ) failed, status %x\n", UncComputerName, TempStatus));
                 LSAPolicyHandle = NULL;
             }
         }
 
         if (LSAPolicyHandle != NULL) {
-            TempStatus = LsaQueryInformationPolicy(LSAPolicyHandle,PolicyPrimaryDomainInformation,(PVOID *) PrimaryDomainInfo );
-            if( !NT_SUCCESS(TempStatus) ) {
-                KdPrint(("MspChangePasswordSam: LsaQueryInformationPolicy(%wZ) failed, status %x\n",UncComputerName, TempStatus));
+            TempStatus = LsaQueryInformationPolicy(LSAPolicyHandle, PolicyPrimaryDomainInformation, (PVOID *)PrimaryDomainInfo);
+            if (!NT_SUCCESS(TempStatus)) {
+                KdPrint(("MspChangePasswordSam: LsaQueryInformationPolicy(%wZ) failed, status %x\n", UncComputerName, TempStatus));
                 *PrimaryDomainInfo = NULL;
-    #ifdef COMPILED_BY_DEVELOPER
+#ifdef COMPILED_BY_DEVELOPER
             } else {
                 KdPrint(("MspChangePasswordSam: %wZ is really a BDC in domain %wZ\n", UncComputerName, &(*PrimaryDomainInfo)->Name));
-    #endif // COMPILED_BY_DEVELOPER
+#endif // COMPILED_BY_DEVELOPER
             }
         }
 
@@ -556,12 +555,12 @@ Cleanup:
     }
 
     // Check for non-authoritative failures
-    if (( Status != STATUS_ACCESS_DENIED) &&
-        ( Status != STATUS_WRONG_PASSWORD ) &&
-        ( Status != STATUS_NO_SUCH_USER ) &&
-        ( Status != STATUS_PASSWORD_RESTRICTION ) &&
-        ( Status != STATUS_ACCOUNT_RESTRICTION ) &&
-        ( Status != STATUS_INVALID_DOMAIN_ROLE) ) {
+    if ((Status != STATUS_ACCESS_DENIED) &&
+        (Status != STATUS_WRONG_PASSWORD) &&
+        (Status != STATUS_NO_SUCH_USER) &&
+        (Status != STATUS_PASSWORD_RESTRICTION) &&
+        (Status != STATUS_ACCOUNT_RESTRICTION) &&
+        (Status != STATUS_INVALID_DOMAIN_ROLE)) {
         *Authoritative = FALSE;
     }
 
@@ -581,12 +580,12 @@ Cleanup:
         SamCloseHandle(DomainHandle);
     }
 
-    if( LSAPolicyHandle != NULL ) {
-        LsaClose( LSAPolicyHandle );
+    if (LSAPolicyHandle != NULL) {
+        LsaClose(LSAPolicyHandle);
     }
 
-    if ( AccountDomainInfo != NULL ) {
-        (VOID) LsaFreeMemory( AccountDomainInfo );
+    if (AccountDomainInfo != NULL) {
+        (VOID)LsaFreeMemory(AccountDomainInfo);
     }
 
     return Status;
@@ -599,7 +598,7 @@ NTSTATUS MspChangePasswordDownlevel(
     IN PUNICODE_STRING OldPasswordU,
     IN PUNICODE_STRING NewPasswordU,
     OUT PBOOLEAN Authoritative
-    )
+)
 /*++
 Routine Description:
     This routine is called by MspChangePassword to change the password on an OS/2 User-level server.
@@ -626,50 +625,50 @@ Return Value:
     // Convert UserName from UNICODE_STRING to null-terminated wide string for use by RxNetUserPasswordSet.
     Length = UserNameU->Length;
     UserName = RtlAllocateHeap(MspHeap, 0, Length + sizeof(TCHAR));
-    if ( NULL == UserName ) {
+    if (NULL == UserName) {
         Status = STATUS_NO_MEMORY;
         goto Cleanup;
     }
-    RtlCopyMemory( UserName, UserNameU->Buffer, Length );
-    UserName[ Length / sizeof(TCHAR) ] = 0;
+    RtlCopyMemory(UserName, UserNameU->Buffer, Length);
+    UserName[Length / sizeof(TCHAR)] = 0;
 
     // Convert OldPassword from UNICODE_STRING to null-terminated wide string.
     Length = OldPasswordU->Length;
-    OldPassword = RtlAllocateHeap( MspHeap, 0, Length + sizeof(TCHAR) );
-    if ( NULL == OldPassword ) {
+    OldPassword = RtlAllocateHeap(MspHeap, 0, Length + sizeof(TCHAR));
+    if (NULL == OldPassword) {
         Status = STATUS_NO_MEMORY;
         goto Cleanup;
     }
-    RtlCopyMemory( OldPassword, OldPasswordU->Buffer, Length );
-    OldPassword[ Length / sizeof(TCHAR) ] = 0;
+    RtlCopyMemory(OldPassword, OldPasswordU->Buffer, Length);
+    OldPassword[Length / sizeof(TCHAR)] = 0;
 
     // Convert NewPassword from UNICODE_STRING to null-terminated wide string.
     Length = NewPasswordU->Length;
-    NewPassword = RtlAllocateHeap( MspHeap, 0, Length + sizeof(TCHAR) );
-    if ( NULL == NewPassword ) {
+    NewPassword = RtlAllocateHeap(MspHeap, 0, Length + sizeof(TCHAR));
+    if (NULL == NewPassword) {
         Status = STATUS_NO_MEMORY;
         goto Cleanup;
     }
-    RtlCopyMemory( NewPassword, NewPasswordU->Buffer, Length );
-    NewPassword[ Length / sizeof(TCHAR) ] = 0;
+    RtlCopyMemory(NewPassword, NewPasswordU->Buffer, Length);
+    NewPassword[Length / sizeof(TCHAR)] = 0;
 
 #ifdef COMPILED_BY_DEVELOPER
     KdPrint(("MSV1_0: Changing password on downlevel server:\n"
-        "\tUncComputerName: %wZ\n"
-        "\tUserName:     %ws\n"
-        "\tOldPassword:  %ws\n"
-        "\tNewPassword:  %ws\n",
-        UncComputerName,
-        UserName,
-        OldPassword,
-        NewPassword
-        ));
+             "\tUncComputerName: %wZ\n"
+             "\tUserName:     %ws\n"
+             "\tOldPassword:  %ws\n"
+             "\tNewPassword:  %ws\n",
+             UncComputerName,
+             UserName,
+             OldPassword,
+             NewPassword
+             ));
 #endif // COMPILED_BY_DEVELOPER
 
     // Attempt to change password on downlevel server.
-    NetStatus = RxNetUserPasswordSet(UncComputerName->Buffer,UserName,OldPassword,NewPassword);
+    NetStatus = RxNetUserPasswordSet(UncComputerName->Buffer, UserName, OldPassword, NewPassword);
 
-    MsvPaswdLogPrint(("RxNetUserPasswordSet on machine %ws for user %ws returned 0x%x\n",UncComputerName->Buffer,UserName,NetStatus));
+    MsvPaswdLogPrint(("RxNetUserPasswordSet on machine %ws for user %ws returned 0x%x\n", UncComputerName->Buffer, UserName, NetStatus));
 
 #ifdef COMPILED_BY_DEVELOPER
     KdPrint(("MSV1_0: RxNUserPasswordSet returns %d.\n", NetStatus));
@@ -681,19 +680,19 @@ Return Value:
     if (NetStatus == NERR_InvalidComputer || NetStatus == ERROR_PATH_NOT_FOUND) {
         Status = STATUS_NO_SUCH_DOMAIN;
 
-    // ERROR_SEM_TIMEOUT can be returned when the computer name doesn't exist.
+        // ERROR_SEM_TIMEOUT can be returned when the computer name doesn't exist.
 
-    // ERROR_REM_NOT_LIST can also be returned when the computer name doesn't exist.
-    } else if ( NetStatus == ERROR_SEM_TIMEOUT || NetStatus == ERROR_REM_NOT_LIST) {
+        // ERROR_REM_NOT_LIST can also be returned when the computer name doesn't exist.
+    } else if (NetStatus == ERROR_SEM_TIMEOUT || NetStatus == ERROR_REM_NOT_LIST) {
         Status = STATUS_BAD_NETWORK_PATH;
-    } else if ( (NetStatus == ERROR_INVALID_PARAMETER) && ((wcslen(NewPassword) > LM20_PWLEN) || (wcslen(OldPassword) > LM20_PWLEN)) ) {
+    } else if ((NetStatus == ERROR_INVALID_PARAMETER) && ((wcslen(NewPassword) > LM20_PWLEN) || (wcslen(OldPassword) > LM20_PWLEN))) {
         // The net api returns ERROR_INVALID_PARAMETER if the password could not be converted to the LM OWF password.  Return STATUS_PASSWORD_RESTRICTION for this.
         Status = STATUS_PASSWORD_RESTRICTION;
 
         // We never made it to the other machine, so we should continue trying to change the password.
         *Authoritative = FALSE;
     } else {
-        Status = NetpApiStatusToNtStatus( NetStatus );
+        Status = NetpApiStatusToNtStatus(NetStatus);
     }
 
 Cleanup:
@@ -705,13 +704,13 @@ Cleanup:
 
     // Free OldPassword if used. (Don't let password make it to page file)
     if (OldPassword) {
-        RtlZeroMemory( OldPassword, wcslen(OldPassword)*sizeof(WCHAR) );
+        RtlZeroMemory(OldPassword, wcslen(OldPassword) * sizeof(WCHAR));
         RtlFreeHeap(MspHeap, 0, OldPassword);
     }
 
     // Free NewPassword if used. (Don't let password make it to page file)
     if (NewPassword) {
-        RtlZeroMemory( NewPassword, wcslen(NewPassword)*sizeof(WCHAR) );
+        RtlZeroMemory(NewPassword, wcslen(NewPassword) * sizeof(WCHAR));
         RtlFreeHeap(MspHeap, 0, NewPassword);
     }
 
@@ -726,10 +725,10 @@ NTSTATUS MspChangePassword(
     IN PUNICODE_STRING NewPassword,
     IN PLSA_CLIENT_REQUEST ClientRequest,
     IN BOOLEAN Impersonating,
-    OUT PDOMAIN_PASSWORD_INFORMATION *DomainPasswordInfo,
-    OUT PPOLICY_PRIMARY_DOMAIN_INFO *PrimaryDomainInfo OPTIONAL,
+    OUT PDOMAIN_PASSWORD_INFORMATION * DomainPasswordInfo,
+    OUT PPOLICY_PRIMARY_DOMAIN_INFO * PrimaryDomainInfo OPTIONAL,
     OUT PBOOLEAN Authoritative
-    )
+)
 /*++
 Routine Description:
     This routine is called by MspLM20ChangePassword to change the password on the specified server.  The server may be either NT or Downlevel.
@@ -753,14 +752,14 @@ Return Value:
     *Authoritative = TRUE;
 
     // Ensure the server name is a UNC server name.
-    Status = MspAddBackslashesComputerName( ComputerName, &UncComputerName );
+    Status = MspAddBackslashesComputerName(ComputerName, &UncComputerName);
     if (!NT_SUCCESS(Status)) {
         KdPrint(("MspChangePassword: MspAddBackslashes..(%wZ) failed, status %x\n", ComputerName, Status));
         return(Status);
     }
 
     // Assume the Server is an NT server and try to change the password.
-    Status = MspChangePasswordSam(&UncComputerName,UserName,OldPassword,NewPassword,ClientRequest,Impersonating,DomainPasswordInfo,PrimaryDomainInfo,Authoritative );
+    Status = MspChangePasswordSam(&UncComputerName, UserName, OldPassword, NewPassword, ClientRequest, Impersonating, DomainPasswordInfo, PrimaryDomainInfo, Authoritative);
 
     // If MspChangePasswordSam returns anything other than STATUS_CANT_ACCESS_DOMAIN_INFO, it was able to connect to the remote computer so we won't try downlevel.
     if (Status == STATUS_CANT_ACCESS_DOMAIN_INFO) {
@@ -770,13 +769,13 @@ Return Value:
         // only if target machine doesn't support SAM protocol do we attempt downlevel.
         // MspAddBackslashesComputerName() NULL terminates the buffer.
         NetStatus = NetRemoteComputerSupports((LPWSTR)UncComputerName.Buffer, SUPPORTS_RPC | SUPPORTS_LOCAL | SUPPORTS_SAM_PROTOCOL, &OptionsSupported);
-        if( NetStatus == NERR_Success && !(OptionsSupported & SUPPORTS_SAM_PROTOCOL) ) {
-            Status = MspChangePasswordDownlevel(&UncComputerName, UserName, OldPassword, NewPassword, Authoritative );
+        if (NetStatus == NERR_Success && !(OptionsSupported & SUPPORTS_SAM_PROTOCOL)) {
+            Status = MspChangePasswordDownlevel(&UncComputerName, UserName, OldPassword, NewPassword, Authoritative);
         }
     }
 
     // Free UncComputerName.Buffer if different from ComputerName.
-    if ( UncComputerName.Buffer != ComputerName->Buffer ) {
+    if (UncComputerName.Buffer != ComputerName->Buffer) {
         RtlFreeHeap(MspHeap, 0, UncComputerName.Buffer);
     }
 
@@ -784,15 +783,15 @@ Return Value:
 }
 
 
-NTSTATUS MspLm20ChangePassword (
+NTSTATUS MspLm20ChangePassword(
     IN PLSA_CLIENT_REQUEST ClientRequest,
     IN PVOID ProtocolSubmitBuffer,
     IN PVOID ClientBufferBase,
     IN ULONG SubmitBufferSize,
-    OUT PVOID *ProtocolReturnBuffer,
+    OUT PVOID * ProtocolReturnBuffer,
     OUT PULONG ReturnBufferSize,
     OUT PNTSTATUS ProtocolStatus
-    )
+)
 /*++
 Routine Description:
     This routine is the dispatch routine for LsaCallAuthenticationPackage() with a message type of MsV1_0ChangePassword.
@@ -840,69 +839,71 @@ Return Value:
     BOOLEAN         Authoritative = TRUE;
     BOOLEAN         AttemptRediscovery = FALSE;
 
-    RtlInitUnicodeString(&DCNameString,NULL);
+    RtlInitUnicodeString(&DCNameString, NULL);
     // Sanity checks.
-    NlpInitClientBuffer( &ClientBufferDesc, ClientRequest );
-    if ( SubmitBufferSize < sizeof(MSV1_0_CHANGEPASSWORD_REQUEST) ) {
+    NlpInitClientBuffer(&ClientBufferDesc, ClientRequest);
+    if (SubmitBufferSize < sizeof(MSV1_0_CHANGEPASSWORD_REQUEST)) {
         Status = STATUS_INVALID_PARAMETER;
         goto Cleanup;
     }
 
-    ChangePasswordRequest = (PMSV1_0_CHANGEPASSWORD_REQUEST) ProtocolSubmitBuffer;
-    ASSERT( ChangePasswordRequest->MessageType == MsV1_0ChangePassword || ChangePasswordRequest->MessageType == MsV1_0ChangeCachedPassword );
-    RELOCATE_ONE( &ChangePasswordRequest->DomainName );
-    RELOCATE_ONE( &ChangePasswordRequest->AccountName );
-    if ( ChangePasswordRequest->MessageType == MsV1_0ChangeCachedPassword ) {
-        NULL_RELOCATE_ONE( &ChangePasswordRequest->OldPassword );
+    ChangePasswordRequest = (PMSV1_0_CHANGEPASSWORD_REQUEST)ProtocolSubmitBuffer;
+    ASSERT(ChangePasswordRequest->MessageType == MsV1_0ChangePassword || ChangePasswordRequest->MessageType == MsV1_0ChangeCachedPassword);
+    RELOCATE_ONE(&ChangePasswordRequest->DomainName);
+    RELOCATE_ONE(&ChangePasswordRequest->AccountName);
+    if (ChangePasswordRequest->MessageType == MsV1_0ChangeCachedPassword) {
+        NULL_RELOCATE_ONE(&ChangePasswordRequest->OldPassword);
     } else {
-        RELOCATE_ONE_ENCODED( &ChangePasswordRequest->OldPassword );
+        RELOCATE_ONE_ENCODED(&ChangePasswordRequest->OldPassword);
     }
 
-    RELOCATE_ONE_ENCODED( &ChangePasswordRequest->NewPassword );
+    RELOCATE_ONE_ENCODED(&ChangePasswordRequest->NewPassword);
 
     // save away copies of validated buffers to check later.
-    RtlCopyMemory( &ValidatedDomainName, &ChangePasswordRequest->DomainName, sizeof(ValidatedDomainName) );
-    RtlCopyMemory( &ValidatedAccountName, &ChangePasswordRequest->AccountName, sizeof(ValidatedAccountName) );
+    RtlCopyMemory(&ValidatedDomainName, &ChangePasswordRequest->DomainName, sizeof(ValidatedDomainName));
+    RtlCopyMemory(&ValidatedAccountName, &ChangePasswordRequest->AccountName, sizeof(ValidatedAccountName));
 
     ValidatedOldPasswordBuffer = ChangePasswordRequest->OldPassword.Buffer;
     ValidatedNewPasswordBuffer = ChangePasswordRequest->NewPassword.Buffer;
 
-    SeedAndLength = (PSECURITY_SEED_AND_LENGTH) &ChangePasswordRequest->OldPassword.Length;
+    SeedAndLength = (PSECURITY_SEED_AND_LENGTH)&ChangePasswordRequest->OldPassword.Length;
     Seed = SeedAndLength->Seed;
     SeedAndLength->Seed = 0;
 
     if (Seed != 0) {
         try {
-            RtlRunDecodeUnicodeString(Seed, &ChangePasswordRequest->OldPassword );
-        } except (EXCEPTION_EXECUTE_HANDLER) {
+            RtlRunDecodeUnicodeString(Seed, &ChangePasswordRequest->OldPassword);
+        } except(EXCEPTION_EXECUTE_HANDLER)
+        {
             Status = STATUS_ILL_FORMED_PASSWORD;
             goto Cleanup;
         }
     }
 
-    SeedAndLength = (PSECURITY_SEED_AND_LENGTH) &ChangePasswordRequest->NewPassword.Length;
+    SeedAndLength = (PSECURITY_SEED_AND_LENGTH)&ChangePasswordRequest->NewPassword.Length;
     Seed = SeedAndLength->Seed;
     SeedAndLength->Seed = 0;
 
     if (Seed != 0) {
-        if( ChangePasswordRequest->NewPassword.Buffer != ValidatedNewPasswordBuffer ) {
+        if (ChangePasswordRequest->NewPassword.Buffer != ValidatedNewPasswordBuffer) {
             Status = STATUS_INVALID_PARAMETER;
             goto Cleanup;
         }
 
         try {
-            RtlRunDecodeUnicodeString(Seed, &ChangePasswordRequest->NewPassword );
-        } except (EXCEPTION_EXECUTE_HANDLER) {
+            RtlRunDecodeUnicodeString(Seed, &ChangePasswordRequest->NewPassword);
+        } except(EXCEPTION_EXECUTE_HANDLER)
+        {
             Status = STATUS_ILL_FORMED_PASSWORD;
             goto Cleanup;
         }
     }
 
     // sanity check that we didn't whack over buffers.
-    if( !RtlCompareMemory(&ValidatedDomainName, &ChangePasswordRequest->DomainName, sizeof(ValidatedDomainName)) || !RtlCompareMemory(&ValidatedAccountName, &ChangePasswordRequest->AccountName, sizeof(ValidatedAccountName))
-                        || (ValidatedOldPasswordBuffer != ChangePasswordRequest->OldPassword.Buffer) || (ValidatedNewPasswordBuffer != ChangePasswordRequest->NewPassword.Buffer)) {
-            Status= STATUS_INVALID_PARAMETER;
-            goto Cleanup;
+    if (!RtlCompareMemory(&ValidatedDomainName, &ChangePasswordRequest->DomainName, sizeof(ValidatedDomainName)) || !RtlCompareMemory(&ValidatedAccountName, &ChangePasswordRequest->AccountName, sizeof(ValidatedAccountName))
+        || (ValidatedOldPasswordBuffer != ChangePasswordRequest->OldPassword.Buffer) || (ValidatedNewPasswordBuffer != ChangePasswordRequest->NewPassword.Buffer)) {
+        Status = STATUS_INVALID_PARAMETER;
+        goto Cleanup;
     }
 
     *ReturnBufferSize = 0;
@@ -920,13 +921,13 @@ Return Value:
              "\tNewPassword(%d)\n",
              &ChangePasswordRequest->DomainName,
              &ChangePasswordRequest->AccountName,
-             (int) ChangePasswordRequest->OldPassword.Length,
-             (int) ChangePasswordRequest->NewPassword.Length
+             (int)ChangePasswordRequest->OldPassword.Length,
+             (int)ChangePasswordRequest->NewPassword.Length
              ));
 #endif // COMPILED_BY_DEVELOPER
 
     // If we're just changing the cached password, skip changing the password on the domain.
-    if ( ChangePasswordRequest->MessageType == MsV1_0ChangeCachedPassword ) {
+    if (ChangePasswordRequest->MessageType == MsV1_0ChangeCachedPassword) {
         ClientName = ChangePasswordRequest->AccountName;
         ClientNetbiosDomain = ChangePasswordRequest->DomainName;
         Status = STATUS_SUCCESS;
@@ -936,7 +937,7 @@ Return Value:
     // If the client supplied a non-nt4 name, go ahead and convert it here.
     if (ChangePasswordRequest->DomainName.Length == 0) {
         DWORD DsStatus;
-        WCHAR NameBuffer[UNLEN+1];
+        WCHAR NameBuffer[UNLEN + 1];
         LPWSTR NameString = NameBuffer;
         ULONG Index;
         BOOLEAN fWorkstation = FALSE;
@@ -948,47 +949,47 @@ Return Value:
         }
 
         RtlCopyMemory(NameBuffer, ChangePasswordRequest->AccountName.Buffer, ChangePasswordRequest->AccountName.Length);
-        NameBuffer[ChangePasswordRequest->AccountName.Length/sizeof(WCHAR)] = L'\0';
-        DsStatus = DsBindW(NULL,NULL,&DsHandle);
+        NameBuffer[ChangePasswordRequest->AccountName.Length / sizeof(WCHAR)] = L'\0';
+        DsStatus = DsBindW(NULL, NULL, &DsHandle);
 
         // we allow the bind to fail on a member workstation, which allows us to attempt a 'manual' crack.
         if (DsStatus != ERROR_SUCCESS) {
             fWorkstation = NlpWorkstation;
-            if( !fWorkstation ) {
-                SspPrint(( SSP_CRITICAL, "MspLm20ChangePassword: DsBindW returned 0x%lx.\n", DsStatus ));
-                Status = NetpApiStatusToNtStatus( DsStatus );
+            if (!fWorkstation) {
+                SspPrint((SSP_CRITICAL, "MspLm20ChangePassword: DsBindW returned 0x%lx.\n", DsStatus));
+                Status = NetpApiStatusToNtStatus(DsStatus);
                 goto Cleanup;
             }
         }
 
-        if( !fWorkstation ) {
+        if (!fWorkstation) {
             DsStatus = DsCrackNamesW(
-                        DsHandle,
-                        0,                          // no flags
-                        DS_UNKNOWN_NAME,
-                        DS_NT4_ACCOUNT_NAME,
-                        1,
-                        &NameString,
-                        &NameResult
-                        );
+                DsHandle,
+                0,                          // no flags
+                DS_UNKNOWN_NAME,
+                DS_NT4_ACCOUNT_NAME,
+                1,
+                &NameString,
+                &NameResult
+            );
             if (DsStatus != ERROR_SUCCESS) {
-                SspPrint(( SSP_CRITICAL, "MspLm20ChangePassword: DsCrackNamesW returned 0x%lx.\n", DsStatus ));
-                Status = NetpApiStatusToNtStatus( DsStatus );
+                SspPrint((SSP_CRITICAL, "MspLm20ChangePassword: DsCrackNamesW returned 0x%lx.\n", DsStatus));
+                Status = NetpApiStatusToNtStatus(DsStatus);
                 goto Cleanup;
             }
 
             // Look for the name in the result
             if (NameResult->cItems < 1) {
-                SspPrint(( SSP_CRITICAL, "MspLm20ChangePassword: DsCrackNamesW returned zero items.\n"));
+                SspPrint((SSP_CRITICAL, "MspLm20ChangePassword: DsCrackNamesW returned zero items.\n"));
                 Status = STATUS_INTERNAL_ERROR;
                 goto Cleanup;
             }
         }
 
         // Check if the crack succeeded
-        if ( (fWorkstation) || (NameResult->rItems[0].status != DS_NAME_NO_ERROR)) {
+        if ((fWorkstation) || (NameResult->rItems[0].status != DS_NAME_NO_ERROR)) {
             // The name wasn't mapped. Try converting it manually by splitting it at the '@'
-            RtlInitUnicodeString(&ClientName,NameBuffer);
+            RtlInitUnicodeString(&ClientName, NameBuffer);
 
             // shortest possible is 3 Unicode chars (eg: a@a)
             if (ClientName.Length < (sizeof(WCHAR) * 3)) {
@@ -996,12 +997,12 @@ Return Value:
                 goto Cleanup;
             }
 
-            for (Index = (ClientName.Length / sizeof(WCHAR)) - 1; Index != 0 ; Index-- ) {
+            for (Index = (ClientName.Length / sizeof(WCHAR)) - 1; Index != 0; Index--) {
                 if (ClientName.Buffer[Index] == L'@') {
 
-                    RtlInitUnicodeString(&ClientDnsDomain,&ClientName.Buffer[Index+1]);
+                    RtlInitUnicodeString(&ClientDnsDomain, &ClientName.Buffer[Index + 1]);
                     ClientName.Buffer[Index] = L'\0';
-                    ClientName.Length = (USHORT) Index * sizeof(WCHAR);
+                    ClientName.Length = (USHORT)Index * sizeof(WCHAR);
                     break;
                 }
             }
@@ -1014,24 +1015,22 @@ Return Value:
 
             // This isn't really the Netbios Domain name, but it is the best we have.
             ClientNetbiosDomain = ClientDnsDomain;
-            for (Index = 0; Index < (ClientNetbiosDomain.Length / sizeof(WCHAR)) ; Index++ ) {
+            for (Index = 0; Index < (ClientNetbiosDomain.Length / sizeof(WCHAR)); Index++) {
                 // truncate the netbios domain to the first DOT
-                if( ClientNetbiosDomain.Buffer[Index] == L'.' ) {
+                if (ClientNetbiosDomain.Buffer[Index] == L'.') {
                     ClientNetbiosDomain.Length = (USHORT)(Index * sizeof(WCHAR));
                     ClientNetbiosDomain.MaximumLength = ClientNetbiosDomain.Length;
                     break;
                 }
             }
-        }
-        else
-        {
-            RtlInitUnicodeString(&ClientDnsDomain,NameResult->rItems[0].pDomain);
-            RtlInitUnicodeString(&ClientName,NameResult->rItems[0].pName);
-            RtlInitUnicodeString(&ClientNetbiosDomain,NameResult->rItems[0].pName);
+        } else {
+            RtlInitUnicodeString(&ClientDnsDomain, NameResult->rItems[0].pDomain);
+            RtlInitUnicodeString(&ClientName, NameResult->rItems[0].pName);
+            RtlInitUnicodeString(&ClientNetbiosDomain, NameResult->rItems[0].pName);
             // Move the pointer for the name up to the first "\" in the name
-            for (Index = 0; Index < ClientName.Length / sizeof(WCHAR) ; Index++ ) {
+            for (Index = 0; Index < ClientName.Length / sizeof(WCHAR); Index++) {
                 if (ClientName.Buffer[Index] == L'\\') {
-                    RtlInitUnicodeString(&ClientName,&ClientName.Buffer[Index+1]);
+                    RtlInitUnicodeString(&ClientName, &ClientName.Buffer[Index + 1]);
 
                     // Set the Netbios Domain Name to the string to the left of the backslash
                     ClientNetbiosDomain.Length = (USHORT)(Index * sizeof(WCHAR));
@@ -1045,28 +1044,26 @@ Return Value:
     }
 
     // Make sure that NlpSamInitialized is TRUE. If we logon using Kerberos, this may not be true.
-    if ( !NlpSamInitialized)
-    {
-        Status = NlSamInitialize( SAM_STARTUP_TIME );
-        if (!NT_SUCCESS(Status))
-        {
+    if (!NlpSamInitialized) {
+        Status = NlSamInitialize(SAM_STARTUP_TIME);
+        if (!NT_SUCCESS(Status)) {
             goto Cleanup;
         }
     }
 
     // Check to see if the name provided is a domain name. If it has no leading "\\" and does not match the name of the computer, it may be.
-    if ((( ClientNetbiosDomain.Length < 3 * sizeof(WCHAR)) || ( ClientNetbiosDomain.Buffer[0] != L'\\' && ClientNetbiosDomain.Buffer[1] != L'\\' ) ) &&
-        !RtlEqualDomainName(&NlpComputerName,&ClientNetbiosDomain )) {
+    if (((ClientNetbiosDomain.Length < 3 * sizeof(WCHAR)) || (ClientNetbiosDomain.Buffer[0] != L'\\' && ClientNetbiosDomain.Buffer[1] != L'\\')) &&
+        !RtlEqualDomainName(&NlpComputerName, &ClientNetbiosDomain)) {
         // Check if we are a DC in this domain.
         //  If so, use this DC.
         //  BUGBUG: should allow DnsDomain Name compare, too.
-        if ( !NlpWorkstation && RtlEqualDomainName(&NlpSamDomainName, &ClientNetbiosDomain )) {
+        if (!NlpWorkstation && RtlEqualDomainName(&NlpSamDomainName, &ClientNetbiosDomain)) {
             DCNameString = NlpComputerName;
         }
 
         if (DCNameString.Buffer == NULL) {
             // BUGBUG: Should really pass both names to internal version of DsGetDcName
-            if ( ClientDnsDomain.Length != 0 ) {
+            if (ClientDnsDomain.Length != 0) {
                 ClientDsGetDcDomain = &ClientDnsDomain;
             } else {
                 ClientDsGetDcDomain = &ClientNetbiosDomain;
@@ -1074,27 +1071,27 @@ Return Value:
 
             // Build a zero terminated domain name.
             DomainName = RtlAllocateHeap(MspHeap, 0, ClientDsGetDcDomain->Length + sizeof(WCHAR));
-            if ( DomainName == NULL ) {
+            if (DomainName == NULL) {
                 Status = STATUS_INSUFFICIENT_RESOURCES;
                 goto Cleanup;
             }
-            RtlCopyMemory( DomainName, ClientDsGetDcDomain->Buffer, ClientDsGetDcDomain->Length );
+            RtlCopyMemory(DomainName, ClientDsGetDcDomain->Buffer, ClientDsGetDcDomain->Length);
             DomainName[ClientDsGetDcDomain->Length / sizeof(WCHAR)] = 0;
 
             NetStatus = DsGetDcNameW(
-                                NULL,
-                                DomainName,
-                                NULL,           // no domain guid
-                                NULL,           // no site name
-                                DS_WRITABLE_REQUIRED,
-                                &DCInfo );
-            if ( NetStatus != NERR_Success ) {
-                SspPrint(( SSP_CRITICAL, "MspLm20ChangePassword: DsGetDcNameW returned 0x%lx.\n", NetStatus));
-                Status = NetpApiStatusToNtStatus( NetStatus );
-                if( Status == STATUS_INTERNAL_ERROR )
+                NULL,
+                DomainName,
+                NULL,           // no domain guid
+                NULL,           // no site name
+                DS_WRITABLE_REQUIRED,
+                &DCInfo);
+            if (NetStatus != NERR_Success) {
+                SspPrint((SSP_CRITICAL, "MspLm20ChangePassword: DsGetDcNameW returned 0x%lx.\n", NetStatus));
+                Status = NetpApiStatusToNtStatus(NetStatus);
+                if (Status == STATUS_INTERNAL_ERROR)
                     Status = STATUS_NO_SUCH_DOMAIN;
             } else {
-                RtlInitUnicodeString( &DCNameString, DCInfo->DomainControllerName );
+                RtlInitUnicodeString(&DCNameString, DCInfo->DomainControllerName);
             }
 
             AttemptRediscovery = TRUE;
@@ -1102,64 +1099,64 @@ Return Value:
 
         if (NT_SUCCESS(Status)) {
             Status = MspChangePassword(
-                         &DCNameString,
-                         &ClientName,
-                         &ChangePasswordRequest->OldPassword,
-                         &ChangePasswordRequest->NewPassword,
-                         ClientRequest,
-                         ChangePasswordRequest->Impersonating,
-                         &DomainPasswordInfo,
-                         NULL,
-                         &Authoritative );
+                &DCNameString,
+                &ClientName,
+                &ChangePasswordRequest->OldPassword,
+                &ChangePasswordRequest->NewPassword,
+                ClientRequest,
+                ChangePasswordRequest->Impersonating,
+                &DomainPasswordInfo,
+                NULL,
+                &Authoritative);
 
             // If we succeeded or got back an authoritative answer
-            if ( NT_SUCCESS(Status) || Authoritative) {
+            if (NT_SUCCESS(Status) || Authoritative) {
                 goto PasswordChangeSuccessfull;
             }
         }
     }
 
     // Free the DC info so we can call DsGetDcName again.
-    if ( DCInfo != NULL ) {
+    if (DCInfo != NULL) {
         NetApiBufferFree(DCInfo);
         DCInfo = NULL;
     }
 
     // attempt re-discovery.
-    if( AttemptRediscovery ) {
+    if (AttemptRediscovery) {
         NetStatus = DsGetDcNameW(
-                            NULL,
-                            DomainName,
-                            NULL,           // no domain guid
-                            NULL,           // no site name
-                            DS_FORCE_REDISCOVERY | DS_WRITABLE_REQUIRED,
-                            &DCInfo );
-        if ( NetStatus != NERR_Success ) {
-            SspPrint(( SSP_CRITICAL, "MspLm20ChangePassword: DsGetDcNameW (re-discover) returned 0x%lx.\n", NetStatus));
+            NULL,
+            DomainName,
+            NULL,           // no domain guid
+            NULL,           // no site name
+            DS_FORCE_REDISCOVERY | DS_WRITABLE_REQUIRED,
+            &DCInfo);
+        if (NetStatus != NERR_Success) {
+            SspPrint((SSP_CRITICAL, "MspLm20ChangePassword: DsGetDcNameW (re-discover) returned 0x%lx.\n", NetStatus));
             DCInfo = NULL;
-            Status = NetpApiStatusToNtStatus( NetStatus );
-            if( Status == STATUS_INTERNAL_ERROR )
+            Status = NetpApiStatusToNtStatus(NetStatus);
+            if (Status == STATUS_INTERNAL_ERROR)
                 Status = STATUS_NO_SUCH_DOMAIN;
         } else {
-            RtlInitUnicodeString( &DCNameString, DCInfo->DomainControllerName );
+            RtlInitUnicodeString(&DCNameString, DCInfo->DomainControllerName);
             Status = MspChangePassword(
-                         &DCNameString,
-                         &ClientName,
-                         &ChangePasswordRequest->OldPassword,
-                         &ChangePasswordRequest->NewPassword,
-                         ClientRequest,
-                         ChangePasswordRequest->Impersonating,
-                         &DomainPasswordInfo,
-                         NULL,
-                         &Authoritative );
+                &DCNameString,
+                &ClientName,
+                &ChangePasswordRequest->OldPassword,
+                &ChangePasswordRequest->NewPassword,
+                ClientRequest,
+                ChangePasswordRequest->Impersonating,
+                &DomainPasswordInfo,
+                NULL,
+                &Authoritative);
 
             // If we succeeded or got back an authoritative answer
-            if ( NT_SUCCESS(Status) || Authoritative) {
+            if (NT_SUCCESS(Status) || Authoritative) {
                 goto PasswordChangeSuccessfull;
             }
 
             // Free the DC info so we can call DsGetDcName again.
-            if ( DCInfo != NULL ) {
+            if (DCInfo != NULL) {
                 NetApiBufferFree(DCInfo);
                 DCInfo = NULL;
             }
@@ -1172,21 +1169,21 @@ Return Value:
         // The domain name is overloaded to be either a domain name or a server name.
         // The server name is useful when changing the password on a LM2.x standalone server, which is a "member" of a domain but uses a private account database.
         Status = MspChangePassword(
-                     &ClientNetbiosDomain,
-                     &ClientName,
-                     &ChangePasswordRequest->OldPassword,
-                     &ChangePasswordRequest->NewPassword,
-                     ClientRequest,
-                     ChangePasswordRequest->Impersonating,
-                     &DomainPasswordInfo,
-                     &PrimaryDomainInfo,
-                     &Authoritative );
+            &ClientNetbiosDomain,
+            &ClientName,
+            &ChangePasswordRequest->OldPassword,
+            &ChangePasswordRequest->NewPassword,
+            ClientRequest,
+            ChangePasswordRequest->Impersonating,
+            &DomainPasswordInfo,
+            &PrimaryDomainInfo,
+            &Authoritative);
 
         // If DomainName is actually a server name, just return the status to the caller.
-        if ( Authoritative && ( Status != STATUS_BAD_NETWORK_PATH ||
-               ( ClientNetbiosDomain.Length >= 3 * sizeof(WCHAR) && ClientNetbiosDomain.Buffer[0] == L'\\' && ClientNetbiosDomain.Buffer[1] == L'\\' ) ) ) {
+        if (Authoritative && (Status != STATUS_BAD_NETWORK_PATH ||
+                              (ClientNetbiosDomain.Length >= 3 * sizeof(WCHAR) && ClientNetbiosDomain.Buffer[0] == L'\\' && ClientNetbiosDomain.Buffer[1] == L'\\'))) {
             // If \\xxx was specified, but xxx doesn't exist, return the status code that the DomainName field is bad.
-            if ( Status == STATUS_BAD_NETWORK_PATH ) {
+            if (Status == STATUS_BAD_NETWORK_PATH) {
                 Status = STATUS_NO_SUCH_DOMAIN;
             }
         }
@@ -1198,7 +1195,7 @@ Return Value:
     }
 
     // If the specified machine was a BDC in a domain, Pretend the caller passed us the domain name in the first place.
-    if ( Status == STATUS_BACKUP_CONTROLLER && PrimaryDomainInfo != NULL ) {
+    if (Status == STATUS_BACKUP_CONTROLLER && PrimaryDomainInfo != NULL) {
         ClientNetbiosDomain = PrimaryDomainInfo->Name;
         Status = STATUS_BAD_NETWORK_PATH;
     } else {
@@ -1208,21 +1205,21 @@ Return Value:
     // Build a zero terminated domain name.
 
     // BUGBUG: Should really pass both names to internal version of DsGetDcName
-    if ( ClientDnsDomain.Length != 0 ) {
+    if (ClientDnsDomain.Length != 0) {
         ClientDsGetDcDomain = &ClientDnsDomain;
     } else {
         ClientDsGetDcDomain = &ClientNetbiosDomain;
     }
 
-    if( DomainName )
-        RtlFreeHeap( MspHeap, 0, DomainName );
+    if (DomainName)
+        RtlFreeHeap(MspHeap, 0, DomainName);
 
     DomainName = RtlAllocateHeap(MspHeap, 0, ClientDsGetDcDomain->Length + sizeof(WCHAR));
-    if ( DomainName == NULL ) {
+    if (DomainName == NULL) {
         Status = STATUS_INSUFFICIENT_RESOURCES;
         goto Cleanup;
     }
-    RtlCopyMemory( DomainName, ClientDsGetDcDomain->Buffer, ClientDsGetDcDomain->Length );
+    RtlCopyMemory(DomainName, ClientDsGetDcDomain->Buffer, ClientDsGetDcDomain->Length);
     DomainName[ClientDsGetDcDomain->Length / sizeof(WCHAR)] = 0;
 
     AttemptRediscovery = FALSE;
@@ -1231,38 +1228,38 @@ retry:
     {
         DWORD dwGetDcFlags = 0;
 
-        if( AttemptRediscovery )
+        if (AttemptRediscovery)
             dwGetDcFlags |= DS_FORCE_REDISCOVERY;
 
         // Determine the PDC of the named domain so we can change the password there.
         NetStatus = DsGetDcNameW(
-                            NULL,
-                            DomainName,
-                            NULL,           // no domain guid
-                            NULL,           // no site name
-                            dwGetDcFlags | DS_WRITABLE_REQUIRED,
-                            &DCInfo );
-        if ( NetStatus != NERR_Success ) {
-            SspPrint(( SSP_CRITICAL, "MspLm20ChangePassword: DsGetDcNameW returned 0x%lx.\n", NetStatus));
-            Status = NetpApiStatusToNtStatus( NetStatus );
-            if( Status == STATUS_INTERNAL_ERROR )
+            NULL,
+            DomainName,
+            NULL,           // no domain guid
+            NULL,           // no site name
+            dwGetDcFlags | DS_WRITABLE_REQUIRED,
+            &DCInfo);
+        if (NetStatus != NERR_Success) {
+            SspPrint((SSP_CRITICAL, "MspLm20ChangePassword: DsGetDcNameW returned 0x%lx.\n", NetStatus));
+            Status = NetpApiStatusToNtStatus(NetStatus);
+            if (Status == STATUS_INTERNAL_ERROR)
                 Status = STATUS_NO_SUCH_DOMAIN;
             goto Cleanup;
         }
 
-        RtlInitUnicodeString( &DCNameString, DCInfo->DomainControllerName );
+        RtlInitUnicodeString(&DCNameString, DCInfo->DomainControllerName);
 
         Status = MspChangePassword(
-                     &DCNameString,
-                     &ClientName,
-                     &ChangePasswordRequest->OldPassword,
-                     &ChangePasswordRequest->NewPassword,
-                     ClientRequest,
-                     ChangePasswordRequest->Impersonating,
-                     &DomainPasswordInfo,
-                     NULL,
-                     &Authoritative );
-        if( !NT_SUCCESS(Status) && !Authoritative && !AttemptRediscovery ) {
+            &DCNameString,
+            &ClientName,
+            &ChangePasswordRequest->OldPassword,
+            &ChangePasswordRequest->NewPassword,
+            ClientRequest,
+            ChangePasswordRequest->Impersonating,
+            &DomainPasswordInfo,
+            NULL,
+            &Authoritative);
+        if (!NT_SUCCESS(Status) && !Authoritative && !AttemptRediscovery) {
             AttemptRediscovery = TRUE;
             goto retry;
         }
@@ -1273,13 +1270,13 @@ PasswordChangeSuccessfull:
     // Allocate and initialize the response buffer.
     SavedStatus = Status;
     *ReturnBufferSize = sizeof(MSV1_0_CHANGEPASSWORD_RESPONSE);
-    Status = NlpAllocateClientBuffer( &ClientBufferDesc, sizeof(MSV1_0_CHANGEPASSWORD_RESPONSE), *ReturnBufferSize );
-    if ( !NT_SUCCESS( Status ) ) {
+    Status = NlpAllocateClientBuffer(&ClientBufferDesc, sizeof(MSV1_0_CHANGEPASSWORD_RESPONSE), *ReturnBufferSize);
+    if (!NT_SUCCESS(Status)) {
         KdPrint(("MSV1_0: MspLm20ChangePassword: cannot alloc client buffer\n"));
         *ReturnBufferSize = 0;
         goto Cleanup;
     }
-    ChangePasswordResponse = (PMSV1_0_CHANGEPASSWORD_RESPONSE) ClientBufferDesc.MsvBuffer;
+    ChangePasswordResponse = (PMSV1_0_CHANGEPASSWORD_RESPONSE)ClientBufferDesc.MsvBuffer;
     ChangePasswordResponse->MessageType = MsV1_0ChangePassword;
 
     // Copy the DomainPassword restrictions out to the caller depending on whether it was passed to us.
@@ -1289,7 +1286,7 @@ PasswordChangeSuccessfull:
     // if STATUS_PASSWORD_RESTRICTION is returned.
     // This status can be returned by either SAM or a down-level change.
     // Only SAM will return valid data so we have a flag in the buffer that says whether the data is valid or not.
-    if ( DomainPasswordInfo == NULL ) {
+    if (DomainPasswordInfo == NULL) {
         ChangePasswordResponse->PasswordInfoValid = FALSE;
     } else {
         ChangePasswordResponse->DomainPasswordInfo = *DomainPasswordInfo;
@@ -1297,14 +1294,14 @@ PasswordChangeSuccessfull:
     }
 
     // Flush the buffer to the client's address space.
-    Status = NlpFlushClientBuffer( &ClientBufferDesc, ProtocolReturnBuffer );
+    Status = NlpFlushClientBuffer(&ClientBufferDesc, ProtocolReturnBuffer);
 
     // Update cached credentials with the new password.
 
     // This is done by calling NlpChangePassword, which takes encrypted passwords, so encrypt 'em.
-    if ( NT_SUCCESS(SavedStatus) ) {
+    if (NT_SUCCESS(SavedStatus)) {
         // Failure of NlpChangePassword is OK, that means that the account we've been working with isn't the one we're caching credentials for.
-        (VOID) NlpChangePassword(&ClientNetbiosDomain,&ClientName,&ChangePasswordRequest->NewPassword);
+        (VOID)NlpChangePassword(&ClientNetbiosDomain, &ClientName, &ChangePasswordRequest->NewPassword);
     }
 
     Status = SavedStatus;
@@ -1315,37 +1312,37 @@ Cleanup:
         RtlFreeHeap(MspHeap, 0, DomainName);
     }
 
-    if ( DCInfo != NULL ) {
+    if (DCInfo != NULL) {
         NetApiBufferFree(DCInfo);
     }
 
-    if ( WkstaInfo100 != NULL ) {
+    if (WkstaInfo100 != NULL) {
         NetApiBufferFree(WkstaInfo100);
     }
 
-    if ( DomainPasswordInfo != NULL ) {
+    if (DomainPasswordInfo != NULL) {
         SamFreeMemory(DomainPasswordInfo);
     }
 
-    if ( PrimaryDomainInfo != NULL ) {
-        (VOID) LsaFreeMemory( PrimaryDomainInfo );
+    if (PrimaryDomainInfo != NULL) {
+        (VOID)LsaFreeMemory(PrimaryDomainInfo);
     }
 
-    if ( DsHandle != NULL) {
+    if (DsHandle != NULL) {
         DsUnBindW(&DsHandle);
     }
 
     // Free Policy Server Role Information if used.
     if (PolicyLsaServerRoleInfo != NULL) {
-        I_LsaIFree_LSAPR_POLICY_INFORMATION(PolicyLsaServerRoleInformation,(PLSAPR_POLICY_INFORMATION) PolicyLsaServerRoleInfo);
+        I_LsaIFree_LSAPR_POLICY_INFORMATION(PolicyLsaServerRoleInformation, (PLSAPR_POLICY_INFORMATION)PolicyLsaServerRoleInfo);
     }
 
-    NlpFreeClientBuffer( &ClientBufferDesc );// Free the return buffer.
+    NlpFreeClientBuffer(&ClientBufferDesc);// Free the return buffer.
 
     // Don't let the password stay in the page file.
-    if ( PasswordBufferValidated ) {
-        RtlEraseUnicodeString( &ChangePasswordRequest->OldPassword );
-        RtlEraseUnicodeString( &ChangePasswordRequest->NewPassword );
+    if (PasswordBufferValidated) {
+        RtlEraseUnicodeString(&ChangePasswordRequest->OldPassword);
+        RtlEraseUnicodeString(&ChangePasswordRequest->NewPassword);
     }
 
     MsvPaswdSetAndClearLog();// Flush the log to disk
