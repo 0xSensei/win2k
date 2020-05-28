@@ -25,7 +25,10 @@ BOOL SetProcessQuotas(PPROCESS_INFORMATION ProcessInformation, PUSER_PROCESS_DAT
             return(FALSE);
         }
 
-        Status = NtSetInformationProcess(ProcessInformation->hProcess, ProcessQuotaLimits, (PVOID)&RequestedLimits, (ULONG)sizeof(QUOTA_LIMITS));
+        Status = NtSetInformationProcess(ProcessInformation->hProcess,
+                                         ProcessQuotaLimits,
+                                         (PVOID)&RequestedLimits,
+                                         (ULONG)sizeof(QUOTA_LIMITS));
         Result = EnablePrivilege(SE_INCREASE_QUOTA_PRIVILEGE, FALSE);
         if (!Result) {
             DebugLog((DEB_ERROR, "failed to disable increase_quota privilege\n"));
@@ -42,16 +45,13 @@ BOOL SetProcessQuotas(PPROCESS_INFORMATION ProcessInformation, PUSER_PROCESS_DAT
 }
 
 
-BOOL
-ExecApplication(
-    IN LPTSTR    pch,
-    IN LPTSTR    Desktop,
-    IN PTERMINAL pTerm,
-    IN PVOID    pEnvironment,
-    IN DWORD    Flags,
-    IN DWORD    StartupFlags,
-    OUT PPROCESS_INFORMATION ProcessInformation
-    )
+BOOL ExecApplication(IN LPTSTR    pch,
+                     IN LPTSTR    Desktop,
+                     IN PTERMINAL pTerm,
+                     IN PVOID    pEnvironment,
+                     IN DWORD    Flags,
+                     IN DWORD    StartupFlags,
+                     OUT PPROCESS_INFORMATION ProcessInformation)
 {
     STARTUPINFO si;
     BOOL Result, IgnoreResult;
@@ -77,18 +77,17 @@ ExecApplication(
 
     // Create the app suspended
     DebugLog((DEB_TRACE, "About to create process of %ws, on desktop %ws\n", pch, Desktop));
-    Result = CreateProcessAsUser(
-                      pTerm->pWinStaWinlogon->UserProcessData.UserToken,
-                      NULL,
-                      pch,
-                      NULL,
-                      NULL,
-                      FALSE,
-                      Flags | CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT,
-                      pEnvironment,
-                      NULL,
-                      &si,
-                      ProcessInformation);
+    Result = CreateProcessAsUser(pTerm->pWinStaWinlogon->UserProcessData.UserToken,
+                                 NULL,
+                                 pch,
+                                 NULL,
+                                 NULL,
+                                 FALSE,
+                                 Flags | CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT,
+                                 pEnvironment,
+                                 NULL,
+                                 &si,
+                                 ProcessInformation);
 
     IgnoreResult = StopImpersonating(ImpersonationHandle);
     ASSERT(IgnoreResult);
@@ -101,20 +100,19 @@ BOOL WINAPI WlxStartApplication(PVOID pWlxContext, PWSTR pszDesktop, PVOID pEnvi
     PROCESS_INFORMATION ProcessInformation;
     BOOL   bExec;
 
-    bExec = ExecApplication (pszCmdLine,
-                             pszDesktop,
-                             g_pTerminals,
-                             pEnvironment,
-                             0,
-                             STARTF_USESHOWWINDOW,
-                             &ProcessInformation);
+    bExec = ExecApplication(pszCmdLine,
+                            pszDesktop,
+                            g_pTerminals,
+                            pEnvironment,
+                            0,
+                            STARTF_USESHOWWINDOW,
+                            &ProcessInformation);
     if (!bExec) {
         return(FALSE);
     }
 
     if (SetProcessQuotas(&ProcessInformation, &g_pTerminals->pWinStaWinlogon->UserProcessData)) {
         ResumeThread(ProcessInformation.hThread);
-
     } else {
         TerminateProcess(ProcessInformation.hProcess, ERROR_ACCESS_DENIED);
     }

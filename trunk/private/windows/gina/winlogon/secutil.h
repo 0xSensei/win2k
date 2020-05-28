@@ -17,14 +17,14 @@ extern PSID pWinlogonSid;
 
 
 typedef LONG    ACEINDEX;
-typedef ACEINDEX *PACEINDEX;
+typedef ACEINDEX * PACEINDEX;
 
 typedef struct _MYACE {
     PSID    Sid;
     ACCESS_MASK AccessMask;
     UCHAR   InheritFlags;
 } MYACE;
-typedef MYACE *PMYACE;
+typedef MYACE * PMYACE;
 
 
 
@@ -38,61 +38,29 @@ SetMyAce(
     PSID Sid,
     ACCESS_MASK Mask,
     UCHAR InheritFlags
-    );
+);
 
-PSECURITY_DESCRIPTOR
-CreateSecurityDescriptor(
-    PMYACE  MyAce,
-    ACEINDEX AceCount
-    );
-
-BOOL
-DeleteSecurityDescriptor(
-    PSECURITY_DESCRIPTOR SecurityDescriptor
-    );
-
-BOOL
-SetWinlogonDesktopSecurity(
-    IN HDESK   hdesk,
-    IN PSID    WinlogonSid
-    );
-
-BOOL
-SetUserDesktopSecurity(
-    IN HDESK   hdesk,
-    IN PSID    UserSid,
-    IN PSID    WinlogonSid
-    );
-
-BOOL
-InitializeSecurity(void);
-
-BOOL
-InitializeWinstaSecurity(
-    PWINDOWSTATION pWS);
-
-PSID
-CreateLogonSid(
-    PLUID LogonId OPTIONAL
-    );
-
-VOID
-DeleteLogonSid(
-    PSID Sid
-    );
+PSECURITY_DESCRIPTOR CreateSecurityDescriptor(PMYACE  MyAce, ACEINDEX AceCount);
+BOOL DeleteSecurityDescriptor(PSECURITY_DESCRIPTOR SecurityDescriptor);
+BOOL SetWinlogonDesktopSecurity(IN HDESK   hdesk, IN PSID    WinlogonSid);
+BOOL SetUserDesktopSecurity(IN HDESK   hdesk, IN PSID    UserSid, IN PSID    WinlogonSid);
+BOOL InitializeSecurity(void);
+BOOL InitializeWinstaSecurity(PWINDOWSTATION pWS);
+PSID CreateLogonSid(PLUID LogonId OPTIONAL);
+VOID DeleteLogonSid(PSID Sid);
 
 PSECURITY_DESCRIPTOR
 CreateUserProfileKeySD(
     PSID    UserSid,
     PSID    WinlogonSid,
     BOOL    AllAccess
-    );
+);
 
 BOOL
 EnablePrivilege(
     ULONG Privilege,
     BOOL Enable
-    );
+);
 
 BOOL
 SetUserProcessData(
@@ -101,7 +69,7 @@ SetUserProcessData(
     PQUOTA_LIMITS Quotas OPTIONAL,
     PSID    UserSid,
     PSID    WinlogonSid
-    );
+);
 
 BOOL
 SecurityChangeUser(
@@ -110,12 +78,9 @@ SecurityChangeUser(
     PQUOTA_LIMITS Quotas OPTIONAL,
     PSID LogonSid,
     BOOL UserLoggedOn
-    );
+);
 
-BOOL
-TestTokenForAdmin(
-    HANDLE Token
-    );
+BOOL TestTokenForAdmin(HANDLE Token);
 
 BOOL
 TestUserForAdmin(
@@ -123,61 +88,27 @@ TestUserForAdmin(
     IN PWCHAR UserName,
     IN PWCHAR Domain,
     IN PUNICODE_STRING PasswordString
-    );
+);
 
-HANDLE
-ImpersonateUser(
-    PUSER_PROCESS_DATA UserProcessData,
-    HANDLE ThreadHandle OPTIONAL
-    );
-
-BOOL
-StopImpersonating(
-    HANDLE ThreadHandle
-    );
-
-BOOL
-TestUserPrivilege(
-    PTERMINAL pTerm,
-    ULONG Privilege
-    );
-
-VOID
-HidePassword(
-    PUCHAR Seed OPTIONAL,
-    PUNICODE_STRING Password
-    );
-
-
-VOID
-RevealPassword(
-    PUNICODE_STRING HiddenPassword
-    );
-
-VOID
-ErasePassword(
-    PUNICODE_STRING Password
-    );
-
-BOOL
-SetProcessToken(
-    HANDLE      hProcess,
-    HANDLE      hThread,
-    PSECURITY_DESCRIPTOR    psd,
-    HANDLE      hToken
-    );
+HANDLE ImpersonateUser(PUSER_PROCESS_DATA UserProcessData, HANDLE ThreadHandle OPTIONAL);
+BOOL StopImpersonating(HANDLE ThreadHandle);
+BOOL TestUserPrivilege(PTERMINAL pTerm, ULONG Privilege);
+VOID HidePassword(PUCHAR Seed OPTIONAL, PUNICODE_STRING Password);
+VOID RevealPassword(PUNICODE_STRING HiddenPassword);
+VOID ErasePassword(PUNICODE_STRING Password);
+BOOL SetProcessToken(HANDLE      hProcess, HANDLE      hThread, PSECURITY_DESCRIPTOR    psd, HANDLE      hToken);
 
 PSECURITY_DESCRIPTOR
 CreateUserThreadSD(
     PSID    UserSid,
     PSID    WinlogonSid
-    );
+);
 
 PSECURITY_DESCRIPTOR
 CreateUserThreadTokenSD(
     PSID    UserSid,
     PSID    WinlogonSid
-    );
+);
 
 HANDLE ExecUserThread(
     IN PTERMINAL pTerm,
@@ -185,18 +116,18 @@ HANDLE ExecUserThread(
     IN LPVOID Parameter,
     IN DWORD Flags,
     OUT LPDWORD ThreadId
-    );
+);
 
 BOOL
 RemoveUserFromWinsta(
     PWINDOWSTATION      pWS,
-    HANDLE              Token );
+    HANDLE              Token);
 
 BOOL
 AddUserToWinsta(
     PWINDOWSTATION      pWS,
     PSID                LogonSid,
-    HANDLE              Token );
+    HANDLE              Token);
 
 BOOL
 FastSetWinstaSecurity(

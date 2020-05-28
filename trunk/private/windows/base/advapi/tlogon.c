@@ -19,112 +19,101 @@
 #define DUMP_TOKEN  1
 #define DUMP_HEX    2
 
-char *User = NULL;
-char *Domain = NULL;
-char *Password = NULL;
-char *SecPackage = NULL;
-char *Cmd = NULL;
+char * User = NULL;
+char * Domain = NULL;
+char * Password = NULL;
+char * SecPackage = NULL;
+char * Cmd = NULL;
 
 DWORD   fLogon = 0;
 DWORD   fMe = 0;
 DWORD   fService = 0;
 DWORD   fCookie = 0;
-FILE *  fOut;
+FILE * fOut;
 DWORD   Threads;
 DWORD   fDup = 0;
 DWORD   LogonType = LOGON32_LOGON_INTERACTIVE;
 
-char *  ImpLevels[] = { "Anonymous", "Identity", "Impersonation", "Delegation"};
-char *  LogonTypes[] = { "Invalid", "Invalid", "Interactive", "Network", "Batch", "Service", "Proxy" };
+char * ImpLevels[] = {"Anonymous", "Identity", "Impersonation", "Delegation"};
+char * LogonTypes[] = {"Invalid", "Invalid", "Interactive", "Network", "Batch", "Service", "Proxy"};
 void DumpToken(HANDLE hToken);
 
 
-void DoArgs(int argc, char **argv)
+void DoArgs(int argc, char ** argv)
 {
     int i;
 
     Threads = 1;
 
-    if (argc < 3)
-    {
-        fprintf( fOut,"usage: %s <name> <domain> [-p pw] [-f flags] [-s] [-d] [-x cmd]\n", argv[0]);
-        fprintf( fOut,"Tests logon path\n");
-        fprintf( fOut," -p     \tOverride password\n");
-        fprintf( fOut," -D     \tDump token\n");
-        fprintf( fOut," -d     \tduplicate\n");
-        fprintf( fOut," -s     \tLogon as service\n");
-        fprintf( fOut," -x cmd \tStart cmd as user\n");
-        fprintf( fOut," -o file\tSend output to file\n");
-        fprintf( fOut," -t #   \tHit with # threads at once\n");
-        fprintf( fOut," -l type\tLogon type\n");
+    if (argc < 3) {
+        fprintf(fOut, "usage: %s <name> <domain> [-p pw] [-f flags] [-s] [-d] [-x cmd]\n", argv[0]);
+        fprintf(fOut, "Tests logon path\n");
+        fprintf(fOut, " -p     \tOverride password\n");
+        fprintf(fOut, " -D     \tDump token\n");
+        fprintf(fOut, " -d     \tduplicate\n");
+        fprintf(fOut, " -s     \tLogon as service\n");
+        fprintf(fOut, " -x cmd \tStart cmd as user\n");
+        fprintf(fOut, " -o file\tSend output to file\n");
+        fprintf(fOut, " -t #   \tHit with # threads at once\n");
+        fprintf(fOut, " -l type\tLogon type\n");
         exit(1);
     }
 
-    for (i = 1; i < argc ; i++ )
-    {
-        if (*argv[i] == '-')
-        {
-            switch (*(argv[i]+1))
-            {
-                case 'f':
-                    fLogon = atoi(argv[++i]);
-                    break;
-                case 'd':
-                    fDup = 1;
-                    break;
-                case 'D':
-                    fMe |= DUMP_TOKEN;
-                    break;
-                case 'x':
-                    Cmd = argv[++i];
-                    break;
-                case 'p':
-                    Password = argv[++i];
-                    break;
-                case 't':
-                    Threads = atoi(argv[++i]);
-                    break;
-                case 's':
-                    LogonType = LOGON32_LOGON_SERVICE;
-                    break;
-                case 'l':
-                    ++i;
-                    if (argv[i] == NULL )
-                    {
-                        fprintf(fOut, "No logon type specified\n");
-                        exit(1);
-                    }
-                    for (LogonType = 2 ; LogonType < sizeof(LogonTypes) / sizeof(PSTR) ; LogonType ++ )
-                    {
-                        if (_stricmp( LogonTypes[LogonType], argv[i]) == 0 )
-                        {
-                            break;
-                        }
-                    }
-
-                    if (LogonType == (sizeof(LogonTypes) / sizeof(PSTR) ))
-                    {
-                        fprintf(fOut, "Invalid logon type '%s'\n", argv[i]);
-                        exit(1);
-                    }
-                    break;
-                case 'o':
-                    fOut = fopen(argv[++i], "w");
-                    if (!fOut)
-                    {
-                        fOut = stderr;
-                    }
-                    break;
-                default:
-                    fprintf( fOut,"Invalid switch %s\n", argv[i]);
+    for (i = 1; i < argc; i++) {
+        if (*argv[i] == '-') {
+            switch (*(argv[i] + 1)) {
+            case 'f':
+                fLogon = atoi(argv[++i]);
+                break;
+            case 'd':
+                fDup = 1;
+                break;
+            case 'D':
+                fMe |= DUMP_TOKEN;
+                break;
+            case 'x':
+                Cmd = argv[++i];
+                break;
+            case 'p':
+                Password = argv[++i];
+                break;
+            case 't':
+                Threads = atoi(argv[++i]);
+                break;
+            case 's':
+                LogonType = LOGON32_LOGON_SERVICE;
+                break;
+            case 'l':
+                ++i;
+                if (argv[i] == NULL) {
+                    fprintf(fOut, "No logon type specified\n");
                     exit(1);
+                }
+                for (LogonType = 2; LogonType < sizeof(LogonTypes) / sizeof(PSTR); LogonType++) {
+                    if (_stricmp(LogonTypes[LogonType], argv[i]) == 0) {
+                        break;
+                    }
+                }
+
+                if (LogonType == (sizeof(LogonTypes) / sizeof(PSTR))) {
+                    fprintf(fOut, "Invalid logon type '%s'\n", argv[i]);
+                    exit(1);
+                }
+                break;
+            case 'o':
+                fOut = fopen(argv[++i], "w");
+                if (!fOut) {
+                    fOut = stderr;
+                }
+                break;
+            default:
+                fprintf(fOut, "Invalid switch %s\n", argv[i]);
+                exit(1);
             }
-        }
-        else
-        {
+        } else {
             if (!User)
                 User = argv[i];
-             else
+            else
                 if (!Domain)
                     Domain = argv[i];
         }
@@ -159,112 +148,91 @@ DWORD DoIt(PVOID   pv)
     UCHAR   Buffer[1024];
     HANDLE  hWait;
 
-    hWait = (HANDLE) pv;
+    hWait = (HANDLE)pv;
 
-    if (hWait != NULL)
-    {
-        WaitForSingleObjectEx( hWait, INFINITE, FALSE );
+    if (hWait != NULL) {
+        WaitForSingleObjectEx(hWait, INFINITE, FALSE);
     }
 
-    fprintf( fOut,"Logging on %s to %s\n", User, Domain);
+    fprintf(fOut, "Logging on %s to %s\n", User, Domain);
 
     // Copy the strings into the right places:
-    if (!LogonUserA(User, Domain, Password, LogonType, LOGON32_PROVIDER_DEFAULT, &hToken))
-    {
-        fprintf( fOut,"FAILED to logon, GetLastError is %d\n", GetLastError());
-    }
-    else
-    {
+    if (!LogonUserA(User, Domain, Password, LogonType, LOGON32_PROVIDER_DEFAULT, &hToken)) {
+        fprintf(fOut, "FAILED to logon, GetLastError is %d\n", GetLastError());
+    } else {
         if (fMe & DUMP_TOKEN)
             DumpToken(hToken);
 
-        if (!ImpersonateLoggedOnUser(hToken))
-        {
-            fprintf( fOut, "FAILED to impersonate, GetLastError is %d\n", GetLastError());
+        if (!ImpersonateLoggedOnUser(hToken)) {
+            fprintf(fOut, "FAILED to impersonate, GetLastError is %d\n", GetLastError());
         }
 
         GetUserName(ImpersonateName, &cbImpersonateName);
-        if (fDup)
-        {
-            if (OpenThreadToken( GetCurrentThread(), MAXIMUM_ALLOWED, TRUE, &hImp))
-            {
-                DumpToken( hImp );
-                if (DuplicateTokenEx(   hImp, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &hDup ) )
-                {
-                    fprintf( fOut, "Success!  Duplicated that token!\n");
-                    DumpToken( hToken );
-                    CloseHandle( hToken );
-                }
-                else
-                {
-                    fprintf( fOut, "DuplicateTokenEx FAILED, %d\n", GetLastError() );
+        if (fDup) {
+            if (OpenThreadToken(GetCurrentThread(), MAXIMUM_ALLOWED, TRUE, &hImp)) {
+                DumpToken(hImp);
+                if (DuplicateTokenEx(hImp, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &hDup)) {
+                    fprintf(fOut, "Success!  Duplicated that token!\n");
+                    DumpToken(hToken);
+                    CloseHandle(hToken);
+                } else {
+                    fprintf(fOut, "DuplicateTokenEx FAILED, %d\n", GetLastError());
                 }
 
-                CloseHandle( hImp );
-            }
-            else
-            {
-                fprintf( fOut, "OpenThreadToken FAILED, %d\n", GetLastError() );
+                CloseHandle(hImp);
+            } else {
+                fprintf(fOut, "OpenThreadToken FAILED, %d\n", GetLastError());
             }
         }
         RevertToSelf();
-        fprintf( fOut,"Hey look!  I'm %s\n", ImpersonateName);
+        fprintf(fOut, "Hey look!  I'm %s\n", ImpersonateName);
 
-        if (Cmd)
-        {
-            fprintf( fOut,"Starting '%s' as user\n", Cmd);
+        if (Cmd) {
+            fprintf(fOut, "Starting '%s' as user\n", Cmd);
             ZeroMemory(&si, sizeof(si));
             si.cb = sizeof(si);
-            if (!CreateProcessAsUser(hToken, NULL, Cmd, NULL, NULL, FALSE, CREATE_SEPARATE_WOW_VDM, NULL, NULL, &si, &pi))
-            {
-                fprintf( fOut,"FAILED, %d\n", GetLastError());
+            if (!CreateProcessAsUser(hToken, NULL, Cmd, NULL, NULL, FALSE, CREATE_SEPARATE_WOW_VDM, NULL, NULL, &si, &pi)) {
+                fprintf(fOut, "FAILED, %d\n", GetLastError());
             }
 
-            fprintf( fOut,"Process Info:\n");
-            fprintf( fOut,"  Process Handle    \t%x\n", pi.hProcess );
-            fprintf( fOut,"  Thread Handle     \t%x\n", pi.hThread );
-            fprintf( fOut,"  Process Id        \t%d\n", pi.dwProcessId );
-            fprintf( fOut,"  Thread Id         \t%d\n", pi.dwThreadId );
+            fprintf(fOut, "Process Info:\n");
+            fprintf(fOut, "  Process Handle    \t%x\n", pi.hProcess);
+            fprintf(fOut, "  Thread Handle     \t%x\n", pi.hThread);
+            fprintf(fOut, "  Process Id        \t%d\n", pi.dwProcessId);
+            fprintf(fOut, "  Thread Id         \t%d\n", pi.dwThreadId);
 
-            ZeroMemory( Buffer, 1024 );
+            ZeroMemory(Buffer, 1024);
 
-            pTypeInfo = (POBJECT_TYPE_INFORMATION) Buffer;
-            pNameInfo = (POBJECT_NAME_INFORMATION) Buffer;
-            pBasicInfo = (POBJECT_BASIC_INFORMATION) Buffer;
+            pTypeInfo = (POBJECT_TYPE_INFORMATION)Buffer;
+            pNameInfo = (POBJECT_NAME_INFORMATION)Buffer;
+            pBasicInfo = (POBJECT_BASIC_INFORMATION)Buffer;
 
-            Status = NtQueryObject( pi.hProcess, ObjectTypeInformation, pTypeInfo, 1024, NULL );
-            if (NT_SUCCESS(Status))
-            {
-                fprintf( fOut,"  Type         \t%ws\n", pTypeInfo->TypeName.Buffer );
+            Status = NtQueryObject(pi.hProcess, ObjectTypeInformation, pTypeInfo, 1024, NULL);
+            if (NT_SUCCESS(Status)) {
+                fprintf(fOut, "  Type         \t%ws\n", pTypeInfo->TypeName.Buffer);
             }
 
-            ZeroMemory( Buffer, 1024 );
+            ZeroMemory(Buffer, 1024);
             Status = NtQueryObject(pi.hProcess, ObjectBasicInformation, pBasicInfo, 1024, NULL);
-            if (NT_SUCCESS(Status))
-            {
-                fprintf( fOut,"  Attributes   \t%#x\n", pBasicInfo->Attributes );
-                fprintf( fOut,"  GrantedAccess\t%#x\n", pBasicInfo->GrantedAccess );
-                fprintf( fOut,"  HandleCount  \t%d\n", pBasicInfo->HandleCount );
-                fprintf( fOut,"  PointerCount \t%d\n", pBasicInfo->PointerCount );
-            }
-            else
-            {
-                fprintf( fOut,"FAILED %x to query basic info\n", Status );
+            if (NT_SUCCESS(Status)) {
+                fprintf(fOut, "  Attributes   \t%#x\n", pBasicInfo->Attributes);
+                fprintf(fOut, "  GrantedAccess\t%#x\n", pBasicInfo->GrantedAccess);
+                fprintf(fOut, "  HandleCount  \t%d\n", pBasicInfo->HandleCount);
+                fprintf(fOut, "  PointerCount \t%d\n", pBasicInfo->PointerCount);
+            } else {
+                fprintf(fOut, "FAILED %x to query basic info\n", Status);
             }
 
-            ZeroMemory( Buffer, 1024 );
-            Status = NtQueryObject( pi.hProcess, ObjectNameInformation, pNameInfo, 1024, NULL );
-            if (NT_SUCCESS(Status))
-            {
-                fprintf( fOut,"  Name         \t%ws\n", pNameInfo->Name.Buffer);
-            }
-            else
-            {
-                fprintf( fOut,"FAILED %x to query name info\n", Status );
+            ZeroMemory(Buffer, 1024);
+            Status = NtQueryObject(pi.hProcess, ObjectNameInformation, pNameInfo, 1024, NULL);
+            if (NT_SUCCESS(Status)) {
+                fprintf(fOut, "  Name         \t%ws\n", pNameInfo->Name.Buffer);
+            } else {
+                fprintf(fOut, "FAILED %x to query name info\n", Status);
             }
 
-            CloseHandle( pi.hProcess );
-            CloseHandle( pi.hThread );
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
         }
 
         CloseHandle(hToken);
@@ -274,7 +242,7 @@ DWORD DoIt(PVOID   pv)
 }
 
 
-__cdecl main (int argc, char *argv[])
+__cdecl main(int argc, char * argv[])
 {
     HANDLE  hWait;
     DWORD   i;
@@ -286,35 +254,29 @@ __cdecl main (int argc, char *argv[])
     // Get params
     DoArgs(argc, argv);
 
-    if (Threads == 1)
-    {
+    if (Threads == 1) {
         DoIt(NULL);
-    }
-    else
-    {
-        if (Threads > 64 )
-        {
+    } else {
+        if (Threads > 64) {
             Threads = 64;
         }
 
-        hWait = CreateEvent( NULL, TRUE, FALSE, NULL );
+        hWait = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-        for (i = 0; i < Threads ; i++ )
-        {
-            hThreads[i] = CreateThread( NULL, 0, DoIt, hWait, 0, &tid);
+        for (i = 0; i < Threads; i++) {
+            hThreads[i] = CreateThread(NULL, 0, DoIt, hWait, 0, &tid);
         }
 
-        SetEvent( hWait );
+        SetEvent(hWait);
 
-        WaitForMultipleObjectsEx( Threads, hThreads, TRUE, INFINITE, FALSE );
+        WaitForMultipleObjectsEx(Threads, hThreads, TRUE, INFINITE, FALSE);
 
-        for ( i = 0 ; i < Threads ; i++ )
-        {
-            CloseHandle( hThreads[i] );
+        for (i = 0; i < Threads; i++) {
+            CloseHandle(hThreads[i]);
         }
     }
 
-    return( 0 );
+    return(0);
 }
 
 
@@ -328,31 +290,24 @@ ULONG   PID;
 void DumpSid(PSID    pxSid)
 {
     PISID   pSid = pxSid;
-    int i, j =0;
+    int i, j = 0;
 
-    fprintf( fOut,"  S-%d-", pSid->Revision);
-    for (i = 0;i < 6 ; i++ )
-    {
-        if (j)
-        {
-            fprintf( fOut,"%x", pSid->IdentifierAuthority.Value[i]);
-        }
-        else
-        {
-            if (pSid->IdentifierAuthority.Value[i])
-            {
+    fprintf(fOut, "  S-%d-", pSid->Revision);
+    for (i = 0; i < 6; i++) {
+        if (j) {
+            fprintf(fOut, "%x", pSid->IdentifierAuthority.Value[i]);
+        } else {
+            if (pSid->IdentifierAuthority.Value[i]) {
                 j = 1;
-                fprintf( fOut,"%x", pSid->IdentifierAuthority.Value[i]);
+                fprintf(fOut, "%x", pSid->IdentifierAuthority.Value[i]);
             }
         }
-        if (i==4)
-        {
+        if (i == 4) {
             j = 1;
         }
     }
-    for (i = 0; i < pSid->SubAuthorityCount ; i++ )
-    {
-        fprintf( fOut,(fMe & DUMP_HEX ? "-%x" : "-%lu"), pSid->SubAuthority[i]);
+    for (i = 0; i < pSid->SubAuthorityCount; i++) {
+        fprintf(fOut, (fMe & DUMP_HEX ? "-%x" : "-%lu"), pSid->SubAuthority[i]);
     }
 }
 
@@ -361,37 +316,30 @@ void DumpSidAttr(PSID_AND_ATTRIBUTES pSA, int SAType)
 {
     DumpSid(pSA->Sid);
 
-    if (SAType == SATYPE_GROUP)
-    {
-        fprintf( fOut,"\tAttributes - ");
-        if (pSA->Attributes & SE_GROUP_MANDATORY)
-        {
-            fprintf( fOut,"Mandatory ");
+    if (SAType == SATYPE_GROUP) {
+        fprintf(fOut, "\tAttributes - ");
+        if (pSA->Attributes & SE_GROUP_MANDATORY) {
+            fprintf(fOut, "Mandatory ");
         }
-        if (pSA->Attributes & SE_GROUP_ENABLED_BY_DEFAULT)
-        {
-            fprintf( fOut,"Default ");
+        if (pSA->Attributes & SE_GROUP_ENABLED_BY_DEFAULT) {
+            fprintf(fOut, "Default ");
         }
-        if (pSA->Attributes & SE_GROUP_ENABLED)
-        {
-            fprintf( fOut,"Enabled ");
+        if (pSA->Attributes & SE_GROUP_ENABLED) {
+            fprintf(fOut, "Enabled ");
         }
-        if (pSA->Attributes & SE_GROUP_OWNER)
-        {
-            fprintf( fOut,"Owner ");
+        if (pSA->Attributes & SE_GROUP_OWNER) {
+            fprintf(fOut, "Owner ");
         }
-        if (pSA->Attributes & SE_GROUP_LOGON_ID)
-        {
-            fprintf( fOut,"LogonId ");
+        if (pSA->Attributes & SE_GROUP_LOGON_ID) {
+            fprintf(fOut, "LogonId ");
         }
     }
 }
 
 
-CHAR *  GetPrivName(PLUID   pPriv)
+CHAR * GetPrivName(PLUID   pPriv)
 {
-    switch (pPriv->LowPart)
-    {
+    switch (pPriv->LowPart) {
     case SE_CREATE_TOKEN_PRIVILEGE:
         return(SE_CREATE_TOKEN_NAME);
     case SE_ASSIGNPRIMARYTOKEN_PRIVILEGE:
@@ -446,22 +394,19 @@ CHAR *  GetPrivName(PLUID   pPriv)
 
 void DumpLuidAttr(PLUID_AND_ATTRIBUTES   pLA, int LAType)
 {
-    char *  PrivName;
+    char * PrivName;
 
-    fprintf( fOut,"0x%x%08x", pLA->Luid.HighPart, pLA->Luid.LowPart);
-    fprintf( fOut," %-32s", GetPrivName(&pLA->Luid));
+    fprintf(fOut, "0x%x%08x", pLA->Luid.HighPart, pLA->Luid.LowPart);
+    fprintf(fOut, " %-32s", GetPrivName(&pLA->Luid));
 
-    if (LAType == SATYPE_PRIV)
-    {
-        fprintf( fOut,"  Attributes - ");
-        if (pLA->Attributes & SE_PRIVILEGE_ENABLED)
-        {
-            fprintf( fOut,"Enabled ");
+    if (LAType == SATYPE_PRIV) {
+        fprintf(fOut, "  Attributes - ");
+        if (pLA->Attributes & SE_PRIVILEGE_ENABLED) {
+            fprintf(fOut, "Enabled ");
         }
 
-        if (pLA->Attributes & SE_PRIVILEGE_ENABLED_BY_DEFAULT)
-        {
-            fprintf( fOut,"Default ");
+        if (pLA->Attributes & SE_PRIVILEGE_ENABLED_BY_DEFAULT) {
+            fprintf(fOut, "Default ");
         }
     }
 }
@@ -482,46 +427,43 @@ void DumpToken(HANDLE    hToken)
 
     pTUser = malloc(256);
 
-    status = GetTokenInformation(   hToken, TokenUser, pTUser, 256, &cbRetInfo);
-    if (!NT_SUCCESS(status))
-    {
-        fprintf( fOut,"FAILED querying token, %#x\n", status);
+    status = GetTokenInformation(hToken, TokenUser, pTUser, 256, &cbRetInfo);
+    if (!NT_SUCCESS(status)) {
+        fprintf(fOut, "FAILED querying token, %#x\n", status);
         return;
     }
 
-    fprintf( fOut,"User\n  ");
+    fprintf(fOut, "User\n  ");
     DumpSidAttr(&pTUser->User, SATYPE_USER);
 
-    fprintf( fOut,"\nGroups");
+    fprintf(fOut, "\nGroups");
     pTGroups = malloc(4096);
-    status = GetTokenInformation(   hToken, TokenGroups, pTGroups, 4096, &cbRetInfo);
+    status = GetTokenInformation(hToken, TokenGroups, pTGroups, 4096, &cbRetInfo);
 
-    for (i = 0; i < pTGroups->GroupCount ; i++ )
-    {
-        fprintf( fOut,"\n %02d ", i);
+    for (i = 0; i < pTGroups->GroupCount; i++) {
+        fprintf(fOut, "\n %02d ", i);
         DumpSidAttr(&pTGroups->Groups[i], SATYPE_GROUP);
     }
 
-    pTPrimaryGroup  = malloc(128);
-    status = GetTokenInformation(   hToken, TokenPrimaryGroup, pTPrimaryGroup, 128, &cbRetInfo);
+    pTPrimaryGroup = malloc(128);
+    status = GetTokenInformation(hToken, TokenPrimaryGroup, pTPrimaryGroup, 128, &cbRetInfo);
 
-    fprintf( fOut,"\nPrimary Group:\n  ");
+    fprintf(fOut, "\nPrimary Group:\n  ");
     DumpSid(pTPrimaryGroup->PrimaryGroup);
 
-    fprintf( fOut,"\nPrivs\n");
+    fprintf(fOut, "\nPrivs\n");
     pTPrivs = malloc(4096);
-    status = GetTokenInformation(   hToken, TokenPrivileges, pTPrivs, 4096, &cbRetInfo);
+    status = GetTokenInformation(hToken, TokenPrivileges, pTPrivs, 4096, &cbRetInfo);
 
-    for (i = 0; i < pTPrivs->PrivilegeCount ; i++ )
-    {
-        fprintf( fOut,"\n %02d ", i);
+    for (i = 0; i < pTPrivs->PrivilegeCount; i++) {
+        fprintf(fOut, "\n %02d ", i);
         DumpLuidAttr(&pTPrivs->Privileges[i], SATYPE_PRIV);
     }
 
-    status = GetTokenInformation(   hToken, TokenStatistics, &TStats, sizeof(TStats), &cbRetInfo);
+    status = GetTokenInformation(hToken, TokenStatistics, &TStats, sizeof(TStats), &cbRetInfo);
 
-    fprintf( fOut, "\n\nAuth ID  %x:%x\n", TStats.AuthenticationId.HighPart, TStats.AuthenticationId.LowPart);
-    fprintf( fOut, "TokenId     %x:%x\n", TStats.TokenId.HighPart, TStats.TokenId.LowPart);
-    fprintf( fOut, "TokenType   %s\n", TStats.TokenType == TokenPrimary ? "Primary" : "Impersonation");
-    fprintf( fOut, "Imp Level   %s\n", ImpLevels[ TStats.ImpersonationLevel ]);
+    fprintf(fOut, "\n\nAuth ID  %x:%x\n", TStats.AuthenticationId.HighPart, TStats.AuthenticationId.LowPart);
+    fprintf(fOut, "TokenId     %x:%x\n", TStats.TokenId.HighPart, TStats.TokenId.LowPart);
+    fprintf(fOut, "TokenType   %s\n", TStats.TokenType == TokenPrimary ? "Primary" : "Impersonation");
+    fprintf(fOut, "Imp Level   %s\n", ImpLevels[TStats.ImpersonationLevel]);
 }

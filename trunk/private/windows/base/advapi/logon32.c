@@ -23,7 +23,7 @@
 // it -- consult the header file for all the parameters.
 
 typedef (*LOGONNOTIFYFN)(LPCWSTR, PLUID, LPCWSTR, LPVOID,
-                         LPCWSTR, LPVOID, LPWSTR, LPVOID, LPWSTR*);
+                         LPCWSTR, LPVOID, LPWSTR, LPVOID, LPWSTR *);
 
 
 // The QuotaLimits are global, because the defaults
@@ -166,7 +166,7 @@ BOOL L32GetDefaultDomainName(PUNICODE_STRING     pDomainName)
     //  Query the domain information from the policy object.
     NtStatus = LsaQueryInformationPolicy(LsaPolicyHandle,
                                          PolicyAccountDomainInformation,
-                                         (PVOID*)&DomainInfo);
+                                         (PVOID *)&DomainInfo);
     if (!NT_SUCCESS(NtStatus)) {
         BaseSetLastNTError(NtStatus);
         LsaClose(LsaPolicyHandle);
@@ -201,7 +201,7 @@ BOOL L32GetDefaultDomainName(PUNICODE_STRING     pDomainName)
 BOOL L32pInitLsa(void)
 {
     char    MyName[MAX_PATH];
-    char* ModuleName;
+    char * ModuleName;
     STRING  LogonProcessName;
     STRING  PackageName;
     ULONG   dummy;
@@ -299,7 +299,7 @@ Cleanup:
     if (hPreviousToken) {
         if (fReverted) {
             // put old token back...
-            (VOID)NtSetInformationThread(NtCurrentThread(), 
+            (VOID)NtSetInformationThread(NtCurrentThread(),
                                          ThreadImpersonationToken,
                                          &hPreviousToken,
                                          sizeof(hPreviousToken));
@@ -389,7 +389,7 @@ L32pLogonUser(
     OUT PLUID LogonId,
     OUT PHANDLE LogonToken,
     OUT PQUOTA_LIMITS Quotas,
-    OUT PVOID* pProfileBuffer,
+    OUT PVOID * pProfileBuffer,
     OUT PULONG pProfileBufferLength,
     OUT PNTSTATUS pSubStatus
 )
@@ -592,7 +592,7 @@ L32pLogonUser(
 #define TOKEN_GROUP_COUNT   2 // We'll add the local SID and the logon SID
 
     TokenGroups = (PTOKEN_GROUPS)RtlAllocateHeap(RtlProcessHeap(),
-                                                 0, 
+                                                 0,
                                                  sizeof(TOKEN_GROUPS) + (TOKEN_GROUP_COUNT - ANYSIZE_ARRAY) * sizeof(SID_AND_ATTRIBUTES));
     if (TokenGroups == NULL) {
         RtlFreeHeap(RtlProcessHeap(), 0, AuthInfoBuf);
@@ -654,7 +654,7 @@ LogonUserA(
     LPSTR       lpszPassword,
     DWORD       dwLogonType,
     DWORD       dwLogonProvider,
-    HANDLE* phToken
+    HANDLE * phToken
 )
 {
     UNICODE_STRING Username;
@@ -738,7 +738,7 @@ LogonUserW(
     PWSTR       lpszPassword,
     DWORD       dwLogonType,
     DWORD       dwLogonProvider,
-    HANDLE* phToken
+    HANDLE * phToken
 )
 {
     NTSTATUS    Status;
@@ -925,9 +925,7 @@ BOOL WINAPI ImpersonateLoggedOnUser(HANDLE  hToken)
         }
 
         fCloseImp = TRUE;
-    }
-    else
-    {
+    } else {
         hImpToken = hToken;
         fCloseImp = FALSE;
     }
@@ -1139,7 +1137,7 @@ L32CommonCreate(
     // without credentials.
 
     Status = NtQueryInformationToken(hToken, TokenType,
-        (PUCHAR)&Type, sizeof(Type), &dummy);
+                                     (PUCHAR)&Type, sizeof(Type), &dummy);
     if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         NtTerminateProcess(lpProcessInfo->hProcess, ERROR_ACCESS_DENIED);
@@ -1214,7 +1212,7 @@ L32CommonCreate(
         if (pDefDacl) {
             RtlFreeHeap(RtlProcessHeap(), 0, pDefDacl);
         }
-        
+
         // Our failure mantra:  Set the last error, kill the process (since it
         // is suspended, and hasn't actually started yet, we can do this safely)
         // close the handles, and return false.
@@ -1396,7 +1394,7 @@ MarshallString(
     PCWSTR pSource,
     PCHAR  pBase,
     ULONG  MaxSize,
-    PCHAR* ppPtr,
+    PCHAR * ppPtr,
     PULONG pCount
 )
 {
@@ -1443,7 +1441,7 @@ void DumpOutLastErrorString()
     // ...
     // Display the string.
     KdPrint(("%s\n", (LPCTSTR)lpMsgBuf));
-    
+
     LocalFree(lpMsgBuf);// Free the buffer.
 }
 #endif
@@ -1620,7 +1618,7 @@ CreateRemoteSessionProcessW(
 
     if (lpvEnvionment) {
         for (lpEnv = (PWCHAR)lpvEnvionment;
-            (*lpEnv) && (envSize + Count < MaxSize);  lpEnv++) {
+             (*lpEnv) && (envSize + Count < MaxSize);  lpEnv++) {
             while (*lpEnv) {
                 lpEnv++;
                 envSize += 2;   // we are dealing with wide chars
@@ -1695,31 +1693,21 @@ Cleanup:
 }
 
 
-BOOL WINAPI CreateProcessAsUserW(
-    HANDLE  hToken,
-    LPCWSTR lpApplicationName,
-    LPWSTR lpCommandLine,
-    LPSECURITY_ATTRIBUTES lpProcessAttributes,
-    LPSECURITY_ATTRIBUTES lpThreadAttributes,
-    BOOL bInheritHandles,
-    DWORD dwCreationFlags,
-    LPVOID lpEnvironment,
-    LPCWSTR lpCurrentDirectory,
-    LPSTARTUPINFOW lpStartupInfo,
-    LPPROCESS_INFORMATION lpProcessInformation
+BOOL WINAPI CreateProcessAsUserW(HANDLE  hToken,
+                                 LPCWSTR lpApplicationName,
+                                 LPWSTR lpCommandLine,
+                                 LPSECURITY_ATTRIBUTES lpProcessAttributes,
+                                 LPSECURITY_ATTRIBUTES lpThreadAttributes,
+                                 BOOL bInheritHandles,
+                                 DWORD dwCreationFlags,
+                                 LPVOID lpEnvironment,
+                                 LPCWSTR lpCurrentDirectory,
+                                 LPSTARTUPINFOW lpStartupInfo,
+                                 LPPROCESS_INFORMATION lpProcessInformation
 )
 //  Synopsis:   Creates a process running as the user in hToken.
 //  Arguments:  [hToken]               -- Handle to a Primary Token to use
 //              [lpApplicationName]    -- as CreateProcess() q.v.
-//              [lpCommandLine]        --
-//              [lpProcessAttributes]  --
-//              [lpThreadAttributes]   --
-//              [bInheritHandles]      --
-//              [dwCreationFlags]      --
-//              [lpEnvironment]        --
-//              [lpCurrentDirectory]   --
-//              [lpStartupInfo]        --
-//              [lpProcessInformation] --
 //  Return Values
 //          If the function succeeds, the return value is nonzero.
 //          If the function fails, the return value is zero. To get extended error information, call GetLastError.
@@ -1795,20 +1783,19 @@ BOOL WINAPI CreateProcessAsUserW(
         }
 
         // else, we are not impersoating, as reflected by the init value of bHaveImpersonated
-        rc = CreateRemoteSessionProcessW(
-            clientSessionID,
-            FALSE,     // not creating a process for System
-            hToken,
-            lpApplicationName,
-            lpCommandLine,
-            lpProcessAttributes,
-            lpThreadAttributes,
-            bInheritHandles,
-            dwCreationFlags | CREATE_SEPARATE_WOW_VDM,
-            lpEnvironment,
-            lpCurrentDirectory,
-            lpStartupInfo,
-            lpProcessInformation);
+        rc = CreateRemoteSessionProcessW(clientSessionID,
+                                         FALSE,     // not creating a process for System
+                                         hToken,
+                                         lpApplicationName,
+                                         lpCommandLine,
+                                         lpProcessAttributes,
+                                         lpThreadAttributes,
+                                         bInheritHandles,
+                                         dwCreationFlags | CREATE_SEPARATE_WOW_VDM,
+                                         lpEnvironment,
+                                         lpCurrentDirectory,
+                                         lpStartupInfo,
+                                         lpProcessInformation);
 
         // Undo the effect of RevertToSelf() if we had impersoanted
         if (bHaveImpersonated) {
@@ -1846,20 +1833,19 @@ BOOL WINAPI CreateProcessAsUserW(
 
 
 //  ANSI wrapper for CreateRemoteSessionProcessW()
-BOOL CreateRemoteSessionProcessA(
-    ULONG  SessionId,
-    BOOL   System,
-    HANDLE  hToken,
-    LPCSTR lpApplicationName,
-    LPSTR lpCommandLine,
-    LPSECURITY_ATTRIBUTES lpProcessAttributes,
-    LPSECURITY_ATTRIBUTES lpThreadAttributes,
-    BOOL bInheritHandles,
-    DWORD dwCreationFlags,
-    LPVOID lpEnvironment,
-    LPCSTR lpCurrentDirectory,
-    LPSTARTUPINFOA lpStartupInfo,
-    LPPROCESS_INFORMATION lpProcessInformation
+BOOL CreateRemoteSessionProcessA(ULONG  SessionId,
+                                 BOOL   System,
+                                 HANDLE  hToken,
+                                 LPCSTR lpApplicationName,
+                                 LPSTR lpCommandLine,
+                                 LPSECURITY_ATTRIBUTES lpProcessAttributes,
+                                 LPSECURITY_ATTRIBUTES lpThreadAttributes,
+                                 BOOL bInheritHandles,
+                                 DWORD dwCreationFlags,
+                                 LPVOID lpEnvironment,
+                                 LPCSTR lpCurrentDirectory,
+                                 LPSTARTUPINFOA lpStartupInfo,
+                                 LPPROCESS_INFORMATION lpProcessInformation
 )
 {
     NTSTATUS                st;
@@ -1983,18 +1969,17 @@ Cleanup:
 }
 
 
-BOOL WINAPI CreateProcessAsUserA(
-    HANDLE  hToken,
-    LPCSTR lpApplicationName,
-    LPSTR lpCommandLine,
-    LPSECURITY_ATTRIBUTES lpProcessAttributes,
-    LPSECURITY_ATTRIBUTES lpThreadAttributes,
-    BOOL bInheritHandles,
-    DWORD dwCreationFlags,
-    LPVOID lpEnvironment,
-    LPCSTR lpCurrentDirectory,
-    LPSTARTUPINFOA lpStartupInfo,
-    LPPROCESS_INFORMATION lpProcessInformation
+BOOL WINAPI CreateProcessAsUserA(HANDLE  hToken,
+                                 LPCSTR lpApplicationName,
+                                 LPSTR lpCommandLine,
+                                 LPSECURITY_ATTRIBUTES lpProcessAttributes,
+                                 LPSECURITY_ATTRIBUTES lpThreadAttributes,
+                                 BOOL bInheritHandles,
+                                 DWORD dwCreationFlags,
+                                 LPVOID lpEnvironment,
+                                 LPCSTR lpCurrentDirectory,
+                                 LPSTARTUPINFOA lpStartupInfo,
+                                 LPPROCESS_INFORMATION lpProcessInformation
 )
 //  Synopsis:   ANSI wrapper for CreateProcessAsUserW
 //  Return Values
@@ -2074,20 +2059,19 @@ BOOL WINAPI CreateProcessAsUserA(
             }
         }
 
-        rc = CreateRemoteSessionProcessA(
-            clientSessionID,
-            FALSE,     // not creating a process for System
-            hToken,
-            lpApplicationName,
-            lpCommandLine,
-            lpProcessAttributes,
-            lpThreadAttributes,
-            bInheritHandles,
-            dwCreationFlags | CREATE_SEPARATE_WOW_VDM,
-            lpEnvironment,
-            lpCurrentDirectory,
-            lpStartupInfo,
-            lpProcessInformation);
+        rc = CreateRemoteSessionProcessA(clientSessionID,
+                                         FALSE,     // not creating a process for System
+                                         hToken,
+                                         lpApplicationName,
+                                         lpCommandLine,
+                                         lpProcessAttributes,
+                                         lpThreadAttributes,
+                                         bInheritHandles,
+                                         dwCreationFlags | CREATE_SEPARATE_WOW_VDM,
+                                         lpEnvironment,
+                                         lpCurrentDirectory,
+                                         lpStartupInfo,
+                                         lpProcessInformation);
 
         // Undo the effect of RevertToSelf() if we had impersoanted
         if (bHaveImpersonated) {

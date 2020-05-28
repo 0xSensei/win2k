@@ -1,10 +1,7 @@
 /*
-*                                                                       *
 *   winerror.h --  error code definitions for the Win32 API functions   *
-*                                                                       *
 *   Copyright (c) 1991-1994, Microsoft Corp. All rights reserved.       *
-*                                                                       *
-************************************************************************/
+*/
 
 #ifndef _WINERROR_
 #define _WINERROR_
@@ -5208,219 +5205,147 @@
 
 
 // MessageId: ERROR_UNKNOWN_PORT
-
 // MessageText:
-
 //  The specified port is unknown.
-
 #define ERROR_UNKNOWN_PORT               1796L
 
 
 // MessageId: ERROR_UNKNOWN_PRINTER_DRIVER
-
 // MessageText:
-
 //  The printer driver is unknown.
-
 #define ERROR_UNKNOWN_PRINTER_DRIVER     1797L
 
 
 // MessageId: ERROR_UNKNOWN_PRINTPROCESSOR
-
 // MessageText:
-
 //  The print processor is unknown.
-
 #define ERROR_UNKNOWN_PRINTPROCESSOR     1798L
 
 
 // MessageId: ERROR_INVALID_SEPARATOR_FILE
-
 // MessageText:
-
 //  The specified separator file is invalid.
-
 #define ERROR_INVALID_SEPARATOR_FILE     1799L
 
 
 // MessageId: ERROR_INVALID_PRIORITY
-
 // MessageText:
-
 //  The specified priority is invalid.
-
 #define ERROR_INVALID_PRIORITY           1800L
 
 
 // MessageId: ERROR_INVALID_PRINTER_NAME
-
 // MessageText:
-
 //  The printer name is invalid.
-
 #define ERROR_INVALID_PRINTER_NAME       1801L
 
 
 // MessageId: ERROR_PRINTER_ALREADY_EXISTS
-
 // MessageText:
-
 //  The printer already exists.
-
 #define ERROR_PRINTER_ALREADY_EXISTS     1802L
 
 
 // MessageId: ERROR_INVALID_PRINTER_COMMAND
-
 // MessageText:
-
 //  The printer command is invalid.
-
 #define ERROR_INVALID_PRINTER_COMMAND    1803L
 
 
 // MessageId: ERROR_INVALID_DATATYPE
-
 // MessageText:
-
 //  The specified datatype is invalid.
-
 #define ERROR_INVALID_DATATYPE           1804L
 
 
 // MessageId: ERROR_INVALID_ENVIRONMENT
-
 // MessageText:
-
 //  The Environment specified is invalid.
-
 #define ERROR_INVALID_ENVIRONMENT        1805L
 
 
 // MessageId: RPC_S_NO_MORE_BINDINGS
-
 // MessageText:
-
 //  There are no more bindings.
-
 #define RPC_S_NO_MORE_BINDINGS           1806L
 
 
 // MessageId: ERROR_NOLOGON_INTERDOMAIN_TRUST_ACCOUNT
-
 // MessageText:
-
 //  The account used is an interdomain trust account.  Use your normal user account or remote user account to access this server.
-
 #define ERROR_NOLOGON_INTERDOMAIN_TRUST_ACCOUNT 1807L
 
 
 // MessageId: ERROR_NOLOGON_WORKSTATION_TRUST_ACCOUNT
-
 // MessageText:
-
 //  The account used is a workstation trust account.  Use your normal user account or remote user account to access this server.
-
 #define ERROR_NOLOGON_WORKSTATION_TRUST_ACCOUNT 1808L
 
 
 // MessageId: ERROR_NOLOGON_SERVER_TRUST_ACCOUNT
-
 // MessageText:
-
 //  The account used is an server trust account.  Use your normal user account or remote user account to access this server.
-
 #define ERROR_NOLOGON_SERVER_TRUST_ACCOUNT 1809L
 
 
 // MessageId: ERROR_DOMAIN_TRUST_INCONSISTENT
-
 // MessageText:
-
 //  The name or security ID (SID) of the domain specified is inconsitent
 //  with the trust information for that domain.
-
 #define ERROR_DOMAIN_TRUST_INCONSISTENT  1810L
 
 
 // MessageId: ERROR_SERVER_HAS_OPEN_HANDLES
-
 // MessageText:
-
 //  The server is in use and cannot be unloaded.
-
 #define ERROR_SERVER_HAS_OPEN_HANDLES    1811L
 
 
 // MessageId: ERROR_RESOURCE_DATA_NOT_FOUND
-
 // MessageText:
-
 //  The specified image file did not contain a resource section.
-
 #define ERROR_RESOURCE_DATA_NOT_FOUND    1812L
 
 
 // MessageId: ERROR_RESOURCE_TYPE_NOT_FOUND
-
 // MessageText:
-
 //  The specified resource type can not be found in the image file.
-
 #define ERROR_RESOURCE_TYPE_NOT_FOUND    1813L
 
 
 // MessageId: ERROR_RESOURCE_NAME_NOT_FOUND
-
 // MessageText:
-
 //  The specified resource name can not be found in the image file.
-
 #define ERROR_RESOURCE_NAME_NOT_FOUND    1814L
 
 
 // MessageId: ERROR_RESOURCE_LANG_NOT_FOUND
-
 // MessageText:
-
 //  The specified resource language ID cannot be found in the image file.
-
 #define ERROR_RESOURCE_LANG_NOT_FOUND    1815L
 
 
 // MessageId: ERROR_NOT_ENOUGH_QUOTA
-
 // MessageText:
-
 //  Not enough quota is available to process this command.
-
 #define ERROR_NOT_ENOUGH_QUOTA           1816L    // dderror
 
 
 // MessageId: RPC_S_GROUP_MEMBER_NOT_FOUND
-
 // MessageText:
-
 //  The group member was not found.
-
 #define RPC_S_GROUP_MEMBER_NOT_FOUND     1898L
 
 
 // MessageId: EPT_S_CANT_CREATE
-
 // MessageText:
-
 //  The endpoint mapper database could not be created.
-
 #define EPT_S_CANT_CREATE                1899L
 
 
 // MessageId: RPC_S_INVALID_OBJECT
-
 // MessageText:
-
 //  The object universal unique identifier (UUID) is the nil UUID.
-
 #define RPC_S_INVALID_OBJECT             1900L
 
 #endif // _WINERROR_

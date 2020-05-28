@@ -695,12 +695,9 @@ STDAPI HlinkSimpleNavigateToMoniker
         {
             HINSTANCE hInst = NULL;
             if( S_OK == sdll.Init() )
-                hInst = sdll.ShellExecute(
-                            NULL, "open", "iexplore.exe",
-                            (LPCTSTR)pszAnsiTarget, NULL, SW_SHOWNORMAL );
+                hInst = sdll.ShellExecute(NULL, "open", "iexplore.exe", (LPCTSTR)pszAnsiTarget, NULL, SW_SHOWNORMAL );
 
             // Return value < 32 indicates error
-
             hr = ((ULONG_PTR)hInst > 32) ? S_OK : E_FAIL;
         }
 cleanup:

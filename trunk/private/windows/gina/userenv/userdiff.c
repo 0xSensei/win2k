@@ -8,7 +8,7 @@
 
 #define MAX_KEY_NAME    MAX_PATH
 
-BOOL AddUDNode(LPUDNODE* lpList, LPTSTR lpBuildNumber);
+BOOL AddUDNode(LPUDNODE * lpList, LPTSTR lpBuildNumber);
 BOOL FreeUDList(LPUDNODE lpList);
 BOOL ProcessBuild(LPPROFILE lpProfile, LPUDNODE lpItem);
 BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey);
@@ -31,7 +31,7 @@ BOOL OkToProcessItem(DWORD dwProductType);
 //              10/2/95     ericflo    Created
 BOOL ProcessUserDiff(LPPROFILE lpProfile, DWORD dwBuildNumber)
 {
-    TCHAR szUserDiff[MAX_PATH] = { 0 };
+    TCHAR szUserDiff[MAX_PATH] = {0};
     TCHAR szName[MAX_KEY_NAME];
     HANDLE hFile;
     WIN32_FIND_DATA fd;
@@ -136,7 +136,7 @@ BOOL ProcessUserDiff(LPPROFILE lpProfile, DWORD dwBuildNumber)
 
 //  History:    Date        Author     Comment
 //              10/3/95     ericflo    Created
-BOOL AddUDNode(LPUDNODE* lpList, LPTSTR lpBuildNumber)
+BOOL AddUDNode(LPUDNODE * lpList, LPTSTR lpBuildNumber)
 {
     LPUDNODE lpNewItem;
     LPUDNODE lpHead, lpPrev;
@@ -318,7 +318,7 @@ BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
         // Query for the product type
         dwSize = sizeof(dwProductType);
         lResult = RegQueryValueEx(hKeyEntry, UD_PRODUCTTYPE, NULL, &dwType,
-            (LPBYTE)&dwProductType, &dwSize);
+                                  (LPBYTE)&dwProductType, &dwSize);
 
         // It's ok to not have a product type listed in userdiff.ini.
         // In this case, we always apply the change regardless of the
@@ -335,12 +335,13 @@ BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
         // Query for the action type
         dwSize = sizeof(dwAction);
         lResult = RegQueryValueEx(hKeyEntry, UD_ACTION, NULL, &dwType,
-            (LPBYTE)&dwAction, &dwSize);
+                                  (LPBYTE)&dwAction, &dwSize);
         if (lResult == ERROR_SUCCESS) {
             switch (dwAction) {
                 DebugMsg((DM_VERBOSE, TEXT("ProcessHive:  Item %d has an action of %d."),
                           Index, dwAction));
-            case 1: {
+            case 1:
+            {
                 // Add New Key
 
                 // Get the key name
@@ -357,23 +358,25 @@ BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
                     }
                 }
             }
-                  break;
-            case 2: {
+            break;
+            case 2:
+            {
                 // Delete a key and all it's subkeys
 
                 // Get the key name
 
                 dwSize = MAX_PATH * sizeof(TCHAR);
                 lResult = RegQueryValueEx(hKeyEntry, UD_KEYNAME, NULL, &dwType,
-                    (LPBYTE)szSubKey, &dwSize);
+                                          (LPBYTE)szSubKey, &dwSize);
                 if (lResult == ERROR_SUCCESS) {
                     DebugMsg((DM_VERBOSE, TEXT("ProcessHive:  Calling RegDelnode on <%s>."),
                               szSubKey));
                     RegDelnode(lpProfile->hKeyCurrentUser, szSubKey);
                 }
             }
-                  break;
-            case 3: {
+            break;
+            case 3:
+            {
                 // Add a new value
 
                 // Get the key name
@@ -382,7 +385,7 @@ BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
 
                 dwSize = MAX_PATH * sizeof(TCHAR);
                 lResult = RegQueryValueEx(hKeyEntry, UD_KEYNAME, NULL, &dwType,
-                    (LPBYTE)szSubKey, &dwSize);
+                                          (LPBYTE)szSubKey, &dwSize);
                 if (lResult != ERROR_SUCCESS) {
                     DebugMsg((DM_WARNING, TEXT("ProcessHive:  Failed to get UD_KEYNAME with error %d."), lResult));
                     goto LoopAgain;
@@ -397,7 +400,7 @@ BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
                 // Query for the value name
                 dwSize = MAX_KEY_NAME * sizeof(TCHAR);
                 lResult = RegQueryValueEx(hKeyEntry, UD_VALUENAME, NULL, &dwType,
-                    (LPBYTE)szValueName, &dwSize);
+                                          (LPBYTE)szValueName, &dwSize);
                 if (lResult != ERROR_SUCCESS) {
                     DebugMsg((DM_WARNING, TEXT("ProcessHive:  Failed to query UD_VALUENAME with error %d."), lResult));
                     RegCloseKey(hKeyTemp);
@@ -439,8 +442,9 @@ BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
                 RegCloseKey(hKeyTemp);
                 DebugMsg((DM_VERBOSE, TEXT("ProcessHive:  Finished adding value <%s>."), szValueName));
             }
-                  break;
-            case 4: {
+            break;
+            case 4:
+            {
                 // Delete value(s)
 
                 // Get the key name
@@ -449,7 +453,7 @@ BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
 
                 dwSize = ARRAYSIZE(szSubKey);
                 lResult = RegQueryValueEx(hKeyEntry, UD_KEYNAME, NULL, &dwType,
-                    (LPBYTE)szSubKey, &dwSize);
+                                          (LPBYTE)szSubKey, &dwSize);
                 if (lResult != ERROR_SUCCESS) {
                     DebugMsg((DM_WARNING, TEXT("ProcessHive:  Failed to query for value to delete (%d)."), lResult));
                     goto LoopAgain;
@@ -464,7 +468,7 @@ BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
                 // Query for the flags
                 dwSize = sizeof(dwFlags);
                 lResult = RegQueryValueEx(hKeyEntry, UD_FLAGS, NULL, &dwType,
-                    (LPBYTE)&dwFlags, &dwSize);
+                                          (LPBYTE)&dwFlags, &dwSize);
                 if (lResult != ERROR_SUCCESS) {
                     dwFlags = 0;
                 }
@@ -526,7 +530,7 @@ BOOL ProcessHive(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
                 DebugMsg((DM_VERBOSE, TEXT("ProcessHive:  Leaving deletion code.")));
             }
 
-                  break;
+            break;
             }
         }
     LoopAgain:
@@ -587,7 +591,7 @@ BOOL ProcessFiles(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
         // Query for the product type
         dwSize = sizeof(dwProductType);
         lResult = RegQueryValueEx(hKeyEntry, UD_PRODUCTTYPE, NULL, &dwType,
-            (LPBYTE)&dwProductType, &dwSize);
+                                  (LPBYTE)&dwProductType, &dwSize);
 
         // It's ok to not have a product type listed in userdiff.ini.
         // In this case, we always apply the change regardless of the
@@ -604,7 +608,7 @@ BOOL ProcessFiles(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
         // Query for the action type
         dwSize = sizeof(dwAction);
         lResult = RegQueryValueEx(hKeyEntry, UD_ACTION, NULL, &dwType,
-            (LPBYTE)&dwAction, &dwSize);
+                                  (LPBYTE)&dwAction, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ProcessFiles:  Failed to query action type (%d)."), lResult));
             goto LoopAgain;
@@ -613,7 +617,7 @@ BOOL ProcessFiles(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
         // Query for the item
         dwSize = ARRAYSIZE(szItem);
         lResult = RegQueryValueEx(hKeyEntry, UD_ITEM, NULL, &dwType,
-            (LPBYTE)szItem, &dwSize);
+                                  (LPBYTE)szItem, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ProcessFiles:  Failed to query UD_ITEM type (%d)."), lResult));
             goto LoopAgain;
@@ -733,21 +737,16 @@ Exit:
 }
 
 
-
+BOOL ProcessPrograms(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
 //  ProcessPrograms()
-
 //  Purpose:    Processes the Execute entry for a build
-
 //  Parameters: lpProfile - Profile information
 //              lpItem    -   Build item
 //              hKey      -   Registry key to enumerate
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
-
 //  History:    Date        Author     Comment
 //              11/16/95    ericflo    Created
-BOOL ProcessPrograms(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
 {
     TCHAR szSubKey[MAX_PATH];
     TCHAR szCmdLine[MAX_PATH];
@@ -759,9 +758,8 @@ BOOL ProcessPrograms(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
     STARTUPINFO si;
     PROCESS_INFORMATION ProcessInformation;
     BOOL Result;
-
-    // Verbose output
-    DebugMsg((DM_VERBOSE, TEXT("ProcessPrograms:  Entering.")));
+    
+    DebugMsg((DM_VERBOSE, TEXT("ProcessPrograms:  Entering.")));// Verbose output
 
     // Process the entry
     wsprintf(szSubKey, TEXT("%s\\%s\\Execute\\%d"), USERDIFF, lpItem->szBuildNumber, Index);
@@ -797,7 +795,7 @@ BOOL ProcessPrograms(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
         if (szCmdLine[0] == TEXT('\0')) {
             goto LoopAgain;
         }
-        
+
         ExpandEnvironmentStrings(szCmdLine, szFullPath, MAX_PATH);// Expand the command line
 
         // Initialize process startup info
@@ -812,10 +810,17 @@ BOOL ProcessPrograms(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
         si.cbReserved2 = 0;
 
         // Start the app
-        Result = CreateProcessAsUser(lpProfile->hToken, NULL, szFullPath,
-                                     NULL, NULL, FALSE,
-                                     NORMAL_PRIORITY_CLASS, NULL, NULL,
-                                     &si, &ProcessInformation);
+        Result = CreateProcessAsUser(lpProfile->hToken, 
+                                     NULL,
+                                     szFullPath,
+                                     NULL,
+                                     NULL, 
+                                     FALSE,
+                                     NORMAL_PRIORITY_CLASS,
+                                     NULL, 
+                                     NULL,
+                                     &si,
+                                     &ProcessInformation);
         if (Result) {
             DebugMsg((DM_VERBOSE, TEXT("ProcessPrograms:  Spawned <%s>.  Waiting for it to complete."), szFullPath));
 
@@ -831,7 +836,7 @@ BOOL ProcessPrograms(LPPROFILE lpProfile, LPUDNODE lpItem, HKEY hKey)
             DebugMsg((DM_WARNING, TEXT("ProcessPrograms:  Failed to execute <%s>, error = %d"), szFullPath, GetLastError()));
         }
 
-    LoopAgain:        
+    LoopAgain:
         RegCloseKey(hKeyEntry);// Close the registry key        
         Index++;// Enumerate again
         wsprintf(szSubKey, TEXT("%s\\%s\\Execute\\%d"), USERDIFF, lpItem->szBuildNumber, Index);

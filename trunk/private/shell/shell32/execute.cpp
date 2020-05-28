@@ -109,7 +109,7 @@ private:
                          HGLOBAL hDDECommand,
                          HANDLE hConversationDone,
                          BOOL fWaitForDDE,
-                         HWND* phwndDDE);
+                         HWND * phwndDDE);
     BOOL _DDEExecute(BOOL fWillRetry, HWND hwndParent, int   nShowCmd, BOOL fWaitForDDE);
 
     // exec methods
@@ -126,7 +126,7 @@ private:
 
     //  uninit/error handling methods
     BOOL _Cleanup(BOOL fSucceeded);
-    BOOL _FinalMapError(HINSTANCE UNALIGNED64* phinst);
+    BOOL _FinalMapError(HINSTANCE UNALIGNED64 * phinst);
     BOOL _ReportWin32(DWORD err);
     BOOL _ReportHinst(HINSTANCE hinst);
     DWORD _MapHINSTToWin32Err(HINSTANCE se_err);
@@ -173,7 +173,7 @@ private:
     ATOM       _aApplication;
     ATOM       _aTopic;
     LPITEMIDLIST _pidlGlobal;
-    IQueryAssociations* _pqa;
+    IQueryAssociations * _pqa;
 
     HWND _hwndParent;
     LPSECURITY_ATTRIBUTES _pProcAttrs;
@@ -478,13 +478,13 @@ BOOL CShellExecute::_ShellExecPidl(LPSHELLEXECUTEINFO pei, LPITEMIDLIST pidlExec
 
     if (pidl) {
         LPCITEMIDLIST pidlLast;
-        IShellFolder* psf;
+        IShellFolder * psf;
 
-        hres = SHBindToIDListParent(pidl, IID_IShellFolder, (LPVOID*)&psf, &pidlLast);
+        hres = SHBindToIDListParent(pidl, IID_IShellFolder, (LPVOID *)&psf, &pidlLast);
         if (SUCCEEDED(hres)) {
-            IContextMenu* pcm;
+            IContextMenu * pcm;
 
-            hres = psf->GetUIObjectOf(pei->hwnd, 1, &pidlLast, IID_IContextMenu, NULL, (LPVOID*)&pcm);
+            hres = psf->GetUIObjectOf(pei->hwnd, 1, &pidlLast, IID_IContextMenu, NULL, (LPVOID *)&pcm);
             if (SUCCEEDED(hres)) {
                 //  BUGBUGTODO - need to convert InvokeInProcExec to a member function
                 hres = InvokeInProcExec(pcm, pei, NULL);
@@ -552,7 +552,7 @@ BOOL CShellExecute::_DoExecPidl(LPSHELLEXECUTEINFO pei)
         TraceMsg(TF_SHELLEXEC, "SHEX::_DoExecPidl() unhandled cuz ILCreateFromPath() failed");
         return FALSE;
     }
-    
+
     return TRUE;
 }
 
@@ -593,7 +593,7 @@ BOOL CShellExecute::_Resolve(void)
 {
     // No; get the fully qualified path and add .exe extension
     // if needed
-    LPCTSTR rgszDirs[2] = { _szWorkingDir, NULL };
+    LPCTSTR rgszDirs[2] = {_szWorkingDir, NULL};
     const UINT uFlags = PRF_VERIFYEXISTS | PRF_TRYPROGRAMEXTENSIONS | PRF_FIRSTDIRDEF;
 
     // if the Path is not an URL
@@ -680,7 +680,7 @@ HRESULT CShellExecute::_InitClassAssociations(LPCTSTR pszClass, HKEY hkClass)
 {
     TraceMsg(TF_SHELLEXEC, "SHEX::InitClassAssoc enter: lpClass = %s, hkClass = %X", pszClass, hkClass);
 
-    HRESULT hr = AssocCreate(CLSID_QueryAssociations, IID_IQueryAssociations, (LPVOID*)&_pqa);
+    HRESULT hr = AssocCreate(CLSID_QueryAssociations, IID_IQueryAssociations, (LPVOID *)&_pqa);
     if (SUCCEEDED(hr)) {
         if (hkClass) {
             hr = _pqa->Init(0, NULL, hkClass, NULL);
@@ -720,7 +720,7 @@ HRESULT CShellExecute::_InitShellAssociations(LPCTSTR pszFile, LPCITEMIDLIST pid
     }
 
     if (pidl) {
-        hr = SHGetAssociations(pidl, (LPVOID*)&_pqa);
+        hr = SHGetAssociations(pidl, (LPVOID *)&_pqa);
 
         // NOTE: sometimes we can have the extension or even the progid in the registry, but there
         // is no "shell" subkey. An example of this is for .xls files in NT5: the index server guys
@@ -739,7 +739,7 @@ HRESULT CShellExecute::_InitShellAssociations(LPCTSTR pszFile, LPCITEMIDLIST pid
 
         {
             if (!_pqa)
-                hr = AssocCreate(CLSID_QueryAssociations, IID_IQueryAssociations, (LPVOID*)&_pqa);
+                hr = AssocCreate(CLSID_QueryAssociations, IID_IQueryAssociations, (LPVOID *)&_pqa);
 
             if (_pqa) {
                 hr = _pqa->Init(0, L"Unknown", NULL, NULL);
@@ -959,7 +959,7 @@ void CShellExecute::_SetStartup(LPSHELLEXECUTEINFO pei)
 }
 
 
-ULONG _GetEnvSizeAndFindString(LPTSTR pszEnv, LPCTSTR pFindString, LPTSTR* ppFoundString)
+ULONG _GetEnvSizeAndFindString(LPTSTR pszEnv, LPCTSTR pFindString, LPTSTR * ppFoundString)
 {
     LPTSTR psz;
     ULONG FindStringLen = 0;
@@ -982,7 +982,7 @@ ULONG _GetEnvSizeAndFindString(LPTSTR pszEnv, LPCTSTR pFindString, LPTSTR* ppFou
 }
 
 
-BOOL _AddEnvVariable(LPTSTR* ppszEnv, LPCTSTR StringToAdd)
+BOOL _AddEnvVariable(LPTSTR * ppszEnv, LPCTSTR StringToAdd)
 {
     ULONG NewEnvSize;
     LPTSTR psz;
@@ -1233,11 +1233,11 @@ typedef struct {
 // but we are launching a setup application
 BOOL_PTR CALLBACK HydraNoInstallMode_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    LOGONINFO* pli = (LOGONINFO*)GetWindowLongPtr(hDlg, DWLP_USER);
+    LOGONINFO * pli = (LOGONINFO *)GetWindowLongPtr(hDlg, DWLP_USER);
 
     switch (uMsg) {
     case WM_INITDIALOG:
-        pli = (LOGONINFO*)lParam;
+        pli = (LOGONINFO *)lParam;
         SetWindowLongPtr(hDlg, DWLP_USER, (LONG_PTR)pli);
         Static_SetIcon(GetDlgItem(hDlg, IDD_ITEMICON), LoadIcon(NULL, MAKEINTRESOURCE(IDI_ERROR)));
         break;
@@ -1284,7 +1284,7 @@ BOOL_PTR CALLBACK HydraNoInstallMode_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam
 
 
 // this is what gets called in the normal runas case
-void InitUserLogonDlg(LOGONINFO* pli, HWND hDlg, LPCTSTR pszFullUserName)
+void InitUserLogonDlg(LOGONINFO * pli, HWND hDlg, LPCTSTR pszFullUserName)
 {
     HWNDWSPrintf(GetDlgItem(hDlg, IDD_CURRENTUSER), pszFullUserName, FALSE);
     HWNDWSPrintf(GetDlgItem(hDlg, IDC_USECURRENTACCOUNT), pszFullUserName, FALSE);
@@ -1296,7 +1296,7 @@ void InitUserLogonDlg(LOGONINFO* pli, HWND hDlg, LPCTSTR pszFullUserName)
 
 
 // this is what gets called in the install app launching as non admin case
-void InitSetupLogonDlg(LOGONINFO* pli, HWND hDlg, LPCTSTR pszFullUserName)
+void InitSetupLogonDlg(LOGONINFO * pli, HWND hDlg, LPCTSTR pszFullUserName)
 {
     HWNDWSPrintf(GetDlgItem(hDlg, IDC_USECURRENTACCOUNT), pszFullUserName, FALSE);
     HWNDWSPrintf(GetDlgItem(hDlg, IDC_MESSAGEBOXCHECKEX), pszFullUserName, FALSE);
@@ -1310,7 +1310,7 @@ void InitSetupLogonDlg(LOGONINFO* pli, HWND hDlg, LPCTSTR pszFullUserName)
 }
 
 
-void SetInitialNameAndDomain(LOGONINFO* pli, HWND hDlg)
+void SetInitialNameAndDomain(LOGONINFO * pli, HWND hDlg)
 {
     TCHAR szName[MAX_PATH];
 
@@ -1332,7 +1332,7 @@ BOOL_PTR CALLBACK UserLogon_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM 
 {
     TCHAR szTemp[UNLEN + 1 + GNLEN + 1];    // enough to hold "reinerf@NTDEV" or "NTDEV\reinerf"
     LPTSTR psz;
-    LOGONINFO* pli = (LOGONINFO*)GetWindowLongPtr(hDlg, DWLP_USER);
+    LOGONINFO * pli = (LOGONINFO *)GetWindowLongPtr(hDlg, DWLP_USER);
 
     switch (uMsg) {
     case WM_INITDIALOG:
@@ -1341,7 +1341,7 @@ BOOL_PTR CALLBACK UserLogon_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM 
         TCHAR szName[UNLEN + 1 + GNLEN + 1];
         ULONG cchName;
 
-        pli = (LOGONINFO*)lParam;
+        pli = (LOGONINFO *)lParam;
         SetWindowLongPtr(hDlg, DWLP_USER, (LONG_PTR)pli);
 
         // start off with "the current user" in case we fail, so we don't put garbage in the dialog
@@ -1496,7 +1496,7 @@ BOOL _IsLogonError(DWORD err)
         if (err == s_aLogonErrs[i])
             return TRUE;
     }
-    
+
     return FALSE;
 }
 
@@ -1534,7 +1534,7 @@ __inline BOOL IsTSSetupExe(LPCTSTR pszImageName)
 // return:  TRUE    - we need to bring up a dialog
 //          FALSE   - we do not need to prompt the user
 
-BOOL CheckForInstallApplication(LPCTSTR pszApplicationName, LPCTSTR pszCommandLine, LOGONINFO* pli)
+BOOL CheckForInstallApplication(LPCTSTR pszApplicationName, LPCTSTR pszCommandLine, LOGONINFO * pli)
 {
     // if we are on a TS machine, AND its not in "Remote Administration" mode, AND this is a TS setup exe (eg install.exe or setup.exe)
     // AND we aren't in install mode...
@@ -1586,9 +1586,7 @@ BOOL CheckForInstallApplication(LPCTSTR pszApplicationName, LPCTSTR pszCommandLi
 
 
 //  SHCreateProcess()
-//  WARNING: lpApplication is not actually passed to CreateProcess() it is
-//            for internal use only.
-
+//  WARNING: lpApplication is not actually passed to CreateProcess() it is for internal use only.
 BOOL _SHCreateProcess(
     HWND hwnd,
     HANDLE hToken,
@@ -1610,7 +1608,7 @@ BOOL _SHCreateProcess(
     BOOL fAllowRunAs = FALSE;
     DWORD err = NOERROR;
 #ifdef WINNT
-    LOGONINFO li = { 0 };
+    LOGONINFO li = {0};
 
     if (!fUserLogon) {
         // see if we need to put up a warning prompt either because the user is not an
@@ -1707,15 +1705,13 @@ BOOL _SHCreateProcess(
         if (!fUserLogon) {
             // DEFAULT use CreateProcess
             fRet = CreateProcess(NULL, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles,
-                                 dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo,
-                                 lpProcessInformation);
+                                 dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
         }
 #ifdef WINNT
         else if (hToken) {
             //  use the user Token
             fRet = CreateProcessAsUser(hToken, NULL, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles,
-                                       dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo,
-                                       lpProcessInformation);
+                                       dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
         } else {
             LPTSTR pszDesktop = lpStartupInfo->lpDesktop;
             // 99/08/19 #389284 vtan: clip username and domain to 125 characters each to avoid hitting the combined MAX_PATH
@@ -1725,9 +1721,7 @@ BOOL _SHCreateProcess(
             li.szUser[125] = li.szDomain[125] = TEXT('\0');
             //  we are attempting logon the user. NOTE: pass LOGON_WITH_PROFILE so that we ensure that the profile is loaded
             fRet = DelayCreateProcessWithLogon(li.szUser, li.szDomain, li.szPassword, LOGON_WITH_PROFILE, NULL, lpCommandLine,
-                                               dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo,
-                                               lpProcessInformation);
-
+                                               dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
             if (!fRet) {
                 // HACKHACK: When CreateProcessWithLogon fails, it munges the desktop.
                 // This causes the next call to "Appear" to fail because the app show up on another desktop...
@@ -1960,7 +1954,7 @@ HGLOBAL CShellExecute::_CreateDDECommand(int nShow, BOOL fLFNAware, BOOL fNative
 
     if (SUCCEEDED(strTemp.SetSize((2 * INTERNET_MAX_URL_LENGTH) + 64))) {
         if (0 == ReplaceParameters(strTemp.GetStr(), strTemp.GetSize(), _szFile,
-                                   _szDDECmd, _lpParameters, nShow, ((DWORD*)&_startup.hStdInput), fLFNAware, _lpID, &_pidlGlobal)) {
+                                   _szDDECmd, _lpParameters, nShow, ((DWORD *)&_startup.hStdInput), fLFNAware, _lpID, &_pidlGlobal)) {
 
             TraceMsg(TF_SHELLEXEC, "SHEX::_CreateDDECommand(%d, %d) : %s", fLFNAware, fNative, strTemp.GetStr());
 
@@ -2102,8 +2096,7 @@ LRESULT CALLBACK DDESubClassWndProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM 
             // this is the first ACK for our INITIATE message
             TraceMsg(TF_SHELLEXEC, "SHEX::DDEStubWnd get ACK on INITIATE");
             return SetProp(hWnd, SZCONV, (HANDLE)wParam);
-        } else if (((UINT_PTR)hwndConv == 1) || ((HWND)wParam == hwndConv))
-        {
+        } else if (((UINT_PTR)hwndConv == 1) || ((HWND)wParam == hwndConv)) {
             // this is the ACK for our EXECUTE message
             TraceMsg(TF_SHELLEXEC, "SHEX::DDEStubWnd got ACK on EXECUTE");
 
@@ -2219,7 +2212,7 @@ BOOL CShellExecute::_PostDDEExecute(HWND hwndConv,
                                     HGLOBAL hDDECommand,
                                     HANDLE hConversationDone,
                                     BOOL fWaitForDDE,
-                                    HWND* phwndDDE)
+                                    HWND * phwndDDE)
 {
     TraceMsg(TF_SHELLEXEC, "SHEX::_PostDDEExecute(0x%X, 0x%X) entered", hwndConv, *phwndDDE);
 
@@ -2290,7 +2283,7 @@ typedef struct {
 
 BOOL InitDDEConv(HWND hwnd, LPARAM pv)
 {
-    INITDDECONV* pidc = (INITDDECONV*)pv;
+    INITDDECONV * pidc = (INITDDECONV *)pv;
 
     ASSERT(pidc);
 
@@ -2317,7 +2310,7 @@ HWND CShellExecute::_GetConversationWindow(HWND hwndDDE)
 {
     ULONG_PTR dwResult;  //unused
     HWND hwnd = NULL;
-    INITDDECONV idc = { NULL,
+    INITDDECONV idc = {NULL,
                         hwndDDE,
                         MAKELONG(_aApplication, _aTopic),
                         SHIsLowMemoryMachine(ILMM_IE4) ? DDE_TIMEOUT_LOW_MEM : DDE_TIMEOUT
@@ -2524,7 +2517,7 @@ HRESULT CShellExecute::_SetDarwinCmdTemplate()
         return S_OK;
     }
 
-    if (SUCCEEDED(_pqa->GetData(0, ASSOCDATA_MSIDESCRIPTOR, _pszQueryVerb, (void*)_wszTemp, (LPDWORD)MAKEINTRESOURCE(SIZEOF(_wszTemp))))) {
+    if (SUCCEEDED(_pqa->GetData(0, ASSOCDATA_MSIDESCRIPTOR, _pszQueryVerb, (void *)_wszTemp, (LPDWORD)MAKEINTRESOURCE(SIZEOF(_wszTemp))))) {
         SHUnicodeToTChar(_wszTemp, _szTemp, SIZECHARS(_szTemp));
 
         // call darwin to give us the real location of the app.
@@ -2716,8 +2709,8 @@ BOOL CShellExecute::_ShouldRetryWithNewClassKey(void)
                 LPITEMIDLIST pidlUnkFile = ILCreateFromPath(_szFile);
 
                 if (pidlUnkFile) {
-                    IQueryAssociations* pqa;
-                    if (SUCCEEDED(SHGetAssociations(pidlUnkFile, (void**)&pqa))) {
+                    IQueryAssociations * pqa;
+                    if (SUCCEEDED(SHGetAssociations(pidlUnkFile, (void **)&pqa))) {
                         _pqa->Release();
                         _pqa = pqa;
 
@@ -2897,7 +2890,7 @@ BOOL CShellExecute::_Cleanup(BOOL fSucceeded)
     return fSucceeded;
 }
 
-BOOL CShellExecute::_FinalMapError(HINSTANCE UNALIGNED64* phinst)
+BOOL CShellExecute::_FinalMapError(HINSTANCE UNALIGNED64 * phinst)
 {
     if (_err != ERROR_SUCCESS) {
         // REVIEW: if errWin32 == ERROR_CANCELLED, we may want to
@@ -3089,7 +3082,7 @@ BOOL ShellExecuteNormal(LPSHELLEXECUTEINFO pei)
     //  WARNING Dont use up Stack Space
     //  we allocate because of win16 stack issues
     //  and the shex is a big object
-    CShellExecute* shex = new CShellExecute();
+    CShellExecute * shex = new CShellExecute();
 
     if (!shex) {
         pei->hInstApp = (HINSTANCE)SE_ERR_OOM;
@@ -3235,24 +3228,24 @@ BOOL CShellExecute::Finalize(PSHCREATEPROCESSINFO pscpi)
 //  if we want to add the ANSI export, then we need to change
 //  shellapi.w to have these declarations instead
 
-typedef struct _SHCREATEPROCESSINFO%
+typedef struct _SHCREATEPROCESSINFO %
 {
     DWORD cbSize;
     ULONG fMask;
     HWND hwnd;
-    LPCTSTR% pszFile;
-    LPCTSTR% pszParameters;
-    LPCTSTR% pszCurrentDirectory;
+    LPCTSTR % pszFile;
+    LPCTSTR % pszParameters;
+    LPCTSTR % pszCurrentDirectory;
     IN HANDLE hUserToken;
     IN LPSECURITY_ATTRIBUTES lpProcessAttributes;
     IN LPSECURITY_ATTRIBUTES lpThreadAttributes;
     IN BOOL bInheritHandles;
     IN DWORD dwCreationFlags;
-    IN LPSTARTUPINFO% lpStartupInfo;
+    IN LPSTARTUPINFO % lpStartupInfo;
     OUT LPPROCESS_INFORMATION lpProcessInformation;
-} SHCREATEPROCESSINFO%, * PSHCREATEPROCESSINFO%;
+} SHCREATEPROCESSINFO %, * PSHCREATEPROCESSINFO %;
 
-SHSTDAPI_(BOOL) SHCreateProcessAsUser % (PSHCREATEPROCESSINFO% pscpi);
+SHSTDAPI_(BOOL) SHCreateProcessAsUser % (PSHCREATEPROCESSINFO % pscpi);
 
 #endif // 0
 
@@ -3264,7 +3257,7 @@ SHSTDAPI_(BOOL) SHCreateProcessAsUserW(PSHCREATEPROCESSINFOW pscpi)
     //  WARNING Dont use up Stack Space
     //  we allocate because of win16 stack issues
     //  and the shex is a big object
-    CShellExecute* pshex = new CShellExecute();
+    CShellExecute * pshex = new CShellExecute();
 
     if (pshex) {
         if (pshex->Init(pscpi))
@@ -3315,7 +3308,7 @@ HINSTANCE  APIENTRY WOWShellExecute(
 void _ShellExec_RunDLL(HWND hwnd, HINSTANCE hAppInstance, LPTSTR pszCmdLine, int nCmdShow)
 {
     TCHAR szQuotedCmdLine[MAX_PATH * 2];
-    SHELLEXECUTEINFO ei = { 0 };
+    SHELLEXECUTEINFO ei = {0};
     ULONG fMask = SEE_MASK_FLAG_DDEWAIT;
     LPTSTR pszArgs;
 

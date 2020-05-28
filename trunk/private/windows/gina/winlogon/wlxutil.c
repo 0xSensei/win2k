@@ -550,8 +550,8 @@ BOOL WINAPI WlxSetTimeout(HANDLE  hWlx, DWORD   Timeout)
 }
 
 
-//  Synopsis:   Allows a GINA to establish the correct shell protection for
-//              a process.  Superceded by the Win32 API, CreateProcessAsUser.
+//  Synopsis:   Allows a GINA to establish the correct shell protection for a process. 
+//              Superceded by the Win32 API, CreateProcessAsUser.
 //  History:    10-14-97   RichardW   Created
 int WINAPI WlxAssignShellProtection(HANDLE  hWlx, HANDLE  hToken, HANDLE  hProcess, HANDLE  hThread)
 {

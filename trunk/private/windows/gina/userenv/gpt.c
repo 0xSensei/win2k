@@ -33,21 +33,21 @@ typedef struct _GPEXT {
     BOOL           bHistoryProcessing;       // Is processing needed to clean up cached Gpos ?
     DWORD          dwSlowLinkPrev;           // Slow link when policy applied previously ?
     GUID           guid;                     // Guid of extension
-    struct _GPEXT *pNext;                    // Singly linked list pointer
-} GPEXT, *LPGPEXT;
+    struct _GPEXT * pNext;                    // Singly linked list pointer
+} GPEXT, * LPGPEXT;
 
 
 typedef struct _EXTLIST {
     GUID             guid;                   // Extension guid
-    struct _EXTLIST *pNext;                  // Singly linked list pointer
-} EXTLIST, *LPEXTLIST;
+    struct _EXTLIST * pNext;                  // Singly linked list pointer
+} EXTLIST, * LPEXTLIST;
 
 
 typedef struct _EXTFILTERLIST {
     PGROUP_POLICY_OBJECT   lpGPO;            // GPO
     LPEXTLIST              lpExtList;        // List of extension guids that apply to lpGPO
-    struct _EXTFILTERLIST *pNext;            // Singly linked list pointer
-} EXTFILTERLIST, *LPEXTFILTERLIST;
+    struct _EXTFILTERLIST * pNext;            // Singly linked list pointer
+} EXTFILTERLIST, * LPEXTFILTERLIST;
 
 
 typedef struct _GPOINFO {
@@ -68,24 +68,24 @@ typedef struct _GPOINFO {
     BOOL                     bUserLocalMemChanged; // Has membership changed on per user local basis ?
     BOOL                     bSidChanged;          // Has the Sid changed since the last policy run?
     PFNSTATUSMESSAGECALLBACK pStatusCallback;
-} GPOINFO, *LPGPOINFO;
+} GPOINFO, * LPGPOINFO;
 
 
 typedef struct _GPINFOHANDLE
 {
     LPGPOINFO pGPOInfo;
-} GPINFOHANDLE, *LPGPINFOHANDLE;
+} GPINFOHANDLE, * LPGPINFOHANDLE;
 
 
 typedef struct _DNENTRY {
     LPTSTR                pwszDN;            // Distinguished name
     union {
         PGROUP_POLICY_OBJECT  pDeferredGPO;  // GPO corresponding to this DN
-        struct _DNENTRY *     pDeferredOU;   // OU correspdonding to this DN
+        struct _DNENTRY * pDeferredOU;   // OU correspdonding to this DN
     };
     PLDAPMessage          pOUMsg;            // Message for evaluating deferred OU
     GPO_LINK              gpoLink;           // Type of GPO
-    struct _DNENTRY *     pNext;             // Singly linked list pointer
+    struct _DNENTRY * pNext;             // Singly linked list pointer
 } DNENTRY;
 
 
@@ -97,7 +97,7 @@ typedef struct _LDAPQUERY {
     PLDAP               pLdapHandle;         // Ldap bind handle
     BOOL                bOwnLdapHandle;      // Does this struct own pLdapHandle ?
     PLDAPMessage        pMessage;            // Ldap message handle
-    DNENTRY *           pDnEntry;            // Distinguished name entry
+    DNENTRY * pDnEntry;            // Distinguished name entry
     struct _LDAPQUERY * pNext;               // Singly linked list pointer
 } LDAPQUERY;
 
@@ -163,34 +163,34 @@ typedef struct _LDAPQUERY {
 
 const
 ACCESS_MASK
-GENERIC_READ_MAPPING =    ((STANDARD_RIGHTS_READ)     | \
-                           (ACTRL_DS_LIST)            | \
-                           (ACTRL_DS_READ_PROP)       | \
-                           (ACTRL_DS_LIST_OBJECT));
+GENERIC_READ_MAPPING = ((STANDARD_RIGHTS_READ) | \
+                        (ACTRL_DS_LIST) | \
+                        (ACTRL_DS_READ_PROP) | \
+                        (ACTRL_DS_LIST_OBJECT));
 
 const
 ACCESS_MASK
-GENERIC_EXECUTE_MAPPING = ((STANDARD_RIGHTS_EXECUTE)  | \
+GENERIC_EXECUTE_MAPPING = ((STANDARD_RIGHTS_EXECUTE) | \
                            (ACTRL_DS_LIST));
 
 const
 ACCESS_MASK
-GENERIC_WRITE_MAPPING =   ((STANDARD_RIGHTS_WRITE)    | \
-                           (ACTRL_DS_SELF)            | \
-                           (ACTRL_DS_WRITE_PROP));
+GENERIC_WRITE_MAPPING = ((STANDARD_RIGHTS_WRITE) | \
+                         (ACTRL_DS_SELF) | \
+                         (ACTRL_DS_WRITE_PROP));
 
 const
 ACCESS_MASK
-GENERIC_ALL_MAPPING =     ((STANDARD_RIGHTS_REQUIRED) | \
-                           (ACTRL_DS_CREATE_CHILD)    | \
-                           (ACTRL_DS_DELETE_CHILD)    | \
-                           (ACTRL_DS_DELETE_TREE)     | \
-                           (ACTRL_DS_READ_PROP)       | \
-                           (ACTRL_DS_WRITE_PROP)      | \
-                           (ACTRL_DS_LIST)            | \
-                           (ACTRL_DS_LIST_OBJECT)     | \
-                           (ACTRL_DS_CONTROL_ACCESS)  | \
-                           (ACTRL_DS_SELF));
+GENERIC_ALL_MAPPING = ((STANDARD_RIGHTS_REQUIRED) | \
+                       (ACTRL_DS_CREATE_CHILD) | \
+                       (ACTRL_DS_DELETE_CHILD) | \
+                       (ACTRL_DS_DELETE_TREE) | \
+                       (ACTRL_DS_READ_PROP) | \
+                       (ACTRL_DS_WRITE_PROP) | \
+                       (ACTRL_DS_LIST) | \
+                       (ACTRL_DS_LIST_OBJECT) | \
+                       (ACTRL_DS_CONTROL_ACCESS) | \
+                       (ACTRL_DS_SELF));
 
 
 
@@ -198,12 +198,12 @@ GENERIC_ALL_MAPPING =     ((STANDARD_RIGHTS_REQUIRED) | \
 // DS Object class types
 
 
-TCHAR szDSClassAny[]    = TEXT("(objectClass=*)");
-TCHAR szDSClassGPO[]    = TEXT("groupPolicyContainer");
-TCHAR szDSClassSite[]   = TEXT("site");
+TCHAR szDSClassAny[] = TEXT("(objectClass=*)");
+TCHAR szDSClassGPO[] = TEXT("groupPolicyContainer");
+TCHAR szDSClassSite[] = TEXT("site");
 TCHAR szDSClassDomain[] = TEXT("domainDNS");
-TCHAR szDSClassOU[]     = TEXT("organizationalUnit");
-TCHAR szObjectClass[]   = TEXT("objectClass");
+TCHAR szDSClassOU[] = TEXT("organizationalUnit");
+TCHAR szObjectClass[] = TEXT("objectClass");
 
 
 // Extension name properties
@@ -246,64 +246,64 @@ LPGPINFOHANDLE g_pUserGPInfo = 0;
 
 CRITICAL_SECTION g_StatusCallbackCS;
 PFNSTATUSMESSAGECALLBACK g_pStatusMessageCallback = NULL;
-DWORD UserPolicyCallback (BOOL bVerbose, LPWSTR lpMessage);
-DWORD MachinePolicyCallback (BOOL bVerbose, LPWSTR lpMessage);
+DWORD UserPolicyCallback(BOOL bVerbose, LPWSTR lpMessage);
+DWORD MachinePolicyCallback(BOOL bVerbose, LPWSTR lpMessage);
 
 
 
 // Function proto-types
 
 
-DWORD WINAPI GPOThread (LPGPOINFO lpGPOInfo);
-BOOL ProcessGPOs (LPGPOINFO lpGPOInfo);
-DWORD WINAPI PolicyChangedThread (BOOL bMachine);
-BOOL ResetPolicies (LPGPOINFO lpGPOInfo, LPTSTR lpArchive);
-BOOL SetupGPOFilter (LPGPOINFO lpGPOInfo );
-void FilterGPOs( LPGPEXT lpExt, LPGPOINFO lpGPOInfo );
-void FreeLists( LPGPOINFO lpGPOInfo );
-void FreeExtList(LPEXTLIST pExtList );
-BOOL CheckGPOs (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, DWORD dwTime, BOOL *pbProcessGPOs,
-                BOOL *pbNoChanges, PGROUP_POLICY_OBJECT *ppDeletedGPOList);
-BOOL CheckForChangedSid( LPGPOINFO lpGPOInfo );
-BOOL CheckForSkippedExtensions( LPGPOINFO lpGPOInfo );
-BOOL ReadGPExtensions( LPGPOINFO lpGPOInfo );
-BOOL LoadGPExtension (LPGPEXT lpExt);
-BOOL UnloadGPExtensions (LPGPOINFO lpGPOInfo);
-BOOL WriteStatus( TCHAR *lpExtName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWORD dwStatus, DWORD dwTime, DWORD dwSlowLink );
-BOOL ReadStatus( TCHAR *lpExtName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWORD *pdwStatus, DWORD *pdwTime, DWORD *pdwSlowlink );
-DWORD ProcessGPOList (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pDeletedGPOList,
+DWORD WINAPI GPOThread(LPGPOINFO lpGPOInfo);
+BOOL ProcessGPOs(LPGPOINFO lpGPOInfo);
+DWORD WINAPI PolicyChangedThread(BOOL bMachine);
+BOOL ResetPolicies(LPGPOINFO lpGPOInfo, LPTSTR lpArchive);
+BOOL SetupGPOFilter(LPGPOINFO lpGPOInfo);
+void FilterGPOs(LPGPEXT lpExt, LPGPOINFO lpGPOInfo);
+void FreeLists(LPGPOINFO lpGPOInfo);
+void FreeExtList(LPEXTLIST pExtList);
+BOOL CheckGPOs(LPGPEXT lpExt, LPGPOINFO lpGPOInfo, DWORD dwTime, BOOL * pbProcessGPOs,
+               BOOL * pbNoChanges, PGROUP_POLICY_OBJECT * ppDeletedGPOList);
+BOOL CheckForChangedSid(LPGPOINFO lpGPOInfo);
+BOOL CheckForSkippedExtensions(LPGPOINFO lpGPOInfo);
+BOOL ReadGPExtensions(LPGPOINFO lpGPOInfo);
+BOOL LoadGPExtension(LPGPEXT lpExt);
+BOOL UnloadGPExtensions(LPGPOINFO lpGPOInfo);
+BOOL WriteStatus(TCHAR * lpExtName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWORD dwStatus, DWORD dwTime, DWORD dwSlowLink);
+BOOL ReadStatus(TCHAR * lpExtName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWORD * pdwStatus, DWORD * pdwTime, DWORD * pdwSlowlink);
+DWORD ProcessGPOList(LPGPEXT lpExt, LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pDeletedGPOList,
                      PGROUP_POLICY_OBJECT pChangedGPOList, BOOL bNoChanges,
-                     ASYNCCOMPLETIONHANDLE pAsyncHandle );
-BOOL ProcessGPORegistryPolicy (LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pChangedGPOList);
-BOOL SaveGPOList (TCHAR *pszExtName, LPGPOINFO lpGPOInfo,
-                  HKEY hKeyRootMach, LPTSTR lpwszSidUser, BOOL bShadow, PGROUP_POLICY_OBJECT lpGPOList);
-BOOL AddGPO (PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion,
-             LPTSTR lpDSPath, LPTSTR lpFileSysPath, LPTSTR lpDisplayName,
-             LPTSTR lpGPOName, LPTSTR lpExtensions, GPO_LINK GPOLink, LPTSTR lpLink, LPARAM lParam, BOOL bFront,
-             BOOL bBlock, BOOL bVerbose);
-BOOL RefreshDisplay (LPGPOINFO lpGPOInfo);
-DWORD IsSlowLink (HKEY hKeyRoot, LPTSTR lpDCAddress, BOOL *bSlow);
-BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName,
-                 LPCTSTR lpComputerName, PGROUP_POLICY_OBJECT *lpGPOList,
-                 PNETAPI32_API pNetAPI32, BOOL bMachineTokenOk);
-void WINAPI ShutdownGPOProcessing( BOOL bMachine );
-void DebugPrintGPOList( LPGPOINFO lpGPOInfo );
+                     ASYNCCOMPLETIONHANDLE pAsyncHandle);
+BOOL ProcessGPORegistryPolicy(LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pChangedGPOList);
+BOOL SaveGPOList(TCHAR * pszExtName, LPGPOINFO lpGPOInfo,
+                 HKEY hKeyRootMach, LPTSTR lpwszSidUser, BOOL bShadow, PGROUP_POLICY_OBJECT lpGPOList);
+BOOL AddGPO(PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion,
+            LPTSTR lpDSPath, LPTSTR lpFileSysPath, LPTSTR lpDisplayName,
+            LPTSTR lpGPOName, LPTSTR lpExtensions, GPO_LINK GPOLink, LPTSTR lpLink, LPARAM lParam, BOOL bFront,
+            BOOL bBlock, BOOL bVerbose);
+BOOL RefreshDisplay(LPGPOINFO lpGPOInfo);
+DWORD IsSlowLink(HKEY hKeyRoot, LPTSTR lpDCAddress, BOOL * bSlow);
+BOOL GetGPOInfo(DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName,
+                LPCTSTR lpComputerName, PGROUP_POLICY_OBJECT * lpGPOList,
+                PNETAPI32_API pNetAPI32, BOOL bMachineTokenOk);
+void WINAPI ShutdownGPOProcessing(BOOL bMachine);
+void DebugPrintGPOList(LPGPOINFO lpGPOInfo);
 
-typedef BOOL (*PFNREGFILECALLBACK)(LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueName, DWORD dwType, DWORD dwDataLength, LPBYTE lpData);
-BOOL ParseRegistryFile (LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBACK pfnRegFileCallback, HANDLE hArchive);
-BOOL ExtensionHasPerUserLocalSetting( LPTSTR pszExtension, HKEY hKeyRoot );
-void CheckGroupMembership( LPGPOINFO lpGPOInfo, HANDLE hToken, BOOL *pbMemChanged, BOOL *pbUserLocalMemChanged );
-BOOL ReadMembershipList( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS pGroups );
-void SaveMembershipList( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS pGroups );
-BOOL GroupInList( LPTSTR lpSid, PTOKEN_GROUPS pGroups );
+typedef BOOL(*PFNREGFILECALLBACK)(LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueName, DWORD dwType, DWORD dwDataLength, LPBYTE lpData);
+BOOL ParseRegistryFile(LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBACK pfnRegFileCallback, HANDLE hArchive);
+BOOL ExtensionHasPerUserLocalSetting(LPTSTR pszExtension, HKEY hKeyRoot);
+void CheckGroupMembership(LPGPOINFO lpGPOInfo, HANDLE hToken, BOOL * pbMemChanged, BOOL * pbUserLocalMemChanged);
+BOOL ReadMembershipList(LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS pGroups);
+void SaveMembershipList(LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS pGroups);
+BOOL GroupInList(LPTSTR lpSid, PTOKEN_GROUPS pGroups);
 DWORD GetCurTime();
-DWORD GetDomainControllerInfo(  PNETAPI32_API pNetAPI32, LPTSTR szDomainName, ULONG ulFlags, HKEY hKeyRoot, PDOMAIN_CONTROLLER_INFO* ppInfo, BOOL* pfSlow );
-PLDAP GetMachineDomainDS( PNETAPI32_API pNetApi32, PLDAP_API pLdapApi );
+DWORD GetDomainControllerInfo(PNETAPI32_API pNetAPI32, LPTSTR szDomainName, ULONG ulFlags, HKEY hKeyRoot, PDOMAIN_CONTROLLER_INFO * ppInfo, BOOL * pfSlow);
+PLDAP GetMachineDomainDS(PNETAPI32_API pNetApi32, PLDAP_API pLdapApi);
 HANDLE GetMachineToken();
 NTSTATUS CallDFS(LPWSTR lpDomainName, LPWSTR lpDCName);
 
 
-HANDLE WINAPI ApplyGroupPolicy (DWORD dwFlags, HANDLE hToken, HANDLE hEvent, HKEY hKeyRoot, PFNSTATUSMESSAGECALLBACK pStatusCallback)
+HANDLE WINAPI ApplyGroupPolicy(DWORD dwFlags, HANDLE hToken, HANDLE hEvent, HKEY hKeyRoot, PFNSTATUSMESSAGECALLBACK pStatusCallback)
 //  Purpose:    Processes group policy
 
 //  Parameters: dwFlags         -  Processing flags
@@ -325,15 +325,15 @@ HANDLE WINAPI ApplyGroupPolicy (DWORD dwFlags, HANDLE hToken, HANDLE hEvent, HKE
     DebugMsg((DM_VERBOSE, TEXT("ApplyGroupPolicy: Entering. Flags = %x"), dwFlags));
 
     // Save the status UI callback function
-    EnterCriticalSection (&g_StatusCallbackCS);
+    EnterCriticalSection(&g_StatusCallbackCS);
     g_pStatusMessageCallback = pStatusCallback;
-    LeaveCriticalSection (&g_StatusCallbackCS);
+    LeaveCriticalSection(&g_StatusCallbackCS);
 
     // Allocate a GPOInfo structure to work with.
-    lpGPOInfo = (LPGPOINFO) LocalAlloc (LPTR, sizeof(GPOINFO));
+    lpGPOInfo = (LPGPOINFO)LocalAlloc(LPTR, sizeof(GPOINFO));
     if (!lpGPOInfo) {
         DebugMsg((DM_WARNING, TEXT("ApplyGroupPolicy: Failed to alloc lpGPOInfo (%d)."), GetLastError()));
-        LogEvent (TRUE, IDS_FAILED_ALLOCATION, GetLastError());
+        LogEvent(TRUE, IDS_FAILED_ALLOCATION, GetLastError());
         goto Exit;
     }
 
@@ -351,25 +351,25 @@ HANDLE WINAPI ApplyGroupPolicy (DWORD dwFlags, HANDLE hToken, HANDLE hEvent, HKE
     // Create an event so other processes can trigger policy to be applied immediately
     InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
 
-    SetSecurityDescriptorDacl (
-                    &sd,
-                    TRUE,                           // Dacl present
-                    NULL,                           // NULL Dacl
-                    FALSE                           // Not defaulted
-                    );
+    SetSecurityDescriptorDacl(
+        &sd,
+        TRUE,                           // Dacl present
+        NULL,                           // NULL Dacl
+        FALSE                           // Not defaulted
+    );
 
     sa.lpSecurityDescriptor = &sd;
     sa.bInheritHandle = FALSE;
     sa.nLength = sizeof(sa);
 
-    lpGPOInfo->hTriggerEvent = CreateEvent (&sa, FALSE, FALSE, (dwFlags & GP_MACHINE) ? MACHINE_POLICY_REFRESH_EVENT : USER_POLICY_REFRESH_EVENT);
+    lpGPOInfo->hTriggerEvent = CreateEvent(&sa, FALSE, FALSE, (dwFlags & GP_MACHINE) ? MACHINE_POLICY_REFRESH_EVENT : USER_POLICY_REFRESH_EVENT);
 
     // Create the notification event
-    lpGPOInfo->hNotifyEvent = CreateEvent (&sa, TRUE, FALSE, (dwFlags & GP_MACHINE) ? MACHINE_POLICY_APPLIED_EVENT : USER_POLICY_APPLIED_EVENT);
+    lpGPOInfo->hNotifyEvent = CreateEvent(&sa, TRUE, FALSE, (dwFlags & GP_MACHINE) ? MACHINE_POLICY_APPLIED_EVENT : USER_POLICY_APPLIED_EVENT);
 
     // Initilialize shutdown gpo processing support
 
-    if ( dwFlags & GP_MACHINE )
+    if (dwFlags & GP_MACHINE)
         g_bStopMachGPOProcessing = FALSE;
     else
         g_bStopUserGPOProcessing = FALSE;
@@ -380,20 +380,20 @@ HANDLE WINAPI ApplyGroupPolicy (DWORD dwFlags, HANDLE hToken, HANDLE hEvent, HKE
     // If requested, create a background thread to keep updating the profile from the gpos
     if (lpGPOInfo->dwFlags & GP_BACKGROUND_REFRESH) {
         // Create a thread which sleeps and processes GPOs
-        hThread = CreateThread (NULL, 0, (LPTHREAD_START_ROUTINE) GPOThread, (LPVOID) lpGPOInfo, CREATE_SUSPENDED, &dwThreadID);
+        hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GPOThread, (LPVOID)lpGPOInfo, CREATE_SUSPENDED, &dwThreadID);
         if (!hThread) {
             DebugMsg((DM_WARNING, TEXT("ApplyGroupPolicy: Failed to create background thread (%d)."), GetLastError()));
             goto Exit;
         }
 
-        SetThreadPriority (hThread, THREAD_PRIORITY_IDLE);
+        SetThreadPriority(hThread, THREAD_PRIORITY_IDLE);
         lpGPOInfo->pStatusCallback = NULL;
-        ResumeThread (hThread);
+        ResumeThread(hThread);
 
         // Reset the status UI callback function
-        EnterCriticalSection (&g_StatusCallbackCS);
+        EnterCriticalSection(&g_StatusCallbackCS);
         g_pStatusMessageCallback = NULL;
-        LeaveCriticalSection (&g_StatusCallbackCS);
+        LeaveCriticalSection(&g_StatusCallbackCS);
 
         DebugMsg((DM_VERBOSE, TEXT("ApplyGroupPolicy: Leaving successfully.")));
 
@@ -401,46 +401,46 @@ HANDLE WINAPI ApplyGroupPolicy (DWORD dwFlags, HANDLE hToken, HANDLE hEvent, HKE
     }
 
     DebugMsg((DM_VERBOSE, TEXT("ApplyGroupPolicy: Background refresh not requested.  Leaving successfully.")));
-    hThread = (HANDLE) 1;
+    hThread = (HANDLE)1;
 
 Exit:
-    EnterCriticalSection( &g_GPOCS );
-    if ( dwFlags & GP_MACHINE ) {
-        if ( g_pMachGPInfo )
-            LocalFree( g_pMachGPInfo );
+    EnterCriticalSection(&g_GPOCS);
+    if (dwFlags & GP_MACHINE) {
+        if (g_pMachGPInfo)
+            LocalFree(g_pMachGPInfo);
         g_pMachGPInfo = 0;
     } else {
-        if ( g_pUserGPInfo )
-            LocalFree( g_pUserGPInfo );
+        if (g_pUserGPInfo)
+            LocalFree(g_pUserGPInfo);
         g_pUserGPInfo = 0;
     }
-    LeaveCriticalSection( &g_GPOCS );
+    LeaveCriticalSection(&g_GPOCS);
 
     if (lpGPOInfo) {
         if (lpGPOInfo->hTriggerEvent) {
-            CloseHandle (lpGPOInfo->hTriggerEvent);
+            CloseHandle(lpGPOInfo->hTriggerEvent);
         }
 
         if (lpGPOInfo->hNotifyEvent) {
-            CloseHandle (lpGPOInfo->hNotifyEvent);
+            CloseHandle(lpGPOInfo->hNotifyEvent);
         }
 
         if (lpGPOInfo->lpwszSidUser)
-            DeleteSidString( lpGPOInfo->lpwszSidUser );
+            DeleteSidString(lpGPOInfo->lpwszSidUser);
 
-        LocalFree (lpGPOInfo);
+        LocalFree(lpGPOInfo);
     }
 
     // Reset the status UI callback function
-    EnterCriticalSection (&g_StatusCallbackCS);
+    EnterCriticalSection(&g_StatusCallbackCS);
     g_pStatusMessageCallback = NULL;
-    LeaveCriticalSection (&g_StatusCallbackCS);
+    LeaveCriticalSection(&g_StatusCallbackCS);
 
     return hThread;
 }
 
 
-DWORD WINAPI GPOThread (LPGPOINFO lpGPOInfo)
+DWORD WINAPI GPOThread(LPGPOINFO lpGPOInfo)
 //  Purpose:    Background thread for GPO processing.
 
 //  Parameters: lpGPOInfo   - GPO info
@@ -456,7 +456,7 @@ DWORD WINAPI GPOThread (LPGPOINFO lpGPOInfo)
     TCHAR szEventName[60];
     LARGE_INTEGER DueTime;
 
-    hInst = LoadLibrary (TEXT("userenv.dll"));
+    hInst = LoadLibrary(TEXT("userenv.dll"));
 
     hHandles[0] = lpGPOInfo->hEvent;
     hHandles[1] = lpGPOInfo->hTriggerEvent;
@@ -477,20 +477,20 @@ DWORD WINAPI GPOThread (LPGPOINFO lpGPOInfo)
         }
 
         // Query for the refresh timer value and max offset
-        if (RegOpenKeyEx (lpGPOInfo->hKeyRoot, SYSTEM_POLICIES_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        if (RegOpenKeyEx(lpGPOInfo->hKeyRoot, SYSTEM_POLICIES_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
             if ((lpGPOInfo->iMachineRole == 3) && (lpGPOInfo->dwFlags & GP_MACHINE)) {
                 dwSize = sizeof(dwTimeout);
-                RegQueryValueEx (hKey, TEXT("GroupPolicyRefreshTimeDC"), NULL, &dwType, (LPBYTE) &dwTimeout, &dwSize);
+                RegQueryValueEx(hKey, TEXT("GroupPolicyRefreshTimeDC"), NULL, &dwType, (LPBYTE)&dwTimeout, &dwSize);
                 dwSize = sizeof(dwOffset);
-                RegQueryValueEx (hKey, TEXT("GroupPolicyRefreshTimeOffsetDC"), NULL, &dwType, (LPBYTE) &dwOffset, &dwSize);
+                RegQueryValueEx(hKey, TEXT("GroupPolicyRefreshTimeOffsetDC"), NULL, &dwType, (LPBYTE)&dwOffset, &dwSize);
             } else {
                 dwSize = sizeof(dwTimeout);
-                RegQueryValueEx (hKey, TEXT("GroupPolicyRefreshTime"), NULL, &dwType, (LPBYTE) &dwTimeout, &dwSize);
+                RegQueryValueEx(hKey, TEXT("GroupPolicyRefreshTime"), NULL, &dwType, (LPBYTE)&dwTimeout, &dwSize);
                 dwSize = sizeof(dwOffset);
-                RegQueryValueEx (hKey, TEXT("GroupPolicyRefreshTimeOffset"), NULL, &dwType, (LPBYTE) &dwOffset, &dwSize);
+                RegQueryValueEx(hKey, TEXT("GroupPolicyRefreshTimeOffset"), NULL, &dwType, (LPBYTE)&dwOffset, &dwSize);
             }
 
-            RegCloseKey (hKey);
+            RegCloseKey(hKey);
         }
 
         // Limit the timeout to once every 64800 minutes (45 days)
@@ -499,7 +499,7 @@ DWORD WINAPI GPOThread (LPGPOINFO lpGPOInfo)
         }
 
         // Convert seconds to milliseconds
-        dwTimeout =  dwTimeout * 60 * 1000;
+        dwTimeout = dwTimeout * 60 * 1000;
 
         // Limit the offset to 1440 minutes (24 hours)
         if (dwOffset >= 1440) {
@@ -526,32 +526,29 @@ DWORD WINAPI GPOThread (LPGPOINFO lpGPOInfo)
             DebugMsg((DM_VERBOSE, TEXT("GPOThread:  Next refresh will happen in %d seconds"), (dwTimeout / 1000)));
         }
 
-        wsprintf (szEventName, TEXT("userenv: refresh timer for %d:%d"), GetCurrentProcessId(), GetCurrentThreadId());
-        hHandles[2] = CreateWaitableTimer (NULL, TRUE, szEventName);
+        wsprintf(szEventName, TEXT("userenv: refresh timer for %d:%d"), GetCurrentProcessId(), GetCurrentThreadId());
+        hHandles[2] = CreateWaitableTimer(NULL, TRUE, szEventName);
         if (hHandles[2] == NULL) {
             DebugMsg((DM_WARNING, TEXT("GPOThread: CreateWaitableTimer failed with error %d"), GetLastError()));
-            LogEvent (TRUE, IDS_FAILED_TIMER, TEXT("CreateWaitableTimer"), GetLastError());
+            LogEvent(TRUE, IDS_FAILED_TIMER, TEXT("CreateWaitableTimer"), GetLastError());
             break;
         }
 
         DueTime.QuadPart = UInt32x32To64(10000, dwTimeout);
         DueTime.QuadPart *= -1;
-        if (!SetWaitableTimer (hHandles[2], &DueTime, 0, NULL, 0, FALSE)) {
+        if (!SetWaitableTimer(hHandles[2], &DueTime, 0, NULL, 0, FALSE)) {
             DebugMsg((DM_WARNING, TEXT("GPOThread: Failed to set timer with error %d"), GetLastError()));
-            LogEvent (TRUE, IDS_FAILED_TIMER, TEXT("SetWaitableTimer"), GetLastError());
+            LogEvent(TRUE, IDS_FAILED_TIMER, TEXT("SetWaitableTimer"), GetLastError());
             break;
         }
 
-        dwResult = WaitForMultipleObjects (3, hHandles, FALSE, INFINITE);
-        if ( (dwResult - WAIT_OBJECT_0) == 0 )
-        {
+        dwResult = WaitForMultipleObjects(3, hHandles, FALSE, INFINITE);
+        if ((dwResult - WAIT_OBJECT_0) == 0) {
             // for machine policy thread, this is a shutdown.
             // for user policy thread, this is a logoff.
             break;
-        }
-        else if ( dwResult == WAIT_FAILED )
-        {
-            LogEvent (TRUE, IDS_FAILED_TIMER, TEXT("WaitForMultipleObjects"), GetLastError());
+        } else if (dwResult == WAIT_FAILED) {
+            LogEvent(TRUE, IDS_FAILED_TIMER, TEXT("WaitForMultipleObjects"), GetLastError());
             break;
         }
 
@@ -561,10 +558,10 @@ DWORD WINAPI GPOThread (LPGPOINFO lpGPOInfo)
         // booting the machine.
         bSetBkGndFlag = TRUE;
 
-        if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, WINLOGON_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, WINLOGON_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
             dwSize = sizeof(bSetBkGndFlag);
-            RegQueryValueEx (hKey, TEXT("SetGroupPolicyBackgroundFlag"), NULL, &dwType, (LPBYTE) &bSetBkGndFlag, &dwSize);
-            RegCloseKey (hKey);
+            RegQueryValueEx(hKey, TEXT("SetGroupPolicyBackgroundFlag"), NULL, &dwType, (LPBYTE)&bSetBkGndFlag, &dwSize);
+            RegCloseKey(hKey);
         }
 
         lpGPOInfo->dwFlags &= ~GP_REGPOLICY_CPANEL;
@@ -581,48 +578,48 @@ DWORD WINAPI GPOThread (LPGPOINFO lpGPOInfo)
 
         ProcessGPOs(lpGPOInfo);
 
-        CloseHandle (hHandles[2]);
+        CloseHandle(hHandles[2]);
         hHandles[2] = NULL;
     }
 
     // Cleanup
     if (hHandles[2]) {
-        CloseHandle (hHandles[2]);
+        CloseHandle(hHandles[2]);
     }
 
     if (lpGPOInfo->hTriggerEvent) {
-        CloseHandle (lpGPOInfo->hTriggerEvent);
+        CloseHandle(lpGPOInfo->hTriggerEvent);
     }
 
     if (lpGPOInfo->hNotifyEvent) {
-        CloseHandle (lpGPOInfo->hNotifyEvent);
+        CloseHandle(lpGPOInfo->hNotifyEvent);
     }
 
-    EnterCriticalSection( &g_GPOCS );
-    if ( lpGPOInfo->dwFlags & GP_MACHINE ) {
-       if ( g_pMachGPInfo )
-           LocalFree( g_pMachGPInfo );
+    EnterCriticalSection(&g_GPOCS);
+    if (lpGPOInfo->dwFlags & GP_MACHINE) {
+        if (g_pMachGPInfo)
+            LocalFree(g_pMachGPInfo);
 
-       g_pMachGPInfo = 0;
+        g_pMachGPInfo = 0;
     } else {
-        if ( g_pUserGPInfo )
-            LocalFree( g_pUserGPInfo );
+        if (g_pUserGPInfo)
+            LocalFree(g_pUserGPInfo);
 
         g_pUserGPInfo = 0;
-     }
-    LeaveCriticalSection( &g_GPOCS );
+    }
+    LeaveCriticalSection(&g_GPOCS);
 
     if (lpGPOInfo->lpwszSidUser)
-        DeleteSidString( lpGPOInfo->lpwszSidUser );
+        DeleteSidString(lpGPOInfo->lpwszSidUser);
 
-    LocalFree (lpGPOInfo);
+    LocalFree(lpGPOInfo);
 
-    FreeLibraryAndExitThread (hInst, 0);
+    FreeLibraryAndExitThread(hInst, 0);
     return 0;
 }
 
 
-LONG GPOExceptionFilter( PEXCEPTION_POINTERS pExceptionPtrs )
+LONG GPOExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
 //  Purpose:    Exception filter when procssing GPO extensions
 
 //  Parameters: pExceptionPtrs - Pointer to exception pointer
@@ -632,13 +629,13 @@ LONG GPOExceptionFilter( PEXCEPTION_POINTERS pExceptionPtrs )
     PEXCEPTION_RECORD pExr = pExceptionPtrs->ExceptionRecord;
     PCONTEXT pCxr = pExceptionPtrs->ContextRecord;
 
-    DebugMsg(( DM_WARNING, L"GPOExceptionFilter: Caught exception 0x%x, exr = 0x%x, cxr = 0x%x\n", pExr->ExceptionCode, pExr, pCxr ));
-    DmAssert( ! L"Caught unhandled exception when processing group policy extension" );
+    DebugMsg((DM_WARNING, L"GPOExceptionFilter: Caught exception 0x%x, exr = 0x%x, cxr = 0x%x\n", pExr->ExceptionCode, pExr, pCxr));
+    DmAssert(!L"Caught unhandled exception when processing group policy extension");
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
 
-BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
+BOOL ProcessGPOs(LPGPOINFO lpGPOInfo)
 //  Purpose:    Processes GPOs
 
 //  Parameters: lpGPOInfo   -   GPO information
@@ -673,21 +670,21 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
 
     // Allow debugging level to be changed dynamically between
     // policy refreshes.
-    InitDebugSupport( FALSE );
+    InitDebugSupport(FALSE);
 
     // Debug spew
     if (lpGPOInfo->dwFlags & GP_MACHINE) {
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs:")));
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs:")));
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs:  Starting computer Group Policy processing...")));
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs:")));
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs:")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:  Starting computer Group Policy processing...")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:")));
     } else {
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs:")));
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs:")));
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs: Starting user Group Policy processing...")));
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs:")));
-        DebugMsg(( DM_VERBOSE, TEXT("ProcessGPOs:")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Starting user Group Policy processing...")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:")));
+        DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:")));
     }
 
     // Check if we should be verbose to the event log
@@ -698,9 +695,9 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
 
     if (lpGPOInfo->dwFlags & GP_VERBOSE) {
         if (lpGPOInfo->dwFlags & GP_MACHINE) {
-            LogEvent (FALSE, IDS_START_MACHINE_POLICY);
+            LogEvent(FALSE, IDS_START_MACHINE_POLICY);
         } else {
-            LogEvent (FALSE, IDS_START_USER_POLICY);
+            LogEvent(FALSE, IDS_START_USER_POLICY);
         }
     }
 
@@ -708,7 +705,7 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
     lpGPOInfo->hCritSection = EnterCriticalPolicySection((lpGPOInfo->dwFlags & GP_MACHINE));
     if (!lpGPOInfo->hCritSection) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Failed to claim the policy critical section with %d."), GetLastError()));
-        LogEvent (TRUE, IDS_FAILED_CRITICAL_SECTION, GetLastError());
+        LogEvent(TRUE, IDS_FAILED_CRITICAL_SECTION, GetLastError());
         goto Exit;
     }
 
@@ -721,14 +718,14 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
     pNetAPI32 = LoadNetAPI32();
     if (!pNetAPI32) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPOs:  Failed to load netapi32 with %d."), GetLastError()));
-        LogEvent (TRUE, IDS_FAILED_NETAPI32, GetLastError());
+        LogEvent(TRUE, IDS_FAILED_NETAPI32, GetLastError());
         goto Exit;
     }
 
     // Get the role of this computer
-    if (!GetMachineRole (&iRole)) {
+    if (!GetMachineRole(&iRole)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPOs:  Failed to get the role of the computer.")));
-        LogEvent (TRUE, IDS_FAILED_ROLE);
+        LogEvent(TRUE, IDS_FAILED_ROLE);
         goto Exit;
     }
 
@@ -738,15 +735,15 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
 
     if (lpGPOInfo->dwFlags & GP_VERBOSE) {
         switch (iRole) {
-            case 0:
-                LogEvent (FALSE, IDS_ROLE_STANDALONE);
-                break;
-            case 1:
-                LogEvent (FALSE, IDS_ROLE_DOWNLEVEL_DOMAIN);
-                break;
-            default:
-                LogEvent (FALSE, IDS_ROLE_DS_DOMAIN);
-                break;
+        case 0:
+            LogEvent(FALSE, IDS_ROLE_STANDALONE);
+            break;
+        case 1:
+            LogEvent(FALSE, IDS_ROLE_DOWNLEVEL_DOMAIN);
+            break;
+        default:
+            LogEvent(FALSE, IDS_ROLE_DS_DOMAIN);
+            break;
         }
     }
 
@@ -759,7 +756,7 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
             goto Exit;
         }
 
-        lpDomain = MyGetDomainName ();
+        lpDomain = MyGetDomainName();
 
         RevertToUser(&hOldToken);
 
@@ -770,19 +767,19 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
         }
 
         // Query for the DS server name
-        dwResult = GetDomainControllerInfo( pNetAPI32,
-                                            lpDomain,
-                                            DS_DIRECTORY_SERVICE_REQUIRED | DS_IS_FLAT_NAME | DS_RETURN_DNS_NAME | ((lpGPOInfo->dwFlags & GP_BACKGROUND_THREAD) ? DS_BACKGROUND_ONLY : 0),
-                                            lpGPOInfo->hKeyRoot,
-                                            &pDCI,
-                                            &bSlow );
+        dwResult = GetDomainControllerInfo(pNetAPI32,
+                                           lpDomain,
+                                           DS_DIRECTORY_SERVICE_REQUIRED | DS_IS_FLAT_NAME | DS_RETURN_DNS_NAME | ((lpGPOInfo->dwFlags & GP_BACKGROUND_THREAD) ? DS_BACKGROUND_ONLY : 0),
+                                           lpGPOInfo->hKeyRoot,
+                                           &pDCI,
+                                           &bSlow);
         if (dwResult != ERROR_SUCCESS) {
             if ((dwResult == ERROR_BAD_NETPATH) || (dwResult == ERROR_NETWORK_UNREACHABLE) || (dwResult == ERROR_NO_SUCH_DOMAIN)) {
                 // couldn't find DC. Nothing more we can do, abort
                 DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: The DC for domain %s is not available"), lpDomain));
             } else {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPOs: DSGetDCName failed with %d."), dwResult));
-                LogEvent (TRUE, IDS_FAILED_DSNAME, dwResult);
+                LogEvent(TRUE, IDS_FAILED_DSNAME, dwResult);
             }
 
             goto Exit;
@@ -791,7 +788,7 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
             if (bSlow) {
                 lpGPOInfo->dwFlags |= GP_SLOW_LINK;
                 if (lpGPOInfo->dwFlags & GP_VERBOSE) {
-                    LogEvent (FALSE, IDS_SLOWLINK);
+                    LogEvent(FALSE, IDS_SLOWLINK);
                 }
                 DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: A slow link was detected.")));
             }
@@ -803,23 +800,23 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
             goto Exit;
         }
 
-        lpName = MyGetUserName (NameFullyQualifiedDN);
+        lpName = MyGetUserName(NameFullyQualifiedDN);
 
         RevertToUser(&hOldToken);
 
         if (!lpName) {
             dwResult = GetLastError();
             DebugMsg((DM_WARNING, TEXT("ProcessGPOs: MyGetUserName failed with %d."), dwResult));
-            LogEvent (TRUE, IDS_FAILED_USERNAME, dwResult);
+            LogEvent(TRUE, IDS_FAILED_USERNAME, dwResult);
             goto Exit;
         }
 
         lpDomainDN = pDCI->DomainName;
 
         if (lpGPOInfo->dwFlags & GP_VERBOSE) {
-            LogEvent (FALSE, IDS_USERNAME, lpName);
-            LogEvent (FALSE, IDS_DOMAINNAME, lpDomain);
-            LogEvent (FALSE, IDS_DCNAME, pDCI->DomainControllerName);
+            LogEvent(FALSE, IDS_USERNAME, lpName);
+            LogEvent(FALSE, IDS_DOMAINNAME, lpDomain);
+            LogEvent(FALSE, IDS_DCNAME, pDCI->DomainControllerName);
         }
 
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs:  User name is:  %s, Domain name is:  %s"), lpName, lpDomain));
@@ -830,39 +827,39 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
         }
 
         // Save the DC name in the registry for future reference
-        if (RegOpenKeyEx (lpGPOInfo->hKeyRoot, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS) {
+        if (RegOpenKeyEx(lpGPOInfo->hKeyRoot, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS) {
             dwSize = (lstrlen(pDCI->DomainControllerName) + 1) * sizeof(TCHAR);
-            RegSetValueEx (hKey, TEXT("DCName"), 0, REG_SZ, (LPBYTE) pDCI->DomainControllerName, dwSize);
-            RegCloseKey (hKey);
+            RegSetValueEx(hKey, TEXT("DCName"), 0, REG_SZ, (LPBYTE)pDCI->DomainControllerName, dwSize);
+            RegCloseKey(hKey);
         }
     }
 
     // Read the group policy extensions from the registry
-    if ( !ReadGPExtensions( lpGPOInfo ) ) {
+    if (!ReadGPExtensions(lpGPOInfo)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPOs: ReadGPExtensions failed.")));
-        LogEvent (TRUE, IDS_READ_EXT_FAILED );
+        LogEvent(TRUE, IDS_READ_EXT_FAILED);
         goto Exit;
     }
 
     // Get the user policy mode if appropriate
     if (!(lpGPOInfo->dwFlags & GP_MACHINE)) {
-        if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, SYSTEM_POLICIES_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SYSTEM_POLICIES_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
             dwSize = sizeof(dwUserPolicyMode);
-            RegQueryValueEx (hKey, TEXT("UserPolicyMode"), NULL, &dwType, (LPBYTE) &dwUserPolicyMode, &dwSize);
-            RegCloseKey (hKey);
+            RegQueryValueEx(hKey, TEXT("UserPolicyMode"), NULL, &dwType, (LPBYTE)&dwUserPolicyMode, &dwSize);
+            RegCloseKey(hKey);
         }
 
         if (dwUserPolicyMode > 0) {
             if (!(lpGPOInfo->dwFlags & GP_APPLY_DS_POLICY)) {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Loopback is not allowed for downlevel or local user accounts.  Loopback will be disabled.")));
-                LogEvent (FALSE, IDS_LOOPBACK_DISABLED1);
+                LogEvent(FALSE, IDS_LOOPBACK_DISABLED1);
                 dwUserPolicyMode = 0;
             }
 
             if (dwUserPolicyMode > 0) {
                 if (lpGPOInfo->iMachineRole < 2) {
                     DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Loopback is not allowed on machines joined to a downlevel domain or running standalone.  Loopback will be disabled.")));
-                    LogEvent (TRUE, IDS_LOOPBACK_DISABLED2);
+                    LogEvent(TRUE, IDS_LOOPBACK_DISABLED2);
                     dwUserPolicyMode = 0;
                 }
             }
@@ -870,20 +867,20 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
     }
 
     // Check if user's sid has changed
-    if ( !CheckForChangedSid( lpGPOInfo ) ) {
+    if (!CheckForChangedSid(lpGPOInfo)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Check for changed sid failed")));
         goto Exit;
     }
 
     if (!ImpersonateUser(lpGPOInfo->hToken, &hOldToken)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Failed to impersonate user")));
-        LogEvent (TRUE, IDS_FAILED_IMPERSONATE, GetLastError() );
+        LogEvent(TRUE, IDS_FAILED_IMPERSONATE, GetLastError());
         goto Exit;
     }
 
     // Check if any extensions can be skipped. If there is ever a case where all extensions can be skipped, then exit successfully right after this check.
     // Currently RegistryExtension is always run unless there are no GPO changes, but the GPO changes check is done much later.
-    if ( !CheckForSkippedExtensions( lpGPOInfo ) ) {
+    if (!CheckForSkippedExtensions(lpGPOInfo)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Checking extensions for skipping failed")));
         // LogEvent() is called by CheckForSkippedExtensions()
         goto Exit;
@@ -896,54 +893,51 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
     // 2 is replace.  use machine list instead of user list
     if (dwUserPolicyMode == 0) {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Calling GetGPOInfo for normal policy mode")));
-        bResult = GetGPOInfo ((lpGPOInfo->dwFlags & GP_MACHINE) ? GPO_LIST_FLAG_MACHINE : 0, lpDomainDN, lpName, NULL, &lpGPOInfo->lpGPOList, pNetAPI32, TRUE);
+        bResult = GetGPOInfo((lpGPOInfo->dwFlags & GP_MACHINE) ? GPO_LIST_FLAG_MACHINE : 0, lpDomainDN, lpName, NULL, &lpGPOInfo->lpGPOList, pNetAPI32, TRUE);
         if (!bResult) {
             DebugMsg((DM_WARNING, TEXT("ProcessGPOs: GetGPOInfo failed.")));
-            LogEvent (TRUE, IDS_GPO_QUERY_FAILED);
+            LogEvent(TRUE, IDS_GPO_QUERY_FAILED);
         }
     } else if (dwUserPolicyMode == 2) {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Calling GetGPOInfo for replacement user policy mode")));
-        lpComputerName = MyGetComputerName (NameFullyQualifiedDN);
+        lpComputerName = MyGetComputerName(NameFullyQualifiedDN);
         if (lpComputerName) {
             PDOMAIN_CONTROLLER_INFO pDCInfo;
 
             DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Using computer name %s for query."), lpComputerName));
 
-            dwResult = pNetAPI32->pfnDsGetDcName(   0,
-                                                    0,
-                                                    0,
-                                                    0,
-                                                    DS_DIRECTORY_SERVICE_REQUIRED | ((lpGPOInfo->dwFlags & GP_BACKGROUND_THREAD) ? DS_BACKGROUND_ONLY : 0),
-                                                    &pDCInfo);
-            if ( dwResult == 0 )
-            {
-                    bResult = GetGPOInfo (0, pDCInfo->DomainName, lpComputerName, NULL, &lpGPOInfo->lpGPOList, pNetAPI32, FALSE);
-                    if (!bResult) {
-                        DebugMsg((DM_WARNING, TEXT("ProcessGPOs: GetGPOInfo failed.")));
-                        LogEvent (TRUE, IDS_GPO_QUERY_FAILED);
-                    }
+            dwResult = pNetAPI32->pfnDsGetDcName(0,
+                                                 0,
+                                                 0,
+                                                 0,
+                                                 DS_DIRECTORY_SERVICE_REQUIRED | ((lpGPOInfo->dwFlags & GP_BACKGROUND_THREAD) ? DS_BACKGROUND_ONLY : 0),
+                                                 &pDCInfo);
+            if (dwResult == 0) {
+                bResult = GetGPOInfo(0, pDCInfo->DomainName, lpComputerName, NULL, &lpGPOInfo->lpGPOList, pNetAPI32, FALSE);
+                if (!bResult) {
+                    DebugMsg((DM_WARNING, TEXT("ProcessGPOs: GetGPOInfo failed.")));
+                    LogEvent(TRUE, IDS_GPO_QUERY_FAILED);
+                }
 
-                pNetAPI32->pfnNetApiBufferFree( pDCInfo );
-            }
-            else
-            {
+                pNetAPI32->pfnNetApiBufferFree(pDCInfo);
+            } else {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Failed to get the computer domain name with %d"), GetLastError()));
-                LogEvent (TRUE, IDS_NO_MACHINE_DOMAIN, lpComputerName, GetLastError() );
+                LogEvent(TRUE, IDS_NO_MACHINE_DOMAIN, lpComputerName, GetLastError());
                 bResult = FALSE;
             }
-            LocalFree (lpComputerName);
+            LocalFree(lpComputerName);
         } else {
             DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Failed to get the computer name with %d"), GetLastError()));
-            LogEvent (TRUE, IDS_FAILED_MACHINENAME, GetLastError());
+            LogEvent(TRUE, IDS_FAILED_MACHINENAME, GetLastError());
             bResult = FALSE;
         }
     } else {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Calling GetGPOInfo for merging user policy mode")));
 
-        lpComputerName = MyGetComputerName (NameFullyQualifiedDN);
+        lpComputerName = MyGetComputerName(NameFullyQualifiedDN);
         if (lpComputerName) {
             lpGPOInfo->lpGPOList = NULL;
-            bResult = GetGPOInfo (0, lpDomainDN, lpName, NULL, &lpGPOInfo->lpGPOList, pNetAPI32, FALSE);
+            bResult = GetGPOInfo(0, lpDomainDN, lpName, NULL, &lpGPOInfo->lpGPOList, pNetAPI32, FALSE);
             if (bResult) {
                 PDOMAIN_CONTROLLER_INFO pDCInfo;
 
@@ -951,15 +945,14 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
 
                 lpGPO = NULL;
 
-                dwResult = pNetAPI32->pfnDsGetDcName(   0,
-                                                        0,
-                                                        0,
-                                                        0,
-                                                        DS_DIRECTORY_SERVICE_REQUIRED | ((lpGPOInfo->dwFlags & GP_BACKGROUND_THREAD) ? DS_BACKGROUND_ONLY : 0),
-                                                        &pDCInfo);
-                if ( dwResult == 0 )
-                {
-                    bResult = GetGPOInfo (0, pDCInfo->DomainName, lpComputerName, NULL, &lpGPO, pNetAPI32, FALSE);
+                dwResult = pNetAPI32->pfnDsGetDcName(0,
+                                                     0,
+                                                     0,
+                                                     0,
+                                                     DS_DIRECTORY_SERVICE_REQUIRED | ((lpGPOInfo->dwFlags & GP_BACKGROUND_THREAD) ? DS_BACKGROUND_ONLY : 0),
+                                                     &pDCInfo);
+                if (dwResult == 0) {
+                    bResult = GetGPOInfo(0, pDCInfo->DomainName, lpComputerName, NULL, &lpGPO, pNetAPI32, FALSE);
                     if (bResult) {
                         if (lpGPOInfo->lpGPOList && lpGPO) {
                             DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Both user and machine lists are defined.  Merging them together.")));
@@ -980,25 +973,23 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
                         }
                     } else {
                         DebugMsg((DM_WARNING, TEXT("ProcessGPOs: GetGPOInfo failed for computer name.")));
-                        LogEvent (TRUE, IDS_GPO_QUERY_FAILED);
+                        LogEvent(TRUE, IDS_GPO_QUERY_FAILED);
                     }
-                    pNetAPI32->pfnNetApiBufferFree( pDCInfo );
+                    pNetAPI32->pfnNetApiBufferFree(pDCInfo);
+                } else {
+                    DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Failed to get the computer domain name with %d"), GetLastError()));
+                    LogEvent(TRUE, IDS_NO_MACHINE_DOMAIN, lpComputerName, GetLastError());
+                    bResult = FALSE;
                 }
-            else
-            {
-                DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Failed to get the computer domain name with %d"), GetLastError()));
-                LogEvent (TRUE, IDS_NO_MACHINE_DOMAIN, lpComputerName, GetLastError());
-                bResult = FALSE;
-            }
             } else {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPOs: GetGPOInfo failed for user name.")));
-                LogEvent (TRUE, IDS_GPO_QUERY_FAILED);
+                LogEvent(TRUE, IDS_GPO_QUERY_FAILED);
             }
 
-            LocalFree (lpComputerName);
+            LocalFree(lpComputerName);
         } else {
             DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Failed to get the computer name with %d"), GetLastError()));
-            LogEvent (TRUE, IDS_FAILED_MACHINENAME, GetLastError());
+            LogEvent(TRUE, IDS_FAILED_MACHINENAME, GetLastError());
             bResult = FALSE;
         }
     }
@@ -1011,97 +1002,95 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
         goto Exit;
     }
 
-    bResult = SetupGPOFilter( lpGPOInfo );
+    bResult = SetupGPOFilter(lpGPOInfo);
     if (!bResult) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPOs: SetupGPOFilter failed.")));
-        LogEvent (TRUE, IDS_SETUP_GPOFILTER_FAILED);
+        LogEvent(TRUE, IDS_SETUP_GPOFILTER_FAILED);
         goto Exit;
     }
 
     // Need to check if the security group membership has changed the first time around
-    if ( !(lpGPOInfo->dwFlags & GP_BACKGROUND_THREAD) ) {
+    if (!(lpGPOInfo->dwFlags & GP_BACKGROUND_THREAD)) {
         if ((lpGPOInfo->dwFlags & GP_MACHINE) && (lpGPOInfo->dwFlags & GP_APPLY_DS_POLICY)) {
-            HANDLE hLocToken=NULL;
+            HANDLE hLocToken = NULL;
 
             // if it is machine policy processing, get the machine token so that we can check
             // security group membership using the right token. This causes GetMachineToken to be called twice
             // but moving it to the beginning requires too much change.
             hLocToken = GetMachineToken();
             if (hLocToken) {
-                CheckGroupMembership( lpGPOInfo, hLocToken, &lpGPOInfo->bMemChanged, &lpGPOInfo->bUserLocalMemChanged);
+                CheckGroupMembership(lpGPOInfo, hLocToken, &lpGPOInfo->bMemChanged, &lpGPOInfo->bUserLocalMemChanged);
                 CloseHandle(hLocToken);
-            }
-            else {
+            } else {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPOs:  Failed to get the machine token with  %d"), GetLastError()));
                 goto Exit;
             }
-        }
-        else {
+        } else {
             // In the user case just use the token passed in
-            CheckGroupMembership( lpGPOInfo, lpGPOInfo->hToken, &lpGPOInfo->bMemChanged, &lpGPOInfo->bUserLocalMemChanged);
+            CheckGroupMembership(lpGPOInfo, lpGPOInfo->hToken, &lpGPOInfo->bMemChanged, &lpGPOInfo->bUserLocalMemChanged);
         }
     }
 
-    DebugPrintGPOList( lpGPOInfo );
+    DebugPrintGPOList(lpGPOInfo);
 
 
     // Now walk through the list of extensions
 
 
-    EnterCriticalSection( &g_GPOCS );
+    EnterCriticalSection(&g_GPOCS);
 
-    pGPHandle = (LPGPINFOHANDLE) LocalAlloc( LPTR, sizeof(GPINFOHANDLE) );
+    pGPHandle = (LPGPINFOHANDLE)LocalAlloc(LPTR, sizeof(GPINFOHANDLE));
 
     // Continue even if pGPHandle is 0, because all it means is that async completions (if any)
     // will fail. Remove old asynch completion context.
-    if ( pGPHandle )
+    if (pGPHandle)
         pGPHandle->pGPOInfo = lpGPOInfo;
 
-    if ( lpGPOInfo->dwFlags & GP_MACHINE ) {
-        if ( g_pMachGPInfo )
-            LocalFree( g_pMachGPInfo );
+    if (lpGPOInfo->dwFlags & GP_MACHINE) {
+        if (g_pMachGPInfo)
+            LocalFree(g_pMachGPInfo);
 
         g_pMachGPInfo = pGPHandle;
     } else {
-        if ( g_pUserGPInfo )
-            LocalFree( g_pUserGPInfo );
+        if (g_pUserGPInfo)
+            LocalFree(g_pUserGPInfo);
 
         g_pUserGPInfo = pGPHandle;
     }
 
-    LeaveCriticalSection( &g_GPOCS );
+    LeaveCriticalSection(&g_GPOCS);
 
-    pAsyncHandle = (ASYNCCOMPLETIONHANDLE) pGPHandle;
+    pAsyncHandle = (ASYNCCOMPLETIONHANDLE)pGPHandle;
     dwCurrentTime = GetCurTime();
     lpExt = lpGPOInfo->lpExtensions;
 
     // Before going in, get the thread token and reset the thread token in case
     // one of the extensions hit an exception.
 
-    if (!OpenThreadToken (GetCurrentThread(), TOKEN_IMPERSONATE | TOKEN_READ, TRUE, &hOldToken)) {
+    if (!OpenThreadToken(GetCurrentThread(), TOKEN_IMPERSONATE | TOKEN_READ, TRUE, &hOldToken)) {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: OpenThreadToken failed with error %d, assuming thread is not impersonating"), GetLastError()));
         hOldToken = NULL;
     }
 
-    while ( lpExt ) {
+    while (lpExt) {
         BOOL bProcessGPOs, bNoChanges, bUsePerUserLocalSetting;
         PGROUP_POLICY_OBJECT pDeletedGPOList;
         DWORD dwRet;
 
         // Check for early shutdown or user logoff
-        if ( (lpGPOInfo->dwFlags & GP_MACHINE) && g_bStopMachGPOProcessing || !(lpGPOInfo->dwFlags & GP_MACHINE) && g_bStopUserGPOProcessing ) {
+        if ((lpGPOInfo->dwFlags & GP_MACHINE) && g_bStopMachGPOProcessing || !(lpGPOInfo->dwFlags & GP_MACHINE) && g_bStopUserGPOProcessing) {
             DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Aborting GPO processing due to machine shutdown or logoff")));
-            LogEvent (TRUE, IDS_GPO_PROC_STOPPED);
+            LogEvent(TRUE, IDS_GPO_PROC_STOPPED);
             break;
         }
 
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: -")));
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Processing extension %s"), lpExt->lpDisplayName));
 
-        if ( lpExt->bSkipped ) {
+        if (lpExt->bSkipped) {
             DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Extension %s skipped with flags 0x%x."), lpExt->lpDisplayName, lpGPOInfo->dwFlags));
             if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                LogEvent (FALSE, IDS_EXT_SKIPPED, lpExt->lpDisplayName, lpGPOInfo->dwFlags);
+                LogEvent(FALSE, IDS_EXT_SKIPPED, lpExt->lpDisplayName, lpGPOInfo->dwFlags);
 
             lpExt = lpExt->pNext;
             continue;
@@ -1109,69 +1098,67 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
 
         // Reset lpGPOInfo->lpGPOList based on extension filter list. If the extension
         // is being called to do delete processing on the history then the current GpoList is null.
-        if ( lpExt->bHistoryProcessing ) {
+        if (lpExt->bHistoryProcessing) {
             DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Extension %s is being called to do delete processing on cached history."), lpExt->lpDisplayName));
             lpGPOInfo->lpGPOList = NULL;
-        }
-        else
-            FilterGPOs( lpExt, lpGPOInfo );
+        } else
+            FilterGPOs(lpExt, lpGPOInfo);
 
-        DebugPrintGPOList( lpGPOInfo );
+        DebugPrintGPOList(lpGPOInfo);
 
-        if ( !CheckGPOs( lpExt, lpGPOInfo, dwCurrentTime, &bProcessGPOs, &bNoChanges, &pDeletedGPOList ) ) {
+        if (!CheckGPOs(lpExt, lpGPOInfo, dwCurrentTime, &bProcessGPOs, &bNoChanges, &pDeletedGPOList)) {
             DebugMsg((DM_WARNING, TEXT("ProcessGPOs: CheckGPOs failed.")));
             lpExt = lpExt->pNext;
             continue;
         }
 
-        if ( bProcessGPOs ) {
-            if ( pDeletedGPOList == NULL && lpGPOInfo->lpGPOList == NULL ) {
-                DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Extension %s skipped because both deleted and changed GPO lists are empty."), lpExt->lpDisplayName ));
+        if (bProcessGPOs) {
+            if (pDeletedGPOList == NULL && lpGPOInfo->lpGPOList == NULL) {
+                DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Extension %s skipped because both deleted and changed GPO lists are empty."), lpExt->lpDisplayName));
                 if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                    LogEvent (FALSE, IDS_EXT_HAS_EMPTY_LISTS, lpExt->lpDisplayName);
+                    LogEvent(FALSE, IDS_EXT_HAS_EMPTY_LISTS, lpExt->lpDisplayName);
 
                 lpExt = lpExt->pNext;
                 continue;
             }
 
-            if ( lpExt->dwEnableAsynch ) {
+            if (lpExt->dwEnableAsynch) {
                 // Save now to shadow area to avoid race between thread that returns from
                 // ProcessGPOList and the thread that does ProcessGroupPolicyCompleted and reads from shadow area.
-                SaveGPOList( lpExt->lpKeyName, lpGPOInfo, HKEY_LOCAL_MACHINE, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, TRUE, lpGPOInfo->lpGPOList );
+                SaveGPOList(lpExt->lpKeyName, lpGPOInfo, HKEY_LOCAL_MACHINE, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, TRUE, lpGPOInfo->lpGPOList);
             }
 
             dwRet = E_FAIL;
 
             __try {
-                dwRet = ProcessGPOList( lpExt, lpGPOInfo, pDeletedGPOList, lpGPOInfo->lpGPOList, bNoChanges, pAsyncHandle );
-            }
-            __except( GPOExceptionFilter( GetExceptionInformation() ) ) {
+                dwRet = ProcessGPOList(lpExt, lpGPOInfo, pDeletedGPOList, lpGPOInfo->lpGPOList, bNoChanges, pAsyncHandle);
+            } __except (GPOExceptionFilter(GetExceptionInformation())) {
                 SetThreadToken(NULL, hOldToken);
 
-                DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Extension %s ProcessGroupPolicy threw unhandled exception 0x%x."), lpExt->lpDisplayName, GetExceptionCode() ));
-                LogEvent (TRUE, IDS_CAUGHT_EXCEPTION, lpExt->lpDisplayName, GetExceptionCode());
+                DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Extension %s ProcessGroupPolicy threw unhandled exception 0x%x."), lpExt->lpDisplayName, GetExceptionCode()));
+                LogEvent(TRUE, IDS_CAUGHT_EXCEPTION, lpExt->lpDisplayName, GetExceptionCode());
             }
 
-            FreeGPOList( pDeletedGPOList );
+            FreeGPOList(pDeletedGPOList);
             pDeletedGPOList = NULL;
 
             bUsePerUserLocalSetting = lpExt->dwUserLocalSetting && !(lpGPOInfo->dwFlags & GP_MACHINE);
 
-            if ( dwRet == ERROR_SUCCESS || dwRet == ERROR_OVERRIDE_NOCHANGES ) {
+            if (dwRet == ERROR_SUCCESS || dwRet == ERROR_OVERRIDE_NOCHANGES) {
                 // ERROR_OVERRIDE_NOCHANGES means that extension processed the list and so the cached list
                 // must be updated, but the extension will be called the next time even if there are no changes.
-                SaveGPOList( lpExt->lpKeyName, lpGPOInfo, HKEY_LOCAL_MACHINE, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, FALSE, lpGPOInfo->lpGPOList );
+                SaveGPOList(lpExt->lpKeyName, lpGPOInfo, HKEY_LOCAL_MACHINE, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, FALSE, lpGPOInfo->lpGPOList);
                 uExtensionCount++;
-            } else if ( dwRet == E_PENDING ) {
+            } else if (dwRet == E_PENDING) {
                 DebugMsg((DM_VERBOSE, TEXT("ProcessGPOs: Extension %s ProcessGroupPolicy returned e_pending."), lpExt->lpDisplayName));
             } else {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Extension %s ProcessGroupPolicy failed, status 0x%x."), lpExt->lpDisplayName, dwRet));
                 if (lpGPOInfo->dwFlags & GP_VERBOSE) {
-                    LogEvent (FALSE, IDS_CHANGES_FAILED, lpExt->lpDisplayName, dwRet);
+                    LogEvent(FALSE, IDS_CHANGES_FAILED, lpExt->lpDisplayName, dwRet);
                 }
             }
 
-            WriteStatus( lpExt->lpKeyName, lpGPOInfo, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, dwRet, dwCurrentTime, (lpGPOInfo->dwFlags & GP_SLOW_LINK) != 0 );
+            WriteStatus(lpExt->lpKeyName, lpGPOInfo, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, dwRet, dwCurrentTime, (lpGPOInfo->dwFlags & GP_SLOW_LINK) != 0);
         }
 
         // Process next extension
@@ -1189,9 +1176,9 @@ BOOL ProcessGPOs (LPGPOINFO lpGPOInfo)
 
 Exit:
     // Unload the Group Policy Extensions
-    UnloadGPExtensions (lpGPOInfo);
+    UnloadGPExtensions(lpGPOInfo);
 
-    FreeLists( lpGPOInfo );
+    FreeLists(lpGPOInfo);
 
     lpGPOInfo->lpGPOList = NULL;
     lpGPOInfo->lpExtFilterList = NULL;
@@ -1210,16 +1197,16 @@ Exit:
     }
 
     if (lpName) {
-        LocalFree (lpName);
+        LocalFree(lpName);
     }
 
     if (lpDomain) {
-        LocalFree (lpDomain);
+        LocalFree(lpDomain);
     }
 
     // Release the critical section
     if (lpGPOInfo->hCritSection) {
-        LeaveCriticalPolicySection (lpGPOInfo->hCritSection);
+        LeaveCriticalPolicySection(lpGPOInfo->hCritSection);
         lpGPOInfo->hCritSection = NULL;
     }
 
@@ -1231,32 +1218,32 @@ Exit:
                 // Something has changed in the control panel section
                 // Start control.exe with the /policy switch so the
                 // display is refreshed.
-                RefreshDisplay (lpGPOInfo);
+                RefreshDisplay(lpGPOInfo);
             }
 
             // Notify anyone waiting on an event handle
             if (lpGPOInfo->hNotifyEvent) {
-                PulseEvent (lpGPOInfo->hNotifyEvent);
+                PulseEvent(lpGPOInfo->hNotifyEvent);
             }
 
             // Create a thread to broadcase the WM_SETTINGCHANGE message
-            hThread = CreateThread (NULL, 0, (LPTHREAD_START_ROUTINE) PolicyChangedThread, (LPVOID) ((lpGPOInfo->dwFlags & GP_MACHINE) ? 1 : 0), CREATE_SUSPENDED, &dwThreadID);
+            hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PolicyChangedThread, (LPVOID)((lpGPOInfo->dwFlags & GP_MACHINE) ? 1 : 0), CREATE_SUSPENDED, &dwThreadID);
             if (hThread) {
-                SetThreadPriority (hThread, THREAD_PRIORITY_IDLE);
-                ResumeThread (hThread);
-                CloseHandle (hThread);
+                SetThreadPriority(hThread, THREAD_PRIORITY_IDLE);
+                ResumeThread(hThread);
+                CloseHandle(hThread);
             } else {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPOs: Failed to create background thread (%d)."), GetLastError()));
-                PolicyChangedThread (((lpGPOInfo->dwFlags & GP_MACHINE) ? 1 : 0));
+                PolicyChangedThread(((lpGPOInfo->dwFlags & GP_MACHINE) ? 1 : 0));
             }
         }
     }
 
     if (lpGPOInfo->dwFlags & GP_VERBOSE) {
         if (lpGPOInfo->dwFlags & GP_MACHINE) {
-            LogEvent (FALSE, IDS_MACHINE_POLICY_APPLIED);
+            LogEvent(FALSE, IDS_MACHINE_POLICY_APPLIED);
         } else {
-            LogEvent (FALSE, IDS_USER_POLICY_APPLIED);
+            LogEvent(FALSE, IDS_USER_POLICY_APPLIED);
         }
     }
 
@@ -1272,7 +1259,7 @@ Exit:
 }
 
 
-DWORD WINAPI PolicyChangedThread (BOOL bMachine)
+DWORD WINAPI PolicyChangedThread(BOOL bMachine)
 //  Purpose:    Sends the WM_SETTINGCHANGE message announcing that policy has changed.
 //              This is done on a separate thread because this could take many seconds to succeed if an application is hung
 
@@ -1285,7 +1272,7 @@ DWORD WINAPI PolicyChangedThread (BOOL bMachine)
     BOOLEAN WasEnabled;
     DWORD dwBSM;
 
-    hInst = LoadLibrary (TEXT("userenv.dll"));
+    hInst = LoadLibrary(TEXT("userenv.dll"));
 
     DebugMsg((DM_VERBOSE, TEXT("PolicyChangedThread: Entering with %d."), bMachine));
 
@@ -1293,18 +1280,18 @@ DWORD WINAPI PolicyChangedThread (BOOL bMachine)
     Status = RtlAdjustPrivilege(SE_TCB_PRIVILEGE, TRUE, FALSE, &WasEnabled);
     if (NT_SUCCESS(Status)) {
         dwBSM = BSM_ALLDESKTOPS | BSM_APPLICATIONS;
-        BroadcastSystemMessage (BSF_IGNORECURRENTTASK | BSF_FORCEIFHUNG, &dwBSM, WM_SETTINGCHANGE, bMachine, (LPARAM) TEXT("Policy"));
+        BroadcastSystemMessage(BSF_IGNORECURRENTTASK | BSF_FORCEIFHUNG, &dwBSM, WM_SETTINGCHANGE, bMachine, (LPARAM)TEXT("Policy"));
         RtlAdjustPrivilege(SE_TCB_PRIVILEGE, WasEnabled, FALSE, &WasEnabled);
     }
 
     DebugMsg((DM_VERBOSE, TEXT("PolicyChangedThread: Leaving")));
 
-    FreeLibraryAndExitThread (hInst, 0);
+    FreeLibraryAndExitThread(hInst, 0);
     return 0;
 }
 
 
-BOOL DeleteRegistryValue (LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueName, DWORD dwType, DWORD dwDataLength, LPBYTE lpData)
+BOOL DeleteRegistryValue(LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueName, DWORD dwType, DWORD dwDataLength, LPBYTE lpData)
 //  Purpose:    Callback from ParseRegistryFile that deletes
 //              registry policies
 
@@ -1331,22 +1318,22 @@ BOOL DeleteRegistryValue (LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueN
 
     // Check if the key is in one of the policies keys
     iStrLen = lstrlen(szPolicies1);
-    if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, szPolicies1, iStrLen, lpKeyName, iStrLen) != CSTR_EQUAL) {
+    if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, szPolicies1, iStrLen, lpKeyName, iStrLen) != CSTR_EQUAL) {
         iStrLen = lstrlen(szPolicies2);
-        if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, szPolicies2, iStrLen, lpKeyName, iStrLen) != CSTR_EQUAL) {
+        if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, szPolicies2, iStrLen, lpKeyName, iStrLen) != CSTR_EQUAL) {
             return TRUE;
         }
     }
 
     // Check if the value name starts with **
     if (lpValueName && (lstrlen(lpValueName) > 1)) {
-        if ( (*lpValueName == TEXT('*')) && (*(lpValueName+1) == TEXT('*')) ) {
+        if ((*lpValueName == TEXT('*')) && (*(lpValueName + 1) == TEXT('*'))) {
             return TRUE;
         }
     }
 
     // We found a value that needs to be deleted
-    if (RegCleanUpValue (lpGPOInfo->hKeyRoot, lpKeyName, lpValueName)) {
+    if (RegCleanUpValue(lpGPOInfo->hKeyRoot, lpKeyName, lpValueName)) {
         DebugMsg((DM_VERBOSE, TEXT("DeleteRegistryValue: Deleted %s\\%s"), lpKeyName, lpValueName));
     } else {
         DebugMsg((DM_WARNING, TEXT("DeleteRegistryValue: Failed to delete %s\\%s"), lpKeyName, lpValueName));
@@ -1356,7 +1343,7 @@ BOOL DeleteRegistryValue (LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueN
 }
 
 
-BOOL ResetPolicies (LPGPOINFO lpGPOInfo, LPTSTR lpArchive)
+BOOL ResetPolicies(LPGPOINFO lpGPOInfo, LPTSTR lpArchive)
 //  Purpose:    Resets the Policies and old Policies key to their
 //              original state.
 
@@ -1373,16 +1360,16 @@ BOOL ResetPolicies (LPGPOINFO lpGPOInfo, LPTSTR lpArchive)
     DebugMsg((DM_VERBOSE, TEXT("ResetPolicies: Entering.")));
 
     // Parse the archive file and delete any policies
-    if (!ParseRegistryFile (lpGPOInfo, lpArchive, DeleteRegistryValue, NULL)) {
+    if (!ParseRegistryFile(lpGPOInfo, lpArchive, DeleteRegistryValue, NULL)) {
         DebugMsg((DM_WARNING, TEXT("ResetPolicies: Leaving")));
         return FALSE;
     }
 
     // Recreate the new policies key
-    lResult = RegCreateKeyEx (lpGPOInfo->hKeyRoot, TEXT("Software\\Policies"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
+    lResult = RegCreateKeyEx(lpGPOInfo->hKeyRoot, TEXT("Software\\Policies"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
     if (lResult == ERROR_SUCCESS) {
         // Re-apply security
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
 
         if (!MakeRegKeySecure((lpGPOInfo->dwFlags & GP_MACHINE) ? NULL : lpGPOInfo->hToken, lpGPOInfo->hKeyRoot, TEXT("Software\\Policies"))) {
             DebugMsg((DM_WARNING, TEXT("ResetPolicies: Failed to secure reg key.")));
@@ -1392,10 +1379,10 @@ BOOL ResetPolicies (LPGPOINFO lpGPOInfo, LPTSTR lpArchive)
     }
 
     // Recreate the old policies key
-    lResult = RegCreateKeyEx (lpGPOInfo->hKeyRoot, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
+    lResult = RegCreateKeyEx(lpGPOInfo->hKeyRoot, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
     if (lResult == ERROR_SUCCESS) {
         // Re-apply security
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
         if (!MakeRegKeySecure((lpGPOInfo->dwFlags & GP_MACHINE) ? NULL : lpGPOInfo->hToken, lpGPOInfo->hKeyRoot, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies"))) {
             DebugMsg((DM_WARNING, TEXT("ResetPolicies: Failed to secure reg key.")));
         }
@@ -1405,9 +1392,9 @@ BOOL ResetPolicies (LPGPOINFO lpGPOInfo, LPTSTR lpArchive)
 
     // If this is user policy, reset the NoDriveTypeAutoRun default value
     if (!(lpGPOInfo->dwFlags & GP_MACHINE)) {
-        if (RegCreateKeyEx (lpGPOInfo->hKeyRoot, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp) == ERROR_SUCCESS) {
-            RegSetValueEx (hKey, TEXT("NoDriveTypeAutoRun"), 0, REG_DWORD, (LPBYTE) &dwValue, sizeof(dwValue));
-            RegCloseKey (hKey);
+        if (RegCreateKeyEx(lpGPOInfo->hKeyRoot, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp) == ERROR_SUCCESS) {
+            RegSetValueEx(hKey, TEXT("NoDriveTypeAutoRun"), 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(dwValue));
+            RegCloseKey(hKey);
         }
     }
 
@@ -1416,7 +1403,7 @@ BOOL ResetPolicies (LPGPOINFO lpGPOInfo, LPTSTR lpArchive)
 }
 
 
-BOOL SetupGPOFilter( LPGPOINFO lpGPOInfo )
+BOOL SetupGPOFilter(LPGPOINFO lpGPOInfo)
 //  Purpose:    Setup up GPO Filter info
 
 //  Parameters: lpGPOInfo   - GPO info
@@ -1437,69 +1424,69 @@ BOOL SetupGPOFilter( LPGPOINFO lpGPOInfo )
     lpGPOInfo->bXferToExtList = FALSE;
 
     lpGPO = lpGPOInfo->lpGPOList;
-    while ( lpGPO ) {
-        TCHAR *pchCur = lpGPO->lpExtensions;
+    while (lpGPO) {
+        TCHAR * pchCur = lpGPO->lpExtensions;
         LPEXTLIST pExtListHead = 0;
         LPEXTLIST pExtListTail = 0;
 
-        if ( pchCur ) {
-            while ( *pchCur ) {
+        if (pchCur) {
+            while (*pchCur) {
                 GUID guidExt;
                 LPEXTLIST pExtElem;
 
-                if ( *pchCur == TEXT('[') )
+                if (*pchCur == TEXT('['))
                     pchCur++;
                 else {
                     DebugMsg((DM_WARNING, TEXT("SetupGPOFilter: Corrupt extension name format.")));
-                    FreeExtList( pExtListHead );
+                    FreeExtList(pExtListHead);
                     pExtListHead = 0;
                     break;
                 }
 
-                if ( ValidateGuid( pchCur ) )
-                    StringToGuid( pchCur, &guidExt );
+                if (ValidateGuid(pchCur))
+                    StringToGuid(pchCur, &guidExt);
                 else {
                     DebugMsg((DM_WARNING, TEXT("SetupGPOFilter: Corrupt extension name format.")));
-                    FreeExtList( pExtListHead );
+                    FreeExtList(pExtListHead);
                     pExtListHead = 0;
                     break;
                 }
 
-                pExtElem = LocalAlloc( LPTR, sizeof(EXTLIST) );
-                if ( pExtElem == 0 ) {
+                pExtElem = LocalAlloc(LPTR, sizeof(EXTLIST));
+                if (pExtElem == 0) {
                     DebugMsg((DM_WARNING, TEXT("SetupGPOFilter: Unable to allocate memory.")));
-                    FreeExtList( pExtListHead );
+                    FreeExtList(pExtListHead);
                     return FALSE;
                 }
 
                 pExtElem->guid = guidExt;
                 pExtElem->pNext = 0;
 
-                if ( pExtListTail )
+                if (pExtListTail)
                     pExtListTail->pNext = pExtElem;
                 else
                     pExtListHead = pExtElem;
 
                 pExtListTail = pExtElem;
 
-                while ( *pchCur && *pchCur != TEXT('[') )
+                while (*pchCur && *pchCur != TEXT('['))
                     pchCur++;
             } // while *pchcur
         } // if pchcur
 
         // Append to lpExtFilterList
-        pExtFilterElem = LocalAlloc( LPTR, sizeof(EXTFILTERLIST) );
-        if ( pExtFilterElem == NULL ) {
-             DebugMsg((DM_WARNING, TEXT("SetupGPOFilter: Unable to allocate memory.")));
-             FreeExtList( pExtListHead );
-             return FALSE;
+        pExtFilterElem = LocalAlloc(LPTR, sizeof(EXTFILTERLIST));
+        if (pExtFilterElem == NULL) {
+            DebugMsg((DM_WARNING, TEXT("SetupGPOFilter: Unable to allocate memory.")));
+            FreeExtList(pExtListHead);
+            return FALSE;
         }
 
         pExtFilterElem->lpExtList = pExtListHead;
         pExtFilterElem->lpGPO = lpGPO;
         pExtFilterElem->pNext = NULL;
 
-        if ( pExtFilterListTail == 0 )
+        if (pExtFilterListTail == 0)
             lpGPOInfo->lpExtFilterList = pExtFilterElem;
         else
             pExtFilterListTail->pNext = pExtFilterElem;
@@ -1515,7 +1502,7 @@ BOOL SetupGPOFilter( LPGPOINFO lpGPOInfo )
 }
 
 
-void FilterGPOs( LPGPEXT lpExt, LPGPOINFO lpGPOInfo )
+void FilterGPOs(LPGPEXT lpExt, LPGPOINFO lpGPOInfo)
 //  Purpose:    Filter GPOs not relevant to this extension
 
 //  Parameters: lpExt        -  Extension
@@ -1527,19 +1514,19 @@ void FilterGPOs( LPGPEXT lpExt, LPGPOINFO lpGPOInfo )
 
     lpGPOInfo->lpGPOList = 0;
 
-    while ( pExtFilterList ) {
+    while (pExtFilterList) {
         BOOL bFound = FALSE;
         LPEXTLIST pExtList = pExtFilterList->lpExtList;
-        if ( pExtList == NULL ) {
+        if (pExtList == NULL) {
             // A null pExtlist means no extensions apply to this GPO
             bFound = FALSE;
         } else {
             while (pExtList) {
-                INT iComp = CompareGuid( &lpExt->guid, &pExtList->guid );
-                if ( iComp == 0 ) {
+                INT iComp = CompareGuid(&lpExt->guid, &pExtList->guid);
+                if (iComp == 0) {
                     bFound = TRUE;
                     break;
-                } else if ( iComp < 0 ) {
+                } else if (iComp < 0) {
                     // Guids in pExtList are in ascending order, so we are done
                     break;
                 } else
@@ -1547,12 +1534,12 @@ void FilterGPOs( LPGPEXT lpExt, LPGPOINFO lpGPOInfo )
             } // while pextlist
         } // else
 
-        if ( bFound ) {
+        if (bFound) {
             // Append pExtFilterList->lpGPO to the filtered GPO list
             pExtFilterList->lpGPO->pNext = 0;
             pExtFilterList->lpGPO->pPrev = pGPOTail;
 
-            if ( pGPOTail == 0 )
+            if (pGPOTail == 0)
                 lpGPOInfo->lpGPOList = pExtFilterList->lpGPO;
             else
                 pGPOTail->pNext = pExtFilterList->lpGPO;
@@ -1565,7 +1552,7 @@ void FilterGPOs( LPGPEXT lpExt, LPGPOINFO lpGPOInfo )
 }
 
 
-BOOL GetDeletedGPOList (PGROUP_POLICY_OBJECT lpGPOList, PGROUP_POLICY_OBJECT *ppDeletedGPOList)
+BOOL GetDeletedGPOList(PGROUP_POLICY_OBJECT lpGPOList, PGROUP_POLICY_OBJECT * ppDeletedGPOList)
 //  Purpose:    Get the list of deleted GPOs
 
 //  Parameters: lpGPOList        -  List of old GPOs
@@ -1576,28 +1563,28 @@ BOOL GetDeletedGPOList (PGROUP_POLICY_OBJECT lpGPOList, PGROUP_POLICY_OBJECT *pp
 {
     *ppDeletedGPOList = NULL;
 
-     // It's possible that lpGPOList could be NULL.  This is ok.
+    // It's possible that lpGPOList could be NULL.  This is ok.
     if (!lpGPOList) {
         DebugMsg((DM_VERBOSE, TEXT("GetDeletedList: No old GPOs.  Leaving.")));
         return TRUE;
     }
 
     // We need to do any delete operations in reverse order of the way there were applied.
-    while ( lpGPOList ) {
+    while (lpGPOList) {
         PGROUP_POLICY_OBJECT pCurGPO = lpGPOList;
         lpGPOList = lpGPOList->pNext;
 
-        if ( pCurGPO->lParam & GPO_LPARAM_FLAG_DELETE ) {
+        if (pCurGPO->lParam & GPO_LPARAM_FLAG_DELETE) {
             // Prepend to deleted list
             pCurGPO->pNext = *ppDeletedGPOList;
             pCurGPO->pPrev = NULL;
 
-            if ( *ppDeletedGPOList )
+            if (*ppDeletedGPOList)
                 (*ppDeletedGPOList)->pPrev = pCurGPO;
 
             *ppDeletedGPOList = pCurGPO;
         } else
-            LocalFree( pCurGPO );
+            LocalFree(pCurGPO);
     }
 
     DebugMsg((DM_VERBOSE, TEXT("GetDeletedGPOList: Finished.")));
@@ -1606,7 +1593,7 @@ BOOL GetDeletedGPOList (PGROUP_POLICY_OBJECT lpGPOList, PGROUP_POLICY_OBJECT *pp
 }
 
 
-BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR lpwszSidUser, BOOL bShadow, PGROUP_POLICY_OBJECT * lpGPOList)
+BOOL ReadGPOList(TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR lpwszSidUser, BOOL bShadow, PGROUP_POLICY_OBJECT * lpGPOList)
 //  Purpose:    Reads the list of Group Policy Objects from
 //              the registry
 
@@ -1639,13 +1626,13 @@ BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR 
     *lpGPOList = NULL;
 
     // Open the key that holds the GPO list
-    if ( lpwszSidUser == 0 ) {
-        wsprintf (szKey, bShadow ? GP_SHADOW_KEY : GP_HISTORY_KEY, pszExtName );
+    if (lpwszSidUser == 0) {
+        wsprintf(szKey, bShadow ? GP_SHADOW_KEY : GP_HISTORY_KEY, pszExtName);
     } else {
-        wsprintf (szKey, bShadow ? GP_SHADOW_SID_KEY : GP_HISTORY_SID_KEY, lpwszSidUser, pszExtName );
+        wsprintf(szKey, bShadow ? GP_SHADOW_SID_KEY : GP_HISTORY_SID_KEY, lpwszSidUser, pszExtName);
     }
 
-    lResult = RegOpenKeyEx ( lpwszSidUser ? hKeyRootMach : hKeyRoot, szKey, 0, KEY_READ, &hKey);
+    lResult = RegOpenKeyEx(lpwszSidUser ? hKeyRootMach : hKeyRoot, szKey, 0, KEY_READ, &hKey);
     if (lResult != ERROR_SUCCESS) {
         if (lResult == ERROR_FILE_NOT_FOUND) {
             return TRUE;
@@ -1657,9 +1644,9 @@ BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR 
 
     while (TRUE) {
         // Enumerate through the subkeys.  The keys are named by index number eg:  0, 1, 2, 3, etc...
-        IntToString (iIndex, szSubKey);
+        IntToString(iIndex, szSubKey);
 
-        lResult = RegOpenKeyEx (hKey, szSubKey, 0, KEY_READ, &hSubKey);
+        lResult = RegOpenKeyEx(hKey, szSubKey, 0, KEY_READ, &hSubKey);
         if (lResult != ERROR_SUCCESS) {
             if (lResult == ERROR_FILE_NOT_FOUND) {
                 bResult = TRUE;
@@ -1671,38 +1658,38 @@ BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR 
         }
 
         // Read the size of the largest value in this key
-        lResult = RegQueryInfoKey (hSubKey, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &dwMaxSize, NULL, NULL);
+        lResult = RegQueryInfoKey(hSubKey, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &dwMaxSize, NULL, NULL);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query max size with %d."), lResult));
             goto Exit;
         }
 
         // Allocate buffers based upon the value above
-        lpDSPath = LocalAlloc (LPTR, dwMaxSize);
+        lpDSPath = LocalAlloc(LPTR, dwMaxSize);
         if (!lpDSPath) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to allocate memory with %d."), GetLastError()));
             goto Exit;
         }
 
-        lpFileSysPath = LocalAlloc (LPTR, dwMaxSize);
+        lpFileSysPath = LocalAlloc(LPTR, dwMaxSize);
         if (!lpFileSysPath) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to allocate memory with %d."), GetLastError()));
             goto Exit;
         }
 
-        lpDisplayName = LocalAlloc (LPTR, dwMaxSize);
+        lpDisplayName = LocalAlloc(LPTR, dwMaxSize);
         if (!lpDisplayName) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to allocate memory with %d."), GetLastError()));
             goto Exit;
         }
 
-        lpExtensions = LocalAlloc (LPTR, dwMaxSize);
+        lpExtensions = LocalAlloc(LPTR, dwMaxSize);
         if (!lpExtensions) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to allocate memory with %d."), GetLastError()));
             goto Exit;
         }
 
-        lpLink = LocalAlloc (LPTR, dwMaxSize);
+        lpLink = LocalAlloc(LPTR, dwMaxSize);
         if (!lpLink) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to allocate memory with %d."), GetLastError()));
             goto Exit;
@@ -1711,45 +1698,45 @@ BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR 
         // Read in the GPO
         dwOptions = 0;
         dwSize = sizeof(dwOptions);
-        lResult = RegQueryValueEx (hSubKey, TEXT("Options"), NULL, &dwType, (LPBYTE) &dwOptions, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("Options"), NULL, &dwType, (LPBYTE)&dwOptions, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query options reg value with %d."), lResult));
         }
 
         dwVersion = 0;
         dwSize = sizeof(dwVersion);
-        lResult = RegQueryValueEx (hSubKey, TEXT("Version"), NULL, &dwType, (LPBYTE) &dwVersion, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("Version"), NULL, &dwType, (LPBYTE)&dwVersion, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query Version reg value with %d."), lResult));
         }
 
         dwSize = dwMaxSize;
-        lResult = RegQueryValueEx (hSubKey, TEXT("DSPath"), NULL, &dwType, (LPBYTE) lpDSPath, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("DSPath"), NULL, &dwType, (LPBYTE)lpDSPath, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             if (lResult != ERROR_FILE_NOT_FOUND) {
                 DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query DS reg value with %d."), lResult));
                 goto Exit;
             }
-            LocalFree (lpDSPath);
+            LocalFree(lpDSPath);
             lpDSPath = NULL;
         }
 
         dwSize = dwMaxSize;
-        lResult = RegQueryValueEx (hSubKey, TEXT("FileSysPath"), NULL, &dwType, (LPBYTE) lpFileSysPath, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("FileSysPath"), NULL, &dwType, (LPBYTE)lpFileSysPath, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query file sys path reg value with %d."), lResult));
             goto Exit;
         }
 
         dwSize = dwMaxSize;
-        lResult = RegQueryValueEx (hSubKey, TEXT("DisplayName"), NULL, &dwType, (LPBYTE) lpDisplayName, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("DisplayName"), NULL, &dwType, (LPBYTE)lpDisplayName, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query display name reg value with %d."), lResult));
             goto Exit;
         }
 
         dwSize = dwMaxSize;
-        lResult = RegQueryValueEx (hSubKey, TEXT("Extensions"), NULL, &dwType, (LPBYTE) lpExtensions, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("Extensions"), NULL, &dwType, (LPBYTE)lpExtensions, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query extension names reg value with %d."), lResult));
             LocalFree(lpExtensions);
@@ -1757,7 +1744,7 @@ BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR 
         }
 
         dwSize = dwMaxSize;
-        lResult = RegQueryValueEx (hSubKey, TEXT("Link"), NULL, &dwType, (LPBYTE) lpLink, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("Link"), NULL, &dwType, (LPBYTE)lpLink, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             if (lResult != ERROR_FILE_NOT_FOUND) {
                 DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query DS Object reg value with %d."), lResult));
@@ -1767,7 +1754,7 @@ BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR 
         }
 
         dwSize = sizeof(szGPOName);
-        lResult = RegQueryValueEx (hSubKey, TEXT("GPOName"), NULL, &dwType, (LPBYTE) szGPOName, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("GPOName"), NULL, &dwType, (LPBYTE)szGPOName, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query GPO name reg value with %d."), lResult));
             goto Exit;
@@ -1775,34 +1762,34 @@ BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR 
 
         GPOLink = GPLinkUnknown;
         dwSize = sizeof(GPOLink);
-        lResult = RegQueryValueEx (hSubKey, TEXT("GPOLink"), NULL, &dwType, (LPBYTE) &GPOLink, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("GPOLink"), NULL, &dwType, (LPBYTE)&GPOLink, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query reserved reg value with %d."), lResult));
         }
 
         lParam = 0;
         dwSize = sizeof(lParam);
-        lResult = RegQueryValueEx (hSubKey, TEXT("lParam"), NULL, &dwType, (LPBYTE) &lParam, &dwSize);
+        lResult = RegQueryValueEx(hSubKey, TEXT("lParam"), NULL, &dwType, (LPBYTE)&lParam, &dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to query lParam reg value with %d."), lResult));
         }
 
         // Add the GPO to the list
-        if (!AddGPO (lpGPOList, dwOptions, dwVersion, lpDSPath, lpFileSysPath, lpDisplayName, szGPOName, lpExtensions, GPOLink, lpLink, lParam, FALSE, FALSE, FALSE)) {
+        if (!AddGPO(lpGPOList, dwOptions, dwVersion, lpDSPath, lpFileSysPath, lpDisplayName, szGPOName, lpExtensions, GPOLink, lpLink, lParam, FALSE, FALSE, FALSE)) {
             DebugMsg((DM_WARNING, TEXT("ReadGPOList: Failed to add GPO to list.")));
             goto Exit;
         }
 
         // Free the buffers allocated above
         if (lpDSPath) {
-            LocalFree (lpDSPath);
+            LocalFree(lpDSPath);
             lpDSPath = NULL;
         }
 
-        LocalFree (lpFileSysPath);
+        LocalFree(lpFileSysPath);
         lpFileSysPath = NULL;
 
-        LocalFree (lpDisplayName);
+        LocalFree(lpDisplayName);
         lpDisplayName = NULL;
 
         if (lpExtensions) {
@@ -1816,7 +1803,7 @@ BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR 
         }
 
         // Close the subkey handle
-        RegCloseKey (hSubKey);
+        RegCloseKey(hSubKey);
         hSubKey = NULL;
 
         iIndex++;
@@ -1824,15 +1811,15 @@ BOOL ReadGPOList ( TCHAR * pszExtName, HKEY hKeyRoot, HKEY hKeyRootMach, LPTSTR 
 
 Exit:
     if (lpDSPath) {
-        LocalFree (lpDSPath);
+        LocalFree(lpDSPath);
     }
 
     if (lpFileSysPath) {
-        LocalFree (lpFileSysPath);
+        LocalFree(lpFileSysPath);
     }
 
     if (lpDisplayName) {
-        LocalFree (lpDisplayName);
+        LocalFree(lpDisplayName);
     }
 
     if (lpExtensions) {
@@ -1844,10 +1831,10 @@ Exit:
     }
 
     if (hSubKey) {
-        RegCloseKey (hSubKey);
+        RegCloseKey(hSubKey);
     }
 
-    RegCloseKey (hKey);
+    RegCloseKey(hKey);
 
     if (!bResult) {
         // Free any entries in the list
@@ -1855,7 +1842,7 @@ Exit:
 
         while (lpGPO) {
             lpGPOTemp = lpGPO->pNext;
-            LocalFree (lpGPO);
+            LocalFree(lpGPO);
             lpGPO = lpGPOTemp;
         }
 
@@ -1866,7 +1853,7 @@ Exit:
 }
 
 
-BOOL SaveGPOList (TCHAR *pszExtName, LPGPOINFO lpGPOInfo, HKEY hKeyRootMach, LPTSTR lpwszSidUser, BOOL bShadow, PGROUP_POLICY_OBJECT lpGPOList)
+BOOL SaveGPOList(TCHAR * pszExtName, LPGPOINFO lpGPOInfo, HKEY hKeyRootMach, LPTSTR lpwszSidUser, BOOL bShadow, PGROUP_POLICY_OBJECT lpGPOList)
 //  Purpose:    Saves the list of Group Policy Objects in
 //              the registry
 
@@ -1889,13 +1876,13 @@ BOOL SaveGPOList (TCHAR *pszExtName, LPGPOINFO lpGPOInfo, HKEY hKeyRootMach, LPT
     DWORD dwDisp, dwSize;
 
     // Start off with an empty key
-    if ( lpwszSidUser == 0 ) {
-        wsprintf (szSubKey, bShadow ? GP_SHADOW_KEY : GP_HISTORY_KEY, pszExtName);
+    if (lpwszSidUser == 0) {
+        wsprintf(szSubKey, bShadow ? GP_SHADOW_KEY : GP_HISTORY_KEY, pszExtName);
     } else {
-        wsprintf (szSubKey, bShadow ? GP_SHADOW_SID_KEY : GP_HISTORY_SID_KEY, lpwszSidUser, pszExtName);
+        wsprintf(szSubKey, bShadow ? GP_SHADOW_SID_KEY : GP_HISTORY_SID_KEY, lpwszSidUser, pszExtName);
     }
 
-    if (!RegDelnode (lpwszSidUser ? hKeyRootMach : lpGPOInfo->hKeyRoot, szSubKey)) {
+    if (!RegDelnode(lpwszSidUser ? hKeyRootMach : lpGPOInfo->hKeyRoot, szSubKey)) {
         DebugMsg((DM_VERBOSE, TEXT("SaveGPOList: RegDelnode failed.")));
     }
 
@@ -1905,24 +1892,24 @@ BOOL SaveGPOList (TCHAR *pszExtName, LPGPOINFO lpGPOInfo, HKEY hKeyRootMach, LPT
     }
 
     // Set the proper security on the registry key
-    if ( !MakeRegKeySecure( (lpGPOInfo->dwFlags & GP_MACHINE) ? NULL : lpGPOInfo->hToken, lpwszSidUser ? hKeyRootMach : lpGPOInfo->hKeyRoot, szSubKey ) ) {
+    if (!MakeRegKeySecure((lpGPOInfo->dwFlags & GP_MACHINE) ? NULL : lpGPOInfo->hToken, lpwszSidUser ? hKeyRootMach : lpGPOInfo->hKeyRoot, szSubKey)) {
         DebugMsg((DM_WARNING, TEXT("SaveGpoList: Failed to secure reg key.")));
     }
 
     // Loop through the GPOs saving them in the registry
     while (lpGPOList) {
-        if ( lpwszSidUser == 0 ) {
-            wsprintf (szSubKey,
-                      bShadow ? TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\Shadow\\%ws\\%d") : TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\%ws\\%d"),
-                      pszExtName,
-                      iIndex);
+        if (lpwszSidUser == 0) {
+            wsprintf(szSubKey,
+                     bShadow ? TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\Shadow\\%ws\\%d") : TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\%ws\\%d"),
+                     pszExtName,
+                     iIndex);
         } else {
-            wsprintf (szSubKey,
-                      bShadow ? TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\%ws\\Shadow\\%ws\\%d") : TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\%ws\\History\\%ws\\%d"),
-                      lpwszSidUser, pszExtName, iIndex);
+            wsprintf(szSubKey,
+                     bShadow ? TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\%ws\\Shadow\\%ws\\%d") : TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\%ws\\History\\%ws\\%d"),
+                     lpwszSidUser, pszExtName, iIndex);
         }
 
-        lResult = RegCreateKeyEx (lpwszSidUser ? hKeyRootMach : lpGPOInfo->hKeyRoot, szSubKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
+        lResult = RegCreateKeyEx(lpwszSidUser ? hKeyRootMach : lpGPOInfo->hKeyRoot, szSubKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to create reg key with %d."), lResult));
             goto Exit;
@@ -1930,45 +1917,45 @@ BOOL SaveGPOList (TCHAR *pszExtName, LPGPOINFO lpGPOInfo, HKEY hKeyRootMach, LPT
 
         // Save the GPO
         dwSize = sizeof(lpGPOList->dwOptions);
-        lResult = RegSetValueEx (hKey, TEXT("Options"), 0, REG_DWORD, (LPBYTE) &lpGPOList->dwOptions, dwSize);
+        lResult = RegSetValueEx(hKey, TEXT("Options"), 0, REG_DWORD, (LPBYTE)&lpGPOList->dwOptions, dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set options reg value with %d."), lResult));
             goto Exit;
         }
 
         dwSize = sizeof(lpGPOList->dwVersion);
-        lResult = RegSetValueEx (hKey, TEXT("Version"), 0, REG_DWORD, (LPBYTE) &lpGPOList->dwVersion, dwSize);
+        lResult = RegSetValueEx(hKey, TEXT("Version"), 0, REG_DWORD, (LPBYTE)&lpGPOList->dwVersion, dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set Version reg value with %d."), lResult));
             goto Exit;
         }
 
         if (lpGPOList->lpDSPath) {
-            dwSize = (lstrlen (lpGPOList->lpDSPath) + 1) * sizeof(TCHAR);
-            lResult = RegSetValueEx (hKey, TEXT("DSPath"), 0, REG_SZ, (LPBYTE) lpGPOList->lpDSPath, dwSize);
+            dwSize = (lstrlen(lpGPOList->lpDSPath) + 1) * sizeof(TCHAR);
+            lResult = RegSetValueEx(hKey, TEXT("DSPath"), 0, REG_SZ, (LPBYTE)lpGPOList->lpDSPath, dwSize);
             if (lResult != ERROR_SUCCESS) {
                 DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set DS reg value with %d."), lResult));
                 goto Exit;
             }
         }
 
-        dwSize = (lstrlen (lpGPOList->lpFileSysPath) + 1) * sizeof(TCHAR);
-        lResult = RegSetValueEx (hKey, TEXT("FileSysPath"), 0, REG_SZ, (LPBYTE) lpGPOList->lpFileSysPath, dwSize);
+        dwSize = (lstrlen(lpGPOList->lpFileSysPath) + 1) * sizeof(TCHAR);
+        lResult = RegSetValueEx(hKey, TEXT("FileSysPath"), 0, REG_SZ, (LPBYTE)lpGPOList->lpFileSysPath, dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set file sys path reg value with %d."), lResult));
             goto Exit;
         }
 
-        dwSize = (lstrlen (lpGPOList->lpDisplayName) + 1) * sizeof(TCHAR);
-        lResult = RegSetValueEx (hKey, TEXT("DisplayName"), 0, REG_SZ, (LPBYTE) lpGPOList->lpDisplayName, dwSize);
+        dwSize = (lstrlen(lpGPOList->lpDisplayName) + 1) * sizeof(TCHAR);
+        lResult = RegSetValueEx(hKey, TEXT("DisplayName"), 0, REG_SZ, (LPBYTE)lpGPOList->lpDisplayName, dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set display name reg value with %d."), lResult));
             goto Exit;
         }
 
         if (lpGPOList->lpExtensions) {
-            dwSize = (lstrlen (lpGPOList->lpExtensions) + 1) * sizeof(TCHAR);
-            lResult = RegSetValueEx (hKey, TEXT("Extensions"), 0, REG_SZ, (LPBYTE) lpGPOList->lpExtensions, dwSize);
+            dwSize = (lstrlen(lpGPOList->lpExtensions) + 1) * sizeof(TCHAR);
+            lResult = RegSetValueEx(hKey, TEXT("Extensions"), 0, REG_SZ, (LPBYTE)lpGPOList->lpExtensions, dwSize);
             if (lResult != ERROR_SUCCESS) {
                 DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set extension names reg value with %d."), lResult));
                 goto Exit;
@@ -1976,37 +1963,37 @@ BOOL SaveGPOList (TCHAR *pszExtName, LPGPOINFO lpGPOInfo, HKEY hKeyRootMach, LPT
         }
 
         if (lpGPOList->lpLink) {
-            dwSize = (lstrlen (lpGPOList->lpLink) + 1) * sizeof(TCHAR);
-            lResult = RegSetValueEx (hKey, TEXT("Link"), 0, REG_SZ, (LPBYTE) lpGPOList->lpLink, dwSize);
+            dwSize = (lstrlen(lpGPOList->lpLink) + 1) * sizeof(TCHAR);
+            lResult = RegSetValueEx(hKey, TEXT("Link"), 0, REG_SZ, (LPBYTE)lpGPOList->lpLink, dwSize);
             if (lResult != ERROR_SUCCESS) {
                 DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set DSObject reg value with %d."), lResult));
                 goto Exit;
             }
         }
 
-        dwSize = (lstrlen (lpGPOList->szGPOName) + 1) * sizeof(TCHAR);
-        lResult = RegSetValueEx (hKey, TEXT("GPOName"), 0, REG_SZ, (LPBYTE) lpGPOList->szGPOName, dwSize);
+        dwSize = (lstrlen(lpGPOList->szGPOName) + 1) * sizeof(TCHAR);
+        lResult = RegSetValueEx(hKey, TEXT("GPOName"), 0, REG_SZ, (LPBYTE)lpGPOList->szGPOName, dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set GPO name reg value with %d."), lResult));
             goto Exit;
         }
 
         dwSize = sizeof(lpGPOList->GPOLink);
-        lResult = RegSetValueEx (hKey, TEXT("GPOLink"), 0, REG_DWORD, (LPBYTE) &lpGPOList->GPOLink, dwSize);
+        lResult = RegSetValueEx(hKey, TEXT("GPOLink"), 0, REG_DWORD, (LPBYTE)&lpGPOList->GPOLink, dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set GPOLink reg value with %d."), lResult));
             goto Exit;
         }
 
         dwSize = sizeof(lpGPOList->lParam);
-        lResult = RegSetValueEx (hKey, TEXT("lParam"), 0, REG_DWORD, (LPBYTE) &lpGPOList->lParam, dwSize);
+        lResult = RegSetValueEx(hKey, TEXT("lParam"), 0, REG_DWORD, (LPBYTE)&lpGPOList->lParam, dwSize);
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("SaveGPOList: Failed to set lParam reg value with %d."), lResult));
             goto Exit;
         }
 
         // Close the handle
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
         hKey = NULL;
 
         // Prep for the next loop
@@ -2019,14 +2006,14 @@ BOOL SaveGPOList (TCHAR *pszExtName, LPGPOINFO lpGPOInfo, HKEY hKeyRootMach, LPT
 
 Exit:
     if (hKey) {
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
     }
 
     return bResult;
 }
 
 
-BOOL WriteStatus( TCHAR *lpExtName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWORD dwStatus, DWORD dwTime, DWORD dwSlowLink )
+BOOL WriteStatus(TCHAR * lpExtName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWORD dwStatus, DWORD dwTime, DWORD dwSlowLink)
 //  Purpose:    Saves status in the registry
 
 //  Parameters: lpGPOInfo  -  GPO info
@@ -2044,34 +2031,34 @@ BOOL WriteStatus( TCHAR *lpExtName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DW
     BOOL bResult = FALSE;
     TCHAR szKey[400];
 
-    if ( lpwszSidUser == 0 ) {
-        wsprintf (szKey, GP_EXTENSIONS_KEY, lpExtName);
+    if (lpwszSidUser == 0) {
+        wsprintf(szKey, GP_EXTENSIONS_KEY, lpExtName);
     } else {
-        wsprintf (szKey, GP_EXTENSIONS_SID_KEY, lpwszSidUser, lpExtName);
+        wsprintf(szKey, GP_EXTENSIONS_SID_KEY, lpwszSidUser, lpExtName);
     }
 
-    lResult = RegCreateKeyEx (lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
+    lResult = RegCreateKeyEx(lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("WriteStatus: Failed to create reg key with %d."), lResult));
         goto Exit;
     }
 
     dwSize = sizeof(dwStatus);
-    lResult = RegSetValueEx (hKey, TEXT("Status"), 0, REG_DWORD, (LPBYTE) &dwStatus, dwSize);
+    lResult = RegSetValueEx(hKey, TEXT("Status"), 0, REG_DWORD, (LPBYTE)&dwStatus, dwSize);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("WriteStatus: Failed to set status reg value with %d."), lResult));
         goto Exit;
     }
 
     dwSize = sizeof(dwTime);
-    lResult = RegSetValueEx (hKey, TEXT("LastPolicyTime"), 0, REG_DWORD, (LPBYTE) &dwTime, dwSize);
+    lResult = RegSetValueEx(hKey, TEXT("LastPolicyTime"), 0, REG_DWORD, (LPBYTE)&dwTime, dwSize);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("WriteStatus: Failed to set time reg value with %d."), lResult));
         goto Exit;
     }
 
     dwSize = sizeof(dwSlowLink);
-    lResult = RegSetValueEx (hKey, TEXT("PrevSlowLink"), 0, REG_DWORD, (LPBYTE) &dwSlowLink, dwSize);
+    lResult = RegSetValueEx(hKey, TEXT("PrevSlowLink"), 0, REG_DWORD, (LPBYTE)&dwSlowLink, dwSize);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("WriteStatus: Failed to set slowlink reg value with %d."), lResult));
         goto Exit;
@@ -2080,14 +2067,14 @@ BOOL WriteStatus( TCHAR *lpExtName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DW
     bResult = TRUE;
 
 Exit:
-    if ( hKey != NULL )
-        RegCloseKey( hKey );
+    if (hKey != NULL)
+        RegCloseKey(hKey);
 
     return bResult;
 }
 
 
-BOOL ReadStatus( TCHAR *lpKeyName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWORD *pdwStatus, DWORD *pdwTime, DWORD *pdwSlowLink )
+BOOL ReadStatus(TCHAR * lpKeyName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWORD * pdwStatus, DWORD * pdwTime, DWORD * pdwSlowLink)
 //  Purpose:    Reads status from the registry
 
 //  Parameters: lpKeyName  -  Extension name
@@ -2107,13 +2094,13 @@ BOOL ReadStatus( TCHAR *lpKeyName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWO
     BOOL bResult = FALSE;
     TCHAR szKey[400];
 
-    if ( lpwszSidUser == 0 ) {
-        wsprintf (szKey, GP_EXTENSIONS_KEY, lpKeyName);
+    if (lpwszSidUser == 0) {
+        wsprintf(szKey, GP_EXTENSIONS_KEY, lpKeyName);
     } else {
-        wsprintf (szKey, GP_EXTENSIONS_SID_KEY, lpwszSidUser, lpKeyName);
+        wsprintf(szKey, GP_EXTENSIONS_SID_KEY, lpwszSidUser, lpKeyName);
     }
 
-    lResult = RegOpenKeyEx (lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, KEY_READ, &hKey);
+    lResult = RegOpenKeyEx(lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, KEY_READ, &hKey);
     if (lResult != ERROR_SUCCESS) {
         if (lResult != ERROR_FILE_NOT_FOUND) {
             DebugMsg((DM_VERBOSE, TEXT("ReadStatus: Failed to open reg key with %d."), lResult));
@@ -2122,7 +2109,7 @@ BOOL ReadStatus( TCHAR *lpKeyName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWO
     }
 
     dwSize = sizeof(DWORD);
-    lResult = RegQueryValueEx( hKey, TEXT("Status"), NULL, &dwType, (LPBYTE) pdwStatus, &dwSize );
+    lResult = RegQueryValueEx(hKey, TEXT("Status"), NULL, &dwType, (LPBYTE)pdwStatus, &dwSize);
     if (lResult != ERROR_SUCCESS) {
         if (lResult != ERROR_FILE_NOT_FOUND) {
             DebugMsg((DM_VERBOSE, TEXT("ReadStatus: Failed to read status reg value with %d."), lResult));
@@ -2131,14 +2118,14 @@ BOOL ReadStatus( TCHAR *lpKeyName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWO
     }
 
     dwSize = sizeof(DWORD);
-    lResult = RegQueryValueEx( hKey, TEXT("LastPolicyTime"), NULL, &dwType, (LPBYTE) pdwTime, &dwSize );
+    lResult = RegQueryValueEx(hKey, TEXT("LastPolicyTime"), NULL, &dwType, (LPBYTE)pdwTime, &dwSize);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_VERBOSE, TEXT("ReadStatus: Failed to read time reg value with %d."), lResult));
         goto Exit;
     }
 
     dwSize = sizeof(DWORD);
-    lResult = RegQueryValueEx( hKey, TEXT("PrevSlowLink"), NULL, &dwType, (LPBYTE) pdwSlowLink, &dwSize );
+    lResult = RegQueryValueEx(hKey, TEXT("PrevSlowLink"), NULL, &dwType, (LPBYTE)pdwSlowLink, &dwSize);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_VERBOSE, TEXT("ReadStatus: Failed to read slowlink reg value with %d."), lResult));
         goto Exit;
@@ -2147,8 +2134,8 @@ BOOL ReadStatus( TCHAR *lpKeyName, LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, DWO
     bResult = TRUE;
 
 Exit:
-    if ( hKey != NULL )
-        RegCloseKey( hKey );
+    if (hKey != NULL)
+        RegCloseKey(hKey);
 
     return bResult;
 }
@@ -2160,8 +2147,8 @@ DWORD GetCurTime()
     DWORD dwCurTime = 0;
     LARGE_INTEGER liCurTime;
 
-    if ( NT_SUCCESS( NtQuerySystemTime( &liCurTime) ) ) {
-        if ( RtlTimeToSecondsSince1980 ( &liCurTime, &dwCurTime) ) {
+    if (NT_SUCCESS(NtQuerySystemTime(&liCurTime))) {
+        if (RtlTimeToSecondsSince1980(&liCurTime, &dwCurTime)) {
             dwCurTime /= 60;   // seconds to minutes
         }
     }
@@ -2170,7 +2157,7 @@ DWORD GetCurTime()
 }
 
 
-BOOL CheckForGPOsToRemove (PGROUP_POLICY_OBJECT lpGPOList1, PGROUP_POLICY_OBJECT lpGPOList2)
+BOOL CheckForGPOsToRemove(PGROUP_POLICY_OBJECT lpGPOList1, PGROUP_POLICY_OBJECT lpGPOList2)
 //  Purpose:    Compares the GPOs in list1 with list 2 to determine
 //              if any GPOs need to be removed.
 
@@ -2197,7 +2184,7 @@ BOOL CheckForGPOsToRemove (PGROUP_POLICY_OBJECT lpGPOList1, PGROUP_POLICY_OBJECT
         bFound = FALSE;
 
         while (lpGPODest) {
-            if (!lstrcmpi (lpGPOSrc->szGPOName, lpGPODest->szGPOName)) {
+            if (!lstrcmpi(lpGPOSrc->szGPOName, lpGPODest->szGPOName)) {
                 bFound = TRUE;
                 break;
             }
@@ -2218,7 +2205,7 @@ BOOL CheckForGPOsToRemove (PGROUP_POLICY_OBJECT lpGPOList1, PGROUP_POLICY_OBJECT
 }
 
 
-BOOL CompareGPOLists (PGROUP_POLICY_OBJECT lpGPOList1, PGROUP_POLICY_OBJECT lpGPOList2)
+BOOL CompareGPOLists(PGROUP_POLICY_OBJECT lpGPOList1, PGROUP_POLICY_OBJECT lpGPOList2)
 //  Purpose:    Compares one list of GPOs to another
 
 //  Parameters: lpGPOList1  -   GPO link list 1
@@ -2236,7 +2223,7 @@ BOOL CompareGPOLists (PGROUP_POLICY_OBJECT lpGPOList1, PGROUP_POLICY_OBJECT lpGP
     // Loop through the GPOs
     while (lpGPOList1 && lpGPOList2) {
         // Compare GPO names
-        if (lstrcmpi (lpGPOList1->szGPOName, lpGPOList2->szGPOName) != 0) {
+        if (lstrcmpi(lpGPOList1->szGPOName, lpGPOList2->szGPOName) != 0) {
             DebugMsg((DM_VERBOSE, TEXT("CompareGPOLists:  Different entries found.")));
             return FALSE;
         }
@@ -2264,7 +2251,7 @@ BOOL CompareGPOLists (PGROUP_POLICY_OBJECT lpGPOList1, PGROUP_POLICY_OBJECT lpGP
 }
 
 
-BOOL HistoryPresent( LPGPOINFO lpGPOInfo, LPGPEXT lpExt )
+BOOL HistoryPresent(LPGPOINFO lpGPOInfo, LPGPEXT lpExt)
 //  Purpose:    Checks if the current extension has any cached
 //              GPOs
 
@@ -2282,24 +2269,24 @@ BOOL HistoryPresent( LPGPOINFO lpGPOInfo, LPGPEXT lpExt )
     // Check if history is cached on per user per machine basis
     BOOL bUsePerUserLocalSetting = lpExt->dwUserLocalSetting && !(lpGPOInfo->dwFlags & GP_MACHINE);
 
-    DmAssert( !bUsePerUserLocalSetting || lpGPOInfo->lpwszSidUser != 0 );
+    DmAssert(!bUsePerUserLocalSetting || lpGPOInfo->lpwszSidUser != 0);
 
-    if ( bUsePerUserLocalSetting ) {
-        wsprintf( szKey, GP_HISTORY_SID_KEY, lpGPOInfo->lpwszSidUser, lpExt->lpKeyName );
+    if (bUsePerUserLocalSetting) {
+        wsprintf(szKey, GP_HISTORY_SID_KEY, lpGPOInfo->lpwszSidUser, lpExt->lpKeyName);
     } else {
-        wsprintf( szKey, GP_HISTORY_KEY, lpExt->lpKeyName );
+        wsprintf(szKey, GP_HISTORY_KEY, lpExt->lpKeyName);
     }
 
-    lResult = RegOpenKeyEx ( bUsePerUserLocalSetting ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, KEY_READ, &hKey);
+    lResult = RegOpenKeyEx(bUsePerUserLocalSetting ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, KEY_READ, &hKey);
     if (lResult == ERROR_SUCCESS) {
-        RegCloseKey( hKey );
+        RegCloseKey(hKey);
         return TRUE;
     } else
         return FALSE;
 }
 
 
-BOOL MigrateMembershipData( LPTSTR lpwszSidUserNew, LPTSTR lpwszSidUserOld )
+BOOL MigrateMembershipData(LPTSTR lpwszSidUserNew, LPTSTR lpwszSidUserOld)
 //  Purpose:    Moves group membership data from old sid to new
 //              sid.
 
@@ -2311,7 +2298,7 @@ BOOL MigrateMembershipData( LPTSTR lpwszSidUserNew, LPTSTR lpwszSidUserOld )
 {
     DWORD dwCount = 0;
     DWORD dwSize, dwType, dwMaxSize, dwDisp;
-    DWORD i= 0;
+    DWORD i = 0;
     LONG lResult;
     HKEY hKeyRead = NULL, hKeyWrite = NULL;
     BOOL bResult = TRUE;
@@ -2320,21 +2307,21 @@ BOOL MigrateMembershipData( LPTSTR lpwszSidUserNew, LPTSTR lpwszSidUserOld )
     TCHAR szKeyWrite[250];
     TCHAR szGroup[30];
 
-    wsprintf( szKeyRead, GP_MEMBERSHIP_KEY, lpwszSidUserOld );
+    wsprintf(szKeyRead, GP_MEMBERSHIP_KEY, lpwszSidUserOld);
 
-    lResult = RegOpenKeyEx( HKEY_LOCAL_MACHINE, szKeyRead, 0, KEY_READ, &hKeyRead);
+    lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szKeyRead, 0, KEY_READ, &hKeyRead);
     if (lResult != ERROR_SUCCESS)
         return TRUE;
 
-    wsprintf( szKeyWrite, GP_MEMBERSHIP_KEY, lpwszSidUserNew );
+    wsprintf(szKeyWrite, GP_MEMBERSHIP_KEY, lpwszSidUserNew);
 
-    if ( !RegDelnode( HKEY_LOCAL_MACHINE, szKeyWrite ) ) {
+    if (!RegDelnode(HKEY_LOCAL_MACHINE, szKeyWrite)) {
         DebugMsg((DM_VERBOSE, TEXT("MigrateMembershipData: RegDelnode failed.")));
         bResult = FALSE;
         goto Exit;
     }
 
-    lResult = RegCreateKeyEx( HKEY_LOCAL_MACHINE, szKeyWrite, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKeyWrite, &dwDisp);
+    lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, szKeyWrite, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKeyWrite, &dwDisp);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("MigrateMembershipData: Failed to create key with %d."), lResult));
         bResult = FALSE;
@@ -2342,68 +2329,68 @@ BOOL MigrateMembershipData( LPTSTR lpwszSidUserNew, LPTSTR lpwszSidUserOld )
     }
 
     dwSize = sizeof(dwCount);
-    lResult = RegQueryValueEx (hKeyRead, TEXT("Count"), NULL, &dwType, (LPBYTE) &dwCount, &dwSize);
-    if ( lResult != ERROR_SUCCESS ) {
+    lResult = RegQueryValueEx(hKeyRead, TEXT("Count"), NULL, &dwType, (LPBYTE)&dwCount, &dwSize);
+    if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_VERBOSE, TEXT("MigrateMembershipData: Failed to read membership count")));
         goto Exit;
     }
 
-    lResult = RegQueryInfoKey (hKeyRead, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &dwMaxSize, NULL, NULL);
+    lResult = RegQueryInfoKey(hKeyRead, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &dwMaxSize, NULL, NULL);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("MigrateMembershipData: Failed to query max size with %d."), lResult));
         goto Exit;
     }
 
     // Allocate buffer based upon the largest value
-    lpSid = LocalAlloc (LPTR, dwMaxSize);
+    lpSid = LocalAlloc(LPTR, dwMaxSize);
     if (!lpSid) {
         DebugMsg((DM_WARNING, TEXT("MigrateMembershipData: Failed to allocate memory with %d."), lResult));
         bResult = FALSE;
         goto Exit;
     }
 
-    for ( i=0; i<dwCount; i++ ) {
-        wsprintf( szGroup, TEXT("Group%d"), i );
+    for (i = 0; i < dwCount; i++) {
+        wsprintf(szGroup, TEXT("Group%d"), i);
         dwSize = dwMaxSize;
-        lResult = RegQueryValueEx (hKeyRead, szGroup, NULL, &dwType, (LPBYTE) lpSid, &dwSize);
+        lResult = RegQueryValueEx(hKeyRead, szGroup, NULL, &dwType, (LPBYTE)lpSid, &dwSize);
         if (lResult != ERROR_SUCCESS) {
-            DebugMsg((DM_WARNING, TEXT("MigrateMembershipData: Failed to read value %ws"), szGroup ));
+            DebugMsg((DM_WARNING, TEXT("MigrateMembershipData: Failed to read value %ws"), szGroup));
             goto Exit;
         }
 
         dwSize = (lstrlen(lpSid) + 1) * sizeof(TCHAR);
-        lResult = RegSetValueEx (hKeyWrite, szGroup, 0, REG_SZ, (LPBYTE) lpSid, dwSize);
+        lResult = RegSetValueEx(hKeyWrite, szGroup, 0, REG_SZ, (LPBYTE)lpSid, dwSize);
         if (lResult != ERROR_SUCCESS) {
             bResult = FALSE;
-            DebugMsg((DM_WARNING, TEXT("MigrateMembershipData: Failed to write value %ws"), szGroup ));
+            DebugMsg((DM_WARNING, TEXT("MigrateMembershipData: Failed to write value %ws"), szGroup));
             goto Exit;
         }
     }
 
     dwSize = sizeof(dwCount);
-    lResult = RegSetValueEx (hKeyWrite, TEXT("Count"), 0, REG_DWORD, (LPBYTE) &dwCount, dwSize);
+    lResult = RegSetValueEx(hKeyWrite, TEXT("Count"), 0, REG_DWORD, (LPBYTE)&dwCount, dwSize);
     if (lResult != ERROR_SUCCESS) {
         bResult = FALSE;
-        DebugMsg((DM_WARNING, TEXT("MigrateMembershipData: Failed to write count value") ));
+        DebugMsg((DM_WARNING, TEXT("MigrateMembershipData: Failed to write count value")));
         goto Exit;
     }
 
 Exit:
 
-    if ( lpSid )
-        LocalFree( lpSid );
+    if (lpSid)
+        LocalFree(lpSid);
 
-    if ( hKeyRead )
-        RegCloseKey (hKeyRead);
+    if (hKeyRead)
+        RegCloseKey(hKeyRead);
 
-    if ( hKeyWrite )
-        RegCloseKey (hKeyWrite);
+    if (hKeyWrite)
+        RegCloseKey(hKeyWrite);
 
     return bResult;
 }
 
 
-BOOL MigrateGPOData( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUserNew, LPTSTR lpwszSidUserOld )
+BOOL MigrateGPOData(LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUserNew, LPTSTR lpwszSidUserOld)
 //  Purpose:    Moves cached GPOs from old sid to new
 //              sid.
 
@@ -2424,26 +2411,26 @@ BOOL MigrateGPOData( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUserNew, LPTSTR lpwszSi
     PGROUP_POLICY_OBJECT pGPOList, lpGPO, lpGPOTemp;
     BOOL bResult;
 
-    wsprintf( szKey, GP_HISTORY_SID_ROOT_KEY, lpwszSidUserOld );
+    wsprintf(szKey, GP_HISTORY_SID_ROOT_KEY, lpwszSidUserOld);
 
-    lResult = RegOpenKeyEx (HKEY_LOCAL_MACHINE, szKey, 0, KEY_READ, &hKey);
-    if ( lResult != ERROR_SUCCESS )
+    lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szKey, 0, KEY_READ, &hKey);
+    if (lResult != ERROR_SUCCESS)
         return TRUE;
 
-    while (RegEnumKeyEx (hKey, dwIndex, szExtension, &dwSize, NULL, NULL, NULL, &ftWrite) == ERROR_SUCCESS ) {
-        if ( ReadGPOList( szExtension, NULL, HKEY_LOCAL_MACHINE, lpwszSidUserOld, FALSE, &pGPOList) ) {
-            bResult = SaveGPOList( szExtension, lpGPOInfo, HKEY_LOCAL_MACHINE, lpwszSidUserNew, FALSE, pGPOList );
+    while (RegEnumKeyEx(hKey, dwIndex, szExtension, &dwSize, NULL, NULL, NULL, &ftWrite) == ERROR_SUCCESS) {
+        if (ReadGPOList(szExtension, NULL, HKEY_LOCAL_MACHINE, lpwszSidUserOld, FALSE, &pGPOList)) {
+            bResult = SaveGPOList(szExtension, lpGPOInfo, HKEY_LOCAL_MACHINE, lpwszSidUserNew, FALSE, pGPOList);
             lpGPO = pGPOList;
 
             while (lpGPO) {
                 lpGPOTemp = lpGPO->pNext;
-                LocalFree (lpGPO);
+                LocalFree(lpGPO);
                 lpGPO = lpGPOTemp;
             }
 
-            if ( !bResult ) {
-                DebugMsg((DM_WARNING, TEXT("MigrateGPOData: Failed to save GPO list") ));
-                RegCloseKey( hKey );
+            if (!bResult) {
+                DebugMsg((DM_WARNING, TEXT("MigrateGPOData: Failed to save GPO list")));
+                RegCloseKey(hKey);
                 return FALSE;
             }
         }
@@ -2452,12 +2439,12 @@ BOOL MigrateGPOData( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUserNew, LPTSTR lpwszSi
         dwIndex++;
     }
 
-    RegCloseKey( hKey );
+    RegCloseKey(hKey);
     return TRUE;
 }
 
 
-BOOL MigrateStatusData( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUserNew, LPTSTR lpwszSidUserOld )
+BOOL MigrateStatusData(LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUserNew, LPTSTR lpwszSidUserOld)
 //  Purpose:    Moves extension status data from old sid to new
 //              sid.
 
@@ -2478,18 +2465,18 @@ BOOL MigrateStatusData( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUserNew, LPTSTR lpws
     BOOL bTemp;
     DWORD dwStatus, dwTime, dwSlowLink;
 
-    wsprintf( szKey, GP_EXTENSIONS_SID_ROOT_KEY, lpwszSidUserOld );
+    wsprintf(szKey, GP_EXTENSIONS_SID_ROOT_KEY, lpwszSidUserOld);
 
-    lResult = RegOpenKeyEx (HKEY_LOCAL_MACHINE, szKey, 0, KEY_READ, &hKey);
-    if ( lResult != ERROR_SUCCESS )
+    lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szKey, 0, KEY_READ, &hKey);
+    if (lResult != ERROR_SUCCESS)
         return TRUE;
 
-    while (RegEnumKeyEx (hKey, dwIndex, szExtension, &dwSize, NULL, NULL, NULL, &ftWrite) == ERROR_SUCCESS ) {
-        if ( ReadStatus( szExtension, lpGPOInfo, lpwszSidUserOld, &dwStatus, &dwTime, &dwSlowLink ) ) {
-            bTemp = WriteStatus( szExtension, lpGPOInfo, lpwszSidUserNew, dwStatus, dwTime, dwSlowLink );
-            if ( !bTemp ) {
-                DebugMsg((DM_WARNING, TEXT("MigrateStatusData: Failed to save status") ));
-                RegCloseKey( hKey );
+    while (RegEnumKeyEx(hKey, dwIndex, szExtension, &dwSize, NULL, NULL, NULL, &ftWrite) == ERROR_SUCCESS) {
+        if (ReadStatus(szExtension, lpGPOInfo, lpwszSidUserOld, &dwStatus, &dwTime, &dwSlowLink)) {
+            bTemp = WriteStatus(szExtension, lpGPOInfo, lpwszSidUserNew, dwStatus, dwTime, dwSlowLink);
+            if (!bTemp) {
+                DebugMsg((DM_WARNING, TEXT("MigrateStatusData: Failed to save status")));
+                RegCloseKey(hKey);
                 return FALSE;
             }
         }
@@ -2498,12 +2485,12 @@ BOOL MigrateStatusData( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUserNew, LPTSTR lpws
         dwIndex++;
     }
 
-    RegCloseKey( hKey );
+    RegCloseKey(hKey);
     return TRUE;
 }
 
 
-BOOL CheckForChangedSid (LPGPOINFO lpGPOInfo)
+BOOL CheckForChangedSid(LPGPOINFO lpGPOInfo)
 //  Purpose:    Checks if the user's sid has changed and if so,
 //              moves history data from old sid to new sid.
 
@@ -2523,12 +2510,12 @@ BOOL CheckForChangedSid (LPGPOINFO lpGPOInfo)
     // changed we will set it to true later on..
     lpGPOInfo->bSidChanged = FALSE;
 
-    if ( lpGPOInfo->dwFlags & GP_MACHINE )
+    if (lpGPOInfo->dwFlags & GP_MACHINE)
         return TRUE;
 
-    if ( lpGPOInfo->lpwszSidUser == 0 ) {
-        lpGPOInfo->lpwszSidUser = GetSidString( lpGPOInfo->hToken );
-        if ( lpGPOInfo->lpwszSidUser == 0 ) {
+    if (lpGPOInfo->lpwszSidUser == 0) {
+        lpGPOInfo->lpwszSidUser = GetSidString(lpGPOInfo->hToken);
+        if (lpGPOInfo->lpwszSidUser == 0) {
             DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: GetSidString failed.")));
             LogEvent(TRUE, IDS_FAILED_GET_SID);
             return FALSE;
@@ -2539,54 +2526,54 @@ BOOL CheckForChangedSid (LPGPOINFO lpGPOInfo)
         return TRUE;
 
     // Check if the key where history is cached exists
-    wsprintf( szKey, GP_POLICY_SID_KEY, lpGPOInfo->lpwszSidUser );
+    wsprintf(szKey, GP_POLICY_SID_KEY, lpGPOInfo->lpwszSidUser);
 
-    lResult = RegOpenKeyEx( HKEY_LOCAL_MACHINE, szKey, 0, KEY_READ, &hKey);
-    if ( lResult == ERROR_SUCCESS ) {
-        RegCloseKey( hKey );
+    lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szKey, 0, KEY_READ, &hKey);
+    if (lResult == ERROR_SUCCESS) {
+        RegCloseKey(hKey);
         return TRUE;
     }
 
-    if ( lResult != ERROR_FILE_NOT_FOUND ) {
-        DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: Failed to open registry key with %d."), lResult ));
+    if (lResult != ERROR_FILE_NOT_FOUND) {
+        DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: Failed to open registry key with %d."), lResult));
         return FALSE;
     }
 
     // This is the first time that we are seeing this sid, it can either be a brand new sid or an old sid that has been renamed.
-    lpwszSidUserOld =  GetOldSidString( lpGPOInfo->hToken, POLICY_GUID_PATH );
-    if ( lpwszSidUserOld == NULL ) {
+    lpwszSidUserOld = GetOldSidString(lpGPOInfo->hToken, POLICY_GUID_PATH);
+    if (lpwszSidUserOld == NULL) {
         // Brand new sid
-        if ( !SetOldSidString(lpGPOInfo->hToken, lpGPOInfo->lpwszSidUser, POLICY_GUID_PATH) ) {
-             DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: WriteSidMapping failed.") ));
-             LogEvent(TRUE, IDS_FAILED_WRITE_SID_MAPPING);
-             return FALSE;
+        if (!SetOldSidString(lpGPOInfo->hToken, lpGPOInfo->lpwszSidUser, POLICY_GUID_PATH)) {
+            DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: WriteSidMapping failed.")));
+            LogEvent(TRUE, IDS_FAILED_WRITE_SID_MAPPING);
+            return FALSE;
         }
 
-        lResult = RegCreateKeyEx( HKEY_LOCAL_MACHINE, szKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
+        lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, szKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
         if (lResult != ERROR_SUCCESS) {
-            DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: RegCreateKey failed.") ));
+            DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: RegCreateKey failed.")));
             return TRUE;
         }
 
-        RegCloseKey( hKey );
+        RegCloseKey(hKey);
         return TRUE;
     }
 
     // Need to migrate history data from old sid to new sid
-    if ( !MigrateMembershipData( lpGPOInfo->lpwszSidUser, lpwszSidUserOld ) ) {
-        DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: MigrateMembershipData failed.") ));
+    if (!MigrateMembershipData(lpGPOInfo->lpwszSidUser, lpwszSidUserOld)) {
+        DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: MigrateMembershipData failed.")));
         LogEvent(TRUE, IDS_FAILED_MIGRATION);
         goto Exit;
     }
 
-    if ( !MigrateGPOData( lpGPOInfo, lpGPOInfo->lpwszSidUser, lpwszSidUserOld ) ) {
-        DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: MigrateGPOData failed.") ));
+    if (!MigrateGPOData(lpGPOInfo, lpGPOInfo->lpwszSidUser, lpwszSidUserOld)) {
+        DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: MigrateGPOData failed.")));
         LogEvent(TRUE, IDS_FAILED_MIGRATION);
         goto Exit;
     }
 
-    if ( !MigrateStatusData( lpGPOInfo, lpGPOInfo->lpwszSidUser, lpwszSidUserOld ) ) {
-        DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: MigrateStatusData failed.") ));
+    if (!MigrateStatusData(lpGPOInfo, lpGPOInfo->lpwszSidUser, lpwszSidUserOld)) {
+        DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: MigrateStatusData failed.")));
         LogEvent(TRUE, IDS_FAILED_MIGRATION);
         goto Exit;
     }
@@ -2594,40 +2581,40 @@ BOOL CheckForChangedSid (LPGPOINFO lpGPOInfo)
     bCommit = TRUE;
 
 Exit:
-    if ( bCommit ) {
-        if ( !SetOldSidString(lpGPOInfo->hToken, lpGPOInfo->lpwszSidUser, POLICY_GUID_PATH) )
-             DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: SetOldString failed.") ));
+    if (bCommit) {
+        if (!SetOldSidString(lpGPOInfo->hToken, lpGPOInfo->lpwszSidUser, POLICY_GUID_PATH))
+            DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: SetOldString failed.")));
 
-        lResult = RegCreateKeyEx( HKEY_LOCAL_MACHINE, szKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
+        lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, szKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
         if (lResult == ERROR_SUCCESS)
-            RegCloseKey( hKey );
+            RegCloseKey(hKey);
         else
-            DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: RegCreateKey failed.") ));
+            DebugMsg((DM_WARNING, TEXT("CheckForChangedSid: RegCreateKey failed.")));
 
-        wsprintf( szKey, GP_POLICY_SID_KEY, lpwszSidUserOld );
-        RegDelnode( HKEY_LOCAL_MACHINE, szKey );
+        wsprintf(szKey, GP_POLICY_SID_KEY, lpwszSidUserOld);
+        RegDelnode(HKEY_LOCAL_MACHINE, szKey);
 
-        wsprintf( szKey, GP_LOGON_SID_KEY, lpwszSidUserOld );
-        RegDelnode( HKEY_LOCAL_MACHINE, szKey );
+        wsprintf(szKey, GP_LOGON_SID_KEY, lpwszSidUserOld);
+        RegDelnode(HKEY_LOCAL_MACHINE, szKey);
 
         // if we managed to successfully migrate everything
         lpGPOInfo->bSidChanged = TRUE;
     } else {
-        wsprintf( szKey, GP_POLICY_SID_KEY, lpGPOInfo->lpwszSidUser );
-        RegDelnode( HKEY_LOCAL_MACHINE, szKey );
+        wsprintf(szKey, GP_POLICY_SID_KEY, lpGPOInfo->lpwszSidUser);
+        RegDelnode(HKEY_LOCAL_MACHINE, szKey);
 
-        wsprintf( szKey, GP_LOGON_SID_KEY, lpGPOInfo->lpwszSidUser );
-        RegDelnode( HKEY_LOCAL_MACHINE, szKey );
+        wsprintf(szKey, GP_LOGON_SID_KEY, lpGPOInfo->lpwszSidUser);
+        RegDelnode(HKEY_LOCAL_MACHINE, szKey);
     }
 
-    if ( lpwszSidUserOld )
-        LocalFree( lpwszSidUserOld );
+    if (lpwszSidUserOld)
+        LocalFree(lpwszSidUserOld);
 
     return bCommit;
 }
 
 
-BOOL CheckForSkippedExtensions (LPGPOINFO lpGPOInfo)
+BOOL CheckForSkippedExtensions(LPGPOINFO lpGPOInfo)
 //  Purpose:    Checks to the current list of extensions to see
 //              if any of them have been skipped
 
@@ -2642,25 +2629,25 @@ BOOL CheckForSkippedExtensions (LPGPOINFO lpGPOInfo)
     BOOL dwFlags = lpGPOInfo->dwFlags;
     LPGPEXT lpExt = lpGPOInfo->lpExtensions;
 
-    while ( lpExt ) {
+    while (lpExt) {
         // Read previous slow link speed
         BOOL bUsePerUserLocalSetting = lpExt->dwUserLocalSetting && !(lpGPOInfo->dwFlags & GP_MACHINE);
 
-        DmAssert( !bUsePerUserLocalSetting || lpGPOInfo->lpwszSidUser != 0 );
+        DmAssert(!bUsePerUserLocalSetting || lpGPOInfo->lpwszSidUser != 0);
 
-        if ( ReadStatus( lpExt->lpKeyName, lpGPOInfo, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, &dwStatus, &dwPrevTime, &dwSlowLinkPrev ) ) {
+        if (ReadStatus(lpExt->lpKeyName, lpGPOInfo, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, &dwStatus, &dwPrevTime, &dwSlowLinkPrev)) {
             lpExt->dwSlowLinkPrev = dwSlowLinkPrev;
         } else
             lpExt->dwSlowLinkPrev = FALSE;
 
         if ( // Check background preference
-             lpExt->dwNoBackgroundPolicy && dwFlags & GP_BACKGROUND_THREAD) {
+            lpExt->dwNoBackgroundPolicy && dwFlags & GP_BACKGROUND_THREAD) {
             lpExt->bSkipped = TRUE;
-        } else if (  lpExt->dwNoSlowLink && dwFlags & GP_SLOW_LINK) {
+        } else if (lpExt->dwNoSlowLink && dwFlags & GP_SLOW_LINK) {
             // Slow link preference can be overridden by link transition preference
             DWORD dwSlowLinkCur = (lpGPOInfo->dwFlags & GP_SLOW_LINK) != 0;
 
-            if ( lpExt->dwLinkTransition && ( dwSlowLinkCur != lpExt->dwSlowLinkPrev ) )
+            if (lpExt->dwLinkTransition && (dwSlowLinkCur != lpExt->dwSlowLinkPrev))
                 lpExt->bSkipped = FALSE;
             else
                 lpExt->bSkipped = TRUE;
@@ -2668,10 +2655,10 @@ BOOL CheckForSkippedExtensions (LPGPOINFO lpGPOInfo)
             // If cached history is present but policy is turned off then still call extension one more time so that cached policies can be passed to extension
             // to do delete processing. If there is no cached history then extension can be skipped.
             BOOL bPolicySkippedPreference = lpExt->dwNoMachPolicy && dwFlags & GP_MACHINE        // mach policy
-                                            || lpExt->dwNoUserPolicy && !(dwFlags & GP_MACHINE); // user policy
-            if ( bPolicySkippedPreference ) {
-                BOOL bHistoryPresent = HistoryPresent( lpGPOInfo, lpExt );
-                if ( bHistoryPresent )
+                || lpExt->dwNoUserPolicy && !(dwFlags & GP_MACHINE); // user policy
+            if (bPolicySkippedPreference) {
+                BOOL bHistoryPresent = HistoryPresent(lpGPOInfo, lpExt);
+                if (bHistoryPresent)
                     lpExt->bHistoryProcessing = TRUE;
                 else
                     lpExt->bSkipped = TRUE;
@@ -2685,7 +2672,7 @@ BOOL CheckForSkippedExtensions (LPGPOINFO lpGPOInfo)
 }
 
 
-BOOL CheckGPOs (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, DWORD dwCurrentTime, BOOL *pbProcessGPOs, BOOL *pbNoChanges, PGROUP_POLICY_OBJECT *ppDeletedGPOList)
+BOOL CheckGPOs(LPGPEXT lpExt, LPGPOINFO lpGPOInfo, DWORD dwCurrentTime, BOOL * pbProcessGPOs, BOOL * pbNoChanges, PGROUP_POLICY_OBJECT * ppDeletedGPOList)
 //  Purpose:    Checks to the current list of GPOs with
 //              the list stored in the registry to see
 //              if policy needs to be flushed.
@@ -2709,35 +2696,35 @@ BOOL CheckGPOs (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, DWORD dwCurrentTime, BOOL *p
     *pbNoChanges = FALSE;
     *ppDeletedGPOList = NULL;
 
-    DmAssert( !bUsePerUserLocalSetting || lpGPOInfo->lpwszSidUser != 0 );
+    DmAssert(!bUsePerUserLocalSetting || lpGPOInfo->lpwszSidUser != 0);
 
     // Read in the old GPO list
-    bTemp = ReadGPOList (lpExt->lpKeyName, lpGPOInfo->hKeyRoot,
-                         HKEY_LOCAL_MACHINE,
-                         bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL,
-                         FALSE, &lpOldGPOList);
+    bTemp = ReadGPOList(lpExt->lpKeyName, lpGPOInfo->hKeyRoot,
+                        HKEY_LOCAL_MACHINE,
+                        bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL,
+                        FALSE, &lpOldGPOList);
     if (!bTemp) {
         DebugMsg((DM_WARNING, TEXT("CheckGPOs: ReadGPOList failed.")));
-        LogEvent (TRUE, IDS_FAILED_READ_GPO_LIST);
+        LogEvent(TRUE, IDS_FAILED_READ_GPO_LIST);
         lpOldGPOList = NULL;
     }
 
     // Compare with the new GPO list to determine if any GPOs have been removed.
-    bTemp = CheckForGPOsToRemove (lpOldGPOList, lpGPOInfo->lpGPOList);
+    bTemp = CheckForGPOsToRemove(lpOldGPOList, lpGPOInfo->lpGPOList);
 
     // If no GPOs need to be removed, then we need to compare the version numbers of the GPOs to see if any have been updated.
     if (bTemp) {
         if (lpGPOInfo->dwFlags & GP_VERBOSE) {
-            LogEvent (FALSE, IDS_GPO_LIST_CHANGED);
+            LogEvent(FALSE, IDS_GPO_LIST_CHANGED);
         }
 
-        if ( !GetDeletedGPOList (lpOldGPOList, ppDeletedGPOList)) {
+        if (!GetDeletedGPOList(lpOldGPOList, ppDeletedGPOList)) {
             DebugMsg((DM_WARNING, TEXT("CheckGPOs: GetDeletedList failed for %s."), lpExt->lpDisplayName));
-            LogEvent (TRUE, IDS_FAILED_GETDELETED_LIST, lpExt->lpDisplayName);
+            LogEvent(TRUE, IDS_FAILED_GETDELETED_LIST, lpExt->lpDisplayName);
         }
     } else {
         BOOL bMembershipChanged = bUsePerUserLocalSetting && lpGPOInfo->bUserLocalMemChanged || !bUsePerUserLocalSetting && lpGPOInfo->bMemChanged;
-        if (CompareGPOLists (lpOldGPOList, lpGPOInfo->lpGPOList) && !bMembershipChanged && (!(lpGPOInfo->bSidChanged))) {
+        if (CompareGPOLists(lpOldGPOList, lpGPOInfo->lpGPOList) && !bMembershipChanged && (!(lpGPOInfo->bSidChanged))) {
             // The list of GPOs hasn't changed or been updated, and the security group
             // membership has not changed. The default is to not call the extension if
             // it has NoGPOListChanges set. However this can be overridden based on other
@@ -2750,42 +2737,42 @@ BOOL CheckGPOs (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, DWORD dwCurrentTime, BOOL *p
             BOOL bNoChanges = TRUE;
             DWORD dwSlowLinkCur = (lpGPOInfo->dwFlags & GP_SLOW_LINK) != 0;
             DWORD dwSlowLinkPrev;
-            BOOL bStatusOk = ReadStatus( lpExt->lpKeyName, lpGPOInfo, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, &dwStatus, &dwPrevTime, &dwSlowLinkPrev );
-            if ( !bStatusOk ) {
+            BOOL bStatusOk = ReadStatus(lpExt->lpKeyName, lpGPOInfo, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, &dwStatus, &dwPrevTime, &dwSlowLinkPrev);
+            if (!bStatusOk) {
                 // Couldn't read the previous status or time, so the conservative solution is to call extension.
                 bSkip = FALSE;
                 DebugMsg((DM_VERBOSE, TEXT("CheckGPOs: No GPO changes but couldn't read extension %s's status or policy time."), lpExt->lpDisplayName));
-            } else if ( bStatusOk && dwStatus == ERROR_OVERRIDE_NOCHANGES ) {
+            } else if (bStatusOk && dwStatus == ERROR_OVERRIDE_NOCHANGES) {
                 // When the previous call completed the status code has explicitly asked the framework to disregard the NoGPOListChanges setting.
                 bSkip = FALSE;
                 bNoChanges = FALSE;
                 DebugMsg((DM_VERBOSE, TEXT("CheckGPOs: No GPO changes but extension %s had returned ERROR_OVERRIDE_NOCHANGES for previous policy processing call."), lpExt->lpDisplayName));
-            } else if ( bStatusOk && dwStatus != ERROR_SUCCESS ) {
+            } else if (bStatusOk && dwStatus != ERROR_SUCCESS) {
                 // Extension returned error code, so call the extension again with changes.
                 bSkip = FALSE;
                 bNoChanges = FALSE;
-                DebugMsg((DM_VERBOSE, TEXT("CheckGPOs: No GPO changes but extension %s's returned error status %d earlier."), lpExt->lpDisplayName, dwStatus ));
-            } else if ( bStatusOk && lpExt->dwLinkTransition && ( lpExt->dwSlowLinkPrev != dwSlowLinkCur ) ) {
+                DebugMsg((DM_VERBOSE, TEXT("CheckGPOs: No GPO changes but extension %s's returned error status %d earlier."), lpExt->lpDisplayName, dwStatus));
+            } else if (bStatusOk && lpExt->dwLinkTransition && (lpExt->dwSlowLinkPrev != dwSlowLinkCur)) {
                 // If there has been a link speed transition then no changes is overridden.
                 bSkip = FALSE;
-                DebugMsg((DM_VERBOSE, TEXT("CheckGPOs: No GPO changes but extension %s's has a link speed transtion from %d to %d."), lpExt->lpDisplayName, lpExt->dwSlowLinkPrev, dwSlowLinkCur ));
-            } else if ( bStatusOk && dwStatus == ERROR_SUCCESS && lpExt->dwNoGPOChanges && lpExt->dwMaxChangesInterval != 0 ) {
-                if ( dwCurrentTime == 0 || dwPrevTime == 0 || dwCurrentTime < dwPrevTime ) {
+                DebugMsg((DM_VERBOSE, TEXT("CheckGPOs: No GPO changes but extension %s's has a link speed transtion from %d to %d."), lpExt->lpDisplayName, lpExt->dwSlowLinkPrev, dwSlowLinkCur));
+            } else if (bStatusOk && dwStatus == ERROR_SUCCESS && lpExt->dwNoGPOChanges && lpExt->dwMaxChangesInterval != 0) {
+                if (dwCurrentTime == 0 || dwPrevTime == 0 || dwCurrentTime < dwPrevTime) {
                     // Handle clock overflow case by assuming that interval has been exceeded
                     bSkip = FALSE;
                     DebugMsg((DM_VERBOSE, TEXT("CheckGPOs: No GPO changes but extension %s's MaxNoGPOListChangesInterval has been exceeded due to clock overflow."), lpExt->lpDisplayName));
-                } else if ( (dwCurrentTime - dwPrevTime) > lpExt->dwMaxChangesInterval ) {
+                } else if ((dwCurrentTime - dwPrevTime) > lpExt->dwMaxChangesInterval) {
                     // Extension has specified a time interval for which NoGPOListChanges is valid and the time interval has been exceeded.
                     bSkip = FALSE;
                     DebugMsg((DM_VERBOSE, TEXT("CheckGPOs: No GPO changes but extension %s's MaxNoGPOListChangesInterval has been exceeded."), lpExt->lpDisplayName));
                 }
             }
 
-            if ( bSkip && lpExt->dwNoGPOChanges ) {
+            if (bSkip && lpExt->dwNoGPOChanges) {
                 // Case of skipping extension when there are *really* no changes and extension set NoGPOListChanges to true.
                 DebugMsg((DM_VERBOSE, TEXT("CheckGPOs: No GPO changes and no security group membership change and extension %s has NoGPOChanges set."), lpExt->lpDisplayName));
                 if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                    LogEvent (FALSE, IDS_NO_CHANGES, lpExt->lpDisplayName);
+                    LogEvent(FALSE, IDS_NO_CHANGES, lpExt->lpDisplayName);
 
                 *pbProcessGPOs = FALSE;
             } else
@@ -2797,7 +2784,7 @@ BOOL CheckGPOs (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, DWORD dwCurrentTime, BOOL *p
 
         while (lpGPO) {
             lpGPOTemp = lpGPO->pNext;
-            LocalFree (lpGPO);
+            LocalFree(lpGPO);
             lpGPO = lpGPOTemp;
         }
     }   // else if bTemp
@@ -2806,7 +2793,7 @@ BOOL CheckGPOs (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, DWORD dwCurrentTime, BOOL *p
 }
 
 
-BOOL ReadGPExtensions (LPGPOINFO lpGPOInfo)
+BOOL ReadGPExtensions(LPGPOINFO lpGPOInfo)
 //  Purpose:    Reads the group policy extenions from registry.
 //              The actual loading of extension is deferred.
 
@@ -2822,8 +2809,8 @@ BOOL ReadGPExtensions (LPGPOINFO lpGPOInfo)
     DWORD dwSize = 50;
     TCHAR szDisplayName[50];
     TCHAR szKeyName[50];
-    TCHAR szDllName[MAX_PATH+1];
-    TCHAR szExpDllName[MAX_PATH+1];
+    TCHAR szDllName[MAX_PATH + 1];
+    TCHAR szExpDllName[MAX_PATH + 1];
     CHAR  szFunctionName[100];
     FILETIME ftWrite;
     HKEY hKeyExt;
@@ -2831,21 +2818,21 @@ BOOL ReadGPExtensions (LPGPOINFO lpGPOInfo)
     LPGPEXT lpExt, lpTemp;
 
     // Check if any extensions are registered
-    if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, GP_EXTENSIONS, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, GP_EXTENSIONS, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
         // Enumerate the keys (each extension has its own key)
-        while (RegEnumKeyEx (hKey, dwIndex, szKeyName, &dwSize, NULL, NULL, NULL, &ftWrite) == ERROR_SUCCESS) {
+        while (RegEnumKeyEx(hKey, dwIndex, szKeyName, &dwSize, NULL, NULL, NULL, &ftWrite) == ERROR_SUCCESS) {
             // Open the extension's key.
-            if (RegOpenKeyEx (hKey, szKeyName, 0, KEY_READ, &hKeyExt) == ERROR_SUCCESS) {
-                if ( ValidateGuid( szKeyName ) ) {
-                    if ( lstrcmpi(szKeyName, c_szRegistryExtName) != 0 ) {
+            if (RegOpenKeyEx(hKey, szKeyName, 0, KEY_READ, &hKeyExt) == ERROR_SUCCESS) {
+                if (ValidateGuid(szKeyName)) {
+                    if (lstrcmpi(szKeyName, c_szRegistryExtName) != 0) {
                         // Every extension, other than RegistryExtension is required to have a value called
                         // DllName.  This value can be REG_SZ or REG_EXPAND_SZ type.
                         dwSize = sizeof(szDllName);
-                        if (RegQueryValueEx (hKeyExt, TEXT("DllName"), NULL, &dwType, (LPBYTE) szDllName, &dwSize) == ERROR_SUCCESS) {
+                        if (RegQueryValueEx(hKeyExt, TEXT("DllName"), NULL, &dwType, (LPBYTE)szDllName, &dwSize) == ERROR_SUCCESS) {
                             BOOL bFuncFound = FALSE;
                             DWORD dwNoMachPolicy = FALSE;
                             DWORD dwNoUserPolicy = FALSE;
-                            DWORD dwNoSlowLink   = FALSE;
+                            DWORD dwNoSlowLink = FALSE;
                             DWORD dwNoBackgroundPolicy = FALSE;
                             DWORD dwNoGPOChanges = FALSE;
                             DWORD dwUserLocalSetting = FALSE;
@@ -2854,66 +2841,66 @@ BOOL ReadGPExtensions (LPGPOINFO lpGPOInfo)
                             DWORD dwMaxChangesInterval = 0;
                             DWORD dwLinkTransition = FALSE;
 
-                            ExpandEnvironmentStrings (szDllName, szExpDllName, MAX_PATH);
+                            ExpandEnvironmentStrings(szDllName, szExpDllName, MAX_PATH);
 
                             // Read the function name
                             dwSize = sizeof(szFunctionName);
 
-                            if (RegQueryValueExA (hKeyExt, "ProcessGroupPolicy", NULL, &dwType, (LPBYTE) szFunctionName, &dwSize) == ERROR_SUCCESS) {
+                            if (RegQueryValueExA(hKeyExt, "ProcessGroupPolicy", NULL, &dwType, (LPBYTE)szFunctionName, &dwSize) == ERROR_SUCCESS) {
                                 // Read preferences
                                 bFuncFound = TRUE;
 
                                 dwSize = sizeof(szDisplayName);
-                                if (RegQueryValueEx (hKeyExt, NULL, NULL, &dwType, (LPBYTE) szDisplayName, &dwSize) != ERROR_SUCCESS) {
-                                    lstrcpyn (szDisplayName, szKeyName, ARRAYSIZE(szDisplayName));
+                                if (RegQueryValueEx(hKeyExt, NULL, NULL, &dwType, (LPBYTE)szDisplayName, &dwSize) != ERROR_SUCCESS) {
+                                    lstrcpyn(szDisplayName, szKeyName, ARRAYSIZE(szDisplayName));
                                 }
 
                                 dwSize = sizeof(DWORD);
-                                RegQueryValueEx( hKeyExt, TEXT("NoMachinePolicy"), NULL, &dwType, (LPBYTE) &dwNoMachPolicy, &dwSize );
-                                RegQueryValueEx( hKeyExt, TEXT("NoUserPolicy"), NULL, &dwType, (LPBYTE) &dwNoUserPolicy, &dwSize );
-                                RegQueryValueEx( hKeyExt, TEXT("NoSlowLink"), NULL, &dwType, (LPBYTE) &dwNoSlowLink, &dwSize );
-                                RegQueryValueEx( hKeyExt, TEXT("NoGPOListChanges"), NULL, &dwType, (LPBYTE) &dwNoGPOChanges, &dwSize );
-                                RegQueryValueEx( hKeyExt, TEXT("NoBackgroundPolicy"), NULL, &dwType, (LPBYTE) &dwNoBackgroundPolicy, &dwSize );
-                                RegQueryValueEx( hKeyExt, TEXT("PerUserLocalSettings"), NULL, &dwType, (LPBYTE) &dwUserLocalSetting, &dwSize );
-                                RegQueryValueEx( hKeyExt, TEXT("RequiresSuccessfulRegistry"), NULL, &dwType, (LPBYTE) &dwRequireRegistry, &dwSize );
-                                RegQueryValueEx( hKeyExt, TEXT("EnableAsynchronousProcessing"), NULL, &dwType, (LPBYTE) &dwEnableAsynch, &dwSize );
-                                RegQueryValueEx( hKeyExt, TEXT("MaxNoGPOListChangesInterval"), NULL, &dwType, (LPBYTE) &dwMaxChangesInterval, &dwSize );
-                                RegQueryValueEx( hKeyExt, TEXT("NotifyLinkTransition"), NULL, &dwType, (LPBYTE) &dwLinkTransition, &dwSize );
+                                RegQueryValueEx(hKeyExt, TEXT("NoMachinePolicy"), NULL, &dwType, (LPBYTE)&dwNoMachPolicy, &dwSize);
+                                RegQueryValueEx(hKeyExt, TEXT("NoUserPolicy"), NULL, &dwType, (LPBYTE)&dwNoUserPolicy, &dwSize);
+                                RegQueryValueEx(hKeyExt, TEXT("NoSlowLink"), NULL, &dwType, (LPBYTE)&dwNoSlowLink, &dwSize);
+                                RegQueryValueEx(hKeyExt, TEXT("NoGPOListChanges"), NULL, &dwType, (LPBYTE)&dwNoGPOChanges, &dwSize);
+                                RegQueryValueEx(hKeyExt, TEXT("NoBackgroundPolicy"), NULL, &dwType, (LPBYTE)&dwNoBackgroundPolicy, &dwSize);
+                                RegQueryValueEx(hKeyExt, TEXT("PerUserLocalSettings"), NULL, &dwType, (LPBYTE)&dwUserLocalSetting, &dwSize);
+                                RegQueryValueEx(hKeyExt, TEXT("RequiresSuccessfulRegistry"), NULL, &dwType, (LPBYTE)&dwRequireRegistry, &dwSize);
+                                RegQueryValueEx(hKeyExt, TEXT("EnableAsynchronousProcessing"), NULL, &dwType, (LPBYTE)&dwEnableAsynch, &dwSize);
+                                RegQueryValueEx(hKeyExt, TEXT("MaxNoGPOListChangesInterval"), NULL, &dwType, (LPBYTE)&dwMaxChangesInterval, &dwSize);
+                                RegQueryValueEx(hKeyExt, TEXT("NotifyLinkTransition"), NULL, &dwType, (LPBYTE)&dwLinkTransition, &dwSize);
 
                                 // Read override policy values, if any
-                                wsprintf (szSubKey, GP_EXTENSIONS_POLICIES, szKeyName );
+                                wsprintf(szSubKey, GP_EXTENSIONS_POLICIES, szKeyName);
 
-                                if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, szSubKey, 0, KEY_READ, &hKeyOverride ) == ERROR_SUCCESS) {
+                                if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, szSubKey, 0, KEY_READ, &hKeyOverride) == ERROR_SUCCESS) {
                                     dwSize = sizeof(DWORD);
-                                    RegQueryValueEx( hKeyOverride, TEXT("NoSlowLink"), NULL, &dwType, (LPBYTE) &dwNoSlowLink, &dwSize );
-                                    RegQueryValueEx( hKeyOverride, TEXT("NoGPOListChanges"), NULL, &dwType, (LPBYTE) &dwNoGPOChanges, &dwSize );
-                                    RegQueryValueEx( hKeyOverride, TEXT("NoBackgroundPolicy"), NULL, &dwType, (LPBYTE) &dwNoBackgroundPolicy, &dwSize );
-                                    RegCloseKey( hKeyOverride );
+                                    RegQueryValueEx(hKeyOverride, TEXT("NoSlowLink"), NULL, &dwType, (LPBYTE)&dwNoSlowLink, &dwSize);
+                                    RegQueryValueEx(hKeyOverride, TEXT("NoGPOListChanges"), NULL, &dwType, (LPBYTE)&dwNoGPOChanges, &dwSize);
+                                    RegQueryValueEx(hKeyOverride, TEXT("NoBackgroundPolicy"), NULL, &dwType, (LPBYTE)&dwNoBackgroundPolicy, &dwSize);
+                                    RegCloseKey(hKeyOverride);
                                 }
                             }
 
-                            if ( bFuncFound ) {
-                                lpExt = LocalAlloc (LPTR, sizeof(GPEXT)
-                                                          + ((lstrlen(szDisplayName) + 1) * sizeof(TCHAR))
-                                                          + ((lstrlen(szKeyName) + 1) * sizeof(TCHAR))
-                                                          + ((lstrlen(szExpDllName) + 1) * sizeof(TCHAR))
-                                                          + lstrlenA(szFunctionName) + 1 );
+                            if (bFuncFound) {
+                                lpExt = LocalAlloc(LPTR, sizeof(GPEXT)
+                                                   + ((lstrlen(szDisplayName) + 1) * sizeof(TCHAR))
+                                                   + ((lstrlen(szKeyName) + 1) * sizeof(TCHAR))
+                                                   + ((lstrlen(szExpDllName) + 1) * sizeof(TCHAR))
+                                                   + lstrlenA(szFunctionName) + 1);
                                 if (lpExt) {
                                     // Set up all fields
 
                                     lpExt->lpDisplayName = (LPTSTR)((LPBYTE)lpExt + sizeof(GPEXT));
-                                    lstrcpy( lpExt->lpDisplayName, szDisplayName );
+                                    lstrcpy(lpExt->lpDisplayName, szDisplayName);
 
                                     lpExt->lpKeyName = lpExt->lpDisplayName + lstrlen(lpExt->lpDisplayName) + 1;
-                                    lstrcpy( lpExt->lpKeyName, szKeyName );
+                                    lstrcpy(lpExt->lpKeyName, szKeyName);
 
-                                    StringToGuid( szKeyName, &lpExt->guid );
+                                    StringToGuid(szKeyName, &lpExt->guid);
 
                                     lpExt->lpDllName = lpExt->lpKeyName + lstrlen(lpExt->lpKeyName) + 1;
-                                    lstrcpy (lpExt->lpDllName, szExpDllName);
+                                    lstrcpy(lpExt->lpDllName, szExpDllName);
 
-                                    lpExt->lpFunctionName = (LPSTR)( (LPBYTE)lpExt->lpDllName + (lstrlen(lpExt->lpDllName) + 1) * sizeof(TCHAR) );
-                                    lstrcpyA( lpExt->lpFunctionName, szFunctionName );
+                                    lpExt->lpFunctionName = (LPSTR)((LPBYTE)lpExt->lpDllName + (lstrlen(lpExt->lpDllName) + 1) * sizeof(TCHAR));
+                                    lstrcpyA(lpExt->lpFunctionName, szFunctionName);
 
                                     lpExt->hInstance = NULL;
                                     lpExt->pEntryPoint = NULL;
@@ -2954,28 +2941,28 @@ BOOL ReadGPExtensions (LPGPOINFO lpGPOInfo)
                                 }
                             } else {       // if bFuncFound
                                 DebugMsg((DM_WARNING, TEXT("ReadGPExtensions: Failed to query for the function name.")));
-                                LogEvent (TRUE, IDS_EXT_MISSING_FUNC, szExpDllName);
+                                LogEvent(TRUE, IDS_EXT_MISSING_FUNC, szExpDllName);
                             }
                         } else {           // if RegQueryValueEx DllName
                             DebugMsg((DM_WARNING, TEXT("ReadGPExtensions: Failed to query DllName value.")));
-                            LogEvent (TRUE, IDS_EXT_MISSING_DLLNAME, szKeyName);
+                            LogEvent(TRUE, IDS_EXT_MISSING_DLLNAME, szKeyName);
                         }
                     } // if lstrcmpi(szKeyName, c_szRegistryExtName)
                 }  // if validateguid
 
-                RegCloseKey (hKeyExt);
+                RegCloseKey(hKeyExt);
             }     // if RegOpenKey hKeyExt
 
             dwSize = ARRAYSIZE(szKeyName);
             dwIndex++;
         }         // while RegEnumKeyEx
 
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
     }             // if RegOpenKey gpext
 
     // Add the registry psuedo extension at the beginning
-    if ( LoadString (g_hDllInstance, IDS_REGISTRYNAME, szDisplayName, ARRAYSIZE(szDisplayName)) ) {
-        lpExt = LocalAlloc (LPTR, sizeof(GPEXT) + ((lstrlen(szDisplayName) + 1) * sizeof(TCHAR)) + ((lstrlen(c_szRegistryExtName) + 1) * sizeof(TCHAR)) );
+    if (LoadString(g_hDllInstance, IDS_REGISTRYNAME, szDisplayName, ARRAYSIZE(szDisplayName))) {
+        lpExt = LocalAlloc(LPTR, sizeof(GPEXT) + ((lstrlen(szDisplayName) + 1) * sizeof(TCHAR)) + ((lstrlen(c_szRegistryExtName) + 1) * sizeof(TCHAR)));
     } else {
         lpExt = 0;
     }
@@ -2986,12 +2973,12 @@ BOOL ReadGPExtensions (LPGPOINFO lpGPOInfo)
         DWORD dwNoBackgroundPolicy = FALSE;
 
         lpExt->lpDisplayName = (LPTSTR)((LPBYTE)lpExt + sizeof(GPEXT));
-        lstrcpy( lpExt->lpDisplayName, szDisplayName );
+        lstrcpy(lpExt->lpDisplayName, szDisplayName);
 
         lpExt->lpKeyName = lpExt->lpDisplayName + lstrlen(lpExt->lpDisplayName) + 1;
-        lstrcpy( lpExt->lpKeyName, c_szRegistryExtName );
+        lstrcpy(lpExt->lpKeyName, c_szRegistryExtName);
 
-        StringToGuid( lpExt->lpKeyName, &lpExt->guid );;
+        StringToGuid(lpExt->lpKeyName, &lpExt->guid);;
 
         lpExt->lpDllName = NULL;
         lpExt->lpFunctionName = NULL;
@@ -2999,12 +2986,12 @@ BOOL ReadGPExtensions (LPGPOINFO lpGPOInfo)
         lpExt->pEntryPoint = NULL;
 
         // Read override policy values, if any
-        wsprintf (szSubKey, GP_EXTENSIONS_POLICIES, lpExt->lpKeyName );
+        wsprintf(szSubKey, GP_EXTENSIONS_POLICIES, lpExt->lpKeyName);
 
-        if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, szSubKey, 0, KEY_READ, &hKeyOverride ) == ERROR_SUCCESS) {
-            RegQueryValueEx( hKeyOverride, TEXT("NoGPOListChanges"), NULL, &dwType, (LPBYTE) &dwNoGPOChanges, &dwSize );
-            RegQueryValueEx( hKeyOverride, TEXT("NoBackgroundPolicy"), NULL, &dwType, (LPBYTE) &dwNoBackgroundPolicy, &dwSize );
-            RegCloseKey( hKeyOverride );
+        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, szSubKey, 0, KEY_READ, &hKeyOverride) == ERROR_SUCCESS) {
+            RegQueryValueEx(hKeyOverride, TEXT("NoGPOListChanges"), NULL, &dwType, (LPBYTE)&dwNoGPOChanges, &dwSize);
+            RegQueryValueEx(hKeyOverride, TEXT("NoBackgroundPolicy"), NULL, &dwType, (LPBYTE)&dwNoBackgroundPolicy, &dwSize);
+            RegCloseKey(hKeyOverride);
         }
 
         lpExt->dwNoMachPolicy = FALSE;
@@ -3029,7 +3016,7 @@ BOOL ReadGPExtensions (LPGPOINFO lpGPOInfo)
 }
 
 
-BOOL LoadGPExtension( LPGPEXT lpExt )
+BOOL LoadGPExtension(LPGPEXT lpExt)
 //  Purpose:    Loads a GP extension.
 
 //  Parameters: lpExt -- GP extension
@@ -3037,26 +3024,21 @@ BOOL LoadGPExtension( LPGPEXT lpExt )
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
 {
-    if ( !lpExt->bRegistryExt && lpExt->hInstance == NULL )
-    {
-        lpExt->hInstance = LoadLibrary( lpExt->lpDllName );
-        if ( lpExt->hInstance )
-        {
+    if (!lpExt->bRegistryExt && lpExt->hInstance == NULL) {
+        lpExt->hInstance = LoadLibrary(lpExt->lpDllName);
+        if (lpExt->hInstance) {
             lpExt->pEntryPoint = (PFNPROCESSGROUPPOLICY)GetProcAddress(lpExt->hInstance, lpExt->lpFunctionName);
-            if ( lpExt->pEntryPoint == NULL )
-            {
+            if (lpExt->pEntryPoint == NULL) {
                 DebugMsg((DM_WARNING,
                           TEXT("LoadGPExtension: Failed to query ProcessGroupPolicy function entry point in dll <%s> with %d"),
                           lpExt->lpDllName, GetLastError()));
-                LogEvent (TRUE, IDS_EXT_FUNC_FAIL, lpExt->lpDllName);
+                LogEvent(TRUE, IDS_EXT_FUNC_FAIL, lpExt->lpDllName);
 
                 return FALSE;
             }
-        }
-        else
-        {
+        } else {
             DebugMsg((DM_WARNING, TEXT("LoadGPExtension: Failed to load dll <%s> with %d"), lpExt->lpDllName, GetLastError()));
-            LogEvent (TRUE, IDS_EXT_LOAD_FAIL, lpExt->lpDllName, GetLastError());
+            LogEvent(TRUE, IDS_EXT_LOAD_FAIL, lpExt->lpDllName, GetLastError());
             return FALSE;
         }
     }
@@ -3065,7 +3047,7 @@ BOOL LoadGPExtension( LPGPEXT lpExt )
 }
 
 
-BOOL UnloadGPExtensions (LPGPOINFO lpGPOInfo)
+BOOL UnloadGPExtensions(LPGPOINFO lpGPOInfo)
 //  Purpose:    Unloads the Group Policy extension dlls
 
 //  Parameters: lpGPOInfo   -   GP Information
@@ -3078,11 +3060,11 @@ BOOL UnloadGPExtensions (LPGPOINFO lpGPOInfo)
     lpExt = lpGPOInfo->lpExtensions;
 
     while (lpExt) {
-        if ( lpExt->hInstance != NULL )
-            FreeLibrary (lpExt->hInstance);
+        if (lpExt->hInstance != NULL)
+            FreeLibrary(lpExt->hInstance);
 
         lpTemp = lpExt->pNext;
-        LocalFree (lpExt);
+        LocalFree(lpExt);
         lpExt = lpTemp;
     }
 
@@ -3092,7 +3074,7 @@ BOOL UnloadGPExtensions (LPGPOINFO lpGPOInfo)
 }
 
 
-DWORD ProcessGPOList (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pDeletedGPOList, PGROUP_POLICY_OBJECT pChangedGPOList, BOOL bNoChanges, ASYNCCOMPLETIONHANDLE pAsyncHandle )
+DWORD ProcessGPOList(LPGPEXT lpExt, LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pDeletedGPOList, PGROUP_POLICY_OBJECT pChangedGPOList, BOOL bNoChanges, ASYNCCOMPLETIONHANDLE pAsyncHandle)
 //  Purpose:    Calls client side extensions to process gpos
 
 //  Parameters: lpExt           - GP extension
@@ -3120,8 +3102,8 @@ DWORD ProcessGPOList (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT p
     DebugMsg((DM_VERBOSE, TEXT("ProcessGPOList: Entering for extension %s"), lpExt->lpDisplayName));
 
     if (lpGPOInfo->pStatusCallback) {
-        LoadString (g_hDllInstance, IDS_CALLEXTENSION, szStatusFormat, ARRAYSIZE(szStatusFormat));
-        wsprintf (szVerbose, szStatusFormat, lpExt->lpDisplayName);
+        LoadString(g_hDllInstance, IDS_CALLEXTENSION, szStatusFormat, ARRAYSIZE(szStatusFormat));
+        wsprintf(szVerbose, szStatusFormat, lpExt->lpDisplayName);
         lpGPOInfo->pStatusCallback(TRUE, szVerbose);
     }
 
@@ -3137,7 +3119,7 @@ DWORD ProcessGPOList (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT p
         dwFlags |= GPO_INFO_FLAG_SLOWLINK;
     }
 
-    if ( dwSlowLinkCur != lpExt->dwSlowLinkPrev ) {
+    if (dwSlowLinkCur != lpExt->dwSlowLinkPrev) {
         dwFlags |= GPO_INFO_FLAG_LINKTRANSITION;
     }
 
@@ -3145,65 +3127,65 @@ DWORD ProcessGPOList (LPGPEXT lpExt, LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT p
         dwFlags |= GPO_INFO_FLAG_VERBOSE;
     }
 
-    if ( bNoChanges ) {
+    if (bNoChanges) {
         dwFlags |= GPO_INFO_FLAG_NOCHANGES;
     }
 
     dwRet = ERROR_SUCCESS;
 
-    if ( lpExt->bRegistryExt ) {
+    if (lpExt->bRegistryExt) {
         // Registry pseudo extension.
-        if (!ProcessGPORegistryPolicy (lpGPOInfo, pChangedGPOList)) {
+        if (!ProcessGPORegistryPolicy(lpGPOInfo, pChangedGPOList)) {
             DebugMsg((DM_WARNING, TEXT("ProcessGPOList: ProcessGPORegistryPolicy failed.")));
             dwRet = E_FAIL;
         }
     } else {    // if lpExt->bRegistryExt
         // Regular extension
 
-        BOOL *pbAbort;
+        BOOL * pbAbort;
         ASYNCCOMPLETIONHANDLE pAsyncHandleTemp;
 
-        if ( lpExt->dwRequireRegistry ) {
+        if (lpExt->dwRequireRegistry) {
             DWORD dwStatus;
             DWORD dwTime;
             DWORD dwSlowLink;
 
-            if ( !ReadStatus( c_szRegistryExtName, lpGPOInfo, NULL, &dwStatus, &dwTime, &dwSlowLink ) || dwStatus != ERROR_SUCCESS ) {
+            if (!ReadStatus(c_szRegistryExtName, lpGPOInfo, NULL, &dwStatus, &dwTime, &dwSlowLink) || dwStatus != ERROR_SUCCESS) {
                 DebugMsg((DM_VERBOSE, TEXT("ProcessGPOList: Skipping extension %s due to failed Registry extension."), lpExt->lpDisplayName));
                 if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                    LogEvent( FALSE, IDS_EXT_SKIPPED_DUETO_FAILED_REG, lpExt->lpDisplayName );
+                    LogEvent(FALSE, IDS_EXT_SKIPPED_DUETO_FAILED_REG, lpExt->lpDisplayName);
                 dwRet = E_FAIL;
 
                 goto Exit;
             }
         }
 
-        if ( !LoadGPExtension( lpExt ) ) {
+        if (!LoadGPExtension(lpExt)) {
             DebugMsg((DM_WARNING, TEXT("ProcessGPOList: LoadGPExtension %s failed."), lpExt->lpDisplayName));
             dwRet = E_FAIL;
             goto Exit;
         }
 
-        if ( lpGPOInfo->dwFlags & GP_MACHINE )
+        if (lpGPOInfo->dwFlags & GP_MACHINE)
             pbAbort = &g_bStopMachGPOProcessing;
         else
             pbAbort = &g_bStopUserGPOProcessing;
 
         // Check if asynchronous processing is enabled
 
-        if ( lpExt->dwEnableAsynch )
+        if (lpExt->dwEnableAsynch)
             pAsyncHandleTemp = pAsyncHandle;
         else
             pAsyncHandleTemp = 0;
 
-        dwRet = lpExt->pEntryPoint( dwFlags, lpGPOInfo->hToken, lpGPOInfo->hKeyRoot, pDeletedGPOList, pChangedGPOList, pAsyncHandleTemp, pbAbort, lpGPOInfo->pStatusCallback );
+        dwRet = lpExt->pEntryPoint(dwFlags, lpGPOInfo->hToken, lpGPOInfo->hKeyRoot, pDeletedGPOList, pChangedGPOList, pAsyncHandleTemp, pbAbort, lpGPOInfo->pStatusCallback);
 
         RevertToSelf();
 
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPOList: Extension %s returned 0x%x."), lpExt->lpDisplayName, dwRet));
 
         if ((dwRet != ERROR_SUCCESS) && (dwRet != ERROR_OVERRIDE_NOCHANGES) && (dwRet != E_PENDING))
-            LogEvent( TRUE, IDS_EXT_FAILED, lpExt->lpDisplayName, dwFlags, dwRet );
+            LogEvent(TRUE, IDS_EXT_FAILED, lpExt->lpDisplayName, dwFlags, dwRet);
     }   // else of if lpext->bregistryext
 
 Exit:
@@ -3211,7 +3193,7 @@ Exit:
 }
 
 
-void CheckGroupMembership( LPGPOINFO lpGPOInfo, HANDLE hToken, BOOL *pbMemChanged, BOOL *pbUserLocalMemChanged )
+void CheckGroupMembership(LPGPOINFO lpGPOInfo, HANDLE hToken, BOOL * pbMemChanged, BOOL * pbUserLocalMemChanged)
 //  Purpose:    Checks if the security groups has changed, and if so saves the new security groups.
 
 //  Parameters: lpGPOInfo - LPGPOINFO struct
@@ -3220,46 +3202,46 @@ void CheckGroupMembership( LPGPOINFO lpGPOInfo, HANDLE hToken, BOOL *pbMemChange
 {
     PTOKEN_GROUPS pGroups = 0;
     DWORD dwSize = 0;
-    DWORD dwStatus = NtQueryInformationToken( hToken, TokenGroups, pGroups, dwSize, &dwSize );
-    if ( dwStatus ==  STATUS_BUFFER_TOO_SMALL ) {
-        pGroups = (PTOKEN_GROUPS) LocalAlloc( LPTR, dwSize );
-        if ( pGroups == 0 ) {
+    DWORD dwStatus = NtQueryInformationToken(hToken, TokenGroups, pGroups, dwSize, &dwSize);
+    if (dwStatus == STATUS_BUFFER_TOO_SMALL) {
+        pGroups = (PTOKEN_GROUPS)LocalAlloc(LPTR, dwSize);
+        if (pGroups == 0) {
             *pbMemChanged = TRUE;
             *pbUserLocalMemChanged = TRUE;
             goto Exit;
         }
 
-        dwStatus = NtQueryInformationToken( hToken, TokenGroups, pGroups, dwSize, &dwSize );
+        dwStatus = NtQueryInformationToken(hToken, TokenGroups, pGroups, dwSize, &dwSize);
     }
 
-    if ( dwStatus != STATUS_SUCCESS ) {
+    if (dwStatus != STATUS_SUCCESS) {
         *pbMemChanged = TRUE;
         *pbUserLocalMemChanged = TRUE;
         goto Exit;
     }
 
     // First do the machine and roaming user case
-    *pbMemChanged = ReadMembershipList( lpGPOInfo, NULL, pGroups );
-    if ( *pbMemChanged )
-        SaveMembershipList( lpGPOInfo, NULL, pGroups );
+    *pbMemChanged = ReadMembershipList(lpGPOInfo, NULL, pGroups);
+    if (*pbMemChanged)
+        SaveMembershipList(lpGPOInfo, NULL, pGroups);
 
     // Now the per user local settings case
-    if ( lpGPOInfo->dwFlags & GP_MACHINE ) {
+    if (lpGPOInfo->dwFlags & GP_MACHINE) {
         *pbUserLocalMemChanged = *pbMemChanged;
     } else {
-        DmAssert( lpGPOInfo->lpwszSidUser != 0 );
-        *pbUserLocalMemChanged = ReadMembershipList( lpGPOInfo, lpGPOInfo->lpwszSidUser, pGroups );
-        if ( *pbUserLocalMemChanged )
-            SaveMembershipList( lpGPOInfo, lpGPOInfo->lpwszSidUser, pGroups );
+        DmAssert(lpGPOInfo->lpwszSidUser != 0);
+        *pbUserLocalMemChanged = ReadMembershipList(lpGPOInfo, lpGPOInfo->lpwszSidUser, pGroups);
+        if (*pbUserLocalMemChanged)
+            SaveMembershipList(lpGPOInfo, lpGPOInfo->lpwszSidUser, pGroups);
     }
 
 Exit:
-    if ( pGroups != 0 )
-        LocalFree( pGroups );
+    if (pGroups != 0)
+        LocalFree(pGroups);
 }
 
 
-BOOL ReadMembershipList( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS pGroupsCur )
+BOOL ReadMembershipList(LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS pGroupsCur)
 //  Purpose:    Reads cached memberhip list and checks if the
 //              security groups has changed.
 
@@ -3271,7 +3253,7 @@ BOOL ReadMembershipList( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS
 //  Return:     TRUE if changed
 //              FALSE otherwise
 {
-    DWORD i= 0;
+    DWORD i = 0;
     LONG lResult;
     TCHAR szGroup[30];
     TCHAR szKey[250];
@@ -3284,64 +3266,64 @@ BOOL ReadMembershipList( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS
     DWORD dwCountCur = 0;
 
     // Get current count of groups ignoring groups that have the SE_GROUP_LOGON_ID attribute set as this sid will be different for each logon session.
-    for ( i=0; i < pGroupsCur->GroupCount; i++) {
-        if ( (SE_GROUP_LOGON_ID & pGroupsCur->Groups[i].Attributes) == 0 )
+    for (i = 0; i < pGroupsCur->GroupCount; i++) {
+        if ((SE_GROUP_LOGON_ID & pGroupsCur->Groups[i].Attributes) == 0)
             dwCountCur++;
     }
 
     // Read from cached group membership list
-    if ( lpwszSidUser == 0 )
-        wsprintf( szKey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\GroupMembership") );
+    if (lpwszSidUser == 0)
+        wsprintf(szKey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\GroupMembership"));
     else
-        wsprintf( szKey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\%ws\\GroupMembership"), lpwszSidUser );
+        wsprintf(szKey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\%ws\\GroupMembership"), lpwszSidUser);
 
-    lResult = RegOpenKeyEx ( lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, KEY_READ, &hKey);
+    lResult = RegOpenKeyEx(lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, KEY_READ, &hKey);
     if (lResult != ERROR_SUCCESS)
         return TRUE;
 
     dwSize = sizeof(dwCountOld);
-    lResult = RegQueryValueEx (hKey, TEXT("Count"), NULL, &dwType, (LPBYTE) &dwCountOld, &dwSize);
-    if ( lResult != ERROR_SUCCESS ) {
-        DebugMsg((DM_VERBOSE, TEXT("ReadMembershipList: Failed to read old group count") ));
+    lResult = RegQueryValueEx(hKey, TEXT("Count"), NULL, &dwType, (LPBYTE)&dwCountOld, &dwSize);
+    if (lResult != ERROR_SUCCESS) {
+        DebugMsg((DM_VERBOSE, TEXT("ReadMembershipList: Failed to read old group count")));
         goto Exit;
     }
 
     // Now compare the old and new number of security groups
-    if ( dwCountOld != dwCountCur ) {
-        DebugMsg((DM_VERBOSE, TEXT("ReadMembershipList: Old count %d is different from current count %d"), dwCountOld, dwCountCur ));
+    if (dwCountOld != dwCountCur) {
+        DebugMsg((DM_VERBOSE, TEXT("ReadMembershipList: Old count %d is different from current count %d"), dwCountOld, dwCountCur));
         goto Exit;
     }
 
     // Total group count is the same, now check that each individual group is the same.
     // First read the size of the largest value in this key.
-    lResult = RegQueryInfoKey (hKey, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &dwMaxSize, NULL, NULL);
+    lResult = RegQueryInfoKey(hKey, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &dwMaxSize, NULL, NULL);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("ReadMembershipList: Failed to query max size with %d."), lResult));
         goto Exit;
     }
 
     // account for possible NULL
-    dwMaxSize += sizeof( WCHAR );
+    dwMaxSize += sizeof(WCHAR);
 
     // Allocate buffer based upon the largest value
-    lpSid = LocalAlloc (LPTR, dwMaxSize);
+    lpSid = LocalAlloc(LPTR, dwMaxSize);
     if (!lpSid) {
         DebugMsg((DM_WARNING, TEXT("ReadMembershipList: Failed to allocate memory with %d."), lResult));
         goto Exit;
     }
 
-    for ( i=0; i<dwCountOld; i++ ) {
-        wsprintf( szGroup, TEXT("Group%d"), i );
+    for (i = 0; i < dwCountOld; i++) {
+        wsprintf(szGroup, TEXT("Group%d"), i);
 
         dwSize = dwMaxSize;
-        lResult = RegQueryValueEx (hKey, szGroup, NULL, &dwType, (LPBYTE) lpSid, &dwSize);
+        lResult = RegQueryValueEx(hKey, szGroup, NULL, &dwType, (LPBYTE)lpSid, &dwSize);
         if (lResult != ERROR_SUCCESS) {
-            DebugMsg((DM_WARNING, TEXT("ReadMembershipList: Failed to read value %ws"), szGroup ));
+            DebugMsg((DM_WARNING, TEXT("ReadMembershipList: Failed to read value %ws"), szGroup));
             goto Exit;
         }
 
-        if ( !GroupInList( lpSid, pGroupsCur ) ) {
-            DebugMsg((DM_WARNING, TEXT("ReadMembershipList: Group %ws not in current list of token groups"), lpSid ));
+        if (!GroupInList(lpSid, pGroupsCur)) {
+            DebugMsg((DM_WARNING, TEXT("ReadMembershipList: Group %ws not in current list of token groups"), lpSid));
             goto Exit;
         }
     }
@@ -3349,17 +3331,17 @@ BOOL ReadMembershipList( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS
     bDiff = FALSE;
 
 Exit:
-    if ( lpSid )
-        LocalFree( lpSid );
+    if (lpSid)
+        LocalFree(lpSid);
 
-    if ( hKey )
-        RegCloseKey (hKey);
+    if (hKey)
+        RegCloseKey(hKey);
 
     return bDiff;
 }
 
 
-BOOL GroupInList( LPTSTR lpSid, PTOKEN_GROUPS pGroups )
+BOOL GroupInList(LPTSTR lpSid, PTOKEN_GROUPS pGroups)
 //  Purpose:    Checks if sid in is list of security groups.
 
 //  Parameters: lpSid   - Sid to check
@@ -3373,28 +3355,28 @@ BOOL GroupInList( LPTSTR lpSid, PTOKEN_GROUPS pGroups )
     BOOL    bInList = FALSE;
 
     // Optimize the basic case where the user is an earthling
-    if ( 0 == lstrcmpi (lpSid, L"s-1-1-0") )
+    if (0 == lstrcmpi(lpSid, L"s-1-1-0"))
         return TRUE;
 
-    dwStatus = AllocateAndInitSidFromString (lpSid, &pSid);
+    dwStatus = AllocateAndInitSidFromString(lpSid, &pSid);
     if (ERROR_SUCCESS != dwStatus)
         return FALSE;
 
     // Cannot match up cached groups with current groups one-by-one because
     // current pGroups can have groups with  SE_GROUP_LOGON_ID attribute
     // set which are different for each logon session.
-    for ( i=0; i < pGroups->GroupCount; i++ ) {
-        bInList = RtlEqualSid (pSid, pGroups->Groups[i].Sid);
-        if ( bInList )
+    for (i = 0; i < pGroups->GroupCount; i++) {
+        bInList = RtlEqualSid(pSid, pGroups->Groups[i].Sid);
+        if (bInList)
             break;
     }
 
-    RtlFreeSid (pSid);
+    RtlFreeSid(pSid);
     return bInList;
 }
 
 
-void SaveMembershipList( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS pGroups )
+void SaveMembershipList(LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS pGroups)
 //  Purpose:    Caches memberhip list
 
 //  Parameters: lpGPOInfo - LPGPOINFO struct
@@ -3415,41 +3397,41 @@ void SaveMembershipList( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS
     HKEY hKey = NULL;
 
     // Start with clean key
-    if ( lpwszSidUser == 0 )
-        wsprintf( szKey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\GroupMembership") );
+    if (lpwszSidUser == 0)
+        wsprintf(szKey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\GroupMembership"));
     else
-        wsprintf( szKey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\%ws\\GroupMembership"), lpwszSidUser );
+        wsprintf(szKey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\%ws\\GroupMembership"), lpwszSidUser);
 
-    if (!RegDelnode ( lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey) ) {
+    if (!RegDelnode(lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey)) {
         DebugMsg((DM_VERBOSE, TEXT("SaveMembershipList: RegDelnode failed.")));
         return;
     }
 
-    lResult = RegCreateKeyEx ( lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
+    lResult = RegCreateKeyEx(lpwszSidUser ? HKEY_LOCAL_MACHINE : lpGPOInfo->hKeyRoot, szKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("SaveMemberList: Failed to create key with %d."), lResult));
         goto Exit;
     }
 
-    for ( i=0; i < pGroups->GroupCount; i++) {
-        if (SE_GROUP_LOGON_ID & pGroups->Groups[i].Attributes )
+    for (i = 0; i < pGroups->GroupCount; i++) {
+        if (SE_GROUP_LOGON_ID & pGroups->Groups[i].Attributes)
             continue;
 
         dwCount++;
 
         // Convert user SID to a string.
-        ntStatus = RtlConvertSidToUnicodeString( &unicodeStr, pGroups->Groups[i].Sid, (BOOLEAN)TRUE ); // Allocate
-        if ( !NT_SUCCESS(ntStatus) ) {
+        ntStatus = RtlConvertSidToUnicodeString(&unicodeStr, pGroups->Groups[i].Sid, (BOOLEAN)TRUE); // Allocate
+        if (!NT_SUCCESS(ntStatus)) {
             DebugMsg((DM_WARNING, TEXT("SaveMembershipList: RtlConvertSidToUnicodeString failed, status = 0x%x"), ntStatus));
             goto Exit;
         }
 
-        wsprintf( szGroup, TEXT("Group%d"), dwCount-1 );
+        wsprintf(szGroup, TEXT("Group%d"), dwCount - 1);
 
-        dwSize = (lstrlen (unicodeStr.Buffer) + 1) * sizeof(TCHAR);
-        lResult = RegSetValueEx (hKey, szGroup, 0, REG_SZ, (LPBYTE) unicodeStr.Buffer, dwSize);
+        dwSize = (lstrlen(unicodeStr.Buffer) + 1) * sizeof(TCHAR);
+        lResult = RegSetValueEx(hKey, szGroup, 0, REG_SZ, (LPBYTE)unicodeStr.Buffer, dwSize);
 
-        RtlFreeUnicodeString( &unicodeStr );
+        RtlFreeUnicodeString(&unicodeStr);
 
         if (lResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("SaveMemberList: Failed to set value %ws with %d."), szGroup, lResult));
@@ -3459,11 +3441,11 @@ void SaveMembershipList( LPGPOINFO lpGPOInfo, LPTSTR lpwszSidUser, PTOKEN_GROUPS
 
     // Commit by writing count
     dwSize = sizeof(dwCount);
-    lResult = RegSetValueEx (hKey, TEXT("Count"), 0, REG_DWORD, (LPBYTE) &dwCount, dwSize);
+    lResult = RegSetValueEx(hKey, TEXT("Count"), 0, REG_DWORD, (LPBYTE)&dwCount, dwSize);
 
 Exit:
     if (hKey)
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
 }
 
 
@@ -3494,80 +3476,69 @@ BOOL ArchiveRegistryValue(HANDLE hFile, LPWSTR lpKeyName, LPWSTR lpValueName, DW
     // [keyname;valuename;type;datalength;data]
 
     // open bracket
-    if (!WriteFile (hFile, &cOpenBracket, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR))
-    {
+    if (!WriteFile(hFile, &cOpenBracket, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR)) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write open bracket with %d"), GetLastError()));
         goto Exit;
     }
 
     // key name
-    dwTemp = (lstrlen (lpKeyName) + 1) * sizeof (WCHAR);
-    if (!WriteFile (hFile, lpKeyName, dwTemp, &dwBytesWritten, NULL) || dwBytesWritten != dwTemp)
-    {
+    dwTemp = (lstrlen(lpKeyName) + 1) * sizeof(WCHAR);
+    if (!WriteFile(hFile, lpKeyName, dwTemp, &dwBytesWritten, NULL) || dwBytesWritten != dwTemp) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write key name with %d"), GetLastError()));
         goto Exit;
     }
 
     // semicolon
-    if (!WriteFile (hFile, &cSemiColon, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR))
-    {
+    if (!WriteFile(hFile, &cSemiColon, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR)) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write semicolon with %d"), GetLastError()));
         goto Exit;
     }
 
     // value name
-    dwTemp = (lstrlen (lpValueName) + 1) * sizeof (WCHAR);
-    if (!WriteFile (hFile, lpValueName, dwTemp, &dwBytesWritten, NULL) || dwBytesWritten != dwTemp)
-    {
+    dwTemp = (lstrlen(lpValueName) + 1) * sizeof(WCHAR);
+    if (!WriteFile(hFile, lpValueName, dwTemp, &dwBytesWritten, NULL) || dwBytesWritten != dwTemp) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write value name with %d"), GetLastError()));
         goto Exit;
     }
 
     // semicolon
-    if (!WriteFile (hFile, &cSemiColon, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR))
-    {
+    if (!WriteFile(hFile, &cSemiColon, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR)) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write semicolon with %d"), GetLastError()));
         goto Exit;
     }
 
     // type
-    if (!WriteFile (hFile, &dwType, sizeof(DWORD), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(DWORD))
-    {
+    if (!WriteFile(hFile, &dwType, sizeof(DWORD), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(DWORD)) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write data type with %d"), GetLastError()));
         goto Exit;
     }
 
     // semicolon
-    if (!WriteFile (hFile, &cSemiColon, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR))
-    {
+    if (!WriteFile(hFile, &cSemiColon, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR)) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write semicolon with %d"), GetLastError()));
         goto Exit;
     }
 
     // data length
-    if (!WriteFile (hFile, &dwDataLength, sizeof(DWORD), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(DWORD))
-    {
+    if (!WriteFile(hFile, &dwDataLength, sizeof(DWORD), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(DWORD)) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write data type with %d"), GetLastError()));
         goto Exit;
     }
 
     // semicolon
-    if (!WriteFile (hFile, &cSemiColon, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR))
-    {
+    if (!WriteFile(hFile, &cSemiColon, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR)) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write semicolon with %d"), GetLastError()));
         goto Exit;
     }
 
     // data
-    if (!WriteFile (hFile, lpData, dwDataLength, &dwBytesWritten, NULL) || dwBytesWritten != dwDataLength)
-    {
+    if (!WriteFile(hFile, lpData, dwDataLength, &dwBytesWritten, NULL) || dwBytesWritten != dwDataLength) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write data with %d"), GetLastError()));
         goto Exit;
     }
 
     // close bracket
-    if (!WriteFile (hFile, &cCloseBracket, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR))
-    {
+    if (!WriteFile(hFile, &cCloseBracket, sizeof(WCHAR), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(WCHAR)) {
         DebugMsg((DM_WARNING, TEXT("ArchiveRegistryValue: Failed to write close bracket with %d"), GetLastError()));
         goto Exit;
     }
@@ -3580,7 +3551,7 @@ Exit:
 }
 
 
-BOOL ParseRegistryFile (LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBACK pfnRegFileCallback, HANDLE hArchive)
+BOOL ParseRegistryFile(LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBACK pfnRegFileCallback, HANDLE hArchive)
 //  Purpose:    Parses a registry.pol file
 
 //  Parameters: lpGPOInfo          -   GPO information
@@ -3607,33 +3578,28 @@ BOOL ParseRegistryFile (LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBA
         goto Exit;
     }
 
-    hFile = CreateFile (lpRegistry, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+    hFile = CreateFile(lpRegistry, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
     RevertToUser(&hOldToken);
     if (hFile == INVALID_HANDLE_VALUE) {
-        if ((GetLastError() == ERROR_FILE_NOT_FOUND) || (GetLastError() == ERROR_PATH_NOT_FOUND))
-        {
+        if ((GetLastError() == ERROR_FILE_NOT_FOUND) || (GetLastError() == ERROR_PATH_NOT_FOUND)) {
             bResult = TRUE;
             goto Exit;
-        }
-        else
-        {
+        } else {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: CreateFile failed with %d"), GetLastError()));
-            LogEvent (TRUE, IDS_NO_REGISTRY, lpRegistry, GetLastError());
+            LogEvent(TRUE, IDS_NO_REGISTRY, lpRegistry, GetLastError());
             goto Exit;
         }
     }
 
     // Allocate buffers to hold the keyname, valuename, and data
-    lpKeyName = (LPWSTR) LocalAlloc (LPTR, MAX_KEYNAME_SIZE * sizeof(WCHAR));
-    if (!lpKeyName)
-    {
+    lpKeyName = (LPWSTR)LocalAlloc(LPTR, MAX_KEYNAME_SIZE * sizeof(WCHAR));
+    if (!lpKeyName) {
         DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to allocate memory with %d"), GetLastError()));
         goto Exit;
     }
 
-    lpValueName = (LPWSTR) LocalAlloc (LPTR, MAX_VALUENAME_SIZE * sizeof(WCHAR));
-    if (!lpValueName)
-    {
+    lpValueName = (LPWSTR)LocalAlloc(LPTR, MAX_VALUENAME_SIZE * sizeof(WCHAR));
+    if (!lpValueName) {
         DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to allocate memory with %d"), GetLastError()));
         goto Exit;
     }
@@ -3641,46 +3607,38 @@ BOOL ParseRegistryFile (LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBA
     // Read the header block
 
     // 2 DWORDS, signature (PReg) and version number and 2 newlines
-    if (!ReadFile (hFile, &dwTemp, sizeof(dwTemp), &dwBytesRead, NULL) || dwBytesRead != sizeof(dwTemp))
-    {
+    if (!ReadFile(hFile, &dwTemp, sizeof(dwTemp), &dwBytesRead, NULL) || dwBytesRead != sizeof(dwTemp)) {
         DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to read signature with %d"), GetLastError()));
         goto Exit;
     }
 
-    if (dwTemp != REGFILE_SIGNATURE)
-    {
+    if (dwTemp != REGFILE_SIGNATURE) {
         DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Invalid file signature")));
         goto Exit;
     }
 
-    if (!ReadFile (hFile, &dwTemp, sizeof(dwTemp), &dwBytesRead, NULL) || dwBytesRead != sizeof(dwTemp))
-    {
+    if (!ReadFile(hFile, &dwTemp, sizeof(dwTemp), &dwBytesRead, NULL) || dwBytesRead != sizeof(dwTemp)) {
         DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to read version number with %d"), GetLastError()));
         goto Exit;
     }
 
-    if (dwTemp != REGISTRY_FILE_VERSION)
-    {
+    if (dwTemp != REGISTRY_FILE_VERSION) {
         DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Invalid file version")));
         goto Exit;
     }
 
     // Read the data
-    while (TRUE)
-    {
+    while (TRUE) {
         // Read the first character.  It will either be a [ or the end of the file.
-        if (!ReadFile (hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL))
-        {
-            if (GetLastError() != ERROR_HANDLE_EOF)
-            {
+        if (!ReadFile(hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL)) {
+            if (GetLastError() != ERROR_HANDLE_EOF) {
                 DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to read first character with %d"), GetLastError()));
                 goto Exit;
             }
             break;
         }
 
-        if ((dwBytesRead == 0) || (chTemp != L'['))
-        {
+        if ((dwBytesRead == 0) || (chTemp != L'[')) {
             break;
         }
 
@@ -3688,10 +3646,8 @@ BOOL ParseRegistryFile (LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBA
         lpTemp = lpKeyName;
         dwTemp = 0;
 
-        while (dwTemp < MAX_KEYNAME_SIZE)
-        {
-            if (!ReadFile (hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL))
-            {
+        while (dwTemp < MAX_KEYNAME_SIZE) {
+            if (!ReadFile(hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL)) {
                 DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to read keyname character with %d"), GetLastError()));
                 goto Exit;
             }
@@ -3704,25 +3660,21 @@ BOOL ParseRegistryFile (LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBA
             dwTemp++;
         }
 
-        if (dwTemp >= MAX_KEYNAME_SIZE)
-        {
+        if (dwTemp >= MAX_KEYNAME_SIZE) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Keyname exceeded max size")));
             goto Exit;
         }
 
         // Read the semi-colon
-        if (!ReadFile (hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL))
-        {
-            if (GetLastError() != ERROR_HANDLE_EOF)
-            {
+        if (!ReadFile(hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL)) {
+            if (GetLastError() != ERROR_HANDLE_EOF) {
                 DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to read first character with %d"), GetLastError()));
                 goto Exit;
             }
             break;
         }
 
-        if ((dwBytesRead == 0) || (chTemp != L';'))
-        {
+        if ((dwBytesRead == 0) || (chTemp != L';')) {
             break;
         }
 
@@ -3730,10 +3682,8 @@ BOOL ParseRegistryFile (LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBA
         lpTemp = lpValueName;
         dwTemp = 0;
 
-        while (dwTemp < MAX_VALUENAME_SIZE)
-        {
-            if (!ReadFile (hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL))
-            {
+        while (dwTemp < MAX_VALUENAME_SIZE) {
+            if (!ReadFile(hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL)) {
                 DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to read valuename character with %d"), GetLastError()));
                 goto Exit;
             }
@@ -3746,87 +3696,74 @@ BOOL ParseRegistryFile (LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBA
             dwTemp++;
         }
 
-        if (dwTemp >= MAX_VALUENAME_SIZE)
-        {
+        if (dwTemp >= MAX_VALUENAME_SIZE) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Valuename exceeded max size")));
             goto Exit;
         }
 
         // Read the semi-colon
-        if (!ReadFile (hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL))
-        {
-            if (GetLastError() != ERROR_HANDLE_EOF)
-            {
+        if (!ReadFile(hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL)) {
+            if (GetLastError() != ERROR_HANDLE_EOF) {
                 DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to read first character with %d"), GetLastError()));
                 goto Exit;
             }
             break;
         }
 
-        if ((dwBytesRead == 0) || (chTemp != L';'))
-        {
+        if ((dwBytesRead == 0) || (chTemp != L';')) {
             break;
         }
 
         // Read the type
-        if (!ReadFile (hFile, &dwType, sizeof(DWORD), &dwBytesRead, NULL))
-        {
+        if (!ReadFile(hFile, &dwType, sizeof(DWORD), &dwBytesRead, NULL)) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to read type with %d"), GetLastError()));
             goto Exit;
         }
 
         // Skip semicolon
-        if (!ReadFile (hFile, &dwTemp, sizeof(WCHAR), &dwBytesRead, NULL))
-        {
+        if (!ReadFile(hFile, &dwTemp, sizeof(WCHAR), &dwBytesRead, NULL)) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to skip semicolon with %d"), GetLastError()));
             goto Exit;
         }
 
         // Read the data length
-        if (!ReadFile (hFile, &dwDataLength, sizeof(DWORD), &dwBytesRead, NULL))
-        {
+        if (!ReadFile(hFile, &dwDataLength, sizeof(DWORD), &dwBytesRead, NULL)) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to data length with %d"), GetLastError()));
             goto Exit;
         }
 
         // Skip semicolon
-        if (!ReadFile (hFile, &dwTemp, sizeof(WCHAR), &dwBytesRead, NULL))
-        {
+        if (!ReadFile(hFile, &dwTemp, sizeof(WCHAR), &dwBytesRead, NULL)) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to skip semicolon with %d"), GetLastError()));
             goto Exit;
         }
 
         // Allocate memory for data
-        lpData = (LPBYTE) LocalAlloc (LPTR, dwDataLength);
-        if (!lpData)
-        {
+        lpData = (LPBYTE)LocalAlloc(LPTR, dwDataLength);
+        if (!lpData) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to allocate memory for data with %d"), GetLastError()));
             goto Exit;
         }
 
         // Read data
-        if (!ReadFile (hFile, lpData, dwDataLength, &dwBytesRead, NULL))
-        {
+        if (!ReadFile(hFile, lpData, dwDataLength, &dwBytesRead, NULL)) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to read data with %d"), GetLastError()));
             goto Exit;
         }
 
         // Skip closing bracket
-        if (!ReadFile (hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL))
-        {
+        if (!ReadFile(hFile, &chTemp, sizeof(WCHAR), &dwBytesRead, NULL)) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Failed to skip closing bracket with %d"), GetLastError()));
             goto Exit;
         }
 
-        if (chTemp != L']')
-        {
+        if (chTemp != L']') {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Expected to find ], but found %c"), chTemp));
             goto Exit;
         }
 
         // Call the callback function
-        if (!pfnRegFileCallback (lpGPOInfo, lpKeyName, lpValueName, dwType, dwDataLength, lpData))
-        {
+        if (!pfnRegFileCallback(lpGPOInfo, lpKeyName, lpValueName, dwType, dwDataLength, lpData)) {
             DebugMsg((DM_WARNING, TEXT("ParseRegistryFile: Callback function returned false.")));
             goto Exit;
         }
@@ -3838,7 +3775,7 @@ BOOL ParseRegistryFile (LPGPOINFO lpGPOInfo, LPTSTR lpRegistry, PFNREGFILECALLBA
             }
         }
 
-        LocalFree (lpData);
+        LocalFree(lpData);
         lpData = NULL;
     }
 
@@ -3848,23 +3785,23 @@ Exit:
     // Finished
     DebugMsg((DM_VERBOSE, TEXT("ParseRegistryFile: Leaving.")));
     if (lpData) {
-        LocalFree (lpData);
+        LocalFree(lpData);
     }
-    if ( hFile != INVALID_HANDLE_VALUE ) {
-        CloseHandle (hFile);
+    if (hFile != INVALID_HANDLE_VALUE) {
+        CloseHandle(hFile);
     }
-    if ( lpKeyName ) {
-        LocalFree (lpKeyName);
+    if (lpKeyName) {
+        LocalFree(lpKeyName);
     }
-    if ( lpValueName ) {
-        LocalFree (lpValueName);
+    if (lpValueName) {
+        LocalFree(lpValueName);
     }
 
     return bResult;
 }
 
 
-BOOL ResetRegKeySecurity (HKEY hKeyRoot, LPTSTR lpKeyName)
+BOOL ResetRegKeySecurity(HKEY hKeyRoot, LPTSTR lpKeyName)
 //  Purpose:    Resets the security on a user's key
 
 //  Parameters: hKeyRoot    -   Handle to the root of the hive
@@ -3882,33 +3819,33 @@ BOOL ResetRegKeySecurity (HKEY hKeyRoot, LPTSTR lpKeyName)
     RegGetKeySecurity(hKeyRoot, DACL_SECURITY_INFORMATION, pSD, &dwSize);
 
     if (!dwSize) {
-       DebugMsg((DM_WARNING, TEXT("ResetRegKeySecurity: RegGetKeySecurity returned 0")));
-       return FALSE;
+        DebugMsg((DM_WARNING, TEXT("ResetRegKeySecurity: RegGetKeySecurity returned 0")));
+        return FALSE;
     }
 
-    pSD = LocalAlloc (LPTR, dwSize);
+    pSD = LocalAlloc(LPTR, dwSize);
     if (!pSD) {
-       DebugMsg((DM_WARNING, TEXT("ResetRegKeySecurity: Failed to allocate memory")));
-       return FALSE;
+        DebugMsg((DM_WARNING, TEXT("ResetRegKeySecurity: Failed to allocate memory")));
+        return FALSE;
     }
 
     lResult = RegGetKeySecurity(hKeyRoot, DACL_SECURITY_INFORMATION, pSD, &dwSize);
     if (lResult != ERROR_SUCCESS) {
-       DebugMsg((DM_WARNING, TEXT("ResetRegKeySecurity: Failed to query key security with %d"), lResult));
-       LocalFree (pSD);
-       return FALSE;
+        DebugMsg((DM_WARNING, TEXT("ResetRegKeySecurity: Failed to query key security with %d"), lResult));
+        LocalFree(pSD);
+        return FALSE;
     }
 
     lResult = RegOpenKeyEx(hKeyRoot, lpKeyName, 0, WRITE_DAC | KEY_ENUMERATE_SUB_KEYS | READ_CONTROL, &hSubKey);
     if (lResult != ERROR_SUCCESS) {
-       DebugMsg((DM_WARNING, TEXT("ResetRegKeySecurity: Failed to open sub key with %d"), lResult));
-       LocalFree (pSD);
-       return FALSE;
+        DebugMsg((DM_WARNING, TEXT("ResetRegKeySecurity: Failed to open sub key with %d"), lResult));
+        LocalFree(pSD);
+        return FALSE;
     }
 
-    lResult = RegSetKeySecurity (hSubKey, DACL_SECURITY_INFORMATION, pSD);
-    RegCloseKey (hSubKey);
-    LocalFree (pSD);
+    lResult = RegSetKeySecurity(hSubKey, DACL_SECURITY_INFORMATION, pSD);
+    RegCloseKey(hSubKey);
+    LocalFree(pSD);
 
     if (lResult != ERROR_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("ResetRegKeySecure: Failed to set security, error = %d"), lResult));
@@ -3919,7 +3856,7 @@ BOOL ResetRegKeySecurity (HKEY hKeyRoot, LPTSTR lpKeyName)
 }
 
 
-BOOL SetRegistryValue (LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueName, DWORD dwType, DWORD dwDataLength, LPBYTE lpData)
+BOOL SetRegistryValue(LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueName, DWORD dwType, DWORD dwDataLength, LPBYTE lpData)
 //  Purpose:    Callback from ParseRegistryFile that sets
 //              registry policies
 
@@ -3937,51 +3874,40 @@ BOOL SetRegistryValue (LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueName
     LONG lResult;
 
     // Special case some values
-    if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**del."), 6, lpValueName, 6) == 2)
-    {
+    if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**del."), 6, lpValueName, 6) == 2) {
         LPTSTR lpRealValueName = lpValueName + 6;
 
         // Delete one specific value
-        lResult = RegOpenKeyEx (lpGPOInfo->hKeyRoot, lpKeyName, 0, KEY_WRITE, &hSubKey);
-        if (lResult == ERROR_SUCCESS)
-        {
+        lResult = RegOpenKeyEx(lpGPOInfo->hKeyRoot, lpKeyName, 0, KEY_WRITE, &hSubKey);
+        if (lResult == ERROR_SUCCESS) {
             lResult = RegDeleteValue(hSubKey, lpRealValueName);
 
-            if ((lResult == ERROR_SUCCESS) || (lResult == ERROR_FILE_NOT_FOUND))
-            {
+            if ((lResult == ERROR_SUCCESS) || (lResult == ERROR_FILE_NOT_FOUND)) {
                 DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: Deleted value <%s>."), lpRealValueName));
                 if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                    LogEvent (FALSE, IDS_DELETED_VALUE, lpRealValueName);
-            }
-            else
-            {
+                    LogEvent(FALSE, IDS_DELETED_VALUE, lpRealValueName);
+            } else {
                 DebugMsg((DM_WARNING, TEXT("SetRegistryValue: Failed to delete value <%s> with %d"), lpRealValueName, lResult));
-                LogEvent (TRUE, IDS_FAIL_DELETE_VALUE, lpRealValueName, lResult);
+                LogEvent(TRUE, IDS_FAIL_DELETE_VALUE, lpRealValueName, lResult);
             }
 
-            RegCloseKey (hSubKey);
+            RegCloseKey(hSubKey);
         }
-    }
-    else if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**delvals."), 10, lpValueName, 10) == 2)
-    {
+    } else if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**delvals."), 10, lpValueName, 10) == 2) {
         // Delete all values in the destination key
-        lResult = RegOpenKeyEx (lpGPOInfo->hKeyRoot, lpKeyName, 0, KEY_WRITE | KEY_READ, &hSubKey);
-        if (lResult == ERROR_SUCCESS)
-        {
+        lResult = RegOpenKeyEx(lpGPOInfo->hKeyRoot, lpKeyName, 0, KEY_WRITE | KEY_READ, &hSubKey);
+        if (lResult == ERROR_SUCCESS) {
             DeleteAllValues(hSubKey);
             DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: Deleted all values in <%s>."), lpKeyName));
-            RegCloseKey (hSubKey);
+            RegCloseKey(hSubKey);
         }
-    }
-    else if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**DeleteValues"), 14, lpValueName, 14) == 2)
-    {
+    } else if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**DeleteValues"), 14, lpValueName, 14) == 2) {
         TCHAR szValueName[MAX_PATH];
         LPTSTR lpName, lpNameTemp;
 
         // Delete the values  (semi-colon separated)
-        lResult = RegOpenKeyEx (lpGPOInfo->hKeyRoot, lpKeyName, 0, KEY_WRITE, &hSubKey);
-        if (lResult == ERROR_SUCCESS)
-        {
+        lResult = RegOpenKeyEx(lpGPOInfo->hKeyRoot, lpKeyName, 0, KEY_WRITE, &hSubKey);
+        if (lResult == ERROR_SUCCESS) {
             lpName = (LPTSTR)lpData;
 
             while (*lpName) {
@@ -3995,31 +3921,26 @@ BOOL SetRegistryValue (LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueName
                     *lpNameTemp++ = *lpName++;
                 }
 
-                *lpNameTemp= TEXT('\0');
+                *lpNameTemp = TEXT('\0');
 
                 while (*lpName == TEXT(';')) {
                     lpName++;
                 }
 
-                lResult = RegDeleteValue (hSubKey, szValueName);
-                if ((lResult == ERROR_SUCCESS) || (lResult == ERROR_FILE_NOT_FOUND))
-                {
+                lResult = RegDeleteValue(hSubKey, szValueName);
+                if ((lResult == ERROR_SUCCESS) || (lResult == ERROR_FILE_NOT_FOUND)) {
                     DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: Deleted value <%s>."), szValueName));
                     if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                        LogEvent (FALSE, IDS_DELETED_VALUE, szValueName);
-                }
-                else
-                {
+                        LogEvent(FALSE, IDS_DELETED_VALUE, szValueName);
+                } else {
                     DebugMsg((DM_WARNING, TEXT("SetRegistryValue: Failed to delete value <%s> with %d"), szValueName, lResult));
-                    LogEvent (TRUE, IDS_FAIL_DELETE_VALUE, szValueName, lResult);
+                    LogEvent(TRUE, IDS_FAIL_DELETE_VALUE, szValueName, lResult);
                 }
             }
 
-            RegCloseKey (hSubKey);
+            RegCloseKey(hSubKey);
         }
-    }
-    else if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**DeleteKeys"), 12, lpValueName, 12) == 2)
-    {
+    } else if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**DeleteKeys"), 12, lpValueName, 12) == 2) {
         TCHAR szKeyName[MAX_KEYNAME_SIZE];
         LPTSTR lpName, lpNameTemp, lpEnd;
 
@@ -4038,114 +3959,92 @@ BOOL SetRegistryValue (LPGPOINFO lpGPOInfo, LPTSTR lpKeyName, LPTSTR lpValueName
                 *lpNameTemp++ = *lpName++;
             }
 
-            *lpNameTemp= TEXT('\0');
+            *lpNameTemp = TEXT('\0');
 
             while (*lpName == TEXT(';')) {
                 lpName++;
             }
 
-            if (RegDelnode (lpGPOInfo->hKeyRoot, szKeyName)) {
+            if (RegDelnode(lpGPOInfo->hKeyRoot, szKeyName)) {
                 DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: Deleted key <%s>."), szKeyName));
                 if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                    LogEvent (FALSE, IDS_DELETED_KEY, szKeyName);
+                    LogEvent(FALSE, IDS_DELETED_KEY, szKeyName);
             }
         }
-    }
-    else if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**soft."), 7, lpValueName, 7) == 2)
-    {
+    } else if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**soft."), 7, lpValueName, 7) == 2) {
         // "soft" value, only set this if it doesn't already exist in destination
-        lResult = RegOpenKeyEx (lpGPOInfo->hKeyRoot, lpKeyName, 0, KEY_WRITE, &hSubKey);
-        if (lResult == ERROR_SUCCESS)
-        {
-            TCHAR TmpValueData[MAX_PATH+1];
-            DWORD dwSize=sizeof(TmpValueData);
+        lResult = RegOpenKeyEx(lpGPOInfo->hKeyRoot, lpKeyName, 0, KEY_WRITE, &hSubKey);
+        if (lResult == ERROR_SUCCESS) {
+            TCHAR TmpValueData[MAX_PATH + 1];
+            DWORD dwSize = sizeof(TmpValueData);
 
-            lResult = RegQueryValueEx(hSubKey, lpValueName + 7, NULL,NULL,(LPBYTE) TmpValueData, &dwSize);
-            RegCloseKey (hSubKey);
+            lResult = RegQueryValueEx(hSubKey, lpValueName + 7, NULL, NULL, (LPBYTE)TmpValueData, &dwSize);
+            RegCloseKey(hSubKey);
             if (lResult != ERROR_SUCCESS) {
                 goto SetValue;
             }
         }
-    }
-    else if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**SecureKey"), 11, lpValueName, 11) == 2)
-    {
+    } else if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**SecureKey"), 11, lpValueName, 11) == 2) {
         // Secure / unsecure a key (user only)
-        if (!(lpGPOInfo->dwFlags & GP_MACHINE))
-        {
-            if (*((LPDWORD)lpData) == 1)
-            {
+        if (!(lpGPOInfo->dwFlags & GP_MACHINE)) {
+            if (*((LPDWORD)lpData) == 1) {
                 DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: Securing key <%s>."), lpKeyName));
                 MakeRegKeySecure(lpGPOInfo->hToken, lpGPOInfo->hKeyRoot, lpKeyName);
-            }
-            else
-            {
+            } else {
                 DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: Unsecuring key <%s>."), lpKeyName));
-                ResetRegKeySecurity (lpGPOInfo->hKeyRoot, lpKeyName);
+                ResetRegKeySecurity(lpGPOInfo->hKeyRoot, lpKeyName);
             }
         }
-    }
-    else if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**Comment:"), 10, lpValueName, 10) == 2)
-    {
+    } else if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("**Comment:"), 10, lpValueName, 10) == 2) {
         // Comment - can be ignored
-        DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: Found comment %s."), (lpValueName+10)));
-    }
-    else
-    {
-SetValue:
+        DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: Found comment %s."), (lpValueName + 10)));
+    } else {
+    SetValue:
         // Save registry value
-        lResult = RegCreateKeyEx (lpGPOInfo->hKeyRoot, lpKeyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hSubKey, &dwDisp);
-        if (lResult == ERROR_SUCCESS)
-        {
-            if ((dwType == REG_NONE) && (dwDataLength == 0) && (*lpValueName == L'\0'))
-            {
+        lResult = RegCreateKeyEx(lpGPOInfo->hKeyRoot, lpKeyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hSubKey, &dwDisp);
+        if (lResult == ERROR_SUCCESS) {
+            if ((dwType == REG_NONE) && (dwDataLength == 0) && (*lpValueName == L'\0')) {
                 lResult = ERROR_SUCCESS;
-            }
-            else
-            {
-                lResult = RegSetValueEx (hSubKey, lpValueName, 0, dwType, lpData, dwDataLength);
+            } else {
+                lResult = RegSetValueEx(hSubKey, lpValueName, 0, dwType, lpData, dwDataLength);
             }
 
-            RegCloseKey (hSubKey);
+            RegCloseKey(hSubKey);
 
-            if (lResult == ERROR_SUCCESS)
-            {
+            if (lResult == ERROR_SUCCESS) {
                 switch (dwType) {
-                    case REG_SZ:
-                    case REG_EXPAND_SZ:
-                        DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: %s => %s  [OK]"), lpValueName, (LPTSTR)lpData));
-                        if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                            LogEvent (FALSE, IDS_SET_STRING_VALUE, lpValueName, (LPTSTR)lpData);
-                        break;
-                    case REG_DWORD:
-                        DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: %s => %d  [OK]"), lpValueName, *((LPDWORD)lpData)));
-                        if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                            LogEvent (FALSE, IDS_SET_DWORD_VALUE, lpValueName, (DWORD)*lpData);
-                        break;
-                    case REG_NONE:
-                        break;
-                    default:
-                        DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: %s was set successfully"), lpValueName));
-                        if (lpGPOInfo->dwFlags & GP_VERBOSE)
-                            LogEvent (FALSE, IDS_SET_UNKNOWN_VALUE, lpValueName);
-                        break;
+                case REG_SZ:
+                case REG_EXPAND_SZ:
+                    DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: %s => %s  [OK]"), lpValueName, (LPTSTR)lpData));
+                    if (lpGPOInfo->dwFlags & GP_VERBOSE)
+                        LogEvent(FALSE, IDS_SET_STRING_VALUE, lpValueName, (LPTSTR)lpData);
+                    break;
+                case REG_DWORD:
+                    DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: %s => %d  [OK]"), lpValueName, *((LPDWORD)lpData)));
+                    if (lpGPOInfo->dwFlags & GP_VERBOSE)
+                        LogEvent(FALSE, IDS_SET_DWORD_VALUE, lpValueName, (DWORD)*lpData);
+                    break;
+                case REG_NONE:
+                    break;
+                default:
+                    DebugMsg((DM_VERBOSE, TEXT("SetRegistryValue: %s was set successfully"), lpValueName));
+                    if (lpGPOInfo->dwFlags & GP_VERBOSE)
+                        LogEvent(FALSE, IDS_SET_UNKNOWN_VALUE, lpValueName);
+                    break;
                 }
 
-                if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("Control Panel\\Colors"), 20, lpKeyName, 20) == 2) {
+                if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("Control Panel\\Colors"), 20, lpKeyName, 20) == 2) {
                     lpGPOInfo->dwFlags |= GP_REGPOLICY_CPANEL;
-                } else if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("Control Panel\\Desktop"), 21, lpKeyName, 21) == 2) {
+                } else if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, TEXT("Control Panel\\Desktop"), 21, lpKeyName, 21) == 2) {
                     lpGPOInfo->dwFlags |= GP_REGPOLICY_CPANEL;
                 }
-            }
-            else
-            {
+            } else {
                 DebugMsg((DM_WARNING, TEXT("SetRegistryValue: Failed to set value <%s> with %d"), lpValueName, lResult));
-                LogEvent (TRUE, IDS_FAILED_SET, lpValueName, lResult);
+                LogEvent(TRUE, IDS_FAILED_SET, lpValueName, lResult);
             }
-        }
-        else
-        {
+        } else {
             DebugMsg((DM_WARNING, TEXT("SetRegistryValue: Failed to open key <%s> with %d"), lpKeyName, lResult));
-            LogEvent (TRUE, IDS_FAILED_CREATE, lpKeyName, lResult);
+            LogEvent(TRUE, IDS_FAILED_CREATE, lpKeyName, lResult);
         }
     }
 
@@ -4153,7 +4052,7 @@ SetValue:
 }
 
 
-BOOL ProcessGPORegistryPolicy (LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pChangedGPOList)
+BOOL ProcessGPORegistryPolicy(LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pChangedGPOList)
 //  Purpose:    Proceses GPO registry policy
 
 //  Parameters: lpGPOInfo       -   GPO information
@@ -4190,24 +4089,23 @@ BOOL ProcessGPORegistryPolicy (LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pChange
     }
 
     // Tack on the archive file name
-    DmAssert( lstrlen(szPath) + lstrlen(TEXT("\\ntuser.pol")) < MAX_PATH );
+    DmAssert(lstrlen(szPath) + lstrlen(TEXT("\\ntuser.pol")) < MAX_PATH);
 
-    lstrcat (szPath, TEXT("\\ntuser.pol"));
+    lstrcat(szPath, TEXT("\\ntuser.pol"));
 
     // Delete any existing policies
-    if (!ResetPolicies (lpGPOInfo, szPath)) {
+    if (!ResetPolicies(lpGPOInfo, szPath)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPORegistryPolicy: ResetPolicies failed.")));
         return FALSE;
     }
 
     // Delete the old archive file
-    SetFileAttributes (szPath, FILE_ATTRIBUTE_NORMAL);
-    DeleteFile (szPath);
+    SetFileAttributes(szPath, FILE_ATTRIBUTE_NORMAL);
+    DeleteFile(szPath);
 
     // Recreate the archive file
-    hFile = CreateFile (szPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
+    hFile = CreateFile(szPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPORegistryPolicy: Failed to create archive file with %d"), GetLastError()));
         return FALSE;
     }
@@ -4215,62 +4113,60 @@ BOOL ProcessGPORegistryPolicy (LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pChange
     // Set the header information in the archive file
     dwTemp = REGFILE_SIGNATURE;
 
-    if (!WriteFile (hFile, &dwTemp, sizeof(dwTemp), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(dwTemp))
-    {
+    if (!WriteFile(hFile, &dwTemp, sizeof(dwTemp), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(dwTemp)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPORegistryPolicy: Failed to write signature with %d"), GetLastError()));
-        CloseHandle (hFile);
+        CloseHandle(hFile);
         return FALSE;
     }
 
     dwTemp = REGISTRY_FILE_VERSION;
-    if (!WriteFile (hFile, &dwTemp, sizeof(dwTemp), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(dwTemp))
-    {
+    if (!WriteFile(hFile, &dwTemp, sizeof(dwTemp), &dwBytesWritten, NULL) || dwBytesWritten != sizeof(dwTemp)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPORegistryPolicy: Failed to write version number with %d"), GetLastError()));
-        CloseHandle (hFile);
+        CloseHandle(hFile);
         return FALSE;
     }
 
     // Now loop through the GPOs applying the registry.pol files
     lpGPO = pChangedGPOList;
 
-    while ( lpGPO ) {
+    while (lpGPO) {
         // Add the source GPO comment
-        lpGPOComment = LocalAlloc (LPTR, (lstrlen(lpGPO->lpDisplayName) + 25) * sizeof(TCHAR));
+        lpGPOComment = LocalAlloc(LPTR, (lstrlen(lpGPO->lpDisplayName) + 25) * sizeof(TCHAR));
         if (lpGPOComment) {
-            lstrcpy (szKeyName, TEXT("Software\\Policies\\Microsoft\\Windows\\Group Policy Objects\\"));
-            lstrcat (szKeyName, lpGPO->szGPOName);
+            lstrcpy(szKeyName, TEXT("Software\\Policies\\Microsoft\\Windows\\Group Policy Objects\\"));
+            lstrcat(szKeyName, lpGPO->szGPOName);
 
-            lstrcpy (lpGPOComment, TEXT("**Comment:GPO Name: "));
-            lstrcat (lpGPOComment, lpGPO->lpDisplayName);
+            lstrcpy(lpGPOComment, TEXT("**Comment:GPO Name: "));
+            lstrcat(lpGPOComment, lpGPO->lpDisplayName);
 
             if (!ArchiveRegistryValue(hFile, szKeyName, lpGPOComment, REG_SZ, 0, NULL)) {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPORegistryPolicy: ArchiveRegistryValue returned false.")));
             }
 
-            LocalFree (lpGPOComment);
+            LocalFree(lpGPOComment);
         }
 
         // Build the path to registry.pol
-        DmAssert( lstrlen(lpGPO->lpFileSysPath) + lstrlen(c_szRegistryPol) + 1 < MAX_PATH );
+        DmAssert(lstrlen(lpGPO->lpFileSysPath) + lstrlen(c_szRegistryPol) + 1 < MAX_PATH);
 
-        lstrcpy (szBuffer, lpGPO->lpFileSysPath);
-        lpEnd = CheckSlash (szBuffer);
-        lstrcpy (lpEnd, c_szRegistryPol);
+        lstrcpy(szBuffer, lpGPO->lpFileSysPath);
+        lpEnd = CheckSlash(szBuffer);
+        lstrcpy(lpEnd, c_szRegistryPol);
 
-        if (!ParseRegistryFile (lpGPOInfo, szBuffer, SetRegistryValue, hFile)) {
+        if (!ParseRegistryFile(lpGPOInfo, szBuffer, SetRegistryValue, hFile)) {
             DebugMsg((DM_WARNING, TEXT("ProcessGPORegistryPolicy: ParseRegistryFile failed.")));
-            CloseHandle (hFile);
+            CloseHandle(hFile);
             return FALSE;
         }
 
         lpGPO = lpGPO->pNext;
     }
 
-    CloseHandle (hFile);
+    CloseHandle(hFile);
 
 #if 0 //bugbug:  need to rethink
     // Set the security on the file
-    if (!MakeFileSecure (szPath, 0)) {
+    if (!MakeFileSecure(szPath, 0)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPORegistryPolicy: Failed to set security on the group policy registry file with %d"), GetLastError()));
     }
 #endif
@@ -4279,11 +4175,9 @@ BOOL ProcessGPORegistryPolicy (LPGPOINFO lpGPOInfo, PGROUP_POLICY_OBJECT pChange
 }
 
 
-BOOL RefreshDisplay (LPGPOINFO lpGPOInfo)
+BOOL RefreshDisplay(LPGPOINFO lpGPOInfo)
 //  Purpose:    Starts control.exe
-
 //  Parameters: lpGPOInfo   -   GPT information
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
 {
@@ -4314,7 +4208,7 @@ BOOL RefreshDisplay (LPGPOINFO lpGPOInfo)
     }
 
     // Create the app
-    lstrcpy (szCmdLine, TEXT("control /policy"));
+    lstrcpy(szCmdLine, TEXT("control /policy"));
     Result = CreateProcessAsUser(lpGPOInfo->hToken, NULL, szCmdLine, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
 
     // Revert to being 'ourself'
@@ -4323,9 +4217,9 @@ BOOL RefreshDisplay (LPGPOINFO lpGPOInfo)
     }
 
     if (Result) {
-        WaitForSingleObject (pi.hProcess, 120000);
-        CloseHandle (pi.hThread);
-        CloseHandle (pi.hProcess);
+        WaitForSingleObject(pi.hProcess, 120000);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
     } else {
         DebugMsg((DM_WARNING, TEXT("RefreshDisplay: Failed to start control.exe with %d"), GetLastError()));
     }
@@ -4334,7 +4228,7 @@ BOOL RefreshDisplay (LPGPOINFO lpGPOInfo)
 }
 
 
-DWORD IsSlowLink (HKEY hKeyRoot, LPTSTR lpDCAddress, BOOL *bSlow)
+DWORD IsSlowLink(HKEY hKeyRoot, LPTSTR lpDCAddress, BOOL * bSlow)
 //  Purpose:    Determines if the connection to the specified
 //              server is a slow link or not
 
@@ -4362,15 +4256,15 @@ DWORD IsSlowLink (HKEY hKeyRoot, LPTSTR lpDCAddress, BOOL *bSlow)
     lResult = RegOpenKeyEx(hKeyRoot, WINLOGON_KEY, 0, KEY_READ, &hKey);
     if (lResult == ERROR_SUCCESS) {
         dwSize = sizeof(ulTransferRate);
-        RegQueryValueEx (hKey, TEXT("GroupPolicyMinTransferRate"), NULL, &dwType, (LPBYTE) &ulTransferRate, &dwSize);
-        RegCloseKey (hKey);
+        RegQueryValueEx(hKey, TEXT("GroupPolicyMinTransferRate"), NULL, &dwType, (LPBYTE)&ulTransferRate, &dwSize);
+        RegCloseKey(hKey);
     }
 
     lResult = RegOpenKeyEx(hKeyRoot, SYSTEM_POLICIES_KEY, 0, KEY_READ, &hKey);
     if (lResult == ERROR_SUCCESS) {
         dwSize = sizeof(ulTransferRate);
-        RegQueryValueEx (hKey, TEXT("GroupPolicyMinTransferRate"), NULL, &dwType, (LPBYTE) &ulTransferRate, &dwSize);
-        RegCloseKey (hKey);
+        RegQueryValueEx(hKey, TEXT("GroupPolicyMinTransferRate"), NULL, &dwType, (LPBYTE)&ulTransferRate, &dwSize);
+        RegCloseKey(hKey);
     }
 
     // If the transfer rate is 0, then always download policy
@@ -4380,9 +4274,9 @@ DWORD IsSlowLink (HKEY hKeyRoot, LPTSTR lpDCAddress, BOOL *bSlow)
     }
 
     // Convert the ipaddress from string form to ulong format
-    dwSize = lstrlen (lpDCAddress) + 1;
+    dwSize = lstrlen(lpDCAddress) + 1;
 
-    lpDCAddressA = LocalAlloc (LPTR, dwSize);
+    lpDCAddressA = LocalAlloc(LPTR, dwSize);
     if (!lpDCAddressA) {
         DebugMsg((DM_WARNING, TEXT("IsSlowLink: Failed to allocate memory.")));
         return GetLastError();
@@ -4395,26 +4289,26 @@ DWORD IsSlowLink (HKEY hKeyRoot, LPTSTR lpDCAddress, BOOL *bSlow)
         return GetLastError();
     }
 #else
-    lstrcpy (lpDCAddressA, lpDCAddress);
+    lstrcpy(lpDCAddressA, lpDCAddress);
 #endif
 
     pWSock32 = LoadWSock32();
-    if ( !pWSock32 ) {
+    if (!pWSock32) {
         LocalFree(lpDCAddressA);
         DebugMsg((DM_WARNING, TEXT("IsSlowLink: Failed to load wsock32.dll with %d"), GetLastError()));
         return GetLastError();
     }
 
-    if ((*lpDCAddressA == TEXT('\\')) && (*(lpDCAddressA+1) == TEXT('\\'))) {
-        lpTemp = lpDCAddressA+2;
+    if ((*lpDCAddressA == TEXT('\\')) && (*(lpDCAddressA + 1) == TEXT('\\'))) {
+        lpTemp = lpDCAddressA + 2;
     } else {
         lpTemp = lpDCAddressA;
     }
 
-    ipaddr = pWSock32->pfninet_addr (lpTemp);
+    ipaddr = pWSock32->pfninet_addr(lpTemp);
 
     // Ping the computer
-    dwResult = PingComputer (ipaddr, &ulSpeed);
+    dwResult = PingComputer(ipaddr, &ulSpeed);
     if (dwResult == ERROR_SUCCESS) {
         if (ulSpeed) {
             // If the delta time is greater that the timeout time, then this
@@ -4425,13 +4319,13 @@ DWORD IsSlowLink (HKEY hKeyRoot, LPTSTR lpDCAddress, BOOL *bSlow)
         }
     }
 
-    LocalFree (lpDCAddressA);
+    LocalFree(lpDCAddressA);
 
     return dwResult;
 }
 
 
-BOOL WINAPI RefreshPolicy (BOOL bMachine)
+BOOL WINAPI RefreshPolicy(BOOL bMachine)
 //  Purpose:    External api that causes policy to be refreshed now
 
 //  Parameters: bMachine -   Machine policy vs user policy
@@ -4443,10 +4337,10 @@ BOOL WINAPI RefreshPolicy (BOOL bMachine)
 
     DebugMsg((DM_VERBOSE, TEXT("RefreshPolicy: Entering with %d"), bMachine));
 
-    hEvent = OpenEvent (EVENT_MODIFY_STATE, FALSE, bMachine ? MACHINE_POLICY_REFRESH_EVENT : USER_POLICY_REFRESH_EVENT);
+    hEvent = OpenEvent(EVENT_MODIFY_STATE, FALSE, bMachine ? MACHINE_POLICY_REFRESH_EVENT : USER_POLICY_REFRESH_EVENT);
     if (hEvent) {
-        SetEvent (hEvent);
-        CloseHandle (hEvent);
+        SetEvent(hEvent);
+        CloseHandle(hEvent);
     } else {
         DebugMsg((DM_VERBOSE, TEXT("RefreshPolicy: Failed to open event with %d"), GetLastError()));
     }
@@ -4457,7 +4351,7 @@ BOOL WINAPI RefreshPolicy (BOOL bMachine)
 }
 
 
-HANDLE WINAPI EnterCriticalPolicySection (BOOL bMachine)
+HANDLE WINAPI EnterCriticalPolicySection(BOOL bMachine)
 //  Purpose:    External api that causes policy to pause
 //              This allows an application to pause policy
 //              so that values don't change while it reads
@@ -4473,20 +4367,20 @@ HANDLE WINAPI EnterCriticalPolicySection (BOOL bMachine)
     SECURITY_ATTRIBUTES sa;
 
     // Create / open the mutex
-    InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );
+    InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
 
-    SetSecurityDescriptorDacl (
-                    &sd,
-                    TRUE,                           // Dacl present
-                    NULL,                           // NULL Dacl
-                    FALSE                           // Not defaulted
-                    );
+    SetSecurityDescriptorDacl(
+        &sd,
+        TRUE,                           // Dacl present
+        NULL,                           // NULL Dacl
+        FALSE                           // Not defaulted
+    );
 
     sa.lpSecurityDescriptor = &sd;
     sa.bInheritHandle = FALSE;
     sa.nLength = sizeof(sa);
 
-    hSection = CreateMutex (&sa, FALSE, (bMachine ? MACHINE_POLICY_MUTEX : USER_POLICY_MUTEX));
+    hSection = CreateMutex(&sa, FALSE, (bMachine ? MACHINE_POLICY_MUTEX : USER_POLICY_MUTEX));
     if (!hSection) {
         DebugMsg((DM_WARNING, TEXT("EnterCriticalPolicySection: Failed to create mutex with %d"), GetLastError()));
         return NULL;
@@ -4495,9 +4389,9 @@ HANDLE WINAPI EnterCriticalPolicySection (BOOL bMachine)
     // Claim the mutex
 
     // Max wait time is 10 minutes
-    if ((WaitForSingleObject (hSection, 600000) == WAIT_FAILED)) {
+    if ((WaitForSingleObject(hSection, 600000) == WAIT_FAILED)) {
         DebugMsg((DM_WARNING, TEXT("EnterCriticalPolicySection: Failed to wait on the mutex.  Error = %d."), GetLastError()));
-        CloseHandle( hSection );
+        CloseHandle(hSection);
         return NULL;
     }
 
@@ -4506,7 +4400,7 @@ HANDLE WINAPI EnterCriticalPolicySection (BOOL bMachine)
 }
 
 
-BOOL WINAPI LeaveCriticalPolicySection (HANDLE hSection)
+BOOL WINAPI LeaveCriticalPolicySection(HANDLE hSection)
 //  Purpose:    External api that causes policy to resume
 //              This api assumes the app has called
 //              EnterCriticalPolicySection first
@@ -4522,35 +4416,35 @@ BOOL WINAPI LeaveCriticalPolicySection (HANDLE hSection)
         return FALSE;
     }
 
-    ReleaseMutex (hSection);
-    CloseHandle (hSection);
+    ReleaseMutex(hSection);
+    CloseHandle(hSection);
 
     DebugMsg((DM_VERBOSE, TEXT("LeaveCriticalPolicySection: Critical section 0x%x has been released."), hSection));
     return TRUE;
 }
 
 
-BOOL AddGPO (PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion, LPTSTR lpDSPath, LPTSTR lpFileSysPath,
-             LPTSTR lpDisplayName, LPTSTR lpGPOName, LPTSTR lpExtensions, GPO_LINK GPOLink, LPTSTR lpLink, LPARAM lParam, BOOL bFront, BOOL bBlock, BOOL bVerbose)
-//  Purpose:    Adds a GPO to the list
+BOOL AddGPO(PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion, LPTSTR lpDSPath, LPTSTR lpFileSysPath,
+            LPTSTR lpDisplayName, LPTSTR lpGPOName, LPTSTR lpExtensions, GPO_LINK GPOLink, LPTSTR lpLink, LPARAM lParam, BOOL bFront, BOOL bBlock, BOOL bVerbose)
+    //  Purpose:    Adds a GPO to the list
 
-//  Parameters: lpGPOList        - list of GPOs
-//              dwOptions        - Options
-//              dwVersion        - Version number
-//              lpDSPath         - DS path
-//              lpFileSysPath    - File system path
-//              lpDisplayName    - Friendly display name
-//              lpGPOName        - GPO name
-//              lpExtensions     - Extensions relevant to this GPO
-//              GPOLink          - GPO link type
-//              lpLink       - SDOU this GPO is linked to
-//              lParam           - lParam
-//              bFront           - Head or end of list
-//              bBlock           - Block from above flag
-//              bVerbose         - Verbose output flag
+    //  Parameters: lpGPOList        - list of GPOs
+    //              dwOptions        - Options
+    //              dwVersion        - Version number
+    //              lpDSPath         - DS path
+    //              lpFileSysPath    - File system path
+    //              lpDisplayName    - Friendly display name
+    //              lpGPOName        - GPO name
+    //              lpExtensions     - Extensions relevant to this GPO
+    //              GPOLink          - GPO link type
+    //              lpLink       - SDOU this GPO is linked to
+    //              lParam           - lParam
+    //              bFront           - Head or end of list
+    //              bBlock           - Block from above flag
+    //              bVerbose         - Verbose output flag
 
-//  Return:     TRUE if successful
-//              FALSE if an error occurs
+    //  Return:     TRUE if successful
+    //              FALSE if an error occurs
 {
     PGROUP_POLICY_OBJECT lpNew, lpTemp;
     DWORD dwSize;
@@ -4559,13 +4453,13 @@ BOOL AddGPO (PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion,
     if (bBlock) {
         if (!(dwOptions & GPO_FLAG_FORCE)) {
             DebugMsg((DM_VERBOSE, TEXT("AddGPO:  GPO %s will not be added to the list since the Block flag is set and this GPO is not in enforce mode."), lpDisplayName));
-            if (bVerbose) LogEvent (FALSE, IDS_SKIP_GPO, lpDisplayName);
+            if (bVerbose) LogEvent(FALSE, IDS_SKIP_GPO, lpDisplayName);
             return TRUE;
         }
     }
 
     // Calculate the size of the new GPO item
-    dwSize = sizeof (GROUP_POLICY_OBJECT);
+    dwSize = sizeof(GROUP_POLICY_OBJECT);
 
     if (lpDSPath) {
         dwSize += ((lstrlen(lpDSPath) + 1) * sizeof(TCHAR));
@@ -4588,7 +4482,7 @@ BOOL AddGPO (PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion,
     }
 
     // Allocate space for it
-    lpNew = (PGROUP_POLICY_OBJECT) LocalAlloc (LPTR, dwSize);
+    lpNew = (PGROUP_POLICY_OBJECT)LocalAlloc(LPTR, dwSize);
     if (!lpNew) {
         DebugMsg((DM_WARNING, TEXT("AddGPO: Failed to allocate memory with %d"), GetLastError()));
         return FALSE;
@@ -4600,39 +4494,36 @@ BOOL AddGPO (PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion,
 
     if (lpDSPath) {
         lpNew->lpDSPath = (LPTSTR)(((LPBYTE)lpNew) + sizeof(GROUP_POLICY_OBJECT));
-        lstrcpy (lpNew->lpDSPath, lpDSPath);
+        lstrcpy(lpNew->lpDSPath, lpDSPath);
     }
 
     if (lpFileSysPath) {
         if (lpDSPath) {
-            lpNew->lpFileSysPath = lpNew->lpDSPath + lstrlen (lpNew->lpDSPath) + 1;
+            lpNew->lpFileSysPath = lpNew->lpDSPath + lstrlen(lpNew->lpDSPath) + 1;
         } else {
             lpNew->lpFileSysPath = (LPTSTR)(((LPBYTE)lpNew) + sizeof(GROUP_POLICY_OBJECT));
         }
 
-        lstrcpy (lpNew->lpFileSysPath, lpFileSysPath);
+        lstrcpy(lpNew->lpFileSysPath, lpFileSysPath);
     }
 
     if (lpDisplayName) {
         if (lpFileSysPath) {
-            lpNew->lpDisplayName = lpNew->lpFileSysPath + lstrlen (lpNew->lpFileSysPath) + 1;
+            lpNew->lpDisplayName = lpNew->lpFileSysPath + lstrlen(lpNew->lpFileSysPath) + 1;
         } else {
-            if (lpDSPath)
-            {
-                lpNew->lpDisplayName = lpNew->lpDSPath + lstrlen (lpNew->lpDSPath) + 1;
-            }
-            else
-            {
+            if (lpDSPath) {
+                lpNew->lpDisplayName = lpNew->lpDSPath + lstrlen(lpNew->lpDSPath) + 1;
+            } else {
                 lpNew->lpDisplayName = (LPTSTR)(((LPBYTE)lpNew) + sizeof(GROUP_POLICY_OBJECT));
             }
         }
 
-        lstrcpy (lpNew->lpDisplayName, lpDisplayName);
+        lstrcpy(lpNew->lpDisplayName, lpDisplayName);
     }
 
     if (lpGPOName) {
-        DmAssert( lstrlen(lpGPOName) < 50 );
-        lstrcpy (lpNew->szGPOName, lpGPOName);
+        DmAssert(lstrlen(lpGPOName) < 50);
+        lstrcpy(lpNew->szGPOName, lpGPOName);
     }
 
     if (lpExtensions) {
@@ -4650,7 +4541,7 @@ BOOL AddGPO (PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion,
             }
         }
 
-        lstrcpy (lpNew->lpExtensions, lpExtensions);
+        lstrcpy(lpNew->lpExtensions, lpExtensions);
     }
 
     if (lpLink) {
@@ -4672,7 +4563,7 @@ BOOL AddGPO (PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion,
             }
         }
 
-        lstrcpy (lpNew->lpLink, lpLink);
+        lstrcpy(lpNew->lpLink, lpLink);
     }
 
     lpNew->GPOLink = GPOLink;
@@ -4703,7 +4594,7 @@ BOOL AddGPO (PGROUP_POLICY_OBJECT * lpGPOList, DWORD dwOptions, DWORD dwVersion,
 }
 
 
-BOOL CheckGPOAccess (PLDAP pld, PLDAP_API pLDAP, HANDLE hToken, PLDAPMessage pMessage, LPTSTR lpSDProperty, DWORD dwFlags, BOOL *pbAccessGranted)
+BOOL CheckGPOAccess(PLDAP pld, PLDAP_API pLDAP, HANDLE hToken, PLDAPMessage pMessage, LPTSTR lpSDProperty, DWORD dwFlags, BOOL * pbAccessGranted)
 //  Purpose:    Determines if the user / machine has read access to
 //              the GPO and if so, checks the Apply Group Policy
 //              extended right to see if the GPO should be applied.
@@ -4722,8 +4613,8 @@ BOOL CheckGPOAccess (PLDAP pld, PLDAP_API pLDAP, HANDLE hToken, PLDAPMessage pMe
 {
     BOOL bResult = FALSE;
     PSECURITY_DESCRIPTOR pSD = NULL;
-    PWSTR *ppwszValues = NULL;
-    PLDAP_BERVAL *pSize = NULL;
+    PWSTR * ppwszValues = NULL;
+    PLDAP_BERVAL * pSize = NULL;
     OBJECT_TYPE_LIST ObjType[2];
     PRIVILEGE_SET PrivSet;
     DWORD PrivSetLength = sizeof(PRIVILEGE_SET);
@@ -4731,7 +4622,7 @@ BOOL CheckGPOAccess (PLDAP pld, PLDAP_API pLDAP, HANDLE hToken, PLDAPMessage pMe
     BOOL bAccessStatus = TRUE;
     GUID GroupPolicyContainer = {0x31B2F340, 0x016D, 0x11D2, 0x94, 0x5F, 0x00, 0xC0, 0x4F, 0xB9, 0x84, 0xF9};
     GUID ApplyGroupPolicy = {0xedacfd8f, 0xffb3, 0x11d1, 0xb4, 0x1d, 0x00, 0xa0, 0xc9, 0x68, 0xf9, 0x39};
-    GENERIC_MAPPING DS_GENERIC_MAPPING = { GENERIC_READ_MAPPING, GENERIC_WRITE_MAPPING, GENERIC_EXECUTE_MAPPING, GENERIC_ALL_MAPPING };
+    GENERIC_MAPPING DS_GENERIC_MAPPING = {GENERIC_READ_MAPPING, GENERIC_WRITE_MAPPING, GENERIC_EXECUTE_MAPPING, GENERIC_ALL_MAPPING};
 
     // Set the default return value
     *pbAccessGranted = FALSE;
@@ -4742,8 +4633,7 @@ BOOL CheckGPOAccess (PLDAP pld, PLDAP_API pLDAP, HANDLE hToken, PLDAPMessage pMe
         if (pld->ld_errno == LDAP_NO_SUCH_ATTRIBUTE) {
             DebugMsg((DM_VERBOSE, TEXT("CheckGPOAccess:  Object can not be accessed.")));
             bResult = TRUE;
-        }
-        else {
+        } else {
             DebugMsg((DM_WARNING, TEXT("CheckGPOAccess:  ldap_get_values failed with 0x%x"), pld->ld_errno));
         }
 
@@ -4780,7 +4670,7 @@ BOOL CheckGPOAccess (PLDAP pld, PLDAP_API pLDAP, HANDLE hToken, PLDAPMessage pMe
     ObjType[1].ObjectType = &ApplyGroupPolicy;
 
     // Check access
-    if (!AccessCheckByType (pSD, NULL, hToken, MAXIMUM_ALLOWED, ObjType, 2, &DS_GENERIC_MAPPING, &PrivSet, &PrivSetLength, &dwGrantedAccess, &bAccessStatus)) {
+    if (!AccessCheckByType(pSD, NULL, hToken, MAXIMUM_ALLOWED, ObjType, 2, &DS_GENERIC_MAPPING, &PrivSet, &PrivSetLength, &dwGrantedAccess, &bAccessStatus)) {
         DebugMsg((DM_WARNING, TEXT("CheckGPOAccess:  AccessCheckByType failed with  %d"), GetLastError()));
         goto Exit;
     }
@@ -4800,35 +4690,35 @@ Exit:
         pLDAP->pfnldap_value_free(ppwszValues);
     }
     if (pSD) {
-        LocalFree (pSD);
+        LocalFree(pSD);
     }
     return bResult;
 }
 
 
-BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_OBJECT *lpGPOList,
-                 DWORD dwGPOOptions, BOOL bDeferred, BOOL bVerbose, GPO_LINK GPOLink, LPTSTR lpDSObject,
-                 PLDAP  pld, PLDAP_API pLDAP, PLDAPMessage pMessage, BOOL bBlock)
-//  Purpose:    Processes a specific GPO
+BOOL ProcessGPO(LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_OBJECT * lpGPOList,
+                DWORD dwGPOOptions, BOOL bDeferred, BOOL bVerbose, GPO_LINK GPOLink, LPTSTR lpDSObject,
+                PLDAP  pld, PLDAP_API pLDAP, PLDAPMessage pMessage, BOOL bBlock)
+    //  Purpose:    Processes a specific GPO
 
-//  Parameters: lpGPOPath     - Path to the GPO
-//              dwFlags       - GetGPOList flags
-//              HANDLE        - user or machine aceess token
-//              lpGPOList     - List of GPOs
-//              dwGPOOptions  - Link options
-//              bDeferred     - Should ldap query be deferred ?
-//              bVerbose      - Verbose output
-//              GPOLink       - GPO link type
-//              lpDSObject    - SDOU this gpo is linked to
-//              pld           - LDAP info
-//              pLDAP         - LDAP api
-//              pLdapMsg      - LDAP message
-//              bBlock        - Block flag
-//              hToken        - User / machine token
+    //  Parameters: lpGPOPath     - Path to the GPO
+    //              dwFlags       - GetGPOList flags
+    //              HANDLE        - user or machine aceess token
+    //              lpGPOList     - List of GPOs
+    //              dwGPOOptions  - Link options
+    //              bDeferred     - Should ldap query be deferred ?
+    //              bVerbose      - Verbose output
+    //              GPOLink       - GPO link type
+    //              lpDSObject    - SDOU this gpo is linked to
+    //              pld           - LDAP info
+    //              pLDAP         - LDAP api
+    //              pLdapMsg      - LDAP message
+    //              bBlock        - Block flag
+    //              hToken        - User / machine token
 
 
-//  Return:     TRUE if successful
-//              FALSE if an error occurs
+    //  Return:     TRUE if successful
+    //              FALSE if an error occurs
 {
     ULONG ulResult, i;
     BOOL bResult = FALSE;
@@ -4840,16 +4730,16 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
     DWORD dwGPOFlags = 0;
     DWORD dwGPTVersion = 0;
     TCHAR szGPOName[80];
-    TCHAR *pszGPTPath = 0;
-    TCHAR *pszFriendlyName = 0;
+    TCHAR * pszGPTPath = 0;
+    TCHAR * pszFriendlyName = 0;
     LPTSTR lpPath, lpEnd, lpTemp;
-    TCHAR *pszExtensions = 0;
+    TCHAR * pszExtensions = 0;
     TCHAR szLDAP[] = TEXT("LDAP://");
     INT iStrLen = lstrlen(szLDAP);
     BYTE berValue[8];
-    LDAPControl SeInfoControl = { LDAP_SERVER_SD_FLAGS_OID_W, { 5, (PCHAR)berValue }, TRUE };
-    LDAPControl referralControl = { LDAP_SERVER_DOMAIN_SCOPE_OID_W, { 0, NULL}, TRUE };
-    PLDAPControl ServerControls[] = { &SeInfoControl, &referralControl, NULL };
+    LDAPControl SeInfoControl = {LDAP_SERVER_SD_FLAGS_OID_W, { 5, (PCHAR)berValue }, TRUE};
+    LDAPControl referralControl = {LDAP_SERVER_DOMAIN_SCOPE_OID_W, { 0, NULL}, TRUE};
+    PLDAPControl ServerControls[] = {&SeInfoControl, &referralControl, NULL};
     TCHAR szSDProperty[] = TEXT("nTSecurityDescriptor");
     TCHAR szCommonName[] = TEXT("cn");
     TCHAR szDisplayName[] = TEXT("displayName");
@@ -4857,7 +4747,7 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
     TCHAR szVersion[] = TEXT("versionNumber");
     TCHAR szFunctionalityVersion[] = GPO_FUNCTIONALITY_VERSION;
     TCHAR szFlags[] = TEXT("flags");
-    PWSTR rgAttribs[11] = { szSDProperty,
+    PWSTR rgAttribs[11] = {szSDProperty,
                            szFileSysPath,
                            szCommonName,
                            szDisplayName,
@@ -4867,24 +4757,21 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
                            GPO_MACHEXTENSION_NAMES,
                            GPO_USEREXTENSION_NAMES,
                            szObjectClass,
-                           NULL };
-    LPTSTR *lpValues;
+                           NULL};
+    LPTSTR * lpValues;
 
     // Verbose output
     DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  ==============================")));
 
     // Skip the starting LDAP provider if found
-    if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, lpGPOPath, iStrLen, szLDAP, iStrLen) == CSTR_EQUAL)
-    {
+    if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, lpGPOPath, iStrLen, szLDAP, iStrLen) == CSTR_EQUAL) {
         lpPath = lpGPOPath + iStrLen;
-    }
-    else
-    {
+    } else {
         lpPath = lpGPOPath;
     }
 
-    if ( bDeferred ) {
-        bResult = AddGPO (lpGPOList, dwGPOOptions, 0, lpPath, 0, 0, 0, 0, GPOLink, lpDSObject, 0, FALSE, bBlock, bVerbose);
+    if (bDeferred) {
+        bResult = AddGPO(lpGPOList, dwGPOOptions, 0, lpPath, 0, 0, 0, 0, GPOLink, lpDSObject, 0, FALSE, bBlock, bVerbose);
         if (!bResult)
             DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Failed to add GPO <%s> to the list."), lpPath));
 
@@ -4895,7 +4782,7 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
 
     DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Searching <%s>"), lpGPOPath));
 
-    if ( pMessage == NULL ) {
+    if (pMessage == NULL) {
         bOwnLdapMsg = TRUE;
 
         // Setup the BER encoding
@@ -4906,21 +4793,21 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
         berValue[4] = (BYTE)((DACL_SECURITY_INFORMATION | OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION) & 0xF);
 
         // Search for the GPO
-        ulResult = pLDAP->pfnldap_search_ext_s(pld, lpPath, LDAP_SCOPE_BASE, szDSClassAny, rgAttribs, 0, (PLDAPControl*)ServerControls, NULL, NULL, 0x10000, &pMessage);
+        ulResult = pLDAP->pfnldap_search_ext_s(pld, lpPath, LDAP_SCOPE_BASE, szDSClassAny, rgAttribs, 0, (PLDAPControl *)ServerControls, NULL, NULL, 0x10000, &pMessage);
 
         // If the search fails, store the error code and return
         if (ulResult != LDAP_SUCCESS) {
             if (ulResult == LDAP_NO_SUCH_ATTRIBUTE) {
                 DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Object can not be accessed.")));
-                if (bVerbose) LogEvent (FALSE, IDS_NO_ACCESS, lpGPOPath);
+                if (bVerbose) LogEvent(FALSE, IDS_NO_ACCESS, lpGPOPath);
                 bResult = TRUE;
             } else if (ulResult == LDAP_NO_SUCH_OBJECT) {
                 DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Object <%s> does not exist."), lpGPOPath));
-                if (bVerbose) LogEvent (FALSE, IDS_GPO_DELETED, lpGPOPath);
+                if (bVerbose) LogEvent(FALSE, IDS_GPO_DELETED, lpGPOPath);
                 bResult = TRUE;
             } else {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Failed to search for <%s> with error %d"), lpGPOPath, ulResult));
-                LogEvent (TRUE, IDS_OBJECT_NOT_FOUND, lpGPOPath, ulResult);
+                LogEvent(TRUE, IDS_OBJECT_NOT_FOUND, lpGPOPath, ulResult);
             }
 
             goto Exit;
@@ -4929,15 +4816,15 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
         // If the search succeeds, but the message is empty, store the error code and return
         if (!pMessage) {
             DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Search for <%s> returned and empty message structure.  Error = %d"), lpGPOPath, pld->ld_errno));
-            LogEvent (TRUE, IDS_OBJECT_NOT_FOUND, lpGPOPath, pld->ld_errno);
+            LogEvent(TRUE, IDS_OBJECT_NOT_FOUND, lpGPOPath, pld->ld_errno);
             goto Exit;
         }
     }
 
     // Check if this user or machine has access to the GPO, and if so, should that GPO be applied to them.
-    if (!CheckGPOAccess (pld, pLDAP, hToken, pMessage, szSDProperty, dwFlags, &bAccessGranted)) {
+    if (!CheckGPOAccess(pld, pLDAP, hToken, pMessage, szSDProperty, dwFlags, &bAccessGranted)) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPO:  CheckGPOAccess failed for <%s>"), lpGPOPath));
-        LogEvent (TRUE, IDS_FAILED_ACCESS_CHECK, lpGPOPath, GetLastError());
+        LogEvent(TRUE, IDS_FAILED_ACCESS_CHECK, lpGPOPath, GetLastError());
         goto Exit;
     }
 
@@ -4947,7 +4834,7 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
         } else {
             DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  User does not have access to the GPO and so will not be applied.")));
         }
-        if (bVerbose) LogEvent (FALSE, IDS_NO_ACCESS, lpGPOPath);
+        if (bVerbose) LogEvent(FALSE, IDS_NO_ACCESS, lpGPOPath);
         bResult = TRUE;
         goto Exit;
     }
@@ -4965,18 +4852,18 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
     lpValues = pLDAP->pfnldap_get_values(pld, pMessage, szObjectClass);
     if (lpValues) {
         bFound = FALSE;
-        for ( i=0; lpValues[i] != NULL; i++) {
-            if ( lstrcmp( lpValues[i], szDSClassGPO ) == 0 ) {
+        for (i = 0; lpValues[i] != NULL; i++) {
+            if (lstrcmp(lpValues[i], szDSClassGPO) == 0) {
                 bFound = TRUE;
                 break;
             }
         }
 
-        pLDAP->pfnldap_value_free (lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
 
-        if ( !bFound ) {
-            DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Object <%s> is not a GPO"), lpGPOPath ));
-            LogEvent (TRUE, IDS_INCORRECT_CLASS, lpGPOPath, szDSClassGPO);
+        if (!bFound) {
+            DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Object <%s> is not a GPO"), lpGPOPath));
+            LogEvent(TRUE, IDS_INCORRECT_CLASS, lpGPOPath, szDSClassGPO);
             goto Exit;
         }
     }
@@ -4984,9 +4871,9 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
     // In the results, get the values that match the gPCFunctionalityVersion attribute
     lpValues = pLDAP->pfnldap_get_values(pld, pMessage, szFunctionalityVersion);
     if (lpValues) {
-        dwFunctionalityVersion = StringToInt (*lpValues);
+        dwFunctionalityVersion = StringToInt(*lpValues);
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Found functionality version of:  %d"), dwFunctionalityVersion));
-        pLDAP->pfnldap_value_free (lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
     } else {
         ulResult = pLDAP->pfnLdapGetLastError();
         if (ulResult == LDAP_NO_SUCH_ATTRIBUTE) {
@@ -4995,39 +4882,39 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
             } else {
                 DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  User does not have access to <%s>"), lpGPOPath));
             }
-            if (bVerbose) LogEvent (FALSE, IDS_NO_ACCESS, lpGPOPath);
+            if (bVerbose) LogEvent(FALSE, IDS_NO_ACCESS, lpGPOPath);
             bResult = TRUE;
         } else {
             DebugMsg((DM_WARNING, TEXT("ProcessGPO:  GPO %s does not have a functionality version number, error = 0x%x."), lpGPOPath, ulResult));
-            LogEvent (TRUE, IDS_CORRUPT_GPO_FUNCVERSION, lpGPOPath);
+            LogEvent(TRUE, IDS_CORRUPT_GPO_FUNCVERSION, lpGPOPath);
         }
         goto Exit;
     }
 
     // In the results, get the values that match the gPCFileSystemPath attribute
-    lpValues = pLDAP->pfnldap_get_values (pld, pMessage, szFileSysPath);
+    lpValues = pLDAP->pfnldap_get_values(pld, pMessage, szFileSysPath);
     if (lpValues) {
-        pszGPTPath = LocalAlloc( LPTR, (lstrlen(*lpValues) +lstrlen(TEXT("\\Machine")) +1) * sizeof(TCHAR) );
-        if ( pszGPTPath == 0) {
+        pszGPTPath = LocalAlloc(LPTR, (lstrlen(*lpValues) + lstrlen(TEXT("\\Machine")) + 1) * sizeof(TCHAR));
+        if (pszGPTPath == 0) {
             DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Unable to allocate memory")));
-            pLDAP->pfnldap_value_free (lpValues);
+            pLDAP->pfnldap_value_free(lpValues);
             goto Exit;
         }
 
-        lstrcpy (pszGPTPath, *lpValues);
+        lstrcpy(pszGPTPath, *lpValues);
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Found file system path of:  <%s>"), pszGPTPath));
-        pLDAP->pfnldap_value_free (lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
 
-        lpEnd = CheckSlash (pszGPTPath);
+        lpEnd = CheckSlash(pszGPTPath);
 
         // Get the GPT version number
-        lstrcpy (lpEnd, TEXT("gpt.ini"));
+        lstrcpy(lpEnd, TEXT("gpt.ini"));
         dwGPTVersion = GetPrivateProfileInt(TEXT("General"), TEXT("Version"), 0, pszGPTPath);
 
         if (dwFlags & GPO_LIST_FLAG_MACHINE) {
-            lstrcpy (lpEnd, TEXT("Machine"));
+            lstrcpy(lpEnd, TEXT("Machine"));
         } else {
-            lstrcpy (lpEnd, TEXT("User"));
+            lstrcpy(lpEnd, TEXT("User"));
         }
     } else {
         ulResult = pLDAP->pfnLdapGetLastError();
@@ -5038,11 +4925,11 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
             } else {
                 DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  User does not have access to <%s>"), lpGPOPath));
             }
-            if (bVerbose) LogEvent (FALSE, IDS_NO_ACCESS, lpGPOPath);
+            if (bVerbose) LogEvent(FALSE, IDS_NO_ACCESS, lpGPOPath);
             bResult = TRUE;
         } else {
             DebugMsg((DM_WARNING, TEXT("ProcessGPO:  GPO %s does not have a file system path, error = 0x%x."), lpGPOPath, ulResult));
-            LogEvent (TRUE, IDS_CORRUPT_GPO_FSPATH, lpGPOPath);
+            LogEvent(TRUE, IDS_CORRUPT_GPO_FSPATH, lpGPOPath);
         }
         goto Exit;
     }
@@ -5050,35 +4937,35 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
     // In the results, get the values that match the common name attribute
     lpValues = pLDAP->pfnldap_get_values(pld, pMessage, szCommonName);
     if (lpValues) {
-        DmAssert( lstrlen(*lpValues) < 80 );
-        lstrcpy (szGPOName, *lpValues);
+        DmAssert(lstrlen(*lpValues) < 80);
+        lstrcpy(szGPOName, *lpValues);
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Found common name of:  <%s>"), szGPOName));
-        pLDAP->pfnldap_value_free (lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
     } else {
         ulResult = pLDAP->pfnLdapGetLastError();
         DebugMsg((DM_WARNING, TEXT("ProcessGPO:  GPO %s does not have a common name (a GUID)."), lpGPOPath));
-        LogEvent (TRUE, IDS_CORRUPT_GPO_COMMONNAME, lpGPOPath);
+        LogEvent(TRUE, IDS_CORRUPT_GPO_COMMONNAME, lpGPOPath);
         goto Exit;
     }
 
     // In the results, get the values that match the display name attribute
     lpValues = pLDAP->pfnldap_get_values(pld, pMessage, szDisplayName);
     if (lpValues) {
-        pszFriendlyName = LocalAlloc( LPTR, (lstrlen(*lpValues)+1) * sizeof(TCHAR) );
-        if ( pszFriendlyName == 0) {
+        pszFriendlyName = LocalAlloc(LPTR, (lstrlen(*lpValues) + 1) * sizeof(TCHAR));
+        if (pszFriendlyName == 0) {
             DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Unable to allocate memory")));
-            pLDAP->pfnldap_value_free (lpValues);
+            pLDAP->pfnldap_value_free(lpValues);
             goto Exit;
         }
 
-        lstrcpy (pszFriendlyName, *lpValues);
+        lstrcpy(pszFriendlyName, *lpValues);
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Found display name of:  <%s>"), pszFriendlyName));
-        pLDAP->pfnldap_value_free (lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
     } else {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  No display name for this object.")));
 
-        pszFriendlyName = LocalAlloc( LPTR, 2 * sizeof(TCHAR) );
-        if ( pszFriendlyName == 0) {
+        pszFriendlyName = LocalAlloc(LPTR, 2 * sizeof(TCHAR));
+        if (pszFriendlyName == 0) {
             DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Unable to allocate memory")));
             goto Exit;
         }
@@ -5089,7 +4976,7 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
     // In the results, get the values that match the version attribute
     lpValues = pLDAP->pfnldap_get_values(pld, pMessage, szVersion);
     if (lpValues) {
-        dwVersion = StringToInt (*lpValues);
+        dwVersion = StringToInt(*lpValues);
         if (dwFlags & GPO_LIST_FLAG_MACHINE) {
             dwVersion = MAKELONG(LOWORD(dwVersion), LOWORD(dwGPTVersion));
             DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Found machine version of:  GPC is %d, GPT is %d"), LOWORD(dwVersion), HIWORD(dwVersion)));
@@ -5098,7 +4985,7 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
             DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Found user version of:  GPC is %d, GPT is %d"), LOWORD(dwVersion), HIWORD(dwVersion)));
         }
 
-        pLDAP->pfnldap_value_free (lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
     } else {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  GPO %s does not have a version number."), lpGPOPath));
     }
@@ -5106,43 +4993,43 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
     // In the results, get the values that match the flags attribute
     lpValues = pLDAP->pfnldap_get_values(pld, pMessage, szFlags);
     if (lpValues) {
-        dwGPOFlags = StringToInt (*lpValues);
+        dwGPOFlags = StringToInt(*lpValues);
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Found flags of:  %d"), dwGPOFlags));
-        pLDAP->pfnldap_value_free (lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
     } else {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  No flags for this object.")));
     }
 
     // In the results, get the values that match the extension names attribute
-    lpValues = pLDAP->pfnldap_get_values(pld, pMessage, (dwFlags & GPO_LIST_FLAG_MACHINE) ? GPO_MACHEXTENSION_NAMES : GPO_USEREXTENSION_NAMES );
+    lpValues = pLDAP->pfnldap_get_values(pld, pMessage, (dwFlags & GPO_LIST_FLAG_MACHINE) ? GPO_MACHEXTENSION_NAMES : GPO_USEREXTENSION_NAMES);
     if (lpValues) {
-        if ( lstrcmpi( *lpValues, TEXT(" ") ) == 0 ) {
+        if (lstrcmpi(*lpValues, TEXT(" ")) == 0) {
             // A blank char is also a null property case, because Adsi doesn't commit null strings
             DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  No client-side extensions for this object.")));
         } else {
-            pszExtensions = LocalAlloc( LPTR, (lstrlen(*lpValues)+1) * sizeof(TCHAR) );
-            if ( pszExtensions == 0 ) {
+            pszExtensions = LocalAlloc(LPTR, (lstrlen(*lpValues) + 1) * sizeof(TCHAR));
+            if (pszExtensions == 0) {
                 DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Unable to allocate memory")));
-                pLDAP->pfnldap_value_free (lpValues);
+                pLDAP->pfnldap_value_free(lpValues);
                 goto Exit;
             }
 
-            lstrcpy( pszExtensions, *lpValues );
+            lstrcpy(pszExtensions, *lpValues);
             DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  Found extensions:  %s"), pszExtensions));
         }
 
-        pLDAP->pfnldap_value_free (lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
     } else {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  No client-side extensions for this object.")));
     }
 
     // Log which GPO we found
-    if (bVerbose) LogEvent (FALSE, IDS_FOUND_GPO, pszFriendlyName, szGPOName);
+    if (bVerbose) LogEvent(FALSE, IDS_FOUND_GPO, pszFriendlyName, szGPOName);
 
     // Check the functionalty version number
     if (dwFunctionalityVersion < 2) {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  GPO %s was created by an old version of the Group Policy Editor.  It will be skipped."), pszFriendlyName));
-        if (bVerbose) LogEvent (FALSE, IDS_GPO_TOO_OLD, pszFriendlyName);
+        if (bVerbose) LogEvent(FALSE, IDS_GPO_TOO_OLD, pszFriendlyName);
         bResult = TRUE;
         goto Exit;
     }
@@ -5150,7 +5037,7 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
     // Check if the GPO is disabled
     if (((dwFlags & GPO_LIST_FLAG_MACHINE) && (dwGPOFlags & GPO_OPTION_DISABLE_MACHINE)) || (!(dwFlags & GPO_LIST_FLAG_MACHINE) && (dwGPOFlags & GPO_OPTION_DISABLE_USER))) {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  GPO %s is disabled.  It will be skipped."), pszFriendlyName));
-        if (bVerbose) LogEvent (FALSE, IDS_GPO_DISABLED, pszFriendlyName);
+        if (bVerbose) LogEvent(FALSE, IDS_GPO_DISABLED, pszFriendlyName);
         bResult = TRUE;
         goto Exit;
     }
@@ -5158,49 +5045,49 @@ BOOL ProcessGPO (LPTSTR lpGPOPath, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_O
     // Check if the version number is 0, if so there isn't any data in the GPO and we can skip it
     if (dwVersion == 0) {
         DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  GPO %s doesn't contain any data since the version number is 0.  It will be skipped."), pszFriendlyName));
-        if (bVerbose) LogEvent (FALSE, IDS_GPO_NO_DATA, pszFriendlyName);
+        if (bVerbose) LogEvent(FALSE, IDS_GPO_NO_DATA, pszFriendlyName);
         bResult = TRUE;
         goto Exit;
     }
 
     // Put the correct container name on the front of the LDAP path
-    lpTemp = LocalAlloc (LPTR, (lstrlen(lpGPOPath) + 20) * sizeof(TCHAR));
+    lpTemp = LocalAlloc(LPTR, (lstrlen(lpGPOPath) + 20) * sizeof(TCHAR));
     if (!lpTemp) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Failed to allocate memory with %d"), GetLastError()));
-        LogEvent (TRUE, IDS_OUT_OF_MEMORY, GetLastError());
+        LogEvent(TRUE, IDS_OUT_OF_MEMORY, GetLastError());
         goto Exit;
     }
 
     if (dwFlags & GPO_LIST_FLAG_MACHINE) {
-        lstrcpy (lpTemp, TEXT("LDAP://CN=Machine,"));
+        lstrcpy(lpTemp, TEXT("LDAP://CN=Machine,"));
     } else {
-        lstrcpy (lpTemp, TEXT("LDAP://CN=User,"));
+        lstrcpy(lpTemp, TEXT("LDAP://CN=User,"));
     }
 
-    DmAssert( lstrlen(TEXT("LDAP://CN=Machine,")) + lstrlen(lpPath) < (lstrlen(lpGPOPath) + 20) );
+    DmAssert(lstrlen(TEXT("LDAP://CN=Machine,")) + lstrlen(lpPath) < (lstrlen(lpGPOPath) + 20));
 
-    lstrcat (lpTemp, lpPath);
+    lstrcat(lpTemp, lpPath);
 
     // Add this GPO to the list
-    bResult = AddGPO (lpGPOList, dwGPOOptions, dwVersion, lpTemp, pszGPTPath, pszFriendlyName, szGPOName, pszExtensions, GPOLink, lpDSObject, 0, FALSE, bBlock, bVerbose);
+    bResult = AddGPO(lpGPOList, dwGPOOptions, dwVersion, lpTemp, pszGPTPath, pszFriendlyName, szGPOName, pszExtensions, GPOLink, lpDSObject, 0, FALSE, bBlock, bVerbose);
     if (!bResult) {
         DebugMsg((DM_WARNING, TEXT("ProcessGPO:  Failed to add GPO <%s> to the list."), pszFriendlyName));
     }
 
-    LocalFree (lpTemp);
+    LocalFree(lpTemp);
 
 Exit:
-    if ( pszGPTPath )
-        LocalFree( pszGPTPath );
+    if (pszGPTPath)
+        LocalFree(pszGPTPath);
 
-    if ( pszFriendlyName )
-        LocalFree( pszFriendlyName );
+    if (pszFriendlyName)
+        LocalFree(pszFriendlyName);
 
-    if ( pszExtensions )
-        LocalFree( pszExtensions );
+    if (pszExtensions)
+        LocalFree(pszExtensions);
 
-    if (pMessage && bOwnLdapMsg ) {
-        pLDAP->pfnldap_msgfree (pMessage);
+    if (pMessage && bOwnLdapMsg) {
+        pLDAP->pfnldap_msgfree(pMessage);
     }
 
     DebugMsg((DM_VERBOSE, TEXT("ProcessGPO:  ==============================")));
@@ -5209,27 +5096,27 @@ Exit:
 }
 
 
-BOOL SearchDSObject (LPTSTR lpDSObject, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_OBJECT *pGPOForcedList,
-                     PGROUP_POLICY_OBJECT *pGPONonForcedList, BOOL bVerbose,
-                     GPO_LINK GPOLink, PLDAP  pld, PLDAP_API pLDAP, PLDAPMessage pLDAPMsg,BOOL *bBlock )
-//  Purpose:    Searches the specified DS object for GPOs and
-//              if found, adds them to the list.
+BOOL SearchDSObject(LPTSTR lpDSObject, DWORD dwFlags, HANDLE hToken, PGROUP_POLICY_OBJECT * pGPOForcedList,
+                    PGROUP_POLICY_OBJECT * pGPONonForcedList, BOOL bVerbose,
+                    GPO_LINK GPOLink, PLDAP  pld, PLDAP_API pLDAP, PLDAPMessage pLDAPMsg, BOOL * bBlock)
+    //  Purpose:    Searches the specified DS object for GPOs and
+    //              if found, adds them to the list.
 
-//  Parameters: lpDSObject          - DS object to search
-//              dwFlags             - GetGPOList flags
-//              pGPOForcedList      - List of forced GPOs
-//              pGPONonForcedList   - List of non-forced GPOs
-//              bVerbose            - Verbose output
-//              GPOLink             - GPO link type
-//              pld                 - LDAP info
-//              pLDAP               - LDAP api
-//              bBlock              - Pointer to the block flag
+    //  Parameters: lpDSObject          - DS object to search
+    //              dwFlags             - GetGPOList flags
+    //              pGPOForcedList      - List of forced GPOs
+    //              pGPONonForcedList   - List of non-forced GPOs
+    //              bVerbose            - Verbose output
+    //              GPOLink             - GPO link type
+    //              pld                 - LDAP info
+    //              pLDAP               - LDAP api
+    //              bBlock              - Pointer to the block flag
 
-//  Return:     TRUE if successful
-//              FALSE if an error occurs
+    //  Return:     TRUE if successful
+    //              FALSE if an error occurs
 {
     PGROUP_POLICY_OBJECT pForced = NULL, pNonForced = NULL, lpGPO;
-    LPTSTR *lpValues;
+    LPTSTR * lpValues;
     ULONG ulResult;
     BOOL bResult = FALSE;
     BOOL bOwnLdapMsg = FALSE;  // LDAP message owned by us (if true) or caller (if false)
@@ -5242,34 +5129,34 @@ BOOL SearchDSObject (LPTSTR lpDSObject, DWORD dwFlags, HANDLE hToken, PGROUP_POL
     ULONG i = 0;
     LPTSTR lpFullDSObject = NULL;
     BOOL bFound = FALSE;
-    LPTSTR lpAttr[4] = { szGPLink,
+    LPTSTR lpAttr[4] = {szGPLink,
                          szGPOptions,
                          szObjectClass,
                          NULL
-                       };
+    };
 
     // Search for the object
     DebugMsg((DM_VERBOSE, TEXT("SearchDSObject:  Searching <%s>"), lpDSObject));
-    if (bVerbose) LogEvent (FALSE, IDS_SEARCHING, lpDSObject);
+    if (bVerbose) LogEvent(FALSE, IDS_SEARCHING, lpDSObject);
 
-    if ( pLDAPMsg == NULL ) {
+    if (pLDAPMsg == NULL) {
         bOwnLdapMsg = TRUE;
-        ulResult = pLDAP->pfnldap_search_s (pld, lpDSObject, LDAP_SCOPE_BASE, szDSClassAny, lpAttr, FALSE, &pLDAPMsg);
+        ulResult = pLDAP->pfnldap_search_s(pld, lpDSObject, LDAP_SCOPE_BASE, szDSClassAny, lpAttr, FALSE, &pLDAPMsg);
         if (ulResult != LDAP_SUCCESS) {
             if (ulResult == LDAP_NO_SUCH_ATTRIBUTE) {
                 DebugMsg((DM_VERBOSE, TEXT("SearchDSObject:  No GPO(s) for this object.")));
-                if (bVerbose) LogEvent (FALSE, IDS_NO_GPOS);
+                if (bVerbose) LogEvent(FALSE, IDS_NO_GPOS);
                 bResult = TRUE;
             } else if (ulResult == LDAP_NO_SUCH_OBJECT) {
                 DebugMsg((DM_VERBOSE, TEXT("SearchDSObject:  Object not found in DS (this is ok).  Leaving. ")));
-                if (bVerbose) LogEvent (FALSE, IDS_NO_DS_OBJECT, lpDSObject);
+                if (bVerbose) LogEvent(FALSE, IDS_NO_DS_OBJECT, lpDSObject);
                 bResult = TRUE;
             } else if (ulResult == LDAP_SIZELIMIT_EXCEEDED) {
-               DebugMsg((DM_WARNING, TEXT("SearchDSObject:  Too many linked GPOs in search.") ));
-               LogEvent (TRUE, IDS_TOO_MANY_GPOS);
+                DebugMsg((DM_WARNING, TEXT("SearchDSObject:  Too many linked GPOs in search.")));
+                LogEvent(TRUE, IDS_TOO_MANY_GPOS);
             } else {
                 DebugMsg((DM_VERBOSE, TEXT("SearchDSObject:  Failed to find DS object <%s> due to error %d."), lpDSObject, ulResult));
-                LogEvent (TRUE, IDS_OBJECT_NOT_FOUND, lpDSObject, ulResult);
+                LogEvent(TRUE, IDS_OBJECT_NOT_FOUND, lpDSObject, ulResult);
             }
 
             goto Exit;
@@ -5279,8 +5166,8 @@ BOOL SearchDSObject (LPTSTR lpDSObject, DWORD dwFlags, HANDLE hToken, PGROUP_POL
     // In the results, get the values that match the gPOptions attribute
     lpValues = pLDAP->pfnldap_get_values(pld, pLDAPMsg, szGPOptions);
     if (lpValues && *lpValues) {
-        dwOptions = StringToInt (*lpValues);
-        pLDAP->pfnldap_value_free (lpValues);
+        dwOptions = StringToInt(*lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
     }
 
     // In the results, get the values that match the gPLink attribute
@@ -5289,15 +5176,15 @@ BOOL SearchDSObject (LPTSTR lpDSObject, DWORD dwFlags, HANDLE hToken, PGROUP_POL
         lpList = *lpValues;
         DebugMsg((DM_VERBOSE, TEXT("SearchDSObject:  Found GPO(s):  <%s>"), lpList));
 
-        lpFullDSObject = LocalAlloc (LPTR, (lstrlen(lpDSObject) + 8) * sizeof(TCHAR));
+        lpFullDSObject = LocalAlloc(LPTR, (lstrlen(lpDSObject) + 8) * sizeof(TCHAR));
         if (!lpFullDSObject) {
             DebugMsg((DM_WARNING, TEXT("SearchDSObject:  Failed to allocate memory for full DS Object path name with %d"), GetLastError()));
-            pLDAP->pfnldap_value_free (lpValues);
+            pLDAP->pfnldap_value_free(lpValues);
             goto Exit;
         }
 
-        lstrcpy (lpFullDSObject, TEXT("LDAP://"));
-        lstrcat (lpFullDSObject, lpDSObject);
+        lstrcpy(lpFullDSObject, TEXT("LDAP://"));
+        lstrcat(lpFullDSObject, lpDSObject);
 
         while (*lpList) {
             // Pull off the GPO ldap path
@@ -5340,32 +5227,32 @@ BOOL SearchDSObject (LPTSTR lpDSObject, DWORD dwFlags, HANDLE hToken, PGROUP_POL
             *lpTemp = TEXT('\0');
             lpList++;
 
-            dwGPOOptions = StringToInt (szGPOOptions);
+            dwGPOOptions = StringToInt(szGPOOptions);
 
             // Check if this link is disabled
             if (!(dwGPOOptions & GPO_FLAG_DISABLE)) {
-                if (!ProcessGPO (szGPOPath, dwFlags, hToken, (dwGPOOptions & GPO_FLAG_FORCE) ? &pForced : &pNonForced, dwGPOOptions, TRUE, bVerbose, GPOLink, lpFullDSObject, pld, pLDAP, NULL, *bBlock)) {
+                if (!ProcessGPO(szGPOPath, dwFlags, hToken, (dwGPOOptions & GPO_FLAG_FORCE) ? &pForced : &pNonForced, dwGPOOptions, TRUE, bVerbose, GPOLink, lpFullDSObject, pld, pLDAP, NULL, *bBlock)) {
                     DebugMsg((DM_WARNING, TEXT("SearchDSObject:  ProcessGPO failed.")));
-                    pLDAP->pfnldap_value_free (lpValues);
+                    pLDAP->pfnldap_value_free(lpValues);
                     goto Exit;
                 }
             } else {
                 DebugMsg((DM_VERBOSE, TEXT("SearchDSObject:  The link to GPO %s is disabled.  It will be skipped."), szGPOPath));
-                if (bVerbose) LogEvent (FALSE, IDS_GPO_LINK_DISABLED, szGPOPath);
+                if (bVerbose) LogEvent(FALSE, IDS_GPO_LINK_DISABLED, szGPOPath);
             }
         }
 
-        pLDAP->pfnldap_value_free (lpValues);
+        pLDAP->pfnldap_value_free(lpValues);
 
         // Set the block flag now if requested.  This way OU's, domains, etc higher in the namespace will have GPOs removed if appropriate
         if (dwOptions & GPC_BLOCK_POLICY) {
             *bBlock = TRUE;
             DebugMsg((DM_VERBOSE, TEXT("SearchDSObject:  <%s> has the Block From Above attribute set"), lpDSObject));
-            if (bVerbose) LogEvent (FALSE, IDS_BLOCK_ENABLED, lpDSObject);
+            if (bVerbose) LogEvent(FALSE, IDS_BLOCK_ENABLED, lpDSObject);
         }
     } else {
         DebugMsg((DM_VERBOSE, TEXT("SearchDSObject:  No GPO(s) for this object.")));
-        if (bVerbose) LogEvent (FALSE, IDS_NO_GPOS);
+        if (bVerbose) LogEvent(FALSE, IDS_NO_GPOS);
     }
 
     // Merge the temp and real lists together
@@ -5406,18 +5293,18 @@ BOOL SearchDSObject (LPTSTR lpDSObject, DWORD dwFlags, HANDLE hToken, PGROUP_POL
 Exit:
 
     if (lpFullDSObject) {
-        LocalFree (lpFullDSObject);
+        LocalFree(lpFullDSObject);
     }
 
-    if (pLDAPMsg && bOwnLdapMsg ) {
-        pLDAP->pfnldap_msgfree (pLDAPMsg);
+    if (pLDAPMsg && bOwnLdapMsg) {
+        pLDAP->pfnldap_msgfree(pLDAPMsg);
     }
 
     return bResult;
 }
 
 
-DNENTRY * AllocDnEntry( LPTSTR pwszDN )
+DNENTRY * AllocDnEntry(LPTSTR pwszDN)
 //  Purpose:    Allocates a new struct for dn entry
 
 //  Parameters: pwszDN  - Distinguished name
@@ -5425,38 +5312,38 @@ DNENTRY * AllocDnEntry( LPTSTR pwszDN )
 //  Return:     Pointer if successful
 //              NULL if an error occurs
 {
-    DNENTRY *pDnEntry = (DNENTRY *) LocalAlloc (LPTR, sizeof(DNENTRY));
-    if ( pDnEntry == NULL ) {
+    DNENTRY * pDnEntry = (DNENTRY *)LocalAlloc(LPTR, sizeof(DNENTRY));
+    if (pDnEntry == NULL) {
         DebugMsg((DM_WARNING, TEXT("AllocDnEntry: Failed to alloc pDnEntry with 0x%x."), GetLastError()));
         return NULL;
     }
 
-    pDnEntry->pwszDN = (LPTSTR) LocalAlloc (LPTR, (lstrlen(pwszDN) + 1) * sizeof(TCHAR) );
-    if ( pDnEntry->pwszDN == NULL ) {
-       DebugMsg((DM_WARNING, TEXT("AllocDnEntry: Failed to alloc pwszDN with 0x%x."), GetLastError()));
-       LocalFree( pDnEntry );
-       return NULL;
+    pDnEntry->pwszDN = (LPTSTR)LocalAlloc(LPTR, (lstrlen(pwszDN) + 1) * sizeof(TCHAR));
+    if (pDnEntry->pwszDN == NULL) {
+        DebugMsg((DM_WARNING, TEXT("AllocDnEntry: Failed to alloc pwszDN with 0x%x."), GetLastError()));
+        LocalFree(pDnEntry);
+        return NULL;
     }
 
-    lstrcpy( pDnEntry->pwszDN, pwszDN );
+    lstrcpy(pDnEntry->pwszDN, pwszDN);
 
     return pDnEntry;
 }
 
 
-void FreeDnEntry( DNENTRY *pDnEntry )
+void FreeDnEntry(DNENTRY * pDnEntry)
 //  Purpose:    Frees dn entry struct
 {
-    if ( pDnEntry ) {
-        if ( pDnEntry->pwszDN )
-            LocalFree( pDnEntry->pwszDN );
+    if (pDnEntry) {
+        if (pDnEntry->pwszDN)
+            LocalFree(pDnEntry->pwszDN);
 
-        LocalFree( pDnEntry );
+        LocalFree(pDnEntry);
     }
 }
 
 
-LDAPQUERY * AllocLdapQuery( LPTSTR pwszDomain )
+LDAPQUERY * AllocLdapQuery(LPTSTR pwszDomain)
 //  Purpose:    Allocates a new struct for ldap query
 
 //  Parameters: pwszDomain  - Domain of Gpo
@@ -5465,32 +5352,32 @@ LDAPQUERY * AllocLdapQuery( LPTSTR pwszDomain )
 //              NULL if an error occurs
 {
     const INIT_ALLOC_SIZE = 1000;
-    LDAPQUERY *pQuery = (LDAPQUERY *) LocalAlloc (LPTR, sizeof(LDAPQUERY));
+    LDAPQUERY * pQuery = (LDAPQUERY *)LocalAlloc(LPTR, sizeof(LDAPQUERY));
 
-    if ( pQuery == NULL ) {
+    if (pQuery == NULL) {
         DebugMsg((DM_WARNING, TEXT("AllocLdapQuery: Failed to alloc pQuery with 0x%x."), GetLastError()));
         return NULL;
     }
 
-    pQuery->pwszDomain = (LPTSTR) LocalAlloc (LPTR, (lstrlen(pwszDomain) + 1) * sizeof(TCHAR) );
+    pQuery->pwszDomain = (LPTSTR)LocalAlloc(LPTR, (lstrlen(pwszDomain) + 1) * sizeof(TCHAR));
 
-    if ( pQuery->pwszDomain == NULL ) {
+    if (pQuery->pwszDomain == NULL) {
         DebugMsg((DM_WARNING, TEXT("AllocLdapQuery: Failed to alloc pwszDomain with 0x%x."), GetLastError()));
-        LocalFree( pQuery );
+        LocalFree(pQuery);
         return NULL;
     }
 
-    pQuery->pwszFilter = (LPTSTR) LocalAlloc (LPTR, INIT_ALLOC_SIZE );
+    pQuery->pwszFilter = (LPTSTR)LocalAlloc(LPTR, INIT_ALLOC_SIZE);
 
-    if ( pQuery->pwszFilter == NULL ) {
+    if (pQuery->pwszFilter == NULL) {
         DebugMsg((DM_WARNING, TEXT("AllocLdapQuery: Failed to alloc pwszFilter with 0x%x."), GetLastError()));
-        LocalFree( pQuery->pwszDomain );
-        LocalFree( pQuery );
+        LocalFree(pQuery->pwszDomain);
+        LocalFree(pQuery);
         return NULL;
     }
 
-    lstrcpy( pQuery->pwszDomain, pwszDomain );
-    lstrcpy( pQuery->pwszFilter, L"(|)" );
+    lstrcpy(pQuery->pwszDomain, pwszDomain);
+    lstrcpy(pQuery->pwszFilter, L"(|)");
     pQuery->cbLen = 8;           // 8 = (lstrlen(L"(|)") + 1) * sizeof(TCHAR)
     pQuery->cbAllocLen = INIT_ALLOC_SIZE;
 
@@ -5498,38 +5385,38 @@ LDAPQUERY * AllocLdapQuery( LPTSTR pwszDomain )
 }
 
 
-void FreeLdapQuery( PLDAP_API pLDAP, LDAPQUERY *pQuery )
+void FreeLdapQuery(PLDAP_API pLDAP, LDAPQUERY * pQuery)
 //  Purpose:    Frees ldap query struct
 {
-    DNENTRY *pDnEntry = NULL;
+    DNENTRY * pDnEntry = NULL;
 
-    if ( pQuery ) {
-        if ( pQuery->pwszDomain )
-            LocalFree( pQuery->pwszDomain );
+    if (pQuery) {
+        if (pQuery->pwszDomain)
+            LocalFree(pQuery->pwszDomain);
 
-        if ( pQuery->pwszFilter )
-            LocalFree( pQuery->pwszFilter );
+        if (pQuery->pwszFilter)
+            LocalFree(pQuery->pwszFilter);
 
-        if ( pQuery->pMessage )
-            pLDAP->pfnldap_msgfree( pQuery->pMessage );
+        if (pQuery->pMessage)
+            pLDAP->pfnldap_msgfree(pQuery->pMessage);
 
-        if ( pQuery->pLdapHandle && pQuery->bOwnLdapHandle )
-            pLDAP->pfnldap_unbind( pQuery->pLdapHandle );
+        if (pQuery->pLdapHandle && pQuery->bOwnLdapHandle)
+            pLDAP->pfnldap_unbind(pQuery->pLdapHandle);
 
         pDnEntry = pQuery->pDnEntry;
 
-        while ( pDnEntry ) {
-            DNENTRY *pTemp = pDnEntry->pNext;
-            FreeDnEntry( pDnEntry );
+        while (pDnEntry) {
+            DNENTRY * pTemp = pDnEntry->pNext;
+            FreeDnEntry(pDnEntry);
             pDnEntry = pTemp;
         }
 
-        LocalFree( pQuery );
+        LocalFree(pQuery);
     }
 }
 
 
-BOOL MatchDnWithDeferredItems( PLDAP_API pLDAP, LDAPQUERY *pLdapQuery, BOOL bOUProcessing )
+BOOL MatchDnWithDeferredItems(PLDAP_API pLDAP, LDAPQUERY * pLdapQuery, BOOL bOUProcessing)
 //  Purpose:    Matches the dns from ldap query with the deferred items
 
 //  Parameters: pLDAP         - LDAP function table pointer
@@ -5538,26 +5425,26 @@ BOOL MatchDnWithDeferredItems( PLDAP_API pLDAP, LDAPQUERY *pLdapQuery, BOOL bOUP
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
 {
-    PLDAPMessage pMsg = pLDAP->pfnldap_first_entry( pLdapQuery->pLdapHandle, pLdapQuery->pMessage );
+    PLDAPMessage pMsg = pLDAP->pfnldap_first_entry(pLdapQuery->pLdapHandle, pLdapQuery->pMessage);
 
-    while ( pMsg ) {
-        WCHAR *pwszDN = pLDAP->pfnldap_get_dn( pLdapQuery->pLdapHandle, pMsg );
-        DNENTRY *pCurPtr = pLdapQuery->pDnEntry;
+    while (pMsg) {
+        WCHAR * pwszDN = pLDAP->pfnldap_get_dn(pLdapQuery->pLdapHandle, pMsg);
+        DNENTRY * pCurPtr = pLdapQuery->pDnEntry;
 
-        while ( pCurPtr ) {
-            INT iResult = CompareString ( LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszDN, -1, pCurPtr->pwszDN, -1 );
-            if ( iResult == CSTR_EQUAL ) {
+        while (pCurPtr) {
+            INT iResult = CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszDN, -1, pCurPtr->pwszDN, -1);
+            if (iResult == CSTR_EQUAL) {
                 // Store the pointer to ldap message so that it can be used
                 // later to retrieve necessary attributes.
-                if ( bOUProcessing )
+                if (bOUProcessing)
                     pCurPtr->pDeferredOU->pOUMsg = pMsg;
                 else {
-                    pCurPtr->pDeferredGPO->lParam = (LPARAM) pMsg;
-                    pCurPtr->pDeferredGPO->lParam2 = (LPARAM) pLdapQuery->pLdapHandle;
+                    pCurPtr->pDeferredGPO->lParam = (LPARAM)pMsg;
+                    pCurPtr->pDeferredGPO->lParam2 = (LPARAM)pLdapQuery->pLdapHandle;
                 }
 
                 pCurPtr = pCurPtr->pNext;
-            } else if ( iResult == CSTR_LESS_THAN ) {
+            } else if (iResult == CSTR_LESS_THAN) {
                 // Since dns are in ascending order,
                 // we are done.
                 break;
@@ -5567,15 +5454,15 @@ BOOL MatchDnWithDeferredItems( PLDAP_API pLDAP, LDAPQUERY *pLdapQuery, BOOL bOUP
             } // final else
         }   // while pcurptr
 
-        pLDAP->pfnldap_memfree( pwszDN );
-        pMsg = pLDAP->pfnldap_next_entry( pLdapQuery->pLdapHandle, pMsg );
+        pLDAP->pfnldap_memfree(pwszDN);
+        pMsg = pLDAP->pfnldap_next_entry(pLdapQuery->pLdapHandle, pMsg);
     }   // while pmsg
 
     return TRUE;
 }
 
 
-BOOL AddDnToFilter( LDAPQUERY *pLdapQuery, LPTSTR pwszDN )
+BOOL AddDnToFilter(LDAPQUERY * pLdapQuery, LPTSTR pwszDN)
 //  Purpose:    ORs in the new dn to the ldap filter
 
 //  Parameters: ppLdapQuery       - LDAP query list
@@ -5588,33 +5475,33 @@ BOOL AddDnToFilter( LDAPQUERY *pLdapQuery, LPTSTR pwszDN )
     DWORD cbNew = (lstrlen(pwszDN) + DN_SIZE) * sizeof(TCHAR); // + 1 is not needed because \0 is already part of filter string
     DWORD cbSizeRequired = pLdapQuery->cbLen + cbNew;
 
-    if ( cbSizeRequired >= pLdapQuery->cbAllocLen ) {
+    if (cbSizeRequired >= pLdapQuery->cbAllocLen) {
         // Need to grow buffer because of overflow
-        LPTSTR pwszNewFilter = (LPTSTR) LocalAlloc (LPTR, cbSizeRequired * 2);
-        if ( pwszNewFilter == NULL ) {
-            DebugMsg((DM_WARNING, TEXT("AddDnToFilter: Unable to allocate new filter string") ));
+        LPTSTR pwszNewFilter = (LPTSTR)LocalAlloc(LPTR, cbSizeRequired * 2);
+        if (pwszNewFilter == NULL) {
+            DebugMsg((DM_WARNING, TEXT("AddDnToFilter: Unable to allocate new filter string")));
             return FALSE;
         }
 
-        lstrcpy( pwszNewFilter, pLdapQuery->pwszFilter );
-        LocalFree( pLdapQuery->pwszFilter );
+        lstrcpy(pwszNewFilter, pLdapQuery->pwszFilter);
+        LocalFree(pLdapQuery->pwszFilter);
         pLdapQuery->pwszFilter = pwszNewFilter;
         pLdapQuery->cbAllocLen = cbSizeRequired * 2;
     }
 
-    DmAssert( cbSizeRequired < pLdapQuery->cbAllocLen );
+    DmAssert(cbSizeRequired < pLdapQuery->cbAllocLen);
 
     // Overwrite last ")" and then append the new dn name term
-    lstrcpy( &pLdapQuery->pwszFilter[pLdapQuery->cbLen/2 - 2], L"(distinguishedName=" );
-    lstrcat( pLdapQuery->pwszFilter, pwszDN );
-    lstrcat( pLdapQuery->pwszFilter, L"))" );
+    lstrcpy(&pLdapQuery->pwszFilter[pLdapQuery->cbLen / 2 - 2], L"(distinguishedName=");
+    lstrcat(pLdapQuery->pwszFilter, pwszDN);
+    lstrcat(pLdapQuery->pwszFilter, L"))");
 
     pLdapQuery->cbLen += cbNew;
     return TRUE;
 }
 
 
-BOOL InsertDN( LDAPQUERY *pLdapQuery, LPTSTR pwszDN, DNENTRY *pDeferredOU, PGROUP_POLICY_OBJECT pDeferredGPO )
+BOOL InsertDN(LDAPQUERY * pLdapQuery, LPTSTR pwszDN, DNENTRY * pDeferredOU, PGROUP_POLICY_OBJECT pDeferredGPO)
 //  Purpose:    Adds a distinguished name entry to ldap query's
 //              names linked list
 
@@ -5626,62 +5513,62 @@ BOOL InsertDN( LDAPQUERY *pLdapQuery, LPTSTR pwszDN, DNENTRY *pDeferredOU, PGROU
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
 {
-    DNENTRY *pNewEntry = NULL;
-    DNENTRY *pTrailPtr = NULL;
-    DNENTRY *pCurPtr = pLdapQuery->pDnEntry;
+    DNENTRY * pNewEntry = NULL;
+    DNENTRY * pTrailPtr = NULL;
+    DNENTRY * pCurPtr = pLdapQuery->pDnEntry;
 
-    DmAssert( !( pDeferredOU && pDeferredGPO ) );
+    DmAssert(!(pDeferredOU && pDeferredGPO));
 
-    while ( pCurPtr != NULL ) {
-         INT iResult = CompareString ( LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszDN, -1, pCurPtr->pwszDN, -1 );
-         if ( iResult == CSTR_EQUAL || iResult == CSTR_LESS_THAN ) {
-             // Duplicate or since dn's are in ascending order, add new entry
-             DNENTRY *pNewEntry = AllocDnEntry( pwszDN );
-             if ( pNewEntry == NULL )
-                 return FALSE;
+    while (pCurPtr != NULL) {
+        INT iResult = CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszDN, -1, pCurPtr->pwszDN, -1);
+        if (iResult == CSTR_EQUAL || iResult == CSTR_LESS_THAN) {
+            // Duplicate or since dn's are in ascending order, add new entry
+            DNENTRY * pNewEntry = AllocDnEntry(pwszDN);
+            if (pNewEntry == NULL)
+                return FALSE;
 
-             if ( !AddDnToFilter( pLdapQuery, pwszDN ) ) {
-                 FreeDnEntry( pNewEntry );
-                 return FALSE;
-             }
+            if (!AddDnToFilter(pLdapQuery, pwszDN)) {
+                FreeDnEntry(pNewEntry);
+                return FALSE;
+            }
 
-             if ( pDeferredOU )
-                 pNewEntry->pDeferredOU = pDeferredOU;
-             else
-                 pNewEntry->pDeferredGPO = pDeferredGPO;
+            if (pDeferredOU)
+                pNewEntry->pDeferredOU = pDeferredOU;
+            else
+                pNewEntry->pDeferredGPO = pDeferredGPO;
 
-             pNewEntry->pNext = pCurPtr;
-             if ( pTrailPtr == NULL )
-                 pLdapQuery->pDnEntry = pNewEntry;
-             else
-                 pTrailPtr->pNext = pNewEntry;
+            pNewEntry->pNext = pCurPtr;
+            if (pTrailPtr == NULL)
+                pLdapQuery->pDnEntry = pNewEntry;
+            else
+                pTrailPtr->pNext = pNewEntry;
 
-             return TRUE;
-         } else {
-             // Advance down the list
-             pTrailPtr = pCurPtr;
-             pCurPtr = pCurPtr->pNext;
-         }
+            return TRUE;
+        } else {
+            // Advance down the list
+            pTrailPtr = pCurPtr;
+            pCurPtr = pCurPtr->pNext;
+        }
     }    // while
 
     // Null list or end of list case.
-    pNewEntry = AllocDnEntry( pwszDN );
-    if ( pNewEntry == NULL )
-         return FALSE;
+    pNewEntry = AllocDnEntry(pwszDN);
+    if (pNewEntry == NULL)
+        return FALSE;
 
-    if ( !AddDnToFilter( pLdapQuery, pwszDN ) ) {
-        FreeDnEntry( pNewEntry );
+    if (!AddDnToFilter(pLdapQuery, pwszDN)) {
+        FreeDnEntry(pNewEntry);
         return FALSE;
     }
 
-    if ( pDeferredOU )
+    if (pDeferredOU)
         pNewEntry->pDeferredOU = pDeferredOU;
     else
         pNewEntry->pDeferredGPO = pDeferredGPO;
 
     pNewEntry->pNext = pCurPtr;
-    if ( pTrailPtr == NULL )
-         pLdapQuery->pDnEntry = pNewEntry;
+    if (pTrailPtr == NULL)
+        pLdapQuery->pDnEntry = pNewEntry;
     else
         pTrailPtr->pNext = pNewEntry;
 
@@ -5689,7 +5576,7 @@ BOOL InsertDN( LDAPQUERY *pLdapQuery, LPTSTR pwszDN, DNENTRY *pDeferredOU, PGROU
 }
 
 
-BOOL AddDN( PLDAP_API pLDAP, LDAPQUERY **ppLdapQuery, LPTSTR pwszDN, DNENTRY *pDeferredOU, PGROUP_POLICY_OBJECT pDeferredGPO )
+BOOL AddDN(PLDAP_API pLDAP, LDAPQUERY ** ppLdapQuery, LPTSTR pwszDN, DNENTRY * pDeferredOU, PGROUP_POLICY_OBJECT pDeferredGPO)
 //  Purpose:    Adds a distinguished name entry to ldap query
 
 //  Parameters: ppLdapQuery       - LDAP query list
@@ -5702,56 +5589,56 @@ BOOL AddDN( PLDAP_API pLDAP, LDAPQUERY **ppLdapQuery, LPTSTR pwszDN, DNENTRY *pD
 {
     LPTSTR pwszDomain = NULL;
     LPTSTR pwszTemp = pwszDN;
-    LDAPQUERY *pNewQuery = NULL;
-    LDAPQUERY *pTrailPtr = NULL;
-    LDAPQUERY *pCurPtr = *ppLdapQuery;
+    LDAPQUERY * pNewQuery = NULL;
+    LDAPQUERY * pTrailPtr = NULL;
+    LDAPQUERY * pCurPtr = *ppLdapQuery;
 
-    DmAssert( !( pDeferredOU && pDeferredGPO ) );
+    DmAssert(!(pDeferredOU && pDeferredGPO));
 
     // Find the domain to which the GPO belongs
-    if ( pwszTemp == NULL ) {
-        DebugMsg((DM_WARNING, TEXT("AddDN: Null pwszDN. Exiting.") ));
+    if (pwszTemp == NULL) {
+        DebugMsg((DM_WARNING, TEXT("AddDN: Null pwszDN. Exiting.")));
         return FALSE;
     }
 
-    while ( *pwszTemp ) {
-        if (CompareString ( LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszTemp, 3, TEXT("DC="), 3) == CSTR_EQUAL ) {
+    while (*pwszTemp) {
+        if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszTemp, 3, TEXT("DC="), 3) == CSTR_EQUAL) {
             pwszDomain = pwszTemp;
             break;
         }
 
         // Move to the next chunk of the DN name
-        while ( *pwszTemp && (*pwszTemp != TEXT(',')))
+        while (*pwszTemp && (*pwszTemp != TEXT(',')))
             pwszTemp++;
 
-        if ( *pwszTemp == TEXT(','))
+        if (*pwszTemp == TEXT(','))
             pwszTemp++;
     }
 
-    if ( pwszDomain == NULL ) {
-        DebugMsg((DM_WARNING, TEXT("AddDN: Domain not found for <%s>. Exiting."), pwszDN ));
+    if (pwszDomain == NULL) {
+        DebugMsg((DM_WARNING, TEXT("AddDN: Domain not found for <%s>. Exiting."), pwszDN));
         return FALSE;
     }
 
-    while ( pCurPtr != NULL ) {
-        INT iResult = CompareString ( LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszDomain, -1, pCurPtr->pwszDomain, -1 );
-        if ( iResult == CSTR_EQUAL ) {
-            BOOL bOk = InsertDN( pCurPtr, pwszDN, pDeferredOU, pDeferredGPO );
+    while (pCurPtr != NULL) {
+        INT iResult = CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszDomain, -1, pCurPtr->pwszDomain, -1);
+        if (iResult == CSTR_EQUAL) {
+            BOOL bOk = InsertDN(pCurPtr, pwszDN, pDeferredOU, pDeferredGPO);
             return bOk;
-        } else if ( iResult == CSTR_LESS_THAN ) {
+        } else if (iResult == CSTR_LESS_THAN) {
             // Since domains are in ascending order,
             // pwszDomain is not in list, so add.
-            pNewQuery = AllocLdapQuery( pwszDomain );
-            if ( pNewQuery == NULL )
+            pNewQuery = AllocLdapQuery(pwszDomain);
+            if (pNewQuery == NULL)
                 return FALSE;
 
-            if ( !InsertDN( pNewQuery, pwszDN, pDeferredOU, pDeferredGPO ) ) {
-                FreeLdapQuery( pLDAP, pNewQuery );
+            if (!InsertDN(pNewQuery, pwszDN, pDeferredOU, pDeferredGPO)) {
+                FreeLdapQuery(pLDAP, pNewQuery);
                 return FALSE;
             }
 
             pNewQuery->pNext = pCurPtr;
-            if ( pTrailPtr == NULL )
+            if (pTrailPtr == NULL)
                 *ppLdapQuery = pNewQuery;
             else
                 pTrailPtr->pNext = pNewQuery;
@@ -5765,18 +5652,18 @@ BOOL AddDN( PLDAP_API pLDAP, LDAPQUERY **ppLdapQuery, LPTSTR pwszDN, DNENTRY *pD
     }   // while
 
     // Null list or end of list case.
-    pNewQuery = AllocLdapQuery( pwszDomain );
-    if ( pNewQuery == NULL )
+    pNewQuery = AllocLdapQuery(pwszDomain);
+    if (pNewQuery == NULL)
         return FALSE;
 
-    if ( !InsertDN( pNewQuery, pwszDN, pDeferredOU, pDeferredGPO ) ) {
-        FreeLdapQuery( pLDAP, pNewQuery );
+    if (!InsertDN(pNewQuery, pwszDN, pDeferredOU, pDeferredGPO)) {
+        FreeLdapQuery(pLDAP, pNewQuery);
         return FALSE;
     }
 
     pNewQuery->pNext = pCurPtr;
 
-    if ( pTrailPtr == NULL )
+    if (pTrailPtr == NULL)
         *ppLdapQuery = pNewQuery;
     else
         pTrailPtr->pNext = pNewQuery;
@@ -5785,7 +5672,7 @@ BOOL AddDN( PLDAP_API pLDAP, LDAPQUERY **ppLdapQuery, LPTSTR pwszDN, DNENTRY *pD
 }
 
 
-BOOL EvalList(  PLDAP_API pLDAP, DWORD dwFlags, HANDLE hToken, BOOL bVerbose, PGROUP_POLICY_OBJECT pDeferredList, PGROUP_POLICY_OBJECT *ppGPOList  )
+BOOL EvalList(PLDAP_API pLDAP, DWORD dwFlags, HANDLE hToken, BOOL bVerbose, PGROUP_POLICY_OBJECT pDeferredList, PGROUP_POLICY_OBJECT * ppGPOList)
 //  Purpose:    Encapsulates common processing functionality for
 //              forced and nonforced lists
 
@@ -5801,17 +5688,17 @@ BOOL EvalList(  PLDAP_API pLDAP, DWORD dwFlags, HANDLE hToken, BOOL bVerbose, PG
 {
     PGROUP_POLICY_OBJECT pGPOTemp = pDeferredList;
 
-    while ( pGPOTemp ) {
-        PLDAPMessage pGPOMsg = (PLDAPMessage) pGPOTemp->lParam;
-        if ( pGPOMsg == NULL ) {
-            DebugMsg((DM_VERBOSE, TEXT("EvalList: Object <%s> cannot be accessed"), pGPOTemp->lpDSPath ));
+    while (pGPOTemp) {
+        PLDAPMessage pGPOMsg = (PLDAPMessage)pGPOTemp->lParam;
+        if (pGPOMsg == NULL) {
+            DebugMsg((DM_VERBOSE, TEXT("EvalList: Object <%s> cannot be accessed"), pGPOTemp->lpDSPath));
             if (bVerbose)
-                LogEvent (FALSE, IDS_OBJECT_NOT_FOUND, pGPOTemp->lpDSPath, 0);
+                LogEvent(FALSE, IDS_OBJECT_NOT_FOUND, pGPOTemp->lpDSPath, 0);
         } else {
-            DmAssert( (PLDAP) pGPOTemp->lParam2 != NULL );
+            DmAssert((PLDAP)pGPOTemp->lParam2 != NULL);
 
-            if ( !ProcessGPO( pGPOTemp->lpDSPath, dwFlags, hToken, ppGPOList, pGPOTemp->dwOptions, FALSE, bVerbose, pGPOTemp->GPOLink, pGPOTemp->lpLink, (PLDAP) pGPOTemp->lParam2, pLDAP, pGPOMsg, FALSE ) ) {
-                DebugMsg((DM_WARNING, TEXT("EvalList:  ProcessGPO failed") ));
+            if (!ProcessGPO(pGPOTemp->lpDSPath, dwFlags, hToken, ppGPOList, pGPOTemp->dwOptions, FALSE, bVerbose, pGPOTemp->GPOLink, pGPOTemp->lpLink, (PLDAP)pGPOTemp->lParam2, pLDAP, pGPOMsg, FALSE)) {
+                DebugMsg((DM_WARNING, TEXT("EvalList:  ProcessGPO failed")));
                 return FALSE;
             }
         }
@@ -5823,38 +5710,38 @@ BOOL EvalList(  PLDAP_API pLDAP, DWORD dwFlags, HANDLE hToken, BOOL bVerbose, PG
 }
 
 
-BOOL EvaluateDeferredGPOs (PLDAP pldBound,
-                           PLDAP_API pLDAP,
-                           LPTSTR pwszDomainBound,
-                           DWORD dwFlags,
-                           HANDLE hToken,
-                           BOOL bVerbose,
-                           PGROUP_POLICY_OBJECT pDeferredForcedList,
-                           PGROUP_POLICY_OBJECT pDeferredNonForcedList,
-                           PGROUP_POLICY_OBJECT *ppForcedList,
-                           PGROUP_POLICY_OBJECT *ppNonForcedList )
-//  Purpose:    Uses a single ldap query to evaluate deferred
-//              GPO lists.
+BOOL EvaluateDeferredGPOs(PLDAP pldBound,
+                          PLDAP_API pLDAP,
+                          LPTSTR pwszDomainBound,
+                          DWORD dwFlags,
+                          HANDLE hToken,
+                          BOOL bVerbose,
+                          PGROUP_POLICY_OBJECT pDeferredForcedList,
+                          PGROUP_POLICY_OBJECT pDeferredNonForcedList,
+                          PGROUP_POLICY_OBJECT * ppForcedList,
+                          PGROUP_POLICY_OBJECT * ppNonForcedList)
+    //  Purpose:    Uses a single ldap query to evaluate deferred
+    //              GPO lists.
 
-//  Parameters: pldBound               - Bound LDAP handle
-//              pLDAP                  - LDAP api
-//              pwszDomainBound        - Domain already bound to
-//              dwFlags                - GetGPOList flags
-//              hToken                 - User or machine token
-//              pDeferredForcedList    - List of deferred forced GPOs
-//              pDeferredNonForcedList - List of deferred non-forced GPOs
-//              pGPOForcedList         - List of forced GPOs
-//              pGPONonForcedList      - List of non-forced GPOs
+    //  Parameters: pldBound               - Bound LDAP handle
+    //              pLDAP                  - LDAP api
+    //              pwszDomainBound        - Domain already bound to
+    //              dwFlags                - GetGPOList flags
+    //              hToken                 - User or machine token
+    //              pDeferredForcedList    - List of deferred forced GPOs
+    //              pDeferredNonForcedList - List of deferred non-forced GPOs
+    //              pGPOForcedList         - List of forced GPOs
+    //              pGPONonForcedList      - List of non-forced GPOs
 
-//  Return:     TRUE if successful
-//              FALSE if an error occurs
+    //  Return:     TRUE if successful
+    //              FALSE if an error occurs
 {
     ULONG ulResult;
     BOOL bResult = FALSE;
     BYTE berValue[8];
-    LDAPControl SeInfoControl = { LDAP_SERVER_SD_FLAGS_OID_W, { 5, (PCHAR)berValue }, TRUE };
-    LDAPControl referralControl = { LDAP_SERVER_DOMAIN_SCOPE_OID_W, { 0, NULL}, TRUE };
-    PLDAPControl ServerControls[] = { &SeInfoControl, &referralControl, NULL };
+    LDAPControl SeInfoControl = {LDAP_SERVER_SD_FLAGS_OID_W, { 5, (PCHAR)berValue }, TRUE};
+    LDAPControl referralControl = {LDAP_SERVER_DOMAIN_SCOPE_OID_W, { 0, NULL}, TRUE};
+    PLDAPControl ServerControls[] = {&SeInfoControl, &referralControl, NULL};
     TCHAR szSDProperty[] = TEXT("nTSecurityDescriptor");
     TCHAR szCommonName[] = TEXT("cn");
     TCHAR szDisplayName[] = TEXT("displayName");
@@ -5862,7 +5749,7 @@ BOOL EvaluateDeferredGPOs (PLDAP pldBound,
     TCHAR szVersion[] = TEXT("versionNumber");
     TCHAR szFunctionalityVersion[] = GPO_FUNCTIONALITY_VERSION;
     TCHAR szFlags[] = TEXT("flags");
-    PWSTR rgAttribs[11] = { szSDProperty,
+    PWSTR rgAttribs[11] = {szSDProperty,
                            szFileSysPath,
                            szCommonName,
                            szDisplayName,
@@ -5872,35 +5759,35 @@ BOOL EvaluateDeferredGPOs (PLDAP pldBound,
                            GPO_MACHEXTENSION_NAMES,
                            GPO_USEREXTENSION_NAMES,
                            szObjectClass,
-                           NULL };
+                           NULL};
     PGROUP_POLICY_OBJECT pGPOTemp = pDeferredForcedList;
-    LDAPQUERY *pLdapQuery = NULL, *pQuery = NULL;
-    VOID *pData;
+    LDAPQUERY * pLdapQuery = NULL, * pQuery = NULL;
+    VOID * pData;
     PDS_API pdsApi;
 
     *ppForcedList = NULL;
     *ppNonForcedList = NULL;
 
-    if ( pDeferredForcedList == NULL && pDeferredNonForcedList == NULL )
+    if (pDeferredForcedList == NULL && pDeferredNonForcedList == NULL)
         return TRUE;
 
     // Demand load ntdsapi.dll
     pdsApi = LoadDSApi();
-    if ( pdsApi == 0 ) {
+    if (pdsApi == 0) {
         DebugMsg((DM_WARNING, TEXT("EvaluateDeferredGpos: Failed to load ntdsapi.dll")));
         goto Exit;
     }
 
-    while ( pGPOTemp ) {
-        if ( !AddDN( pLDAP, &pLdapQuery, pGPOTemp->lpDSPath, NULL, pGPOTemp ) )
-             goto Exit;
+    while (pGPOTemp) {
+        if (!AddDN(pLDAP, &pLdapQuery, pGPOTemp->lpDSPath, NULL, pGPOTemp))
+            goto Exit;
         pGPOTemp = pGPOTemp->pNext;
     }
 
     pGPOTemp = pDeferredNonForcedList;
-    while ( pGPOTemp ) {
-        if ( !AddDN( pLDAP, &pLdapQuery, pGPOTemp->lpDSPath, NULL, pGPOTemp ) )
-             goto Exit;
+    while (pGPOTemp) {
+        if (!AddDN(pLDAP, &pLdapQuery, pGPOTemp->lpDSPath, NULL, pGPOTemp))
+            goto Exit;
         pGPOTemp = pGPOTemp->pNext;
     }
 
@@ -5911,47 +5798,47 @@ BOOL EvaluateDeferredGPOs (PLDAP pldBound,
     berValue[3] = 0x01; // denotes size
     berValue[4] = (BYTE)((DACL_SECURITY_INFORMATION | OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION) & 0xF);
 
-    pQuery  = pLdapQuery;
-    while ( pQuery ) {
+    pQuery = pLdapQuery;
+    while (pQuery) {
         // Check if this is a cross-domain Gpo and hence needs a new bind
-        WCHAR *pDomainString[1];
+        WCHAR * pDomainString[1];
         PDS_NAME_RESULT pNameResult = NULL;
         PLDAP pLdapHandle = NULL;
 
         pDomainString[0] = pQuery->pwszDomain;
-        ulResult = pdsApi->pfnDsCrackNames( (HANDLE) -1, DS_NAME_FLAG_SYNTACTICAL_ONLY, DS_FQDN_1779_NAME, DS_CANONICAL_NAME, 1, pDomainString, &pNameResult );
-        if ( ulResult != ERROR_SUCCESS || pNameResult->cItems == 0 || pNameResult->rItems[0].status != ERROR_SUCCESS || pNameResult->rItems[0].pDomain == NULL ) {
-            DebugMsg((DM_VERBOSE, TEXT("EvaluateDeferredGPOs:  DsCrackNames failed with 0x%x."), ulResult ));
+        ulResult = pdsApi->pfnDsCrackNames((HANDLE)-1, DS_NAME_FLAG_SYNTACTICAL_ONLY, DS_FQDN_1779_NAME, DS_CANONICAL_NAME, 1, pDomainString, &pNameResult);
+        if (ulResult != ERROR_SUCCESS || pNameResult->cItems == 0 || pNameResult->rItems[0].status != ERROR_SUCCESS || pNameResult->rItems[0].pDomain == NULL) {
+            DebugMsg((DM_VERBOSE, TEXT("EvaluateDeferredGPOs:  DsCrackNames failed with 0x%x."), ulResult));
             goto Exit;
         }
 
         // Optimize same domain Gpo queries by not doing an unnecessary bind
         pQuery->pLdapHandle = pldBound;
 
-        if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszDomainBound, -1, pNameResult->rItems[0].pDomain, -1) != CSTR_EQUAL) {
+        if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, pwszDomainBound, -1, pNameResult->rItems[0].pDomain, -1) != CSTR_EQUAL) {
             // Cross-domain Gpo query and so need to bind to new domain
             DebugMsg((DM_VERBOSE, TEXT("EvaluateDeferredGPOs: Doing an ldap bind to cross-domain <%s>"), pNameResult->rItems[0].pDomain));
-            pLdapHandle = pLDAP->pfnldap_open( pNameResult->rItems[0].pDomain, LDAP_PORT);
+            pLdapHandle = pLDAP->pfnldap_open(pNameResult->rItems[0].pDomain, LDAP_PORT);
             if (!pLdapHandle) {
                 DebugMsg((DM_WARNING, TEXT("EvaluateDeferredGPOs:  ldap_open for <%s> failed with = 0x%x or %d"), pNameResult->rItems[0].pDomain, pLDAP->pfnLdapGetLastError(), GetLastError()));
-                LogEvent (TRUE, IDS_FAILED_DS_CONNECT, pNameResult->rItems[0].pDomain, pLDAP->pfnLdapGetLastError());
-                pdsApi->pfnDsFreeNameResult( pNameResult );
+                LogEvent(TRUE, IDS_FAILED_DS_CONNECT, pNameResult->rItems[0].pDomain, pLDAP->pfnLdapGetLastError());
+                pdsApi->pfnDsFreeNameResult(pNameResult);
                 goto Exit;
             }
 
             // Turn on Packet integrity flag
-            pData = (VOID *) LDAP_OPT_ON;
+            pData = (VOID *)LDAP_OPT_ON;
             ulResult = pLDAP->pfnldap_set_option(pLdapHandle, LDAP_OPT_SIGN, &pData);
             if (ulResult != LDAP_SUCCESS) {
                 DebugMsg((DM_WARNING, TEXT("EvaluateDeferredGPOs:  Failed to turn on LDAP_OPT_SIGN with %d"), ulResult));
-                pdsApi->pfnDsFreeNameResult( pNameResult );
+                pdsApi->pfnDsFreeNameResult(pNameResult);
                 goto Exit;
             }
 
             // Transfer ownerhip of ldap handle to pQuery struct
             pQuery->pLdapHandle = pLdapHandle;
             pQuery->bOwnLdapHandle = TRUE;
-            if ( dwFlags & GPO_LIST_FLAG_MACHINE) {
+            if (dwFlags & GPO_LIST_FLAG_MACHINE) {
                 // For machine policies specifically ask for Kerberos as the only authentication
                 // mechanism. Otherwise if Kerberos were to fail for some reason, then NTLM is used
                 // and localsystem context has no real credentials, which means that we won't get any GPOs back.
@@ -5967,76 +5854,75 @@ BOOL EvaluateDeferredGPOs (PLDAP pldBound,
                 secIdentity.PasswordLength = 0;
                 secIdentity.Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
                 secIdentity.PackageList = wszKerberos;
-                secIdentity.PackageListLength = lstrlen( wszKerberos );
+                secIdentity.PackageListLength = lstrlen(wszKerberos);
 
-                ulResult = pLDAP->pfnldap_bind_s (pLdapHandle, NULL, (WCHAR *)&secIdentity, LDAP_AUTH_SSPI);
+                ulResult = pLDAP->pfnldap_bind_s(pLdapHandle, NULL, (WCHAR *)&secIdentity, LDAP_AUTH_SSPI);
             } else
-                ulResult = pLDAP->pfnldap_bind_s (pLdapHandle, NULL, NULL, LDAP_AUTH_SSPI);
+                ulResult = pLDAP->pfnldap_bind_s(pLdapHandle, NULL, NULL, LDAP_AUTH_SSPI);
 
             if (ulResult != LDAP_SUCCESS) {
                 DebugMsg((DM_WARNING, TEXT("EvaluateDeferredGPOs:  ldap_bind_s failed with = <%d>"), ulResult));
-                LogEvent (TRUE, IDS_FAILED_DS_BIND, pNameResult->rItems[0].pDomain, ulResult);
-                pdsApi->pfnDsFreeNameResult( pNameResult );
+                LogEvent(TRUE, IDS_FAILED_DS_BIND, pNameResult->rItems[0].pDomain, ulResult);
+                pdsApi->pfnDsFreeNameResult(pNameResult);
                 goto Exit;
             }
 
             DebugMsg((DM_VERBOSE, TEXT("EvaluateDeferredGPOs: Bind sucessful")));
         }
 
-        pdsApi->pfnDsFreeNameResult( pNameResult );
+        pdsApi->pfnDsFreeNameResult(pNameResult);
 
         // Turn referrals off because this is a single domain call
-        pData = (VOID *) LDAP_OPT_OFF;
-        ulResult = pLDAP->pfnldap_set_option( pQuery->pLdapHandle,  LDAP_OPT_REFERRALS, &pData );
-        if ( ulResult != LDAP_SUCCESS )
-        {
+        pData = (VOID *)LDAP_OPT_OFF;
+        ulResult = pLDAP->pfnldap_set_option(pQuery->pLdapHandle, LDAP_OPT_REFERRALS, &pData);
+        if (ulResult != LDAP_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("EvalauteDeferredGPOs:  Failed to turn off referrals with error %d"), ulResult));
             goto Exit;
         }
 
         // Search for GPOs
-        DmAssert( pQuery->pwszDomain != NULL && pQuery->pwszFilter != NULL );
+        DmAssert(pQuery->pwszDomain != NULL && pQuery->pwszFilter != NULL);
         ulResult = pLDAP->pfnldap_search_ext_s(pQuery->pLdapHandle, pQuery->pwszDomain, LDAP_SCOPE_SUBTREE, pQuery->pwszFilter, rgAttribs, 0,
-                                               (PLDAPControl*)ServerControls, NULL, NULL, 0x10000, &pQuery->pMessage);
+                                               (PLDAPControl *)ServerControls, NULL, NULL, 0x10000, &pQuery->pMessage);
 
         // If the search fails, store the error code and return
         if (ulResult != LDAP_SUCCESS) {
             if (ulResult == LDAP_NO_SUCH_ATTRIBUTE) {
                 DebugMsg((DM_VERBOSE, TEXT("EvaluateDeferredGPOs:  All objects can not be accessed.")));
-                if (bVerbose) LogEvent (FALSE, IDS_NO_GPOS);
+                if (bVerbose) LogEvent(FALSE, IDS_NO_GPOS);
                 bResult = TRUE;
             } else if (ulResult == LDAP_NO_SUCH_OBJECT) {
-                DebugMsg((DM_VERBOSE, TEXT("EvalateDeferredGPOs:  Objects do not exist.") ));
-                if (bVerbose) LogEvent (FALSE, IDS_NO_GPOS);
+                DebugMsg((DM_VERBOSE, TEXT("EvalateDeferredGPOs:  Objects do not exist.")));
+                if (bVerbose) LogEvent(FALSE, IDS_NO_GPOS);
                 bResult = TRUE;
             } else if (ulResult == LDAP_SIZELIMIT_EXCEEDED) {
-                DebugMsg((DM_WARNING, TEXT("EvalateDeferredGPOs:  Too many GPOs in search.") ));
-                LogEvent (TRUE, IDS_TOO_MANY_GPOS);
+                DebugMsg((DM_WARNING, TEXT("EvalateDeferredGPOs:  Too many GPOs in search.")));
+                LogEvent(TRUE, IDS_TOO_MANY_GPOS);
             } else {
                 DebugMsg((DM_WARNING, TEXT("EvaluteDeferredGPOs:  Failed to search with error 0x%x"), ulResult));
-                LogEvent (TRUE, IDS_FAILED_GPO_SEARCH, ulResult);
+                LogEvent(TRUE, IDS_FAILED_GPO_SEARCH, ulResult);
             }
 
             goto Exit;
         }
 
         // If the search succeeds, but the message is empty, store the error code and return
-        if ( pQuery->pMessage == NULL ) {
+        if (pQuery->pMessage == NULL) {
             DebugMsg((DM_WARNING, TEXT("EvaluateDeferredGPOs:  Search returned an empty message structure.  Error = 0x%x"), pQuery->pLdapHandle->ld_errno));
             goto Exit;
         }
 
-        if ( !MatchDnWithDeferredItems( pLDAP, pQuery, FALSE ) )
+        if (!MatchDnWithDeferredItems(pLDAP, pQuery, FALSE))
             goto Exit;
 
         pQuery = pQuery->pNext;
     }   // while
 
-    if ( !EvalList( pLDAP, dwFlags, hToken, bVerbose, pDeferredForcedList, ppForcedList ) ) {
+    if (!EvalList(pLDAP, dwFlags, hToken, bVerbose, pDeferredForcedList, ppForcedList)) {
         goto Exit;
     }
 
-    if ( !EvalList( pLDAP, dwFlags, hToken, bVerbose, pDeferredNonForcedList, ppNonForcedList) ) {
+    if (!EvalList(pLDAP, dwFlags, hToken, bVerbose, pDeferredNonForcedList, ppNonForcedList)) {
         goto Exit;
     }
 
@@ -6045,9 +5931,9 @@ BOOL EvaluateDeferredGPOs (PLDAP pldBound,
 Exit:
     // Free all resources except for ppForcedList, ppNonForcedList
     // which are owned by caller.
-    while ( pLdapQuery ) {
+    while (pLdapQuery) {
         pQuery = pLdapQuery->pNext;
-        FreeLdapQuery( pLDAP, pLdapQuery );
+        FreeLdapQuery(pLDAP, pLdapQuery);
         pLdapQuery = pQuery;
     }
 
@@ -6055,7 +5941,7 @@ Exit:
 }
 
 
-BOOL AddOU( DNENTRY **ppOUList, LPTSTR pwszOU, GPO_LINK gpoLink )
+BOOL AddOU(DNENTRY ** ppOUList, LPTSTR pwszOU, GPO_LINK gpoLink)
 //  Purpose:    Appends an OU or domain to deferred list.
 
 //  Parameters: ppOUList    - OU list to append to
@@ -6065,21 +5951,21 @@ BOOL AddOU( DNENTRY **ppOUList, LPTSTR pwszOU, GPO_LINK gpoLink )
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
 {
-    DNENTRY *pOUTemp = *ppOUList;
-    DNENTRY *pOULast = NULL;
+    DNENTRY * pOUTemp = *ppOUList;
+    DNENTRY * pOULast = NULL;
 
-    DNENTRY *pOUNew = AllocDnEntry( pwszOU );
-    if ( pOUNew == NULL )
+    DNENTRY * pOUNew = AllocDnEntry(pwszOU);
+    if (pOUNew == NULL)
         return FALSE;
 
     pOUNew->gpoLink = gpoLink;
 
-    while ( pOUTemp ) {
+    while (pOUTemp) {
         pOULast = pOUTemp;
         pOUTemp = pOUTemp->pNext;
     }
 
-    if ( pOULast )
+    if (pOULast)
         pOULast->pNext = pOUNew;
     else
         *ppOUList = pOUNew;
@@ -6088,53 +5974,53 @@ BOOL AddOU( DNENTRY **ppOUList, LPTSTR pwszOU, GPO_LINK gpoLink )
 }
 
 
-BOOL EvaluateDeferredOUs(   DNENTRY *pOUList,
-                            DWORD dwFlags,
-                            HANDLE hToken,
-                            PGROUP_POLICY_OBJECT *ppDeferredForcedList,
-                            PGROUP_POLICY_OBJECT *ppDeferredNonForcedList,
-                            BOOL bVerbose,
-                            PLDAP  pld,
-                            PLDAP_API pLDAP,
-                            BOOL *pbBlock)
-//  Purpose:    Uses a single Ldap query to evaluate all OUs
+BOOL EvaluateDeferredOUs(DNENTRY * pOUList,
+                         DWORD dwFlags,
+                         HANDLE hToken,
+                         PGROUP_POLICY_OBJECT * ppDeferredForcedList,
+                         PGROUP_POLICY_OBJECT * ppDeferredNonForcedList,
+                         BOOL bVerbose,
+                         PLDAP  pld,
+                         PLDAP_API pLDAP,
+                         BOOL * pbBlock)
+    //  Purpose:    Uses a single Ldap query to evaluate all OUs
 
-//  Parameters: ppOUList            - OU list to append to
-//              dwFlags             - GetGPOList flags
-//              pGPOForcedList      - List of forced GPOs
-//              pGPONonForcedList   - List of non-forced GPOs
-//              bVerbose            - Verbose output
-//              pld                 - LDAP info
-//              pLDAP               - LDAP api
-//              pLDAPMsg            - LDAP message
-//              bBlock              - Pointer to the block flag
-//              hToken              - User / machine token
+    //  Parameters: ppOUList            - OU list to append to
+    //              dwFlags             - GetGPOList flags
+    //              pGPOForcedList      - List of forced GPOs
+    //              pGPONonForcedList   - List of non-forced GPOs
+    //              bVerbose            - Verbose output
+    //              pld                 - LDAP info
+    //              pLDAP               - LDAP api
+    //              pLDAPMsg            - LDAP message
+    //              bBlock              - Pointer to the block flag
+    //              hToken              - User / machine token
 
-//  Return:     TRUE if successful
-//              FALSE if an error occurs
+    //  Return:     TRUE if successful
+    //              FALSE if an error occurs
 {
     ULONG ulResult;
     BOOL bResult = FALSE;
-    LDAPQUERY *pLdapQuery = NULL;
+    LDAPQUERY * pLdapQuery = NULL;
     TCHAR szGPLink[] = TEXT("gPLink");
     TCHAR szGPOptions[] = TEXT("gPOptions");
-    LPTSTR lpAttr[] = { szGPLink,
+    LPTSTR lpAttr[] = {szGPLink,
                         szGPOptions,
                         NULL
-                      };
-    DNENTRY *pOUTemp = pOUList;
-    VOID *pData;
+    };
+    DNENTRY * pOUTemp = pOUList;
+    VOID * pData;
 #if 0 //BUGBUG:site
     BYTE berValue[8];
-    LDAPControl phantomControl = { LDAP_SERVER_SEARCH_OPTIONS_OID_W, { 5, (PCHAR)berValue }, TRUE };
-    PLDAPControl serverControls[] = { &phantomControl, NULL }; // Allows searching for gpLink attribute on site object
+    LDAPControl phantomControl = {LDAP_SERVER_SEARCH_OPTIONS_OID_W, { 5, (PCHAR)berValue }, TRUE};
+    PLDAPControl serverControls[] = {&phantomControl, NULL}; // Allows searching for gpLink attribute on site object
 #endif
 
-    if ( pOUTemp == NULL )
+    if (pOUTemp == NULL)
         return TRUE;
 
-    while ( pOUTemp ) {
-        if ( !AddDN( pLDAP, &pLdapQuery, pOUTemp->pwszDN, pOUTemp, NULL ) ) {
+    while (pOUTemp) {
+        if (!AddDN(pLDAP, &pLdapQuery, pOUTemp->pwszDN, pOUTemp, NULL)) {
             goto Exit;
         }
         pOUTemp = pOUTemp->pNext;
@@ -6143,9 +6029,9 @@ BOOL EvaluateDeferredOUs(   DNENTRY *pOUList,
     pLdapQuery->pLdapHandle = pld;
 
     // Turn referrals off because this is a single domain call
-    pData = (VOID *) LDAP_OPT_OFF;
-    ulResult = pLDAP->pfnldap_set_option( pLdapQuery->pLdapHandle,  LDAP_OPT_REFERRALS, &pData );
-    if ( ulResult != LDAP_SUCCESS ) {
+    pData = (VOID *)LDAP_OPT_OFF;
+    ulResult = pLDAP->pfnldap_set_option(pLdapQuery->pLdapHandle, LDAP_OPT_REFERRALS, &pData);
+    if (ulResult != LDAP_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("EvaluteDeferredOUs:  Failed to turn off referrals with error %d"), ulResult));
         goto Exit;
     }
@@ -6157,11 +6043,11 @@ BOOL EvaluateDeferredOUs(   DNENTRY *pOUList,
     berValue[1] = 0x03;
     berValue[2] = 0x02; // denotes an integer
     berValue[3] = 0x01; // denotes size
-    berValue[4] = (BYTE) SERVER_SEARCH_FLAG_PHANTOM_ROOT;
+    berValue[4] = (BYTE)SERVER_SEARCH_FLAG_PHANTOM_ROOT;
 
-    ulResult = pLDAP->pfnldap_search_ext_s (pld, L"", LDAP_SCOPE_SUBTREE, pLdapQuery->pwszFilter, lpAttr, FALSE, (PLDAPControl*)serverControls, NULL, NULL, 0x10000, &pLdapQuery->pMessage );
+    ulResult = pLDAP->pfnldap_search_ext_s(pld, L"", LDAP_SCOPE_SUBTREE, pLdapQuery->pwszFilter, lpAttr, FALSE, (PLDAPControl *)serverControls, NULL, NULL, 0x10000, &pLdapQuery->pMessage);
 #else
-    ulResult = pLDAP->pfnldap_search_s (pld, pLdapQuery->pwszDomain, LDAP_SCOPE_SUBTREE, pLdapQuery->pwszFilter, lpAttr, FALSE, &pLdapQuery->pMessage );
+    ulResult = pLDAP->pfnldap_search_s(pld, pLdapQuery->pwszDomain, LDAP_SCOPE_SUBTREE, pLdapQuery->pwszFilter, lpAttr, FALSE, &pLdapQuery->pMessage);
 #endif
 
     // If the search fails, store the error code and return
@@ -6170,40 +6056,40 @@ BOOL EvaluateDeferredOUs(   DNENTRY *pOUList,
             DebugMsg((DM_VERBOSE, TEXT("EvaluateDeferredOUs:  All objects can not be accessed.")));
             bResult = TRUE;
         } else if (ulResult == LDAP_NO_SUCH_OBJECT) {
-            DebugMsg((DM_VERBOSE, TEXT("EvalateDeferredOUs:  Objects do not exist.") ));
+            DebugMsg((DM_VERBOSE, TEXT("EvalateDeferredOUs:  Objects do not exist.")));
             bResult = TRUE;
         } else if (ulResult == LDAP_SIZELIMIT_EXCEEDED) {
-               DebugMsg((DM_WARNING, TEXT("EvalateDeferredOUs:  Too many linked GPOs in search.") ));
-               LogEvent (TRUE, IDS_TOO_MANY_GPOS);
+            DebugMsg((DM_WARNING, TEXT("EvalateDeferredOUs:  Too many linked GPOs in search.")));
+            LogEvent(TRUE, IDS_TOO_MANY_GPOS);
         } else {
             DebugMsg((DM_WARNING, TEXT("EvaluateDeferredOUs:  Failed to search with error %d"), ulResult));
-            LogEvent (TRUE, IDS_FAILED_OU_SEARCH, ulResult);
+            LogEvent(TRUE, IDS_FAILED_OU_SEARCH, ulResult);
         }
 
         goto Exit;
     }
 
     // If the search succeeds, but the message is empty, store the error code and return
-    if ( pLdapQuery->pMessage == NULL ) {
+    if (pLdapQuery->pMessage == NULL) {
         DebugMsg((DM_WARNING, TEXT("EvaluateDeferredOUs:  Search returned an empty message structure.  Error = %d"), pld->ld_errno));
         goto Exit;
     }
 
-    if ( !MatchDnWithDeferredItems( pLDAP, pLdapQuery, TRUE ) )
+    if (!MatchDnWithDeferredItems(pLDAP, pLdapQuery, TRUE))
         goto Exit;
 
     // Evaluate the OU list
     pOUTemp = pOUList;
 
-    while ( pOUTemp ) {
+    while (pOUTemp) {
         PLDAPMessage pOUMsg = pOUTemp->pOUMsg;
-        if ( pOUMsg == NULL ) {
-            DebugMsg((DM_WARNING, TEXT("EvaluateDeferredOUs: Object <%s> cannot be accessed"), pOUTemp->pwszDN ));
+        if (pOUMsg == NULL) {
+            DebugMsg((DM_WARNING, TEXT("EvaluateDeferredOUs: Object <%s> cannot be accessed"), pOUTemp->pwszDN));
         } else {
-               if ( !SearchDSObject( pOUTemp->pwszDN, dwFlags, hToken, ppDeferredForcedList, ppDeferredNonForcedList, bVerbose, pOUTemp->gpoLink, pld, pLDAP, pOUMsg, pbBlock)) {
-                   DebugMsg((DM_WARNING, TEXT("EvaluateDeferredOUs:  SearchDSObject failed") ));
-                   goto Exit;
-               }
+            if (!SearchDSObject(pOUTemp->pwszDN, dwFlags, hToken, ppDeferredForcedList, ppDeferredNonForcedList, bVerbose, pOUTemp->gpoLink, pld, pLDAP, pOUMsg, pbBlock)) {
+                DebugMsg((DM_WARNING, TEXT("EvaluateDeferredOUs:  SearchDSObject failed")));
+                goto Exit;
+            }
         }
 
         pOUTemp = pOUTemp->pNext;
@@ -6212,9 +6098,9 @@ BOOL EvaluateDeferredOUs(   DNENTRY *pOUList,
     bResult = TRUE;
 
 Exit:
-    while ( pLdapQuery ) {
-        LDAPQUERY *pQuery = pLdapQuery->pNext;
-        FreeLdapQuery( pLDAP, pLdapQuery );
+    while (pLdapQuery) {
+        LDAPQUERY * pQuery = pLdapQuery->pNext;
+        FreeLdapQuery(pLDAP, pLdapQuery);
         pLdapQuery = pQuery;
     }
 
@@ -6222,7 +6108,7 @@ Exit:
 }
 
 
-BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpComputerName, PGROUP_POLICY_OBJECT *lpGPOList, PNETAPI32_API pNetAPI32, BOOL bMachineTokenOk)
+BOOL GetGPOInfo(DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpComputerName, PGROUP_POLICY_OBJECT * lpGPOList, PNETAPI32_API pNetAPI32, BOOL bMachineTokenOk)
 //  Purpose:    Gets the GPO info for this threads token.
 
 //  Parameters: dwFlags         -   GPO_LIST_FLAG_* from userenv.h
@@ -6265,12 +6151,12 @@ BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpCo
     HANDLE hToken = NULL, hTempToken;
     DWORD dwFunctionalityVersion;
     PGROUP_POLICY_OBJECT pDeferredForcedList = NULL, pDeferredNonForcedList = NULL;
-    DNENTRY *pDeferredOUList = NULL;    // List of deferred OUs
-    TCHAR*  szDN;
+    DNENTRY * pDeferredOUList = NULL;    // List of deferred OUs
+    TCHAR * szDN;
     PSECUR32_API pSecur32Api;
     BOOL    bAddedOU = FALSE;
     PLDAP   pldMachine = 0;
-    VOID *pData;
+    VOID * pData;
 
     // Verbose output
     DebugMsg((DM_VERBOSE, TEXT("GetGPOInfo:  **")));
@@ -6312,7 +6198,7 @@ BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpCo
             goto Exit;
         }
     } else {
-        if (!OpenThreadToken (GetCurrentThread(), TOKEN_IMPERSONATE | TOKEN_READ | TOKEN_DUPLICATE, TRUE, &hTempToken)) {
+        if (!OpenThreadToken(GetCurrentThread(), TOKEN_IMPERSONATE | TOKEN_READ | TOKEN_DUPLICATE, TRUE, &hTempToken)) {
             if (!OpenProcessToken(GetCurrentProcess(), TOKEN_IMPERSONATE | TOKEN_READ | TOKEN_DUPLICATE, &hTempToken)) {
                 DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  Failed to get a token with  %d"), GetLastError()));
                 goto Exit;
@@ -6320,32 +6206,31 @@ BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpCo
         }
 
         // Duplicate it so it can be used for impersonation
-        if (!DuplicateTokenEx(hTempToken, TOKEN_IMPERSONATE | TOKEN_QUERY, NULL, SecurityImpersonation, TokenImpersonation, &hToken))
-        {
+        if (!DuplicateTokenEx(hTempToken, TOKEN_IMPERSONATE | TOKEN_QUERY, NULL, SecurityImpersonation, TokenImpersonation, &hToken)) {
             DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  Failed to duplicate the token with  %d"), GetLastError()));
-            CloseHandle (hTempToken);
+            CloseHandle(hTempToken);
             goto Exit;
         }
 
-        CloseHandle (hTempToken);
+        CloseHandle(hTempToken);
     }
 
     // Get a connection to the DS
-    if ((lpHostName[0] == TEXT('\\')) && (lpHostName[1] == TEXT('\\')))  {
+    if ((lpHostName[0] == TEXT('\\')) && (lpHostName[1] == TEXT('\\'))) {
         lpHostName = lpHostName + 2;
     }
 
-    pld = pldap_api->pfnldap_open( lpHostName, LDAP_PORT);
+    pld = pldap_api->pfnldap_open(lpHostName, LDAP_PORT);
     if (!pld) {
         DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  ldap_open for <%s> failed with = 0x%x or %d"), lpHostName, pldap_api->pfnLdapGetLastError(), GetLastError()));
-        LogEvent (TRUE, IDS_FAILED_DS_CONNECT, lpHostName, pldap_api->pfnLdapGetLastError());
+        LogEvent(TRUE, IDS_FAILED_DS_CONNECT, lpHostName, pldap_api->pfnLdapGetLastError());
         goto Exit;
     }
 
     DebugMsg((DM_VERBOSE, TEXT("GetGPOInfo:  Server connection established.")));
 
     // Turn on Packet integrity flag
-    pData = (VOID *) LDAP_OPT_ON;
+    pData = (VOID *)LDAP_OPT_ON;
     ulResult = pldap_api->pfnldap_set_option(pld, LDAP_OPT_SIGN, &pData);
     if (ulResult != LDAP_SUCCESS) {
         DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  Failed to turn on LDAP_OPT_SIGN with %d"), ulResult));
@@ -6353,7 +6238,7 @@ BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpCo
     }
 
     // Bind to the DS.
-    if ( dwFlags & GPO_LIST_FLAG_MACHINE) {
+    if (dwFlags & GPO_LIST_FLAG_MACHINE) {
         // For machine policies specifically ask for Kerberos as the only authentication
         // mechanism. Otherwise if Kerberos were to fail for some reason, then NTLM is used
         // and localsystem context has no real credentials, which means that we won't get any GPOs back.
@@ -6369,16 +6254,16 @@ BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpCo
         secIdentity.PasswordLength = 0;
         secIdentity.Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
         secIdentity.PackageList = wszKerberos;
-        secIdentity.PackageListLength = lstrlen( wszKerberos );
+        secIdentity.PackageListLength = lstrlen(wszKerberos);
 
-        ulResult = pldap_api->pfnldap_bind_s (pld, NULL, (WCHAR *)&secIdentity, LDAP_AUTH_SSPI);
+        ulResult = pldap_api->pfnldap_bind_s(pld, NULL, (WCHAR *)&secIdentity, LDAP_AUTH_SSPI);
     } else
-        ulResult = pldap_api->pfnldap_bind_s (pld, NULL, NULL, LDAP_AUTH_SSPI);
+        ulResult = pldap_api->pfnldap_bind_s(pld, NULL, NULL, LDAP_AUTH_SSPI);
 
     if (ulResult != LDAP_SUCCESS) {
-       DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  ldap_bind_s failed with = <%d>"), ulResult));
-       LogEvent (TRUE, IDS_FAILED_DS_BIND, lpHostName, GetLastError());
-       goto Exit;
+        DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  ldap_bind_s failed with = <%d>"), ulResult));
+        LogEvent(TRUE, IDS_FAILED_DS_BIND, lpHostName, GetLastError());
+        goto Exit;
     }
 
     DebugMsg((DM_VERBOSE, TEXT("GetGPOInfo:  Bound successfully.")));
@@ -6393,15 +6278,15 @@ BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpCo
 
         while (*lpDSObject) {
             // See if the DN name starts with OU=
-            if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, lpDSObject, 3, TEXT("OU="), 3) == CSTR_EQUAL) {
-                if ( !AddOU( &pDeferredOUList, lpDSObject, GPLinkOrganizationalUnit ) ) {
+            if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, lpDSObject, 3, TEXT("OU="), 3) == CSTR_EQUAL) {
+                if (!AddOU(&pDeferredOUList, lpDSObject, GPLinkOrganizationalUnit)) {
                     goto Exit;
                 }
             }
 
             // See if the DN name starts with DC=
-            else if (CompareString (LOCALE_USER_DEFAULT, NORM_IGNORECASE, lpDSObject, 3, TEXT("DC="), 3) == CSTR_EQUAL) {
-                if ( !AddOU( &pDeferredOUList, lpDSObject, GPLinkDomain ) ) {
+            else if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, lpDSObject, 3, TEXT("DC="), 3) == CSTR_EQUAL) {
+                if (!AddOU(&pDeferredOUList, lpDSObject, GPLinkDomain)) {
                     goto Exit;
                 }
 
@@ -6423,9 +6308,8 @@ BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpCo
         // Evaluate deferred OUs with single Ldap query
 
         // BUGBUG:site  Used to be located post CheckLocal:
-        if ( !EvaluateDeferredOUs(  pDeferredOUList, dwFlags, hToken, &pDeferredForcedList, &pDeferredNonForcedList, bVerbose, pld, pldap_api, &bBlock) )
-        {
-            DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  EvaluateDeferredOUs failed. Exiting") ));
+        if (!EvaluateDeferredOUs(pDeferredOUList, dwFlags, hToken, &pDeferredForcedList, &pDeferredNonForcedList, bVerbose, pld, pldap_api, &bBlock)) {
+            DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  EvaluateDeferredOUs failed. Exiting")));
             goto Exit;
         }
     }
@@ -6435,22 +6319,21 @@ BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpCo
 
 
     // Query for the site name
-    ulResult = pNetAPI32->pfnDsGetSiteName(lpComputerName,  &lpSiteName);
+    ulResult = pNetAPI32->pfnDsGetSiteName(lpComputerName, &lpSiteName);
     if (ulResult != ERROR_SUCCESS) {
-        if ( ulResult == ERROR_NO_SITENAME ) {
+        if (ulResult == ERROR_NO_SITENAME) {
             DebugMsg((DM_VERBOSE, TEXT("GetGPOInfo:  No site name defined.  Skipping site policy.")));
             goto CheckLocal;
         } else {
-            LogEvent (TRUE, IDS_FAILED_QUERY_SITE, ulResult);
+            LogEvent(TRUE, IDS_FAILED_QUERY_SITE, ulResult);
             DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  DSGetSiteName failed with %d, exiting."), ulResult));
             goto Exit;
         }
     }
 
     // Now we need to query for the domain name.
-    pldMachine = GetMachineDomainDS( pNetAPI32, pldap_api );
-    if ( pldMachine )
-    {
+    pldMachine = GetMachineDomainDS(pNetAPI32, pldap_api);
+    if (pldMachine) {
         // Now we need to query for the domain name.  This is done by
         // reading the operational attribute configurationNamingContext
         LPTSTR szNamingContext = TEXT("configurationNamingContext");
@@ -6460,41 +6343,34 @@ BOOL GetGPOInfo (DWORD dwFlags, LPTSTR lpHostName, LPTSTR lpDNName, LPCTSTR lpCo
         lpAttr[0] = szNamingContext;
         lpAttr[1] = 0;
 
-        ulResult = pldap_api->pfnldap_search_s( pldMachine, TEXT(""), LDAP_SCOPE_BASE, TEXT("(objectClass=*)"), lpAttr, FALSE, &pLDAPMsg);
-        if ( ulResult == LDAP_SUCCESS )
-        {
-            LPTSTR* pszValues = pldap_api->pfnldap_get_values( pldMachine, pLDAPMsg, szNamingContext );
-            if ( pszValues )
-            {
+        ulResult = pldap_api->pfnldap_search_s(pldMachine, TEXT(""), LDAP_SCOPE_BASE, TEXT("(objectClass=*)"), lpAttr, FALSE, &pLDAPMsg);
+        if (ulResult == LDAP_SUCCESS) {
+            LPTSTR * pszValues = pldap_api->pfnldap_get_values(pldMachine, pLDAPMsg, szNamingContext);
+            if (pszValues) {
                 TCHAR   szSite[512];
                 // Combine the domain name + site name to get the full
                 // DS object path
-                wsprintf( szSite, TEXT("CN=%s,CN=Sites,%s"), lpSiteName, *pszValues );
+                wsprintf(szSite, TEXT("CN=%s,CN=Sites,%s"), lpSiteName, *pszValues);
 
-                if (SearchDSObject (szSite, dwFlags, hToken, &pDeferredForcedList, &pDeferredNonForcedList, bVerbose, GPLinkSite, pldMachine, pldap_api, NULL, &bBlock)) {
+                if (SearchDSObject(szSite, dwFlags, hToken, &pDeferredForcedList, &pDeferredNonForcedList, bVerbose, GPLinkSite, pldMachine, pldap_api, NULL, &bBlock)) {
                     bAddedOU = TRUE;
                 } else {
                     DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  SearchDSObject failed.  Exiting.")));
                 }
 
-                pldap_api->pfnldap_value_free( pszValues );
-            }
-            else
-            {
+                pldap_api->pfnldap_value_free(pszValues);
+            } else {
                 DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  Failed to get values.")));
             }
 
-            pldap_api->pfnldap_msgfree( pLDAPMsg );
-        }
-        else
-        {
-            DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  ldap_search_s failed with = <%d>"), ulResult) );
-            LogEvent (TRUE, IDS_FAILED_ROOT_SEARCH, GetLastError());
+            pldap_api->pfnldap_msgfree(pLDAPMsg);
+        } else {
+            DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  ldap_search_s failed with = <%d>"), ulResult));
+            LogEvent(TRUE, IDS_FAILED_ROOT_SEARCH, GetLastError());
         }
     }
 
-    if ( !bAddedOU )
-    {
+    if (!bAddedOU) {
         goto Exit;
     }
 
@@ -6502,9 +6378,8 @@ CheckLocal:
     // BugBug:site  Used to defer OU search to this point and include site information in it.
 
     // Evaluate all GPOs deferred so far with single Ldap query
-    if ( !EvaluateDeferredGPOs( pld, pldap_api, lpHostName, dwFlags, hToken, bVerbose, pDeferredForcedList, pDeferredNonForcedList, &pGPOForcedList, &pGPONonForcedList ) )
-    {
-        DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  EvaluateDeferredGPOs failed. Exiting") ));
+    if (!EvaluateDeferredGPOs(pld, pldap_api, lpHostName, dwFlags, hToken, bVerbose, pDeferredForcedList, pDeferredNonForcedList, &pGPOForcedList, &pGPONonForcedList)) {
+        DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  EvaluateDeferredGPOs failed. Exiting")));
         goto Exit;
     }
 
@@ -6512,19 +6387,19 @@ CheckLocal:
     // Check if we have a local GPO. If so, add it to the list
 
     if (!(dwFlags & GPO_LIST_FLAG_SITEONLY)) {
-        ExpandEnvironmentStrings (LOCAL_GPO_DIRECTORY, szGPOPath, ARRAYSIZE(szGPOPath));
-        if (GetFileAttributesEx (szGPOPath, GetFileExInfoStandard, &fad) && (fad.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-            LoadString (g_hDllInstance, IDS_LOCALGPONAME, szGPOName, ARRAYSIZE(szGPOName));
-            DmAssert( lstrlen(szGPOPath) + lstrlen(TEXT("gpt.ini")) + 1 < MAX_PATH );
-            lpTemp = CheckSlash (szGPOPath);
-            lstrcpy (lpTemp, TEXT("gpt.ini"));
+        ExpandEnvironmentStrings(LOCAL_GPO_DIRECTORY, szGPOPath, ARRAYSIZE(szGPOPath));
+        if (GetFileAttributesEx(szGPOPath, GetFileExInfoStandard, &fad) && (fad.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+            LoadString(g_hDllInstance, IDS_LOCALGPONAME, szGPOName, ARRAYSIZE(szGPOName));
+            DmAssert(lstrlen(szGPOPath) + lstrlen(TEXT("gpt.ini")) + 1 < MAX_PATH);
+            lpTemp = CheckSlash(szGPOPath);
+            lstrcpy(lpTemp, TEXT("gpt.ini"));
 
             // Check the functionalty version number
             dwFunctionalityVersion = GetPrivateProfileInt(TEXT("General"), GPO_FUNCTIONALITY_VERSION, 2, szGPOPath);
             if (dwFunctionalityVersion < 2) {
                 DebugMsg((DM_VERBOSE, TEXT("GetGPOInfo:  GPO %s was created by an old version of the Group Policy Editor.  It will be skipped."), szGPOName));
                 if (bVerbose)
-                    LogEvent (FALSE, IDS_GPO_TOO_OLD, szGPOName);
+                    LogEvent(FALSE, IDS_GPO_TOO_OLD, szGPOName);
             } else {
                 // Check if this GPO is enabled
                 bDisabled = FALSE;
@@ -6532,92 +6407,91 @@ CheckLocal:
                 dwOptions = GetPrivateProfileInt(TEXT("General"), TEXT("Options"), 0, szGPOPath);
 
                 if (((dwFlags & GPO_LIST_FLAG_MACHINE) && (dwOptions & GPO_OPTION_DISABLE_MACHINE)) || (!(dwFlags & GPO_LIST_FLAG_MACHINE) && (dwOptions & GPO_OPTION_DISABLE_USER))) {
-                     bDisabled = TRUE;
+                    bDisabled = TRUE;
                 }
 
                 // Check if the version number is 0, if so there isn't any data in the GPO and we can skip it
                 dwVersion = GetPrivateProfileInt(TEXT("General"), TEXT("Version"), 0, szGPOPath);
 
                 if (dwFlags & GPO_LIST_FLAG_MACHINE) {
-                    dwVersion = MAKELONG (LOWORD(dwVersion), LOWORD(dwVersion));
+                    dwVersion = MAKELONG(LOWORD(dwVersion), LOWORD(dwVersion));
                 } else {
-                    dwVersion = MAKELONG (HIWORD(dwVersion), HIWORD(dwVersion));
+                    dwVersion = MAKELONG(HIWORD(dwVersion), HIWORD(dwVersion));
                 }
 
                 if (dwVersion == 0) {
                     DebugMsg((DM_VERBOSE, TEXT("GetGPOInfo:  GPO %s doesn't contain any data since the version number is 0.  It will be skipped."), szGPOName));
                     if (bVerbose)
-                        LogEvent (FALSE, IDS_GPO_NO_DATA, szGPOName);
+                        LogEvent(FALSE, IDS_GPO_NO_DATA, szGPOName);
                 }
 
                 if (!bDisabled && dwVersion != 0) {
                     DWORD dwSize = MAX_PATH;
                     DWORD dwCount = 0;
                     BOOL bOk = FALSE;
-                    TCHAR *pszExtensions = 0;
+                    TCHAR * pszExtensions = 0;
 
                     // Read list of extension guids
-                    pszExtensions = LocalAlloc( LPTR, dwSize * sizeof(TCHAR) );
-                    if ( pszExtensions == 0 ) {
+                    pszExtensions = LocalAlloc(LPTR, dwSize * sizeof(TCHAR));
+                    if (pszExtensions == 0) {
                         DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  Failed to allocate memory.")));
                         goto Exit;
                     }
 
-                    dwCount = GetPrivateProfileString( TEXT("General"),
-                                                       dwFlags & GPO_LIST_FLAG_MACHINE ? GPO_MACHEXTENSION_NAMES : GPO_USEREXTENSION_NAMES,
-                                                       TEXT(""),
-                                                       pszExtensions,
-                                                       dwSize,
-                                                       szGPOPath );
-                    while ( dwCount == dwSize - 1 )
-                    {
+                    dwCount = GetPrivateProfileString(TEXT("General"),
+                                                      dwFlags & GPO_LIST_FLAG_MACHINE ? GPO_MACHEXTENSION_NAMES : GPO_USEREXTENSION_NAMES,
+                                                      TEXT(""),
+                                                      pszExtensions,
+                                                      dwSize,
+                                                      szGPOPath);
+                    while (dwCount == dwSize - 1) {
                         // Value has been truncated, so retry with larger buffer
-                        LocalFree( pszExtensions );
+                        LocalFree(pszExtensions);
 
                         dwSize *= 2;
-                        pszExtensions = LocalAlloc( LPTR, dwSize * sizeof(TCHAR) );
-                        if ( pszExtensions == 0 ) {
+                        pszExtensions = LocalAlloc(LPTR, dwSize * sizeof(TCHAR));
+                        if (pszExtensions == 0) {
                             DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  Failed to allocate memory.")));
                             goto Exit;
                         }
 
-                        dwCount = GetPrivateProfileString( TEXT("General"),
-                                                           dwFlags & GPO_LIST_FLAG_MACHINE ? GPO_MACHEXTENSION_NAMES : GPO_USEREXTENSION_NAMES,
-                                                           TEXT(""),
-                                                           pszExtensions,
-                                                           dwSize,
-                                                           szGPOPath );
+                        dwCount = GetPrivateProfileString(TEXT("General"),
+                                                          dwFlags & GPO_LIST_FLAG_MACHINE ? GPO_MACHEXTENSION_NAMES : GPO_USEREXTENSION_NAMES,
+                                                          TEXT(""),
+                                                          pszExtensions,
+                                                          dwSize,
+                                                          szGPOPath);
                     }
 
-                    if ( lstrcmpi( pszExtensions, TEXT("")) == 0 || lstrcmpi( pszExtensions, TEXT(" ")) == 0 ) {
+                    if (lstrcmpi(pszExtensions, TEXT("")) == 0 || lstrcmpi(pszExtensions, TEXT(" ")) == 0) {
                         // Extensions property was not found
-                        LocalFree( pszExtensions );
+                        LocalFree(pszExtensions);
                         pszExtensions = 0;
                     }
 
                     // Tack on the correct subdirectory name
-                    DmAssert( lstrlen(szGPOPath) + lstrlen(TEXT("Machine")) + 1 < MAX_PATH );
+                    DmAssert(lstrlen(szGPOPath) + lstrlen(TEXT("Machine")) + 1 < MAX_PATH);
 
                     if (dwFlags & GPO_LIST_FLAG_MACHINE) {
-                        lstrcpy (lpTemp, TEXT("Machine"));
+                        lstrcpy(lpTemp, TEXT("Machine"));
                     } else {
-                        lstrcpy (lpTemp, TEXT("User"));
+                        lstrcpy(lpTemp, TEXT("User"));
                     }
 
                     // Add this to the list of paths
-                    bOk = AddGPO (&pGPONonForcedList, 0, dwVersion, NULL, szGPOPath, szGPOName, szGPOName, pszExtensions, GPLinkMachine, TEXT("Local"), 0, TRUE, FALSE, bVerbose);
+                    bOk = AddGPO(&pGPONonForcedList, 0, dwVersion, NULL, szGPOPath, szGPOName, szGPOName, pszExtensions, GPLinkMachine, TEXT("Local"), 0, TRUE, FALSE, bVerbose);
 
-                    if ( pszExtensions )
-                        LocalFree( pszExtensions );
+                    if (pszExtensions)
+                        LocalFree(pszExtensions);
 
-                    if ( !bOk ) {
+                    if (!bOk) {
                         DebugMsg((DM_WARNING, TEXT("GetGPOInfo:  Failed to add local group policy object to the list.")));
                         goto Exit;
                     }
 
-                    if (bVerbose) LogEvent (FALSE, IDS_FOUND_LOCAL_GPO);
+                    if (bVerbose) LogEvent(FALSE, IDS_FOUND_LOCAL_GPO);
                 } else {
-                    if (bVerbose) LogEvent (FALSE, IDS_NO_LOCAL_GPO);
+                    if (bVerbose) LogEvent(FALSE, IDS_NO_LOCAL_GPO);
                 }
             }   // else - if dwfuncversion
         }
@@ -6646,28 +6520,27 @@ CheckLocal:
 Exit:
     // Free any GPOs we found
     if (!bResult) {
-        FreeGPOList( pGPOForcedList );
-        FreeGPOList( pGPONonForcedList );
+        FreeGPOList(pGPOForcedList);
+        FreeGPOList(pGPONonForcedList);
     }
 
     // Free temporary OU list
-    while ( pDeferredOUList ) {
-        DNENTRY *pTemp = pDeferredOUList->pNext;
-        FreeDnEntry( pDeferredOUList );
+    while (pDeferredOUList) {
+        DNENTRY * pTemp = pDeferredOUList->pNext;
+        FreeDnEntry(pDeferredOUList);
         pDeferredOUList = pTemp;
     }
 
     // Free temporary deferred GPO lists
-    FreeGPOList( pDeferredForcedList );
-    FreeGPOList( pDeferredNonForcedList );
+    FreeGPOList(pDeferredForcedList);
+    FreeGPOList(pDeferredNonForcedList);
 
     if (pld) {
-        pldap_api->pfnldap_unbind (pld);
+        pldap_api->pfnldap_unbind(pld);
     }
 
-    if ( pldMachine )
-    {
-        pldap_api->pfnldap_unbind( pldMachine );
+    if (pldMachine) {
+        pldap_api->pfnldap_unbind(pldMachine);
     }
 
     if (lpSiteName) {
@@ -6677,16 +6550,15 @@ Exit:
     DebugMsg((DM_VERBOSE, TEXT("GetGPOInfo:  Leaving with %d"), bResult));
     DebugMsg((DM_VERBOSE, TEXT("GetGPOInfo:  **")));
 
-    if ( hToken )
-    {
-        CloseHandle( hToken );
+    if (hToken) {
+        CloseHandle(hToken);
     }
 
     return bResult;
 }
 
 
-BOOL WINAPI GetGPOList (HANDLE hToken, LPCTSTR lpName, LPCTSTR lpHostName, LPCTSTR lpComputerName, DWORD dwFlags, PGROUP_POLICY_OBJECT *pGPOList)
+BOOL WINAPI GetGPOList(HANDLE hToken, LPCTSTR lpName, LPCTSTR lpHostName, LPCTSTR lpComputerName, DWORD dwFlags, PGROUP_POLICY_OBJECT * pGPOList)
 //  Purpose:    Retreives the list of GPOs for the specified
 //              user or machine
 
@@ -6760,10 +6632,10 @@ BOOL WINAPI GetGPOList (HANDLE hToken, LPCTSTR lpName, LPCTSTR lpHostName, LPCTS
         }
 
         // Get the username in DN format
-        lpUserName = MyGetUserName (NameFullyQualifiedDN);
+        lpUserName = MyGetUserName(NameFullyQualifiedDN);
         if (!lpUserName) {
             DebugMsg((DM_WARNING, TEXT("GetGPOList:  MyGetUserName failed for DN style name with %d"), GetLastError()));
-            LogEvent (TRUE, IDS_FAILED_USERNAME, GetLastError());
+            LogEvent(TRUE, IDS_FAILED_USERNAME, GetLastError());
             goto Exit;
         }
 
@@ -6771,10 +6643,10 @@ BOOL WINAPI GetGPOList (HANDLE hToken, LPCTSTR lpName, LPCTSTR lpHostName, LPCTS
         DebugMsg((DM_VERBOSE, TEXT("GetGPOList:  Queried lpDNName = <%s>"), lpDNName));
 
         // Get the username in NT4 format
-        lpDomain = MyGetUserName (NameSamCompatible);
+        lpDomain = MyGetUserName(NameSamCompatible);
         if (!lpDomain) {
             DebugMsg((DM_WARNING, TEXT("GetGPOList:  MyGetUserName failed for NT4 style name with %d"), GetLastError()));
-            LogEvent (TRUE, IDS_FAILED_USERNAME, GetLastError());
+            LogEvent(TRUE, IDS_FAILED_USERNAME, GetLastError());
             goto Exit;
         }
 
@@ -6793,7 +6665,7 @@ BOOL WINAPI GetGPOList (HANDLE hToken, LPCTSTR lpName, LPCTSTR lpHostName, LPCTS
         *lpTemp = TEXT('\0');
 
         // Check this domain for a DC
-        dwResult = pNetAPI32->pfnDsGetDcName (NULL, lpDomain, NULL, NULL, DS_DIRECTORY_SERVICE_PREFERRED | DS_IS_FLAT_NAME | DS_RETURN_DNS_NAME, &pDCI);
+        dwResult = pNetAPI32->pfnDsGetDcName(NULL, lpDomain, NULL, NULL, DS_DIRECTORY_SERVICE_PREFERRED | DS_IS_FLAT_NAME | DS_RETURN_DNS_NAME, &pDCI);
         if (dwResult != ERROR_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("GetGPOList:  DSGetDCName failed with %d for <%s>"), dwResult, lpDomain));
             goto Exit;
@@ -6806,7 +6678,7 @@ BOOL WINAPI GetGPOList (HANDLE hToken, LPCTSTR lpName, LPCTSTR lpHostName, LPCTS
             goto Exit;
         }
 
-        lstrcpyn (szDomainDN, pDCI->DomainName, ARRAYSIZE(szDomainDN));
+        lstrcpyn(szDomainDN, pDCI->DomainName, ARRAYSIZE(szDomainDN));
         lpDomainDN = szDomainDN;
         DebugMsg((DM_VERBOSE, TEXT("GetGPOList:  lpDomainDN = <%s>"), lpDomainDN));
         pNetAPI32->pfnNetApiBufferFree(pDCI);
@@ -6817,21 +6689,21 @@ BOOL WINAPI GetGPOList (HANDLE hToken, LPCTSTR lpName, LPCTSTR lpHostName, LPCTS
     }
 
     // Call to get the list of GPOs
-    bResult = GetGPOInfo (dwFlags, lpDomainDN, lpDNName, lpComputerName, pGPOList, pNetAPI32, FALSE);
+    bResult = GetGPOInfo(dwFlags, lpDomainDN, lpDNName, lpComputerName, pGPOList, pNetAPI32, FALSE);
 
 Exit:
     // Stop impersonating if a hToken was given
 
-    if ( hOldToken ) {
+    if (hOldToken) {
         RevertToUser(&hOldToken);
     }
 
     if (lpDomain) {
-        LocalFree (lpDomain);
+        LocalFree(lpDomain);
     }
 
     if (lpUserName) {
-        LocalFree (lpUserName);
+        LocalFree(lpUserName);
     }
 
     DebugMsg((DM_VERBOSE, TEXT("GetGPOList: Leaving with %d"), bResult));
@@ -6840,7 +6712,7 @@ Exit:
 }
 
 
-BOOL WINAPI FreeGPOList (PGROUP_POLICY_OBJECT pGPOList)
+BOOL WINAPI FreeGPOList(PGROUP_POLICY_OBJECT pGPOList)
 //  Purpose:    Free's the link list of GPOs
 
 //  Parameters: pGPOList - Pointer to the head of the list
@@ -6853,7 +6725,7 @@ BOOL WINAPI FreeGPOList (PGROUP_POLICY_OBJECT pGPOList)
 
     while (pGPOList) {
         pGPOTemp = pGPOList->pNext;
-        LocalFree (pGPOList);
+        LocalFree(pGPOList);
         pGPOList = pGPOTemp;
     }
 
@@ -6861,7 +6733,7 @@ BOOL WINAPI FreeGPOList (PGROUP_POLICY_OBJECT pGPOList)
 }
 
 
-void FreeLists( LPGPOINFO lpGPOInfo )
+void FreeLists(LPGPOINFO lpGPOInfo)
 //  Purpose:    Free's the lpExtFilterList and/or lpGPOList
 
 //  Parameters: lpGPOInfo - GPO info
@@ -6871,42 +6743,42 @@ void FreeLists( LPGPOINFO lpGPOInfo )
     // If bXferToExtList is True then it means that lpGPOInfo->lpExtFilterList
     // owns the list of GPOs. Otherwise lpGPOInfo->lpGPOList owns the list of GPOs.
 
-    while ( pExtFilterList ) {
+    while (pExtFilterList) {
         LPEXTFILTERLIST pTemp = pExtFilterList->pNext;
 
-        FreeExtList( pExtFilterList->lpExtList );
+        FreeExtList(pExtFilterList->lpExtList);
 
-        if ( lpGPOInfo->bXferToExtList )
-            LocalFree( pExtFilterList->lpGPO );
+        if (lpGPOInfo->bXferToExtList)
+            LocalFree(pExtFilterList->lpGPO);
 
-        LocalFree( pExtFilterList );
+        LocalFree(pExtFilterList);
         pExtFilterList = pTemp;
     }
 
-    if ( !lpGPOInfo->bXferToExtList )
-        FreeGPOList( lpGPOInfo->lpGPOList );
+    if (!lpGPOInfo->bXferToExtList)
+        FreeGPOList(lpGPOInfo->lpGPOList);
 }
 
 
-void FreeExtList( LPEXTLIST pExtList )
+void FreeExtList(LPEXTLIST pExtList)
 //  Purpose:    Free's the lpExtList
 
 //  Parameters: pExtList - Extensions list
 {
     while (pExtList) {
         LPEXTLIST pTemp = pExtList->pNext;
-        LocalFree( pExtList );
+        LocalFree(pExtList);
         pExtList = pTemp;
     }
 }
 
 
-void WINAPI ShutdownGPOProcessing( BOOL bMachine )
+void WINAPI ShutdownGPOProcessing(BOOL bMachine)
 //  Purpose:    Begins aborting GPO processing
 
 //  Parameters: bMachine    -  Shutdown machine or user processing ?
 {
-    if ( bMachine )
+    if (bMachine)
         g_bStopMachGPOProcessing = TRUE;
     else
         g_bStopUserGPOProcessing = TRUE;
@@ -6920,19 +6792,19 @@ void WINAPI ShutdownGPOProcessing( BOOL bMachine )
 
 void InitializeGPOCriticalSection()
 {
-    InitializeCriticalSection( &g_GPOCS );
-    InitializeCriticalSection( &g_StatusCallbackCS );
+    InitializeCriticalSection(&g_GPOCS);
+    InitializeCriticalSection(&g_StatusCallbackCS);
 }
 
 
 void CloseGPOCriticalSection()
 {
-    DeleteCriticalSection( &g_StatusCallbackCS );
-    DeleteCriticalSection( &g_GPOCS );
+    DeleteCriticalSection(&g_StatusCallbackCS);
+    DeleteCriticalSection(&g_GPOCS);
 }
 
 
-DWORD ProcessGroupPolicyCompleted( REFGPEXTENSIONID extensionGuid, ASYNCCOMPLETIONHANDLE pAsyncHandle, DWORD dwStatus )
+DWORD ProcessGroupPolicyCompleted(REFGPEXTENSIONID extensionGuid, ASYNCCOMPLETIONHANDLE pAsyncHandle, DWORD dwStatus)
 //  Purpose:    Callback for asynchronous completion of an extension
 
 //  Parameters: refExtensionId    -  Unique guid of extension
@@ -6949,59 +6821,59 @@ DWORD ProcessGroupPolicyCompleted( REFGPEXTENSIONID extensionGuid, ASYNCCOMPLETI
     LPTSTR lpwszSidUser = NULL;
     DWORD dwCurrentTime = GetCurTime();
 
-    LPGPINFOHANDLE pGPHandle = (LPGPINFOHANDLE) pAsyncHandle;
+    LPGPINFOHANDLE pGPHandle = (LPGPINFOHANDLE)pAsyncHandle;
 
-    if ( extensionGuid == 0 )
+    if (extensionGuid == 0)
         return ERROR_INVALID_PARAMETER;
 
-    GuidToString( extensionGuid, szExtension );
+    GuidToString(extensionGuid, szExtension);
 
     DebugMsg((DM_VERBOSE, TEXT("ProcessGroupPolicyCompleted: Entering. Extension = %s, dwStatus = 0x%x"), szExtension, dwStatus));
 
-    EnterCriticalSection( &g_GPOCS );
+    EnterCriticalSection(&g_GPOCS);
 
-    if ( !(pGPHandle == g_pMachGPInfo || pGPHandle == g_pUserGPInfo) ) {
+    if (!(pGPHandle == g_pMachGPInfo || pGPHandle == g_pUserGPInfo)) {
         DebugMsg((DM_WARNING, TEXT("Extension %s asynchronous completion is stale"), szExtension));
         goto Exit;
     }
 
-    DmAssert( pGPHandle->pGPOInfo != NULL );
+    DmAssert(pGPHandle->pGPOInfo != NULL);
 
-    if ( pGPHandle->pGPOInfo == NULL ) {
+    if (pGPHandle->pGPOInfo == NULL) {
         DebugMsg((DM_WARNING, TEXT("Extension %s asynchronous completion has invalid pGPHandle->pGPOInfo"), szExtension));
         goto Exit;
     }
 
     lpGPOInfo = pGPHandle->pGPOInfo;
 
-    if ( (lpGPOInfo->dwFlags & GP_MACHINE) && g_bStopMachGPOProcessing || !(lpGPOInfo->dwFlags & GP_MACHINE) && g_bStopUserGPOProcessing ) {
+    if ((lpGPOInfo->dwFlags & GP_MACHINE) && g_bStopMachGPOProcessing || !(lpGPOInfo->dwFlags & GP_MACHINE) && g_bStopUserGPOProcessing) {
         DebugMsg((DM_WARNING, TEXT("Extension %s asynchronous completion, aborting due to machine shutdown or logoff"), szExtension));
-        LogEvent (TRUE, IDS_GPO_PROC_STOPPED);
+        LogEvent(TRUE, IDS_GPO_PROC_STOPPED);
         goto Exit;
     }
 
-    if ( dwStatus != ERROR_SUCCESS ) {
+    if (dwStatus != ERROR_SUCCESS) {
         // Extension returned error code, so no need to update history
         dwRet = ERROR_SUCCESS;
         goto Exit;
     }
 
-    if ( pGPHandle == 0 ) {
-         DebugMsg((DM_WARNING, TEXT("Extension %s is using 0 as asynchronous completion handle"), szExtension));
-         goto Exit;
+    if (pGPHandle == 0) {
+        DebugMsg((DM_WARNING, TEXT("Extension %s is using 0 as asynchronous completion handle"), szExtension));
+        goto Exit;
     }
 
-    bUsePerUserLocalSetting = !(lpGPOInfo->dwFlags & GP_MACHINE) && ExtensionHasPerUserLocalSetting( szExtension, HKEY_LOCAL_MACHINE );
-    if ( bUsePerUserLocalSetting ) {
-        lpwszSidUser = GetSidString( lpGPOInfo->hToken );
-        if ( lpwszSidUser == NULL ) {
+    bUsePerUserLocalSetting = !(lpGPOInfo->dwFlags & GP_MACHINE) && ExtensionHasPerUserLocalSetting(szExtension, HKEY_LOCAL_MACHINE);
+    if (bUsePerUserLocalSetting) {
+        lpwszSidUser = GetSidString(lpGPOInfo->hToken);
+        if (lpwszSidUser == NULL) {
             DebugMsg((DM_WARNING, TEXT("ProcesGroupPolicyCompleted: GetSidString failed.")));
             goto Exit;
         }
     }
 
-    if ( ReadGPOList( szExtension, lpGPOInfo->hKeyRoot, HKEY_LOCAL_MACHINE, lpwszSidUser, TRUE, &pGPOList ) ) {
-        if ( SaveGPOList( szExtension, lpGPOInfo, HKEY_LOCAL_MACHINE, lpwszSidUser, FALSE, pGPOList ) )
+    if (ReadGPOList(szExtension, lpGPOInfo->hKeyRoot, HKEY_LOCAL_MACHINE, lpwszSidUser, TRUE, &pGPOList)) {
+        if (SaveGPOList(szExtension, lpGPOInfo, HKEY_LOCAL_MACHINE, lpwszSidUser, FALSE, pGPOList))
             dwRet = ERROR_SUCCESS;
         else {
             DebugMsg((DM_WARNING, TEXT("Extension %s asynchronous completion, failed to save GPOList"), szExtension));
@@ -7011,24 +6883,24 @@ DWORD ProcessGroupPolicyCompleted( REFGPEXTENSIONID extensionGuid, ASYNCCOMPLETI
     }
 
 Exit:
-    if ( lpwszSidUser )
-        DeleteSidString( lpwszSidUser );
+    if (lpwszSidUser)
+        DeleteSidString(lpwszSidUser);
 
-    if ( dwRet == ERROR_SUCCESS ) {
+    if (dwRet == ERROR_SUCCESS) {
         // Override E_PENDING status code with status returned
         BOOL bUsePerUserLocalSetting = !(lpGPOInfo->dwFlags & GP_MACHINE) && lpGPOInfo->lpwszSidUser != NULL;
 
-        WriteStatus( szExtension, lpGPOInfo, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, dwStatus, dwCurrentTime, (lpGPOInfo->dwFlags & GP_SLOW_LINK) != 0 );
+        WriteStatus(szExtension, lpGPOInfo, bUsePerUserLocalSetting ? lpGPOInfo->lpwszSidUser : NULL, dwStatus, dwCurrentTime, (lpGPOInfo->dwFlags & GP_SLOW_LINK) != 0);
     }
 
-    LeaveCriticalSection( &g_GPOCS );
+    LeaveCriticalSection(&g_GPOCS);
 
     DebugMsg((DM_VERBOSE, TEXT("ProcessGroupPolicyCompleted: Leaving. Extension = %s, Return status dwRet = 0x%x"), szExtension, dwRet));
     return dwRet;
 }
 
 
-void DebugPrintGPOList( LPGPOINFO lpGPOInfo )
+void DebugPrintGPOList(LPGPOINFO lpGPOInfo)
 //  Purpose:    Prints GPO list
 //  Parameters: lpGPOInfo    -  GPO Info
 {
@@ -7047,36 +6919,36 @@ void DebugPrintGPOList( LPGPOINFO lpGPOInfo )
         lpGPO = lpGPOInfo->lpGPOList;
         while (lpGPO) {
             if (lpGPO->lpDisplayName) {
-                dwSize += (lstrlen (lpGPO->lpDisplayName) + 4);
+                dwSize += (lstrlen(lpGPO->lpDisplayName) + 4);
             }
             lpGPO = lpGPO->pNext;
         }
 
-        lpTempList = LocalAlloc (LPTR, (dwSize * sizeof(TCHAR)));
+        lpTempList = LocalAlloc(LPTR, (dwSize * sizeof(TCHAR)));
         if (lpTempList) {
-            lstrcpy (lpTempList, TEXT(""));
+            lstrcpy(lpTempList, TEXT(""));
             lpGPO = lpGPOInfo->lpGPOList;
             while (lpGPO) {
                 if (lpGPO->lpDisplayName) {
-                    lstrcat (lpTempList, TEXT("\""));
-                    lstrcat (lpTempList, lpGPO->lpDisplayName);
-                    lstrcat (lpTempList, TEXT("\" "));
+                    lstrcat(lpTempList, TEXT("\""));
+                    lstrcat(lpTempList, lpGPO->lpDisplayName);
+                    lstrcat(lpTempList, TEXT("\" "));
                 }
                 lpGPO = lpGPO->pNext;
             }
 
             if (lpGPOInfo->dwFlags & GP_VERBOSE) {
-                LogEvent (FALSE, IDS_GPO_LIST, lpTempList);
+                LogEvent(FALSE, IDS_GPO_LIST, lpTempList);
             }
 
             DebugMsg((DM_VERBOSE, TEXT("DebugPrintGPOList: List of GPO(s) to process: %s"), lpTempList));
-            LocalFree (lpTempList);
+            LocalFree(lpTempList);
         }
     }
 }
 
 
-DWORD GetAppliedGPOList( DWORD dwFlags, LPCTSTR pMachineName, PSID pSidUser, GUID *pGuidExtension, PGROUP_POLICY_OBJECT *ppGPOList)
+DWORD GetAppliedGPOList(DWORD dwFlags, LPCTSTR pMachineName, PSID pSidUser, GUID * pGuidExtension, PGROUP_POLICY_OBJECT * ppGPOList)
 //  Purpose:    Queries for the list of applied Group Policy
 //              Objects for the specified user or machine
 //              and specified client side extension.
@@ -7105,56 +6977,56 @@ DWORD GetAppliedGPOList( DWORD dwFlags, LPCTSTR pMachineName, PSID pSidUser, GUI
 
     *ppGPOList = 0;
 
-    if ( pGuidExtension == 0 )
+    if (pGuidExtension == 0)
         return ERROR_INVALID_PARAMETER;
 
-    GuidToString( pGuidExtension, szExtension );
+    GuidToString(pGuidExtension, szExtension);
 
     DebugMsg((DM_VERBOSE, TEXT("GetAppliedGPOList: Entering. Extension = %s"), szExtension));
 
-    if ( pMachineName == NULL ) {
+    if (pMachineName == NULL) {
         // Local case
-        if ( bMachine ) {
-            bOk = ReadGPOList( szExtension, HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE, 0, FALSE, ppGPOList );
+        if (bMachine) {
+            bOk = ReadGPOList(szExtension, HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE, 0, FALSE, ppGPOList);
             return bOk ? ERROR_SUCCESS : E_FAIL;
         } else {
-            BOOL bUsePerUserLocalSetting = ExtensionHasPerUserLocalSetting( szExtension, HKEY_LOCAL_MACHINE );
+            BOOL bUsePerUserLocalSetting = ExtensionHasPerUserLocalSetting(szExtension, HKEY_LOCAL_MACHINE);
             LPTSTR lpwszSidUser = NULL;
 
-            if ( pSidUser == NULL ) {
+            if (pSidUser == NULL) {
                 // Current logged on user
-                if ( bUsePerUserLocalSetting ) {
+                if (bUsePerUserLocalSetting) {
                     HANDLE hToken = NULL;
-                    if (!OpenThreadToken (GetCurrentThread(), TOKEN_QUERY, TRUE, &hToken)) {
+                    if (!OpenThreadToken(GetCurrentThread(), TOKEN_QUERY, TRUE, &hToken)) {
                         if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
                             DebugMsg((DM_WARNING, TEXT("GetAppliedGPOList:  Failed to get user token with  %d"), GetLastError()));
                             return GetLastError();
                         }
                     }
 
-                    lpwszSidUser = GetSidString( hToken );
-                    CloseHandle( hToken );
+                    lpwszSidUser = GetSidString(hToken);
+                    CloseHandle(hToken);
 
-                    if ( lpwszSidUser == NULL ) {
+                    if (lpwszSidUser == NULL) {
                         DebugMsg((DM_WARNING, TEXT("GetAppliedGPOList: GetSidString failed.")));
                         return E_FAIL;
                     }
                 }
 
-                bOk = ReadGPOList( szExtension, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, lpwszSidUser, FALSE, ppGPOList );
-                if ( lpwszSidUser )
-                    DeleteSidString( lpwszSidUser );
+                bOk = ReadGPOList(szExtension, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, lpwszSidUser, FALSE, ppGPOList);
+                if (lpwszSidUser)
+                    DeleteSidString(lpwszSidUser);
 
                 return bOk ? ERROR_SUCCESS : E_FAIL;
             } else {
                 // User represented by pSidUser
                 HKEY hSubKey;
 
-                ntStatus = RtlConvertSidToUnicodeString( &unicodeStr, pSidUser, (BOOLEAN)TRUE  ); // Allocate
-                if ( !NT_SUCCESS(ntStatus) )
+                ntStatus = RtlConvertSidToUnicodeString(&unicodeStr, pSidUser, (BOOLEAN)TRUE); // Allocate
+                if (!NT_SUCCESS(ntStatus))
                     return E_FAIL;
 
-                dwRet = RegOpenKeyEx ( HKEY_USERS, unicodeStr.Buffer, 0, KEY_READ, &hSubKey);
+                dwRet = RegOpenKeyEx(HKEY_USERS, unicodeStr.Buffer, 0, KEY_READ, &hSubKey);
                 if (dwRet != ERROR_SUCCESS) {
                     RtlFreeUnicodeString(&unicodeStr);
 
@@ -7164,7 +7036,7 @@ DWORD GetAppliedGPOList( DWORD dwFlags, LPCTSTR pMachineName, PSID pSidUser, GUI
                         return dwRet;
                 }
 
-                bOk = ReadGPOList( szExtension, hSubKey, HKEY_LOCAL_MACHINE, bUsePerUserLocalSetting ? unicodeStr.Buffer : NULL, FALSE, ppGPOList );
+                bOk = ReadGPOList(szExtension, hSubKey, HKEY_LOCAL_MACHINE, bUsePerUserLocalSetting ? unicodeStr.Buffer : NULL, FALSE, ppGPOList);
 
                 RtlFreeUnicodeString(&unicodeStr);
                 RegCloseKey(hSubKey);
@@ -7173,15 +7045,15 @@ DWORD GetAppliedGPOList( DWORD dwFlags, LPCTSTR pMachineName, PSID pSidUser, GUI
         }      // else if bmachine
     } else {   // if pmachine == null
         // Remote case
-        if ( bMachine ) {
+        if (bMachine) {
             HKEY hKeyRemote;
 
-            dwRet = RegConnectRegistry( pMachineName, HKEY_LOCAL_MACHINE, &hKeyRemote );
-            if ( dwRet != ERROR_SUCCESS )
+            dwRet = RegConnectRegistry(pMachineName, HKEY_LOCAL_MACHINE, &hKeyRemote);
+            if (dwRet != ERROR_SUCCESS)
                 return dwRet;
 
-            bOk = ReadGPOList( szExtension, hKeyRemote, hKeyRemote, 0, FALSE, ppGPOList );
-            RegCloseKey( hKeyRemote );
+            bOk = ReadGPOList(szExtension, hKeyRemote, hKeyRemote, 0, FALSE, ppGPOList);
+            RegCloseKey(hKeyRemote);
             dwRet = bOk ? ERROR_SUCCESS : E_FAIL;
             return dwRet;
         } else {
@@ -7189,32 +7061,32 @@ DWORD GetAppliedGPOList( DWORD dwFlags, LPCTSTR pMachineName, PSID pSidUser, GUI
             HKEY hKeyRemoteMach;
             BOOL bUsePerUserLocalSetting;
 
-            if ( pSidUser == NULL )
+            if (pSidUser == NULL)
                 return ERROR_INVALID_PARAMETER;
 
-            ntStatus = RtlConvertSidToUnicodeString( &unicodeStr, pSidUser, (BOOLEAN)TRUE  ); // Allocate
-            if ( !NT_SUCCESS(ntStatus) )
+            ntStatus = RtlConvertSidToUnicodeString(&unicodeStr, pSidUser, (BOOLEAN)TRUE); // Allocate
+            if (!NT_SUCCESS(ntStatus))
                 return E_FAIL;
 
-            dwRet = RegConnectRegistry( pMachineName, HKEY_LOCAL_MACHINE, &hKeyRemoteMach );
-            bUsePerUserLocalSetting = ExtensionHasPerUserLocalSetting( szExtension, hKeyRemoteMach );
-            if ( bUsePerUserLocalSetting ) {
+            dwRet = RegConnectRegistry(pMachineName, HKEY_LOCAL_MACHINE, &hKeyRemoteMach);
+            bUsePerUserLocalSetting = ExtensionHasPerUserLocalSetting(szExtension, hKeyRemoteMach);
+            if (bUsePerUserLocalSetting) {
                 // Account for per user local settings
-                bOk = ReadGPOList( szExtension, hKeyRemoteMach, hKeyRemoteMach, unicodeStr.Buffer, FALSE, ppGPOList );
+                bOk = ReadGPOList(szExtension, hKeyRemoteMach, hKeyRemoteMach, unicodeStr.Buffer, FALSE, ppGPOList);
                 RtlFreeUnicodeString(&unicodeStr);
                 RegCloseKey(hKeyRemoteMach);
                 return bOk ? ERROR_SUCCESS : E_FAIL;
             } else {
                 HKEY hKeyRemote, hSubKeyRemote;
 
-                RegCloseKey( hKeyRemoteMach );
-                dwRet = RegConnectRegistry( pMachineName, HKEY_USERS, &hKeyRemote );
-                if ( dwRet != ERROR_SUCCESS ) {
+                RegCloseKey(hKeyRemoteMach);
+                dwRet = RegConnectRegistry(pMachineName, HKEY_USERS, &hKeyRemote);
+                if (dwRet != ERROR_SUCCESS) {
                     RtlFreeUnicodeString(&unicodeStr);
                     return dwRet;
                 }
 
-                dwRet = RegOpenKeyEx (hKeyRemote, unicodeStr.Buffer, 0, KEY_READ, &hSubKeyRemote);
+                dwRet = RegOpenKeyEx(hKeyRemote, unicodeStr.Buffer, 0, KEY_READ, &hSubKeyRemote);
                 RtlFreeUnicodeString(&unicodeStr);
                 if (dwRet != ERROR_SUCCESS) {
                     RegCloseKey(hKeyRemote);
@@ -7224,7 +7096,7 @@ DWORD GetAppliedGPOList( DWORD dwFlags, LPCTSTR pMachineName, PSID pSidUser, GUI
                         return dwRet;
                 }
 
-                bOk = ReadGPOList( szExtension, hSubKeyRemote, hSubKeyRemote, 0, FALSE, ppGPOList );
+                bOk = ReadGPOList(szExtension, hSubKeyRemote, hSubKeyRemote, 0, FALSE, ppGPOList);
                 RegCloseKey(hSubKeyRemote);
                 RegCloseKey(hKeyRemote);
                 return bOk ? ERROR_SUCCESS : E_FAIL;
@@ -7236,7 +7108,7 @@ DWORD GetAppliedGPOList( DWORD dwFlags, LPCTSTR pMachineName, PSID pSidUser, GUI
 }
 
 
-BOOL ExtensionHasPerUserLocalSetting( LPTSTR pszExtension, HKEY hKeyRoot )
+BOOL ExtensionHasPerUserLocalSetting(LPTSTR pszExtension, HKEY hKeyRoot)
 //  Purpose:    Checks registry if extension has per user local setting
 
 //  Parameters: pwszExtension - Extension guid
@@ -7250,14 +7122,14 @@ BOOL ExtensionHasPerUserLocalSetting( LPTSTR pszExtension, HKEY hKeyRoot )
     LONG lResult;
     HKEY hKey;
 
-    wsprintf ( szKey, GP_EXTENSIONS_KEY, pszExtension );
+    wsprintf(szKey, GP_EXTENSIONS_KEY, pszExtension);
 
-    lResult = RegOpenKeyEx ( hKeyRoot, szKey, 0, KEY_READ, &hKey);
-    if ( lResult != ERROR_SUCCESS )
+    lResult = RegOpenKeyEx(hKeyRoot, szKey, 0, KEY_READ, &hKey);
+    if (lResult != ERROR_SUCCESS)
         return FALSE;
 
-    lResult = RegQueryValueEx( hKey, TEXT("PerUserLocalSettings"), NULL, &dwType, (LPBYTE) &dwSetting, &dwSize );
-    RegCloseKey( hKey );
+    lResult = RegQueryValueEx(hKey, TEXT("PerUserLocalSettings"), NULL, &dwType, (LPBYTE)&dwSetting, &dwSize);
+    RegCloseKey(hKey);
 
     if (lResult == ERROR_SUCCESS)
         return dwSetting;
@@ -7266,7 +7138,7 @@ BOOL ExtensionHasPerUserLocalSetting( LPTSTR pszExtension, HKEY hKeyRoot )
 }
 
 
-DWORD UserPolicyCallback (BOOL bVerbose, LPWSTR lpMessage)
+DWORD UserPolicyCallback(BOOL bVerbose, LPWSTR lpMessage)
 //  Purpose:    Callback function for status UI messages
 
 //  Parameters: bVerbose  - Verbose message or not
@@ -7282,25 +7154,25 @@ DWORD UserPolicyCallback (BOOL bVerbose, LPWSTR lpMessage)
     if (lpMessage) {
         lpMsg = lpMessage;
     } else {
-        LoadString (g_hDllInstance, IDS_USER_SETTINGS, szMsg, 100);
+        LoadString(g_hDllInstance, IDS_USER_SETTINGS, szMsg, 100);
         lpMsg = szMsg;
     }
 
     DebugMsg((DM_VERBOSE, TEXT("UserPolicyCallback: Setting status UI to %s"), lpMsg));
 
-    EnterCriticalSection (&g_StatusCallbackCS);
+    EnterCriticalSection(&g_StatusCallbackCS);
     if (g_pStatusMessageCallback) {
         dwResult = g_pStatusMessageCallback(bVerbose, lpMsg);
     } else {
         DebugMsg((DM_WARNING, TEXT("UserPolicyCallback: Extension requested status UI when status UI is not available.")));
     }
-    LeaveCriticalSection (&g_StatusCallbackCS);
+    LeaveCriticalSection(&g_StatusCallbackCS);
 
     return dwResult;
 }
 
 
-DWORD MachinePolicyCallback (BOOL bVerbose, LPWSTR lpMessage)
+DWORD MachinePolicyCallback(BOOL bVerbose, LPWSTR lpMessage)
 //  Purpose:    Callback function for status UI messages
 
 //  Parameters: bVerbose  - Verbose message or not
@@ -7316,25 +7188,25 @@ DWORD MachinePolicyCallback (BOOL bVerbose, LPWSTR lpMessage)
     if (lpMessage) {
         lpMsg = lpMessage;
     } else {
-        LoadString (g_hDllInstance, IDS_COMPUTER_SETTINGS, szMsg, 100);
+        LoadString(g_hDllInstance, IDS_COMPUTER_SETTINGS, szMsg, 100);
         lpMsg = szMsg;
     }
 
     DebugMsg((DM_VERBOSE, TEXT("MachinePolicyCallback: Setting status UI to %s"), lpMsg));
 
-    EnterCriticalSection (&g_StatusCallbackCS);
+    EnterCriticalSection(&g_StatusCallbackCS);
     if (g_pStatusMessageCallback) {
         dwResult = g_pStatusMessageCallback(bVerbose, lpMsg);
     } else {
         DebugMsg((DM_WARNING, TEXT("MachinePolicyCallback: Extension requested status UI when status UI is not available.")));
     }
-    LeaveCriticalSection (&g_StatusCallbackCS);
+    LeaveCriticalSection(&g_StatusCallbackCS);
 
     return dwResult;
 }
 
 
-PLDAP GetMachineDomainDS( PNETAPI32_API pNetApi32, PLDAP_API pLdapApi )
+PLDAP GetMachineDomainDS(PNETAPI32_API pNetApi32, PLDAP_API pLdapApi)
 //  Purpose:    Obtain the machine domain DS
 
 //  Parameters: pNetApi32    - netapi32.dll
@@ -7347,22 +7219,21 @@ PLDAP GetMachineDomainDS( PNETAPI32_API pNetApi32, PLDAP_API pLdapApi )
     DWORD    dwResult = 0;
     PDOMAIN_CONTROLLER_INFO pDCI = 0;
     ULONG ulResult;
-    VOID *pData;
+    VOID * pData;
 
     // get the machine domain name
-    dwResult = pNetApi32->pfnDsGetDcName(   0, 0, 0, 0, DS_DIRECTORY_SERVICE_REQUIRED, &pDCI);
-    if ( dwResult == ERROR_SUCCESS )
-    {
+    dwResult = pNetApi32->pfnDsGetDcName(0, 0, 0, 0, DS_DIRECTORY_SERVICE_REQUIRED, &pDCI);
+    if (dwResult == ERROR_SUCCESS) {
         SEC_WINNT_AUTH_IDENTITY_EXW secIdentity;
 
-        pld = pLdapApi->pfnldap_open( pDCI->DomainName, LDAP_PORT );
+        pld = pLdapApi->pfnldap_open(pDCI->DomainName, LDAP_PORT);
         if (!pld) {
             DebugMsg((DM_WARNING, TEXT("GetMachineDomainDS:  ldap_open for <%s> failed with = 0x%x or %d"), pDCI->DomainName, pLdapApi->pfnLdapGetLastError(), GetLastError()));
             return pld;
         }
 
         // Turn on Packet integrity flag
-        pData = (VOID *) LDAP_OPT_ON;
+        pData = (VOID *)LDAP_OPT_ON;
         ulResult = pLdapApi->pfnldap_set_option(pld, LDAP_OPT_SIGN, &pData);
         if (ulResult != LDAP_SUCCESS) {
             DebugMsg((DM_WARNING, TEXT("GetMachineDomainDS:  Failed to turn on LDAP_OPT_SIGN with %d"), ulResult));
@@ -7384,18 +7255,15 @@ PLDAP GetMachineDomainDS( PNETAPI32_API pNetApi32, PLDAP_API pLdapApi )
         secIdentity.PasswordLength = 0;
         secIdentity.Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
         secIdentity.PackageList = wszKerberos;
-        secIdentity.PackageListLength = lstrlen( wszKerberos );
+        secIdentity.PackageListLength = lstrlen(wszKerberos);
 
-        if ( pLdapApi->pfnldap_bind_s (pld, 0, (WCHAR *)&secIdentity, LDAP_AUTH_SSPI) != LDAP_SUCCESS )
-        {
+        if (pLdapApi->pfnldap_bind_s(pld, 0, (WCHAR *)&secIdentity, LDAP_AUTH_SSPI) != LDAP_SUCCESS) {
             pLdapApi->pfnldap_unbind(pld);
             pld = 0;
         }
 
         pNetApi32->pfnNetApiBufferFree(pDCI);
-    }
-    else
-    {
+    } else {
         DebugMsg((DM_WARNING, TEXT("GetMachineDomainDS:  The domain does not have a DS")));
     }
 
@@ -7440,17 +7308,17 @@ NTSTATUS CallDFS(LPWSTR lpDomainName, LPWSTR lpDCName)
     POINTER_TO_OFFSET(DfsInfo->DomainName, DfsInfo);
     POINTER_TO_OFFSET(DfsInfo->DCName, DfsInfo);
 
-    RtlInitUnicodeString( &unicodeServerName, L"\\Dfs");
+    RtlInitUnicodeString(&unicodeServerName, L"\\Dfs");
     InitializeObjectAttributes(&objectAttributes, &unicodeServerName, OBJ_CASE_INSENSITIVE, NULL, NULL);
     status = NtOpenFile(&DfsDeviceHandle, SYNCHRONIZE | FILE_WRITE_DATA, &objectAttributes, &ioStatusBlock, 0, FILE_SYNCHRONOUS_IO_NONALERT);
-    if (!NT_SUCCESS(status) ) {
+    if (!NT_SUCCESS(status)) {
         DebugMsg((DM_WARNING, TEXT("CallDFS:  NtOpenFile failed with 0x%x"), status));
         LocalFree(DfsInfo);
         return status;
     }
 
     status = NtFsControlFile(DfsDeviceHandle, NULL, NULL, NULL, &ioStatusBlock, FSCTL_DFS_SPC_REFRESH, DfsInfo, sizeNeeded, NULL, 0);
-    if (!NT_SUCCESS(status) ) {
+    if (!NT_SUCCESS(status)) {
         DebugMsg((DM_WARNING, TEXT("CallDFS:  NtFsControlFile failed with 0x%x"), status));
     }
 

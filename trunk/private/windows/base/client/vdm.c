@@ -43,26 +43,25 @@ Return Value:
     BOOLEAN bReturn = FALSE;
 
     CommandLine = &NtCurrentTeb()->StaticUnicodeString;
-    RtlInitAnsiString(&AnsiString,lpApplicationName);
-    if ( (ULONG)AnsiString.Length<<1 < (ULONG)NtCurrentTeb()->StaticUnicodeString.MaximumLength ) {
+    RtlInitAnsiString(&AnsiString, lpApplicationName);
+    if ((ULONG)AnsiString.Length << 1 < (ULONG)NtCurrentTeb()->StaticUnicodeString.MaximumLength) {
         DynamicCommandLine.Buffer = NULL;
-        Status = RtlAnsiStringToUnicodeString(CommandLine,&AnsiString,FALSE);
-        if ( !NT_SUCCESS(Status) ) {
+        Status = RtlAnsiStringToUnicodeString(CommandLine, &AnsiString, FALSE);
+        if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             return FALSE;
-            }
         }
-    else {
-        Status = RtlAnsiStringToUnicodeString(&DynamicCommandLine,&AnsiString,TRUE);
-        if ( !NT_SUCCESS(Status) ) {
+    } else {
+        Status = RtlAnsiStringToUnicodeString(&DynamicCommandLine, &AnsiString, TRUE);
+        if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             return FALSE;
-            }
         }
+    }
 
     bReturn = (BOOLEAN)GetBinaryTypeW(
-             DynamicCommandLine.Buffer ? DynamicCommandLine.Buffer : CommandLine->Buffer,
-             lpBinaryType);
+        DynamicCommandLine.Buffer ? DynamicCommandLine.Buffer : CommandLine->Buffer,
+        lpBinaryType);
 
     RtlFreeUnicodeString(&DynamicCommandLine);
 
@@ -76,7 +75,7 @@ WINAPI
 GetBinaryTypeW(
     IN  LPCWSTR  lpApplicationName,
     OUT LPDWORD  lpBinaryType
-    )
+)
 
 /*++
 
@@ -105,7 +104,7 @@ Return Value:
     BOOLEAN TranslationStatus;
     OBJECT_ATTRIBUTES Obja;
     PVOID FreeBuffer = NULL;
-    HANDLE FileHandle, SectionHandle=NULL;
+    HANDLE FileHandle, SectionHandle = NULL;
     IO_STATUS_BLOCK IoStatusBlock;
     LONG fBinaryType = SCS_32BIT_BINARY;
     BOOLEAN bReturn = FALSE;
@@ -118,26 +117,25 @@ Return Value:
 
 
         TranslationStatus = RtlDosPathNameToNtPathName_U(
-                                // DynamicCommandLine.Buffer ? DynamicCommandLine.Buffer : CommandLine->Buffer,
-                                lpApplicationName,
-                                &PathName,
-                                NULL,
-                                &RelativeName
-                                );
+            // DynamicCommandLine.Buffer ? DynamicCommandLine.Buffer : CommandLine->Buffer,
+            lpApplicationName,
+            &PathName,
+            NULL,
+            &RelativeName
+        );
 
-        if ( !TranslationStatus ) {
+        if (!TranslationStatus) {
             BaseSetLastNTError(STATUS_OBJECT_NAME_INVALID);
             goto GBTtryexit;
-            }
+        }
 
         FreeBuffer = PathName.Buffer;
 
-        if ( RelativeName.RelativeName.Length ) {
+        if (RelativeName.RelativeName.Length) {
             PathName = *(PUNICODE_STRING)&RelativeName.RelativeName;
-            }
-        else {
+        } else {
             RelativeName.ContainingDirectory = NULL;
-            }
+        }
 
         InitializeObjectAttributes(
             &Obja,
@@ -145,88 +143,87 @@ Return Value:
             OBJ_CASE_INSENSITIVE,
             RelativeName.ContainingDirectory,
             NULL
-            );
+        );
 
 
         // Open the file for execute access
 
 
         Status = NtOpenFile(
-                    &FileHandle,
-                    SYNCHRONIZE | FILE_EXECUTE,
-                    &Obja,
-                    &IoStatusBlock,
-                    FILE_SHARE_READ | FILE_SHARE_DELETE,
-                    FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE
-                    );
-        if (!NT_SUCCESS(Status) ) {
+            &FileHandle,
+            SYNCHRONIZE | FILE_EXECUTE,
+            &Obja,
+            &IoStatusBlock,
+            FILE_SHARE_READ | FILE_SHARE_DELETE,
+            FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE
+        );
+        if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             goto GBTtryexit;
-            }
+        }
 
 
         // Create a section object backed by the file
 
 
         Status = NtCreateSection(
-                    &SectionHandle,
-                    SECTION_ALL_ACCESS,
-                    NULL,
-                    NULL,
-                    PAGE_EXECUTE,
-                    SEC_IMAGE,
-                    FileHandle
-                    );
+            &SectionHandle,
+            SECTION_ALL_ACCESS,
+            NULL,
+            NULL,
+            PAGE_EXECUTE,
+            SEC_IMAGE,
+            FileHandle
+        );
         NtClose(FileHandle);
 
-        if (!NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
 
             SectionHandle = NULL;
 
             switch (Status) {
-                case STATUS_INVALID_IMAGE_NE_FORMAT:
+            case STATUS_INVALID_IMAGE_NE_FORMAT:
 #ifdef i386
-                    fBinaryType = SCS_OS216_BINARY;
-                    break;
+                fBinaryType = SCS_OS216_BINARY;
+                break;
 #endif
 
-                case STATUS_INVALID_IMAGE_PROTECT:
-                    fBinaryType = SCS_DOS_BINARY;
-                    break;
+            case STATUS_INVALID_IMAGE_PROTECT:
+                fBinaryType = SCS_DOS_BINARY;
+                break;
 
-                case STATUS_INVALID_IMAGE_WIN_16:
-                    fBinaryType = SCS_WOW_BINARY;
-                    break;
+            case STATUS_INVALID_IMAGE_WIN_16:
+                fBinaryType = SCS_WOW_BINARY;
+                break;
 
-                case STATUS_INVALID_IMAGE_NOT_MZ:
-                    fBinaryType = BaseIsDosApplication(&PathName, Status);
-                    if (!fBinaryType){
-                        BaseSetLastNTError(Status);
-                        goto GBTtryexit;
-                    }
-                    fBinaryType = (fBinaryType  == BINARY_TYPE_DOS_PIF) ?
-                                  SCS_PIF_BINARY : SCS_DOS_BINARY;
-                    break;
-
-                default:
+            case STATUS_INVALID_IMAGE_NOT_MZ:
+                fBinaryType = BaseIsDosApplication(&PathName, Status);
+                if (!fBinaryType) {
                     BaseSetLastNTError(Status);
                     goto GBTtryexit;
                 }
+                fBinaryType = (fBinaryType == BINARY_TYPE_DOS_PIF) ?
+                    SCS_PIF_BINARY : SCS_DOS_BINARY;
+                break;
+
+            default:
+                BaseSetLastNTError(Status);
+                goto GBTtryexit;
             }
-        else {
+        } else {
 
             // Query the section
 
 
             Status = NtQuerySection(
-                        SectionHandle,
-                        SectionImageInformation,
-                        &ImageInformation,
-                        sizeof( ImageInformation ),
-                        NULL
-                        );
+                SectionHandle,
+                SectionImageInformation,
+                &ImageInformation,
+                sizeof(ImageInformation),
+                NULL
+            );
 
-            if (!NT_SUCCESS( Status )) {
+            if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
                 goto GBTtryexit;
             }
@@ -237,14 +234,13 @@ Return Value:
             }
 
             if (ImageInformation.Machine !=
-                    RtlImageNtHeader(NtCurrentPeb()->ImageBaseAddress)->FileHeader.Machine) {
+                RtlImageNtHeader(NtCurrentPeb()->ImageBaseAddress)->FileHeader.Machine) {
 
 #ifdef MIPS
-                if ( ImageInformation.Machine == IMAGE_FILE_MACHINE_R3000 ||
-                     ImageInformation.Machine == IMAGE_FILE_MACHINE_R4000 ) {
+                if (ImageInformation.Machine == IMAGE_FILE_MACHINE_R3000 ||
+                    ImageInformation.Machine == IMAGE_FILE_MACHINE_R4000) {
                     ;
-                }
-                else {
+                } else {
                     SetLastError(ERROR_BAD_EXE_FORMAT);
                     goto GBTtryexit;
                 }
@@ -254,11 +250,11 @@ Return Value:
 #endif // MIPS
             }
 
-            if ( ImageInformation.SubSystemType != IMAGE_SUBSYSTEM_WINDOWS_GUI &&
-                ImageInformation.SubSystemType != IMAGE_SUBSYSTEM_WINDOWS_CUI ) {
+            if (ImageInformation.SubSystemType != IMAGE_SUBSYSTEM_WINDOWS_GUI &&
+                ImageInformation.SubSystemType != IMAGE_SUBSYSTEM_WINDOWS_CUI) {
 
 
-                if ( ImageInformation.SubSystemType == IMAGE_SUBSYSTEM_POSIX_CUI ) {
+                if (ImageInformation.SubSystemType == IMAGE_SUBSYSTEM_POSIX_CUI) {
                     fBinaryType = SCS_POSIX_BINARY;
                 }
             }
@@ -270,15 +266,14 @@ Return Value:
 
         bReturn = TRUE;
 
-GBTtryexit:;
-        }
-    finally {
+    GBTtryexit:;
+    } finally {
 
         if (SectionHandle)
             NtClose(SectionHandle);
 
         if (FreeBuffer)
-            RtlFreeHeap(RtlProcessHeap(), 0,FreeBuffer);
+            RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
     }
     return bReturn;
 }
@@ -289,7 +284,7 @@ APIENTRY
 VDMOperationStarted
 (
     BOOL    IsWowCaller
-    )
+)
 
 /*++
 
@@ -322,7 +317,7 @@ BOOL
 APIENTRY
 GetNextVDMCommand(
     PVDMINFO lpVDMInfo
-    )
+)
 
 /*++
 
@@ -351,46 +346,41 @@ Return Value:
     NTSTATUS Status;
     BASE_API_MSG m;
     PBASE_GET_NEXT_VDM_COMMAND_MSG a = (PBASE_GET_NEXT_VDM_COMMAND_MSG)&m.u.GetNextVDMCommand;
-    PBASE_EXIT_VDM_MSG c= (PBASE_EXIT_VDM_MSG)&m.u.ExitVDM;
-    PBASE_IS_FIRST_VDM_MSG d= (PBASE_IS_FIRST_VDM_MSG)&m.u.IsFirstVDM;
+    PBASE_EXIT_VDM_MSG c = (PBASE_EXIT_VDM_MSG)&m.u.ExitVDM;
+    PBASE_IS_FIRST_VDM_MSG d = (PBASE_IS_FIRST_VDM_MSG)&m.u.IsFirstVDM;
     PBASE_SET_REENTER_COUNT_MSG e = (PBASE_SET_REENTER_COUNT_MSG)&m.u.SetReenterCount;
     PCSR_CAPTURE_HEADER CaptureBuffer;
-    ULONG Len,nPointers;
+    ULONG Len, nPointers;
     USHORT VDMStateSave;
 
     // Special case to query the first VDM In the system.
-    if(lpVDMInfo == NULL){
+    if (lpVDMInfo == NULL) {
         Status = CsrClientCallServer(
-                          (PCSR_API_MSG)&m,
-                          NULL,
-                          CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX,
-                                              BasepIsFirstVDM
-                                              ),
-                          sizeof( *d )
-                          );
+            (PCSR_API_MSG)&m,
+            NULL,
+            CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX,
+                                BasepIsFirstVDM
+            ),
+            sizeof(*d)
+        );
 
         if (NT_SUCCESS(Status)) {
             return(d->FirstVDM);
-            }
-        else {
+        } else {
             BaseSetLastNTError(Status);
             return FALSE;
-            }
         }
+    }
 
     // Special case to increment/decrement the re-enterancy count
 
-    if (lpVDMInfo->VDMState == INCREMENT_REENTER_COUNT || lpVDMInfo->VDMState == DECREMENT_REENTER_COUNT)
-    {
+    if (lpVDMInfo->VDMState == INCREMENT_REENTER_COUNT || lpVDMInfo->VDMState == DECREMENT_REENTER_COUNT) {
         e->ConsoleHandle = NtCurrentPeb()->ProcessParameters->ConsoleHandle;
         e->fIncDec = lpVDMInfo->VDMState;
         Status = CsrClientCallServer((PCSR_API_MSG)&m, NULL, CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX, BasepSetReenterCount), sizeof(*e));
-        if (NT_SUCCESS(Status))
-        {
+        if (NT_SUCCESS(Status)) {
             return TRUE;
-        }
-        else
-        {
+        } else {
             BaseSetLastNTError(Status);
             return FALSE;
         }
@@ -405,10 +395,9 @@ Return Value:
     a->ConsoleHandle = NtCurrentPeb()->ProcessParameters->ConsoleHandle;
 
     if (lpVDMInfo->VDMState & ASKING_FOR_PIF) {
-       a->iTask = lpVDMInfo->iTask;
-    }
-    else {
-       a->iTask = 0;
+        a->iTask = lpVDMInfo->iTask;
+    } else {
+        a->iTask = 0;
     }
 
     a->AppLen = lpVDMInfo->AppLen;
@@ -426,173 +415,168 @@ Return Value:
     // Find the total space for capture buffer
 
       // startup info
-    Len = ROUND_UP(sizeof(STARTUPINFOA),4);
+    Len = ROUND_UP(sizeof(STARTUPINFOA), 4);
     nPointers = 1;
 
     if (lpVDMInfo->CmdSize) {
-        Len += ROUND_UP(a->CmdLen,4);
+        Len += ROUND_UP(a->CmdLen, 4);
         nPointers++;
-        }
+    }
 
     if (lpVDMInfo->AppLen) {
-        Len +=ROUND_UP(a->AppLen,4);
+        Len += ROUND_UP(a->AppLen, 4);
         nPointers++;
-        }
+    }
 
     if (lpVDMInfo->PifLen) {
-        Len +=ROUND_UP(a->PifLen,4);
+        Len += ROUND_UP(a->PifLen, 4);
         nPointers++;
-        }
+    }
 
     if (lpVDMInfo->Enviornment) {
         nPointers++;
-        Len+= (lpVDMInfo->EnviornmentSize) ?
-                     ROUND_UP(lpVDMInfo->EnviornmentSize, 4) : 4;
-        }
+        Len += (lpVDMInfo->EnviornmentSize) ?
+            ROUND_UP(lpVDMInfo->EnviornmentSize, 4) : 4;
+    }
 
     if (lpVDMInfo->CurDirectoryLen == 0)
         a->CurDirectory = NULL;
-    else{
-        Len += ROUND_UP(lpVDMInfo->CurDirectoryLen,4);
+    else {
+        Len += ROUND_UP(lpVDMInfo->CurDirectoryLen, 4);
         nPointers++;
-        }
+    }
 
     if (lpVDMInfo->DesktopLen == 0)
         a->Desktop = NULL;
     else {
-        Len += ROUND_UP(lpVDMInfo->DesktopLen,4);
+        Len += ROUND_UP(lpVDMInfo->DesktopLen, 4);
         nPointers++;
-        }
+    }
 
     if (lpVDMInfo->TitleLen == 0)
         a->Title = NULL;
     else {
-        Len += ROUND_UP(lpVDMInfo->TitleLen,4);
+        Len += ROUND_UP(lpVDMInfo->TitleLen, 4);
         nPointers++;
-        }
+    }
 
     if (lpVDMInfo->ReservedLen == 0)
         a->Reserved = NULL;
     else {
-        Len += ROUND_UP(lpVDMInfo->ReservedLen,4);
+        Len += ROUND_UP(lpVDMInfo->ReservedLen, 4);
         nPointers++;
-        }
+    }
 
     CaptureBuffer = CsrAllocateCaptureBuffer(nPointers, Len);
     if (CaptureBuffer == NULL) {
-        BaseSetLastNTError( STATUS_NO_MEMORY );
+        BaseSetLastNTError(STATUS_NO_MEMORY);
         return FALSE;
-        }
+    }
 
     if (lpVDMInfo->CmdLine) {
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   lpVDMInfo->CmdSize,
-                                   (PVOID *)&a->CmdLine
-                                 );
-        }
-    else {
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  lpVDMInfo->CmdSize,
+                                  (PVOID *)&a->CmdLine
+        );
+    } else {
         a->CmdLine = NULL;
-        }
+    }
 
 
     if (lpVDMInfo->AppLen) {
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   lpVDMInfo->AppLen,
-                                   (PVOID *)&a->AppName
-                                 );
-        }
-    else {
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  lpVDMInfo->AppLen,
+                                  (PVOID *)&a->AppName
+        );
+    } else {
         a->AppName = NULL;
-        }
+    }
 
     if (lpVDMInfo->PifLen) {
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   lpVDMInfo->PifLen,
-                                   (PVOID *)&a->PifFile
-                                 );
-        }
-    else {
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  lpVDMInfo->PifLen,
+                                  (PVOID *)&a->PifFile
+        );
+    } else {
         a->PifFile = NULL;
-        }
+    }
 
 
     if (lpVDMInfo->EnviornmentSize) {
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   lpVDMInfo->EnviornmentSize,
-                                   (PVOID *)&a->Env
-                                 );
-        }
-    else {
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  lpVDMInfo->EnviornmentSize,
+                                  (PVOID *)&a->Env
+        );
+    } else {
         a->Env = NULL;
-        }
+    }
 
     if (lpVDMInfo->CurDirectoryLen)
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   lpVDMInfo->CurDirectoryLen,
-                                   (PVOID *)&a->CurDirectory
-                                 );
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  lpVDMInfo->CurDirectoryLen,
+                                  (PVOID *)&a->CurDirectory
+        );
     else
         a->CurDirectory = NULL;
 
 
-    CsrAllocateMessagePointer( CaptureBuffer,
-                               sizeof(STARTUPINFOA),
-                               (PVOID *)&a->StartupInfo
-                             );
+    CsrAllocateMessagePointer(CaptureBuffer,
+                              sizeof(STARTUPINFOA),
+                              (PVOID *)&a->StartupInfo
+    );
 
     if (lpVDMInfo->DesktopLen)
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   lpVDMInfo->DesktopLen,
-                                   (PVOID *)&a->Desktop
-                                 );
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  lpVDMInfo->DesktopLen,
+                                  (PVOID *)&a->Desktop
+        );
     else
         a->Desktop = NULL;
 
     if (lpVDMInfo->TitleLen)
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   lpVDMInfo->TitleLen,
-                                   (PVOID *)&a->Title
-                                 );
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  lpVDMInfo->TitleLen,
+                                  (PVOID *)&a->Title
+        );
     else
         a->Title = NULL;
 
     if (lpVDMInfo->ReservedLen)
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   lpVDMInfo->ReservedLen,
-                                   (PVOID *)&a->Reserved
-                                 );
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  lpVDMInfo->ReservedLen,
+                                  (PVOID *)&a->Reserved
+        );
     else
         a->Reserved = NULL;
 
 retry:
     Status = CsrClientCallServer(
-                        (PCSR_API_MSG)&m,
-                        CaptureBuffer,
-                        CSR_MAKE_API_NUMBER( BASESRV_SERVERDLL_INDEX,
-                                            BasepGetNextVDMCommand
-                                           ),
-                        sizeof( *a )
-                        );
+        (PCSR_API_MSG)&m,
+        CaptureBuffer,
+        CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX,
+                            BasepGetNextVDMCommand
+        ),
+        sizeof(*a)
+    );
 
     if (a->WaitObjectForVDM) {
-        Status = NtWaitForSingleObject(a->WaitObjectForVDM,FALSE,NULL);
-        if (Status != STATUS_SUCCESS){
+        Status = NtWaitForSingleObject(a->WaitObjectForVDM, FALSE, NULL);
+        if (Status != STATUS_SUCCESS) {
             BaseSetLastNTError(Status);
             return FALSE;
-            }
-        else {
+        } else {
             a->VDMState |= ASKING_FOR_SECOND_TIME;
             a->ExitCode = 0;
             goto retry;
-            }
         }
+    }
 
     if (NT_SUCCESS(Status)) {
         Status = (NTSTATUS)m.ReturnValue;
-        }
+    }
 
 
-    if (!NT_SUCCESS( Status )) {
+    if (!NT_SUCCESS(Status)) {
         if (Status == STATUS_INVALID_PARAMETER) {
             //This means one of the buffer size is less than required.
             lpVDMInfo->CmdSize = a->CmdLen;
@@ -600,21 +584,20 @@ retry:
             lpVDMInfo->PifLen = a->PifLen;
             lpVDMInfo->EnviornmentSize = a->EnvLen;
             lpVDMInfo->CurDirectoryLen = a->CurDirectoryLen;
-            lpVDMInfo->DesktopLen      = a->DesktopLen;
-            lpVDMInfo->TitleLen        = a->TitleLen;
-            lpVDMInfo->ReservedLen     = a->ReservedLen;
-            }
-        else {
+            lpVDMInfo->DesktopLen = a->DesktopLen;
+            lpVDMInfo->TitleLen = a->TitleLen;
+            lpVDMInfo->ReservedLen = a->ReservedLen;
+        } else {
             lpVDMInfo->CmdSize = 0;
             lpVDMInfo->AppLen = 0;
             lpVDMInfo->PifLen = 0;
             lpVDMInfo->EnviornmentSize = 0;
             lpVDMInfo->CurDirectoryLen = 0;
-            lpVDMInfo->DesktopLen      = 0;
-            lpVDMInfo->TitleLen        = 0;
-            lpVDMInfo->ReservedLen     = 0;
-            }
-        CsrFreeCaptureBuffer( CaptureBuffer );
+            lpVDMInfo->DesktopLen = 0;
+            lpVDMInfo->TitleLen = 0;
+            lpVDMInfo->ReservedLen = 0;
+        }
+        CsrFreeCaptureBuffer(CaptureBuffer);
         BaseSetLastNTError(Status);
         return FALSE;
     }
@@ -655,7 +638,7 @@ retry:
                           a->StartupInfo,
                           sizeof(STARTUPINFOA));
 
-        if (lpVDMInfo->DesktopLen){
+        if (lpVDMInfo->DesktopLen) {
             RtlMoveMemory(lpVDMInfo->Desktop,
                           a->Desktop,
                           a->DesktopLen);
@@ -663,14 +646,14 @@ retry:
         }
 
 
-        if (lpVDMInfo->TitleLen){
+        if (lpVDMInfo->TitleLen) {
             RtlMoveMemory(lpVDMInfo->Title,
                           a->Title,
                           a->TitleLen);
             lpVDMInfo->StartupInfo.lpTitle = lpVDMInfo->Title;
         }
 
-        if (lpVDMInfo->ReservedLen){
+        if (lpVDMInfo->ReservedLen) {
             RtlMoveMemory(lpVDMInfo->Reserved,
                           a->Reserved,
                           a->ReservedLen);
@@ -686,7 +669,7 @@ retry:
         else
             lpVDMInfo->VDMState = 0;
         lpVDMInfo->CurDrive = a->CurrentDrive;
-        lpVDMInfo->StdIn  = a->StdIn;
+        lpVDMInfo->StdIn = a->StdIn;
         lpVDMInfo->StdOut = a->StdOut;
         lpVDMInfo->StdErr = a->StdErr;
         lpVDMInfo->iTask = a->iTask;
@@ -698,14 +681,15 @@ retry:
         lpVDMInfo->dwCreationFlags = a->dwCreationFlags;
         lpVDMInfo->fComingFromBat = a->fComingFromBat;
 
-        CsrFreeCaptureBuffer( CaptureBuffer );
+        CsrFreeCaptureBuffer(CaptureBuffer);
         return TRUE;
-        }
-    except ( EXCEPTION_EXECUTE_HANDLER ) {
+    }
+    except(EXCEPTION_EXECUTE_HANDLER)
+    {
         BaseSetLastNTError(GetExceptionCode());
-        CsrFreeCaptureBuffer( CaptureBuffer );
+        CsrFreeCaptureBuffer(CaptureBuffer);
         return FALSE;
-        }
+    }
 }
 
 
@@ -730,12 +714,9 @@ Arguments:
 
     c->ConsoleHandle = NtCurrentPeb()->ProcessParameters->ConsoleHandle;
 
-    if (IsWowCaller)
-    {
+    if (IsWowCaller) {
         c->iWowTask = iWowTask;
-    }
-    else
-    {
+    } else {
         c->iWowTask = 0;
     }
 
@@ -743,8 +724,7 @@ Arguments:
     c->WaitObjectForVDM = 0;
 
     Status = CsrClientCallServer((PCSR_API_MSG)&m, NULL, CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX, BasepExitVDM), sizeof(*c));
-    if (NT_SUCCESS(Status) && c->WaitObjectForVDM)
-    {
+    if (NT_SUCCESS(Status) && c->WaitObjectForVDM) {
         NtClose(c->WaitObjectForVDM);
     }
 }
@@ -774,7 +754,7 @@ BOOL APIENTRY SetVDMCurrentDirectories(IN ULONG  cchCurDirs, IN LPSTR  lpszzCurD
 
     a->ConsoleHandle = NtCurrentPeb()->ProcessParameters->ConsoleHandle;
     // caller must have a valid console(WOW will fail)
-    if (a->ConsoleHandle == (HANDLE) -1) {
+    if (a->ConsoleHandle == (HANDLE)-1) {
         BaseSetLastNTError(STATUS_INVALID_PARAMETER);
         return FALSE;
     }
@@ -783,22 +763,23 @@ BOOL APIENTRY SetVDMCurrentDirectories(IN ULONG  cchCurDirs, IN LPSTR  lpszzCurD
 
         CaptureBuffer = CsrAllocateCaptureBuffer(1, cchCurDirs);
         if (CaptureBuffer == NULL) {
-            BaseSetLastNTError( STATUS_NO_MEMORY );
+            BaseSetLastNTError(STATUS_NO_MEMORY);
             return FALSE;
-            }
+        }
 
-        CsrAllocateMessagePointer( CaptureBuffer, cchCurDirs, (PVOID *)&a->lpszzCurDirs);
+        CsrAllocateMessagePointer(CaptureBuffer, cchCurDirs, (PVOID *)&a->lpszzCurDirs);
 
         a->cchCurDirs = cchCurDirs;
         try {
             RtlMoveMemory(a->lpszzCurDirs, lpszzCurDirs, cchCurDirs);
         }
-        except (EXCEPTION_EXECUTE_HANDLER) {
+        except(EXCEPTION_EXECUTE_HANDLER)
+        {
             BaseSetLastNTError(GetExceptionCode());
             CsrFreeCaptureBuffer(CaptureBuffer);
             return FALSE;
         }
-        Status = CsrClientCallServer((PCSR_API_MSG)&m, CaptureBuffer, CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX, BasepSetVDMCurDirs), sizeof( *a ));
+        Status = CsrClientCallServer((PCSR_API_MSG)&m, CaptureBuffer, CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX, BasepSetVDMCurDirs), sizeof(*a));
         CsrFreeCaptureBuffer(CaptureBuffer);
 
         if (!NT_SUCCESS(Status) || !NT_SUCCESS((NTSTATUS)m.ReturnValue)) {
@@ -839,7 +820,7 @@ APIENTRY
 GetVDMCurrentDirectories(
     IN ULONG  cchCurDirs,
     IN LPSTR  lpszzCurDirs
-    )
+)
 {
     NTSTATUS Status;
     PCSR_CAPTURE_HEADER CaptureBuffer;
@@ -848,25 +829,24 @@ GetVDMCurrentDirectories(
 
 
     a->ConsoleHandle = NtCurrentPeb()->ProcessParameters->ConsoleHandle;
-    if (a->ConsoleHandle == (HANDLE) -1) {
+    if (a->ConsoleHandle == (HANDLE)-1) {
         BaseSetLastNTError(STATUS_INVALID_PARAMETER);
         return 0L;
     }
     if (cchCurDirs && lpszzCurDirs) {
         CaptureBuffer = CsrAllocateCaptureBuffer(1, cchCurDirs);
         if (CaptureBuffer == NULL) {
-            BaseSetLastNTError( STATUS_NO_MEMORY );
+            BaseSetLastNTError(STATUS_NO_MEMORY);
             return FALSE;
-            }
+        }
 
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   cchCurDirs,
-                                   (PVOID *)&a->lpszzCurDirs
-                                   );
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  cchCurDirs,
+                                  (PVOID *)&a->lpszzCurDirs
+        );
 
         a->cchCurDirs = cchCurDirs;
-    }
-    else {
+    } else {
         a->cchCurDirs = 0;
         a->lpszzCurDirs = NULL;
         CaptureBuffer = NULL;
@@ -875,39 +855,39 @@ GetVDMCurrentDirectories(
     m.ReturnValue = 0xffffffff;
 
     Status = CsrClientCallServer(
-                         (PCSR_API_MSG)&m,
-                         CaptureBuffer,
-                         CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX,
-                                             BasepGetVDMCurDirs
-                                             ),
-                         sizeof( *a )
-                         );
+        (PCSR_API_MSG)&m,
+        CaptureBuffer,
+        CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX,
+                            BasepGetVDMCurDirs
+        ),
+        sizeof(*a)
+    );
 
     if (m.ReturnValue == 0xffffffff) {
         a->cchCurDirs = 0;
-        }
+    }
 
     if (NT_SUCCESS(Status)) {
         Status = m.ReturnValue;
-        }
+    }
 
     if (NT_SUCCESS(Status)) {
 
         try {
             RtlMoveMemory(lpszzCurDirs, a->lpszzCurDirs, a->cchCurDirs);
-            }
-        except(EXCEPTION_EXECUTE_HANDLER) {
+        }
+        except(EXCEPTION_EXECUTE_HANDLER)
+        {
             Status = GetExceptionCode();
             a->cchCurDirs = 0;
-            }
         }
-    else {
+    } else {
         BaseSetLastNTError(Status);
-        }
+    }
 
     if (CaptureBuffer) {
         CsrFreeCaptureBuffer(CaptureBuffer);
-        }
+    }
 
     return a->cchCurDirs;
 }
@@ -917,7 +897,7 @@ VOID
 APIENTRY
 CmdBatNotification(
     IN  ULONG   fBeginEnd
-    )
+)
 
 /*++
 
@@ -942,18 +922,18 @@ Return Value:
 
     a->ConsoleHandle = NtCurrentPeb()->ProcessParameters->ConsoleHandle;
 
-    if (a->ConsoleHandle == (HANDLE) -1)
+    if (a->ConsoleHandle == (HANDLE)-1)
         return;
 
     a->fBeginEnd = fBeginEnd;
 
     CsrClientCallServer((PCSR_API_MSG)&m,
-                         NULL,
-                         CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX,
-                                             BasepBatNotification
-                                             ),
-                         sizeof( *a )
-                         );
+                        NULL,
+                        CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX,
+                                            BasepBatNotification
+                        ),
+                        sizeof(*a)
+    );
 
     return;
 }
@@ -963,7 +943,7 @@ NTSTATUS
 APIENTRY
 RegisterWowExec(
     IN  HANDLE   hwndWowExec
-    )
+)
 
 /*++
 
@@ -988,10 +968,10 @@ Return Value:
     PBASE_REGISTER_WOWEXEC_MSG a = &m.u.RegisterWowExec;
     NTSTATUS Status;
 
-    a->hwndWowExec   = hwndWowExec;
+    a->hwndWowExec = hwndWowExec;
     a->ConsoleHandle = NtCurrentPeb()->ProcessParameters->ConsoleHandle;
 
-    Status = CsrClientCallServer((PCSR_API_MSG)&m, NULL, CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX, BasepRegisterWowExec), sizeof( *a ));
+    Status = CsrClientCallServer((PCSR_API_MSG)&m, NULL, CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX, BasepRegisterWowExec), sizeof(*a));
     return Status;
 }
 
@@ -1005,15 +985,15 @@ Arguments:
 --*/
 {
     if (pVDMInfo->StdIn)
-        NtClose (pVDMInfo->StdIn);
+        NtClose(pVDMInfo->StdIn);
 
     if (pVDMInfo->StdOut)
-        NtClose (pVDMInfo->StdOut);
+        NtClose(pVDMInfo->StdOut);
 
     if (pVDMInfo->StdErr)
-        NtClose (pVDMInfo->StdErr);
+        NtClose(pVDMInfo->StdErr);
 
-    pVDMInfo->StdIn  = 0;
+    pVDMInfo->StdIn = 0;
     pVDMInfo->StdOut = 0;
     pVDMInfo->StdErr = 0;
 }
@@ -1024,10 +1004,10 @@ Arguments:
 BOOL
 BaseGetVDMKeyword(
     PCHAR KeywordLine,
-    PCONFIG_KEYWORD *pKeywordLine,
+    PCONFIG_KEYWORD * pKeywordLine,
     PCHAR KeywordSize,
     PULONG VdmSize
-    )
+)
 {
     NTSTATUS Status;
     PCONFIG_FILE ConfigFile;
@@ -1039,8 +1019,8 @@ BaseGetVDMKeyword(
     // Retrieve the VDM configuration information from the config file
 
 
-    Status = RtlOpenConfigFile( NULL, &ConfigFile );
-    if (!NT_SUCCESS( Status )) {
+    Status = RtlOpenConfigFile(NULL, &ConfigFile);
+    if (!NT_SUCCESS(Status)) {
         return FALSE;
     }
 
@@ -1048,10 +1028,10 @@ BaseGetVDMKeyword(
     // Find WOW section of config file
 
 
-    RtlInitString( &SectionName, "WOW" );
-    Section = RtlLocateSectionConfigFile( ConfigFile, &SectionName );
+    RtlInitString(&SectionName, "WOW");
+    Section = RtlLocateSectionConfigFile(ConfigFile, &SectionName);
     if (Section == NULL) {
-        RtlCloseConfigFile( ConfigFile );
+        RtlCloseConfigFile(ConfigFile);
         return FALSE;
     }
 
@@ -1059,23 +1039,23 @@ BaseGetVDMKeyword(
     // Get command line
 
 
-    RtlInitString( &KeywordName, KeywordLine );
-    *pKeywordLine = RtlLocateKeywordConfigFile( Section, &KeywordName );
+    RtlInitString(&KeywordName, KeywordLine);
+    *pKeywordLine = RtlLocateKeywordConfigFile(Section, &KeywordName);
     if (*pKeywordLine == NULL) {
-        RtlCloseConfigFile( ConfigFile );
+        RtlCloseConfigFile(ConfigFile);
         return FALSE;
     }
 
     // Get Vdm size
 
 
-    RtlInitString( &KeywordName, KeywordSize );
-    pKeywordSize = RtlLocateKeywordConfigFile( Section, &KeywordName );
+    RtlInitString(&KeywordName, KeywordSize);
+    pKeywordSize = RtlLocateKeywordConfigFile(Section, &KeywordName);
     if (pKeywordSize == NULL) {
         *VdmSize = 1024L * 1024L * 16L;
     } else {
-        Status = RtlCharToInteger( pKeywordSize->Value.Buffer, 0, VdmSize );
-        if (!NT_SUCCESS( Status )) {
+        Status = RtlCharToInteger(pKeywordSize->Value.Buffer, 0, VdmSize);
+        if (!NT_SUCCESS(Status)) {
             *VdmSize = 1024L * 1024L * 16L;
         } else {
             *VdmSize *= 1024L * 1024L;   // convert to MB
@@ -1093,26 +1073,26 @@ BaseGetVDMKeyword(
     LPDWORD KeywordLineSize,
     LPWSTR  KeywordSize,
     LPDWORD VdmSize
-    )
+)
 {
     NTSTATUS NtStatus;
-    UNICODE_STRING UnicodeString,UnicodeTemp;
+    UNICODE_STRING UnicodeString, UnicodeTemp;
     UNICODE_STRING KeyName;
     ANSI_STRING AnsiString;
-    LPWSTR UnicodeBuffer,Temp;
+    LPWSTR UnicodeBuffer, Temp;
     OBJECT_ATTRIBUTES ObjectAttributes;
     HANDLE hKey = NULL;
     PKEY_VALUE_FULL_INFORMATION pKeyValueInformation;
 
     // Allocate Work buffer
-    UnicodeBuffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( VDM_TAG ), FULL_INFO_BUFFER_SIZE);
+    UnicodeBuffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), FULL_INFO_BUFFER_SIZE);
     if (!UnicodeBuffer) {
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return(FALSE);
     }
 
     // Open the WOW key
-    RtlInitUnicodeString (&KeyName, WOW_ROOT);
+    RtlInitUnicodeString(&KeyName, WOW_ROOT);
     InitializeObjectAttributes(&ObjectAttributes, &KeyName, OBJ_CASE_INSENSITIVE, NULL, NULL);
     NtStatus = NtOpenKey(&hKey, KEY_READ, &ObjectAttributes);
     if (NtStatus == STATUS_OBJECT_NAME_NOT_FOUND) {
@@ -1120,8 +1100,8 @@ BaseGetVDMKeyword(
         return FALSE;
     }
 
-    if (!GetVDMConfigValue(hKey,KeywordLine,UnicodeBuffer)) {
-        NtClose (hKey);
+    if (!GetVDMConfigValue(hKey, KeywordLine, UnicodeBuffer)) {
+        NtClose(hKey);
         RtlFreeHeap(RtlProcessHeap(), 0, UnicodeBuffer);
         return(FALSE);
     }
@@ -1130,25 +1110,25 @@ BaseGetVDMKeyword(
     // Now convert back to ANSI for the caller after doing all the substitution
 
     pKeyValueInformation = (PVOID)UnicodeBuffer;
-    Temp = (LPWSTR)((PBYTE) pKeyValueInformation + pKeyValueInformation->DataOffset);
-    RtlInitUnicodeString( &UnicodeString, Temp );
-    UnicodeTemp.Buffer =  (LPWSTR)KeywordLineValue;
-    UnicodeTemp.Length =  0;
+    Temp = (LPWSTR)((PBYTE)pKeyValueInformation + pKeyValueInformation->DataOffset);
+    RtlInitUnicodeString(&UnicodeString, Temp);
+    UnicodeTemp.Buffer = (LPWSTR)KeywordLineValue;
+    UnicodeTemp.Length = 0;
     UnicodeTemp.MaximumLength = MAX_VDM_CFG_LINE;
-    NtStatus = RtlExpandEnvironmentStrings_U    (NULL,&UnicodeString, &UnicodeTemp, NULL);
-    if (!NT_SUCCESS( NtStatus )){
-        NtClose (hKey);
+    NtStatus = RtlExpandEnvironmentStrings_U(NULL, &UnicodeString, &UnicodeTemp, NULL);
+    if (!NT_SUCCESS(NtStatus)) {
+        NtClose(hKey);
         RtlFreeHeap(RtlProcessHeap(), 0, UnicodeBuffer);
         return FALSE;
     }
-    wcscpy(UnicodeString.Buffer,UnicodeTemp.Buffer);
+    wcscpy(UnicodeString.Buffer, UnicodeTemp.Buffer);
     UnicodeString.Length = UnicodeTemp.Length;
 
 
     // Set up an ANSI_STRING that points to the user's buffer
 
 
-    AnsiString.MaximumLength = (USHORT) *KeywordLineSize;
+    AnsiString.MaximumLength = (USHORT)*KeywordLineSize;
     AnsiString.Length = 0;
     AnsiString.Buffer = KeywordLineValue;
     RtlUnicodeStringToAnsiString(&AnsiString, &UnicodeString, FALSE);
@@ -1160,7 +1140,7 @@ BaseGetVDMKeyword(
     *VdmSize = 16L;             //default value is 16
     *VdmSize *= 1024L * 1024L;  // convert From MB
 
-    NtClose (hKey);
+    NtClose(hKey);
     RtlFreeHeap(RtlProcessHeap(), 0, UnicodeBuffer);
     return(TRUE);
 }
@@ -1170,16 +1150,16 @@ BOOL GetVDMConfigValue(HANDLE hKey, LPWSTR Keyword, LPWSTR UnicodeBuffer)
 {
     NTSTATUS NtStatus;
     UNICODE_STRING ValueName;
-    PKEY_VALUE_FULL_INFORMATION pKeyValueInformation = (PVOID) UnicodeBuffer;
+    PKEY_VALUE_FULL_INFORMATION pKeyValueInformation = (PVOID)UnicodeBuffer;
     ULONG ValueLength;
 
     RtlInitUnicodeString(&ValueName, Keyword);
     NtStatus = NtQueryValueKey(hKey, &ValueName, KeyValueFullInformation, pKeyValueInformation, FULL_INFO_BUFFER_SIZE, &ValueLength);
     if (NT_SUCCESS(NtStatus))
-            return TRUE;
+        return TRUE;
     else {
-         BaseSetLastNTError (NtStatus);
-         return FALSE;
+        BaseSetLastNTError(NtStatus);
+        return FALSE;
     }
 }
 
@@ -1189,12 +1169,12 @@ BaseCheckVDM(
     IN  PCWCH lpApplicationName,
     IN  PCWCH lpCommandLine,
     IN  PCWCH lpCurrentDirectory,
-    IN  ANSI_STRING *pAnsiStringEnv,
+    IN  ANSI_STRING * pAnsiStringEnv,
     IN  PBASE_API_MSG m,
     IN OUT PULONG iTask,
     IN  DWORD dwCreationFlags,
     LPSTARTUPINFOW lpStartupInfo
-    )
+)
 /*++
 
 Routine Description:
@@ -1234,9 +1214,9 @@ Return Value:
 
     NTSTATUS Status;
     PPEB Peb;
-    PBASE_CHECKVDM_MSG b= (PBASE_CHECKVDM_MSG)&m->u.CheckVDM;
+    PBASE_CHECKVDM_MSG b = (PBASE_CHECKVDM_MSG)&m->u.CheckVDM;
     PCSR_CAPTURE_HEADER CaptureBuffer;
-    ANSI_STRING AnsiStringCurrentDir,AnsiStringDesktop;
+    ANSI_STRING AnsiStringCurrentDir, AnsiStringDesktop;
     ANSI_STRING AnsiStringReserved, AnsiStringPif;
     OEM_STRING OemStringCmd, OemStringAppName, OemStringTitle;
     UNICODE_STRING UnicodeString;
@@ -1247,8 +1227,8 @@ Return Value:
     LPWSTR wsAppName;
     LPWSTR wsPifName;
     LPWSTR wsCmdLine;
-    LPWSTR wsPif=(PWSTR)".\0p\0i\0f\0\0";    // L".pif"
-    LPWSTR wsSharedWowPif=L"wowexec.pif";
+    LPWSTR wsPif = (PWSTR)".\0p\0i\0f\0\0";    // L".pif"
+    LPWSTR wsSharedWowPif = L"wowexec.pif";
     PWCHAR pwch;
     BOOLEAN bNewConsole;
     BOOLEAN bReturn = FALSE;
@@ -1263,7 +1243,7 @@ Return Value:
         pAnsiStringEnv->Length > MAXIMUM_VDM_ENVIORNMENT) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
-        }
+    }
 
     wsCmdLine = wsAppName = NULL;
     OemStringCmd.Buffer = NULL;
@@ -1279,7 +1259,7 @@ Return Value:
     BinarySubType = BinaryType & BINARY_SUBTYPE_MASK;
     BinaryType = BinaryType & ~BINARY_SUBTYPE_MASK;
     bNewConsole = !NtCurrentPeb()->ProcessParameters->ConsoleHandle ||
-                  (dwCreationFlags & CREATE_NEW_CONSOLE);
+        (dwCreationFlags & CREATE_NEW_CONSOLE);
 
     try {
 
@@ -1291,8 +1271,7 @@ Return Value:
                 b->StdOut = lpStartupInfo->hStdOutput;
                 b->StdErr = lpStartupInfo->hStdError;
 
-                }
-            else {
+            } else {
                 b->StdIn = Peb->ProcessParameters->StandardInput;
                 b->StdOut = Peb->ProcessParameters->StandardOutput;
                 b->StdErr = Peb->ProcessParameters->StandardError;
@@ -1316,13 +1295,13 @@ Return Value:
                         if (b->StdErr == b->StdOut)
                             b->StdErr = 0;
                         b->StdOut = 0;
-                        }
+                    }
                     if (b->StdErr && b->StdErr != b->StdOut &&
                         !CONSOLE_HANDLE(b->StdErr) &&
                         !GetHandleInformation(b->StdErr, &HandleFlags))
                         b->StdErr = 0;
-                    }
                 }
+            }
             if (CONSOLE_HANDLE((b->StdIn)))
                 b->StdIn = 0;
 
@@ -1331,29 +1310,29 @@ Return Value:
 
             if (CONSOLE_HANDLE((b->StdErr)))
                 b->StdErr = 0;
-            }
+        }
 
 
         if (BinaryType == BINARY_TYPE_SEPWOW) {
             bNewConsole = TRUE;
-            }
+        }
 
 
         // Convert Unicode Application Name to Oem short name
 
              // skiping leading white space
-        while(*lpApplicationName == (WCHAR)' ' || *lpApplicationName == (WCHAR)'\t' ) {
-              lpApplicationName++;
-              }
+        while (*lpApplicationName == (WCHAR)' ' || *lpApplicationName == (WCHAR)'\t') {
+            lpApplicationName++;
+        }
 
-             // space for short AppName
+        // space for short AppName
         Len = wcslen(lpApplicationName);
         dwTotal = Len + 1 + MAX_PATH;
-        wsAppName =  RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), dwTotal * sizeof(WCHAR));
+        wsAppName = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), dwTotal * sizeof(WCHAR));
         if (wsAppName == NULL) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             goto BCVTryExit;
-            }
+        }
 
         dw = GetShortPathNameW(lpApplicationName, wsAppName, dwTotal);
         // If getting the short name is impossible, stop right here.
@@ -1363,17 +1342,17 @@ Return Value:
         if (0 == dw || dw > dwTotal) {
             SetLastError(ERROR_BAD_PATHNAME);
             goto BCVTryExit;
-            }
+        }
 
         RtlInitUnicodeString(&UnicodeString, wsAppName);
         Status = RtlUnicodeStringToOemString(&OemStringAppName,
                                              &UnicodeString,
                                              TRUE
-                                             );
-        if (!NT_SUCCESS(Status) ){
+        );
+        if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             goto BCVTryExit;
-            }
+        }
 
 
 
@@ -1386,12 +1365,11 @@ Return Value:
         while (dw-- && *pch != '.') {
             if (*pch == '\\') {
                 Length = 1;
-                }
-            else {
+            } else {
                 Length++;
-                }
-            pch++;
             }
+            pch++;
+        }
 
 
 
@@ -1413,7 +1391,7 @@ Return Value:
             }
 
         } else if (Len <= wcslen(lpCommandLine) &&
-            0 == _wcsnicmp(lpApplicationName, lpCommandLine, Len)) {
+                   0 == _wcsnicmp(lpApplicationName, lpCommandLine, Len)) {
 
 
             // Application path is also on the command line, skip past
@@ -1431,24 +1409,23 @@ Return Value:
 
             pwch = (LPWSTR)lpCommandLine;
 
-               // skip leading white characters
+            // skip leading white characters
             while (*pwch != UNICODE_NULL &&
-                   (*pwch == (WCHAR) ' ' || *pwch == (WCHAR) '\t')) {
+                   (*pwch == (WCHAR)' ' || *pwch == (WCHAR)'\t')) {
                 pwch++;
-                }
+            }
 
-               // skip first token
-            if (*pwch == (WCHAR) '\"') {    // quotes as delimiter
+            // skip first token
+            if (*pwch == (WCHAR)'\"') {    // quotes as delimiter
                 pwch++;
                 while (*pwch && *pwch++ != '\"') {
-                      ;
-                      }
+                    ;
                 }
-            else {                         // white space as delimiter
+            } else {                         // white space as delimiter
                 while (*pwch && *pwch != ' ' && *pwch != '\t') {
-                       pwch++;
-                       }
+                    pwch++;
                 }
+            }
         }
 
 
@@ -1468,14 +1445,14 @@ Return Value:
         UnicodeString.MaximumLength = UnicodeString.Length + sizeof(WCHAR);
         UnicodeString.Buffer = wsCmdLine;
         Status = RtlUnicodeStringToOemString(
-                    &OemStringCmd,
-                    &UnicodeString,
-                    TRUE);
+            &OemStringCmd,
+            &UnicodeString,
+            TRUE);
 
-        if (!NT_SUCCESS(Status) ){
+        if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             goto BCVTryExit;
-            }
+        }
 
 
         // check len of command line for dos compatibility
@@ -1483,140 +1460,134 @@ Return Value:
         if (OemStringCmd.Length >= MAXIMUM_VDM_COMMAND_LENGTH - Length) {
             SetLastError(ERROR_INVALID_PARAMETER);
             goto BCVTryExit;
-            }
+        }
 
 
         // Search for matching pif file. Search order is AppName dir, followed by win32 default search path.
         // For the shared wow, pif is wowexec.pif if it exists.
-        wsBuffer = RtlAllocateHeap(RtlProcessHeap(),MAKE_TAG( VDM_TAG ),MAX_PATH*sizeof(WCHAR));
+        wsBuffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), MAX_PATH * sizeof(WCHAR));
         if (!wsBuffer) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             goto BCVTryExit;
-            }
+        }
 
-        wsPifName = RtlAllocateHeap(RtlProcessHeap(),MAKE_TAG( VDM_TAG ),MAX_PATH*sizeof(WCHAR));
+        wsPifName = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), MAX_PATH * sizeof(WCHAR));
         if (!wsPifName) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             goto BCVTryExit;
-            }
+        }
 
         if (BinaryType == BINARY_TYPE_WIN16) {
             wcscpy(wsBuffer, wsSharedWowPif);
             Len = 0;
-            }
-        else {
+        } else {
             // start with fully qualified app name
             wcscpy(wsBuffer, lpApplicationName);
 
-             // strip extension if any
+            // strip extension if any
             pwch = wcsrchr(wsBuffer, (WCHAR)'.');
             // dos application must have an extention
             if (pwch == NULL) {
-                 SetLastError(ERROR_INVALID_PARAMETER);
-                 goto BCVTryExit;
-                }
+                SetLastError(ERROR_INVALID_PARAMETER);
+                goto BCVTryExit;
+            }
             wcscpy(pwch, wsPif);
             Len = GetFileAttributesW(wsBuffer);
             if (Len == (DWORD)(-1) || (Len & FILE_ATTRIBUTE_DIRECTORY)) {
                 Len = 0;
-                }
-            else {
+            } else {
                 Len = wcslen(wsBuffer) + 1;
                 wcsncpy(wsPifName, wsBuffer, Len);
-                }
             }
+        }
 
-        if (!Len)  {  // try basename
+        if (!Len) {  // try basename
 
                // find beg of basename
             pwch = wcsrchr(wsBuffer, (WCHAR)'\\');
-            if (!pwch ) {
-                 pwch = wcsrchr(wsBuffer, (WCHAR)':');
-                 }
+            if (!pwch) {
+                pwch = wcsrchr(wsBuffer, (WCHAR)':');
+            }
 
-               // move basename to beg of wsBuffer
+            // move basename to beg of wsBuffer
             if (pwch++) {
-                 while (*pwch != UNICODE_NULL &&
-                        *pwch != (WCHAR)' '   && *pwch != (WCHAR)'\t' )
-                       {
-                        wsBuffer[Len++] = *pwch++;
-                        }
-                 wsBuffer[Len] = UNICODE_NULL;
-                 }
+                while (*pwch != UNICODE_NULL &&
+                       *pwch != (WCHAR)' ' && *pwch != (WCHAR)'\t') {
+                    wsBuffer[Len++] = *pwch++;
+                }
+                wsBuffer[Len] = UNICODE_NULL;
+            }
 
-            if (Len)  {
+            if (Len) {
                 Len = SearchPathW(
-                            NULL,
-                            wsBuffer,
-                            wsPif,              // L".pif"
-                            MAX_PATH,
-                            wsPifName,
-                            NULL
-                            );
+                    NULL,
+                    wsBuffer,
+                    wsPif,              // L".pif"
+                    MAX_PATH,
+                    wsPifName,
+                    NULL
+                );
                 if (Len >= MAX_PATH) {
                     SetLastError(ERROR_NOT_ENOUGH_MEMORY);
                     goto BCVTryExit;
-                    }
                 }
             }
+        }
 
         if (!Len)
             *wsPifName = UNICODE_NULL;
 
 
 
-        if (!ARGUMENT_PRESENT( lpCurrentDirectory )) {
+        if (!ARGUMENT_PRESENT(lpCurrentDirectory)) {
 
-            dw = RtlGetCurrentDirectory_U(sizeof (wchBuffer), wchBuffer);
+            dw = RtlGetCurrentDirectory_U(sizeof(wchBuffer), wchBuffer);
 
             wchBuffer[dw / sizeof(WCHAR)] = UNICODE_NULL;
             dw = GetShortPathNameW(wchBuffer,
                                    wchBuffer,
                                    sizeof(wchBuffer) / sizeof(WCHAR)
-                                   );
+            );
             if (dw > sizeof(wchBuffer) / sizeof(WCHAR))
                 goto BCVTryExit;
 
             else if (dw == 0) {
                 RtlInitUnicodeString(&UnicodeString, wchBuffer);
                 dw = UnicodeString.Length / sizeof(WCHAR);
-                }
-            else {
+            } else {
                 UnicodeString.Length = (USHORT)(dw * sizeof(WCHAR));
                 UnicodeString.Buffer = wchBuffer;
                 UnicodeString.MaximumLength = (USHORT)sizeof(wchBuffer);
-                }
+            }
             // DOS limit of 64 includes the final NULL but not the leading
             // drive and slash. So here we should be checking the ansi length
             // of current directory + 1 (for NULL) - 3 (for c:\).
-            if ( dw - 2 <= MAXIMUM_VDM_CURRENT_DIR ) {
+            if (dw - 2 <= MAXIMUM_VDM_CURRENT_DIR) {
                 Status = RtlUnicodeStringToAnsiString(
-                                                      &AnsiStringCurrentDir,
-                                                      &UnicodeString,
-                                                      TRUE
-                                                     );
-                }
-            else {
+                    &AnsiStringCurrentDir,
+                    &UnicodeString,
+                    TRUE
+                );
+            } else {
                 SetLastError(ERROR_INVALID_PARAMETER);
                 goto BCVTryExit;
-                }
+            }
 
-            if ( !NT_SUCCESS(Status) ) {
+            if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
                 goto BCVTryExit;
-                }
             }
-        else {
+        } else {
 
             // first get a full path name
             dw = GetFullPathNameW(lpCurrentDirectory,
-                                   sizeof(wchBuffer) / sizeof(WCHAR),
-                                   wchBuffer,
-                                   NULL);
+                                  sizeof(wchBuffer) / sizeof(WCHAR),
+                                  wchBuffer,
+                                  NULL);
             if (0 != dw && dw <= sizeof(wchBuffer) / sizeof(WCHAR)) {
-               dw = GetShortPathNameW(wchBuffer,
-                                      wchBuffer,
-                                      sizeof(wchBuffer) / sizeof(WCHAR));
+                dw = GetShortPathNameW(wchBuffer,
+                                       wchBuffer,
+                                       sizeof(wchBuffer) / sizeof(WCHAR));
             }
             if (dw > sizeof(wchBuffer) / sizeof(WCHAR))
                 goto BCVTryExit;
@@ -1625,8 +1596,7 @@ Return Value:
                 UnicodeString.Buffer = wchBuffer;
                 UnicodeString.Length = (USHORT)(dw * sizeof(WCHAR));
                 UnicodeString.MaximumLength = sizeof(wchBuffer);
-                }
-            else
+            } else
                 RtlInitUnicodeString(&UnicodeString, lpCurrentDirectory);
 
             Status = RtlUnicodeStringToAnsiString(
@@ -1634,26 +1604,26 @@ Return Value:
                 &UnicodeString,
                 TRUE);
 
-            if ( !NT_SUCCESS(Status) ){
+            if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
                 goto BCVTryExit;
-               }
+            }
 
             // DOS limit of 64 includes the final NULL but not the leading
             // drive and slash. So here we should be checking the ansi length
             // of current directory + 1 (for NULL) - 3 (for c:\).
-            if((AnsiStringCurrentDir.Length - 2) > MAXIMUM_VDM_CURRENT_DIR) {
+            if ((AnsiStringCurrentDir.Length - 2) > MAXIMUM_VDM_CURRENT_DIR) {
                 SetLastError(ERROR_INVALID_PARAMETER);
                 goto BCVTryExit;
-                }
             }
+        }
 
         // NT allows applications to use UNC name as their current directory.
         // while NTVDM can't do that. We will end up a weird drive number
         // like '\' - 'a') here ????????????????????????????????
         // BUGBUG
         // Place Current Drive
-        if(AnsiStringCurrentDir.Buffer[0] <= 'Z')
+        if (AnsiStringCurrentDir.Buffer[0] <= 'Z')
             b->CurDrive = AnsiStringCurrentDir.Buffer[0] - 'A';
         else
             b->CurDrive = AnsiStringCurrentDir.Buffer[0] - 'a';
@@ -1673,22 +1643,22 @@ Return Value:
         if (lpStartupInfo && lpStartupInfo->dwFlags & STARTF_USEHOTKEY) {
 
             DWORD cbAlloc = sizeof(WCHAR) *
-                            (20 +                            // "hotkey.4294967295 " (MAXULONG)
-                             (lpStartupInfo->lpReserved      // length of prev lpReserved
-                              ? wcslen(lpStartupInfo->lpReserved)
-                              : 0
-                             ) +
-                             1                               // NULL terminator
-                            );
+                (20 +                            // "hotkey.4294967295 " (MAXULONG)
+                 (lpStartupInfo->lpReserved      // length of prev lpReserved
+                  ? wcslen(lpStartupInfo->lpReserved)
+                  : 0
+                  ) +
+                 1                               // NULL terminator
+                 );
 
 
-            lpAllocatedReserved = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( VDM_TAG ), cbAlloc);
+            lpAllocatedReserved = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), cbAlloc);
             if (lpAllocatedReserved) {
                 swprintf(lpAllocatedReserved,
                          L"hotkey.%u %s",
                          HandleToUlong(lpStartupInfo->hStdInput),
                          lpStartupInfo->lpReserved ? lpStartupInfo->lpReserved : L""
-                         );
+                );
 
                 lpStartupInfo->dwFlags &= ~STARTF_USEHOTKEY;
                 lpStartupInfo->hStdInput = 0;
@@ -1708,124 +1678,124 @@ Return Value:
 
         // CmdLine for capture buffer, 3 for 0xd,0xa and NULL
 
-        Len = ROUND_UP((OemStringCmd.Length + 3),4);
+        Len = ROUND_UP((OemStringCmd.Length + 3), 4);
 
         // AppName, 1 for NULL
-        Len += ROUND_UP((OemStringAppName.Length + 1),4);
+        Len += ROUND_UP((OemStringAppName.Length + 1), 4);
 
         // Env
         if (pAnsiStringEnv->Length) {
             bufPointers++;
             Len += ROUND_UP(pAnsiStringEnv->Length, 4);
-            }
+        }
 
         // CurrentDir
-        if (AnsiStringCurrentDir.Length){
+        if (AnsiStringCurrentDir.Length) {
             bufPointers++;
-            Len += ROUND_UP((AnsiStringCurrentDir.Length +1),4); // 1 for NULL
-            }
+            Len += ROUND_UP((AnsiStringCurrentDir.Length + 1), 4); // 1 for NULL
+        }
 
 
         // pif file name, 1 for NULL
         if (wsPifName && *wsPifName != UNICODE_NULL) {
             bufPointers++;
-            RtlInitUnicodeString(&UnicodeString,wsPifName);
+            RtlInitUnicodeString(&UnicodeString, wsPifName);
             Status = RtlUnicodeStringToAnsiString(&AnsiStringPif,
                                                   &UnicodeString,
                                                   TRUE
-                                                  );
-            if ( !NT_SUCCESS(Status) ){
+            );
+            if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
                 goto BCVTryExit;
-                }
-
-            Len += ROUND_UP((AnsiStringPif.Length+1),4);
             }
+
+            Len += ROUND_UP((AnsiStringPif.Length + 1), 4);
+        }
 
 
         // startupinfo space
 
         if (lpStartupInfo) {
-            Len += ROUND_UP(sizeof(STARTUPINFOA),4);
+            Len += ROUND_UP(sizeof(STARTUPINFOA), 4);
             bufPointers++;
             if (lpStartupInfo->lpDesktop) {
                 bufPointers++;
-                RtlInitUnicodeString(&UnicodeString,lpStartupInfo->lpDesktop);
+                RtlInitUnicodeString(&UnicodeString, lpStartupInfo->lpDesktop);
                 Status = RtlUnicodeStringToAnsiString(
-                            &AnsiStringDesktop,
-                            &UnicodeString,
-                            TRUE);
+                    &AnsiStringDesktop,
+                    &UnicodeString,
+                    TRUE);
 
-                if ( !NT_SUCCESS(Status) ){
+                if (!NT_SUCCESS(Status)) {
                     BaseSetLastNTError(Status);
                     goto BCVTryExit;
-                    }
-                Len += ROUND_UP((AnsiStringDesktop.Length+1),4);
                 }
+                Len += ROUND_UP((AnsiStringDesktop.Length + 1), 4);
+            }
 
             if (lpStartupInfo->lpTitle) {
                 bufPointers++;
-                RtlInitUnicodeString(&UnicodeString,lpStartupInfo->lpTitle);
+                RtlInitUnicodeString(&UnicodeString, lpStartupInfo->lpTitle);
                 Status = RtlUnicodeStringToOemString(
-                            &OemStringTitle,
-                            &UnicodeString,
-                            TRUE);
+                    &OemStringTitle,
+                    &UnicodeString,
+                    TRUE);
 
-                if ( !NT_SUCCESS(Status) ){
+                if (!NT_SUCCESS(Status)) {
                     BaseSetLastNTError(Status);
                     goto BCVTryExit;
-                    }
-                Len += ROUND_UP((OemStringTitle.Length+1),4);
                 }
+                Len += ROUND_UP((OemStringTitle.Length + 1), 4);
+            }
 
             if (lpStartupInfo->lpReserved) {
                 bufPointers++;
-                RtlInitUnicodeString(&UnicodeString,lpStartupInfo->lpReserved);
+                RtlInitUnicodeString(&UnicodeString, lpStartupInfo->lpReserved);
                 Status = RtlUnicodeStringToAnsiString(
-                            &AnsiStringReserved,
-                            &UnicodeString,
-                            TRUE);
+                    &AnsiStringReserved,
+                    &UnicodeString,
+                    TRUE);
 
-                if ( !NT_SUCCESS(Status) ){
+                if (!NT_SUCCESS(Status)) {
                     BaseSetLastNTError(Status);
                     goto BCVTryExit;
-                    }
-                Len += ROUND_UP((AnsiStringReserved.Length+1),4);
                 }
+                Len += ROUND_UP((AnsiStringReserved.Length + 1), 4);
             }
+        }
 
 
         // capture message buffer
         CaptureBuffer = CsrAllocateCaptureBuffer(bufPointers, Len);
         if (CaptureBuffer == NULL) {
-            BaseSetLastNTError( STATUS_NO_MEMORY );
+            BaseSetLastNTError(STATUS_NO_MEMORY);
             goto BCVTryExit;
-            }
+        }
 
         // Allocate CmdLine pointer
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   ROUND_UP((OemStringCmd.Length + 3),4),
-                                   (PVOID *)&b->CmdLine
-                                 );
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  ROUND_UP((OemStringCmd.Length + 3), 4),
+                                  (PVOID *)&b->CmdLine
+        );
 
         // Copy Command Line
-        RtlMoveMemory (b->CmdLine, OemStringCmd.Buffer, OemStringCmd.Length);
+        RtlMoveMemory(b->CmdLine, OemStringCmd.Buffer, OemStringCmd.Length);
         b->CmdLine[OemStringCmd.Length] = 0xd;
-        b->CmdLine[OemStringCmd.Length+1] = 0xa;
-        b->CmdLine[OemStringCmd.Length+2] = 0;
+        b->CmdLine[OemStringCmd.Length + 1] = 0xa;
+        b->CmdLine[OemStringCmd.Length + 2] = 0;
         b->CmdLen = (USHORT)(OemStringCmd.Length + 3);
 
         // Allocate AppName pointer
-        CsrAllocateMessagePointer( CaptureBuffer,
-                                   ROUND_UP((OemStringAppName.Length + 1),4),
-                                   (PVOID *)&b->AppName
-                                 );
+        CsrAllocateMessagePointer(CaptureBuffer,
+                                  ROUND_UP((OemStringAppName.Length + 1), 4),
+                                  (PVOID *)&b->AppName
+        );
 
         // Copy AppName
-        RtlMoveMemory (b->AppName,
-                       OemStringAppName.Buffer,
-                       OemStringAppName.Length
-                       );
+        RtlMoveMemory(b->AppName,
+                      OemStringAppName.Buffer,
+                      OemStringAppName.Length
+        );
         b->AppName[OemStringAppName.Length] = 0;
         b->AppLen = OemStringAppName.Length + 1;
 
@@ -1833,11 +1803,11 @@ Return Value:
 
 
         // Allocate PifFile pointer, Copy PifFile name
-        if(AnsiStringPif.Buffer) {
-            CsrAllocateMessagePointer( CaptureBuffer,
-                                       ROUND_UP((AnsiStringPif.Length + 1),4),
-                                       (PVOID *)&b->PifFile
-                                     );
+        if (AnsiStringPif.Buffer) {
+            CsrAllocateMessagePointer(CaptureBuffer,
+                                      ROUND_UP((AnsiStringPif.Length + 1), 4),
+                                      (PVOID *)&b->PifFile
+            );
 
             RtlMoveMemory(b->PifFile,
                           AnsiStringPif.Buffer,
@@ -1846,20 +1816,19 @@ Return Value:
             b->PifFile[AnsiStringPif.Length] = 0;
             b->PifLen = AnsiStringPif.Length + 1;
 
-            }
-        else {
+        } else {
             b->PifLen = 0;
             b->PifFile = NULL;
-            }
+        }
 
 
 
         // Allocate Env pointer, Copy Env strings
-        if(pAnsiStringEnv->Length) {
-            CsrAllocateMessagePointer( CaptureBuffer,
-                                       ROUND_UP((pAnsiStringEnv->Length),4),
-                                       (PVOID *)&b->Env
-                                     );
+        if (pAnsiStringEnv->Length) {
+            CsrAllocateMessagePointer(CaptureBuffer,
+                                      ROUND_UP((pAnsiStringEnv->Length), 4),
+                                      (PVOID *)&b->Env
+            );
 
             RtlMoveMemory(b->Env,
                           pAnsiStringEnv->Buffer,
@@ -1867,103 +1836,97 @@ Return Value:
 
             b->EnvLen = pAnsiStringEnv->Length;
 
-            }
-        else {
+        } else {
             b->EnvLen = 0;
             b->Env = NULL;
-            }
+        }
 
 
-        if(AnsiStringCurrentDir.Length) {
+        if (AnsiStringCurrentDir.Length) {
             // Allocate Curdir pointer
-            CsrAllocateMessagePointer( CaptureBuffer,
-                                       ROUND_UP((AnsiStringCurrentDir.Length + 1),4),
-                                       (PVOID *)&b->CurDirectory
-                                       );
+            CsrAllocateMessagePointer(CaptureBuffer,
+                                      ROUND_UP((AnsiStringCurrentDir.Length + 1), 4),
+                                      (PVOID *)&b->CurDirectory
+            );
             // copy cur directory
-            RtlMoveMemory (b->CurDirectory,
-                           AnsiStringCurrentDir.Buffer,
-                           AnsiStringCurrentDir.Length+1);
+            RtlMoveMemory(b->CurDirectory,
+                          AnsiStringCurrentDir.Buffer,
+                          AnsiStringCurrentDir.Length + 1);
 
-            b->CurDirectoryLen = AnsiStringCurrentDir.Length+1;
-            }
-        else {
+            b->CurDirectoryLen = AnsiStringCurrentDir.Length + 1;
+        } else {
             b->CurDirectory = NULL;
             b->CurDirectoryLen = 0;
-            }
+        }
 
         // Allocate startupinfo pointer
         if (lpStartupInfo) {
-            CsrAllocateMessagePointer( CaptureBuffer,
-                                       ROUND_UP(sizeof(STARTUPINFOA),4),
-                                       (PVOID *)&b->StartupInfo
-                                     );
+            CsrAllocateMessagePointer(CaptureBuffer,
+                                      ROUND_UP(sizeof(STARTUPINFOA), 4),
+                                      (PVOID *)&b->StartupInfo
+            );
             // Copy startupinfo
-            b->StartupInfo->dwX  =  lpStartupInfo->dwX;
-            b->StartupInfo->dwY  =  lpStartupInfo->dwY;
-            b->StartupInfo->dwXSize      =  lpStartupInfo->dwXSize;
-            b->StartupInfo->dwYSize      =  lpStartupInfo->dwYSize;
-            b->StartupInfo->dwXCountChars=      lpStartupInfo->dwXCountChars;
-            b->StartupInfo->dwYCountChars=      lpStartupInfo->dwYCountChars;
-            b->StartupInfo->dwFillAttribute=lpStartupInfo->dwFillAttribute;
-            b->StartupInfo->dwFlags      =  lpStartupInfo->dwFlags;
-            b->StartupInfo->wShowWindow =       lpStartupInfo->wShowWindow;
-            b->StartupInfo->cb           =  sizeof(STARTUPINFOA);
-            }
-        else {
+            b->StartupInfo->dwX = lpStartupInfo->dwX;
+            b->StartupInfo->dwY = lpStartupInfo->dwY;
+            b->StartupInfo->dwXSize = lpStartupInfo->dwXSize;
+            b->StartupInfo->dwYSize = lpStartupInfo->dwYSize;
+            b->StartupInfo->dwXCountChars = lpStartupInfo->dwXCountChars;
+            b->StartupInfo->dwYCountChars = lpStartupInfo->dwYCountChars;
+            b->StartupInfo->dwFillAttribute = lpStartupInfo->dwFillAttribute;
+            b->StartupInfo->dwFlags = lpStartupInfo->dwFlags;
+            b->StartupInfo->wShowWindow = lpStartupInfo->wShowWindow;
+            b->StartupInfo->cb = sizeof(STARTUPINFOA);
+        } else {
             b->StartupInfo = NULL;
-            }
+        }
 
         // Allocate pointer for Desktop info if needed
         if (AnsiStringDesktop.Buffer) {
-            CsrAllocateMessagePointer( CaptureBuffer,
-                                       ROUND_UP((AnsiStringDesktop.Length + 1),4),
-                                       (PVOID *)&b->Desktop
-                                     );
+            CsrAllocateMessagePointer(CaptureBuffer,
+                                      ROUND_UP((AnsiStringDesktop.Length + 1), 4),
+                                      (PVOID *)&b->Desktop
+            );
             // Copy desktop string
-            RtlMoveMemory (b->Desktop,
-                           AnsiStringDesktop.Buffer,
-                           AnsiStringDesktop.Length+1);
-            b->DesktopLen =AnsiStringDesktop.Length+1;
-            }
-        else {
+            RtlMoveMemory(b->Desktop,
+                          AnsiStringDesktop.Buffer,
+                          AnsiStringDesktop.Length + 1);
+            b->DesktopLen = AnsiStringDesktop.Length + 1;
+        } else {
             b->Desktop = NULL;
-            b->DesktopLen =0;
-            }
+            b->DesktopLen = 0;
+        }
 
         // Allocate pointer for Title info if needed
         if (OemStringTitle.Buffer) {
-            CsrAllocateMessagePointer( CaptureBuffer,
-                                       ROUND_UP((OemStringTitle.Length + 1),4),
-                                       (PVOID *)&b->Title
-                                     );
+            CsrAllocateMessagePointer(CaptureBuffer,
+                                      ROUND_UP((OemStringTitle.Length + 1), 4),
+                                      (PVOID *)&b->Title
+            );
             // Copy title string
-            RtlMoveMemory (b->Title,
-                           OemStringTitle.Buffer,
-                           OemStringTitle.Length+1);
-            b->TitleLen = OemStringTitle.Length+1;
-            }
-        else {
+            RtlMoveMemory(b->Title,
+                          OemStringTitle.Buffer,
+                          OemStringTitle.Length + 1);
+            b->TitleLen = OemStringTitle.Length + 1;
+        } else {
             b->Title = NULL;
             b->TitleLen = 0;
-            }
+        }
 
         // Allocate pointer for Reserved field if needed
         if (AnsiStringReserved.Buffer) {
-            CsrAllocateMessagePointer( CaptureBuffer,
-                                       ROUND_UP((AnsiStringReserved.Length + 1),4),
-                                       (PVOID *)&b->Reserved
-                                     );
+            CsrAllocateMessagePointer(CaptureBuffer,
+                                      ROUND_UP((AnsiStringReserved.Length + 1), 4),
+                                      (PVOID *)&b->Reserved
+            );
             // Copy reserved string
-            RtlMoveMemory (b->Reserved,
-                           AnsiStringReserved.Buffer,
-                           AnsiStringReserved.Length+1);
-            b->ReservedLen = AnsiStringReserved.Length+1;
-            }
-        else {
+            RtlMoveMemory(b->Reserved,
+                          AnsiStringReserved.Buffer,
+                          AnsiStringReserved.Length + 1);
+            b->ReservedLen = AnsiStringReserved.Length + 1;
+        } else {
             b->Reserved = NULL;
             b->ReservedLen = 0;
-            }
+        }
 
         // VadimB: this code is of no consequence to our marvelous new
         // architecture for tracking shared wows.
@@ -1980,25 +1943,25 @@ Return Value:
 
         b->VDMState = FALSE;
         b->BinaryType = BinaryType;
-        b->CodePage = (ULONG) GetConsoleCP ();
+        b->CodePage = (ULONG)GetConsoleCP();
         b->dwCreationFlags = dwCreationFlags;
 
 
         Status = CsrClientCallServer(
-                          (PCSR_API_MSG)m,
-                          CaptureBuffer,
-                          CSR_MAKE_API_NUMBER( BASESRV_SERVERDLL_INDEX,
-                                               BasepCheckVDM
-                                             ),
-                          sizeof( *b )
-                          );
+            (PCSR_API_MSG)m,
+            CaptureBuffer,
+            CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX,
+                                BasepCheckVDM
+            ),
+            sizeof(*b)
+        );
 
         CsrFreeCaptureBuffer(CaptureBuffer);
 
         if (!NT_SUCCESS(Status) || !NT_SUCCESS((NTSTATUS)m->ReturnValue)) {
             BaseSetLastNTError((NTSTATUS)m->ReturnValue);
             goto BCVTryExit;
-            }
+        }
 
         // VadimB: This iTask could be :
         //   (*) If not wow task - then dos task id (items below are not
@@ -2008,38 +1971,38 @@ Return Value:
 
         *iTask = b->iTask;
         bReturn = TRUE;
-BCVTryExit:;
-        }
+    BCVTryExit:;
+    }
 
     finally {
-        if(Buffer != NULL)
+        if (Buffer != NULL)
             RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)Buffer);
 
-        if(wsBuffer != NULL)
+        if (wsBuffer != NULL)
             RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)wsBuffer);
 
-        if(wsPifName != NULL)
+        if (wsPifName != NULL)
             RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)wsPifName);
 
-        if(OemStringCmd.Buffer != NULL)
+        if (OemStringCmd.Buffer != NULL)
             RtlFreeOemString(&OemStringCmd);
 
-        if(OemStringAppName.Buffer != NULL)
+        if (OemStringAppName.Buffer != NULL)
             RtlFreeOemString(&OemStringAppName);
 
-        if(AnsiStringPif.Buffer != NULL)
-           RtlFreeAnsiString(&AnsiStringPif);
+        if (AnsiStringPif.Buffer != NULL)
+            RtlFreeAnsiString(&AnsiStringPif);
 
-        if(AnsiStringCurrentDir.Buffer != NULL)
+        if (AnsiStringCurrentDir.Buffer != NULL)
             RtlFreeAnsiString(&AnsiStringCurrentDir);
 
-        if(AnsiStringDesktop.Buffer != NULL)
+        if (AnsiStringDesktop.Buffer != NULL)
             RtlFreeAnsiString(&AnsiStringDesktop);
 
-        if(OemStringTitle.Buffer != NULL)
+        if (OemStringTitle.Buffer != NULL)
             RtlFreeAnsiString(&OemStringTitle);
 
-        if(AnsiStringReserved.Buffer != NULL)
+        if (AnsiStringReserved.Buffer != NULL)
             RtlFreeAnsiString(&AnsiStringReserved);
 
         if (wsAppName != NULL)
@@ -2048,7 +2011,7 @@ BCVTryExit:;
         if (lpAllocatedReserved != NULL)
             RtlFreeHeap(RtlProcessHeap(), 0, lpAllocatedReserved);
 
-        }
+    }
 
     return bReturn;
 }
@@ -2056,30 +2019,30 @@ BCVTryExit:;
 BOOL
 BaseUpdateVDMEntry(
     IN ULONG UpdateIndex,
-    IN OUT HANDLE *WaitHandle,
+    IN OUT HANDLE * WaitHandle,
     IN ULONG IndexInfo,
     IN ULONG BinaryType
-    )
+)
 {
     NTSTATUS Status;
     BASE_API_MSG m;
-    PBASE_UPDATE_VDM_ENTRY_MSG c= (PBASE_UPDATE_VDM_ENTRY_MSG)&m.u.UpdateVDMEntry;
+    PBASE_UPDATE_VDM_ENTRY_MSG c = (PBASE_UPDATE_VDM_ENTRY_MSG)&m.u.UpdateVDMEntry;
 
     switch (UpdateIndex) {
-        case UPDATE_VDM_UNDO_CREATION:
-            c->iTask = HandleToUlong(*WaitHandle);
-            c->VDMCreationState = (USHORT)IndexInfo;
-            break;
-        case UPDATE_VDM_PROCESS_HANDLE:
-            c->VDMProcessHandle = *WaitHandle;  // Actually this is VDM handle
-            c->iTask = IndexInfo;
-            break;
-        }
+    case UPDATE_VDM_UNDO_CREATION:
+        c->iTask = HandleToUlong(*WaitHandle);
+        c->VDMCreationState = (USHORT)IndexInfo;
+        break;
+    case UPDATE_VDM_PROCESS_HANDLE:
+        c->VDMProcessHandle = *WaitHandle;  // Actually this is VDM handle
+        c->iTask = IndexInfo;
+        break;
+    }
 
     // VadimB: this ConsoleHandle is of no consequence to the
     // shared wow tracking mechanism
 
-    if(BinaryType == BINARY_TYPE_WIN16)
+    if (BinaryType == BINARY_TYPE_WIN16)
         c->ConsoleHandle = (HANDLE)-1;
     else if (c->iTask)
         c->ConsoleHandle = 0;
@@ -2091,25 +2054,25 @@ BaseUpdateVDMEntry(
 
 
     Status = CsrClientCallServer(
-                      (PCSR_API_MSG)&m,
-                      NULL,
-                      CSR_MAKE_API_NUMBER( BASESRV_SERVERDLL_INDEX,
-                                           BasepUpdateVDMEntry
-                                         ),
-                      sizeof( *c )
-                      );
+        (PCSR_API_MSG)&m,
+        NULL,
+        CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX,
+                            BasepUpdateVDMEntry
+        ),
+        sizeof(*c)
+    );
 
     if (!NT_SUCCESS(Status) || !NT_SUCCESS((NTSTATUS)m.ReturnValue)) {
         BaseSetLastNTError((NTSTATUS)m.ReturnValue);
         return FALSE;
-        }
+    }
 
     switch (UpdateIndex) {
-        case UPDATE_VDM_UNDO_CREATION:
-            break;
-        case UPDATE_VDM_PROCESS_HANDLE:
-            *WaitHandle = c->WaitObjectForParent;
-            break;
+    case UPDATE_VDM_UNDO_CREATION:
+        break;
+    case UPDATE_VDM_PROCESS_HANDLE:
+        *WaitHandle = c->WaitObjectForParent;
+        break;
     }
     return TRUE;
 }
@@ -2121,7 +2084,7 @@ ULONG
 BaseIsDosApplication(
     IN PUNICODE_STRING PathName,
     IN NTSTATUS Status
-    )
+)
 /*++
 
 Routine Description:
@@ -2149,28 +2112,28 @@ Return Value:
 {
     UNICODE_STRING String;
 
-         // check for .com extension
+    // check for .com extension
     String.Length = BaseDotComSuffixName.Length;
     String.Buffer = &(PathName->Buffer[(PathName->Length - String.Length) /
-                    sizeof(WCHAR)]);
+                      sizeof(WCHAR)]);
 
     if (RtlEqualUnicodeString(&String, &BaseDotComSuffixName, TRUE))
         return BINARY_TYPE_DOS_COM;
 
 
-        // check for .pif extension
+    // check for .pif extension
     String.Length = BaseDotPifSuffixName.Length;
     String.Buffer = &(PathName->Buffer[(PathName->Length - String.Length) /
-                    sizeof(WCHAR)]);
+                      sizeof(WCHAR)]);
 
     if (RtlEqualUnicodeString(&String, &BaseDotPifSuffixName, TRUE))
         return BINARY_TYPE_DOS_PIF;
 
 
-        // check for .exe extension
+    // check for .exe extension
     String.Length = BaseDotExeSuffixName.Length;
     String.Buffer = &(PathName->Buffer[(PathName->Length - String.Length) /
-        sizeof(WCHAR)]);
+                      sizeof(WCHAR)]);
 
     if (RtlEqualUnicodeString(&String, &BaseDotExeSuffixName, TRUE))
         return BINARY_TYPE_DOS_EXE;
@@ -2187,7 +2150,7 @@ BaseGetVdmConfigInfo(
     IN  ULONG   BinaryType,
     IN  PUNICODE_STRING CmdLineString,
     OUT PULONG VdmSize
-    )
+)
 /*++
 
 Routine Description:
@@ -2228,7 +2191,7 @@ Notes:
     BOOL bRet;
     DWORD dw;
     ANSI_STRING AnsiString;
-    LPSTR NewCmdLine=NULL;
+    LPSTR NewCmdLine = NULL;
     PCH   pSrc, pDst, pch;
     ULONG Len;
     char CmdLine[MAX_VDM_CFG_LINE];
@@ -2240,15 +2203,14 @@ Notes:
 
     if (BinaryType == BINARY_TYPE_DOS) {
         bRet = BaseGetVDMKeyword(CMDLINE, CmdLine, &Len, DOSSIZE, VdmSize);
-        }
-    else {
+    } else {
         bRet = BaseGetVDMKeyword(WOWCMDLINE, CmdLine, &Len, WOWSIZE, VdmSize);
-        }
+    }
 
     if (!bRet) {
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return FALSE;
-        }
+    }
 
 
     // Allocate memory to replace the CommandLine
@@ -2256,11 +2218,11 @@ Notes:
     // separate wow, and extension.
 
 
-    NewCmdLine = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( VDM_TAG ), MAX_PATH + MAX_VDM_CFG_LINE);
+    NewCmdLine = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), MAX_PATH + MAX_VDM_CFG_LINE);
     if (!NewCmdLine) {
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return FALSE;
-        }
+    }
 
 
 
@@ -2280,21 +2242,21 @@ Notes:
     if (!pch) {
         BaseSetLastNTError(STATUS_INVALID_PARAMETER);
         return FALSE;
-        }
+    }
 
     // mov pch to trailing space in "ntvdm "
     while (*pch && *pch != ' ') {
         pch++;
-        }
+    }
 
 
     // copy first token (ntvdm path name), surrounded by quotes for
     // possible long file name
 
-   *pDst++ = '\"';
+    *pDst++ = '\"';
     while (pSrc < pch) {
-       *pDst++ = *pSrc++;
-       }
+        *pDst++ = *pSrc++;
+    }
     *pDst++ = '\"';
 
 
@@ -2311,7 +2273,7 @@ Notes:
     if (DosSeqId) {
         sprintf(pDst, " -i%lx", DosSeqId);
         pDst += strlen(pDst);
-        }
+    }
 
 
     // Copy over everything up to the " -a " (exclusive)
@@ -2320,14 +2282,13 @@ Notes:
     pch = strstr(pSrc, " -a ");
     if (pch) {
         while (pSrc < pch) {
-           *pDst++ = *pSrc++;
-           }
+            *pDst++ = *pSrc++;
         }
-    else {
+    } else {
         while (*pSrc) {
-           *pDst++ = *pSrc++;
-           }
+            *pDst++ = *pSrc++;
         }
+    }
 
     *pDst = '\0';
 
@@ -2342,7 +2303,7 @@ Notes:
         if (!*pSrc) {
             BaseSetLastNTError(STATUS_INVALID_PARAMETER);
             return FALSE;
-            }
+        }
 
 
         // Add -w to tell ntvdm its wow (mandatory)
@@ -2356,7 +2317,7 @@ Notes:
 
 
         if (BINARY_TYPE_SEPWOW == BinaryType) {
-           *pDst++ = 's';
+            *pDst++ = 's';
         }
 
 
@@ -2365,12 +2326,12 @@ Notes:
 
         pWowKernel = pDst;
         while (*pSrc) {
-           *pDst++ = *pSrc++;
-           }
+            *pDst++ = *pSrc++;
+        }
         pWowKernel += 4;      // find beg of WowKernelPathaname
         while (*pWowKernel == ' ') {
-           pWowKernel++;
-           }
+            pWowKernel++;
+        }
 
 
         // Append file extension to destination
@@ -2380,13 +2341,13 @@ Notes:
 
         // convert wowkernel to short name
 
-        Len = MAX_PATH + MAX_VDM_CFG_LINE - (ULONG)((ULONG_PTR)pWowKernel - (ULONG_PTR)NewCmdLine) -1;
+        Len = MAX_PATH + MAX_VDM_CFG_LINE - (ULONG)((ULONG_PTR)pWowKernel - (ULONG_PTR)NewCmdLine) - 1;
         dw = GetShortPathNameA(pWowKernel, pWowKernel, Len);
         if (dw > Len) {
             RtlFreeHeap(RtlProcessHeap(), 0, NewCmdLine);
             return FALSE;
-            }
         }
+    }
 
     RtlInitAnsiString(&AnsiString, NewCmdLine);
     Status = RtlAnsiStringToUnicodeString(CmdLineString, &AnsiString, TRUE);
@@ -2395,7 +2356,7 @@ Notes:
         RtlFreeHeap(RtlProcessHeap(), 0, NewCmdLine);
         CmdLineString->Buffer = NULL;
         return FALSE;
-        }
+    }
 
     RtlFreeHeap(RtlProcessHeap(), 0, NewCmdLine);
     return TRUE;
@@ -2409,16 +2370,16 @@ BOOL BaseCheckForVDM(IN HANDLE hProcess, OUT LPDWORD lpExitCode)
     BASE_API_MSG m;
     PBASE_GET_VDM_EXIT_CODE_MSG a = (PBASE_GET_VDM_EXIT_CODE_MSG)&m.u.GetVDMExitCode;
 
-    Status = NtQueryEvent (hProcess, EventBasicInformation, &ebi, sizeof(ebi), NULL);
-    if(!NT_SUCCESS(Status))
+    Status = NtQueryEvent(hProcess, EventBasicInformation, &ebi, sizeof(ebi), NULL);
+    if (!NT_SUCCESS(Status))
         return FALSE;
 
     a->ConsoleHandle = NtCurrentPeb()->ProcessParameters->ConsoleHandle;
     a->hParent = hProcess;
-    Status = CsrClientCallServer((PCSR_API_MSG)&m, NULL, CSR_MAKE_API_NUMBER( BASESRV_SERVERDLL_INDEX, BasepGetVDMExitCode), sizeof( *a ));
+    Status = CsrClientCallServer((PCSR_API_MSG)&m, NULL, CSR_MAKE_API_NUMBER(BASESRV_SERVERDLL_INDEX, BasepGetVDMExitCode), sizeof(*a));
     if (!NT_SUCCESS(Status)) {
         return FALSE;
-        }
+    }
 
     *lpExitCode = (DWORD)a->ExitCode;
 
@@ -2432,7 +2393,7 @@ GetShortPathNameA(
     IN  LPCSTR  lpszLongPath,
     IN  LPSTR   lpShortPath,
     IN  DWORD   cchBuffer
-    )
+)
 {
     UNICODE_STRING  UString, UStringRet;
     ANSI_STRING     AString;
@@ -2445,7 +2406,7 @@ GetShortPathNameA(
     if (lpszLongPath == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return 0;
-        }
+    }
     // We have to initialize it before the "try" statement
     AString.Buffer = NULL;
     UString.Buffer = NULL;
@@ -2454,9 +2415,9 @@ GetShortPathNameA(
     ReturnValueW = 0;
 
     try {
-        if (!Basep8BitStringToDynamicUnicodeString(&UString, lpszLongPath )) {
+        if (!Basep8BitStringToDynamicUnicodeString(&UString, lpszLongPath)) {
             goto gspTryExit;
-            }
+        }
 
         // we have to get the real converted path in order to find out
         // the required length. An UNICODE char does not necessarily convert
@@ -2467,22 +2428,19 @@ GetShortPathNameA(
         // if we have allocated a buffer from heap and need to release it.
         lpShortPathW = TempPathW;
         ReturnValueW = GetShortPathNameW(UString.Buffer, lpShortPathW, sizeof(TempPathW) / sizeof(WCHAR));
-        if (ReturnValueW >= sizeof(TempPathW) / sizeof(WCHAR))
-            {
+        if (ReturnValueW >= sizeof(TempPathW) / sizeof(WCHAR)) {
             // the stack-based buffer is too small. Allocate a new buffer
             // from heap.
-            lpShortPathW = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( VDM_TAG ), ReturnValueW * sizeof(WCHAR) );
+            lpShortPathW = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), ReturnValueW * sizeof(WCHAR));
             if (lpShortPathW) {
                 ReturnValueW = GetShortPathNameW(UString.Buffer, lpShortPathW, ReturnValueW);
-                }
-            else {
+            } else {
                 ReturnValueW = 0;
                 SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-                }
             }
+        }
 
-        if (ReturnValueW)
-            {
+        if (ReturnValueW) {
             // we are here because we have something interesting left to do.
             // Convert the UNICODE path name to ANSI(or OEM).
             UString.MaximumLength = (USHORT)((ReturnValueW + 1) * sizeof(WCHAR));
@@ -2491,43 +2449,39 @@ GetShortPathNameA(
             Status = BasepUnicodeStringTo8BitString(&AString,
                                                     &UStringRet,
                                                     TRUE
-                                                    );
+            );
 
-            if (!NT_SUCCESS(Status))
-                {
+            if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
-                ReturnValue=0;
+                ReturnValue = 0;
                 goto gspTryExit;
-                }
+            }
             // now AString.Length contains the size of the converted path
             // name. If the caller provides enough buffer, copy the
             // path name.
             ReturnValue = AString.Length;
-            if (ARGUMENT_PRESENT(lpShortPath) && cchBuffer > ReturnValue)
-                {
+            if (ARGUMENT_PRESENT(lpShortPath) && cchBuffer > ReturnValue) {
                 RtlMoveMemory(lpShortPath, AString.Buffer, ReturnValue);
                 // terminate the string with NULL char
                 lpShortPath[ReturnValue] = '\0';
-                }
-            else
-                {
+            } else {
                 // either the caller does not provide a buffer or
                 // the provided buffer is too small return the required size,
                 // including the terminated null char
                 ReturnValue++;
-                }
             }
-gspTryExit:;
         }
+    gspTryExit:;
+    }
 
     finally {
-            if (UString.Buffer)
-                RtlFreeUnicodeString(&UString);
-            if (AString.Buffer)
-                RtlFreeAnsiString(&AString);
-            if (lpShortPathW && lpShortPathW != TempPathW)
-                RtlFreeHeap(RtlProcessHeap(), 0, lpShortPathW);
-        }
+        if (UString.Buffer)
+            RtlFreeUnicodeString(&UString);
+        if (AString.Buffer)
+            RtlFreeAnsiString(&AString);
+        if (lpShortPathW && lpShortPathW != TempPathW)
+            RtlFreeHeap(RtlProcessHeap(), 0, lpShortPathW);
+    }
     return ReturnValue;
 }
 /*
@@ -2571,7 +2525,7 @@ GetShortPathNameW(
     IN  LPCWSTR lpszLongPath,
     IN  LPWSTR  lpszShortPath,
     IN  DWORD   cchBuffer
-    )
+)
 {
 
     LPCWSTR         pcs;
@@ -2585,7 +2539,7 @@ GetShortPathNameW(
     if (!ARGUMENT_PRESENT(lpszLongPath)) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return 0;
-        }
+    }
 
 
     // override the error mode since we will be touching the media.
@@ -2599,8 +2553,7 @@ GetShortPathNameW(
         Buffer = NULL;
         pSrcCopy = NULL;
         // first, make sure the given path exist
-        if (0xFFFFFFFF == GetFileAttributesW(lpszLongPath))
-        {
+        if (0xFFFFFFFF == GetFileAttributesW(lpszLongPath)) {
 
             // (bjm - 3/17/99)
             // This behavior (failing if the file does not exist) is new (to NT) with NT 5.
@@ -2611,9 +2564,8 @@ GetShortPathNameW(
             // which did not care if the file existed to do this conversion.  This was changed in
             // NT 5.0 to match Win9x behavior.
 
-            if ( !NtCurrentPeb() || !(NtCurrentPeb()->AppCompatInfo) ||
-                !(((PAPP_COMPAT_INFO)(NtCurrentPeb()->AppCompatInfo))->CompatibilityFlags.QuadPart & KACF_OLDGETSHORTPATHNAME ) )
-            {
+            if (!NtCurrentPeb() || !(NtCurrentPeb()->AppCompatInfo) ||
+                !(((PAPP_COMPAT_INFO)(NtCurrentPeb()->AppCompatInfo))->CompatibilityFlags.QuadPart & KACF_OLDGETSHORTPATHNAME)) {
                 // last error has been set by GetFileAttributes
                 ReturnLen = 0;
                 goto gsnTryExit;
@@ -2621,26 +2573,23 @@ GetShortPathNameW(
         }
 
         pcs = SkipPathTypeIndicator_U(lpszLongPath);
-        if (!pcs || *pcs == UNICODE_NULL || !FindLFNorSFN_U((LPWSTR)pcs, &pFirst, &pLast, TRUE))
-            {
+        if (!pcs || *pcs == UNICODE_NULL || !FindLFNorSFN_U((LPWSTR)pcs, &pFirst, &pLast, TRUE)) {
             // nothing to convert, copy down the source string
             // to the buffer if necessary
 
             ReturnLen = wcslen(lpszLongPath);
-            if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszShortPath))
-                {
+            if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszShortPath)) {
                 if (lpszShortPath != lpszLongPath)
                     RtlMoveMemory(lpszShortPath, lpszLongPath,
                                   (ReturnLen + 1) * sizeof(WCHAR)
-                                  );
-                }
-            else {
+                    );
+            } else {
                 // the caller does not provide enough buffer, return
                 // necessary string length plus the terminated null char
                 ReturnLen++;
-                }
-            goto gsnTryExit;
             }
+            goto gsnTryExit;
+        }
 
         // conversions  are necessary, make a local copy of the string
         // because we have to party on it.
@@ -2648,32 +2597,31 @@ GetShortPathNameW(
         ASSERT(!pSrcCopy);
 
         // get the source string length
-        Length  = wcslen(lpszLongPath) + 1;
+        Length = wcslen(lpszLongPath) + 1;
 
-        pSrcCopy = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( VDM_TAG ), Length * sizeof(WCHAR));
+        pSrcCopy = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), Length * sizeof(WCHAR));
         if (!pSrcCopy) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             goto gsnTryExit;
-            }
+        }
         wcsncpy(pSrcCopy, lpszLongPath, Length);
         // pFirst points to the first char of the very first LFN in the path
         // pLast points to the char right after the last char of the very
         // first LFN in the path. *pLast could be UNICODE_NULL
         pFirst = pSrcCopy + (pFirst - lpszLongPath);
-        pLast = pSrcCopy  + (pLast - lpszLongPath);
+        pLast = pSrcCopy + (pLast - lpszLongPath);
 
         // We allow lpszShortPath be overlapped with lpszLongPath so
         // allocate a local buffer.
 
         pDst = lpszShortPath;
         if (cchBuffer > 0 && ARGUMENT_PRESENT(lpszShortPath) &&
-            (lpszShortPath >= lpszLongPath &&lpszShortPath < lpszLongPath + Length ||
-             lpszShortPath < lpszLongPath && lpszShortPath + cchBuffer >= lpszLongPath))
-            {
+            (lpszShortPath >= lpszLongPath && lpszShortPath < lpszLongPath + Length ||
+             lpszShortPath < lpszLongPath && lpszShortPath + cchBuffer >= lpszLongPath)) {
             ASSERT(!Buffer);
 
-            Buffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( VDM_TAG ), cchBuffer * sizeof(WCHAR));
-            if (!Buffer){
+            Buffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), cchBuffer * sizeof(WCHAR));
+            if (!Buffer) {
                 SetLastError(ERROR_NOT_ENOUGH_MEMORY);
                 goto gsnTryExit;
             }
@@ -2708,8 +2656,8 @@ GetShortPathNameW(
                 if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszShortPath)) {
                     RtlMoveMemory(pDst, pSrc, Length * sizeof(WCHAR));
                     pDst += Length;
-                    }
                 }
+            }
             wch = *pLast;
             *pLast = UNICODE_NULL;
             FindHandle = FindFirstFileW(pSrcCopy, &FindData);
@@ -2724,23 +2672,21 @@ GetShortPathNameW(
                 else
                     pFirst = FindData.cAlternateFileName;
                 ReturnLen += Length;
-                if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszShortPath))
-                    {
+                if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszShortPath)) {
                     RtlMoveMemory(pDst, pFirst, Length * sizeof(WCHAR));
                     pDst += Length;
-                    }
-                 }
-            else {
+                }
+            } else {
                 // part of the path does not exist, fail the function
 
                 ReturnLen = 0;
                 break;
-                }
+            }
             // move to next path name
             pSrc = pLast;
             if (*pLast == UNICODE_NULL)
                 break;
-            }while (FindLFNorSFN_U(pSrc, &pFirst, &pLast, TRUE));
+        } while (FindLFNorSFN_U(pSrc, &pFirst, &pLast, TRUE));
 
         // if ReturnLen == 0, we fail somewhere inside while loop.
         if (ReturnLen) {
@@ -2750,25 +2696,22 @@ GetShortPathNameW(
             //Length could be zero
             Length = wcslen(pSrc);
             ReturnLen += Length;
-            if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszShortPath))
-                {
+            if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszShortPath)) {
                 //include the terminated null char
-                RtlMoveMemory(pDst, pSrc, (Length + 1)* sizeof(WCHAR));
+                RtlMoveMemory(pDst, pSrc, (Length + 1) * sizeof(WCHAR));
                 if (Buffer)
                     RtlMoveMemory(lpszShortPath, Buffer, (ReturnLen + 1) * sizeof(WCHAR));
-                }
-            else
+            } else
                 // not enough buffer, the return value counts the terminated NULL
                 ReturnLen++;
-            }
-gsnTryExit:;
         }
-    finally {
-         if (Buffer)
+    gsnTryExit:;
+    } finally {
+        if (Buffer)
             RtlFreeHeap(RtlProcessHeap(), 0, Buffer);
-         if (pSrcCopy)
+        if (pSrcCopy)
             RtlFreeHeap(RtlProcessHeap(), 0, pSrcCopy);
-        }
+    }
 
     // restore the error mode
     SetErrorMode(PrevErrorMode);
@@ -2797,20 +2740,20 @@ gsnTryExit:;
 BOOL BaseCreateVDMEnvironment(
     PWCHAR lpEnvironment,
     ANSI_STRING * pAStringEnv,
-    UNICODE_STRING  *pUStringEnv
-    )
+    UNICODE_STRING * pUStringEnv
+)
 {
-    WCHAR  *pEnv, *pDst, *EnvStrings,* pTmp, *pNewEnv;
+    WCHAR * pEnv, * pDst, * EnvStrings, * pTmp, * pNewEnv;
     DWORD   cchEnv, dw, Length, dwRemain;
     NTSTATUS    Status;
     UINT        NameType;
     BOOL        bRet = FALSE;
     SIZE_T      EnvSize;
 
-    if (!ARGUMENT_PRESENT(pAStringEnv) || !ARGUMENT_PRESENT(pUStringEnv)){
+    if (!ARGUMENT_PRESENT(pAStringEnv) || !ARGUMENT_PRESENT(pUStringEnv)) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
-        }
+    }
     try {
         // the environment strings are shared by every thread of the same
         // process. Since we have no idea of what the caller process
@@ -2831,14 +2774,13 @@ BOOL BaseCreateVDMEnvironment(
             Status = RtlCreateEnvironment(TRUE, (PVOID *)&EnvStrings);
             if (!NT_SUCCESS(Status))
                 goto bveTryExit;
-            }
-        else
+        } else
             EnvStrings = lpEnvironment;
 
         if (EnvStrings == NULL) {
             SetLastError(ERROR_BAD_ENVIRONMENT);
             goto bveTryExit;
-            }
+        }
         // figure out how long the environment is
         // why can Rtl just provides such a function for us?
 
@@ -2867,11 +2809,9 @@ BOOL BaseCreateVDMEnvironment(
         while (*pEnv != UNICODE_NULL) {
             // current directory environment has the form as:
             // "=d:=d:\pathname" where d: is the drive designator.
-            if (pEnv[0] == L'=')
-                {
+            if (pEnv[0] == L'=') {
                 if ((pEnv[1] >= L'A' && pEnv[1] <= L'Z' || pEnv[1] >= L'a' && pEnv[1] <= L'z') &&
-                     pEnv[2] == L':' && pEnv[3] == L'=' && wcslen(pEnv) >= 7)
-                    {
+                    pEnv[2] == L':' && pEnv[3] == L'=' && wcslen(pEnv) >= 7) {
                     // hack hack!!!!
                     // if the path points to the root directory,
                     // bypass the conversion. Dos or Wow keeps current directory
@@ -2883,94 +2823,86 @@ BOOL BaseCreateVDMEnvironment(
                         (pEnv[6] == L'\\' || pEnv[6] == L'/') &&
                         pEnv[5] == L':' &&
                         (pEnv[4] >= L'A' && pEnv[4] <= L'Z' ||
-                         pEnv[4] >= L'a' && pEnv[4] <= L'z'))
-                        {
+                         pEnv[4] >= L'a' && pEnv[4] <= L'z')) {
                         NameType = ENV_NAME_TYPE_NO_PATH;
-                        }
-                    else
-                        {
+                    } else {
                         // copy "=N:=", where N is the drive letter
-                        *pDst++ = *pEnv++;*pDst++ = *pEnv++;
-                        *pDst++ = *pEnv++;*pDst++ = *pEnv++;
+                        *pDst++ = *pEnv++; *pDst++ = *pEnv++;
+                        *pDst++ = *pEnv++; *pDst++ = *pEnv++;
                         NameType = ENV_NAME_TYPE_SINGLE_PATH;
-                        }
                     }
-                else {
+                } else {
                     // a weird environment was detected.
                     // treat it as no path
                     NameType = ENV_NAME_TYPE_NO_PATH;
-                    }
                 }
-            else {
+            } else {
                 pTmp = pEnv;
                 // copy down the name and the '='
                 while (*pEnv != UNICODE_NULL && (*pDst++ = *pEnv++) != L'=')
                     ;
                 NameType = BaseGetEnvNameType_U(pTmp, (DWORD)(pEnv - pTmp) - 1);
-                }
+            }
 
             if (NameType == ENV_NAME_TYPE_NO_PATH) {
                 while ((*pDst++ = *pEnv++) != UNICODE_NULL)
                     ;
+            } else if (NameType == ENV_NAME_TYPE_SINGLE_PATH) {
+                Length = wcslen(pEnv) + 1;
+                dw = GetShortPathNameW(pEnv, pDst, Length + dwRemain);
+                // if the conversion failed, we simply pass down the original
+                // one no matter what the reason is. This is done because we
+                // are doing the environment strings.
+                if (dw == 0 || dw >= Length + dwRemain) {
+                    RtlMoveMemory(pDst, pEnv, Length * sizeof(WCHAR));
+                    dw = Length - 1;
                 }
-            else if (NameType == ENV_NAME_TYPE_SINGLE_PATH) {
-                    Length = wcslen(pEnv) + 1;
-                    dw = GetShortPathNameW(pEnv, pDst, Length + dwRemain);
-                    // if the conversion failed, we simply pass down the original
-                    // one no matter what the reason is. This is done because we
-                    // are doing the environment strings.
-                    if (dw == 0 || dw >= Length + dwRemain){
-                        RtlMoveMemory(pDst, pEnv, Length * sizeof(WCHAR));
-                        dw = Length - 1;
+                pDst += dw + 1;
+                pEnv += Length;
+                if (dw > Length)
+                    dwRemain -= dw - Length;
+            } else {
+                // multiple path name found.
+                // the character ';' is used for seperator
+                pTmp = pEnv;
+                while (*pEnv != UNICODE_NULL) {
+                    if (*pEnv == L';') {
+                        // length not include the ';'
+                        Length = (DWORD)(pEnv - pTmp);
+                        if (Length > 0) {
+                            *pEnv = UNICODE_NULL;
+                            dw = GetShortPathNameW(pTmp, pDst, Length + 1 + dwRemain);
+                            // again, if the conversion failed, use the original one
+                            if (dw == 0 || dw > Length + dwRemain) {
+                                RtlMoveMemory(pDst, pTmp, Length * sizeof(WCHAR));
+                                dw = Length;
+                            }
+                            pDst += dw;
+                            *pDst++ = *pEnv++ = L';';
+                            if (dw > Length)
+                                dwRemain -= dw - Length;
                         }
-                    pDst += dw + 1;
-                    pEnv += Length;
+                        // skip all consecutive ';'
+                        while (*pEnv == L';')
+                            *pDst++ = *pEnv++;
+                        pTmp = pEnv;
+                    } else
+                        pEnv++;
+                }
+                // convert the last one
+                if ((Length = (DWORD)(pEnv - pTmp)) != 0) {
+                    dw = GetShortPathNameW(pTmp, pDst, Length + 1 + dwRemain);
+                    if (dw == 0 || dw > Length) {
+                        RtlMoveMemory(pDst, pTmp, Length * sizeof(WCHAR));
+                        dw = Length;
+                    }
+                    pDst += dw;
                     if (dw > Length)
                         dwRemain -= dw - Length;
-                    }
-                 else {
-                    // multiple path name found.
-                    // the character ';' is used for seperator
-                     pTmp = pEnv;
-                     while(*pEnv != UNICODE_NULL) {
-                        if (*pEnv == L';') {
-                            // length not include the ';'
-                            Length = (DWORD)(pEnv - pTmp);
-                            if (Length > 0) {
-                                *pEnv = UNICODE_NULL;
-                                dw = GetShortPathNameW(pTmp, pDst, Length + 1 + dwRemain);
-                                // again, if the conversion failed, use the original one
-                                if (dw == 0 || dw > Length + dwRemain) {
-                                    RtlMoveMemory(pDst, pTmp, Length * sizeof(WCHAR));
-                                    dw = Length;
-                                    }
-                                pDst += dw;
-                                *pDst++ = *pEnv++ = L';';
-                                if (dw > Length)
-                                    dwRemain -= dw - Length;
-                                }
-                             // skip all consecutive ';'
-                             while (*pEnv == L';')
-                                *pDst++ = *pEnv++;
-                             pTmp = pEnv;
-                             }
-                        else
-                            pEnv++;
-                        }
-                    // convert the last one
-                    if ((Length = (DWORD)(pEnv - pTmp)) != 0) {
-                        dw = GetShortPathNameW(pTmp, pDst, Length+1 + dwRemain);
-                        if (dw == 0 || dw > Length) {
-                            RtlMoveMemory(pDst, pTmp, Length * sizeof(WCHAR));
-                            dw = Length;
-                            }
-                        pDst += dw;
-                        if (dw > Length)
-                            dwRemain -= dw - Length;
-                        }
-                    *pDst++ = *pEnv++;
-                    }
+                }
+                *pDst++ = *pEnv++;
             }
+        }
         *pDst++ = UNICODE_NULL;
         cchEnv = (ULONG)((ULONG_PTR)pDst - (ULONG_PTR)pNewEnv);
         pUStringEnv->MaximumLength = pUStringEnv->Length = (USHORT)cchEnv;
@@ -2978,15 +2910,13 @@ BOOL BaseCreateVDMEnvironment(
         Status = RtlUnicodeStringToAnsiString(pAStringEnv, pUStringEnv, TRUE);
         if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
-            }
-        else
+        } else
             bRet = TRUE;
-bveTryExit:;
-        }
-    finally {
-         if (lpEnvironment == NULL && EnvStrings != NULL)
+    bveTryExit:;
+    } finally {
+        if (lpEnvironment == NULL && EnvStrings != NULL)
             RtlDestroyEnvironment(EnvStrings);
-        }
+    }
     return bRet;
 }
 /*
@@ -3000,11 +2930,7 @@ bveTryExit:;
     Output: should always be TRUE.
 
 */
-BOOL
-BaseDestroyVDMEnvironment(
-    ANSI_STRING *pAStringEnv,
-    UNICODE_STRING *pUStringEnv
-    )
+BOOL BaseDestroyVDMEnvironment(ANSI_STRING * pAStringEnv, UNICODE_STRING * pUStringEnv)
 {
     if (pAStringEnv->Buffer)
         RtlFreeAnsiString(pAStringEnv);
@@ -3012,12 +2938,9 @@ BaseDestroyVDMEnvironment(
         NTSTATUS Status;
         SIZE_T RegionSize;
 
-
         // Free the specified environment variable block.
-
-
         RegionSize = 0;
-        Status = NtFreeVirtualMemory( NtCurrentProcess(), &pUStringEnv->Buffer, &RegionSize, MEM_RELEASE);
+        Status = NtFreeVirtualMemory(NtCurrentProcess(), &pUStringEnv->Buffer, &RegionSize, MEM_RELEASE);
     }
     return TRUE;
 }
@@ -3040,23 +2963,23 @@ BaseDestroyVDMEnvironment(
 UINT
 BaseGetEnvNameType_U(WCHAR * Name, DWORD NameLength)
 {
-// so far we only take care of five predefined names:
-// PATH
-// WINDIR and
-// SYSTEMROOT.
-// TEMP
-// TMP
+    // so far we only take care of five predefined names:
+    // PATH
+    // WINDIR and
+    // SYSTEMROOT.
+    // TEMP
+    // TMP
 
-static ENV_INFO     EnvInfoTable[STD_ENV_NAME_COUNT] = {
-    {ENV_NAME_TYPE_MULTIPLE_PATH, ENV_NAME_PATH_LEN, ENV_NAME_PATH},
-    {ENV_NAME_TYPE_SINGLE_PATH, ENV_NAME_WINDIR_LEN, ENV_NAME_WINDIR},
-    {ENV_NAME_TYPE_SINGLE_PATH, ENV_NAME_SYSTEMROOT_LEN, ENV_NAME_SYSTEMROOT},
-    {ENV_NAME_TYPE_MULTIPLE_PATH, ENV_NAME_TEMP_LEN, ENV_NAME_TEMP},
-    {ENV_NAME_TYPE_MULTIPLE_PATH, ENV_NAME_TMP_LEN, ENV_NAME_TMP}
+    static ENV_INFO     EnvInfoTable[STD_ENV_NAME_COUNT] = {
+        {ENV_NAME_TYPE_MULTIPLE_PATH, ENV_NAME_PATH_LEN, ENV_NAME_PATH},
+        {ENV_NAME_TYPE_SINGLE_PATH, ENV_NAME_WINDIR_LEN, ENV_NAME_WINDIR},
+        {ENV_NAME_TYPE_SINGLE_PATH, ENV_NAME_SYSTEMROOT_LEN, ENV_NAME_SYSTEMROOT},
+        {ENV_NAME_TYPE_MULTIPLE_PATH, ENV_NAME_TEMP_LEN, ENV_NAME_TEMP},
+        {ENV_NAME_TYPE_MULTIPLE_PATH, ENV_NAME_TMP_LEN, ENV_NAME_TMP}
     };
 
-   UINT NameType;
-   int  i;
+    UINT NameType;
+    int  i;
 
     NameType = ENV_NAME_TYPE_NO_PATH;
     for (i = 0; i < STD_ENV_NAME_COUNT; i++) {
@@ -3064,8 +2987,8 @@ static ENV_INFO     EnvInfoTable[STD_ENV_NAME_COUNT] = {
             !_wcsnicmp(EnvInfoTable[i].Name, Name, NameLength)) {
             NameType = EnvInfoTable[i].NameType;
             break;
-            }
         }
+    }
     return NameType;
 }
 
@@ -3076,7 +2999,7 @@ GetLongPathNameA(
     IN  LPCSTR  lpszShortPath,
     IN  LPSTR   lpLongPath,
     IN  DWORD   cchBuffer
-    )
+)
 {
     UNICODE_STRING  UString, UStringRet;
     ANSI_STRING     AString;
@@ -3089,7 +3012,7 @@ GetLongPathNameA(
     if (lpszShortPath == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return 0;
-        }
+    }
 
     AString.Buffer = NULL;
     UString.Buffer = NULL;
@@ -3098,9 +3021,9 @@ GetLongPathNameA(
     ReturnValueW = 0;
 
     try {
-        if (!Basep8BitStringToDynamicUnicodeString(&UString, lpszShortPath )) {
+        if (!Basep8BitStringToDynamicUnicodeString(&UString, lpszShortPath)) {
             goto glpTryExit;
-            }
+        }
 
         // we have to get the real converted path in order to find out
         // the required length. An UNICODE char does not necessarily convert
@@ -3111,67 +3034,54 @@ GetLongPathNameA(
         // if we have allocated a buffer from heap and need to release it.
         lpLongPathW = TempPathW;
         ReturnValueW = GetLongPathNameW(UString.Buffer, lpLongPathW, sizeof(TempPathW) / sizeof(WCHAR));
-        if (ReturnValueW >= sizeof(TempPathW) / sizeof(WCHAR))
-            {
+        if (ReturnValueW >= sizeof(TempPathW) / sizeof(WCHAR)) {
             // the stack-based buffer is too small. Allocate a new buffer
             // from heap.
-            lpLongPathW = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( VDM_TAG ), ReturnValueW * sizeof(WCHAR));
+            lpLongPathW = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), ReturnValueW * sizeof(WCHAR));
             if (lpLongPathW) {
                 ReturnValueW = GetLongPathNameW(UString.Buffer, lpLongPathW, ReturnValueW);
-                }
-            else {
+            } else {
                 ReturnValueW = 0;
                 SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-                }
             }
+        }
 
-        if (ReturnValueW)
-            {
+        if (ReturnValueW) {
             // we are here because we have something interesting left to do.
             // Convert the UNICODE path name to ANSI(or OEM).
             UString.MaximumLength = (USHORT)((ReturnValueW + 1) * sizeof(WCHAR));
             UStringRet.Buffer = lpLongPathW;
             UStringRet.Length = (USHORT)(ReturnValueW * sizeof(WCHAR));
-            Status = BasepUnicodeStringTo8BitString(&AString,
-                                                    &UStringRet,
-                                                    TRUE
-                                                    );
-
-            if (!NT_SUCCESS(Status))
-                {
+            Status = BasepUnicodeStringTo8BitString(&AString, &UStringRet, TRUE);
+            if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
-                ReturnValue=0;
+                ReturnValue = 0;
                 goto glpTryExit;
-                }
+            }
             // now AString.Length contains the size of the converted path
-            // name. If the caller provides enough buffer, copy the
-            // path name.
+            // name. If the caller provides enough buffer, copy the path name.
             ReturnValue = AString.Length;
-            if (ARGUMENT_PRESENT(lpLongPath) && cchBuffer > ReturnValue)
-                {
+            if (ARGUMENT_PRESENT(lpLongPath) && cchBuffer > ReturnValue) {
                 RtlMoveMemory(lpLongPath, AString.Buffer, ReturnValue);
                 // terminate the buffer with NULL char.
                 lpLongPath[ReturnValue] = '\0';
-                }
-            else
-                {
+            } else {
                 // either the caller does not provide a buffer or
                 // the provided buffer is too small, return the required size,
                 // including the terminated null char.
                 ReturnValue++;
-                }
             }
-glpTryExit:;
         }
-
+    glpTryExit:;
+    }
     finally {
-            if (UString.Buffer)
-                RtlFreeUnicodeString(&UString);
-            if (AString.Buffer)
-                RtlFreeAnsiString(&AString);
-            if (lpLongPathW && lpLongPathW != TempPathW)
-                RtlFreeHeap(RtlProcessHeap(), 0, lpLongPathW);
-        }
+        if (UString.Buffer)
+            RtlFreeUnicodeString(&UString);
+        if (AString.Buffer)
+            RtlFreeAnsiString(&AString);
+        if (lpLongPathW && lpLongPathW != TempPathW)
+            RtlFreeHeap(RtlProcessHeap(), 0, lpLongPathW);
+    }
     return ReturnValue;
 }
 
@@ -3184,7 +3094,6 @@ GetLongPathNameW(
     IN  DWORD   cchBuffer
 )
 {
-
     LPCWSTR pcs;
     DWORD ReturnLen, Length;
     LPWSTR pSrc, pSrcCopy, pFirst, pLast, Buffer, pDst;
@@ -3196,7 +3105,7 @@ GetLongPathNameW(
     if (!ARGUMENT_PRESENT(lpszShortPath)) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return 0;
-        }
+    }
 
     // override the error mode since we will be touching the media.
     // This is to prevent file system's pop-up when the given path does not
@@ -3211,32 +3120,28 @@ GetLongPathNameW(
         pSrcCopy = NULL;
         // first make sure the given path exist.
 
-        if (0xFFFFFFFF == GetFileAttributesW(lpszShortPath))
-        {
+        if (0xFFFFFFFF == GetFileAttributesW(lpszShortPath)) {
             // last error has been set by GetFileAttributes
             ReturnLen = 0;
             goto glnTryExit;
         }
         pcs = SkipPathTypeIndicator_U(lpszShortPath);
-        if (!pcs || *pcs == UNICODE_NULL || !FindLFNorSFN_U((LPWSTR)pcs, &pFirst, &pLast, FALSE))
-            {
+        if (!pcs || *pcs == UNICODE_NULL || !FindLFNorSFN_U((LPWSTR)pcs, &pFirst, &pLast, FALSE)) {
             // The path is ok and does not need conversion at all.
             // Check if we need to do copy
             ReturnLen = wcslen(lpszShortPath);
-            if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszLongPath))
-                {
+            if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszLongPath)) {
                 if (lpszLongPath != lpszShortPath)
                     RtlMoveMemory(lpszLongPath, lpszShortPath,
-                                      (ReturnLen + 1)* sizeof(WCHAR)
-                                      );
-                }
-            else {
+                                  (ReturnLen + 1) * sizeof(WCHAR)
+                    );
+            } else {
                 // No buffer or buffer too small, the return size
                 // has to count the terminated NULL char
                 ReturnLen++;
-                }
-            goto glnTryExit;
             }
+            goto glnTryExit;
+        }
 
 
         // conversions  are necessary, make a local copy of the string
@@ -3245,11 +3150,11 @@ GetLongPathNameW(
         ASSERT(!pSrcCopy);
 
         Length = wcslen(lpszShortPath) + 1;
-        pSrcCopy = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( VDM_TAG ), Length * sizeof(WCHAR));
+        pSrcCopy = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), Length * sizeof(WCHAR));
         if (!pSrcCopy) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             goto glnTryExit;
-            }
+        }
         RtlMoveMemory(pSrcCopy, lpszShortPath, Length * sizeof(WCHAR));
         // pFirst points to the first char of the very first SFN in the path
         // pLast points to the char right after the last char of the very
@@ -3264,17 +3169,16 @@ GetLongPathNameW(
 
         pDst = lpszLongPath;
         if (cchBuffer && ARGUMENT_PRESENT(lpszLongPath) &&
-            (lpszLongPath >= lpszShortPath && lpszLongPath < lpszShortPath + Length || lpszLongPath < lpszShortPath && lpszLongPath + cchBuffer >= lpszShortPath))
-            {
+            (lpszLongPath >= lpszShortPath && lpszLongPath < lpszShortPath + Length || lpszLongPath < lpszShortPath && lpszLongPath + cchBuffer >= lpszShortPath)) {
             ASSERT(!Buffer);
 
-            Buffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( VDM_TAG ), cchBuffer * sizeof(WCHAR));
-            if (!Buffer){
+            Buffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(VDM_TAG), cchBuffer * sizeof(WCHAR));
+            if (!Buffer) {
                 SetLastError(ERROR_NOT_ENOUGH_MEMORY);
                 goto glnTryExit;
-                }
-            pDst = Buffer;
             }
+            pDst = Buffer;
+        }
 
         pSrc = pSrcCopy;
         ReturnLen = 0;
@@ -3299,17 +3203,16 @@ GetLongPathNameW(
 
             Length = (ULONG)(pFirst - pSrc);
             ReturnLen += Length;
-            if (Length && cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszShortPath))
-                {
+            if (Length && cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszShortPath)) {
                 RtlMoveMemory(pDst, pSrc, Length * sizeof(WCHAR));
                 pDst += Length;
-                }
+            }
             // now try to convert the name, chars between pFirst and (pLast - 1)
             wch = *pLast;
             *pLast = UNICODE_NULL;
             FindHandle = FindFirstFileW(pSrcCopy, &FindData);
             *pLast = wch;
-            if (FindHandle != INVALID_HANDLE_VALUE){
+            if (FindHandle != INVALID_HANDLE_VALUE) {
                 FindClose(FindHandle);
                 // if no long name, copy the original name
                 // starts with pFirst(included) and ends with pLast(excluded)
@@ -3318,49 +3221,44 @@ GetLongPathNameW(
                 else
                     pFirst = FindData.cFileName;
                 ReturnLen += Length;
-                if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszLongPath))
-                    {
+                if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszLongPath)) {
                     RtlMoveMemory(pDst, pFirst, Length * sizeof(WCHAR));
                     pDst += Length;
-                    }
                 }
-            else {
+            } else {
                 // invalid path, reset the length, mark the error and
                 // bail out of the loop. We will be copying the source
                 // to destination later.
 
                 ReturnLen = 0;
                 break;
-                }
+            }
             pSrc = pLast;
             if (*pSrc == UNICODE_NULL)
                 break;
-            } while (FindLFNorSFN_U(pSrc, &pFirst, &pLast, FALSE));
+        } while (FindLFNorSFN_U(pSrc, &pFirst, &pLast, FALSE));
 
         if (ReturnLen) {
             //copy the rest of the path from pSrc. This may only contain
             //a single NULL char
             Length = wcslen(pSrc);
             ReturnLen += Length;
-            if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszLongPath))
-                {
+            if (cchBuffer > ReturnLen && ARGUMENT_PRESENT(lpszLongPath)) {
                 RtlMoveMemory(pDst, pSrc, (Length + 1) * sizeof(WCHAR));
                 if (Buffer)
                     RtlMoveMemory(lpszLongPath, Buffer, (ReturnLen + 1) * sizeof(WCHAR));
-                }
-            else
+            } else
                 ReturnLen++;
-            }
-
-glnTryExit:
-        ;
         }
-        finally {
-            if (pSrcCopy)
-                RtlFreeHeap(RtlProcessHeap(), 0, pSrcCopy);
-            if (Buffer)
-                RtlFreeHeap(RtlProcessHeap(), 0, Buffer);
-            }
+
+    glnTryExit:
+        ;
+    } finally {
+        if (pSrcCopy)
+            RtlFreeHeap(RtlProcessHeap(), 0, pSrcCopy);
+        if (Buffer)
+            RtlFreeHeap(RtlProcessHeap(), 0, Buffer);
+    }
 
     // restore error mode.
     SetErrorMode(PrevErrorMode);
@@ -3396,10 +3294,10 @@ glnTryExit:
 BOOL
 FindLFNorSFN_U(
     LPWSTR  Path,
-    LPWSTR* ppFirst,
-    LPWSTR* ppLast,
+    LPWSTR * ppFirst,
+    LPWSTR * ppLast,
     BOOL    FindLFN
-    )
+)
 {
     LPWSTR pFirst, pLast;
     BOOL TargetFound;
@@ -3410,11 +3308,11 @@ FindLFNorSFN_U(
 
     TargetFound = FALSE;
 
-    while(TRUE) {
+    while (TRUE) {
         //skip over leading path separator
         // it is legal to have multiple path separators in between
         // name such as "foobar\\\\\\multiplepathchar"
-        while (*pFirst != UNICODE_NULL  && (*pFirst == L'\\' || *pFirst == L'/'))
+        while (*pFirst != UNICODE_NULL && (*pFirst == L'\\' || *pFirst == L'/'))
             pFirst++;
         if (*pFirst == UNICODE_NULL)
             break;
@@ -3426,25 +3324,22 @@ FindLFNorSFN_U(
         else
             TargetFound = !IsLongName_U(pFirst, (int)(pLast - pFirst));
         if (TargetFound) {
-            if(ppFirst && ppLast) {
+            if (ppFirst && ppLast) {
                 *ppFirst = pFirst;
                 // pLast point to the last char of the path/file name
                 *ppLast = pLast;
-                }
-            break;
             }
+            break;
+        }
         if (*pLast == UNICODE_NULL)
             break;
         pFirst = pLast + 1;
-        }
+    }
     return TargetFound;
 }
 
 
-LPCWSTR
-SkipPathTypeIndicator_U(
-    LPCWSTR Path
-    )
+LPCWSTR SkipPathTypeIndicator_U(LPCWSTR Path)
 {
     RTL_PATH_TYPE   RtlPathType;
     LPCWSTR         pFirst;
@@ -3453,46 +3348,46 @@ SkipPathTypeIndicator_U(
     RtlPathType = RtlDetermineDosPathNameType_U(Path);
     switch (RtlPathType) {
         // form: "\\server_name\share_name\rest_of_the_path"
-        case RtlPathTypeUncAbsolute:
-            pFirst = Path + 2;
-            Count = 2;
-            // guard for UNICODE_NULL is necessary because
-            // RtlDetermineDosPathNameType_U doesn't really
-            // verify an UNC name.
-            while (Count && *pFirst != UNICODE_NULL) {
-                if (*pFirst == L'\\' || *pFirst == L'/')
-                    Count--;
-                pFirst++;
-                }
-            break;
-        // form: "\\.\rest_of_the_path"
-        case RtlPathTypeLocalDevice:
-            pFirst = Path + 4;
-            break;
-        // form: "\\."
-        case RtlPathTypeRootLocalDevice:
-            pFirst = NULL;
-            break;
-        // form: "D:\rest_of_the_path"
-        case RtlPathTypeDriveAbsolute:
-            pFirst = Path + 3;
-            break;
-        // form: "D:rest_of_the_path"
-        case RtlPathTypeDriveRelative:
-            pFirst = Path + 2;
-            break;
-        // form: "\rest_of_the_path"
-        case RtlPathTypeRooted:
-            pFirst = Path + 1;
-            break;
-        // form: "rest_of_the_path"
-        case RtlPathTypeRelative:
-            pFirst = Path;
-            break;
-        default:
-            pFirst = NULL;
-            break;
+    case RtlPathTypeUncAbsolute:
+        pFirst = Path + 2;
+        Count = 2;
+        // guard for UNICODE_NULL is necessary because
+        // RtlDetermineDosPathNameType_U doesn't really
+        // verify an UNC name.
+        while (Count && *pFirst != UNICODE_NULL) {
+            if (*pFirst == L'\\' || *pFirst == L'/')
+                Count--;
+            pFirst++;
         }
+        break;
+        // form: "\\.\rest_of_the_path"
+    case RtlPathTypeLocalDevice:
+        pFirst = Path + 4;
+        break;
+        // form: "\\."
+    case RtlPathTypeRootLocalDevice:
+        pFirst = NULL;
+        break;
+        // form: "D:\rest_of_the_path"
+    case RtlPathTypeDriveAbsolute:
+        pFirst = Path + 3;
+        break;
+        // form: "D:rest_of_the_path"
+    case RtlPathTypeDriveRelative:
+        pFirst = Path + 2;
+        break;
+        // form: "\rest_of_the_path"
+    case RtlPathTypeRooted:
+        pFirst = Path + 1;
+        break;
+        // form: "rest_of_the_path"
+    case RtlPathTypeRelative:
+        pFirst = Path;
+        break;
+    default:
+        pFirst = NULL;
+        break;
+    }
 
     return pFirst;
 }
@@ -3531,7 +3426,6 @@ SkipPathTypeIndicator_U(
 
 // bit set -> char is illegal
 DWORD   IllegalMask[] =
-
 {
     // code 0x00 - 0x1F --> all illegal
     0xFFFFFFFF,
@@ -3562,8 +3456,7 @@ BOOL IsShortName_U(LPCWSTR Name, int     Length)
     //  "" or "." or ".."
     if (!Length)
         return TRUE;
-    if (L'.' == *Name)
-    {
+    if (L'.' == *Name) {
         // "." or ".."
         if (1 == Length || (2 == Length && L'.' == Name[1]))
             return TRUE;
@@ -3574,21 +3467,20 @@ BOOL IsShortName_U(LPCWSTR Name, int     Length)
 
     UnicodeName.Buffer = (LPWSTR)Name;
     UnicodeName.Length =
-    UnicodeName.MaximumLength = (USHORT)(Length * sizeof(WCHAR));
+        UnicodeName.MaximumLength = (USHORT)(Length * sizeof(WCHAR));
 
     AnsiString.Buffer = AnsiBuffer;
     AnsiString.Length = 0;
     AnsiString.MaximumLength = MAX_PATH; // make a dangerous assumption
 
     dwStatus = BasepUnicodeStringTo8BitString(&AnsiString, &UnicodeName, FALSE);
-    if (! NT_SUCCESS(dwStatus)) {
-         return(FALSE);
+    if (!NT_SUCCESS(dwStatus)) {
+        return(FALSE);
     }
 
     // all trivial cases are tested, now we have to walk through the name
     ExtensionFound = FALSE;
-    for (Index = 0; Index < AnsiString.Length; Index++)
-    {
+    for (Index = 0; Index < AnsiString.Length; Index++) {
         Char = AnsiString.Buffer[Index];
 
         // Skip over and Dbcs characters
@@ -3612,12 +3504,10 @@ BOOL IsShortName_U(LPCWSTR Name, int     Length)
         if (Char > 0x7F || IllegalMask[Char / 32] & (1 << (Char % 32)))
             return FALSE;
 
-        if ('.' == Char)
-        {
+        if ('.' == Char) {
             // (1) can have only one '.'
             // (2) can not have more than 3 chars following.
-            if (ExtensionFound || Length - (Index + 1) > 3)
-            {
+            if (ExtensionFound || Length - (Index + 1) > 3) {
                 return FALSE;
             }
             ExtensionFound = TRUE;
@@ -3647,7 +3537,6 @@ BOOL IsShortName_U(LPCWSTR Name, int     Length)
     (4). '.' is the first char.
     (5). muitlple '.'
 
-
     null path, "." and ".." are treat as valid long name.
 
     Input: LPCWSTR Name -  points to the name to be checked. It does not
@@ -3658,8 +3547,6 @@ BOOL IsShortName_U(LPCWSTR Name, int     Length)
     output: TRUE - if the given name is a long file name.
             FALSE - if the given name is not a long file name
 */
-
-
 BOOL IsLongName_U(LPCWSTR Name, int Length)
 {
     int Index;
@@ -3671,10 +3558,8 @@ BOOL IsLongName_U(LPCWSTR Name, int Length)
         return TRUE;
 
     ExtensionFound = FALSE;
-    for (Index = 0; Index < Length; Index++)
-    {
-        if (L'.' == Name[Index])
-        {
+    for (Index = 0; Index < Length; Index++) {
+        if (L'.' == Name[Index]) {
             // multiple . or extension longer than 3
             if (ExtensionFound || Length - (Index + 1) > 3)
                 return TRUE;
