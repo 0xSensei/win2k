@@ -21,10 +21,7 @@
 #define SYSTEM_POLICIES_KEY          TEXT("Software\\Policies\\Microsoft\\Windows\\System")
 #define PRF_USERSID                  1
 
-
 // Globals
-
-
 const TCHAR c_szNTUserIni[] = TEXT("ntuser.ini");
 #define PROFILE_GENERAL_SECTION      TEXT("General")
 #define PROFILE_EXCLUSION_LIST       TEXT("ExclusionList")
@@ -40,8 +37,8 @@ DWORD aUserProfileHelpIds[] = {
     IDC_UP_DELETE,                (IDH_USERPROFILE + 1),
     IDC_UP_TYPE,                  (IDH_USERPROFILE + 2),
     IDC_UP_COPY,                  (IDH_USERPROFILE + 3),
-    IDC_UP_ICON,                  (DWORD) -1,
-    IDC_UP_TEXT,                  (DWORD) -1,
+    IDC_UP_ICON,                  (DWORD)-1,
+    IDC_UP_TEXT,                  (DWORD)-1,
 
     // Change Type dialog
     IDC_UPTYPE_LOCAL,             (IDH_USERPROFILE + 4),
@@ -61,52 +58,38 @@ DWORD aUserProfileHelpIds[] = {
 };
 
 
-
 // Local function proto-types
-
-
-BOOL InitUserProfileDlg (HWND hDlg, LPARAM lParam);
-BOOL FillListView (HWND hDlg, BOOL bAdmin);
-LPTSTR CheckSlash (LPTSTR lpDir);
-BOOL RecurseDirectory (LPTSTR lpDir, LPTSTR lpExcludeList);
-VOID UPSave (HWND hDlg);
-VOID UPCleanUp (HWND hDlg);
-BOOL IsProfileInUse (LPTSTR lpSid);
+BOOL InitUserProfileDlg(HWND hDlg, LPARAM lParam);
+BOOL FillListView(HWND hDlg, BOOL bAdmin);
+LPTSTR CheckSlash(LPTSTR lpDir);
+BOOL RecurseDirectory(LPTSTR lpDir, LPTSTR lpExcludeList);
+VOID UPSave(HWND hDlg);
+VOID UPCleanUp(HWND hDlg);
+BOOL IsProfileInUse(LPTSTR lpSid);
 void UPDoItemChanged(HWND hDlg, int idCtl);
 void UPDeleteProfile(HWND hDlg);
-BOOL DeleteProfile (LPTSTR lpSidString, LPTSTR lpLocalProfile);
+BOOL DeleteProfile(LPTSTR lpSidString, LPTSTR lpLocalProfile);
 void UPChangeType(HWND hDlg);
-INT_PTR APIENTRY ChangeTypeDlgProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+INT_PTR APIENTRY ChangeTypeDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void UPCopyProfile(HWND hDlg);
-INT_PTR APIENTRY UPCopyDlgProc (HWND hDlg, UINT uMsg,WPARAM wParam, LPARAM lParam);
-BOOL UPCreateProfile (LPUPCOPYINFO lpUPCopyInfo, LPTSTR lpDest, PSECURITY_DESCRIPTOR pSecDesc);
+INT_PTR APIENTRY UPCopyDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+BOOL UPCreateProfile(LPUPCOPYINFO lpUPCopyInfo, LPTSTR lpDest, PSECURITY_DESCRIPTOR pSecDesc);
 VOID UPDisplayErrorMessage(HWND hWnd, UINT uiSystemError);
 BOOL ApplyHiveSecurity(LPTSTR lpHiveName, PSID pSid);
-LPTSTR CheckSemicolon (LPTSTR lpDir);
-LPTSTR ConvertExclusionList (LPCTSTR lpSourceDir, LPCTSTR lpExclusionList);
+LPTSTR CheckSemicolon(LPTSTR lpDir);
+LPTSTR ConvertExclusionList(LPCTSTR lpSourceDir, LPCTSTR lpExclusionList);
 BOOL ReadExclusionList(LPTSTR szExcludeList, DWORD dwExclSize);
 BOOL ReadExclusionListFromIniFile(LPCTSTR lpSourceDir, LPTSTR szExcludeList, DWORD dwExclSize);
 
 
-
+HPROPSHEETPAGE CreateProfilePage(HINSTANCE hInst)
 //  CreateProfilePage()
-
 //  Purpose:    Creates the profile page
-
 //  Parameters: hInst   -   hInstance
-
-
 //  Return:     hPage if successful
 //              NULL if an error occurs
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              10/11/95    ericflo    Created
-
-
-
-HPROPSHEETPAGE CreateProfilePage (HINSTANCE hInst)
 {
     PROPSHEETPAGE psp;
 
@@ -122,126 +105,88 @@ HPROPSHEETPAGE CreateProfilePage (HINSTANCE hInst)
 }
 
 
-
-
+INT_PTR APIENTRY UserProfileDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //  UserProfileDlgProc()
-
 //  Purpose:    Dialog box procedure for profile tab
-
 //  Parameters: hDlg    -   handle to the dialog box
 //              uMsg    -   window message
 //              wParam  -   wParam
 //              lParam  -   lParam
-
 //  Return:     TRUE if message was processed
 //              FALSE if not
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              10/11/95    ericflo    Created
-
-
-
-INT_PTR APIENTRY UserProfileDlgProc (HWND hDlg, UINT uMsg,
-                                  WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
-        case WM_INITDIALOG:
-           if (!InitUserProfileDlg (hDlg, lParam)) {
-               EndDialog(hDlg, FALSE);
-           }
-           return TRUE;
-
-
+    case WM_INITDIALOG:
+        if (!InitUserProfileDlg(hDlg, lParam)) {
+            EndDialog(hDlg, FALSE);
+        }
+        return TRUE;
     case WM_NOTIFY:
-
-        switch (((NMHDR FAR*)lParam)->code)
-        {
+        switch (((NMHDR FAR *)lParam)->code) {
         case LVN_ITEMCHANGED:
-            UPDoItemChanged(hDlg, (int) wParam);
+            UPDoItemChanged(hDlg, (int)wParam);
             break;
-
         case LVN_COLUMNCLICK:
             break;
-
         case PSN_APPLY:
-            {
-            PSHNOTIFY *lpNotify = (PSHNOTIFY *) lParam;
+        {
+            PSHNOTIFY * lpNotify = (PSHNOTIFY *)lParam;
 
             UPSave(hDlg);
-            }
-            break;
-
-
+        }
+        break;
         case PSN_RESET:
-            SetWindowLongPtr (hDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
+            SetWindowLongPtr(hDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
             return TRUE;
-
         default:
             return FALSE;
         }
         break;
-
     case WM_DESTROY:
-        UPCleanUp (hDlg);
+        UPCleanUp(hDlg);
         break;
-
     case WM_COMMAND:
-
         switch (LOWORD(wParam)) {
-            case IDC_UP_DELETE:
-                UPDeleteProfile(hDlg);
-                break;
-
-            case IDC_UP_TYPE:
-                UPChangeType(hDlg);
-                break;
-
-            case IDC_UP_COPY:
-                UPCopyProfile(hDlg);
-                break;
-
-            default:
-                break;
+        case IDC_UP_DELETE:
+            UPDeleteProfile(hDlg);
+            break;
+        case IDC_UP_TYPE:
+            UPChangeType(hDlg);
+            break;
+        case IDC_UP_COPY:
+            UPCopyProfile(hDlg);
+            break;
+        default:
+            break;
 
         }
         break;
 
     case WM_HELP:      // F1
-        WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, HELP_FILE, HELP_WM_HELP,
-        (DWORD_PTR) (LPSTR) aUserProfileHelpIds);
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, HELP_FILE, HELP_WM_HELP,
+                (DWORD_PTR)(LPSTR)aUserProfileHelpIds);
         break;
 
     case WM_CONTEXTMENU:      // right mouse click
-        WinHelp((HWND) wParam, HELP_FILE, HELP_CONTEXTMENU,
-        (DWORD_PTR) (LPSTR) aUserProfileHelpIds);
+        WinHelp((HWND)wParam, HELP_FILE, HELP_CONTEXTMENU,
+                (DWORD_PTR)(LPSTR)aUserProfileHelpIds);
         return (TRUE);
-
     }
 
     return (FALSE);
 }
 
 
-
+BOOL InitUserProfileDlg(HWND hDlg, LPARAM lParam)
 //  InitUserProfileDlg()
-
 //  Purpose:    Initializes the User Profiles page
-
 //  Parameters: hDlg    -   Dialog box handle
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              1/26/96     ericflo    Created
-
-
-
-BOOL InitUserProfileDlg (HWND hDlg, LPARAM lParam)
 {
     TCHAR szHeaderName[30];
     LV_COLUMN col;
@@ -252,19 +197,15 @@ BOOL InitUserProfileDlg (HWND hDlg, LPARAM lParam)
     BOOL bAdmin;
     HCURSOR hOldCursor;
 
-
-    hOldCursor = SetCursor (LoadCursor(NULL, IDC_WAIT));
+    hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
 
     hLV = GetDlgItem(hDlg, IDC_UP_LISTVIEW);
 
     // Set extended LV style for whole line selection
     SendMessage(hLV, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
-
     // Insert Columns
-
-
-    GetClientRect (hLV, &rc);
+    GetClientRect(hLV, &rc);
     LoadString(hInstance, IDS_UP_NAME, szHeaderName, 30);
     col.mask = LVCF_FMT | LVCF_TEXT | LVCF_SUBITEM | LVCF_WIDTH;
     col.fmt = LVCFMT_LEFT;
@@ -274,8 +215,7 @@ BOOL InitUserProfileDlg (HWND hDlg, LPARAM lParam)
     col.pszText = szHeaderName;
     col.iSubItem = 0;
 
-    ListView_InsertColumn (hLV, 0, &col);
-
+    ListView_InsertColumn(hLV, 0, &col);
 
     LoadString(hInstance, IDS_UP_SIZE, szHeaderName, 30);
     iCurrent = (int)(rc.right * .15);
@@ -283,8 +223,7 @@ BOOL InitUserProfileDlg (HWND hDlg, LPARAM lParam)
     col.cx = iCurrent;
     col.fmt = LVCFMT_RIGHT;
     col.iSubItem = 1;
-    ListView_InsertColumn (hLV, 1, &col);
-
+    ListView_InsertColumn(hLV, 1, &col);
 
     LoadString(hInstance, IDS_UP_TYPE, szHeaderName, 30);
     col.iSubItem = 2;
@@ -292,54 +231,43 @@ BOOL InitUserProfileDlg (HWND hDlg, LPARAM lParam)
     iTotal += iCurrent;
     col.cx = iCurrent;
     col.fmt = LVCFMT_LEFT;
-    ListView_InsertColumn (hLV, 2, &col);
+    ListView_InsertColumn(hLV, 2, &col);
 
     LoadString(hInstance, IDS_UP_MOD, szHeaderName, 30);
     col.iSubItem = 3;
     col.cx = rc.right - iTotal - GetSystemMetrics(SM_CYHSCROLL);
     col.fmt = LVCFMT_LEFT;
-    ListView_InsertColumn (hLV, 3, &col);
+    ListView_InsertColumn(hLV, 3, &col);
 
     bAdmin = IsUserAdmin();
-
-
     if (!bAdmin) {
         RECT rc;
         POINT pt;
 
-
         // If the user is not an admin, then we hide the
         // delete and copy to buttons
 
+        hwndTemp = GetDlgItem(hDlg, IDC_UP_DELETE);
+        GetWindowRect(hwndTemp, &rc);
+        EnableWindow(hwndTemp, FALSE);
+        ShowWindow(hwndTemp, SW_HIDE);
 
-        hwndTemp = GetDlgItem (hDlg, IDC_UP_DELETE);
-        GetWindowRect (hwndTemp, &rc);
-        EnableWindow (hwndTemp, FALSE);
-        ShowWindow (hwndTemp, SW_HIDE);
-
-        hwndTemp = GetDlgItem (hDlg, IDC_UP_COPY);
-        EnableWindow (hwndTemp, FALSE);
-        ShowWindow (hwndTemp, SW_HIDE);
-
+        hwndTemp = GetDlgItem(hDlg, IDC_UP_COPY);
+        EnableWindow(hwndTemp, FALSE);
+        ShowWindow(hwndTemp, SW_HIDE);
 
         // Move the Change Type button over
-
-
         pt.x = rc.left;
         pt.y = rc.top;
-        ScreenToClient (hDlg, &pt);
+        ScreenToClient(hDlg, &pt);
 
-        SetWindowPos (GetDlgItem (hDlg, IDC_UP_TYPE),
-                      HWND_TOP, pt.x, pt.y, 0, 0,
-                      SWP_NOSIZE | SWP_NOZORDER);
-
+        SetWindowPos(GetDlgItem(hDlg, IDC_UP_TYPE),
+                     HWND_TOP, pt.x, pt.y, 0, 0,
+                     SWP_NOSIZE | SWP_NOZORDER);
     }
 
-
     // Fill the user accounts
-
-
-    if (!FillListView (hDlg, bAdmin)) {
+    if (!FillListView(hDlg, bAdmin)) {
         SetCursor(hOldCursor);
         return FALSE;
     }
@@ -350,27 +278,15 @@ BOOL InitUserProfileDlg (HWND hDlg, LPARAM lParam)
 }
 
 
-
+BOOL AddUser(HWND hDlg, LPTSTR lpSid, DWORD dwFlags)
 //  AddUser()
-
 //  Purpose:    Adds a new user to the listview
-
-
 //  Parameters: hDlg            -   handle to the dialog box
 //              lpSid           -   Sid (text form)
-
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              1/26/96     ericflo    Created
-
-
-
-BOOL AddUser (HWND hDlg, LPTSTR lpSid, DWORD dwFlags)
 {
     LONG Error;
     HKEY hKeyUser;
@@ -395,153 +311,105 @@ BOOL AddUser (HWND hDlg, LPTSTR lpSid, DWORD dwFlags)
     DWORD dwProfileType;
     LPUSERINFO lpUserInfo;
     BOOL bCentralAvailable = FALSE;
-    TCHAR szExcludeList[2*MAX_PATH+1];
+    TCHAR szExcludeList[2 * MAX_PATH + 1];
     LPTSTR lpExcludeList = NULL;
 
-
     // Open the user's info
-
-
-    wsprintf (szBuffer, TEXT("%s\\%s"), PROFILE_MAPPING, lpSid);
+    wsprintf(szBuffer, TEXT("%s\\%s"), PROFILE_MAPPING, lpSid);
 
     Error = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
                          szBuffer,
                          0,
                          KEY_READ,
                          &hkeyUser);
-
     if (Error != ERROR_SUCCESS) {
         return FALSE;
     }
 
-
-
     // Query for the user's central profile location
-
-
     dwSize = MAX_PATH * sizeof(TCHAR);
-    Error = RegQueryValueEx (hkeyUser,
-                             TEXT("CentralProfile"),
-                             NULL,
-                             &dwType,
-                             (LPBYTE) szBuffer2,
-                             &dwSize);
-
+    Error = RegQueryValueEx(hkeyUser,
+                            TEXT("CentralProfile"),
+                            NULL,
+                            &dwType,
+                            (LPBYTE)szBuffer2,
+                            &dwSize);
     if ((Error == ERROR_SUCCESS) && (szBuffer2[0] != TEXT('\0'))) {
         bCentralAvailable = TRUE;
     }
 
-
-
     // Query for the user's local profile
-
-
     dwSize = MAX_PATH * sizeof(TCHAR);
-    Error = RegQueryValueEx (hkeyUser,
-                             TEXT("ProfileImagePath"),
-                             NULL,
-                             &dwType,
-                             (LPBYTE) szBuffer2,
-                             &dwSize);
-
+    Error = RegQueryValueEx(hkeyUser,
+                            TEXT("ProfileImagePath"),
+                            NULL,
+                            &dwType,
+                            (LPBYTE)szBuffer2,
+                            &dwSize);
     if (Error != ERROR_SUCCESS) {
-        RegCloseKey (hkeyUser);
+        RegCloseKey(hkeyUser);
         return FALSE;
     }
-
-
 
     // Profile paths need to be expanded
-
-
-    ExpandEnvironmentStrings (szBuffer2, szBuffer, MAX_PATH);
-    lstrcpy (szBuffer2, szBuffer);
-
-
+    ExpandEnvironmentStrings(szBuffer2, szBuffer, MAX_PATH);
+    lstrcpy(szBuffer2, szBuffer);
 
     // Test if the directory exists.
-
-
-    hFile = FindFirstFile (szBuffer, &fd);
-
+    hFile = FindFirstFile(szBuffer, &fd);
     if (hFile == INVALID_HANDLE_VALUE) {
-        RegCloseKey (hkeyUser);
+        RegCloseKey(hkeyUser);
         return FALSE;
     }
 
-    FindClose (hFile);
-
-
+    FindClose(hFile);
 
     // Get the time stamp of the profile
-
-
-    lpEnd = CheckSlash (szBuffer);
-    lstrcpy (lpEnd, TEXT("ntuser.dat"));
-
-
+    lpEnd = CheckSlash(szBuffer);
+    lstrcpy(lpEnd, TEXT("ntuser.dat"));
 
     // Look for a normal user profile
-
-
-    hFile = FindFirstFile (szBuffer, &fd);
-
+    hFile = FindFirstFile(szBuffer, &fd);
     if (hFile == INVALID_HANDLE_VALUE) {
-
-
         // Try a mandatory user profile
+        lstrcpy(lpEnd, TEXT("ntuser.man"));
 
-
-        lstrcpy (lpEnd, TEXT("ntuser.man"));
-
-        hFile = FindFirstFile (szBuffer, &fd);
-
+        hFile = FindFirstFile(szBuffer, &fd);
         if (hFile == INVALID_HANDLE_VALUE) {
-            RegCloseKey (hkeyUser);
+            RegCloseKey(hkeyUser);
             return FALSE;
         }
     }
 
-    FindClose (hFile);
+    FindClose(hFile);
     *lpEnd = TEXT('\0');
 
-
     // Get the exclusionlist from the registry or ini files
-
-
     if (dwFlags & PRF_USERSID)
-        ReadExclusionList(szExcludeList, 2*MAX_PATH);
+        ReadExclusionList(szExcludeList, 2 * MAX_PATH);
     else
-        ReadExclusionListFromIniFile(szBuffer, szExcludeList, 2*MAX_PATH);
-
-
+        ReadExclusionListFromIniFile(szBuffer, szExcludeList, 2 * MAX_PATH);
 
     // Convert the exclusionlist read from the registry to a Null terminated list
     // readable by recursedirectory.
-
-
     if (szExcludeList[0] != TEXT('\0'))
-        lpExcludeList = ConvertExclusionList (szBuffer, szExcludeList);
+        lpExcludeList = ConvertExclusionList(szBuffer, szExcludeList);
     else
         lpExcludeList = NULL;
 
-
     // Get the profile size
-
-
     g_dwProfileSize = 0;
 
     *lpEnd = TEXT('\0');
 
-    if (!RecurseDirectory (szBuffer, lpExcludeList)) {
-        RegCloseKey (hkeyUser);
+    if (!RecurseDirectory(szBuffer, lpExcludeList)) {
+        RegCloseKey(hkeyUser);
         if (lpExcludeList) {
-            LocalFree (lpExcludeList);
+            LocalFree(lpExcludeList);
         }
 
         return FALSE;
     }
-
 
     if (g_dwProfileSize < 1024) {
         g_dwProfileSize = 1024;
@@ -553,45 +421,32 @@ BOOL AddUser (HWND hDlg, LPTSTR lpSid, DWORD dwFlags)
         g_dwProfileSize = 1;
     }
 
-    LoadString (hInstance, IDS_UP_KB, szTemp, 100);
-    wsprintf (szProfileSize, szTemp, g_dwProfileSize);
-
-
+    LoadString(hInstance, IDS_UP_KB, szTemp, 100);
+    wsprintf(szProfileSize, szTemp, g_dwProfileSize);
 
     // Query for the profile type
-
-
     dwSize = sizeof(dwProfileType);
-    Error = RegQueryValueEx (hkeyUser,
-                             TEXT("UserPreference"),
-                             NULL,
-                             &dwType,
-                             (LPBYTE) &dwProfileType,
-                             &dwSize);
-
+    Error = RegQueryValueEx(hkeyUser,
+                            TEXT("UserPreference"),
+                            NULL,
+                            &dwType,
+                            (LPBYTE)&dwProfileType,
+                            &dwSize);
     if (Error != ERROR_SUCCESS) {
-
-
         // The User hasn't specified options yet,
         // so check out the state information
-
-
-        Error = RegQueryValueEx (hkeyUser,
-                                 TEXT("State"),
-                                 NULL,
-                                 &dwType,
-                                 (LPBYTE) &dwProfileType,
-                                 &dwSize);
-
-
+        Error = RegQueryValueEx(hkeyUser,
+                                TEXT("State"),
+                                NULL,
+                                &dwType,
+                                (LPBYTE)&dwProfileType,
+                                &dwSize);
         if (Error != ERROR_SUCCESS) {
             dwProfileType = 0;
         }
 
-
         // The constants being used come from
         // windows\gina\userenv\profile.h
-
 
         if (dwProfileType & 0x00000001) {
             dwProfileType = USERINFO_MANDATORY;
@@ -605,186 +460,137 @@ BOOL AddUser (HWND hDlg, LPTSTR lpSid, DWORD dwFlags)
     }
 
     switch (dwProfileType) {
-        case USERINFO_MANDATORY:
-            iTypeID = IDS_UP_MANDATORY;
-            break;
-
-        case USERINFO_FLOATING:
-        case USERINFO_LOCAL_SLOW_LINK:
-            iTypeID = IDS_UP_FLOATING;
-            break;
-
-        default:
-            iTypeID = IDS_UP_LOCAL;
-            break;
+    case USERINFO_MANDATORY:
+        iTypeID = IDS_UP_MANDATORY;
+        break;
+    case USERINFO_FLOATING:
+    case USERINFO_LOCAL_SLOW_LINK:
+        iTypeID = IDS_UP_FLOATING;
+        break;
+    default:
+        iTypeID = IDS_UP_LOCAL;
+        break;
     }
-
-
-
 
     // Get the friendly display name
-
-
-    Error = RegQueryValueEx (hkeyUser, TEXT("Sid"), NULL, &dwType, NULL, &dwSize);
-
+    Error = RegQueryValueEx(hkeyUser, TEXT("Sid"), NULL, &dwType, NULL, &dwSize);
     if (Error != ERROR_SUCCESS) {
-        RegCloseKey (hkeyUser);
+        RegCloseKey(hkeyUser);
         return FALSE;
     }
 
-
-    pSid = MemAlloc (LPTR, dwSize);
-
+    pSid = MemAlloc(LPTR, dwSize);
     if (!pSid) {
-        RegCloseKey (hkeyUser);
+        RegCloseKey(hkeyUser);
         return FALSE;
     }
 
-
-    Error = RegQueryValueEx (hkeyUser,
-                             TEXT("Sid"),
-                             NULL,
-                             &dwType,
-                             (LPBYTE)pSid,
-                             &dwSize);
-
+    Error = RegQueryValueEx(hkeyUser,
+                            TEXT("Sid"),
+                            NULL,
+                            &dwType,
+                            (LPBYTE)pSid,
+                            &dwSize);
     if (Error != ERROR_SUCCESS) {
-        RegCloseKey (hkeyUser);
+        RegCloseKey(hkeyUser);
         return FALSE;
     }
 
     // Get the friendly names
     szTemp[0] = TEXT('\0');
-    if (!LookupAccountSid (NULL, pSid, szTemp, &dwTempSize, szTemp2, &dwTemp2Size, &SidName)) {
-        LoadString (hInstance, IDS_UP_ACCUNKNOWN, szBuffer, MAX_PATH);// Unknown account
+    if (!LookupAccountSid(NULL, pSid, szTemp, &dwTempSize, szTemp2, &dwTemp2Size, &SidName)) {
+        LoadString(hInstance, IDS_UP_ACCUNKNOWN, szBuffer, MAX_PATH);// Unknown account
     } else {
         if (szTemp[0] != TEXT('\0')) {
-            wsprintf (szBuffer, TEXT("%s\\%s"), szTemp2, szTemp);// Build the display name
+            wsprintf(szBuffer, TEXT("%s\\%s"), szTemp2, szTemp);// Build the display name
         } else {
-            LoadString (hInstance, IDS_UP_ACCDELETED, szBuffer, MAX_PATH);// Account deleted.
+            LoadString(hInstance, IDS_UP_ACCDELETED, szBuffer, MAX_PATH);// Account deleted.
         }
     }
 
     // Allocate a UserInfo structure
-    lpUserInfo = (LPUSERINFO) MemAlloc(LPTR, (sizeof(USERINFO) +
-                                       (lstrlen (lpSid) + 1) * sizeof(TCHAR) +
-                                       (lstrlen (szBuffer2) + 1) * sizeof(TCHAR)));
+    lpUserInfo = (LPUSERINFO)MemAlloc(LPTR, (sizeof(USERINFO) +
+                                             (lstrlen(lpSid) + 1) * sizeof(TCHAR) +
+                                             (lstrlen(szBuffer2) + 1) * sizeof(TCHAR)));
 
     if (!lpUserInfo) {
-        MemFree (pSid);
-        RegCloseKey (hkeyUser);
+        MemFree(pSid);
+        RegCloseKey(hkeyUser);
         return FALSE;
     }
 
     lpUserInfo->dwFlags = (bCentralAvailable ? USERINFO_FLAG_CENTRAL_AVAILABLE : 0);
     lpUserInfo->lpSid = (LPTSTR)((LPBYTE)lpUserInfo + sizeof(USERINFO));
-    lpUserInfo->lpProfile = (LPTSTR) (lpUserInfo->lpSid + lstrlen(lpSid) + 1);
-    lstrcpy (lpUserInfo->lpSid, lpSid);
-    lstrcpy (lpUserInfo->lpProfile, szBuffer2);
+    lpUserInfo->lpProfile = (LPTSTR)(lpUserInfo->lpSid + lstrlen(lpSid) + 1);
+    lstrcpy(lpUserInfo->lpSid, lpSid);
+    lstrcpy(lpUserInfo->lpProfile, szBuffer2);
     lpUserInfo->dwProfileType = dwProfileType;
 
-
-
-
     // Add the item to the listview
-
-
-    hwndTemp = GetDlgItem (hDlg, IDC_UP_LISTVIEW);
-
+    hwndTemp = GetDlgItem(hDlg, IDC_UP_LISTVIEW);
 
     item.mask = LVIF_TEXT | LVIF_PARAM;
     item.iItem = 0;
     item.iSubItem = 0;
     item.pszText = szBuffer;
-    item.lParam = (LPARAM) lpUserInfo;
+    item.lParam = (LPARAM)lpUserInfo;
 
-    iItem = ListView_InsertItem (hwndTemp, &item);
-
-
+    iItem = ListView_InsertItem(hwndTemp, &item);
 
     // Add the profile size
-
-
     item.mask = LVIF_TEXT;
     item.iItem = iItem;
     item.iSubItem = 1;
     item.pszText = szProfileSize;
 
-    SendMessage (hwndTemp, LVM_SETITEMTEXT, iItem, (LPARAM) &item);
-
-
+    SendMessage(hwndTemp, LVM_SETITEMTEXT, iItem, (LPARAM)&item);
 
     // Add the profile type
-
-
-    LoadString (hInstance, iTypeID, szTemp, 100);
+    LoadString(hInstance, iTypeID, szTemp, 100);
 
     item.mask = LVIF_TEXT;
     item.iItem = iItem;
     item.iSubItem = 2;
     item.pszText = szTemp;
 
-    SendMessage (hwndTemp, LVM_SETITEMTEXT, iItem, (LPARAM) &item);
-
-
+    SendMessage(hwndTemp, LVM_SETITEMTEXT, iItem, (LPARAM)&item);
 
     // Add the time/date stamp
+    FileTimeToSystemTime(&fd.ftLastAccessTime, &systime);
 
-
-    FileTimeToSystemTime (&fd.ftLastAccessTime, &systime);
-
-    GetDateFormat (LOCALE_USER_DEFAULT, DATE_SHORTDATE, &systime,
-                    NULL, szBuffer, MAX_PATH);
-
+    GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, &systime,
+                  NULL, szBuffer, MAX_PATH);
 
     item.mask = LVIF_TEXT;
     item.iItem = iItem;
     item.iSubItem = 3;
     item.pszText = szBuffer;
 
-    SendMessage (hwndTemp, LVM_SETITEMTEXT, iItem, (LPARAM) &item);
-
-
+    SendMessage(hwndTemp, LVM_SETITEMTEXT, iItem, (LPARAM)&item);
 
     // Free the sid
-
-
-    MemFree (pSid);
-
+    MemFree(pSid);
 
     if (lpExcludeList) {
-        LocalFree (lpExcludeList);
+        LocalFree(lpExcludeList);
     }
 
-    RegCloseKey (hkeyUser);
-
-
+    RegCloseKey(hkeyUser);
     return TRUE;
 }
 
 
-
+BOOL FillListView(HWND hDlg, BOOL bAdmin)
 //  FillListView()
-
 //  Purpose:    Fills the listview with either all the profiles
 //              or just the current user profile depending if
 //              the user has Admin privilages
-
 //  Parameters: hDlg            -   Dialog box handle
 //              bAdmin          -   User an admin
-
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              1/26/96     ericflo    Created
-
-
-
-BOOL FillListView (HWND hDlg, BOOL bAdmin)
 {
     LV_ITEM item;
     BOOL bRetVal = FALSE;
@@ -792,286 +598,208 @@ BOOL FillListView (HWND hDlg, BOOL bAdmin)
 
     lpUserSid = GetSidString();
 
-
     // If the current user has admin privilages, then
     // he/she can see all the profiles on this machine,
     // otherwise the user only gets their profile.
 
-
     if (bAdmin) {
-
         DWORD SubKeyIndex = 0;
         TCHAR SubKeyName[100];
         DWORD cchSubKeySize;
         HKEY hkeyProfiles;
         LONG Error;
 
-
-
         // Open the profile list
-
-
         Error = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
                              PROFILE_MAPPING,
                              0,
                              KEY_READ,
                              &hkeyProfiles);
-
         if (Error != ERROR_SUCCESS) {
             if (lpUserSid)
-                DeleteSidString (lpUserSid);
+                DeleteSidString(lpUserSid);
             return FALSE;
         }
-
 
         cchSubKeySize = 100;
 
         while (TRUE) {
-
-
             // Get the next sub-key name
-
-
             Error = RegEnumKey(hkeyProfiles, SubKeyIndex, SubKeyName, cchSubKeySize);
-
-
             if (Error != ERROR_SUCCESS) {
-
                 if (Error == ERROR_NO_MORE_ITEMS) {
-
-
                     // Successful end of enumeration
-
-
                     Error = ERROR_SUCCESS;
-
                 }
 
                 break;
             }
 
-
             if ((lpUserSid) && (lstrcmp(SubKeyName, lpUserSid) == 0))
-                AddUser (hDlg, SubKeyName, PRF_USERSID);
+                AddUser(hDlg, SubKeyName, PRF_USERSID);
             else
-                AddUser (hDlg, SubKeyName, 0);
-
-
+                AddUser(hDlg, SubKeyName, 0);
 
             // Go enumerate the next sub-key
-
-
-            SubKeyIndex ++;
+            SubKeyIndex++;
         }
 
-
         // Close the registry
-
-
-        RegCloseKey (hkeyProfiles);
-
+        RegCloseKey(hkeyProfiles);
         bRetVal = ((Error == ERROR_SUCCESS) ? TRUE : FALSE);
-
     } else {
-
-
         // The current user doesn't have admin privilages
-
-
         if (lpUserSid) {
-            AddUser (hDlg, lpUserSid, PRF_USERSID);
+            AddUser(hDlg, lpUserSid, PRF_USERSID);
             bRetVal = TRUE;
         }
     }
 
     if (bRetVal) {
-
         // Select the first item
-
-
         item.mask = LVIF_STATE;
         item.iItem = 0;
         item.iSubItem = 0;
         item.state = LVIS_SELECTED | LVIS_FOCUSED;
         item.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
 
-        SendDlgItemMessage (hDlg, IDC_UP_LISTVIEW,
-                            LVM_SETITEMSTATE, 0, (LPARAM) &item);
+        SendDlgItemMessage(hDlg, IDC_UP_LISTVIEW,
+                           LVM_SETITEMSTATE, 0, (LPARAM)&item);
     }
 
     if (lpUserSid)
-        DeleteSidString (lpUserSid);
+        DeleteSidString(lpUserSid);
 
     return (bRetVal);
 }
 
 
-
+LPTSTR CheckSemicolon(LPTSTR lpDir)
 //  CheckSemicolon()
-
 //  Purpose:    Checks for an ending slash and adds one if
 //              it is missing.
-
 //  Parameters: lpDir   -   directory
-
 //  Return:     Pointer to the end of the string
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              6/19/95     ericlfo    Created
-
-
-LPTSTR CheckSemicolon (LPTSTR lpDir)
 {
     LPTSTR lpEnd;
 
     lpEnd = lpDir + lstrlen(lpDir);
 
     if (*(lpEnd - 1) != TEXT(';')) {
-        *lpEnd =  TEXT(';');
+        *lpEnd = TEXT(';');
         lpEnd++;
-        *lpEnd =  TEXT('\0');
+        *lpEnd = TEXT('\0');
     }
 
     return lpEnd;
 }
 
 
-
+BOOL ReadExclusionList(LPTSTR szExcludeList, DWORD dwExclSize)
 //  ReadExclusionList()
-
 //  Purpose:    Reads the exclusionlist for the user from the
 //              hkcu part of the registry
-
 //  Parameters: szExclusionList - Buffer for exclusionList to be read into
 //              dwSize          - Size of the buffer
-
 //  Return:     FALSE on error
-
-
-
-BOOL ReadExclusionList(LPTSTR szExcludeList, DWORD dwExclSize)
 {
     TCHAR szExcludeList2[MAX_PATH];
     TCHAR szExcludeList1[MAX_PATH];
     HKEY  hKey;
     DWORD dwSize, dwType;
 
-
     // Check for a list of directories to exclude both user preferences
     // and user policy
 
-
     szExcludeList1[0] = TEXT('\0');
-    if (RegOpenKeyEx (HKEY_CURRENT_USER,
-                      TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"),
-                      0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER,
+                     TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"),
+                     0, KEY_READ, &hKey) == ERROR_SUCCESS) {
 
         dwSize = sizeof(szExcludeList1);
-        RegQueryValueEx (hKey,
-                         TEXT("ExcludeProfileDirs"),
-                         NULL,
-                         &dwType,
-                         (LPBYTE) szExcludeList1,
-                         &dwSize);
+        RegQueryValueEx(hKey,
+                        TEXT("ExcludeProfileDirs"),
+                        NULL,
+                        &dwType,
+                        (LPBYTE)szExcludeList1,
+                        &dwSize);
 
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
     }
 
     szExcludeList2[0] = TEXT('\0');
-    if (RegOpenKeyEx (HKEY_CURRENT_USER,
-                      TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"), // systempolicies key
-                      0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER,
+                     TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"), // systempolicies key
+                     0, KEY_READ, &hKey) == ERROR_SUCCESS) {
 
         dwSize = sizeof(szExcludeList2);
-        RegQueryValueEx (hKey,
-                         TEXT("ExcludeProfileDirs"),
-                         NULL,
-                         &dwType,
-                         (LPBYTE) szExcludeList2,
-                         &dwSize);
+        RegQueryValueEx(hKey,
+                        TEXT("ExcludeProfileDirs"),
+                        NULL,
+                        &dwType,
+                        (LPBYTE)szExcludeList2,
+                        &dwSize);
 
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
     }
 
-
-
     // Merge the user preferences and policy together
-
-
     szExcludeList[0] = TEXT('\0');
 
     if (szExcludeList1[0] != TEXT('\0')) {
         CheckSemicolon(szExcludeList1);
-        lstrcpy (szExcludeList, szExcludeList1);
+        lstrcpy(szExcludeList, szExcludeList1);
     }
 
     if (szExcludeList2[0] != TEXT('\0')) {
-        lstrcat (szExcludeList, szExcludeList2);
+        lstrcat(szExcludeList, szExcludeList2);
     }
 
     return TRUE;
 }
 
 
-
+BOOL ReadExclusionListFromIniFile(LPCTSTR lpSourceDir, LPTSTR szExcludeList, DWORD dwExclSize)
 //  ReadExclusionListFromIniFile()
-
 //  Purpose:    Reads the exclusionlist for the user from the
 //              ntuser.ini from the local profile
-
 //  Parameters:
 //              (in) lpSourceDir     - Profile Directory
 //                   szExclusionList - Buffer for exclusionList to be read into
 //                   dwSize          - Size of the buffer
-
 //  Return:     FALSE on error
-
-
-
-
-BOOL ReadExclusionListFromIniFile(LPCTSTR lpSourceDir, LPTSTR szExcludeList, DWORD dwExclSize)
 {
     TCHAR szNTUserIni[MAX_PATH];
     LPTSTR lpEnd;
 
-
     // Get the exclusion list from the cache
-
-
     szExcludeList[0] = TEXT('\0');
 
-    lstrcpy (szNTUserIni, lpSourceDir);
-    lpEnd = CheckSlash (szNTUserIni);
+    lstrcpy(szNTUserIni, lpSourceDir);
+    lpEnd = CheckSlash(szNTUserIni);
     lstrcpy(lpEnd, c_szNTUserIni);
 
-    GetPrivateProfileString (PROFILE_GENERAL_SECTION,
-                             PROFILE_EXCLUSION_LIST,
-                             TEXT(""), szExcludeList,
-                             dwExclSize,
-                             szNTUserIni);
+    GetPrivateProfileString(PROFILE_GENERAL_SECTION,
+                            PROFILE_EXCLUSION_LIST,
+                            TEXT(""), szExcludeList,
+                            dwExclSize,
+                            szNTUserIni);
 
     return TRUE;
 }
 
 
-
+LPTSTR ConvertExclusionList(LPCTSTR lpSourceDir, LPCTSTR lpExclusionList)
 //  ConvertExclusionList()
-
 //  Purpose:    Converts the semi-colon profile relative exclusion
 //              list to fully qualified null terminated exclusion
 //              list
-
 //  Parameters: lpSourceDir     -  Profile root directory
 //              lpExclusionList -  List of directories to exclude
-
 //  Return:     List if successful
 //              NULL if an error occurs
-
-
-
-LPTSTR ConvertExclusionList (LPCTSTR lpSourceDir, LPCTSTR lpExclusionList)
 {
     LPTSTR lpExcludeList = NULL, lpInsert, lpEnd, lpTempList;
     LPCTSTR lpTemp, lpDir;
@@ -1079,62 +807,35 @@ LPTSTR ConvertExclusionList (LPCTSTR lpSourceDir, LPCTSTR lpExclusionList)
     DWORD dwSize = 2;  // double null terminator
     DWORD dwStrLen;
 
-
-
     // Setup a temp buffer to work with
-
-
-    lstrcpy (szTemp, lpSourceDir);
-    lpEnd = CheckSlash (szTemp);
-
-
+    lstrcpy(szTemp, lpSourceDir);
+    lpEnd = CheckSlash(szTemp);
 
     // Loop through the list
-
-
     lpTemp = lpDir = lpExclusionList;
-
     while (*lpTemp) {
-
-
         // Look for the semicolon separator
-
-
         while (*lpTemp && ((*lpTemp) != TEXT(';'))) {
             lpTemp++;
         }
 
-
-
         // Remove any leading spaces
-
-
         while (*lpDir == TEXT(' ')) {
             lpDir++;
         }
 
-
-
         // Put the directory name on the temp buffer
-
-
-        lstrcpyn (lpEnd, lpDir, (int)(lpTemp - lpDir + 1));
-
-
+        lstrcpyn(lpEnd, lpDir, (int)(lpTemp - lpDir + 1));
 
         // Add the string to the exclusion list
-
-
         if (lpExcludeList) {
-
-            dwStrLen = lstrlen (szTemp) + 1;
+            dwStrLen = lstrlen(szTemp) + 1;
             dwSize += dwStrLen;
 
-            lpTempList = LocalReAlloc (lpExcludeList, dwSize * sizeof(TCHAR),
-                                       LMEM_MOVEABLE | LMEM_ZEROINIT);
-
+            lpTempList = LocalReAlloc(lpExcludeList, dwSize * sizeof(TCHAR),
+                                      LMEM_MOVEABLE | LMEM_ZEROINIT);
             if (!lpTempList) {
-                LocalFree (lpExcludeList);
+                LocalFree(lpExcludeList);
                 lpExcludeList = NULL;
                 goto Exit;
             }
@@ -1142,62 +843,41 @@ LPTSTR ConvertExclusionList (LPCTSTR lpSourceDir, LPCTSTR lpExclusionList)
             lpExcludeList = lpTempList;
 
             lpInsert = lpExcludeList + dwSize - dwStrLen - 1;
-            lstrcpy (lpInsert, szTemp);
-
+            lstrcpy(lpInsert, szTemp);
         } else {
-
-            dwSize += lstrlen (szTemp);
-            lpExcludeList = LocalAlloc (LPTR, dwSize * sizeof(TCHAR));
+            dwSize += lstrlen(szTemp);
+            lpExcludeList = LocalAlloc(LPTR, dwSize * sizeof(TCHAR));
 
             if (!lpExcludeList) {
                 goto Exit;
             }
 
-            lstrcpy (lpExcludeList, szTemp);
+            lstrcpy(lpExcludeList, szTemp);
         }
 
-
-
         // If we are at the end of the exclusion list, we're done
-
-
         if (!(*lpTemp)) {
             goto Exit;
         }
 
-
-
         // Prep for the next entry
-
-
         lpTemp++;
         lpDir = lpTemp;
     }
 
 Exit:
-
     return lpExcludeList;
 }
 
 
-
+BOOL RecurseDirectory(LPTSTR lpDir, LPTSTR lpExcludeList)
 //  RecurseDirectory()
-
 //  Purpose:    Recurses through the subdirectories counting the size.
-
 //  Parameters: lpDir     -   Directory
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              1/30/96     ericflo    Created
-
-
-
-BOOL RecurseDirectory (LPTSTR lpDir, LPTSTR lpExcludeList)
 {
     HANDLE hFile = INVALID_HANDLE_VALUE;
     WIN32_FIND_DATA fd;
@@ -1205,141 +885,80 @@ BOOL RecurseDirectory (LPTSTR lpDir, LPTSTR lpExcludeList)
     BOOL bResult = TRUE;
     BOOL bSkip;
 
-
-
     // Setup the ending pointer
-
-
-    lpEnd = CheckSlash (lpDir);
-
-
+    lpEnd = CheckSlash(lpDir);
 
     // Append *.* to the source directory
-
-
     lstrcpy(lpEnd, TEXT("*.*"));
 
-
-
-
     // Search through the source directory
-
-
     hFile = FindFirstFile(lpDir, &fd);
-
     if (hFile == INVALID_HANDLE_VALUE) {
-
-        if ( (GetLastError() == ERROR_FILE_NOT_FOUND) ||
-             (GetLastError() == ERROR_PATH_NOT_FOUND) ) {
-
-
+        if ((GetLastError() == ERROR_FILE_NOT_FOUND) ||
+            (GetLastError() == ERROR_PATH_NOT_FOUND)) {
             // bResult is already initialized to TRUE, so
             // just fall through.
-
-
         } else {
-
             bResult = FALSE;
         }
 
         goto RecurseDir_Exit;
     }
 
-
     do {
-
-
         // Append the file / directory name to the working buffer
-
-
-        lstrcpy (lpEnd, fd.cFileName);
-
+        lstrcpy(lpEnd, fd.cFileName);
 
         if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-
-
             // Check for "." and ".."
-
-
             if (!lstrcmpi(fd.cFileName, TEXT("."))) {
                 continue;
             }
-
             if (!lstrcmpi(fd.cFileName, TEXT(".."))) {
                 continue;
             }
 
-
-
             // Check if this directory should be excluded
-
-
             if (lpExcludeList) {
-
                 bSkip = FALSE;
                 lpTemp = lpExcludeList;
 
                 while (*lpTemp) {
-
-                    if (lstrcmpi (lpTemp, lpDir) == 0) {
+                    if (lstrcmpi(lpTemp, lpDir) == 0) {
                         bSkip = TRUE;
                         break;
                     }
 
-                    lpTemp += lstrlen (lpTemp) + 1;
+                    lpTemp += lstrlen(lpTemp) + 1;
                 }
 
                 if (bSkip)
                     continue;
             }
 
-
             // Found a directory.
-
             // 1)  Change into that subdirectory on the source drive.
             // 2)  Recurse down that tree.
             // 3)  Back up one level.
 
-
-
             // Recurse the subdirectory
-
-
             if (!RecurseDirectory(lpDir, lpExcludeList)) {
                 bResult = FALSE;
                 goto RecurseDir_Exit;
             }
-
         } else {
-
-
             // Found a file, add the filesize
-
-
             g_dwProfileSize += fd.nFileSizeLow;
         }
 
-
-
         // Find the next entry
-
-
     } while (FindNextFile(hFile, &fd));
 
-
 RecurseDir_Exit:
-
-
     // Remove the file / directory name appended above
-
-
     *lpEnd = TEXT('\0');
 
-
-
     // Close the search handle
-
-
     if (hFile != INVALID_HANDLE_VALUE) {
         FindClose(hFile);
     }
@@ -1348,75 +967,50 @@ RecurseDir_Exit:
 }
 
 
-
+VOID UPCleanUp(HWND hDlg)
 //  UPCleanUp()
-
 //  Purpose:    Free's resources for this dialog box
-
 //  Parameters: hDlg    -   Dialog box handle
-
 //  Return:     void
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              1/31/96     ericflo    Created
-
-
-
-VOID UPCleanUp (HWND hDlg)
 {
     int           i, n;
     HWND          hwndTemp;
     LPUSERINFO    lpUserInfo;
     LV_ITEM       item;
 
-
-
     //  Free memory used for the listview items
-
-
-    hwndTemp = GetDlgItem (hDlg, IDC_UP_LISTVIEW);
-    n = (int)SendMessage (hwndTemp, LVM_GETITEMCOUNT, 0, 0L);
+    hwndTemp = GetDlgItem(hDlg, IDC_UP_LISTVIEW);
+    n = (int)SendMessage(hwndTemp, LVM_GETITEMCOUNT, 0, 0L);
 
     item.mask = LVIF_PARAM;
     item.iSubItem = 0;
 
     for (i = 0; i < n; i++) {
-
         item.iItem = i;
 
-        if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-            lpUserInfo = (LPUSERINFO) item.lParam;
+        if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+            lpUserInfo = (LPUSERINFO)item.lParam;
 
         } else {
             lpUserInfo = NULL;
         }
 
         if (lpUserInfo) {
-            MemFree (lpUserInfo);
+            MemFree(lpUserInfo);
         }
     }
 }
 
 
-
+VOID UPSave(HWND hDlg)
 //  UPSave()
-
 //  Purpose:    Saves the settings
-
 //  Parameters: hDlg    -   Dialog box handle
-
 //  Return:     void
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              1/31/96     ericflo    Created
-
-
-
-VOID UPSave (HWND hDlg)
 {
     int           i, n;
     HWND          hwndTemp;
@@ -1426,53 +1020,42 @@ VOID UPSave (HWND hDlg)
     HKEY          hkeyUser;
     LONG          Error;
 
-
-
     //  Save type info
-
-
-    hwndTemp = GetDlgItem (hDlg, IDC_UP_LISTVIEW);
-    n = (int)SendMessage (hwndTemp, LVM_GETITEMCOUNT, 0, 0L);
+    hwndTemp = GetDlgItem(hDlg, IDC_UP_LISTVIEW);
+    n = (int)SendMessage(hwndTemp, LVM_GETITEMCOUNT, 0, 0L);
 
     item.mask = LVIF_PARAM;
     item.iSubItem = 0;
 
     for (i = 0; i < n; i++) {
-
         item.iItem = i;
 
-        if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-            lpUserInfo = (LPUSERINFO) item.lParam;
-
+        if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+            lpUserInfo = (LPUSERINFO)item.lParam;
         } else {
             lpUserInfo = NULL;
         }
 
         if (lpUserInfo) {
-
             if (lpUserInfo->dwFlags & USERINFO_FLAG_DIRTY) {
-
                 lpUserInfo->dwFlags &= ~USERINFO_FLAG_DIRTY;
-
-                wsprintf (szBuffer, TEXT("%s\\%s"), PROFILE_MAPPING,
-                          lpUserInfo->lpSid);
-
+                wsprintf(szBuffer, TEXT("%s\\%s"), PROFILE_MAPPING,
+                         lpUserInfo->lpSid);
                 Error = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
                                      szBuffer,
                                      0,
                                      KEY_WRITE,
                                      &hkeyUser);
-
                 if (Error != ERROR_SUCCESS) {
                     continue;
                 }
 
-                RegSetValueEx (hkeyUser,
-                               TEXT("UserPreference"),
-                               0,
-                               REG_DWORD,
-                               (LPBYTE) &lpUserInfo->dwProfileType,
-                               sizeof(DWORD));
+                RegSetValueEx(hkeyUser,
+                              TEXT("UserPreference"),
+                              0,
+                              REG_DWORD,
+                              (LPBYTE)&lpUserInfo->dwProfileType,
+                              sizeof(DWORD));
 
                 RegCloseKey(hkeyUser);
             }
@@ -1481,38 +1064,27 @@ VOID UPSave (HWND hDlg)
 }
 
 
-
+BOOL IsProfileInUse(LPTSTR lpSid)
 //  IsProfileInUse()
-
 //  Purpose:    Determines if the given profile is currently in use
-
 //  Parameters: lpSid   -   Sid (text) to test
-
 //  Return:     TRUE if in use
 //              FALSE if not
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              2/7/96      ericflo    Created
-
-
-
-BOOL IsProfileInUse (LPTSTR lpSid)
 {
     LONG lResult;
     HKEY hkeyProfile;
 
-
-    lResult = RegOpenKeyEx (HKEY_USERS, lpSid, 0, KEY_READ, &hkeyProfile);
-
+    lResult = RegOpenKeyEx(HKEY_USERS, lpSid, 0, KEY_READ, &hkeyProfile);
     if (lResult == ERROR_SUCCESS) {
-        RegCloseKey (hkeyProfile);
+        RegCloseKey(hkeyProfile);
         return TRUE;
     }
 
     return FALSE;
 }
+
 
 void UPDoItemChanged(HWND hDlg, int idCtl)
 {
@@ -1521,69 +1093,44 @@ void UPDoItemChanged(HWND hDlg, int idCtl)
     LPUSERINFO lpUserInfo;
     LV_ITEM item;
 
-
-    hwndTemp = GetDlgItem (hDlg, idCtl);
-
-    selection = GetSelectedItem (hwndTemp);
-
-    if (selection != -1)
-    {
+    hwndTemp = GetDlgItem(hDlg, idCtl);
+    selection = GetSelectedItem(hwndTemp);
+    if (selection != -1) {
         item.mask = LVIF_PARAM;
         item.iItem = selection;
         item.iSubItem = 0;
 
-        if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-            lpUserInfo = (LPUSERINFO) item.lParam;
-
+        if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+            lpUserInfo = (LPUSERINFO)item.lParam;
         } else {
             lpUserInfo = NULL;
         }
 
         if (lpUserInfo) {
-
-
             //  Set the "Delete" button state
-
-
             if (IsProfileInUse(lpUserInfo->lpSid)) {
-                EnableWindow (GetDlgItem (hDlg, IDC_UP_DELETE), FALSE);
-
+                EnableWindow(GetDlgItem(hDlg, IDC_UP_DELETE), FALSE);
             } else {
-                EnableWindow (GetDlgItem (hDlg, IDC_UP_DELETE), TRUE);
+                EnableWindow(GetDlgItem(hDlg, IDC_UP_DELETE), TRUE);
             }
 
-
-
             // Set the "Change Type" button state
-
-
             if (lpUserInfo->dwProfileType == USERINFO_MANDATORY) {
-                EnableWindow (GetDlgItem (hDlg, IDC_UP_TYPE), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_UP_TYPE), FALSE);
             } else {
-                EnableWindow (GetDlgItem (hDlg, IDC_UP_TYPE), TRUE);
+                EnableWindow(GetDlgItem(hDlg, IDC_UP_TYPE), TRUE);
             }
         }
     }
 }
 
 
-
+void UPDeleteProfile(HWND hDlg)
 //  UPDeleteProfile()
-
 //  Purpose:    Deletes a user's profile
-
 //  Parameters: hDlg    -   Dialog box handle
-
-//  Return:
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              2/8/96      ericflo    Created
-
-
-
-void UPDeleteProfile(HWND hDlg)
 {
     int     selection;
     HWND    hwndTemp;
@@ -1594,15 +1141,9 @@ void UPDeleteProfile(HWND hDlg)
     TCHAR   szBuffer2[200];
     HCURSOR hOldCursor;
 
-
-
     // Get the selected profile
-
-
-    hwndTemp = GetDlgItem (hDlg, IDC_UP_LISTVIEW);
-
-    selection = GetSelectedItem (hwndTemp);
-
+    hwndTemp = GetDlgItem(hDlg, IDC_UP_LISTVIEW);
+    selection = GetSelectedItem(hwndTemp);
     if (selection == -1) {
         return;
     }
@@ -1611,9 +1152,8 @@ void UPDeleteProfile(HWND hDlg)
     item.iItem = selection;
     item.iSubItem = 0;
 
-    if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-        lpUserInfo = (LPUSERINFO) item.lParam;
-
+    if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+        lpUserInfo = (LPUSERINFO)item.lParam;
     } else {
         lpUserInfo = NULL;
     }
@@ -1622,42 +1162,27 @@ void UPDeleteProfile(HWND hDlg)
         return;
     }
 
-
-
     // Confirm that the user really wants to delete the profile
-
-
     szBuffer1[0] = TEXT('\0');
-    ListView_GetItemText (hwndTemp, selection, 0, szName, 100);
+    ListView_GetItemText(hwndTemp, selection, 0, szName, 100);
 
-    LoadString (hInstance, IDS_UP_CONFIRM, szBuffer1, 100);
-    wsprintf (szBuffer2, szBuffer1, szName);
+    LoadString(hInstance, IDS_UP_CONFIRM, szBuffer1, 100);
+    wsprintf(szBuffer2, szBuffer1, szName);
 
-    LoadString (hInstance, IDS_UP_CONFIRMTITLE, szBuffer1, 100);
-    if (MessageBox (hDlg, szBuffer2, szBuffer1,
-                    MB_ICONQUESTION | MB_DEFBUTTON2| MB_YESNO) == IDNO) {
+    LoadString(hInstance, IDS_UP_CONFIRMTITLE, szBuffer1, 100);
+    if (MessageBox(hDlg, szBuffer2, szBuffer1,
+                   MB_ICONQUESTION | MB_DEFBUTTON2 | MB_YESNO) == IDNO) {
         return;
     }
 
-
-
-
     // Delete the profile and remove the entry from the listview
-
-
-    hOldCursor = SetCursor (LoadCursor(NULL, IDC_WAIT));
-
-    DeleteProfile (lpUserInfo->lpSid, lpUserInfo->lpProfile);
-
+    hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
+    DeleteProfile(lpUserInfo->lpSid, lpUserInfo->lpProfile);
     if (ListView_DeleteItem(hwndTemp, selection)) {
-        MemFree (lpUserInfo);
+        MemFree(lpUserInfo);
     }
 
-
-
     // Select another item
-
-
     if (selection > 0) {
         selection--;
     }
@@ -1668,45 +1193,30 @@ void UPDeleteProfile(HWND hDlg)
     item.state = LVIS_SELECTED | LVIS_FOCUSED;
     item.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
 
-    SendDlgItemMessage (hDlg, IDC_UP_LISTVIEW,
-                        LVM_SETITEMSTATE, selection, (LPARAM) &item);
-
+    SendDlgItemMessage(hDlg, IDC_UP_LISTVIEW,
+                       LVM_SETITEMSTATE, selection, (LPARAM)&item);
 
     SetCursor(hOldCursor);
 }
 
 
-
+BOOL DeleteProfile(LPTSTR lpSidString, LPTSTR lpProfileDir)
 //  DeleteProfile()
-
 //  Purpose:    Deletes the specified profile from the
 //              registry and disk.
-
 //  Parameters: lpSidString     -   Registry subkey
 //              lpProfileDir    -   Profile directory
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
-
 //  Comments:
-
 //  History:    Date        Author     Comment
 //              2/8/96      ericflo    Created
-
-
-
-BOOL DeleteProfile (LPTSTR lpSidString, LPTSTR lpProfileDir)
 {
     LONG lResult;
     TCHAR szTemp[MAX_PATH];
 
-
-
     // Cleanup the registry first.
-
-
     if (lpSidString && *lpSidString) {
-
         lstrcpy(szTemp, TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\"));
         lstrcat(szTemp, lpSidString);
         lResult = RegDeleteKey(HKEY_LOCAL_MACHINE, szTemp);
@@ -1716,12 +1226,8 @@ BOOL DeleteProfile (LPTSTR lpSidString, LPTSTR lpProfileDir)
         }
     }
 
-
-
     // Now delete the profile
-
-
-    if (!Delnode (lpProfileDir)) {
+    if (!Delnode(lpProfileDir)) {
         return FALSE;
     }
 
@@ -1729,23 +1235,14 @@ BOOL DeleteProfile (LPTSTR lpSidString, LPTSTR lpProfileDir)
 }
 
 
-
+void UPChangeType(HWND hDlg)
 //  UPChangeType()
-
 //  Purpose:    Display the "Change Type" dialog box
-
 //  Parameters: hDlg    -   Dialog box handle
-
 //  Return:     void
-
 //  Comments:
-
 //  History:    Date        Author     Comment
 //              2/09/96     ericflo    Created
-
-
-
-void UPChangeType(HWND hDlg)
 {
     int     selection, iTypeID;
     HWND    hwndTemp;
@@ -1753,15 +1250,9 @@ void UPChangeType(HWND hDlg)
     LV_ITEM item;
     TCHAR   szType[100];
 
-
-
     // Get the selected profile
-
-
-    hwndTemp = GetDlgItem (hDlg, IDC_UP_LISTVIEW);
-
-    selection = GetSelectedItem (hwndTemp);
-
+    hwndTemp = GetDlgItem(hDlg, IDC_UP_LISTVIEW);
+    selection = GetSelectedItem(hwndTemp);
     if (selection == -1) {
         return;
     }
@@ -1770,9 +1261,8 @@ void UPChangeType(HWND hDlg)
     item.iItem = selection;
     item.iSubItem = 0;
 
-    if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-        lpUserInfo = (LPUSERINFO) item.lParam;
-
+    if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+        lpUserInfo = (LPUSERINFO)item.lParam;
     } else {
         lpUserInfo = NULL;
     }
@@ -1781,214 +1271,152 @@ void UPChangeType(HWND hDlg)
         return;
     }
 
-
     // Display the Change Type dialog
-
-
-    if (!DialogBoxParam (hInstance, MAKEINTRESOURCE(IDD_UP_TYPE), hDlg,
-                         ChangeTypeDlgProc, (LPARAM)lpUserInfo)) {
+    if (!DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_UP_TYPE), hDlg,
+                        ChangeTypeDlgProc, (LPARAM)lpUserInfo)) {
         return;
     }
 
-
-
     // Activate the Apply button
-
-
     PropSheet_Changed(GetParent(hDlg), hDlg);
 
-
-
     // Mark this item as 'dirty' so it will be saved
-
-
     lpUserInfo->dwFlags |= USERINFO_FLAG_DIRTY;
 
-
-
     // Fix the 'Type' field in the display
-
-
     switch (lpUserInfo->dwProfileType) {
-        case USERINFO_MANDATORY:
-            iTypeID = IDS_UP_MANDATORY;
-            break;
-
-        case USERINFO_FLOATING:
-        case USERINFO_LOCAL_SLOW_LINK:
-            iTypeID = IDS_UP_FLOATING;
-            break;
-
-        default:
-            iTypeID = IDS_UP_LOCAL;
-            break;
+    case USERINFO_MANDATORY:
+        iTypeID = IDS_UP_MANDATORY;
+        break;
+    case USERINFO_FLOATING:
+    case USERINFO_LOCAL_SLOW_LINK:
+        iTypeID = IDS_UP_FLOATING;
+        break;
+    default:
+        iTypeID = IDS_UP_LOCAL;
+        break;
     }
 
-
-    LoadString (hInstance, iTypeID, szType, 100);
+    LoadString(hInstance, iTypeID, szType, 100);
 
     item.mask = LVIF_TEXT;
     item.iItem = selection;
     item.iSubItem = 2;
     item.pszText = szType;
 
-    SendMessage (hwndTemp, LVM_SETITEMTEXT, selection, (LPARAM) &item);
-
+    SendMessage(hwndTemp, LVM_SETITEMTEXT, selection, (LPARAM)&item);
 }
 
 
-
+INT_PTR APIENTRY ChangeTypeDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //  ChangeTypeDlgProc()
-
 //  Purpose:    Dialog box procedure for changing the profile type
-
 //  Parameters: hDlg    -   handle to the dialog box
 //              uMsg    -   window message
 //              wParam  -   wParam
 //              lParam  -   lParam
-
 //  Return:     TRUE if message was processed
 //              FALSE if not
-
 //  Comments:
-
 //  History:    Date        Author     Comment
 //              2/9/96      ericflo    Created
-
-
-
-INT_PTR APIENTRY ChangeTypeDlgProc (HWND hDlg, UINT uMsg,
-                                 WPARAM wParam, LPARAM lParam)
 {
     LPUSERINFO lpUserInfo;
 
     switch (uMsg) {
-        case WM_INITDIALOG:
-           lpUserInfo = (LPUSERINFO) lParam;
+    case WM_INITDIALOG:
+        lpUserInfo = (LPUSERINFO)lParam;
 
-           if (!lpUserInfo) {
-               EndDialog(hDlg, FALSE);
-           }
+        if (!lpUserInfo) {
+            EndDialog(hDlg, FALSE);
+        }
 
-           SetWindowLongPtr (hDlg, GWLP_USERDATA, (LPARAM) lpUserInfo);
+        SetWindowLongPtr(hDlg, GWLP_USERDATA, (LPARAM)lpUserInfo);
 
-           if (lpUserInfo->dwFlags & USERINFO_FLAG_CENTRAL_AVAILABLE) {
+        if (lpUserInfo->dwFlags & USERINFO_FLAG_CENTRAL_AVAILABLE) {
+            if (lpUserInfo->dwProfileType == USERINFO_LOCAL) {
+                CheckRadioButton(hDlg, IDC_UPTYPE_LOCAL, IDC_UPTYPE_FLOAT, IDC_UPTYPE_LOCAL);
+                EnableWindow(GetDlgItem(hDlg, IDC_UPTYPE_SLOW), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_UPTYPE_SLOW_TEXT), FALSE);
+            } else if (lpUserInfo->dwProfileType == USERINFO_FLOATING) {
+                CheckRadioButton(hDlg, IDC_UPTYPE_LOCAL, IDC_UPTYPE_FLOAT, IDC_UPTYPE_FLOAT);
+            } else {
+                CheckRadioButton(hDlg, IDC_UPTYPE_LOCAL, IDC_UPTYPE_FLOAT, IDC_UPTYPE_FLOAT);
+                CheckDlgButton(hDlg, IDC_UPTYPE_SLOW, 1);
+            }
+        } else {
+            CheckRadioButton(hDlg, IDC_UPTYPE_LOCAL, IDC_UPTYPE_FLOAT, IDC_UPTYPE_LOCAL);
+            EnableWindow(GetDlgItem(hDlg, IDC_UPTYPE_FLOAT), FALSE);
+            EnableWindow(GetDlgItem(hDlg, IDC_UPTYPE_SLOW), FALSE);
+            EnableWindow(GetDlgItem(hDlg, IDC_UPTYPE_SLOW_TEXT), FALSE);
+            EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
+        }
 
-               if (lpUserInfo->dwProfileType == USERINFO_LOCAL) {
-                   CheckRadioButton (hDlg, IDC_UPTYPE_LOCAL, IDC_UPTYPE_FLOAT,
-                                     IDC_UPTYPE_LOCAL);
-                   EnableWindow (GetDlgItem(hDlg, IDC_UPTYPE_SLOW), FALSE);
-                   EnableWindow (GetDlgItem(hDlg, IDC_UPTYPE_SLOW_TEXT), FALSE);
+        return TRUE;
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDOK:
+            lpUserInfo = (LPUSERINFO)GetWindowLongPtr(hDlg, GWLP_USERDATA);
+            if (!lpUserInfo) {
+                EndDialog(hDlg, FALSE);
+                break;
+            }
 
-               } else if (lpUserInfo->dwProfileType == USERINFO_FLOATING) {
-                   CheckRadioButton (hDlg, IDC_UPTYPE_LOCAL, IDC_UPTYPE_FLOAT,
-                                     IDC_UPTYPE_FLOAT);
+            // Determine what the user wants
+            if (IsDlgButtonChecked(hDlg, IDC_UPTYPE_LOCAL)) {
+                lpUserInfo->dwProfileType = USERINFO_LOCAL;
+            } else if (IsDlgButtonChecked(hDlg, IDC_UPTYPE_SLOW)) {
+                lpUserInfo->dwProfileType = USERINFO_LOCAL_SLOW_LINK;
+            } else {
+                lpUserInfo->dwProfileType = USERINFO_FLOATING;
+            }
 
-               } else {
-                   CheckRadioButton (hDlg, IDC_UPTYPE_LOCAL, IDC_UPTYPE_FLOAT,
-                                     IDC_UPTYPE_FLOAT);
-                   CheckDlgButton (hDlg, IDC_UPTYPE_SLOW, 1);
-               }
-           } else {
-
-               CheckRadioButton (hDlg, IDC_UPTYPE_LOCAL, IDC_UPTYPE_FLOAT,
-                                 IDC_UPTYPE_LOCAL);
-               EnableWindow (GetDlgItem(hDlg, IDC_UPTYPE_FLOAT), FALSE);
-               EnableWindow (GetDlgItem(hDlg, IDC_UPTYPE_SLOW), FALSE);
-               EnableWindow (GetDlgItem(hDlg, IDC_UPTYPE_SLOW_TEXT), FALSE);
-               EnableWindow (GetDlgItem(hDlg, IDOK), FALSE);
-
-           }
-
-           return TRUE;
-
-        case WM_COMMAND:
-
-          switch (LOWORD(wParam)) {
-              case IDOK:
-
-                  lpUserInfo = (LPUSERINFO) GetWindowLongPtr(hDlg, GWLP_USERDATA);
-
-                  if (!lpUserInfo) {
-                      EndDialog (hDlg, FALSE);
-                      break;
-                  }
-
-
-                  // Determine what the user wants
-
-
-                  if (IsDlgButtonChecked(hDlg, IDC_UPTYPE_LOCAL)) {
-                      lpUserInfo->dwProfileType = USERINFO_LOCAL;
-                  } else if (IsDlgButtonChecked(hDlg, IDC_UPTYPE_SLOW)) {
-                      lpUserInfo->dwProfileType = USERINFO_LOCAL_SLOW_LINK;
-                  } else {
-                      lpUserInfo->dwProfileType = USERINFO_FLOATING;
-                  }
-
-                  EndDialog(hDlg, TRUE);
-                  break;
-
-              case IDCANCEL:
-                  EndDialog(hDlg, FALSE);
-                  break;
-
-              case IDC_UPTYPE_LOCAL:
-                  if (HIWORD(wParam) == BN_CLICKED) {
-                      CheckDlgButton (hDlg, IDC_UPTYPE_SLOW, 0);
-                      EnableWindow (GetDlgItem(hDlg, IDC_UPTYPE_SLOW), FALSE);
-                      EnableWindow (GetDlgItem(hDlg, IDC_UPTYPE_SLOW_TEXT), FALSE);
-                  }
-                  break;
-
-              case IDC_UPTYPE_FLOAT:
-                  if (HIWORD(wParam) == BN_CLICKED) {
-                      EnableWindow (GetDlgItem(hDlg, IDC_UPTYPE_SLOW), TRUE);
-                      EnableWindow (GetDlgItem(hDlg, IDC_UPTYPE_SLOW_TEXT), TRUE);
-                  }
-                  break;
-
-              default:
-                  break;
-
-          }
-          break;
-
-        case WM_HELP:      // F1
-            WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, HELP_FILE, HELP_WM_HELP,
-            (DWORD_PTR) (LPSTR) aUserProfileHelpIds);
+            EndDialog(hDlg, TRUE);
             break;
-
-        case WM_CONTEXTMENU:      // right mouse click
-            WinHelp((HWND) wParam, HELP_FILE, HELP_CONTEXTMENU,
-            (DWORD_PTR) (LPSTR) aUserProfileHelpIds);
-            return (TRUE);
-
+        case IDCANCEL:
+            EndDialog(hDlg, FALSE);
+            break;
+        case IDC_UPTYPE_LOCAL:
+            if (HIWORD(wParam) == BN_CLICKED) {
+                CheckDlgButton(hDlg, IDC_UPTYPE_SLOW, 0);
+                EnableWindow(GetDlgItem(hDlg, IDC_UPTYPE_SLOW), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_UPTYPE_SLOW_TEXT), FALSE);
+            }
+            break;
+        case IDC_UPTYPE_FLOAT:
+            if (HIWORD(wParam) == BN_CLICKED) {
+                EnableWindow(GetDlgItem(hDlg, IDC_UPTYPE_SLOW), TRUE);
+                EnableWindow(GetDlgItem(hDlg, IDC_UPTYPE_SLOW_TEXT), TRUE);
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+    case WM_HELP:      // F1
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, HELP_FILE, HELP_WM_HELP,
+                (DWORD_PTR)(LPSTR)aUserProfileHelpIds);
+        break;
+    case WM_CONTEXTMENU:      // right mouse click
+        WinHelp((HWND)wParam, HELP_FILE, HELP_CONTEXTMENU,
+                (DWORD_PTR)(LPSTR)aUserProfileHelpIds);
+        return (TRUE);
     }
 
     return (FALSE);
 }
 
 
-
+BOOL UPInitCopyDlg(HWND hDlg, LPARAM lParam)
 //  UPInitCopyDlg()
-
 //  Purpose:    Initializes the copy profile dialog
-
 //  Parameters: hDlg    -   Dialog box handle
 //              lParam  -   lParam (lpUserInfo)
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
-
 //  Comments:
-
 //  History:    Date        Author     Comment
 //              2/26/96     ericflo    Created
-
-
-
-BOOL UPInitCopyDlg (HWND hDlg, LPARAM lParam)
 {
     LPUSERINFO lpUserInfo;
     LPUPCOPYINFO lpUPCopyInfo;
@@ -2002,18 +1430,13 @@ BOOL UPInitCopyDlg (HWND hDlg, LPARAM lParam)
     DWORD dwSize, dwType;
     SID_NAME_USE SidName;
 
-    lpUserInfo = (LPUSERINFO) lParam;
-
+    lpUserInfo = (LPUSERINFO)lParam;
     if (!lpUserInfo) {
         return FALSE;
     }
 
-
     // Create a CopyInfo structure
-
-
     lpUPCopyInfo = MemAlloc(LPTR, sizeof(UPCOPYINFO));
-
     if (!lpUPCopyInfo) {
         return FALSE;
     }
@@ -2021,121 +1444,91 @@ BOOL UPInitCopyDlg (HWND hDlg, LPARAM lParam)
     lpUPCopyInfo->dwFlags = 0;
     lpUPCopyInfo->lpUserInfo = lpUserInfo;
 
-
     // Get the user's sid
-
-
-    wsprintf (szBuffer, TEXT("%s\\%s"), PROFILE_MAPPING, lpUserInfo->lpSid);
-    lResult = RegOpenKeyEx (HKEY_LOCAL_MACHINE,
-                            szBuffer,
-                            0,
-                            KEY_READ,
-                            &hKey);
-
+    wsprintf(szBuffer, TEXT("%s\\%s"), PROFILE_MAPPING, lpUserInfo->lpSid);
+    lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                           szBuffer,
+                           0,
+                           KEY_READ,
+                           &hKey);
     if (lResult != ERROR_SUCCESS) {
-        MemFree (lpUPCopyInfo);
+        MemFree(lpUPCopyInfo);
         return FALSE;
     }
-
 
     // Query for the sid size
-
-
     dwSize = 0;
-    lResult = RegQueryValueEx (hKey,
-                               TEXT("Sid"),
-                               NULL,
-                               &dwType,
-                               NULL,
-                               &dwSize);
-
+    lResult = RegQueryValueEx(hKey,
+                              TEXT("Sid"),
+                              NULL,
+                              &dwType,
+                              NULL,
+                              &dwSize);
     if (lResult != ERROR_SUCCESS) {
-        RegCloseKey (hKey);
-        MemFree (lpUPCopyInfo);
+        RegCloseKey(hKey);
+        MemFree(lpUPCopyInfo);
         return FALSE;
     }
-
-
 
     // Actually get the sid
-
-
-    pSid = MemAlloc (LPTR, dwSize);
-
+    pSid = MemAlloc(LPTR, dwSize);
     if (!pSid) {
-        RegCloseKey (hKey);
-        MemFree (lpUPCopyInfo);
+        RegCloseKey(hKey);
+        MemFree(lpUPCopyInfo);
         return FALSE;
     }
 
-    lResult = RegQueryValueEx (hKey,
-                               TEXT("Sid"),
-                               NULL,
-                               &dwType,
-                               (LPBYTE) pSid,
-                               &dwSize);
-
+    lResult = RegQueryValueEx(hKey,
+                              TEXT("Sid"),
+                              NULL,
+                              &dwType,
+                              (LPBYTE)pSid,
+                              &dwSize);
     if (lResult != ERROR_SUCCESS) {
-        RegCloseKey (hKey);
-        MemFree (pSid);
-        MemFree (lpUPCopyInfo);
+        RegCloseKey(hKey);
+        MemFree(pSid);
+        MemFree(lpUPCopyInfo);
         return FALSE;
     }
 
     lpUPCopyInfo->pSid = pSid;
 
-    RegCloseKey (hKey);
+    RegCloseKey(hKey);
 
     // Get the friendly name
-    if (!LookupAccountSid (NULL, pSid, szTemp, &dwTempSize, szTemp2, &dwTemp2Size, &SidName)) {
-        MemFree (pSid);
-        MemFree (lpUPCopyInfo);
+    if (!LookupAccountSid(NULL, pSid, szTemp, &dwTempSize, szTemp2, &dwTemp2Size, &SidName)) {
+        MemFree(pSid);
+        MemFree(lpUPCopyInfo);
         return FALSE;
     }
 
     // Display the friendly name in the edit control
-    wsprintf (szBuffer, TEXT("%s\\%s"), szTemp2, szTemp);
-    SetDlgItemText (hDlg, IDC_COPY_USER, szBuffer);
+    wsprintf(szBuffer, TEXT("%s\\%s"), szTemp2, szTemp);
+    SetDlgItemText(hDlg, IDC_COPY_USER, szBuffer);
 
     // Save the copyinfo structure in the extra words
-    SetWindowLongPtr (hDlg, GWLP_USERDATA, (LPARAM) lpUPCopyInfo);
-    EnableWindow (GetDlgItem(hDlg, IDOK), FALSE);
+    SetWindowLongPtr(hDlg, GWLP_USERDATA, (LPARAM)lpUPCopyInfo);
+    EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
     return TRUE;
 }
 
 
-
+void UPCopyProfile(HWND hDlg)
 //  UPCopyProfile()
-
 //  Purpose:    Displays the copy profile dialog box
-
 //  Parameters: hDlg    -   Dialog box handle
-
 //  Return:     void
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              2/13/96     ericflo    Created
-
-
-
-void UPCopyProfile(HWND hDlg)
 {
     int     selection, iTypeID;
     HWND    hwndTemp;
     LPUSERINFO lpUserInfo;
     LV_ITEM item;
 
-
-
     // Get the selected profile
-
-
-    hwndTemp = GetDlgItem (hDlg, IDC_UP_LISTVIEW);
-
-    selection = GetSelectedItem (hwndTemp);
-
+    hwndTemp = GetDlgItem(hDlg, IDC_UP_LISTVIEW);
+    selection = GetSelectedItem(hwndTemp);
     if (selection == -1) {
         return;
     }
@@ -2144,9 +1537,8 @@ void UPCopyProfile(HWND hDlg)
     item.iItem = selection;
     item.iSubItem = 0;
 
-    if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-        lpUserInfo = (LPUSERINFO) item.lParam;
-
+    if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+        lpUserInfo = (LPUSERINFO)item.lParam;
     } else {
         lpUserInfo = NULL;
     }
@@ -2155,311 +1547,240 @@ void UPCopyProfile(HWND hDlg)
         return;
     }
 
-
     // Display the Copy Profile dialog
-
-
-    if (!DialogBoxParam (hInstance, MAKEINTRESOURCE(IDD_UP_COPY), hDlg,
-                         UPCopyDlgProc, (LPARAM)lpUserInfo)) {
+    if (!DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_UP_COPY), hDlg,
+                        UPCopyDlgProc, (LPARAM)lpUserInfo)) {
         return;
     }
 }
 
 
-
-
+INT_PTR APIENTRY UPCopyDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //  UPCopyDlgProc()
-
 //  Purpose:    Dialog box procedure for copying a profile
-
 //  Parameters: hDlg    -   handle to the dialog box
 //              uMsg    -   window message
 //              wParam  -   wParam
 //              lParam  -   lParam
-
 //  Return:     TRUE if message was processed
 //              FALSE if not
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              2/13/96     ericflo    Created
-
-
-
-INT_PTR APIENTRY UPCopyDlgProc (HWND hDlg, UINT uMsg,
-                             WPARAM wParam, LPARAM lParam)
 {
     LPUPCOPYINFO lpUPCopyInfo;
 
     switch (uMsg) {
-        case WM_INITDIALOG:
-
-           if (!UPInitCopyDlg(hDlg, lParam)) {
-               EndDialog(hDlg, FALSE);
-           }
-           return TRUE;
-
-        case WM_COMMAND:
-
-          switch (LOWORD(wParam)) {
-              case IDOK:
-                  {
-                  TCHAR szDir[MAX_PATH];
-                  TCHAR szTemp[MAX_PATH];
-                  HCURSOR hOldCursor;
-
-                  lpUPCopyInfo = (LPUPCOPYINFO) GetWindowLongPtr(hDlg, GWLP_USERDATA);
-
-                  if (!lpUPCopyInfo) {
-                      EndDialog (hDlg, FALSE);
-                      break;
-                  }
-
-                  GetDlgItemText (hDlg, IDC_COPY_PATH, szTemp, MAX_PATH);
-                  if (ExpandEnvironmentStrings (szTemp, szDir, MAX_PATH) > MAX_PATH) {
-                     lstrcpy (szDir, szTemp);
-                  }
-
-                  hOldCursor = SetCursor (LoadCursor(NULL, IDC_WAIT));
-
-                  if (!UPCreateProfile (lpUPCopyInfo, szDir, NULL)) {
-                      SetCursor(hOldCursor);
-                      UPDisplayErrorMessage(hDlg, GetLastError());
-                      break;
-                  }
-
-                  MemFree (lpUPCopyInfo->pSid);
-                  MemFree (lpUPCopyInfo);
-                  SetCursor(hOldCursor);
-                  EndDialog(hDlg, TRUE);
-                  }
-                  break;
-
-              case IDCANCEL:
-                  lpUPCopyInfo = (LPUPCOPYINFO) GetWindowLongPtr(hDlg, GWLP_USERDATA);
-
-                  if (lpUPCopyInfo) {
-                      MemFree (lpUPCopyInfo->pSid);
-                      MemFree(lpUPCopyInfo);
-                  }
-
-                  EndDialog(hDlg, FALSE);
-                  break;
-
-              case IDC_COPY_BROWSE:
-                  {
-                  BROWSEINFO BrowseInfo;
-                  TCHAR      szBuffer[MAX_PATH];
-                  LPITEMIDLIST pidl;
-
-
-                  LoadString(hInstance, IDS_UP_DIRPICK, szBuffer, MAX_PATH);
-
-                  BrowseInfo.hwndOwner = hDlg;
-                  BrowseInfo.pidlRoot = NULL;
-                  BrowseInfo.pszDisplayName = szBuffer;
-                  BrowseInfo.lpszTitle = szBuffer;
-                  BrowseInfo.ulFlags = BIF_RETURNONLYFSDIRS;
-                  BrowseInfo.lpfn = NULL;
-                  BrowseInfo.lParam = 0;
-
-                  pidl = SHBrowseForFolder (&BrowseInfo);
-
-                  if (pidl) {
-                     SHGetPathFromIDList(pidl, szBuffer);
-                     SHFree (pidl);
-                     SetDlgItemText (hDlg, IDC_COPY_PATH, szBuffer);
-                     SetFocus (GetDlgItem(hDlg, IDOK));
-                  }
-
-                  }
-                  break;
-
-              case IDC_COPY_PATH:
-                  if (HIWORD(wParam) == EN_UPDATE) {
-                      if (SendDlgItemMessage(hDlg, IDC_COPY_PATH,
-                                             EM_LINELENGTH, 0, 0)) {
-                          EnableWindow (GetDlgItem(hDlg, IDOK), TRUE);
-                      } else {
-                          EnableWindow (GetDlgItem(hDlg, IDOK), FALSE);
-                      }
-                  }
-                  break;
-
-              case IDC_COPY_CHANGE:
-                  {
-                  USERBROWSER UserParms;
-                  HUSERBROW hBrowse;
-                  LPUSERDETAILS lpUserDetails;
-                  DWORD dwSize = 1024;
-                  WCHAR szTitle[100];
-                  TCHAR szUserName[200];
-                  PSID pNewSid;
-
-
-                  lpUPCopyInfo = (LPUPCOPYINFO) GetWindowLongPtr(hDlg, GWLP_USERDATA);
-
-                  if (!lpUPCopyInfo) {
-                      EndDialog (hDlg, FALSE);
-                      break;
-                  }
-
-                  lpUserDetails = MemAlloc (LPTR, dwSize);
-
-                  if (!lpUserDetails) {
-                      break;
-                  }
-
-
-                  LoadStringW (hInstance, IDS_UP_PICKUSER, szTitle, 100);
-
-                  UserParms.ulStructSize = sizeof(USERBROWSER);
-                  UserParms.fExpandNames = FALSE;
-                  UserParms.hwndOwner = hDlg;
-                  UserParms.pszTitle = szTitle;
-                  UserParms.pszInitialDomain = NULL;
-                  UserParms.ulHelpContext = IDH_USERPROFILE + 20;
-                  UserParms.pszHelpFileName = L"SYSDM.HLP";
-                  UserParms.Flags = USRBROWS_SINGLE_SELECT |
-                                    USRBROWS_INCL_REMOTE_USERS |
-                                    USRBROWS_INCL_INTERACTIVE |
-                                    USRBROWS_INCL_EVERYONE |
-                                    USRBROWS_SHOW_ALL;
-
-
-
-
-                  // Display the dialog box
-
-
-                  hBrowse = OpenUserBrowser (&UserParms);
-
-                  if (!hBrowse) {
-                      MemFree (lpUserDetails);
-                      break;
-                  }
-
-
-
-                  // Get the user's selection
-
-
-                  if (!EnumUserBrowserSelection(hBrowse, lpUserDetails, &dwSize)) {
-
-                      if (GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
-                          MemFree (lpUserDetails);
-                          CloseUserBrowser(hBrowse);
-                          break;
-                      }
-
-                      MemFree (lpUserDetails);
-                      lpUserDetails = MemAlloc(LPTR, dwSize + 2);
-                      if (!lpUserDetails) {
-                          MemFree (lpUserDetails);
-                          CloseUserBrowser(hBrowse);
-                          break;
-                      }
-
-                      if (!EnumUserBrowserSelection(hBrowse, lpUserDetails, &dwSize)) {
-                          MemFree(lpUserDetails);
-                          CloseUserBrowser(hBrowse);
-                          break;
-                      }
-                  }
-
-
-
-                  // Duplicate the sid
-
-
-                  dwSize = GetLengthSid (lpUserDetails->psidUser);
-
-                  pNewSid = MemAlloc (LPTR, dwSize);
-
-                  if (!pNewSid) {
-                      MemFree(lpUserDetails);
-                      CloseUserBrowser(hBrowse);
-                      break;
-                  }
-
-                  if (!CopySid (dwSize, pNewSid, lpUserDetails->psidUser)) {
-                      MemFree (pNewSid);
-                      MemFree(lpUserDetails);
-                      CloseUserBrowser(hBrowse);
-                      break;
-                  }
-
-
-                  // Save our new sid
-
-
-                  MemFree (lpUPCopyInfo->pSid);
-                  lpUPCopyInfo->pSid = pNewSid;
-
-
-                  // Update the edit control
-
-                  lstrcpy(szUserName, lpUserDetails->pszDomainName);
-                  lstrcat(szUserName, TEXT("\\"));
-                  lstrcat(szUserName, lpUserDetails->pszAccountName);
-                  SetDlgItemText (hDlg, IDC_COPY_USER, szUserName);
-
-
-
-                  // Cleanup
-
-
-                  CloseUserBrowser (hBrowse);
-
-                  MemFree (lpUserDetails);
-                  }
-                  break;
-
-              default:
-                  break;
-
-          }
-          break;
-
-        case WM_HELP:      // F1
-            WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, HELP_FILE, HELP_WM_HELP,
-            (DWORD_PTR) (LPSTR) aUserProfileHelpIds);
+    case WM_INITDIALOG:
+        if (!UPInitCopyDlg(hDlg, lParam)) {
+            EndDialog(hDlg, FALSE);
+        }
+        return TRUE;
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDOK:
+        {
+            TCHAR szDir[MAX_PATH];
+            TCHAR szTemp[MAX_PATH];
+            HCURSOR hOldCursor;
+
+            lpUPCopyInfo = (LPUPCOPYINFO)GetWindowLongPtr(hDlg, GWLP_USERDATA);
+
+            if (!lpUPCopyInfo) {
+                EndDialog(hDlg, FALSE);
+                break;
+            }
+
+            GetDlgItemText(hDlg, IDC_COPY_PATH, szTemp, MAX_PATH);
+            if (ExpandEnvironmentStrings(szTemp, szDir, MAX_PATH) > MAX_PATH) {
+                lstrcpy(szDir, szTemp);
+            }
+
+            hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
+
+            if (!UPCreateProfile(lpUPCopyInfo, szDir, NULL)) {
+                SetCursor(hOldCursor);
+                UPDisplayErrorMessage(hDlg, GetLastError());
+                break;
+            }
+
+            MemFree(lpUPCopyInfo->pSid);
+            MemFree(lpUPCopyInfo);
+            SetCursor(hOldCursor);
+            EndDialog(hDlg, TRUE);
+        }
+        break;
+        case IDCANCEL:
+            lpUPCopyInfo = (LPUPCOPYINFO)GetWindowLongPtr(hDlg, GWLP_USERDATA);
+
+            if (lpUPCopyInfo) {
+                MemFree(lpUPCopyInfo->pSid);
+                MemFree(lpUPCopyInfo);
+            }
+
+            EndDialog(hDlg, FALSE);
             break;
+        case IDC_COPY_BROWSE:
+        {
+            BROWSEINFO BrowseInfo;
+            TCHAR      szBuffer[MAX_PATH];
+            LPITEMIDLIST pidl;
 
-        case WM_CONTEXTMENU:      // right mouse click
-            WinHelp((HWND) wParam, HELP_FILE, HELP_CONTEXTMENU,
-            (DWORD_PTR) (LPSTR) aUserProfileHelpIds);
-            return (TRUE);
+            LoadString(hInstance, IDS_UP_DIRPICK, szBuffer, MAX_PATH);
 
+            BrowseInfo.hwndOwner = hDlg;
+            BrowseInfo.pidlRoot = NULL;
+            BrowseInfo.pszDisplayName = szBuffer;
+            BrowseInfo.lpszTitle = szBuffer;
+            BrowseInfo.ulFlags = BIF_RETURNONLYFSDIRS;
+            BrowseInfo.lpfn = NULL;
+            BrowseInfo.lParam = 0;
+
+            pidl = SHBrowseForFolder(&BrowseInfo);
+
+            if (pidl) {
+                SHGetPathFromIDList(pidl, szBuffer);
+                SHFree(pidl);
+                SetDlgItemText(hDlg, IDC_COPY_PATH, szBuffer);
+                SetFocus(GetDlgItem(hDlg, IDOK));
+            }
+        }
+        break;
+        case IDC_COPY_PATH:
+            if (HIWORD(wParam) == EN_UPDATE) {
+                if (SendDlgItemMessage(hDlg, IDC_COPY_PATH,
+                                       EM_LINELENGTH, 0, 0)) {
+                    EnableWindow(GetDlgItem(hDlg, IDOK), TRUE);
+                } else {
+                    EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
+                }
+            }
+            break;
+        case IDC_COPY_CHANGE:
+        {
+            USERBROWSER UserParms;
+            HUSERBROW hBrowse;
+            LPUSERDETAILS lpUserDetails;
+            DWORD dwSize = 1024;
+            WCHAR szTitle[100];
+            TCHAR szUserName[200];
+            PSID pNewSid;
+
+            lpUPCopyInfo = (LPUPCOPYINFO)GetWindowLongPtr(hDlg, GWLP_USERDATA);
+            if (!lpUPCopyInfo) {
+                EndDialog(hDlg, FALSE);
+                break;
+            }
+
+            lpUserDetails = MemAlloc(LPTR, dwSize);
+            if (!lpUserDetails) {
+                break;
+            }
+
+            LoadStringW(hInstance, IDS_UP_PICKUSER, szTitle, 100);
+
+            UserParms.ulStructSize = sizeof(USERBROWSER);
+            UserParms.fExpandNames = FALSE;
+            UserParms.hwndOwner = hDlg;
+            UserParms.pszTitle = szTitle;
+            UserParms.pszInitialDomain = NULL;
+            UserParms.ulHelpContext = IDH_USERPROFILE + 20;
+            UserParms.pszHelpFileName = L"SYSDM.HLP";
+            UserParms.Flags = USRBROWS_SINGLE_SELECT |
+                USRBROWS_INCL_REMOTE_USERS |
+                USRBROWS_INCL_INTERACTIVE |
+                USRBROWS_INCL_EVERYONE |
+                USRBROWS_SHOW_ALL;
+
+            // Display the dialog box
+            hBrowse = OpenUserBrowser(&UserParms);
+            if (!hBrowse) {
+                MemFree(lpUserDetails);
+                break;
+            }
+
+            // Get the user's selection
+            if (!EnumUserBrowserSelection(hBrowse, lpUserDetails, &dwSize)) {
+                if (GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+                    MemFree(lpUserDetails);
+                    CloseUserBrowser(hBrowse);
+                    break;
+                }
+
+                MemFree(lpUserDetails);
+                lpUserDetails = MemAlloc(LPTR, dwSize + 2);
+                if (!lpUserDetails) {
+                    MemFree(lpUserDetails);
+                    CloseUserBrowser(hBrowse);
+                    break;
+                }
+
+                if (!EnumUserBrowserSelection(hBrowse, lpUserDetails, &dwSize)) {
+                    MemFree(lpUserDetails);
+                    CloseUserBrowser(hBrowse);
+                    break;
+                }
+            }
+
+            // Duplicate the sid
+            dwSize = GetLengthSid(lpUserDetails->psidUser);
+            pNewSid = MemAlloc(LPTR, dwSize);
+            if (!pNewSid) {
+                MemFree(lpUserDetails);
+                CloseUserBrowser(hBrowse);
+                break;
+            }
+
+            if (!CopySid(dwSize, pNewSid, lpUserDetails->psidUser)) {
+                MemFree(pNewSid);
+                MemFree(lpUserDetails);
+                CloseUserBrowser(hBrowse);
+                break;
+            }
+
+            // Save our new sid
+            MemFree(lpUPCopyInfo->pSid);
+            lpUPCopyInfo->pSid = pNewSid;
+
+            // Update the edit control
+            lstrcpy(szUserName, lpUserDetails->pszDomainName);
+            lstrcat(szUserName, TEXT("\\"));
+            lstrcat(szUserName, lpUserDetails->pszAccountName);
+            SetDlgItemText(hDlg, IDC_COPY_USER, szUserName);
+
+            // Cleanup
+            CloseUserBrowser(hBrowse);
+            MemFree(lpUserDetails);
+        }
+        break;
+        default:
+            break;
+        }
+        break;
+    case WM_HELP:      // F1
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, HELP_FILE, HELP_WM_HELP,
+                (DWORD_PTR)(LPSTR)aUserProfileHelpIds);
+        break;
+    case WM_CONTEXTMENU:      // right mouse click
+        WinHelp((HWND)wParam, HELP_FILE, HELP_CONTEXTMENU,
+                (DWORD_PTR)(LPSTR)aUserProfileHelpIds);
+        return (TRUE);
     }
 
     return (FALSE);
 }
 
 
-
+BOOL UPCreateProfile(LPUPCOPYINFO lpUPCopyInfo, LPTSTR lpDest, PSECURITY_DESCRIPTOR pNewSecDesc)
 //  UPCreateProfile()
-
 //  Purpose:    Creates a copy of the specified profile with
 //              the correct security.
-
 //  Parameters: lpUPCopyInfo  -   Copy Dialog information
 //              lpDest      -   Destination directory
 //              pNewSecDesc -   New security descriptor
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              2/13/96     ericflo    Created
-
-
-
-BOOL UPCreateProfile (LPUPCOPYINFO lpUPCopyInfo, LPTSTR lpDest,
-                      PSECURITY_DESCRIPTOR pNewSecDesc)
 {
     HKEY RootKey, hKey;
     SECURITY_DESCRIPTOR sd;
@@ -2482,76 +1803,47 @@ BOOL UPCreateProfile (LPUPCOPYINFO lpUPCopyInfo, LPTSTR lpDest,
     TCHAR szExcludeList2[MAX_PATH];
     TCHAR szExcludeList[2 * MAX_PATH];
 
-
-
     if (!lpDest || !(*lpDest)) {
         return FALSE;
     }
 
-
-
-
     // Create the security descriptor
 
-
-
     // User Sid
-
-
     psidUser = lpUPCopyInfo->pSid;
 
-
-
     // Get the system sid
-
-
     if (!AllocateAndInitializeSid(&authNT, 1, SECURITY_LOCAL_SYSTEM_RID,
                                   0, 0, 0, 0, 0, 0, 0, &psidSystem)) {
-         goto Exit;
-    }
-
-
-
-    // Get the admin sid
-
-
-    if (!AllocateAndInitializeSid(&authNT, 2, SECURITY_BUILTIN_DOMAIN_RID,
-                                  DOMAIN_ALIAS_RID_ADMINS, 0, 0,
-                                  0, 0, 0, 0, &psidAdmin)) {
-         goto Exit;
-    }
-
-
-
-    // Allocate space for the ACL
-
-
-    cbAcl = (2 * GetLengthSid (psidUser)) + (2 * GetLengthSid (psidSystem)) +
-            (2 * GetLengthSid (psidAdmin)) + sizeof(ACL) +
-            (6 * (sizeof(ACCESS_ALLOWED_ACE) - sizeof(DWORD)));
-
-
-    pAcl = (PACL) MemAlloc(LPTR, cbAcl);
-    if (!pAcl) {
         goto Exit;
     }
 
+    // Get the admin sid
+    if (!AllocateAndInitializeSid(&authNT, 2, SECURITY_BUILTIN_DOMAIN_RID,
+                                  DOMAIN_ALIAS_RID_ADMINS, 0, 0,
+                                  0, 0, 0, 0, &psidAdmin)) {
+        goto Exit;
+    }
+
+    // Allocate space for the ACL
+    cbAcl = (2 * GetLengthSid(psidUser)) + (2 * GetLengthSid(psidSystem)) +
+        (2 * GetLengthSid(psidAdmin)) + sizeof(ACL) +
+        (6 * (sizeof(ACCESS_ALLOWED_ACE) - sizeof(DWORD)));
+
+    pAcl = (PACL)MemAlloc(LPTR, cbAcl);
+    if (!pAcl) {
+        goto Exit;
+    }
 
     if (!InitializeAcl(pAcl, cbAcl, ACL_REVISION)) {
         goto Exit;
     }
 
-
-
-
     // Add Aces for User, System, and Admin.  Non-inheritable ACEs first
-
-
     AceIndex = 0;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, FILE_ALL_ACCESS, psidUser)) {
         goto Exit;
     }
-
 
     AceIndex++;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, FILE_ALL_ACCESS, psidSystem)) {
@@ -2563,11 +1855,7 @@ BOOL UPCreateProfile (LPUPCOPYINFO lpUPCopyInfo, LPTSTR lpDest,
         goto Exit;
     }
 
-
-
     // Now the inheritable ACEs
-
-
     AceIndex++;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, GENERIC_ALL, psidUser)) {
         goto Exit;
@@ -2578,7 +1866,6 @@ BOOL UPCreateProfile (LPUPCOPYINFO lpUPCopyInfo, LPTSTR lpDest,
     }
 
     lpAceHeader->AceFlags |= (OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE);
-
 
     AceIndex++;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, GENERIC_ALL, psidSystem)) {
@@ -2591,7 +1878,6 @@ BOOL UPCreateProfile (LPUPCOPYINFO lpUPCopyInfo, LPTSTR lpDest,
 
     lpAceHeader->AceFlags |= (OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE);
 
-
     AceIndex++;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, GENERIC_ALL, psidAdmin)) {
         goto Exit;
@@ -2603,261 +1889,183 @@ BOOL UPCreateProfile (LPUPCOPYINFO lpUPCopyInfo, LPTSTR lpDest,
 
     lpAceHeader->AceFlags |= (OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE);
 
-
-
     // Put together the security descriptor
-
-
     if (!InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION)) {
         goto Exit;
     }
-
 
     if (!SetSecurityDescriptorDacl(&sd, TRUE, pAcl, FALSE)) {
         goto Exit;
     }
 
-
     // Add the security descriptor to the sa structure
-
-
     sa.nLength = sizeof(sa);
     sa.lpSecurityDescriptor = &sd;
     sa.bInheritHandle = FALSE;
 
-
-
     // Create the destination directory
-
-
-    if (!CreateNestedDirectory (lpDest, &sa)) {
+    if (!CreateNestedDirectory(lpDest, &sa)) {
         goto Exit;
     }
 
-
-
     // Save/copy the user's profile to a temp file
-
-
     if (!GetTempPath(MAX_PATH, szTempPath)) {
         goto Exit;
     }
 
-
-    if (!GetTempFileName (szTempPath, TEXT("TMP"), 0, szBuffer)) {
+    if (!GetTempFileName(szTempPath, TEXT("TMP"), 0, szBuffer)) {
         goto Exit;
     }
 
-    DeleteFile (szBuffer);
-
-
+    DeleteFile(szBuffer);
 
     // Determine if we are working with a mandatory profile
-
-
-    lstrcpy (szHive, lpUPCopyInfo->lpUserInfo->lpProfile);
+    lstrcpy(szHive, lpUPCopyInfo->lpUserInfo->lpProfile);
     lpEnd = CheckSlash(szHive);
-    lstrcpy (lpEnd, TEXT("ntuser.man"));
+    lstrcpy(lpEnd, TEXT("ntuser.man"));
 
     hFile = CreateFile(szHive, GENERIC_READ, FILE_SHARE_READ, NULL,
                        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-
     if (hFile != INVALID_HANDLE_VALUE) {
-        CloseHandle (hFile);
+        CloseHandle(hFile);
         bMandatory = TRUE;
     }
 
-
-
     // Test if the requested profile is in use.
-
-
-    if (IsProfileInUse (lpUPCopyInfo->lpUserInfo->lpSid)) {
-
-
-        Error = RegOpenKeyEx (HKEY_USERS, lpUPCopyInfo->lpUserInfo->lpSid, 0,
-                              KEY_READ, &hKeyProfile);
-
+    if (IsProfileInUse(lpUPCopyInfo->lpUserInfo->lpSid)) {
+        Error = RegOpenKeyEx(HKEY_USERS, lpUPCopyInfo->lpUserInfo->lpSid, 0,
+                             KEY_READ, &hKeyProfile);
         if (Error != ERROR_SUCCESS) {
             goto Exit;
         }
 
-        Error = MyRegSaveKey (hKeyProfile, szBuffer);
-
-        RegCloseKey (hKeyProfile);
-
+        Error = MyRegSaveKey(hKeyProfile, szBuffer);
+        RegCloseKey(hKeyProfile);
         if (Error != ERROR_SUCCESS) {
-            DeleteFile (szBuffer);
+            DeleteFile(szBuffer);
             goto Exit;
         }
-
     } else {
+        if (!bMandatory) {
+            lstrcpy(lpEnd, TEXT("ntuser.dat"));
+        }
 
-       if (!bMandatory) {
-           lstrcpy (lpEnd, TEXT("ntuser.dat"));
-       }
-
-       if (!CopyFile(szHive, szBuffer, FALSE)) {
-           goto Exit;
-       }
+        if (!CopyFile(szHive, szBuffer, FALSE)) {
+            goto Exit;
+        }
     }
 
-
     // Apply security to the hive
-
-
-    Error = MyRegLoadKey (HKEY_USERS, TEMP_PROFILE, szBuffer);
-
+    Error = MyRegLoadKey(HKEY_USERS, TEMP_PROFILE, szBuffer);
     if (Error != ERROR_SUCCESS) {
-        DeleteFile (szBuffer);
+        DeleteFile(szBuffer);
         goto Exit;
     }
 
     bRetVal = ApplyHiveSecurity(TEMP_PROFILE, psidUser);
 
-
-
     // Query for the user's exclusion list
-
-
     if (bRetVal) {
-
-
         // Open the root of the user's profile
-
-
         if (RegOpenKeyEx(HKEY_USERS, TEMP_PROFILE, 0, KEY_READ, &RootKey) == ERROR_SUCCESS) {
+            // Check for a list of directories to exclude both user preferences
+            // and user policy
+            szExcludeList1[0] = TEXT('\0');
+            if (RegOpenKeyEx(RootKey,
+                             TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"),
+                             0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+                dwSize = sizeof(szExcludeList1);
+                RegQueryValueEx(hKey,
+                                TEXT("ExcludeProfileDirs"),
+                                NULL,
+                                &dwType,
+                                (LPBYTE)szExcludeList1,
+                                &dwSize);
 
+                RegCloseKey(hKey);
+            }
 
+            szExcludeList2[0] = TEXT('\0');
+            if (RegOpenKeyEx(RootKey,
+                             TEXT("Software\\Policies\\Microsoft\\Windows\\System"),
+                             0, KEY_READ, &hKey) == ERROR_SUCCESS) {
 
-             // Check for a list of directories to exclude both user preferences
-             // and user policy
+                dwSize = sizeof(szExcludeList2);
+                RegQueryValueEx(hKey,
+                                TEXT("ExcludeProfileDirs"),
+                                NULL,
+                                &dwType,
+                                (LPBYTE)szExcludeList2,
+                                &dwSize);
 
+                RegCloseKey(hKey);
+            }
 
-             szExcludeList1[0] = TEXT('\0');
-             if (RegOpenKeyEx (RootKey,
-                               TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"),
-                               0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+            // Merge the user preferences and policy together
+            szExcludeList[0] = TEXT('\0');
 
-                 dwSize = sizeof(szExcludeList1);
-                 RegQueryValueEx (hKey,
-                                  TEXT("ExcludeProfileDirs"),
-                                  NULL,
-                                  &dwType,
-                                  (LPBYTE) szExcludeList1,
-                                  &dwSize);
+            if (szExcludeList1[0] != TEXT('\0')) {
+                lstrcpy(szExcludeList, szExcludeList1);
+            }
 
-                 RegCloseKey (hKey);
-             }
+            if (szExcludeList2[0] != TEXT('\0')) {
+                if (szExcludeList[0] != TEXT('\0')) {
+                    lstrcat(szExcludeList, TEXT(";"));
+                }
 
-             szExcludeList2[0] = TEXT('\0');
-             if (RegOpenKeyEx (RootKey,
-                               TEXT("Software\\Policies\\Microsoft\\Windows\\System"),
-                               0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-
-                 dwSize = sizeof(szExcludeList2);
-                 RegQueryValueEx (hKey,
-                                  TEXT("ExcludeProfileDirs"),
-                                  NULL,
-                                  &dwType,
-                                  (LPBYTE) szExcludeList2,
-                                  &dwSize);
-
-                 RegCloseKey (hKey);
-             }
-
-
-
-             // Merge the user preferences and policy together
-
-
-             szExcludeList[0] = TEXT('\0');
-
-             if (szExcludeList1[0] != TEXT('\0')) {
-                 lstrcpy (szExcludeList, szExcludeList1);
-             }
-
-             if (szExcludeList2[0] != TEXT('\0')) {
-
-                 if (szExcludeList[0] != TEXT('\0')) {
-                     lstrcat (szExcludeList, TEXT(";"));
-                 }
-
-                 lstrcat (szExcludeList, szExcludeList2);
-             }
-            RegCloseKey (RootKey);
+                lstrcat(szExcludeList, szExcludeList2);
+            }
+            RegCloseKey(RootKey);
         }
     }
 
-
-
     // Unload the hive
-
-
     MyRegUnLoadKey(HKEY_USERS, TEMP_PROFILE);
 
     if (!bRetVal) {
-        DeleteFile (szBuffer);
-        lstrcat (szBuffer, TEXT(".log"));
-        DeleteFile (szBuffer);
+        DeleteFile(szBuffer);
+        lstrcat(szBuffer, TEXT(".log"));
+        DeleteFile(szBuffer);
         goto Exit;
     }
-
-
 
     // Copy the profile without the hive
-
-
-    bRetVal = CopyProfileDirectoryEx (lpUPCopyInfo->lpUserInfo->lpProfile,
-                                      lpDest,
-                                      CPD_IGNOREHIVE |
-                                      CPD_COPYIFDIFFERENT |
-                                      CPD_SYNCHRONIZE |
-                                      CPD_USEEXCLUSIONLIST |
-                                      CPD_IGNORESECURITY |
-                                      CPD_DELDESTEXCLUSIONS,
-                                      NULL,
-                                      (szExcludeList[0] != TEXT('\0')) ?
-                                      szExcludeList : NULL);
-
+    bRetVal = CopyProfileDirectoryEx(lpUPCopyInfo->lpUserInfo->lpProfile,
+                                     lpDest,
+                                     CPD_IGNOREHIVE |
+                                     CPD_COPYIFDIFFERENT |
+                                     CPD_SYNCHRONIZE |
+                                     CPD_USEEXCLUSIONLIST |
+                                     CPD_IGNORESECURITY |
+                                     CPD_DELDESTEXCLUSIONS,
+                                     NULL,
+                                     (szExcludeList[0] != TEXT('\0')) ?
+                                     szExcludeList : NULL);
     if (!bRetVal) {
         DeleteFile(szBuffer);
-        lstrcat (szBuffer, TEXT(".log"));
-        DeleteFile (szBuffer);
+        lstrcat(szBuffer, TEXT(".log"));
+        DeleteFile(szBuffer);
         goto Exit;
     }
 
-
-
     // Now copy the hive
-
-
-    lstrcpy (szHive, lpDest);
-    lpEnd = CheckSlash (szHive);
+    lstrcpy(szHive, lpDest);
+    lpEnd = CheckSlash(szHive);
     if (bMandatory) {
-        lstrcpy (lpEnd, TEXT("ntuser.man"));
+        lstrcpy(lpEnd, TEXT("ntuser.man"));
     } else {
-        lstrcpy (lpEnd, TEXT("ntuser.dat"));
+        lstrcpy(lpEnd, TEXT("ntuser.dat"));
     }
 
-    bRetVal = CopyFile (szBuffer, szHive, FALSE);
-
+    bRetVal = CopyFile(szBuffer, szHive, FALSE);
 
     // Delete the temp file (and log file)
-
-
-    DeleteFile (szBuffer);
-    lstrcat (szBuffer, TEXT(".log"));
-    DeleteFile (szBuffer);
-
+    DeleteFile(szBuffer);
+    lstrcat(szBuffer, TEXT(".log"));
+    DeleteFile(szBuffer);
 
 Exit:
-
-
     // Free the sids and acl
-
-
     if (psidSystem) {
         FreeSid(psidSystem);
     }
@@ -2867,83 +2075,54 @@ Exit:
     }
 
     if (pAcl) {
-        MemFree (pAcl);
+        MemFree(pAcl);
     }
-
 
     return (bRetVal);
 }
 
 
-
+VOID UPDisplayErrorMessage(HWND hWnd, UINT uiSystemError)
 //  UPDisplayErrorMessage()
-
 //  Purpose:    Display an error message
-
 //  Parameters: hWnd            -   parent window handle
 //              uiSystemError   -   Error code
-
 //  Return:     void
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              2/14/96     ericflo    Created
-
-
-
-VOID UPDisplayErrorMessage(HWND hWnd, UINT uiSystemError)
 {
-   TCHAR szMessage[MAX_PATH];
-   TCHAR szTitle[100];
+    TCHAR szMessage[MAX_PATH];
+    TCHAR szTitle[100];
 
+    // retrieve the string matching the Win32 system error
+    FormatMessage(
+        FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
+        NULL,
+        uiSystemError,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
+        szMessage,
+        MAX_PATH,
+        NULL);
 
-   // retrieve the string matching the Win32 system error
+    // display a message box with this error
+    LoadString(hInstance, IDS_UP_ERRORTITLE, szTitle, 100);
+    MessageBox(hWnd, szMessage, szTitle, MB_OK | MB_ICONSTOP);
 
-
-   FormatMessage(
-            FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
-            NULL,
-            uiSystemError,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
-            szMessage,
-            MAX_PATH,
-            NULL);
-
-
-   // display a message box with this error
-
-
-   LoadString (hInstance, IDS_UP_ERRORTITLE, szTitle, 100);
-   MessageBox(hWnd, szMessage, szTitle, MB_OK | MB_ICONSTOP);
-
-   return;
-
+    return;
 }
 
 
-
+DWORD ApplySecurityToRegistryTree(HKEY RootKey, PSECURITY_DESCRIPTOR pSD)
 //  ApplySecurityToRegistryTree()
-
 //  Purpose:    Applies the passed security descriptor to the passed
 //              key and all its descendants.  Only the parts of
 //              the descriptor inddicated in the security
 //              info value are actually applied to each registry key.
-
 //  Parameters: RootKey   -     Registry key
 //              pSD       -     Security Descriptor
-
 //  Return:     ERROR_SUCCESS if successful
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              7/19/95     ericflo    Created
-
-
-
-DWORD ApplySecurityToRegistryTree(HKEY RootKey, PSECURITY_DESCRIPTOR pSD)
-
 {
     DWORD Error;
     DWORD SubKeyIndex;
@@ -2951,114 +2130,62 @@ DWORD ApplySecurityToRegistryTree(HKEY RootKey, PSECURITY_DESCRIPTOR pSD)
     HKEY SubKey;
     DWORD cchSubKeySize = MAX_PATH + 1;
 
-
-
-
     // First apply security
-
-
     RegSetKeySecurity(RootKey, DACL_SECURITY_INFORMATION, pSD);
 
-
-
     // Open each sub-key and apply security to its sub-tree
-
-
     SubKeyIndex = 0;
-
-    SubKeyName = MemAlloc (LPTR, cchSubKeySize * sizeof(TCHAR));
-
+    SubKeyName = MemAlloc(LPTR, cchSubKeySize * sizeof(TCHAR));
     if (!SubKeyName) {
         return GetLastError();
     }
 
     while (TRUE) {
-
-
         // Get the next sub-key name
-
-
         Error = RegEnumKey(RootKey, SubKeyIndex, SubKeyName, cchSubKeySize);
-
-
         if (Error != ERROR_SUCCESS) {
-
             if (Error == ERROR_NO_MORE_ITEMS) {
-
-
                 // Successful end of enumeration
-
-
                 Error = ERROR_SUCCESS;
-
             }
 
             break;
         }
 
-
-
         // Open the sub-key
-
-
         Error = RegOpenKeyEx(RootKey,
                              SubKeyName,
                              0,
                              WRITE_DAC | KEY_ENUMERATE_SUB_KEYS | READ_CONTROL,
                              &SubKey);
-
         if (Error == ERROR_SUCCESS) {
-
-
             // Apply security to the sub-tree
-
-
             ApplySecurityToRegistryTree(SubKey, pSD);
 
-
-
             // We're finished with the sub-key
-
-
             RegCloseKey(SubKey);
         }
 
-
-
         // Go enumerate the next sub-key
-
-
-        SubKeyIndex ++;
+        SubKeyIndex++;
     }
 
-
-    MemFree (SubKeyName);
+    MemFree(SubKeyName);
 
     return Error;
-
 }
 
 
-
+BOOL ApplyHiveSecurity(LPTSTR lpHiveName, PSID pSid)
 //  ApplyHiveSecurity()
-
 //  Purpose:    Initializes the new user hive created by copying
 //              the default hive.
-
 //  Parameters: lpHiveName      -   Name of hive in HKEY_USERS
 //              pSid            -   Sid (used by CreateNewUser)
-
 //  Return:     TRUE if successful
 //              FALSE if an error occurs
-
-//  Comments:
-
 //  History:    Date        Author     Comment
 //              7/18/95     ericflo    Created
-
-
-
-BOOL ApplyHiveSecurity(LPTSTR lpHiveName, PSID pSid)
 {
     DWORD Error;
     HKEY RootKey;
@@ -3070,59 +2197,38 @@ BOOL ApplyHiveSecurity(LPTSTR lpHiveName, PSID pSid)
     ACE_HEADER * lpAceHeader;
     BOOL bRetVal = FALSE;
 
-
-
-
     // Get the system sid
-
-
     if (!AllocateAndInitializeSid(&authNT, 1, SECURITY_LOCAL_SYSTEM_RID,
                                   0, 0, 0, 0, 0, 0, 0, &psidSystem)) {
-         goto Exit;
-    }
-
-
-
-    // Get the admin sid
-
-
-    if (!AllocateAndInitializeSid(&authNT, 2, SECURITY_BUILTIN_DOMAIN_RID,
-                                  DOMAIN_ALIAS_RID_ADMINS, 0, 0,
-                                  0, 0, 0, 0, &psidAdmin)) {
-         goto Exit;
-    }
-
-
-
-    // Allocate space for the ACL
-
-
-    cbAcl = (2 * GetLengthSid (psidUser)) + (2 * GetLengthSid (psidSystem)) +
-            (2 * GetLengthSid (psidAdmin)) + sizeof(ACL) +
-            (6 * (sizeof(ACCESS_ALLOWED_ACE) - sizeof(DWORD)));
-
-
-    pAcl = (PACL) MemAlloc(LPTR, cbAcl);
-    if (!pAcl) {
         goto Exit;
     }
 
+    // Get the admin sid
+    if (!AllocateAndInitializeSid(&authNT, 2, SECURITY_BUILTIN_DOMAIN_RID,
+                                  DOMAIN_ALIAS_RID_ADMINS, 0, 0,
+                                  0, 0, 0, 0, &psidAdmin)) {
+        goto Exit;
+    }
+
+    // Allocate space for the ACL
+    cbAcl = (2 * GetLengthSid(psidUser)) + (2 * GetLengthSid(psidSystem)) +
+        (2 * GetLengthSid(psidAdmin)) + sizeof(ACL) +
+        (6 * (sizeof(ACCESS_ALLOWED_ACE) - sizeof(DWORD)));
+
+    pAcl = (PACL)MemAlloc(LPTR, cbAcl);
+    if (!pAcl) {
+        goto Exit;
+    }
 
     if (!InitializeAcl(pAcl, cbAcl, ACL_REVISION)) {
         goto Exit;
     }
 
-
-
-
     // Add Aces for User, System, and Admin.  Non-inheritable ACEs first
-
-
     AceIndex = 0;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, KEY_ALL_ACCESS, psidUser)) {
         goto Exit;
     }
-
 
     AceIndex++;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, KEY_ALL_ACCESS, psidSystem)) {
@@ -3134,11 +2240,7 @@ BOOL ApplyHiveSecurity(LPTSTR lpHiveName, PSID pSid)
         goto Exit;
     }
 
-
-
     // Now the inheritable ACEs
-
-
     AceIndex++;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, GENERIC_ALL, psidUser)) {
         goto Exit;
@@ -3149,7 +2251,6 @@ BOOL ApplyHiveSecurity(LPTSTR lpHiveName, PSID pSid)
     }
 
     lpAceHeader->AceFlags |= (OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE);
-
 
     AceIndex++;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, GENERIC_ALL, psidSystem)) {
@@ -3162,7 +2263,6 @@ BOOL ApplyHiveSecurity(LPTSTR lpHiveName, PSID pSid)
 
     lpAceHeader->AceFlags |= (OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE);
 
-
     AceIndex++;
     if (!AddAccessAllowedAce(pAcl, ACL_REVISION, GENERIC_ALL, psidAdmin)) {
         goto Exit;
@@ -3174,56 +2274,34 @@ BOOL ApplyHiveSecurity(LPTSTR lpHiveName, PSID pSid)
 
     lpAceHeader->AceFlags |= (OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE);
 
-
-
     // Put together the security descriptor
-
-
     if (!InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION)) {
         goto Exit;
     }
-
 
     if (!SetSecurityDescriptorDacl(&sd, TRUE, pAcl, FALSE)) {
         goto Exit;
     }
 
-
-
     // Open the root of the user's profile
-
-
     Error = RegOpenKeyEx(HKEY_USERS,
                          lpHiveName,
                          0,
                          WRITE_DAC | KEY_ENUMERATE_SUB_KEYS | READ_CONTROL,
                          &RootKey);
-
     if (Error == ERROR_SUCCESS) {
-
-
         // Set the security descriptor on the entire tree
-
-
         Error = ApplySecurityToRegistryTree(RootKey, &sd);
-
-
         if (Error == ERROR_SUCCESS) {
             bRetVal = TRUE;
         }
 
-        RegFlushKey (RootKey);
-
+        RegFlushKey(RootKey);
         RegCloseKey(RootKey);
     }
 
-
 Exit:
-
-
     // Free the sids and acl
-
-
     if (psidSystem) {
         FreeSid(psidSystem);
     }
@@ -3233,10 +2311,8 @@ Exit:
     }
 
     if (pAcl) {
-        MemFree (pAcl);
+        MemFree(pAcl);
     }
 
-
     return(bRetVal);
-
 }
