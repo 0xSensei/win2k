@@ -1,16 +1,7 @@
-
-
 //  Microsoft Windows
 //  Copyright (C) Microsoft Corporation, 1992 - 1995.
-
 //  File:       delaydll.h
-
 //  Contents:   precompiled headers for delayed dll
-
-//  Classes:
-
-//  Functions:
-
 //  History:    12-22-95   JohannP (Johann Posch)   Created
 
 

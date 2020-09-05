@@ -1,12 +1,7 @@
-
-
 //  Microsoft Trident
 //  Copyright (C) Microsoft Corporation, 1996
-
 //  File:       oleaut32.cxx
-
 //  Contents:   Dynamic wrappers for OLE Automation monikers.
-
 
 
 #include "precomp.hxx"
@@ -61,14 +56,13 @@ STDAPI_(void) fn a1\
     (*(void (STDAPICALLTYPE *) a1)s_dynproc##fn.pfn) a2;\
 }
 
-WINOLEAUTAPI_(void )
-VariantInit(VARIANTARG *pvarg)
+WINOLEAUTAPI_(void ) VariantInit(VARIANTARG *pvarg)
 {
     pvarg->vt = VT_EMPTY;
 }
 
-WINOLEAUTAPI
-VariantClear(VARIANTARG *pvarg)
+
+WINOLEAUTAPI VariantClear(VARIANTARG *pvarg)
 {
     HRESULT hr;
     static DYNPROC s_dynprocVariantClear = { NULL, &g_dynlibOLEAUT32, "VariantClear" };
@@ -85,16 +79,13 @@ VariantClear(VARIANTARG *pvarg)
     case VT_EMPTY:
     case VT_BOOL:
         break;
-
     case VT_DISPATCH:
     case VT_UNKNOWN:
         ReleaseInterface(V_UNKNOWN(pvarg));
         break;
-
     case VT_SAFEARRAY:
         THR(SafeArrayDestroy(V_ARRAY(pvarg)));
         break;
-
     default:
         hr = THR(LoadProcedure(&s_dynprocVariantClear));
         if (hr)

@@ -1,16 +1,6 @@
-
-
 //  Microsoft Windows
 //  Copyright (C) Microsoft Corporation, 1992 - 1995.
-
 //  File:        OAUTDLL.hxx
-
-//  Contents:
-
-//  Classes:
-
-//  Functions:
-
 //  History:    05-15-97   DanpoZ (Danpo Zhang)   Created
 
 
@@ -18,21 +8,10 @@
 #define OAUTDLL_HXX_
 
 
-
 //  Class:       COleAutDll
-
 //  Purpose:     class wrapper for calling API from delay
 //               loaded oleaut32.dll
-
-//  Interface:
-
-
 //  History:     05-15-97   DanpoZ (Danpo Zhang)   Created
-
-//  Notes:
-
-
-
 class COleAutDll
 {
 public:
@@ -93,62 +72,62 @@ public:
 
 
     // APIs
-    DELAYOLEAUTAPI_HR( VariantClear,
-        (VARIANTARG*    pvarg),
-        (pvarg)
+    DELAYOLEAUTAPI_HR(VariantClear,
+                      (VARIANTARG * pvarg),
+                      (pvarg)
     )
 
 
-    DELAYOLEAUTAPI_HR( VariantInit,
-        (VARIANTARG*    pvarg),
-        (pvarg)
-    )
+        DELAYOLEAUTAPI_HR(VariantInit,
+                          (VARIANTARG * pvarg),
+                          (pvarg)
+        )
 
-    DELAYOLEAUTAPI_HR( VariantCopy,
-        (VARIANTARG*    pvargDest,
-         VARIANTARG*    pvargSrc
-        ),
-        (pvargDest, pvargSrc)
-    )
+        DELAYOLEAUTAPI_HR(VariantCopy,
+                          (VARIANTARG * pvargDest,
+                           VARIANTARG * pvargSrc
+                           ),
+                          (pvargDest, pvargSrc)
+        )
 
-    DELAYOLEAUTAPI_HR( VariantChangeType,
-        (VARIANTARG*    pvargDest,
-         VARIANTARG*    pvargSrc,
-         USHORT         wFlags,
-         VARTYPE        vt
-        ),
-        (pvargDest, pvargSrc, wFlags, vt)
-    )
+        DELAYOLEAUTAPI_HR(VariantChangeType,
+                          (VARIANTARG * pvargDest,
+                           VARIANTARG * pvargSrc,
+                           USHORT         wFlags,
+                           VARTYPE        vt
+                           ),
+                          (pvargDest, pvargSrc, wFlags, vt)
+        )
 
-    DELAYOLEAUTAPI_HR( LoadTypeLib,
-        (const OLECHAR* szFile,
-         ITypeLib**     pptlib
-        ),
-        (szFile, pptlib)
-    )
+        DELAYOLEAUTAPI_HR(LoadTypeLib,
+                          (const OLECHAR * szFile,
+                           ITypeLib ** pptlib
+                           ),
+                          (szFile, pptlib)
+        )
 
 
-    DELAYOLEAUTAPI_BSTR( SysAllocStringByteLen,
-        (LPCSTR         psz,
-         UINT           len
-        ),
-        (psz, len )
-    )
+        DELAYOLEAUTAPI_BSTR(SysAllocStringByteLen,
+                            (LPCSTR         psz,
+                             UINT           len
+                             ),
+                            (psz, len)
+        )
 
-    DELAYOLEAUTAPI_BSTR( SysAllocString,
-        (const OLECHAR* psz),
-        (psz)
-    )
+        DELAYOLEAUTAPI_BSTR(SysAllocString,
+                            (const OLECHAR * psz),
+                            (psz)
+        )
 
-    DELAYOLEAUTAPI_UINT( SysStringByteLen,
-        (BSTR           bstr),
-        (bstr)
-    )
+        DELAYOLEAUTAPI_UINT(SysStringByteLen,
+                            (BSTR           bstr),
+                            (bstr)
+        )
 
-    DELAYOLEAUTAPI_VOID( SysFreeString,
-        (BSTR           bstr),
-        (bstr)
-    )
+        DELAYOLEAUTAPI_VOID(SysFreeString,
+                            (BSTR           bstr),
+                            (bstr)
+        )
 
 private:
     BOOL    _fInited;
@@ -156,17 +135,8 @@ private:
 };
 
 
-
-
 //  Method:     COleAutDll::COleAutDll
-
-//  Synopsis:
-
 //  History:    05-15-97   DanpoZ (Danpo Zhang)   Created
-
-//  Notes:
-
-
 inline
 COleAutDll::COleAutDll()
 {
@@ -175,46 +145,27 @@ COleAutDll::COleAutDll()
 }
 
 
-
 //  Method:     COleAutDll::~COleAutDll
-
-//  Synopsis:
-
 //  History:    05-15-97   DanpoZ (Danpo Zhang)   Created
-
-//  Notes:
-
-
 inline
 COleAutDll::~COleAutDll()
 {
-    if( _fInited)
+    if (_fInited)
         FreeLibrary(_hMod);
 }
 
 
-
-
 //  Method:     COleAutDll::Init
-
-//  Synopsis:
-
 //  History:    05-15-97   DanpoZ (Danpo Zhang)   Created
-
-//  Notes:
-
-
 inline
 HRESULT COleAutDll::Init()
 {
     HRESULT hr = NOERROR;
-    if( !_fInited )
-    {
+    if (!_fInited) {
         _hMod = LoadLibrary("oleaut32.dll");
-        if( !_hMod )
+        if (!_hMod)
             hr = HRESULT_FROM_WIN32(GetLastError());
-        else
-        {
+        else {
 #define CHECKOAUTAPI(_fn) \
             *(FARPROC*)&(_pfn##_fn) = GetProcAddress(_hMod, #_fn); \
             if( !(_pfn##_fn)) hr = E_UNEXPECTED;
@@ -230,15 +181,11 @@ HRESULT COleAutDll::Init()
             CHECKOAUTAPI(LoadTypeLib);
         }
 
-
-        if( hr == NOERROR )
+        if (hr == NOERROR)
             _fInited = TRUE;
     }
-
 
     return hr;
 }
 
 #endif
-
-
