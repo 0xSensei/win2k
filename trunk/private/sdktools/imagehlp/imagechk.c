@@ -1,25 +1,14 @@
 /*++
-
 Copyright (c) 1998  Microsoft Corporation
 
 Module Name:
-
     imagechk.c
 
 Abstract:
-
     this module implements a sanity check of certain image characteristics
 
 Author:
-
     NT Base
-
-Revision History:
-
-
-Notes:
-
-
 --*/
 
 #ifdef __cplusplus
@@ -38,9 +27,9 @@ extern "C" {
 #include <private.h>
 
 typedef struct _SYMMODLIST {
-    char* ModName;
-    void* ModBase;
-    struct _SYMMODLIST* Next;
+    char * ModName;
+    void * ModBase;
+    struct _SYMMODLIST * Next;
 } SYMMODLIST, * PSYMMODLIST;
 
 typedef struct List {
@@ -49,117 +38,31 @@ typedef struct List {
 } List, * pList;
 
 typedef struct _LogListItem {
-    char* LogLine;
-    struct _LogListItem* Next;
+    char * LogLine;
+    struct _LogListItem * Next;
 } LogListItem, * pLogListItem;
 
 
 // decarations
 
-
-VOID
-FindFiles();
-
-VOID
-Imagechk(
-    List* rgpList,
-    TCHAR* szDirectory
-);
-
-VOID
-ParseArgs(
-    int* pargc,
-    char** argv
-);
-
-int
-__cdecl
-CompFileAndDir(
-    const void* elem1,
-    const void* elem2
-);
-
-int
-__cdecl
-CompName(
-    const void* elem1,
-    const void* elem2
-);
-
-VOID
-Usage(
-    VOID
-);
-
-int
-_cdecl
-_cwild(
-    VOID
-);
-
-PSYMMODLIST
-MakeModList(
-    HANDLE
-);
-
-void
-FreeModList(
-    PSYMMODLIST
-);
-
-BOOL
-CALLBACK
-SymEnumerateModulesCallback(
-    LPSTR,
-    ULONG64,
-    PVOID
-);
-
-void*
-GetModAddrFromName(
-    PSYMMODLIST,
-    char*
-);
-
-BOOL
-VerifyVersionResource(
-    PCHAR FileName,
-    BOOL fSelfRegister
-);
-
-BOOL
-ValidatePdata(
-    PIMAGE_DOS_HEADER DosHeader
-);
-
-BOOL
-ImageNeedsOleSelfRegister(
-    PIMAGE_DOS_HEADER DosHeader
-);
-
-NTSTATUS
-MiVerifyImageHeader(
-    IN PIMAGE_NT_HEADERS NtHeader,
-    IN PIMAGE_DOS_HEADER DosHeader,
-    IN DWORD NtHeaderSize
-);
-
-pLogListItem
-LogAppend(
-    char*,
-    pLogListItem
-);
-
-void
-LogOutAndClean(
-    BOOL
-);
-
-void
-LogPrintf(
-    const char* format,
-    ...
-);
+VOID FindFiles();
+VOID Imagechk(List * rgpList, TCHAR * szDirectory);
+VOID ParseArgs(int * pargc, char ** argv);
+int __cdecl CompFileAndDir(const void * elem1, const void * elem2);
+int __cdecl CompName(const void * elem1, const void * elem2);
+VOID Usage(VOID);
+int _cdecl _cwild(VOID);
+PSYMMODLIST MakeModList(HANDLE);
+void FreeModList(PSYMMODLIST);
+BOOL CALLBACK SymEnumerateModulesCallback(LPSTR, ULONG64, PVOID);
+void * GetModAddrFromName(PSYMMODLIST, char *);
+BOOL VerifyVersionResource(PCHAR FileName, BOOL fSelfRegister);
+BOOL ValidatePdata(PIMAGE_DOS_HEADER DosHeader);
+BOOL ImageNeedsOleSelfRegister(PIMAGE_DOS_HEADER DosHeader);
+NTSTATUS MiVerifyImageHeader(IN PIMAGE_NT_HEADERS NtHeader, IN PIMAGE_DOS_HEADER DosHeader, IN DWORD NtHeaderSize);
+pLogListItem LogAppend(char *, pLogListItem);
+void LogOutAndClean(BOOL);
+void LogPrintf(const char * format, ...);
 
 #define X64K (64*1024)
 
@@ -199,13 +102,13 @@ BOOL fSingleFile;
 BOOL fPathOverride;
 BOOL fSingleSlash;
 BOOL fDebugMapped;
-FILE* fout;
-CHAR* szFileName = {"*.*"};
-CHAR* pszRootDir;
-CHAR* pszFileOut;
+FILE * fout;
+CHAR * szFileName = {"*.*"};
+CHAR * pszRootDir;
+CHAR * pszFileOut;
 CHAR szDirectory[MAX_PATH] = {"."};
 CHAR szSympath[MAX_PATH] = {0};
-CHAR* szPattern;
+CHAR * szPattern;
 int endpath, DirNum = 1, ProcessedFiles;
 ULONG PageSize;
 ULONG PageShift;
@@ -223,7 +126,7 @@ pLogListItem pLogListTmp = NULL;
 
 typedef
 NTSTATUS
-(NTAPI* LPLDRVERIFYIMAGECHKSUM)(
+(NTAPI * LPLDRVERIFYIMAGECHKSUM)(
     IN HANDLE ImageFileHandle
     );
 
@@ -231,7 +134,7 @@ LPLDRVERIFYIMAGECHKSUM lpOldLdrVerifyImageMatchesChecksum;
 
 typedef
 NTSTATUS
-(NTAPI* LPLDRVERIFYIMAGEMATCHESCHECKSUM) (
+(NTAPI * LPLDRVERIFYIMAGEMATCHESCHECKSUM) (
     IN HANDLE ImageFileHandle,
     IN PLDR_IMPORT_MODULE_CALLBACK ImportCallbackRoutine OPTIONAL,
     IN PVOID ImportCallbackParameter,
@@ -242,7 +145,7 @@ LPLDRVERIFYIMAGEMATCHESCHECKSUM lpNewLdrVerifyImageMatchesChecksum;
 
 typedef
 NTSTATUS
-(NTAPI* LPNTQUERYSYSTEMINFORMATION) (
+(NTAPI * LPNTQUERYSYSTEMINFORMATION) (
     IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
     OUT PVOID SystemInformation,
     IN ULONG SystemInformationLength,
@@ -256,7 +159,7 @@ OSVERSIONINFO VersionInformation;
 
 // function definitions
 
-VOID __cdecl main(int argc, char* argv[], char* envp[])
+VOID __cdecl main(int argc, char * argv[], char * envp[])
 /*++
 Routine Description:
     program entry
@@ -365,15 +268,15 @@ Routine Description:
 {
     HANDLE fh;
     TCHAR CWD[MAX_PATH];
-    char* q;
-    WIN32_FIND_DATA* pfdata;
+    char * q;
+    WIN32_FIND_DATA * pfdata;
     BOOL fFilesInDir = FALSE;
     BOOL fDirsFound = FALSE;
     int dnCounter = 0, cNumDir = 0, i = 0, Length = 0, NameSize = 0, total = 0, cNumFiles = 0;
 
     pList rgpList[5000];
 
-    pfdata = (WIN32_FIND_DATA*)malloc(sizeof(WIN32_FIND_DATA));
+    pfdata = (WIN32_FIND_DATA *)malloc(sizeof(WIN32_FIND_DATA));
     if (!pfdata) {
         fprintf(stderr, "Not enough memory.\n");
         return;
@@ -448,14 +351,14 @@ Routine Description:
     FindClose(fh); // close the file handle
 
     // Sort Array arranging FILE entries at top
-    qsort((void*)rgpList, dnCounter, sizeof(List*), CompFileAndDir);
+    qsort((void *)rgpList, dnCounter, sizeof(List *), CompFileAndDir);
 
     // Sort Array alphabetizing only FILE names
-    qsort((void*)rgpList, dnCounter - cNumDir, sizeof(List*), CompName);
+    qsort((void *)rgpList, dnCounter - cNumDir, sizeof(List *), CompName);
 
     // Sort Array alphabetizing only DIRectory names
     if (fRecurse) {
-        qsort((void*)&rgpList[dnCounter - cNumDir], cNumDir, sizeof(List*), CompName);
+        qsort((void *)&rgpList[dnCounter - cNumDir], cNumDir, sizeof(List *), CompName);
     }
 
     // Process newly sorted structures.
@@ -463,12 +366,9 @@ Routine Description:
 
         if (rgpList[i]->Attributes & FILE_ATTRIBUTE_DIRECTORY) {  // if Dir
             if (fRecurse) {
-
                 if (_chdir(rgpList[i]->Name) == -1) {   // cd into subdir and check for error
                     fprintf(stderr, "Unable to change directory: %s\n", rgpList[i]->Name);
-
                 } else {
-
                     NameSize = strlen(rgpList[i]->Name);
                     strcat(szDirectory, "\\");
                     strcat(szDirectory, rgpList[i]->Name); //append name to directory path
@@ -492,35 +392,22 @@ Routine Description:
     }
 } // end FindFiles
 
-VOID
-Imagechk(
-    List* rgpList,
-    TCHAR* szDirectory
-)
+
+VOID Imagechk(List * rgpList, TCHAR * szDirectory)
 /*++
-
 Routine Description:
-
     check various things, including:
         image type, header alignment, image size, machine type
         alignment, some properties of various sections, checksum integrity
         symbol / image file checksum agreement, existence of symbols, etc
-
 Arguments:
-
     List *  rgpList,
     TCHAR * szDirectory
-
 Return Value:
-
     none
-
 Notes:
-
-
 --*/
 {
-
     HANDLE File;
     HANDLE MemMap;
     PIMAGE_DOS_HEADER DosHeader;
@@ -596,15 +483,11 @@ Notes:
         ImageOk = FALSE; goto NextImage;
     }
 
-
     // Check to determine if this is an NT image (PE format) or
     // a DOS image, Win-16 image, or OS/2 image.  If the image is
-    // not NT format, return an error indicating which image it
-    // appears to be.
-
+    // not NT format, return an error indicating which image it appears to be.
 
     if (DosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
-
         if (ArgFlag & ArgFlag_CKMZ) {
             LogPrintf("MZ header not found\n");
             ImageOk = FALSE;
@@ -612,19 +495,13 @@ Notes:
         goto NeImage;
     }
 
-
     if (((ULONG)DosHeader->e_lfanew & 3) != 0) {
-
-
         // The image header is not aligned on a long boundary.
         // Report this as an invalid protect mode image.
-
-
         LogPrintf("Image header not on Long boundary\n");
         ImageOk = FALSE;
         goto NeImage;
     }
-
 
     if ((ULONG)DosHeader->e_lfanew > FileInfo.nFileSizeLow) {
         LogPrintf("Image size bigger than size of file\n");
@@ -633,27 +510,19 @@ Notes:
     }
 
     NtHeader = (PIMAGE_NT_HEADERS)((PCHAR)DosHeader + (ULONG)DosHeader->e_lfanew);
-
     if (NtHeader->Signature != IMAGE_NT_SIGNATURE) { //if not PE image
-
         LogPrintf("Non 32-bit image");
         ImageOk = TRUE;
         goto NeImage;
     }
 
-
     // Check to see if this is an NT image or a DOS or OS/2 image.
-
-
     Status = MiVerifyImageHeader(NtHeader, DosHeader, 50000);
     if (Status != STATUS_SUCCESS) {
         ImageOk = FALSE;            //continue checking the image but don't print "OK"
     }
 
-
     // Verify machine type.
-
-
     fHasPdata = TRUE;       // Most do
 
     switch (NtHeader->FileHeader.Machine) {
@@ -663,28 +532,23 @@ Notes:
         PageShift = 12;
         fHasPdata = FALSE;
         break;
-
     case IMAGE_FILE_MACHINE_ALPHA:
         MachineType = "Alpha";
         PageSize = 8192;
         PageShift = 13;
         break;
-
     case IMAGE_FILE_MACHINE_IA64:
         MachineType = "Intel64";
         PageSize = 8192;
         PageShift = 13;
         break;
-
     case IMAGE_FILE_MACHINE_ALPHA64:
         MachineType = "Alpha64";
         PageSize = 8192;
         PageShift = 13;
         break;
-
     default:
-        LogPrintf("Unrecognized machine type x%lx\n",
-                  NtHeader->FileHeader.Machine);
+        LogPrintf("Unrecognized machine type x%lx\n", NtHeader->FileHeader.Machine);
         ImageOk = FALSE;
         break;
     }
@@ -697,17 +561,11 @@ Notes:
     }
 
     ImageAlignment = NtHeader->OptionalHeader.SectionAlignment;
-
     NumberOfPtes = BYTES_TO_PAGES(NtHeader->OptionalHeader.SizeOfImage);
-
     NextVa = NtHeader->OptionalHeader.ImageBase;
 
     if ((NextVa & (X64K - 1)) != 0) {
-
-
         // Image header is not aligned on a 64k boundary.
-
-
         LogPrintf("image base not on 64k boundary %lx\n", NextVa);
 
         ImageOk = FALSE;
@@ -715,67 +573,39 @@ Notes:
     }
 
     //BasedAddress = (PVOID)NextVa;
-    PtesInSubsection = MI_ROUND_TO_SIZE(
-        NtHeader->OptionalHeader.SizeOfHeaders,
-        ImageAlignment
-    ) >> PageShift;
-
+    PtesInSubsection = MI_ROUND_TO_SIZE(NtHeader->OptionalHeader.SizeOfHeaders, ImageAlignment) >> PageShift;
     if (ImageAlignment >= PageSize) {
-
-
         // Aligmment is PageSize of greater.
-
-
         if (PtesInSubsection > NumberOfPtes) {
-
-
             // Inconsistent image, size does not agree with header.
-
-
-            LogPrintf("Image size in header (%ld.) not consistent with sections (%ld.)\n",
-                      NumberOfPtes, PtesInSubsection);
+            LogPrintf("Image size in header (%ld.) not consistent with sections (%ld.)\n", NumberOfPtes, PtesInSubsection);
             ImageOk = FALSE;
             goto BadPeImageSegment;
         }
 
         NumberOfPtes -= PtesInSubsection;
-
         EndingSector = NtHeader->OptionalHeader.SizeOfHeaders >> MMSECTOR_SHIFT;
 
         for (i = 0; i < PtesInSubsection; i++) {
-
             NextVa += PageSize;
         }
     }
 
-
     // Build the next subsections.
-
-
     NumberOfSubsections = NtHeader->FileHeader.NumberOfSections;
     PreferredImageBase = NtHeader->OptionalHeader.ImageBase;
-
 
     // At this point the object table is read in (if it was not
     // already read in) and may displace the image header.
 
-
-    OffsetToSectionTable = sizeof(ULONG) +
-        sizeof(IMAGE_FILE_HEADER) +
-        NtHeader->FileHeader.SizeOfOptionalHeader;
-
+    OffsetToSectionTable = sizeof(ULONG) + sizeof(IMAGE_FILE_HEADER) + NtHeader->FileHeader.SizeOfOptionalHeader;
     SectionTableEntry = (PIMAGE_SECTION_HEADER)((PCHAR)NtHeader + OffsetToSectionTable);
 
     if (ImageAlignment < PageSize) {
-
         // The image header is no longer valid, TempPte is
-        // used to indicate that this image alignment is
-        // less than a PageSize.
+        // used to indicate that this image alignment is less than a PageSize.
 
-
-        // Loop through all sections and make sure there is no
-        // unitialized data.
-
+        // Loop through all sections and make sure there is no unitialized data.
 
         while (NumberOfSubsections > 0) {
             if (SectionTableEntry->Misc.VirtualSize == 0) {
@@ -784,24 +614,16 @@ Notes:
                 SectionVirtualSize = SectionTableEntry->Misc.VirtualSize;
             }
 
-
             // If the pointer to raw data is zero and the virtual size
             // is zero, OR, the section goes past the end of file, OR
-            // the virtual size does not match the size of raw data, then
-            // return an error.
+            // the virtual size does not match the size of raw data, then return an error.
 
-
-            if (((SectionTableEntry->PointerToRawData !=
-                  SectionTableEntry->VirtualAddress))
+            if (((SectionTableEntry->PointerToRawData != SectionTableEntry->VirtualAddress))
                 ||
-                ((SectionTableEntry->SizeOfRawData +
-                  SectionTableEntry->PointerToRawData) >
-                 FileInfo.nFileSizeLow)
+                ((SectionTableEntry->SizeOfRawData + SectionTableEntry->PointerToRawData) > FileInfo.nFileSizeLow)
                 ||
                 (SectionVirtualSize > SectionTableEntry->SizeOfRawData)) {
-
                 LogPrintf("invalid BSS/Trailingzero section/file size\n");
-
                 ImageOk = FALSE;
                 goto NeImage;
             }
@@ -812,11 +634,7 @@ Notes:
     }
 
     while (NumberOfSubsections > 0) {
-
-
         // Handle case where virtual size is 0.
-
-
         if (SectionTableEntry->Misc.VirtualSize == 0) {
             SectionVirtualSize = SectionTableEntry->SizeOfRawData;
         } else {
@@ -828,10 +646,8 @@ Notes:
         }
 
         if (SectionVirtualSize == 0) {
-
             // The specified virtual address does not align
             // with the next prototype PTE.
-
 
             LogPrintf("Section virtual size is 0, NextVa for section %lx %lx\n",
                       SectionTableEntry->VirtualAddress, NextVa);
@@ -839,28 +655,17 @@ Notes:
             goto BadPeImageSegment;
         }
 
-        if (NextVa !=
-            (PreferredImageBase + SectionTableEntry->VirtualAddress)) {
-
-
-            // The specified virtual address does not align
-            // with the next prototype PTE.
-
-
+        if (NextVa != (PreferredImageBase + SectionTableEntry->VirtualAddress)) {
+            // The specified virtual address does not align with the next prototype PTE.
             LogPrintf("Section Va not set to alignment, NextVa for section %lx %lx\n",
                       SectionTableEntry->VirtualAddress, NextVa);
             ImageOk = FALSE;
             goto BadPeImageSegment;
         }
 
-        PtesInSubsection =
-            MI_ROUND_TO_SIZE(SectionVirtualSize, ImageAlignment) >> PageShift;
-
+        PtesInSubsection = MI_ROUND_TO_SIZE(SectionVirtualSize, ImageAlignment) >> PageShift;
         if (PtesInSubsection > NumberOfPtes) {
-
-
             // Inconsistent image, size does not agree with object tables.
-
             LogPrintf("Image size in header not consistent with sections, needs %ld. pages\n",
                       PtesInSubsection - NumberOfPtes);
             LogPrintf("va of bad section %lx\n", SectionTableEntry->VirtualAddress);
@@ -871,20 +676,13 @@ Notes:
         NumberOfPtes -= PtesInSubsection;
 
         StartingSector = SectionTableEntry->PointerToRawData >> MMSECTOR_SHIFT;
-        EndingSector =
-            (SectionTableEntry->PointerToRawData +
-             SectionVirtualSize);
+        EndingSector = (SectionTableEntry->PointerToRawData + SectionVirtualSize);
         EndingSector = EndingSector >> MMSECTOR_SHIFT;
 
-        ImageFileSize = SectionTableEntry->PointerToRawData +
-            SectionTableEntry->SizeOfRawData;
+        ImageFileSize = SectionTableEntry->PointerToRawData + SectionTableEntry->SizeOfRawData;
 
         for (i = 0; i < PtesInSubsection; i++) {
-
-
             // Set all the prototype PTEs to refer to the control section.
-
-
             NextVa += PageSize;
         }
 
@@ -892,17 +690,9 @@ Notes:
         NumberOfSubsections -= 1;
     }
 
-
-    // If the file size is not as big as the image claimed to be,
-    // return an error.
-
-
+    // If the file size is not as big as the image claimed to be, return an error.
     if (ImageFileSize > FileInfo.nFileSizeLow) {
-
-
         // Invalid image size.
-
-
         LogPrintf("invalid image size - file size %lx - image size %lx\n",
                   FileInfo.nFileSizeLow, ImageFileSize);
         ImageOk = FALSE;
@@ -918,20 +708,13 @@ Notes:
         ImageBase = (PVOID)DosHeader;
 
         DebugDirectory = (PIMAGE_DEBUG_DIRECTORY)
-            ImageDirectoryEntryToData(
-                ImageBase,
-                FALSE,
-                IMAGE_DIRECTORY_ENTRY_DEBUG,
-                &DebugDirectorySize);
+            ImageDirectoryEntryToData(ImageBase, FALSE, IMAGE_DIRECTORY_ENTRY_DEBUG, &DebugDirectorySize);
 
         if (!DebugDirectoryIsUseful(DebugDirectory, DebugDirectorySize)) {
-
             // Not useful.  Are they valid? (both s/b zero)
 
             if (DebugDirectory || DebugDirectorySize) {
-                LogPrintf("Debug directory values [%x, %x] are invalid\n",
-                          DebugDirectory,
-                          DebugDirectorySize);
+                LogPrintf("Debug directory values [%x, %x] are invalid\n", DebugDirectory, DebugDirectorySize);
                 ImageOk = FALSE;
             }
 
@@ -1028,12 +811,11 @@ Notes:
                     }
                 }
                 break;
-
                 case IMAGE_DEBUG_TYPE_CODEVIEW:
                     // CV will point to either a NB09 or an NB10 signature.  Make sure it does.
                 {
-                    OMFSignature* CVDebug;
-                    CVDebug = (OMFSignature*)((PCHAR)ImageBase + DebugDirectory->PointerToRawData);
+                    OMFSignature * CVDebug;
+                    CVDebug = (OMFSignature *)((PCHAR)ImageBase + DebugDirectory->PointerToRawData);
                     if (((*(PULONG)(CVDebug->Signature)) != '90BN') &&
                         ((*(PULONG)(CVDebug->Signature)) != '01BN')) {
                         LogPrintf("CV Debug has an invalid signature\n");
@@ -1042,7 +824,6 @@ Notes:
                     }
                 }
                 break;
-
                 case IMAGE_DEBUG_TYPE_COFF:
                 case IMAGE_DEBUG_TYPE_FPO:
                 case IMAGE_DEBUG_TYPE_EXCEPTION:
@@ -1051,7 +832,6 @@ Notes:
                 case IMAGE_DEBUG_TYPE_OMAP_FROM_SRC:
                     // Not much we can do about these now.
                     break;
-
                 default:
                     LogPrintf("Invalid debug directory type: %d\n", DebugDirectory->Type);
                     ImageOk = FALSE;
@@ -1060,32 +840,21 @@ Notes:
                 }
             }
         }
-
     }
 
 DebugDirsDone:
 
-
     // The total number of PTEs was decremented as sections were built,
     // make sure that there are less than 64ks worth at this point.
 
-
     if (NumberOfPtes >= (ImageAlignment >> PageShift)) {
-
-
         // Inconsistent image, size does not agree with object tables.
-
-
-        LogPrintf("invalid image - PTEs left %lx\n",
-                  NumberOfPtes);
-
+        LogPrintf("invalid image - PTEs left %lx\n", NumberOfPtes);
         ImageOk = FALSE;
         goto BadPeImageSegment;
     }
 
-
     // check checksum.
-
 
 PeReturnSuccess:
     if (NtHeader->OptionalHeader.CheckSum == 0) {
@@ -1121,11 +890,9 @@ PeReturnSuccess:
         ImageOk = VerifyVersionResource(ImageName, ImageNeedsOleSelfRegister(DosHeader));
     }
 
-
     // sanity test for symbols
     // basically : if this does not work, debugging probably will not either
     // these high-level debugging api's will also call a pdb validation routine
-
 
     if (ArgFlag & ArgFlag_SymCK) {
         HANDLE hProcess = 0;
@@ -1136,7 +903,7 @@ PeReturnSuccess:
         char ext[_MAX_EXT];
         IMAGEHLP_MODULE64 ModuleInfo = {0};
         PSYMMODLIST ModList = 0;
-        void* vpAddr;
+        void * vpAddr;
         PLOADED_IMAGE pLImage = NULL;
         DWORD64 symLMflag;
 
@@ -1144,9 +911,7 @@ PeReturnSuccess:
         strcat(Target, "\\");
         strcat(Target, ImageName);
 
-
         // set up for debugging
-
 
         hProcess = GetCurrentProcess();
 
@@ -1156,9 +921,7 @@ PeReturnSuccess:
             goto symckend;
         }
 
-
         // attempt to use symbols
-
 
         _splitpath(Target, drive, dir, fname, ext);
 
@@ -1168,10 +931,8 @@ PeReturnSuccess:
             goto symckend;
         }
 
-
         // identify module type
         // find module, symgetmoduleinfo, check dbg type
-
 
         ModuleInfo.SizeOfStruct = sizeof(ModuleInfo);
         ModList = MakeModList(hProcess);
@@ -1209,9 +970,7 @@ PeReturnSuccess:
             }
         }
 
-
         // get image, symbol checksum, compare
-
 
         pLImage = ImageLoad(Target, NULL);
 
@@ -1239,9 +998,7 @@ PeReturnSuccess:
             }
         }
 
-
         // cleanup
-
 
     symckend:
         if (ModList) {
@@ -1269,9 +1026,7 @@ NeImage:
         }
     }
 
-
     // print out results
-
 
     if (ImageOk) {
         LogOutAndClean((ArgFlag & ArgFlag_OK) ? TRUE : FALSE);
@@ -1287,40 +1042,23 @@ NeImage:
     }
 }
 
-NTSTATUS
-MiVerifyImageHeader(
-    IN PIMAGE_NT_HEADERS NtHeader,
-    IN PIMAGE_DOS_HEADER DosHeader,
-    IN ULONG NtHeaderSize
-)
+
+NTSTATUS MiVerifyImageHeader(IN PIMAGE_NT_HEADERS NtHeader, IN PIMAGE_DOS_HEADER DosHeader, IN ULONG NtHeaderSize)
 /*++
-
 Routine Description:
-
     Checks image header for consistency.
-
 Arguments:
-
     IN PIMAGE_NT_HEADERS    NtHeader
     IN PIMAGE_DOS_HEADER    DosHeader
     IN ULONG                NtHeaderSize
-
 Return Value:
-
     Returns the status value.
-
     TBS
-
 --*/
 {
-
-    if ((NtHeader->FileHeader.Machine == 0) &&
-        (NtHeader->FileHeader.SizeOfOptionalHeader == 0)) {
-
-
+    if ((NtHeader->FileHeader.Machine == 0) && (NtHeader->FileHeader.SizeOfOptionalHeader == 0)) {
         // This is a bogus DOS app which has a 32-bit portion
         // mascarading as a PE image.
-
 
         LogPrintf("Image machine type and size of optional header bad\n");
         return STATUS_INVALID_IMAGE_PROTECT;
@@ -1332,11 +1070,7 @@ Return Value:
     }
 
 #ifdef i386
-
-
     // Make sure the image header is aligned on a Long word boundary.
-
-
     if (((ULONG)NtHeader & 3) != 0) {
         LogPrintf("NtHeader is not aligned on longword boundary\n");
         return STATUS_INVALID_IMAGE_FORMAT;
@@ -1352,9 +1086,7 @@ Return Value:
         return STATUS_INVALID_IMAGE_FORMAT;
     }
 
-
     // File aligment must be power of 2.
-
 
     if ((((NtHeader->OptionalHeader.FileAlignment << 1) - 1) &
          NtHeader->OptionalHeader.FileAlignment) !=
@@ -1391,28 +1123,16 @@ Return Value:
 }
 
 
-VOID
-ParseArgs(
-    int* pargc,
-    char** argv
-)
+VOID ParseArgs(int * pargc, char ** argv)
 /*++
-
 Routine Description:
-
     parse arguments to this program
-
 Arguments:
-
     int *pargc
     char **argv
-
 Return Value:
-
     none
-
 Notes:
-
     command line args:
     (original)
     case '?': call usage and exit
@@ -1423,7 +1143,6 @@ Notes:
     (new)
     case 'v': verbose - output "OK"
     case 'o': output "OleSelfRegister not set"
-
 --*/
 {
     CHAR cswitch, c, * p;
@@ -1431,9 +1150,7 @@ Notes:
     int argnum = 1, i = 0, len = 0, count = 0;
     BOOL fslashfound = FALSE;
 
-
     // set default flags here
-
 
     ArgFlag |= ArgFlag_CKBase;
 
@@ -1447,19 +1164,15 @@ Notes:
             case 'o':
                 ArgFlag |= ArgFlag_OLESelf;
                 break;
-
             case 'v':
                 ArgFlag |= ArgFlag_OK | ArgFlag_CKMZ | ArgFlag_OLESelf;
                 break;
-
             case '?':
                 Usage();
                 break;
-
             case 'b':
                 ArgFlag ^= ArgFlag_CKBase;
                 break;
-
             case 's':
                 if (argv[argnum + 1]) {
                     strcpy(szSympath, (argv[argnum + 1]));
@@ -1467,11 +1180,9 @@ Notes:
                     argnum++;
                 }
                 break;
-
             case 'p':
                 ArgFlag |= ArgFlag_CKMZ;
                 break;
-
             case 'r':
                 fRecurse = TRUE;
                 if (argv[argnum + 1]) {
@@ -1485,7 +1196,6 @@ Notes:
                 }
 
                 break;
-
             default:
                 fprintf(stderr, "Invalid argument.\n");
                 Usage();
@@ -1562,31 +1272,16 @@ Notes:
 } // parseargs
 
 
-int
-__cdecl
-CompFileAndDir(
-    const void* elem1,
-    const void* elem2
-)
+int __cdecl CompFileAndDir(const void * elem1, const void * elem2)
 /*++
-
 Routine Description:
-
     Purpose: a comparision routine passed to QSort.  It compares elem1 and elem2
     based upon their attribute, i.e., is it a file or directory.
-
 Arguments:
-
     const void *elem1,
     const void *elem2
-
 Return Value:
-
     result of comparison function
-
-Notes:
-
-
 --*/
 {
     pList p1, p2;
@@ -1596,8 +1291,8 @@ Notes:
     // leaving a pList.  I don't dereference the remaining pointer
     // in the p1 and p2 definitions to avoid copying the structure.
 
-    p1 = (*(List**)elem1);
-    p2 = (*(List**)elem2);
+    p1 = (*(List **)elem1);
+    p2 = (*(List **)elem2);
 
     if ((p1->Attributes & FILE_ATTRIBUTE_DIRECTORY) && (p2->Attributes & FILE_ATTRIBUTE_DIRECTORY))
         return 0;
@@ -1615,55 +1310,26 @@ Notes:
     return 0; // if none of the above
 }
 
-int
-__cdecl
-CompName(
-    const void* elem1,
-    const void* elem2
-)
+
+int __cdecl CompName(const void * elem1, const void * elem2)
 /*++
-
 Routine Description:
-
     another compare routine passed to QSort that compares the two Name strings
-
 Arguments:
-
     const void *elem1,
     const void *elem2
-
 Return Value:
-
     result of comparison function
-
 Notes:
-
     this uses a noignore-case strcmp
-
 --*/
 {
-    return strcmp((*(List**)elem1)->Name, (*(List**)elem2)->Name);
+    return strcmp((*(List **)elem1)->Name, (*(List **)elem2)->Name);
 }
 
 
-VOID
-Usage(
-    VOID
-)
+VOID Usage(VOID)
 /*++
-
-Routine Description:
-
-
-Arguments:
-
-
-Return Value:
-
-
-Notes:
-
-
 --*/
 {
     fputs("Usage: imagechk  [/?] displays this message\n"
@@ -1683,57 +1349,30 @@ Notes:
     exit(1);
 }
 
-int
-__cdecl
-_cwild()
+
+int __cdecl _cwild()
 /*++
-
-Routine Description:
-
-
-Arguments:
-
-
-Return Value:
-
-
-Notes:
-
-
 --*/
 {
     return(0);
 }
 
-typedef DWORD(WINAPI* PFNGVS)(LPSTR, LPDWORD);
-typedef BOOL(WINAPI* PFNGVI)(LPTSTR, DWORD, DWORD, LPVOID);
-typedef BOOL(WINAPI* PFNVQV)(const LPVOID, LPTSTR, LPVOID*, PUINT);
 
-BOOL
-VerifyVersionResource(
-    PCHAR FileName,
-    BOOL fSelfRegister
-)
+typedef DWORD(WINAPI * PFNGVS)(LPSTR, LPDWORD);
+typedef BOOL(WINAPI * PFNGVI)(LPTSTR, DWORD, DWORD, LPVOID);
+typedef BOOL(WINAPI * PFNVQV)(const LPVOID, LPTSTR, LPVOID *, PUINT);
+
+
+BOOL VerifyVersionResource(PCHAR FileName, BOOL fSelfRegister)
 /*++
-
 Routine Description:
-
     validate the version resource in a file
-
 Arguments:
-
     PCHAR FileName
     BOOL fSelfRegister
-
 Return Value:
-
     TRUE    if: no version.dll found
     FALSE   if: version resource missing
-
-
-Notes:
-
-
 --*/
 {
     static HINSTANCE hVersion = NULL;
@@ -1745,7 +1384,7 @@ Notes:
     LPVOID lpData = NULL, lpInfo;
     BOOL rc = FALSE;
     DWORD dwDefLang = 0x00000409;
-    DWORD* pdwTranslation, uLen;
+    DWORD * pdwTranslation, uLen;
     CHAR buf[60];
 
     CHAR szVersionDll[_MAX_PATH];
@@ -1815,30 +1454,18 @@ cleanup:
     return(rc);
 }
 
-BOOL
-ValidatePdata(
-    PIMAGE_DOS_HEADER DosHeader
-)
+
+BOOL ValidatePdata(PIMAGE_DOS_HEADER DosHeader)
 /*++
-
 Routine Description:
-
     validates the PIMAGE_RUNTIME_FUNCTION_ENTRY in the executable
-
 Arguments:
-
     PIMAGE_DOS_HEADER   DosHeader
-
 Return Value:
-
     TRUE    if:
     FALSE   if: no exception data
                 exception table size incorrect
                 exception table corrupt
-
-Notes:
-
-
 --*/
 {
     // The machine type indicates this image should have pdata (an exception table).
@@ -1855,7 +1482,6 @@ Notes:
     DWORD PDataStart = NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION].VirtualAddress;
     DWORD PDataSize = NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION].Size;
 
-
     ExceptionTable = (PIMAGE_RUNTIME_FUNCTION_ENTRY)
         ImageDirectoryEntryToData(
             DosHeader,
@@ -1863,8 +1489,7 @@ Notes:
             IMAGE_DIRECTORY_ENTRY_EXCEPTION,
             &ExceptionTableSize);
 
-    if (!ExceptionTable ||
-        (ExceptionTable && (ExceptionTableSize == 0))) {
+    if (!ExceptionTable || (ExceptionTable && (ExceptionTableSize == 0))) {
         // No Exception table.
         return(TRUE);
     }
@@ -1940,7 +1565,7 @@ Notes:
 
 #if !defined(_IA64_)
         if (!((ExceptionTable[i].PrologEndAddress >= ExceptionTable[i].BeginAddress) &&
-            (ExceptionTable[i].PrologEndAddress <= ExceptionTable[i].EndAddress))) {
+              (ExceptionTable[i].PrologEndAddress <= ExceptionTable[i].EndAddress))) {
             if (NtHeader->FileHeader.Machine == IMAGE_FILE_MACHINE_ALPHA) {
                 // Change this test.  On Alpha, the PrologEndAddress is allowed to be
                 // outside the Function Start/End range.  If this is true, the PrologEnd
@@ -1996,23 +1621,13 @@ Notes:
     return(fRc);
 }
 
-BOOL
-ImageNeedsOleSelfRegister(
-    PIMAGE_DOS_HEADER DosHeader
-)
+
+BOOL ImageNeedsOleSelfRegister(PIMAGE_DOS_HEADER DosHeader)
 /*++
-
-Routine Description:
-
-
 Arguments:
-
     PIMAGE_DOS_HEADER   DosHeader
-
 Return Value:
-
     TRUE if DllRegisterServer or DllUnRegisterServer is exported
-
 --*/
 {
     PIMAGE_EXPORT_DIRECTORY ExportDirectory;
@@ -2030,9 +1645,7 @@ Return Value:
             IMAGE_DIRECTORY_ENTRY_EXPORT,
             &ExportDirectorySize);
 
-    if (!ExportDirectory ||
-        !ExportDirectorySize ||
-        !ExportDirectory->NumberOfNames) {
+    if (!ExportDirectory || !ExportDirectorySize || !ExportDirectory->NumberOfNames) {
         // No exports (no directory, no size, or no names).
         return(FALSE);
     }
@@ -2045,7 +1658,7 @@ Return Value:
     for (x = 0; x < NtHeader->FileHeader.NumberOfSections; x++) {
         if (((ULONG)((PCHAR)ExportDirectory - (PCHAR)DosHeader) >= SectionHeader->PointerToRawData) &&
             ((ULONG)((PCHAR)ExportDirectory - (PCHAR)DosHeader) <
-            (SectionHeader->PointerToRawData + SectionHeader->SizeOfRawData))) {
+             (SectionHeader->PointerToRawData + SectionHeader->SizeOfRawData))) {
             break;
         } else {
             SectionHeader++;
@@ -2076,27 +1689,14 @@ Return Value:
 // be done without this using lower-level internal api's
 
 
-PSYMMODLIST
-MakeModList(
-    HANDLE hProcess
-)
+PSYMMODLIST MakeModList(HANDLE hProcess)
 /*++
-
 Routine Description:
-
     build a list of loaded symbol modules and addresses
-
 Arguments:
-
     HANDLE hProcess
-
 Return Value:
-
     PSYMMODLIST
-
-Notes:
-
-
 --*/
 {
     PSYMMODLIST ModList;
@@ -2107,82 +1707,53 @@ Notes:
     return(ModList);
 }
 
-BOOL
-CALLBACK
-SymEnumerateModulesCallback(
-    LPSTR ModuleName,
-    ULONG64 BaseOfDll,
-    PVOID UserContext
-)
+
+BOOL CALLBACK SymEnumerateModulesCallback(LPSTR ModuleName, ULONG64 BaseOfDll, PVOID UserContext)
 /*++
-
 Routine Description:
-
     callback routine for SymEnumerateModules
     in this case, UserContext is a pointer to a head of a _SYMMODLIST struct
     that will have a new item appended
     We are avoiding global state for these lists so we can use several at once,
     they will be short, so we will find the end each time we want to add
     runs slower, simpler to maintain
-
 Arguments:
-
     LPSTR   ModuleName
     ULONG64 BaseOfDll
     PVOID   UserContext
-
 Return Value:
-
     TRUE
-
-Notes:
-
-
 --*/
 {
     PSYMMODLIST pSymModList;
 
-
     // find end of list, key on pSymModList->ModBase
-
 
     pSymModList = (PSYMMODLIST)UserContext;
     while (pSymModList->ModBase) {
         pSymModList = pSymModList->Next;
     }
 
-
     // append entry
-
 
     pSymModList->ModName = malloc(strlen(ModuleName) + 1);
     strcpy(pSymModList->ModName, ModuleName);
-    pSymModList->ModBase = (void*)BaseOfDll;
+    pSymModList->ModBase = (void *)BaseOfDll;
     pSymModList->Next = (PSYMMODLIST)calloc(1, sizeof(SYMMODLIST));
 
     return(TRUE);
 }
 
-void*
-GetModAddrFromName(
-    PSYMMODLIST ModList,
-    char* ModName
-)
+
+void * GetModAddrFromName(PSYMMODLIST ModList, char * ModName)
 /*++
-
 Routine Description:
-
     gets module address from a SYMMODLIST given module base name
-
 Arguments:
-
     PSYMMODLIST ModList
     char *      ModName
-
 Return Value:
-
     module address
-
 --*/
 {
     while (ModList->Next != 0) {
@@ -2195,24 +1766,15 @@ Return Value:
     return(ModList->ModBase);
 }
 
-void
-FreeModList(
-    PSYMMODLIST ModList
-)
+
+void FreeModList(PSYMMODLIST ModList)
 /*++
-
 Routine Description:
-
     free a list of loaded symbol modules and addresses
-
 Arguments:
-
     PSYMMODLIST ModList
-
 Return Value:
-
     none
-
 --*/
 {
     PSYMMODLIST ModListNext;
@@ -2228,7 +1790,7 @@ Return Value:
 }
 
 
-pLogListItem LogAppend(char* logitem, pLogListItem plog)
+pLogListItem LogAppend(char * logitem, pLogListItem plog)
 /*++
 Routine Description:
     add a log line to the linked list of log lines
@@ -2264,7 +1826,7 @@ Return Value:
         ptemp = ptemp->Next;
     }
 
-    ptemp->LogLine = (char*)malloc(strlen(logitem) + 1);
+    ptemp->LogLine = (char *)malloc(strlen(logitem) + 1);
     strcpy(ptemp->LogLine, logitem);
     return (ptemp);
 }
@@ -2274,10 +1836,6 @@ void LogOutAndClean(BOOL print)
 /*++
 Routine Description:
     output the log output, and free all the items in the list
-Arguments:
-    none
-Return Value:
-    none
 --*/
 {
     pLogListItem ptemp;
@@ -2301,14 +1859,10 @@ Return Value:
 }
 
 
-void LogPrintf(const char* format, ...)
+void LogPrintf(const char * format, ...)
 /*++
 Routine Description:
     logging wrapper for fprintf
-Arguments:
-    none
-Return Value:
-    none
 --*/
 {
     va_list arglist;
@@ -2323,6 +1877,5 @@ Return Value:
     } else {
         // append to log
         pLogListTmp = LogAppend(LogStr, pLogListTmp);
-
     }
 }

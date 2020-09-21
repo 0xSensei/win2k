@@ -11,13 +11,13 @@ Abstract:
 #include <private.h>
 
 typedef struct _BOUND_FORWARDER_REFS {
-    struct _BOUND_FORWARDER_REFS* Next;
+    struct _BOUND_FORWARDER_REFS * Next;
     ULONG TimeDateStamp;
     LPSTR ModuleName;
 } BOUND_FORWARDER_REFS, * PBOUND_FORWARDER_REFS;
 
 typedef struct _IMPORT_DESCRIPTOR {
-    struct _IMPORT_DESCRIPTOR* Next;
+    struct _IMPORT_DESCRIPTOR * Next;
     LPSTR ModuleName;
     ULONG TimeDateStamp;
     USHORT NumberOfModuleForwarderRefs;
@@ -45,7 +45,7 @@ BindpLookupThunk(
     PIMAGE_EXPORT_DIRECTORY Exports,
     PIMPORT_DESCRIPTOR NewImport,
     LPSTR DllPath,
-    PULONG* ForwarderChain
+    PULONG * ForwarderChain
 );
 
 PVOID
@@ -102,7 +102,7 @@ LPSTR BindpCaptureImportModuleName(LPSTR DllName)
 PIMPORT_DESCRIPTOR
 BindpAddImportDescriptor(
     PBINDP_PARAMETERS Parms,
-    PIMPORT_DESCRIPTOR* NewImportDescriptor,
+    PIMPORT_DESCRIPTOR * NewImportDescriptor,
     PIMAGE_IMPORT_DESCRIPTOR ImportDescriptor,
     LPSTR ModuleName,
     PLOADED_IMAGE Dll
@@ -208,15 +208,12 @@ BindAnotherForwarder:
 
     if (*s == '#') {
         // Binding for ordinal forwarders
-
         OrdinalNumber = (atoi((PCHAR)s + 1)) - (USHORT)Exports->Base;
-
         if (OrdinalNumber >= Exports->NumberOfFunctions) {
             return ForwarderString;
         }
     } else {
         // Regular binding for named forwarders
-
         OrdinalNumber = 0xFFFF;
     }
 
@@ -242,8 +239,7 @@ BindAnotherForwarder:
     }
 
     do {
-        ForwardedAddress = FunctionTableBase[OrdinalNumber] +
-            OPTIONALHEADER(ImageBase);
+        ForwardedAddress = FunctionTableBase[OrdinalNumber] + OPTIONALHEADER(ImageBase);
 
         pp = &NewImportDescriptor->Forwarders;
         while (p = *pp) {
@@ -287,14 +283,12 @@ BindAnotherForwarder:
         );
 
         Exports = (PIMAGE_EXPORT_DIRECTORY)((ULONG_PTR)Exports -
-            (ULONG_PTR)Dll->MappedAddress +
+                                            (ULONG_PTR)Dll->MappedAddress +
                                             OPTIONALHEADER(ImageBase));
 
         if ((ForwardedAddress >= (ULONG_PTR)Exports) &&
             (ForwardedAddress <= ((ULONG_PTR)Exports + ExportSize))) {
-            ForwarderString = BindpRvaToVa(Parms,
-                                           FunctionTableBase[OrdinalNumber],
-                                           Dll);
+            ForwarderString = BindpRvaToVa(Parms, FunctionTableBase[OrdinalNumber], Dll);
             goto BindAnotherForwarder;
         } else {
             ForwarderString = (PUCHAR)ForwardedAddress;
@@ -309,7 +303,7 @@ BindAnotherForwarder:
 PIMAGE_BOUND_IMPORT_DESCRIPTOR
 BindpCreateNewImportSection(
     PBINDP_PARAMETERS Parms,
-    PIMPORT_DESCRIPTOR* NewImportDescriptor,
+    PIMPORT_DESCRIPTOR * NewImportDescriptor,
     PULONG NewImportsSize
 )
 {
@@ -482,7 +476,7 @@ BindpExpandImageFileHeaders(
     }
 
     memmove((LPSTR)lpMappedAddress + NewSizeOfHeaders,
-        (LPSTR)lpMappedAddress + OldSizeOfHeaders,
+            (LPSTR)lpMappedAddress + OldSizeOfHeaders,
             dwOldFileSize - OldSizeOfHeaders
     );
 
@@ -545,12 +539,10 @@ BindImageEx(
         if (MapAndLoad(ImageName, DllPath, LoadedImage, TRUE, Parms.fNoUpdate)) {
             LoadedImage->ModuleName = ImageName;
 
-
             // Now locate and walk through and process the images imports
 
             if (LoadedImage->FileHeader != NULL &&
                 ((Flags & BIND_ALL_IMAGES) || (!LoadedImage->fSystemImage))) {
-
                 FileHeader = &((PIMAGE_NT_HEADERS32)LoadedImage->FileHeader)->FileHeader;
                 OptionalHeadersFromNtHeaders((PIMAGE_NT_HEADERS32)LoadedImage->FileHeader,
                                              &OptionalHeader32,
@@ -575,13 +567,7 @@ BindImageEx(
                 }
 
 
-                BindpWalkAndProcessImports(
-                    &Parms,
-                    LoadedImage,
-                    DllPath,
-                    &ImageModified
-                );
-
+                BindpWalkAndProcessImports(&Parms, LoadedImage, DllPath, &ImageModified);
 
                 // If the file is being updated, then recompute the checksum.
                 // and update image and possibly stripped symbol file.
@@ -699,7 +685,7 @@ BindpLookupThunk(
     PIMAGE_EXPORT_DIRECTORY Exports,
     PIMPORT_DESCRIPTOR NewImport,
     LPSTR DllPath,
-    PULONG* ForwarderChain
+    PULONG * ForwarderChain
 )
 {
     BOOL Ordinal;
@@ -791,9 +777,9 @@ BindpLookupThunk(
     }
 
     (PULONG)(FunctionAddress->u1.Function) = (PULONG)(FunctionTableBase[OrdinalNumber] +
-        (DllOptionalHeader32 ?
-         DllOptionalHeader32->ImageBase :
-         DllOptionalHeader64->ImageBase)
+                                                      (DllOptionalHeader32 ?
+                                                       DllOptionalHeader32->ImageBase :
+                                                       DllOptionalHeader64->ImageBase)
                                                       );
     ExportsBase = (ULONG64)ImageDirectoryEntryToData(
         (PVOID)Dll->MappedAddress,
@@ -824,7 +810,7 @@ BindpLookupThunk(
 
         if (!BoundForwarder) {
             **ForwarderChain = (ULONG)(FunctionAddress - SnappedThunks);
-            *ForwarderChain = (ULONG*)&FunctionAddress->u1.Ordinal;
+            *ForwarderChain = (ULONG *)&FunctionAddress->u1.Ordinal;
 
             if (Parms->StatusRoutine != NULL) {
                 (Parms->StatusRoutine)(BindForwarderNOT,
@@ -849,36 +835,21 @@ BindpLookupThunk(
     return TRUE;
 }
 
-PVOID
-BindpRvaToVa(
-    PBINDP_PARAMETERS Parms,
-    ULONG Rva,
-    PLOADED_IMAGE Image
-)
+
+PVOID BindpRvaToVa(PBINDP_PARAMETERS Parms, ULONG Rva, PLOADED_IMAGE Image)
 {
     PVOID Va;
 
-    Va = ImageRvaToVa(Image->FileHeader,
-                      Image->MappedAddress,
-                      Rva,
-                      &Image->LastRvaSection
-    );
+    Va = ImageRvaToVa(Image->FileHeader, Image->MappedAddress, Rva, &Image->LastRvaSection);
     if (!Va && Parms->StatusRoutine != NULL) {
-        (Parms->StatusRoutine)(BindRvaToVaFailed,
-                               Image->ModuleName,
-                               NULL,
-                               (ULONG)Rva,
-                               0
-                               );
+        (Parms->StatusRoutine)(BindRvaToVaFailed, Image->ModuleName, NULL, (ULONG)Rva, 0);
     }
 
     return Va;
 }
 
-VOID
-SetIdataToRo(
-    PLOADED_IMAGE Image
-)
+
+VOID SetIdataToRo(PLOADED_IMAGE Image)
 {
     PIMAGE_SECTION_HEADER Section;
     ULONG i;
@@ -1334,7 +1305,9 @@ DWORD GetImageUnusedHeaderBytes(PLOADED_IMAGE LoadedImage, LPDWORD SizeUnusedHea
     // this calculates an offset, not an address, so DWORD is correct
     OffsetFirstUnusedHeaderByte = (DWORD)
         (((LPSTR)NtHeaders - (LPSTR)LoadedImage->MappedAddress) +
-        (FIELD_OFFSET(IMAGE_NT_HEADERS32, OptionalHeader) + NtHeaders->FileHeader.SizeOfOptionalHeader + (NtHeaders->FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER))));
+         (FIELD_OFFSET(IMAGE_NT_HEADERS32, OptionalHeader) + 
+          NtHeaders->FileHeader.SizeOfOptionalHeader + 
+          (NtHeaders->FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER))));
 
     OptionalHeadersFromNtHeaders(NtHeaders, &OptionalHeader32, &OptionalHeader64);
 

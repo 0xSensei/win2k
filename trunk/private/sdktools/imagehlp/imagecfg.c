@@ -79,18 +79,18 @@ DisplayGlobalFlags(
     LPSTR IndentString,
     DWORD NtGlobalFlags,
     BOOLEAN Set
-    )
+)
 {
     ULONG i;
 
-    for (i=0; NtGlobalFlagNames[i].Description; i++) {
+    for (i = 0; NtGlobalFlagNames[i].Description; i++) {
         if (NtGlobalFlagNames[i].Flag & NtGlobalFlags) {
-            printf( "%s%s%s\n",
-                    IndentString,
-                    Set ? NtGlobalFlagNames[i].SetPrefix :
-                    NtGlobalFlagNames[i].ClearPrefix,
-                    NtGlobalFlagNames[i].Description
-                  );
+            printf("%s%s%s\n",
+                   IndentString,
+                   Set ? NtGlobalFlagNames[i].SetPrefix :
+                   NtGlobalFlagNames[i].ClearPrefix,
+                   NtGlobalFlagNames[i].Description
+            );
         }
     }
 
@@ -141,26 +141,26 @@ DWORD ImageProcessAffinityMask;
 
 VOID
 DisplayImageInfo(
-                BOOL HasConfigInfo
-                );
+    BOOL HasConfigInfo
+);
 
 PVOID
 GetAddressOfExportedData(
-                        PLOADED_IMAGE Dll,
-                        LPSTR ExportedName
-                        );
+    PLOADED_IMAGE Dll,
+    LPSTR ExportedName
+);
 
 ULONG
 ConvertNum(
-          char *s
-          )
+    char * s
+)
 {
     ULONG n, Result;
 
-    if (!_strnicmp( s, "0x", 2 )) {
-        n = sscanf( s+2, "%x", &Result );
+    if (!_strnicmp(s, "0x", 2)) {
+        n = sscanf(s + 2, "%x", &Result);
     } else {
-        n = sscanf( s, "%u", &Result );
+        n = sscanf(s, "%u", &Result);
     }
 
     if (n != 1) {
@@ -173,9 +173,9 @@ ConvertNum(
 int __cdecl
 main(
     int argc,
-    char *argv[],
-    char *envp[]
-    )
+    char * argv[],
+    char * envp[]
+)
 {
     UCHAR c;
     LPSTR p, sMajor, sMinor, sReserve, sCommit;
@@ -197,264 +197,264 @@ main(
         p = *++argv;
         if (*p == '/' || *p == '-') {
             while (c = *++p)
-                switch (toupper( c )) {
-                    case '?':
+                switch (toupper(c)) {
+                case '?':
+                    fUsage = TRUE;
+                    break;
+
+                case 'A':
+                    if (--argc) {
+                        ImageProcessAffinityMask = ConvertNum(*++argv);
+                        if (ImageProcessAffinityMask == 0) {
+                            fprintf(stderr, "IMAGECFG: invalid affinity mask specified to /a switch.\n");
+                            fUsage = TRUE;
+                        }
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /a switch missing argument.\n");
                         fUsage = TRUE;
-                        break;
+                    }
+                    break;
 
-                    case 'A':
-                        if (--argc) {
-                            ImageProcessAffinityMask = ConvertNum( *++argv );
-                            if (ImageProcessAffinityMask == 0) {
-                                fprintf( stderr, "IMAGECFG: invalid affinity mask specified to /a switch.\n" );
-                                fUsage = TRUE;
-                            }
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /a switch missing argument.\n" );
+                case 'B':
+                    if (--argc) {
+                        BuildNumber = ConvertNum(*++argv);
+                        if (BuildNumber == 0) {
+                            fprintf(stderr, "IMAGECFG: invalid build number specified to /b switch.\n");
                             fUsage = TRUE;
                         }
-                        break;
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /b switch missing argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
 
-                    case 'B':
-                        if (--argc) {
-                            BuildNumber = ConvertNum( *++argv );
-                            if (BuildNumber == 0) {
-                                fprintf( stderr, "IMAGECFG: invalid build number specified to /b switch.\n" );
-                                fUsage = TRUE;
-                            }
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /b switch missing argument.\n" );
+                case 'C':
+                    if (--argc) {
+                        if (sscanf(*++argv, "%x", &Win32CSDVerValue) != 1) {
+                            fprintf(stderr, "IMAGECFG: invalid version string specified to /c switch.\n");
                             fUsage = TRUE;
                         }
-                        break;
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /c switch missing argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
 
-                    case 'C':
-                        if (--argc) {
-                            if (sscanf( *++argv, "%x", &Win32CSDVerValue ) != 1) {
-                                fprintf( stderr, "IMAGECFG: invalid version string specified to /c switch.\n" );
-                                fUsage = TRUE;
-                            }
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /c switch missing argument.\n" );
+                case 'D':
+                    if (argc >= 2) {
+                        argc -= 2;
+                        DeCommitFreeBlockThreshold = ConvertNum(*++argv);
+                        DeCommitTotalFreeThreshold = ConvertNum(*++argv);
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /d switch missing arguments.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'G':
+                    if (argc >= 2) {
+                        argc -= 2;
+                        GlobalFlagsClear = ConvertNum(*++argv);
+                        GlobalFlagsSet = ConvertNum(*++argv);
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /g switch missing arguments.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'H':
+                    if (argc > 2) {
+
+                        INT flag = -1;
+
+                        if (sscanf(*++argv, "%d", &flag) != 1) {
+                            fprintf(stderr, "IMAGECFG: invalid option string specified to /h switch.\n");
                             fUsage = TRUE;
-                        }
-                        break;
-
-                    case 'D':
-                        if (argc >= 2) {
-                            argc -= 2;
-                            DeCommitFreeBlockThreshold = ConvertNum( *++argv );
-                            DeCommitTotalFreeThreshold = ConvertNum( *++argv );
                         } else {
-                            fprintf( stderr, "IMAGECFG: /d switch missing arguments.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
 
-                    case 'G':
-                        if (argc >= 2) {
-                            argc -= 2;
-                            GlobalFlagsClear = ConvertNum( *++argv );
-                            GlobalFlagsSet = ConvertNum( *++argv );
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /g switch missing arguments.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
+                            --argc;
 
-                    case 'H':
-                        if (argc > 2) {
-
-                            INT flag = -1;
-
-                            if (sscanf( *++argv, "%d", &flag ) != 1) {
-                                fprintf( stderr, "IMAGECFG: invalid option string specified to /h switch.\n" );
-                                fUsage = TRUE;
+                            if (flag == 0) {
+                                fDisableTerminalServerAware = TRUE;
+                            } else if (flag == 1) {
+                                fEnableTerminalServerAware = TRUE;
                             } else {
-
-                                --argc;
-
-                                if (flag == 0) {
-                                    fDisableTerminalServerAware = TRUE;
-                                } else if (flag == 1) {
-                                    fEnableTerminalServerAware = TRUE;
-                                } else {
-                                    fprintf( stderr, "IMAGECFG: /h switch invalid argument.\n" );
-                                    fUsage = TRUE;
-                                }
-
-                            }
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /h switch missing argument.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
-
-                    case 'K':
-                        if (--argc) {
-                            sReserve = *++argv;
-                            sCommit = strchr( sReserve, '.' );
-                            if (sCommit != NULL) {
-                                *sCommit++ = '\0';
-                                SizeOfStackCommit = ConvertNum( sCommit );
-                                SizeOfStackCommit = ((SizeOfStackCommit + 0xFFF) & ~0xFFF);
-                                if (SizeOfStackCommit == 0) {
-                                    fprintf( stderr, "IMAGECFG: invalid stack commit size specified to /k switch.\n" );
-                                    fUsage = TRUE;
-                                }
-                            }
-
-                            SizeOfStackReserve = ConvertNum( sReserve );
-                            SizeOfStackReserve = ((SizeOfStackReserve + 0xFFFF) & ~0xFFFF);
-                            if (SizeOfStackReserve == 0) {
-                                fprintf( stderr, "IMAGECFG: invalid stack reserve size specified to /k switch.\n" );
+                                fprintf(stderr, "IMAGECFG: /h switch invalid argument.\n");
                                 fUsage = TRUE;
                             }
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /w switch missing argument.\n" );
-                            fUsage = TRUE;
+
                         }
-                        break;
-
-                    case 'L':
-                        fEnableLargeAddresses = TRUE;
-                        break;
-
-                    case 'M':
-                        if (--argc) {
-                            MaximumAllocationSize = ConvertNum( *++argv );
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /m switch missing argument.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
-
-                    case 'N':
-                        fNoBind = TRUE;
-                        break;
-
-                    case 'O':
-                        if (--argc) {
-                            CriticalSectionDefaultTimeout = ConvertNum( *++argv );
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /o switch missing argument.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
-
-                    case 'P':
-                        if (--argc) {
-                            ProcessHeapFlags = ConvertNum( *++argv );
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /p switch missing argument.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
-
-                    case 'Q':
-                        fQuiet = TRUE;
-                        break;
-
-                    case 'R':
-                        fRestrictedWorkingSet = TRUE;
-                        break;
-
-                    case 'S':
-                        if (--argc) {
-                            SymbolPath = *++argv;
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /s switch missing path argument.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
-
-                    case 'T':
-                        if (--argc) {
-                            VirtualMemoryThreshold = ConvertNum( *++argv );
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /t switch missing argument.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
-
-                    case 'U':
-                        fUniprocessorOnly = TRUE;
-                        break;
-
-                    case 'V':
-                        if (--argc) {
-                            sMajor = *++argv;
-                            sMinor = strchr( sMajor, '.' );
-                            if (sMinor != NULL) {
-                                *sMinor++ = '\0';
-                                MinorSubsystemVersion = ConvertNum( sMinor );
-                            }
-                            MajorSubsystemVersion = ConvertNum( sMajor );
-
-                            if (MajorSubsystemVersion == 0) {
-                                fprintf( stderr, "IMAGECFG: invalid version string specified to /v switch.\n" );
-                                fUsage = TRUE;
-                            }
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /v switch missing argument.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
-
-                    case 'W':
-                        if (--argc) {
-                            if (sscanf( *++argv, "%x", &Win32VersionValue ) != 1) {
-                                fprintf( stderr, "IMAGECFG: invalid version string specified to /w switch.\n" );
-                                fUsage = TRUE;
-                            }
-                        } else {
-                            fprintf( stderr, "IMAGECFG: /w switch missing argument.\n" );
-                            fUsage = TRUE;
-                        }
-                        break;
-
-                    case 'X':
-                        fSwapRunNet = TRUE;
-                        break;
-
-                    case 'Y':
-                        fSwapRunCD = TRUE;
-                        break;
-
-                    default:
-                        fprintf( stderr, "IMAGECFG: Invalid switch - /%c\n", c );
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /h switch missing argument.\n");
                         fUsage = TRUE;
-                        break;
+                    }
+                    break;
+
+                case 'K':
+                    if (--argc) {
+                        sReserve = *++argv;
+                        sCommit = strchr(sReserve, '.');
+                        if (sCommit != NULL) {
+                            *sCommit++ = '\0';
+                            SizeOfStackCommit = ConvertNum(sCommit);
+                            SizeOfStackCommit = ((SizeOfStackCommit + 0xFFF) & ~0xFFF);
+                            if (SizeOfStackCommit == 0) {
+                                fprintf(stderr, "IMAGECFG: invalid stack commit size specified to /k switch.\n");
+                                fUsage = TRUE;
+                            }
+                        }
+
+                        SizeOfStackReserve = ConvertNum(sReserve);
+                        SizeOfStackReserve = ((SizeOfStackReserve + 0xFFFF) & ~0xFFFF);
+                        if (SizeOfStackReserve == 0) {
+                            fprintf(stderr, "IMAGECFG: invalid stack reserve size specified to /k switch.\n");
+                            fUsage = TRUE;
+                        }
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /w switch missing argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'L':
+                    fEnableLargeAddresses = TRUE;
+                    break;
+
+                case 'M':
+                    if (--argc) {
+                        MaximumAllocationSize = ConvertNum(*++argv);
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /m switch missing argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'N':
+                    fNoBind = TRUE;
+                    break;
+
+                case 'O':
+                    if (--argc) {
+                        CriticalSectionDefaultTimeout = ConvertNum(*++argv);
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /o switch missing argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'P':
+                    if (--argc) {
+                        ProcessHeapFlags = ConvertNum(*++argv);
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /p switch missing argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'Q':
+                    fQuiet = TRUE;
+                    break;
+
+                case 'R':
+                    fRestrictedWorkingSet = TRUE;
+                    break;
+
+                case 'S':
+                    if (--argc) {
+                        SymbolPath = *++argv;
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /s switch missing path argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'T':
+                    if (--argc) {
+                        VirtualMemoryThreshold = ConvertNum(*++argv);
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /t switch missing argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'U':
+                    fUniprocessorOnly = TRUE;
+                    break;
+
+                case 'V':
+                    if (--argc) {
+                        sMajor = *++argv;
+                        sMinor = strchr(sMajor, '.');
+                        if (sMinor != NULL) {
+                            *sMinor++ = '\0';
+                            MinorSubsystemVersion = ConvertNum(sMinor);
+                        }
+                        MajorSubsystemVersion = ConvertNum(sMajor);
+
+                        if (MajorSubsystemVersion == 0) {
+                            fprintf(stderr, "IMAGECFG: invalid version string specified to /v switch.\n");
+                            fUsage = TRUE;
+                        }
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /v switch missing argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'W':
+                    if (--argc) {
+                        if (sscanf(*++argv, "%x", &Win32VersionValue) != 1) {
+                            fprintf(stderr, "IMAGECFG: invalid version string specified to /w switch.\n");
+                            fUsage = TRUE;
+                        }
+                    } else {
+                        fprintf(stderr, "IMAGECFG: /w switch missing argument.\n");
+                        fUsage = TRUE;
+                    }
+                    break;
+
+                case 'X':
+                    fSwapRunNet = TRUE;
+                    break;
+
+                case 'Y':
+                    fSwapRunCD = TRUE;
+                    break;
+
+                default:
+                    fprintf(stderr, "IMAGECFG: Invalid switch - /%c\n", c);
+                    fUsage = TRUE;
+                    break;
                 }
 
-            if ( fUsage ) {
-                showUsage:
-                fprintf( stderr,
-                         "usage: IMAGECFG [switches] image-names... \n"
-                         "              [-?] display this message\n"
-                         "              [-a Process Affinity mask value in hex]\n"
-                         "              [-b BuildNumber]\n"
-                         "              [-c Win32 GetVersionEx Service Pack return value in hex]\n"
-                         "              [-d decommit thresholds]\n"
-                         "              [-g bitsToClear bitsToSet]\n"
-                         "              [-h 1|0 (Enable/Disable Terminal Server Compatible bit)\n"
-                         "              [-k StackReserve[.StackCommit]\n"
-                         "              [-l enable large (>2GB) addresses\n"
-                         "              [-m maximum allocation size]\n"
-                         "              [-n bind no longer allowed on this image\n"
-                         "              [-o default critical section timeout\n"
-                         "              [-p process heap flags]\n"
-                         "              [-q only print config info if changed\n"
-                         "              [-r run with restricted working set]\n"
-                         "              [-s path to symbol files]\n"
-                         "              [-t VirtualAlloc threshold]\n"
-                         "              [-u Marks image as uniprocessor only]\n"
-                         "              [-v MajorVersion.MinorVersion]\n"
-                         "              [-w Win32 GetVersion return value in hex]\n"
-                         "              [-x Mark image as Net - Run From Swapfile\n"
-                         "              [-y Mark image as Removable - Run From Swapfile\n"
-                       );
-                exit( 1 );
+            if (fUsage) {
+            showUsage:
+                fprintf(stderr,
+                        "usage: IMAGECFG [switches] image-names... \n"
+                        "              [-?] display this message\n"
+                        "              [-a Process Affinity mask value in hex]\n"
+                        "              [-b BuildNumber]\n"
+                        "              [-c Win32 GetVersionEx Service Pack return value in hex]\n"
+                        "              [-d decommit thresholds]\n"
+                        "              [-g bitsToClear bitsToSet]\n"
+                        "              [-h 1|0 (Enable/Disable Terminal Server Compatible bit)\n"
+                        "              [-k StackReserve[.StackCommit]\n"
+                        "              [-l enable large (>2GB) addresses\n"
+                        "              [-m maximum allocation size]\n"
+                        "              [-n bind no longer allowed on this image\n"
+                        "              [-o default critical section timeout\n"
+                        "              [-p process heap flags]\n"
+                        "              [-q only print config info if changed\n"
+                        "              [-r run with restricted working set]\n"
+                        "              [-s path to symbol files]\n"
+                        "              [-t VirtualAlloc threshold]\n"
+                        "              [-u Marks image as uniprocessor only]\n"
+                        "              [-v MajorVersion.MinorVersion]\n"
+                        "              [-w Win32 GetVersion return value in hex]\n"
+                        "              [-x Mark image as Net - Run From Swapfile\n"
+                        "              [-y Mark image as Removable - Run From Swapfile\n"
+                );
+                exit(1);
             }
         } else {
 
@@ -465,20 +465,20 @@ main(
             OptionalHeader64 = NULL;
             FileHeader = NULL;
             CurrentImageName = p;
-            if (MapAndLoad( CurrentImageName,
-                            NULL,
-                            &CurrentImage,
-                            FALSE,
-                            TRUE
-                          )
-               ) {
+            if (MapAndLoad(CurrentImageName,
+                           NULL,
+                           &CurrentImage,
+                           FALSE,
+                           TRUE
+            )
+                ) {
                 if (BuildNumber != 0) {
-                    pBuildNumber = (PULONG) GetAddressOfExportedData( &CurrentImage, "NtBuildNumber" );
+                    pBuildNumber = (PULONG)GetAddressOfExportedData(&CurrentImage, "NtBuildNumber");
                     if (pBuildNumber == NULL) {
-                        fprintf( stderr,
-                                 "IMAGECFG: Unable to find exported NtBuildNumber image %s\n",
-                                 CurrentImageName
-                               );
+                        fprintf(stderr,
+                                "IMAGECFG: Unable to find exported NtBuildNumber image %s\n",
+                                CurrentImageName
+                        );
                     }
                 }
 
@@ -495,29 +495,29 @@ main(
                 fConfigInfoChanged = FALSE;
                 fImageHeaderChanged = FALSE;
                 ZeroMemory(&ConfigInfo, sizeof(ConfigInfo));
-                fImageHasConfigInfo = GetImageConfigInformation( &CurrentImage, &ConfigInfo );
+                fImageHasConfigInfo = GetImageConfigInformation(&CurrentImage, &ConfigInfo);
                 if (!fQuiet) {
-                    DisplayImageInfo( fImageHasConfigInfo );
+                    DisplayImageInfo(fImageHasConfigInfo);
                 }
-                UnMapAndLoad( &CurrentImage );
+                UnMapAndLoad(&CurrentImage);
                 OptionalHeader32 = NULL;
                 OptionalHeader64 = NULL;
                 FileHeader = NULL;
                 if (fConfigInfoChanged || fImageHeaderChanged) {
-                    if (!MapAndLoad( CurrentImageName,
-                                     NULL,
-                                     &CurrentImage,
-                                     FALSE,
-                                     FALSE
-                                   )
-                       ) {
+                    if (!MapAndLoad(CurrentImageName,
+                                    NULL,
+                                    &CurrentImage,
+                                    FALSE,
+                                    FALSE
+                    )
+                        ) {
                         if (!CurrentImage.fDOSImage) {
-                            fprintf( stderr, "IMAGECFG: unable to map and load %s\n", CurrentImageName );
+                            fprintf(stderr, "IMAGECFG: unable to map and load %s\n", CurrentImageName);
                         } else {
-                            fprintf( stderr,
-                                     "IMAGECFG: unable to modify DOS or Windows image file - %s\n",
-                                     CurrentImageName
-                                   );
+                            fprintf(stderr,
+                                    "IMAGECFG: unable to modify DOS or Windows image file - %s\n",
+                                    CurrentImageName
+                            );
                         }
                     } else {
                         FileHeader = &((PIMAGE_NT_HEADERS32)CurrentImage.FileHeader)->FileHeader;
@@ -567,15 +567,15 @@ main(
                         }
 
                         if (fNoBind) {
-                            OPTIONALHEADER_SET_FLAG(DllCharacteristics,IMAGE_DLLCHARACTERISTICS_NO_BIND);
+                            OPTIONALHEADER_SET_FLAG(DllCharacteristics, IMAGE_DLLCHARACTERISTICS_NO_BIND);
                         }
 
                         if (fEnableTerminalServerAware) {
-                            OPTIONALHEADER_SET_FLAG(DllCharacteristics,IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE);
+                            OPTIONALHEADER_SET_FLAG(DllCharacteristics, IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE);
                         }
 
                         if (fDisableTerminalServerAware) {
-                            OPTIONALHEADER_CLEAR_FLAG(DllCharacteristics,IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE);
+                            OPTIONALHEADER_CLEAR_FLAG(DllCharacteristics, IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE);
                         }
 
                         if (fSwapRunNet) {
@@ -616,12 +616,12 @@ main(
                         }
 
                         if (BuildNumber != 0) {
-                            pBuildNumber = (PULONG) GetAddressOfExportedData( &CurrentImage, "NtBuildNumber" );
+                            pBuildNumber = (PULONG)GetAddressOfExportedData(&CurrentImage, "NtBuildNumber");
                             if (pBuildNumber == NULL) {
-                                fprintf( stderr,
-                                         "IMAGECFG: Unable to find exported NtBuildNumber image %s\n",
-                                         CurrentImageName
-                                       );
+                                fprintf(stderr,
+                                        "IMAGECFG: Unable to find exported NtBuildNumber image %s\n",
+                                        CurrentImageName
+                                );
                             } else {
                                 if (BuildNumber & 0xFFFF0000) {
                                     *pBuildNumber = BuildNumber;
@@ -632,13 +632,13 @@ main(
                         }
 
                         if (fConfigInfoChanged) {
-                            if (SetImageConfigInformation( &CurrentImage, &ConfigInfo )) {
+                            if (SetImageConfigInformation(&CurrentImage, &ConfigInfo)) {
                                 if (!fQuiet) {
-                                    printf( "%s updated with the following configuration information:\n", CurrentImageName );
-                                    DisplayImageInfo( fImageHasConfigInfo );
+                                    printf("%s updated with the following configuration information:\n", CurrentImageName);
+                                    DisplayImageInfo(fImageHasConfigInfo);
                                 }
                             } else {
-                                fprintf( stderr, "IMAGECFG: Unable to update configuration information in image.\n" );
+                                fprintf(stderr, "IMAGECFG: Unable to update configuration information in image.\n");
 
                             }
                         }
@@ -650,78 +650,78 @@ main(
                         OldChecksum = OPTIONALHEADER(CheckSum);
                         OPTIONALHEADER_LV(CheckSum) = 0;
                         CheckSumMappedFile(
-                                          (PVOID)CurrentImage.MappedAddress,
-                                          CurrentImage.SizeOfImage,
-                                          &HeaderSum,
-                                          &OPTIONALHEADER_LV(CheckSum)
-                                          );
+                            (PVOID)CurrentImage.MappedAddress,
+                            CurrentImage.SizeOfImage,
+                            &HeaderSum,
+                            &OPTIONALHEADER_LV(CheckSum)
+                        );
 
                         // And update the .dbg file (if requested)
                         if (SymbolPath &&
                             FileHeader->Characteristics & IMAGE_FILE_DEBUG_STRIPPED) {
-                            if (UpdateDebugInfoFileEx( CurrentImageName,
-                                                       SymbolPath,
-                                                       DebugFilePath,
-                                                       (PIMAGE_NT_HEADERS32)CurrentImage.FileHeader,
-                                                       OldChecksum
-                                                     )
-                               ) {
+                            if (UpdateDebugInfoFileEx(CurrentImageName,
+                                                      SymbolPath,
+                                                      DebugFilePath,
+                                                      (PIMAGE_NT_HEADERS32)CurrentImage.FileHeader,
+                                                      OldChecksum
+                            )
+                                ) {
                                 if (GetLastError() == ERROR_INVALID_DATA) {
-                                    printf( "Warning: Old checksum did not match for %s\n", DebugFilePath);
+                                    printf("Warning: Old checksum did not match for %s\n", DebugFilePath);
                                 }
-                                printf( "Updated symbols for %s\n", DebugFilePath );
+                                printf("Updated symbols for %s\n", DebugFilePath);
                             } else {
-                                printf( "Unable to update symbols: %s\n", DebugFilePath );
+                                printf("Unable to update symbols: %s\n", DebugFilePath);
                             }
                         }
 
-                        GetSystemTime( &SystemTime );
-                        if (SystemTimeToFileTime( &SystemTime, &LastWriteTime )) {
-                            SetFileTime( CurrentImage.hFile, NULL, NULL, &LastWriteTime );
+                        GetSystemTime(&SystemTime);
+                        if (SystemTimeToFileTime(&SystemTime, &LastWriteTime)) {
+                            SetFileTime(CurrentImage.hFile, NULL, NULL, &LastWriteTime);
                         }
 
-                        UnMapAndLoad( &CurrentImage );
+                        UnMapAndLoad(&CurrentImage);
                     }
                 }
             } else
                 if (!CurrentImage.fDOSImage) {
-                fprintf( stderr, "IMAGECFG: unable to map and load %s  GetLastError= %d\n", CurrentImageName, GetLastError() );
+                    fprintf(stderr, "IMAGECFG: unable to map and load %s  GetLastError= %d\n", CurrentImageName, GetLastError());
 
-            } else {
-                fprintf( stderr,
-                         "IMAGECFG: unable to modify DOS or Windows image file - %s\n",
-                         CurrentImageName
-                       );
-            }
+                } else {
+                    fprintf(stderr,
+                            "IMAGECFG: unable to modify DOS or Windows image file - %s\n",
+                            CurrentImageName
+                    );
+                }
         }
     }
 
-    exit( 1 );
+    exit(1);
     return 1;
 }
 
 __inline PVOID
 GetVaForRva(
-           PLOADED_IMAGE Image,
-           ULONG Rva
-           )
+    PLOADED_IMAGE Image,
+    ULONG Rva
+)
 {
     PVOID Va;
 
-    Va = ImageRvaToVa( Image->FileHeader,
-                       Image->MappedAddress,
-                       Rva,
-                       &Image->LastRvaSection
-                     );
+    Va = ImageRvaToVa(Image->FileHeader,
+                      Image->MappedAddress,
+                      Rva,
+                      &Image->LastRvaSection
+    );
     return Va;
 }
 
 
 PVOID
 GetAddressOfExportedData(
-                        PLOADED_IMAGE Dll,
-                        LPSTR ExportedName
-                        )
+    PLOADED_IMAGE Dll,
+    LPSTR ExportedName
+)
 {
     PIMAGE_EXPORT_DIRECTORY Exports;
     ULONG ExportSize;
@@ -732,25 +732,25 @@ GetAddressOfExportedData(
     PULONG FunctionTableBase;
     LPSTR NameTableName;
 
-    Exports = (PIMAGE_EXPORT_DIRECTORY)ImageDirectoryEntryToData( (PVOID)Dll->MappedAddress,
-                                                                  FALSE,
-                                                                  IMAGE_DIRECTORY_ENTRY_EXPORT,
-                                                                  &ExportSize
-                                                                );
+    Exports = (PIMAGE_EXPORT_DIRECTORY)ImageDirectoryEntryToData((PVOID)Dll->MappedAddress,
+                                                                 FALSE,
+                                                                 IMAGE_DIRECTORY_ENTRY_EXPORT,
+                                                                 &ExportSize
+    );
     if (Exports) {
-        NameTableBase = (PULONG)GetVaForRva( Dll, Exports->AddressOfNames );
-        NameOrdinalTableBase = (PUSHORT)GetVaForRva( Dll, Exports->AddressOfNameOrdinals );
-        FunctionTableBase = (PULONG)GetVaForRva( Dll, Exports->AddressOfFunctions );
+        NameTableBase = (PULONG)GetVaForRva(Dll, Exports->AddressOfNames);
+        NameOrdinalTableBase = (PUSHORT)GetVaForRva(Dll, Exports->AddressOfNameOrdinals);
+        FunctionTableBase = (PULONG)GetVaForRva(Dll, Exports->AddressOfFunctions);
         if (NameTableBase != NULL &&
             NameOrdinalTableBase != NULL &&
             FunctionTableBase != NULL
-           ) {
+            ) {
             for (HintIndex = 0; HintIndex < Exports->NumberOfNames; HintIndex++) {
-                NameTableName = (LPSTR)GetVaForRva( Dll, NameTableBase[ HintIndex ] );
+                NameTableName = (LPSTR)GetVaForRva(Dll, NameTableBase[HintIndex]);
                 if (NameTableName) {
-                    if (!strcmp( ExportedName, NameTableName )) {
-                        OrdinalNumber = NameOrdinalTableBase[ HintIndex ];
-                        return FunctionTableBase[ OrdinalNumber ] + Dll->MappedAddress;
+                    if (!strcmp(ExportedName, NameTableName)) {
+                        OrdinalNumber = NameOrdinalTableBase[HintIndex];
+                        return FunctionTableBase[OrdinalNumber] + Dll->MappedAddress;
                     }
                 }
             }
@@ -763,122 +763,122 @@ GetAddressOfExportedData(
 
 VOID
 DisplayImageInfo(
-                BOOL HasConfigInfo
-                )
+    BOOL HasConfigInfo
+)
 {
-    printf( "%s contains the following configuration information:\n", CurrentImageName );
-//    if (HasConfigInfo) {
-        if (ConfigInfo.GlobalFlagsClear != 0) {
-            printf( "    NtGlobalFlags to clear: %08x\n",
-                    ConfigInfo.GlobalFlagsClear
-                  );
-            DisplayGlobalFlags( "        ", ConfigInfo.GlobalFlagsClear, FALSE );
-        }
-        if (GlobalFlagsClear && ConfigInfo.GlobalFlagsClear != GlobalFlagsClear) {
-            fConfigInfoChanged = TRUE;
-        }
+    printf("%s contains the following configuration information:\n", CurrentImageName);
+    //    if (HasConfigInfo) {
+    if (ConfigInfo.GlobalFlagsClear != 0) {
+        printf("    NtGlobalFlags to clear: %08x\n",
+               ConfigInfo.GlobalFlagsClear
+        );
+        DisplayGlobalFlags("        ", ConfigInfo.GlobalFlagsClear, FALSE);
+    }
+    if (GlobalFlagsClear && ConfigInfo.GlobalFlagsClear != GlobalFlagsClear) {
+        fConfigInfoChanged = TRUE;
+    }
 
-        if (ConfigInfo.GlobalFlagsSet != 0) {
-            printf( "    NtGlobalFlags to set:   %08x\n",
-                    ConfigInfo.GlobalFlagsSet
-                  );
-            DisplayGlobalFlags( "        ", ConfigInfo.GlobalFlagsSet, TRUE );
-        }
-        if (GlobalFlagsSet && ConfigInfo.GlobalFlagsSet != GlobalFlagsSet) {
-            fConfigInfoChanged = TRUE;
-        }
+    if (ConfigInfo.GlobalFlagsSet != 0) {
+        printf("    NtGlobalFlags to set:   %08x\n",
+               ConfigInfo.GlobalFlagsSet
+        );
+        DisplayGlobalFlags("        ", ConfigInfo.GlobalFlagsSet, TRUE);
+    }
+    if (GlobalFlagsSet && ConfigInfo.GlobalFlagsSet != GlobalFlagsSet) {
+        fConfigInfoChanged = TRUE;
+    }
 
 
-        if (ConfigInfo.CriticalSectionDefaultTimeout != 0) {
-            printf( "    Default Critical Section Timeout: %u milliseconds\n",
-                    ConfigInfo.CriticalSectionDefaultTimeout
-                  );
-        }
-        if (CriticalSectionDefaultTimeout &&
-            ConfigInfo.CriticalSectionDefaultTimeout != CriticalSectionDefaultTimeout
-           ) {
-            fConfigInfoChanged = TRUE;
-        }
+    if (ConfigInfo.CriticalSectionDefaultTimeout != 0) {
+        printf("    Default Critical Section Timeout: %u milliseconds\n",
+               ConfigInfo.CriticalSectionDefaultTimeout
+        );
+    }
+    if (CriticalSectionDefaultTimeout &&
+        ConfigInfo.CriticalSectionDefaultTimeout != CriticalSectionDefaultTimeout
+        ) {
+        fConfigInfoChanged = TRUE;
+    }
 
-        if (ConfigInfo.ProcessHeapFlags != 0) {
-            printf( "    Process Heap Flags: %08x\n",
-                    ConfigInfo.ProcessHeapFlags
-                  );
-        }
-        if (ProcessHeapFlags && ConfigInfo.ProcessHeapFlags != ProcessHeapFlags) {
-            fConfigInfoChanged = TRUE;
-        }
+    if (ConfigInfo.ProcessHeapFlags != 0) {
+        printf("    Process Heap Flags: %08x\n",
+               ConfigInfo.ProcessHeapFlags
+        );
+    }
+    if (ProcessHeapFlags && ConfigInfo.ProcessHeapFlags != ProcessHeapFlags) {
+        fConfigInfoChanged = TRUE;
+    }
 
-        if (ConfigInfo.DeCommitFreeBlockThreshold != 0) {
-            printf( "    Process Heap DeCommit Free Block threshold: %08x\n",
-                    ConfigInfo.DeCommitFreeBlockThreshold
-                  );
-        }
-        if (DeCommitFreeBlockThreshold &&
-            ConfigInfo.DeCommitFreeBlockThreshold != DeCommitFreeBlockThreshold
-           ) {
-            fConfigInfoChanged = TRUE;
-        }
+    if (ConfigInfo.DeCommitFreeBlockThreshold != 0) {
+        printf("    Process Heap DeCommit Free Block threshold: %08x\n",
+               ConfigInfo.DeCommitFreeBlockThreshold
+        );
+    }
+    if (DeCommitFreeBlockThreshold &&
+        ConfigInfo.DeCommitFreeBlockThreshold != DeCommitFreeBlockThreshold
+        ) {
+        fConfigInfoChanged = TRUE;
+    }
 
-        if (ConfigInfo.DeCommitTotalFreeThreshold != 0) {
-            printf( "    Process Heap DeCommit Total Free threshold: %08x\n",
-                    ConfigInfo.DeCommitTotalFreeThreshold
-                  );
-        }
-        if (DeCommitTotalFreeThreshold &&
-            ConfigInfo.DeCommitTotalFreeThreshold != DeCommitTotalFreeThreshold
-           ) {
-            fConfigInfoChanged = TRUE;
-        }
+    if (ConfigInfo.DeCommitTotalFreeThreshold != 0) {
+        printf("    Process Heap DeCommit Total Free threshold: %08x\n",
+               ConfigInfo.DeCommitTotalFreeThreshold
+        );
+    }
+    if (DeCommitTotalFreeThreshold &&
+        ConfigInfo.DeCommitTotalFreeThreshold != DeCommitTotalFreeThreshold
+        ) {
+        fConfigInfoChanged = TRUE;
+    }
 
-        if (ConfigInfo.MaximumAllocationSize != 0) {
-            printf( "    Process Heap Maximum Allocation Size: %08x\n",
-                    ConfigInfo.MaximumAllocationSize
-                  );
-        }
-        if (MaximumAllocationSize && ConfigInfo.MaximumAllocationSize != MaximumAllocationSize) {
-            fConfigInfoChanged = TRUE;
-        }
+    if (ConfigInfo.MaximumAllocationSize != 0) {
+        printf("    Process Heap Maximum Allocation Size: %08x\n",
+               ConfigInfo.MaximumAllocationSize
+        );
+    }
+    if (MaximumAllocationSize && ConfigInfo.MaximumAllocationSize != MaximumAllocationSize) {
+        fConfigInfoChanged = TRUE;
+    }
 
-        if (ConfigInfo.VirtualMemoryThreshold != 0) {
-            printf( "    Process Heap VirtualAlloc Threshold: %08x\n",
-                    ConfigInfo.VirtualMemoryThreshold
-                  );
-        }
-        if (VirtualMemoryThreshold &&
-            ConfigInfo.VirtualMemoryThreshold != VirtualMemoryThreshold
-           ) {
-            fConfigInfoChanged = TRUE;
-        }
+    if (ConfigInfo.VirtualMemoryThreshold != 0) {
+        printf("    Process Heap VirtualAlloc Threshold: %08x\n",
+               ConfigInfo.VirtualMemoryThreshold
+        );
+    }
+    if (VirtualMemoryThreshold &&
+        ConfigInfo.VirtualMemoryThreshold != VirtualMemoryThreshold
+        ) {
+        fConfigInfoChanged = TRUE;
+    }
 
-        if (ConfigInfo.ProcessAffinityMask != 0) {
-            printf( "    Process Affinity Mask: %08x\n",
-                    ConfigInfo.ProcessAffinityMask
-                  );
-        }
-        if (ImageProcessAffinityMask &&
-            ConfigInfo.ProcessAffinityMask != ImageProcessAffinityMask
-           ) {
-            fConfigInfoChanged = TRUE;
-        }
-//    } else {
-//        memset( &ConfigInfo, 0, sizeof( ConfigInfo ) );
-//    }
+    if (ConfigInfo.ProcessAffinityMask != 0) {
+        printf("    Process Affinity Mask: %08x\n",
+               ConfigInfo.ProcessAffinityMask
+        );
+    }
+    if (ImageProcessAffinityMask &&
+        ConfigInfo.ProcessAffinityMask != ImageProcessAffinityMask
+        ) {
+        fConfigInfoChanged = TRUE;
+    }
+    //    } else {
+    //        memset( &ConfigInfo, 0, sizeof( ConfigInfo ) );
+    //    }
 
-    printf( "    Subsystem Version of %u.%u\n",
-            OPTIONALHEADER(MajorSubsystemVersion),
-            OPTIONALHEADER(MinorSubsystemVersion)
-          );
+    printf("    Subsystem Version of %u.%u\n",
+           OPTIONALHEADER(MajorSubsystemVersion),
+           OPTIONALHEADER(MinorSubsystemVersion)
+    );
     if (MajorSubsystemVersion != 0) {
         if (OPTIONALHEADER(MajorSubsystemVersion) != (USHORT)MajorSubsystemVersion ||
             OPTIONALHEADER(MinorSubsystemVersion) != (USHORT)MinorSubsystemVersion
-           ) {
+            ) {
             fImageHeaderChanged = TRUE;
         }
     }
 
     if (pBuildNumber != NULL) {
-        printf( "    Build Number of %08x\n", *pBuildNumber );
+        printf("    Build Number of %08x\n", *pBuildNumber);
         if (BuildNumber != 0) {
             if (BuildNumber & 0xFFFF0000) {
                 if (*pBuildNumber != BuildNumber) {
@@ -893,92 +893,92 @@ DisplayImageInfo(
     }
 
     if (OPTIONALHEADER(Win32VersionValue) != 0) {
-        printf( "    Win32 GetVersion return value: %08x\n",
-                OPTIONALHEADER(Win32VersionValue)
-              );
+        printf("    Win32 GetVersion return value: %08x\n",
+               OPTIONALHEADER(Win32VersionValue)
+        );
     }
     if (Win32VersionValue != 0 &&
         OPTIONALHEADER(Win32VersionValue) != Win32VersionValue
-       ) {
+        ) {
         fImageHeaderChanged = TRUE;
     }
 
     if (FileHeader->Characteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE) {
-        printf( "    Image can handle large (>2GB) addresses\n" );
+        printf("    Image can handle large (>2GB) addresses\n");
     }
 
     if (OPTIONALHEADER(DllCharacteristics) & IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE) {
-        printf( "    Image is Terminal Server aware\n" );
+        printf("    Image is Terminal Server aware\n");
     }
 
     if (fEnableLargeAddresses &&
         !(FileHeader->Characteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE)
-       ) {
+        ) {
         fImageHeaderChanged = TRUE;
-        printf( "    Image is Large Address aware\n" );
+        printf("    Image is Large Address aware\n");
     }
 
     if (fNoBind) {
         fImageHeaderChanged = TRUE;
-        printf( "    Image will no longer support binding\n" );
+        printf("    Image will no longer support binding\n");
     }
 
     if (fEnableTerminalServerAware || fDisableTerminalServerAware) {
-        printf( "    Image %s Terminal Server Aware\n", fEnableTerminalServerAware ? "is" : "is not");
+        printf("    Image %s Terminal Server Aware\n", fEnableTerminalServerAware ? "is" : "is not");
         fImageHeaderChanged = TRUE;
     }
 
     if (FileHeader->Characteristics & IMAGE_FILE_NET_RUN_FROM_SWAP) {
-        printf( "    Image will run from swapfile if located on net\n" );
+        printf("    Image will run from swapfile if located on net\n");
     }
     if (fSwapRunNet &&
         !(FileHeader->Characteristics & IMAGE_FILE_NET_RUN_FROM_SWAP)
-       ) {
+        ) {
         fImageHeaderChanged = TRUE;
     }
 
     if (FileHeader->Characteristics & IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP) {
-        printf( "    Image will run from swapfile if located on removable media\n" );
+        printf("    Image will run from swapfile if located on removable media\n");
     }
     if (fSwapRunCD &&
         !(FileHeader->Characteristics & IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP)
-       ) {
+        ) {
         fImageHeaderChanged = TRUE;
     }
 
     if (FileHeader->Characteristics & IMAGE_FILE_UP_SYSTEM_ONLY) {
-        printf( "    Image can only run in uni-processor mode on multi-processor systems\n" );
+        printf("    Image can only run in uni-processor mode on multi-processor systems\n");
     }
     if (fUniprocessorOnly &&
         !(FileHeader->Characteristics & IMAGE_FILE_UP_SYSTEM_ONLY)
-       ) {
+        ) {
         fImageHeaderChanged = TRUE;
     }
 
     if (FileHeader->Characteristics & IMAGE_FILE_AGGRESIVE_WS_TRIM) {
-        printf( "    Image working set trimmed aggressively on small memory systems\n" );
+        printf("    Image working set trimmed aggressively on small memory systems\n");
     }
     if (fRestrictedWorkingSet &&
         !(FileHeader->Characteristics & IMAGE_FILE_AGGRESIVE_WS_TRIM)
-       ) {
+        ) {
         fImageHeaderChanged = TRUE;
     }
 
     if (OPTIONALHEADER(SizeOfStackReserve)) {
-        printf( "    Stack Reserve Size: 0x%x\n", OPTIONALHEADER(SizeOfStackReserve) );
+        printf("    Stack Reserve Size: 0x%x\n", OPTIONALHEADER(SizeOfStackReserve));
     }
     if (SizeOfStackReserve &&
         OPTIONALHEADER(SizeOfStackReserve) != SizeOfStackReserve
-       ) {
+        ) {
         fImageHeaderChanged = TRUE;
     }
 
     if (OPTIONALHEADER(SizeOfStackCommit)) {
-        printf( "    Stack Commit Size: 0x%x\n", OPTIONALHEADER(SizeOfStackCommit) );
+        printf("    Stack Commit Size: 0x%x\n", OPTIONALHEADER(SizeOfStackCommit));
     }
     if (SizeOfStackCommit &&
         OPTIONALHEADER(SizeOfStackCommit) != SizeOfStackCommit
-       ) {
+        ) {
         fImageHeaderChanged = TRUE;
     }
 
