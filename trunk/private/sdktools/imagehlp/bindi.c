@@ -1305,8 +1305,8 @@ DWORD GetImageUnusedHeaderBytes(PLOADED_IMAGE LoadedImage, LPDWORD SizeUnusedHea
     // this calculates an offset, not an address, so DWORD is correct
     OffsetFirstUnusedHeaderByte = (DWORD)
         (((LPSTR)NtHeaders - (LPSTR)LoadedImage->MappedAddress) +
-         (FIELD_OFFSET(IMAGE_NT_HEADERS32, OptionalHeader) + 
-          NtHeaders->FileHeader.SizeOfOptionalHeader + 
+         (FIELD_OFFSET(IMAGE_NT_HEADERS32, OptionalHeader) +
+          NtHeaders->FileHeader.SizeOfOptionalHeader +
           (NtHeaders->FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER))));
 
     OptionalHeadersFromNtHeaders(NtHeaders, &OptionalHeader32, &OptionalHeader64);

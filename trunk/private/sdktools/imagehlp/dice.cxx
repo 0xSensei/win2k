@@ -1,33 +1,23 @@
 /*++
-
 Copyright (c) 1995  Microsoft Corporation
 
 Module Name:
-
     dice.cxx
 
 Abstract:
-
     This file implements the Image Integrity API's.
 
 Author:
-
     Bryan Tuttle (bryant) 7-Dec-1995
 
 Environment:
-
     User Mode
-
 --*/
 
 #include <private.h>
 
-BOOL
-FindCertificate(
-    IN PLOADED_IMAGE    LoadedImage,
-    IN DWORD            Index,
-    LPWIN_CERTIFICATE * Certificate
-    )
+
+BOOL FindCertificate(IN PLOADED_IMAGE LoadedImage, IN DWORD Index, LPWIN_CERTIFICATE * Certificate)
 {
     PIMAGE_DATA_DIRECTORY pDataDir;
     DWORD_PTR CurrentCert;
@@ -52,8 +42,7 @@ FindCertificate(
         // Check if the cert pointer is at least reasonable.
         if (!pDataDir->VirtualAddress ||
             !pDataDir->Size ||
-            (pDataDir->VirtualAddress + pDataDir->Size > LoadedImage->SizeOfImage))
-        {
+            (pDataDir->VirtualAddress + pDataDir->Size > LoadedImage->SizeOfImage)) {
             __leave;
         }
 
@@ -66,7 +55,7 @@ FindCertificate(
         CurrentCert = (DWORD_PTR)(LoadedImage->MappedAddress) + pDataDir->VirtualAddress;
         LastCert = CurrentCert + pDataDir->Size;
 
-        while (CurrentCert < LastCert ) {
+        while (CurrentCert < LastCert) {
             if (CurrentIdx == Index) {
                 rc = TRUE;
                 __leave;
@@ -75,7 +64,9 @@ FindCertificate(
             CurrentCert += ((LPWIN_CERTIFICATE)CurrentCert)->dwLength;
             CurrentCert = (CurrentCert + 7) & ~7;   // align it.
         }
-    } __except(EXCEPTION_EXECUTE_HANDLER) { }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+
+    }
 
     if (rc == TRUE) {
         *Certificate = (LPWIN_CERTIFICATE)CurrentCert;
@@ -84,62 +75,61 @@ FindCertificate(
     return(rc);
 }
 
+
 typedef struct _EXCLUDE_RANGE {
     PBYTE Offset;
     DWORD Size;
-    struct _EXCLUDE_RANGE *Next;
+    struct _EXCLUDE_RANGE * Next;
 } EXCLUDE_RANGE;
+
 
 typedef enum {
     Raw,
     Virtual
 } ADDRTYPE;
 
+
 class EXCLUDE_LIST
 {
-    public:
-        EXCLUDE_LIST() {
-            m_Image = NULL;
-            m_ExRange = (EXCLUDE_RANGE *)MemAlloc(sizeof(EXCLUDE_RANGE));
-        }
+public:
+    EXCLUDE_LIST() {
+        m_Image = NULL;
+        m_ExRange = (EXCLUDE_RANGE *)MemAlloc(sizeof(EXCLUDE_RANGE));
+    }
 
-        ~EXCLUDE_LIST() {
-            EXCLUDE_RANGE *pTmp;
-            pTmp = m_ExRange->Next;
-            while (pTmp) {
-                MemFree(m_ExRange);
-                m_ExRange = pTmp;
-                pTmp = m_ExRange->Next;
-            }
+    ~EXCLUDE_LIST() {
+        EXCLUDE_RANGE * pTmp;
+        pTmp = m_ExRange->Next;
+        while (pTmp) {
             MemFree(m_ExRange);
+            m_ExRange = pTmp;
+            pTmp = m_ExRange->Next;
         }
+        MemFree(m_ExRange);
+    }
 
-        void Init(LOADED_IMAGE * Image, DIGEST_FUNCTION pFunc, DIGEST_HANDLE dh) {
-            m_Image = Image;
-            m_ExRange->Offset = NULL;
-            m_ExRange->Size = 0;
-            m_pFunc = pFunc;
-            m_dh = dh;
-            return;
-        }
+    void Init(LOADED_IMAGE * Image, DIGEST_FUNCTION pFunc, DIGEST_HANDLE dh) {
+        m_Image = Image;
+        m_ExRange->Offset = NULL;
+        m_ExRange->Size = 0;
+        m_pFunc = pFunc;
+        m_dh = dh;
+        return;
+    }
 
-        void Add(DWORD_PTR Offset, DWORD Size, ADDRTYPE AddrType);
+    void Add(DWORD_PTR Offset, DWORD Size, ADDRTYPE AddrType);
 
-        BOOL Emit(PBYTE Offset, DWORD Size);
+    BOOL Emit(PBYTE Offset, DWORD Size);
 
-    private:
-        LOADED_IMAGE  * m_Image;
-        EXCLUDE_RANGE * m_ExRange;
-        DIGEST_FUNCTION m_pFunc;
-        DIGEST_HANDLE m_dh;
+private:
+    LOADED_IMAGE * m_Image;
+    EXCLUDE_RANGE * m_ExRange;
+    DIGEST_FUNCTION m_pFunc;
+    DIGEST_HANDLE m_dh;
 };
 
-void
-EXCLUDE_LIST::Add(
-    DWORD_PTR Offset,
-    DWORD Size,
-    ADDRTYPE AddrType
-    )
+
+void EXCLUDE_LIST::Add(DWORD_PTR Offset, DWORD Size, ADDRTYPE AddrType)
 {
     if (AddrType == Virtual) {
         // Always save raw offsets
@@ -152,7 +142,7 @@ EXCLUDE_LIST::Add(
         Offset = RawOffset;
     }
 
-    EXCLUDE_RANGE *pTmp, *pExRange;
+    EXCLUDE_RANGE * pTmp, * pExRange;
 
     pExRange = m_ExRange;
 
@@ -160,7 +150,7 @@ EXCLUDE_LIST::Add(
         pExRange = pExRange->Next;
     }
 
-    pTmp = (EXCLUDE_RANGE *) MemAlloc(sizeof(EXCLUDE_RANGE));
+    pTmp = (EXCLUDE_RANGE *)MemAlloc(sizeof(EXCLUDE_RANGE));
     pTmp->Next = pExRange->Next;
     pTmp->Offset = (PBYTE)Offset;
     pTmp->Size = Size;
@@ -170,15 +160,11 @@ EXCLUDE_LIST::Add(
 }
 
 
-BOOL
-EXCLUDE_LIST::Emit(
-    PBYTE Offset,
-    DWORD Size
-    )
+BOOL EXCLUDE_LIST::Emit(PBYTE Offset, DWORD Size)
 {
     BOOL rc;
 
-    EXCLUDE_RANGE *pExRange;
+    EXCLUDE_RANGE * pExRange;
     DWORD EmitSize, ExcludeSize;
 
     pExRange = m_ExRange->Next;
@@ -221,44 +207,30 @@ ImageGetDigestStream(
     IN DWORD            DigestLevel,
     IN DIGEST_FUNCTION  DigestFunction,
     IN DIGEST_HANDLE    DigestHandle
-    )
-
+)
 /*++
-
 Routine Description:
-
     Given an image, return the bytes necessary to construct a certificate.
     Only PE images are supported at this time.
-
 Arguments:
-
     FileHandle  -   Handle to the file in question.  The file should be opened
                     with at least GENERIC_READ access.
-
     DigestLevel -   Indicates what data will be included in the returned buffer.
                     Valid values are:
-
                         CERT_PE_IMAGE_DIGEST_DEBUG_INFO - Include Debug symbolic (if mapped)
                         CERT_PE_IMAGE_DIGEST_RESOURCES  - Include Resource info
                         CERT_PE_IMAGE_DIGEST_ALL_IMPORT_INFO - Include ALL the import information
 
                     By default, neither Debug Symbolic, Resources, nor import information affected
                     by binding are returned.
-
     DigestFunction - User supplied routine that will process the data.
-
     DigestHandle -  User supplied handle to identify the digest.  Passed as the first
                     argument to the DigestFunction.
-
 Return Value:
-
     TRUE         - Success.
-
     FALSE        - There was some error.  Call GetLastError for more information.  Possible
                    values are ERROR_INVALID_PARAMETER or ERROR_OPERATION_ABORTED.
-
 --*/
-
 {
     LOADED_IMAGE    LoadedImage;
     BOOL            rc, fAddThisSection, fDebugAdded;
@@ -284,7 +256,6 @@ Return Value:
     rc = ERROR_INVALID_PARAMETER;
 
     __try {
-
         if (LoadedImage.fDOSImage) {
             __leave;
         }
@@ -303,10 +274,9 @@ Return Value:
 
         // 1. Add the DOS stub (if it exists).
 
-        if ((ULONG_PTR)LoadedImage.FileHeader - (ULONG_PTR) LoadedImage.MappedAddress) {
-            if (!ExList.Emit((PBYTE) LoadedImage.MappedAddress,
-                             (DWORD)((ULONG_PTR) LoadedImage.FileHeader - (ULONG_PTR) LoadedImage.MappedAddress)))
-            {
+        if ((ULONG_PTR)LoadedImage.FileHeader - (ULONG_PTR)LoadedImage.MappedAddress) {
+            if (!ExList.Emit((PBYTE)LoadedImage.MappedAddress,
+                             (DWORD)((ULONG_PTR)LoadedImage.FileHeader - (ULONG_PTR)LoadedImage.MappedAddress))) {
                 rc = ERROR_OPERATION_ABORTED;
                 __leave;
             }
@@ -328,7 +298,7 @@ Return Value:
         pDataDir[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress = 0;
 
         SectionHeaderSize = sizeof(IMAGE_SECTION_HEADER) * LoadedImage.NumberOfSections;
-        SectionHeaders = (PIMAGE_SECTION_HEADER) MemAlloc(SectionHeaderSize);
+        SectionHeaders = (PIMAGE_SECTION_HEADER)MemAlloc(SectionHeaderSize);
 
         ResourceOffset = pDataDir[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress;
         ResourceSize = pDataDir[IMAGE_DIRECTORY_ENTRY_RESOURCE].Size;
@@ -347,21 +317,18 @@ Return Value:
             if (RelocSize &&
                 ((LoadedImage.Sections[i].VirtualAddress <= RelocOffset) &&
                  (LoadedImage.Sections[i].VirtualAddress +
-                    LoadedImage.Sections[i].Misc.VirtualSize >= RelocOffset + RelocSize))
-                )
-            {
+                  LoadedImage.Sections[i].Misc.VirtualSize >= RelocOffset + RelocSize))
+                ) {
                 RelocHdr = i;
             }
 
             // If resources aren't in the digest, we need to clear the resource section header
 
             if (ResourceSize && !(DigestLevel & CERT_PE_IMAGE_DIGEST_RESOURCES)) {
-
                 if (((LoadedImage.Sections[i].VirtualAddress <= ResourceOffset) &&
                      (LoadedImage.Sections[i].VirtualAddress +
-                        LoadedImage.Sections[i].Misc.VirtualSize >= ResourceOffset + ResourceSize))
-                    )
-                {
+                      LoadedImage.Sections[i].Misc.VirtualSize >= ResourceOffset + ResourceSize))
+                    ) {
                     // Found the resource section header.  Zero it out.
                     SectionHeaders[i].Misc.VirtualSize = 0;
                     SectionHeaders[i].VirtualAddress = 0;
@@ -376,7 +343,7 @@ Return Value:
 
                     DebugOffset = SectionHeaders[i].VirtualAddress;
                     DebugSize = SectionHeaders[i].SizeOfRawData;
-                    ExList.Add(SectionHeaders[i].PointerToRawData + (DWORD_PTR) LoadedImage.MappedAddress, DebugSize, Raw);
+                    ExList.Add(SectionHeaders[i].PointerToRawData + (DWORD_PTR)LoadedImage.MappedAddress, DebugSize, Raw);
 
                     SectionHeaders[i].Misc.VirtualSize = 0;
                     SectionHeaders[i].VirtualAddress = 0;
@@ -395,8 +362,7 @@ Return Value:
             // resource address/size to the digest.  This allows subsequent tools to add/subtract
             // resource info w/o effecting the digest.
 
-            if ((ResourceOffset < RelocOffset) && (RelocHdr != -1))
-            {
+            if ((ResourceOffset < RelocOffset) && (RelocHdr != -1)) {
                 pDataDir[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress = 0;
                 SectionHeaders[RelocHdr].PointerToRawData = 0;
                 SectionHeaders[RelocHdr].VirtualAddress = 0;
@@ -413,9 +379,7 @@ Return Value:
             ExList.Add(ResourceOffset, ResourceSize, Virtual);
         }
 
-        if (!(DigestLevel & CERT_PE_IMAGE_DIGEST_DEBUG_INFO) &&
-            (fDebugAdded == FALSE))
-        {
+        if (!(DigestLevel & CERT_PE_IMAGE_DIGEST_DEBUG_INFO) && (fDebugAdded == FALSE)) {
             // Debug wasn't added to the image and IS mapped in.  Allow these to grow also.
             if (f32) {
                 Hdr.PE32.OptionalHeader.SizeOfImage = 0;
@@ -424,8 +388,7 @@ Return Value:
                 Hdr.PE64.OptionalHeader.SizeOfImage = 0;
                 Hdr.PE64.OptionalHeader.SizeOfInitializedData = 0;
             }
-            if ((DebugOffset < RelocOffset) && (RelocHdr != -1))
-            {
+            if ((DebugOffset < RelocOffset) && (RelocHdr != -1)) {
                 pDataDir[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress = 0;
                 SectionHeaders[RelocHdr].PointerToRawData = 0;
                 SectionHeaders[RelocHdr].VirtualAddress = 0;
@@ -435,12 +398,12 @@ Return Value:
         // Looks good.  Send the headers to the digest function.
 
         if (f32) {
-            if (!ExList.Emit((PBYTE) &Hdr.PE32, sizeof(Hdr.PE32))) {
+            if (!ExList.Emit((PBYTE)&Hdr.PE32, sizeof(Hdr.PE32))) {
                 rc = ERROR_OPERATION_ABORTED;
                 __leave;
             }
         } else {
-            if (!ExList.Emit((PBYTE) &Hdr.PE64, sizeof(Hdr.PE64))) {
+            if (!ExList.Emit((PBYTE)&Hdr.PE64, sizeof(Hdr.PE64))) {
                 rc = ERROR_OPERATION_ABORTED;
                 __leave;
             }
@@ -448,7 +411,7 @@ Return Value:
 
         // Then the section headers.
 
-        if (!ExList.Emit((PBYTE) SectionHeaders, SectionHeaderSize)) {
+        if (!ExList.Emit((PBYTE)SectionHeaders, SectionHeaderSize)) {
             rc = ERROR_OPERATION_ABORTED;
             __leave;
         }
@@ -465,55 +428,51 @@ Return Value:
             DWORD ImportDescSize, IATSize;
             PVOID IAT;
 
-            ImportDesc = (PIMAGE_IMPORT_DESCRIPTOR) ImageDirectoryEntryToData(
-                                LoadedImage.MappedAddress,
-                                FALSE,
-                                IMAGE_DIRECTORY_ENTRY_IMPORT,
-                                &ImportDescSize);
+            ImportDesc = (PIMAGE_IMPORT_DESCRIPTOR)ImageDirectoryEntryToData(
+                LoadedImage.MappedAddress,
+                FALSE,
+                IMAGE_DIRECTORY_ENTRY_IMPORT,
+                &ImportDescSize);
             if (ImportDescSize) {
-
                 IAT = ImageDirectoryEntryToData(LoadedImage.MappedAddress,
                                                 FALSE,
                                                 IMAGE_DIRECTORY_ENTRY_IAT,
                                                 &IATSize);
-
                 if (IAT) {
                     // Easy case.  All the IATs are grouped together.
-                    ExList.Add((DWORD_PTR) IAT, IATSize, Raw);
+                    ExList.Add((DWORD_PTR)IAT, IATSize, Raw);
 
                     // Add the TimeDateStamp and ForwarderChain fields in the Import Descriptors
 
                     while (ImportDesc->Characteristics) {
-                        ExList.Add((DWORD_PTR) &ImportDesc->TimeDateStamp, 8, Raw);
+                        ExList.Add((DWORD_PTR)&ImportDesc->TimeDateStamp, 8, Raw);
                         ImportDesc++;
                     }
-
                 } else {
                     // Not so easy.  Need to walk each Import descriptor to find the bounds of the IAT
                     //  (note, there's no requirement that all the IAT's for all descriptors be contiguous).
 
-
                     while (ImportDesc->Characteristics) {
                         PIMAGE_THUNK_DATA ThunkStart;
                         ExList.Add((DWORD_PTR)&ImportDesc->TimeDateStamp, 8, Raw);
-                        ThunkStart = (PIMAGE_THUNK_DATA) ImageRvaToVa((PIMAGE_NT_HEADERS)LoadedImage.FileHeader,
-                                                                      LoadedImage.MappedAddress,
-                                                                      (ULONG) ImportDesc->OriginalFirstThunk,
-                                                                      NULL);
+                        ThunkStart = (PIMAGE_THUNK_DATA)ImageRvaToVa((PIMAGE_NT_HEADERS)LoadedImage.FileHeader,
+                                                                     LoadedImage.MappedAddress,
+                                                                     (ULONG)ImportDesc->OriginalFirstThunk,
+                                                                     NULL);
                         if (f32) {
                             PIMAGE_THUNK_DATA32 Thunk = (PIMAGE_THUNK_DATA32)ThunkStart;
                             while (Thunk->u1.AddressOfData) {
                                 Thunk++;
                             }
-                            ExList.Add( (DWORD)ImportDesc->FirstThunk,
-                                        (DWORD)((DWORD_PTR)Thunk - (DWORD_PTR) ThunkStart + sizeof(IMAGE_THUNK_DATA32)), Virtual);
+                            ExList.Add((DWORD)ImportDesc->FirstThunk,
+                                       (DWORD)((DWORD_PTR)Thunk - (DWORD_PTR)ThunkStart + sizeof(IMAGE_THUNK_DATA32)), Virtual);
                         } else {
                             PIMAGE_THUNK_DATA64 Thunk = (PIMAGE_THUNK_DATA64)ThunkStart;
                             while (Thunk->u1.AddressOfData) {
                                 Thunk++;
                             }
-                            ExList.Add( (DWORD)ImportDesc->FirstThunk,
-                                        (DWORD)((DWORD_PTR)Thunk - (DWORD_PTR) ThunkStart + sizeof(IMAGE_THUNK_DATA64)), Virtual);
+                            ExList.Add((DWORD)ImportDesc->FirstThunk,
+                                       (DWORD)((DWORD_PTR)Thunk - (DWORD_PTR)ThunkStart + sizeof(IMAGE_THUNK_DATA64)), Virtual);
                         }
                         ImportDesc++;
                     }
@@ -524,16 +483,15 @@ Return Value:
         // Add each section header followed by the data from that section.
 
         for (i = 0; i < LoadedImage.NumberOfSections; i++) {
-            if (!ExList.Emit((PBYTE) (LoadedImage.MappedAddress + LoadedImage.Sections[i].PointerToRawData),
-                             LoadedImage.Sections[i].SizeOfRawData))
-            {
+            if (!ExList.Emit((PBYTE)(LoadedImage.MappedAddress + LoadedImage.Sections[i].PointerToRawData),
+                             LoadedImage.Sections[i].SizeOfRawData)) {
                 rc = ERROR_OPERATION_ABORTED;
                 __leave;
             }
         }
-        rc = ERROR_SUCCESS;
 
-    } __except(EXCEPTION_EXECUTE_HANDLER) { }
+        rc = ERROR_SUCCESS;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {}
 
     UnMapIt(&LoadedImage);
 
@@ -543,38 +501,24 @@ Return Value:
 }
 
 
-
-BOOL
-IMAGEAPI
-ImageAddCertificate(
+BOOL IMAGEAPI ImageAddCertificate(
     IN HANDLE               FileHandle,
     IN LPWIN_CERTIFICATE    Certificate,
     OUT PDWORD              Index
-    )
-
+)
 /*++
-
 Routine Description:
-    Add a certificate to the image.  There is no checking to ensure there are no
-    duplicate types.
-
+    Add a certificate to the image.  There is no checking to ensure there are no duplicate types.
 Arguments:
-
     FileHandle      -   Handle to the file in question.  The file should be opened
                         with at least GENERIC_WRITE access.
-
     Certificate     -   Pointer to a WIN_CERTIFICATE structure.
-
     Index           -   After adding the Certificate to the image, this is the index
                         you can use for later references to that certificate.
-
 Return Value:
-
     TRUE    - Success
     FALSE   - There was some error.  Call GetLastError() for more information.
-
 --*/
-
 {
     LOADED_IMAGE        LoadedImage;
     DWORD               rc;
@@ -594,7 +538,6 @@ Return Value:
     rc = ERROR_INVALID_PARAMETER;
 
     __try {
-
         if (LoadedImage.fDOSImage) {
             __leave;
         }
@@ -609,23 +552,20 @@ Return Value:
             __leave;
         }
 
-        pCert = (LPWIN_CERTIFICATE) Certificate;
+        pCert = (LPWIN_CERTIFICATE)Certificate;
 
         // Test the output parameter and the the cert.
-
-        *Index = (DWORD) -1;
+        *Index = (DWORD)-1;
         OnDiskCertLength = pCert->dwLength;
         OnDiskCertLength = (OnDiskCertLength + 7) & ~7;        // Round the size of cert.
 
         // Grow the image.
-
         OriginalImageSize = LoadedImage.SizeOfImage;
         OriginalImageSize = (OriginalImageSize + 7) & ~7;      // Round the size of Image.
 
         // Check if the cert pointer is at least reasonable.
         if (pDataDir->VirtualAddress &&
-            (pDataDir->VirtualAddress + pDataDir->Size) > LoadedImage.SizeOfImage)
-        {
+            (pDataDir->VirtualAddress + pDataDir->Size) > LoadedImage.SizeOfImage) {
             __leave;
         }
 
@@ -639,8 +579,8 @@ Return Value:
         } else {
             LPWIN_CERTIFICATE CurrentCert;
 
-            NewCertLocation = pDataDir->VirtualAddress + pDataDir->Size + (DWORD_PTR) LoadedImage.MappedAddress;
-            CurrentCert = (LPWIN_CERTIFICATE) (LoadedImage.MappedAddress + pDataDir->VirtualAddress);
+            NewCertLocation = pDataDir->VirtualAddress + pDataDir->Size + (DWORD_PTR)LoadedImage.MappedAddress;
+            CurrentCert = (LPWIN_CERTIFICATE)(LoadedImage.MappedAddress + pDataDir->VirtualAddress);
             while (((DWORD_PTR)CurrentCert) < NewCertLocation) {
                 if (CurrentCert->dwLength == 0) {
                     __leave;
@@ -648,23 +588,21 @@ Return Value:
                 CurrentCert = (LPWIN_CERTIFICATE)(((DWORD_PTR)CurrentCert + CurrentCert->dwLength + 7) & ~7);
                 (*Index)++;
             }
-            NewCertLocation -= (DWORD_PTR) LoadedImage.MappedAddress;
+            NewCertLocation -= (DWORD_PTR)LoadedImage.MappedAddress;
         }
 
-        if (!GrowMap (&LoadedImage, OnDiskCertLength + (OriginalImageSize - LoadedImage.SizeOfImage))) {
-             __leave;
+        if (!GrowMap(&LoadedImage, OnDiskCertLength + (OriginalImageSize - LoadedImage.SizeOfImage))) {
+            __leave;
         }
 
         if (NewCertLocation < OriginalImageSize) {
             // There's data after the current security data.  Move it down.
             memmove(LoadedImage.MappedAddress + NewCertLocation + pCert->dwLength,
                     LoadedImage.MappedAddress + NewCertLocation,
-                    (unsigned) (OriginalImageSize - NewCertLocation));
+                    (unsigned)(OriginalImageSize - NewCertLocation));
         }
 
-        memmove(LoadedImage.MappedAddress + NewCertLocation,
-                pCert,
-                pCert->dwLength);
+        memmove(LoadedImage.MappedAddress + NewCertLocation, pCert, pCert->dwLength);
 
         // GrowMap may have moved the dirs.
         if (f32) {
@@ -675,8 +613,7 @@ Return Value:
 
         pDataDir->Size += OnDiskCertLength;
         rc = ERROR_SUCCESS;
-
-    } __except(EXCEPTION_EXECUTE_HANDLER) { }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {}
 
     UnMapIt(&LoadedImage);
 
@@ -686,34 +623,18 @@ Return Value:
 }
 
 
-BOOL
-IMAGEAPI
-ImageRemoveCertificate(
-    IN HANDLE       FileHandle,
-    IN DWORD        Index
-    )
-
+BOOL IMAGEAPI ImageRemoveCertificate(IN HANDLE FileHandle, IN DWORD  Index)
 /*++
-
 Routine Description:
-
     Remove a certificate from an image.
-
 Arguments:
-
     FileHandle  -   Handle to the file in question.  The file should be opened
                     with at least GENERIC_WRITE access.
-
     Index       -   The index to remove from the image.
-
 Return Value:
-
     TRUE    - Successful
-
     FALSE   - There was some error.  Call GetLastError() for more information.
-
 --*/
-
 {
     LOADED_IMAGE    LoadedImage;
     LPWIN_CERTIFICATE CurrentCert;
@@ -729,7 +650,6 @@ Return Value:
     rc = ERROR_INVALID_PARAMETER;
 
     __try {
-
         if (FindCertificate(&LoadedImage, Index, &CurrentCert) == FALSE) {
             __leave;
         }
@@ -748,10 +668,10 @@ Return Value:
         }
 
         LoadedImage.SizeOfImage -= OldCertLength;
-
         rc = ERROR_SUCCESS;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
 
-    } __except(EXCEPTION_EXECUTE_HANDLER) { }
+    }
 
     UnMapIt(&LoadedImage);
 
@@ -769,39 +689,24 @@ ImageEnumerateCertificates(
     OUT PDWORD      CertificateCount,
     IN OUT PDWORD   Indices OPTIONAL,
     IN  DWORD       IndexCount  OPTIONAL
-    )
-
+)
 /*++
-
 Routine Description:
-
     Enumerate the certificates in an image.
-
 Arguments:
-
     FileHandle          -   Handle to the file in question.  The file should be opened
                             with at least GENERIC_READ access.
-
     TypeFilter          -   The filter to apply when enumertating the certificates.
                             Valid values are:
-
-                                CERT_SECTION_TYPE_ANY - Enumerate all certificate types
-                                                        in the image.
+                                CERT_SECTION_TYPE_ANY - Enumerate all certificate types in the image.
 
     CertificateCount    -   How many certificates are in the image.
-
     Indices             -   An array of indexes that match the filter type.
-
     IndexCount          -   The number of indexes in the indices array.
-
 Return Value:
-
     TRUE    - Successful
-
     FALSE   - There was some error.  Call GetLastError() for more information.
-
 --*/
-
 {
     LOADED_IMAGE LoadedImage;
     BOOL    rc;
@@ -838,14 +743,13 @@ Return Value:
         if (!pDataDir->VirtualAddress || !pDataDir->Size) {
             *CertificateCount = 0;
         } else {
-
             DWORD MatchedIndex = 0;
             DWORD ActualIndex = 0;
 
             CurrentCert = (LPWIN_CERTIFICATE)((DWORD_PTR)LoadedImage.MappedAddress + pDataDir->VirtualAddress);
             LastCert = (LPWIN_CERTIFICATE)((DWORD_PTR)CurrentCert + pDataDir->Size);
 
-            while (CurrentCert < LastCert ) {
+            while (CurrentCert < LastCert) {
                 if ((TypeFilter == CERT_SECTION_TYPE_ANY) || (TypeFilter == CurrentCert->wCertificateType)) {
                     if (Indices && (MatchedIndex < IndexCount)) {
                         Indices[MatchedIndex] = ActualIndex;
@@ -854,15 +758,14 @@ Return Value:
                 }
 
                 ActualIndex++;
-                CurrentCert = (LPWIN_CERTIFICATE)((((DWORD_PTR)CurrentCert + CurrentCert->dwLength) +7) & ~7);
+                CurrentCert = (LPWIN_CERTIFICATE)((((DWORD_PTR)CurrentCert + CurrentCert->dwLength) + 7) & ~7);
             }
 
             *CertificateCount = MatchedIndex;
         }
 
         rc = ERROR_SUCCESS;
-
-    } __except(EXCEPTION_EXECUTE_HANDLER) { }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {}
 
     UnMapIt(&LoadedImage);
 
@@ -879,35 +782,22 @@ ImageGetCertificateData(
     IN  DWORD               CertificateIndex,
     OUT LPWIN_CERTIFICATE   Certificate,
     IN OUT PDWORD           RequiredLength
-    )
-
+)
 /*++
-
 Routine Description:
-
     Given a specific certificate index, retrieve the certificate data.
-
 Arguments:
-
     FileHandle          -   Handle to the file in question.  The file should be opened
                             with at least GENERIC_READ access.
-
     CertificateIndex    -   Index to retrieve
-
     Certificate         -   Output buffer where the certificate is to be stored.
-
     RequiredLength      -   Size of the certificate buffer (input).  On return, is
                             set to the actual certificate length.  NULL can be used
                             to determine the size of a certificate.
-
 Return Value:
-
     TRUE    - Successful
-
     FALSE   - There was some error.  Call GetLastError() for more information.
-
 --*/
-
 {
     LOADED_IMAGE LoadedImage;
     DWORD   ErrorCode;
@@ -933,12 +823,12 @@ Return Value:
             memcpy(Certificate, (PUCHAR)ImageCert, ImageCert->dwLength);
             ErrorCode = ERROR_SUCCESS;
         }
-    } __except(EXCEPTION_EXECUTE_HANDLER) { }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {}
 
     UnMapIt(&LoadedImage);
 
     SetLastError(ErrorCode);
-    return(ErrorCode == ERROR_SUCCESS ? TRUE: FALSE);
+    return(ErrorCode == ERROR_SUCCESS ? TRUE : FALSE);
 }
 
 
@@ -948,31 +838,19 @@ ImageGetCertificateHeader(
     IN      HANDLE              FileHandle,
     IN      DWORD               CertificateIndex,
     IN OUT  LPWIN_CERTIFICATE   CertificateHeader
-    )
-
+)
 /*++
-
 Routine Description:
-
     Given a specific certificate index, retrieve the certificate data.
-
 Arguments:
-
     FileHandle          -   Handle to the file in question.  The file should be opened
                             with at least GENERIC_READ access.
-
     CertificateIndex    -   Index to retrieve.
-
     CertificateHeader   -   Pointer to a WIN_CERTIFICATE to fill in.
-
 Return Value:
-
     TRUE    - Success
-
     FALSE   - There was some error.  Call GetLastError() for more information.
-
 --*/
-
 {
     LOADED_IMAGE LoadedImage;
     LPWIN_CERTIFICATE ImageCert;
@@ -992,9 +870,10 @@ Return Value:
     __try {
         memcpy(CertificateHeader, ImageCert, sizeof(WIN_CERTIFICATE));
         rc = TRUE;
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         rc = FALSE;
     }
+
 Exit:
 
     UnMapIt(&LoadedImage);

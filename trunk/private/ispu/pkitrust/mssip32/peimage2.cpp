@@ -1,16 +1,12 @@
 //  Microsoft Windows
-
 //  Copyright (C) Microsoft Corporation, 1996 - 1999
-
 //  File:       peimage2.cpp
-
 //  Contents:   Microsoft SIP Provider
-
 //  History:    14-Mar-1997 pberkman   created
 
 #include    "global.hxx"
 
-__inline DWORD AlignIt (DWORD Value, DWORD Alignment) { return (Value + (Alignment - 1)) & ~(Alignment -1); }
+__inline DWORD AlignIt(DWORD Value, DWORD Alignment) { return (Value + (Alignment - 1)) & ~(Alignment - 1); }
 
 #define InitializeListHead(ListHead) ((ListHead)->Flink = (ListHead)->Blink = (ListHead))
 
@@ -41,8 +37,7 @@ BOOL CalculateImagePtrs(PLOADED_IMAGE LoadedImage)
                 (PBYTE)LoadedImage->FileHeader + sizeof(IMAGE_NT_HEADERS) > (PBYTE)LoadedImage->MappedAddress + LoadedImage->SizeOfImage ||
 
                 // ..or if it would begin in, or before the IMAGE_DOS_HEADER...
-                (PBYTE)LoadedImage->FileHeader < (PBYTE)LoadedImage->MappedAddress + sizeof(IMAGE_DOS_HEADER)  )
-            {
+                (PBYTE)LoadedImage->FileHeader < (PBYTE)LoadedImage->MappedAddress + sizeof(IMAGE_DOS_HEADER)) {
                 // ...then e_lfanew is not as expected.
                 // (Several Win95 files are in this category.)
                 __leave;
@@ -52,27 +47,27 @@ BOOL CalculateImagePtrs(PLOADED_IMAGE LoadedImage)
             LoadedImage->FileHeader = (PIMAGE_NT_HEADERS)DosHeader;
         }
 
-        if ( LoadedImage->FileHeader->Signature != IMAGE_NT_SIGNATURE ) {
+        if (LoadedImage->FileHeader->Signature != IMAGE_NT_SIGNATURE) {
             __leave;
         }
 
         // No optional header indicates an object...
 
-        if ( !LoadedImage->FileHeader->FileHeader.SizeOfOptionalHeader ) {
+        if (!LoadedImage->FileHeader->FileHeader.SizeOfOptionalHeader) {
             __leave;
         }
 
         // Check for versions < 2.50
-
-        if ( LoadedImage->FileHeader->OptionalHeader.MajorLinkerVersion < 3 && LoadedImage->FileHeader->OptionalHeader.MinorLinkerVersion < 5 ) {
+        if (LoadedImage->FileHeader->OptionalHeader.MajorLinkerVersion < 3 && 
+            LoadedImage->FileHeader->OptionalHeader.MinorLinkerVersion < 5) {
             __leave;
         }
 
-        InitializeListHead( &LoadedImage->Links );
+        InitializeListHead(&LoadedImage->Links);
         LoadedImage->NumberOfSections = LoadedImage->FileHeader->FileHeader.NumberOfSections;
         LoadedImage->Sections = IMAGE_FIRST_SECTION(LoadedImage->FileHeader);
         fRC = TRUE;
-    } __except ( EXCEPTION_EXECUTE_HANDLER ) { }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {}
 
     return fRC;
 }
@@ -83,11 +78,11 @@ BOOL MapIt(HANDLE hFile, PLOADED_IMAGE LoadedImage)
     HANDLE hMappedFile;
 
     hMappedFile = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-    if ( !hMappedFile ) {
+    if (!hMappedFile) {
         return FALSE;
     }
 
-    LoadedImage->MappedAddress = (PUCHAR) MapViewOfFile(hMappedFile, FILE_MAP_READ, 0, 0, 0);
+    LoadedImage->MappedAddress = (PUCHAR)MapViewOfFile(hMappedFile, FILE_MAP_READ, 0, 0, 0);
     CloseHandle(hMappedFile);
     LoadedImage->SizeOfImage = GetFileSize(hFile, NULL);
     if (!LoadedImage->MappedAddress) {
@@ -108,57 +103,56 @@ BOOL MapIt(HANDLE hFile, PLOADED_IMAGE LoadedImage)
 typedef struct _EXCLUDE_RANGE {
     PBYTE Offset;
     DWORD Size;
-    struct _EXCLUDE_RANGE *Next;
+    struct _EXCLUDE_RANGE * Next;
 } EXCLUDE_RANGE;
 
 
 class EXCLUDE_LIST
 {
-    public:
-        EXCLUDE_LIST() {
-            m_Image = NULL;
-            m_ExRange = new EXCLUDE_RANGE;
+public:
+    EXCLUDE_LIST() {
+        m_Image = NULL;
+        m_ExRange = new EXCLUDE_RANGE;
 
-            if(m_ExRange)
-                memset(m_ExRange, 0x00, sizeof(EXCLUDE_RANGE));
-        }
+        if (m_ExRange)
+            memset(m_ExRange, 0x00, sizeof(EXCLUDE_RANGE));
+    }
 
-        ~EXCLUDE_LIST() {
-            EXCLUDE_RANGE *pTmp;
-            pTmp = m_ExRange->Next;
-            while (pTmp)
-            {
-                DELETE_OBJECT(m_ExRange);
-                m_ExRange = pTmp;
-                pTmp = m_ExRange->Next;
-            }
+    ~EXCLUDE_LIST() {
+        EXCLUDE_RANGE * pTmp;
+        pTmp = m_ExRange->Next;
+        while (pTmp) {
             DELETE_OBJECT(m_ExRange);
+            m_ExRange = pTmp;
+            pTmp = m_ExRange->Next;
         }
+        DELETE_OBJECT(m_ExRange);
+    }
 
-        void Init(LOADED_IMAGE * Image, DIGEST_FUNCTION pFunc, DIGEST_HANDLE dh) {
-            m_Image = Image;
-            m_ExRange->Offset = NULL;
-            m_ExRange->Size = 0;
-            m_pFunc = pFunc;
-            m_dh = dh;
-            return;
-        }
+    void Init(LOADED_IMAGE * Image, DIGEST_FUNCTION pFunc, DIGEST_HANDLE dh) {
+        m_Image = Image;
+        m_ExRange->Offset = NULL;
+        m_ExRange->Size = 0;
+        m_pFunc = pFunc;
+        m_dh = dh;
+        return;
+    }
 
-        void Add(DWORD_PTR Offset, DWORD Size);
+    void Add(DWORD_PTR Offset, DWORD Size);
 
-        BOOL Emit(PBYTE Offset, DWORD Size);
+    BOOL Emit(PBYTE Offset, DWORD Size);
 
-    private:
-        LOADED_IMAGE  * m_Image;
-        EXCLUDE_RANGE * m_ExRange;
-        DIGEST_FUNCTION m_pFunc;
-        DIGEST_HANDLE m_dh;
+private:
+    LOADED_IMAGE * m_Image;
+    EXCLUDE_RANGE * m_ExRange;
+    DIGEST_FUNCTION m_pFunc;
+    DIGEST_HANDLE m_dh;
 };
 
 
 void EXCLUDE_LIST::Add(DWORD_PTR Offset, DWORD Size)
 {
-    EXCLUDE_RANGE *pTmp, *pExRange;
+    EXCLUDE_RANGE * pTmp, * pExRange;
 
     pExRange = m_ExRange;
 
@@ -167,8 +161,7 @@ void EXCLUDE_LIST::Add(DWORD_PTR Offset, DWORD Size)
     }
 
     pTmp = new EXCLUDE_RANGE;
-    if(pTmp)
-    {
+    if (pTmp) {
         pTmp->Next = pExRange->Next;
         pTmp->Offset = (PBYTE)Offset;
         pTmp->Size = Size;
@@ -180,7 +173,7 @@ void EXCLUDE_LIST::Add(DWORD_PTR Offset, DWORD Size)
 BOOL EXCLUDE_LIST::Emit(PBYTE Offset, DWORD Size)
 {
     BOOL rc;
-    EXCLUDE_RANGE *pExRange;
+    EXCLUDE_RANGE * pExRange;
     DWORD EmitSize, ExcludeSize;
 
     pExRange = m_ExRange->Next;
@@ -250,7 +243,7 @@ BOOL imagehack_IsImagePEOnly(IN HANDLE           FileHandle)
             __leave;
         }
 
-        NumberOfSections =  LoadedImage.FileHeader->FileHeader.NumberOfSections;
+        NumberOfSections = LoadedImage.FileHeader->FileHeader.NumberOfSections;
         HighOffset = 0;
 
         for (i = 0; i < NumberOfSections; i++) {
@@ -259,7 +252,10 @@ BOOL imagehack_IsImagePEOnly(IN HANDLE           FileHandle)
             HighOffset = max(HighOffset, (Offset + Size));
         }
 
-        DebugDirectory = (PIMAGE_DEBUG_DIRECTORY) ImageDirectoryEntryToData(LoadedImage.MappedAddress, FALSE, IMAGE_DIRECTORY_ENTRY_DEBUG, (ULONG *) &DebugDirectorySize);
+        DebugDirectory = (PIMAGE_DEBUG_DIRECTORY)ImageDirectoryEntryToData(LoadedImage.MappedAddress, 
+                                                                           FALSE, 
+                                                                           IMAGE_DIRECTORY_ENTRY_DEBUG, 
+                                                                           (ULONG *)&DebugDirectorySize);
 
         while (DebugDirectorySize > 0) {
             Offset = DebugDirectory->PointerToRawData;
@@ -271,12 +267,15 @@ BOOL imagehack_IsImagePEOnly(IN HANDLE           FileHandle)
 
         HighOffset = AlignIt(HighOffset, FileAlignment);
 
-        CertDir = (PVOID) ImageDirectoryEntryToData(LoadedImage.MappedAddress, FALSE, IMAGE_DIRECTORY_ENTRY_SECURITY, (ULONG *) &CertSize);
+        CertDir = (PVOID)ImageDirectoryEntryToData(LoadedImage.MappedAddress, 
+                                                   FALSE, 
+                                                   IMAGE_DIRECTORY_ENTRY_SECURITY,
+                                                   (ULONG *)&CertSize);
 
         if (LoadedImage.SizeOfImage <= (HighOffset + CertSize)) {
             rc = TRUE;
         }
-    } __except(EXCEPTION_EXECUTE_HANDLER) { }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {}
 
     UnmapViewOfFile(LoadedImage.MappedAddress);
 
@@ -290,7 +289,7 @@ imagehack_AuImageGetDigestStream(
     IN DWORD            DigestLevel,
     IN DIGEST_FUNCTION  DigestFunction,
     IN DIGEST_HANDLE    DigestHandle
-    )
+)
 /*++
 Routine Description:
     Given an image, return the bytes necessary to construct a certificate.
@@ -309,7 +308,8 @@ Arguments:
 
 Return Value:
     TRUE         - Success.
-    FALSE        - There was some error.  Call GetLastError for more information.  Possible values are ERROR_INVALID_PARAMETER or ERROR_OPERATION_ABORTED.
+    FALSE        - There was some error.  Call GetLastError for more information.  
+                   Possible values are ERROR_INVALID_PARAMETER or ERROR_OPERATION_ABORTED.
 --*/
 {
     LOADED_IMAGE    LoadedImage;
@@ -324,8 +324,8 @@ Return Value:
 
     rc = ERROR_INVALID_PARAMETER;
     __try {
-        if ((LoadedImage.FileHeader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) && (LoadedImage.FileHeader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC))
-        {
+        if ((LoadedImage.FileHeader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) && 
+            (LoadedImage.FileHeader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)) {
             __leave;
         }
 
@@ -334,10 +334,11 @@ Return Value:
         if (LoadedImage.FileHeader->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
             PIMAGE_NT_HEADERS32 NtHeader32 = (PIMAGE_NT_HEADERS32)(LoadedImage.FileHeader);
             // Exclude the checksum.
-            ExList.Add(((DWORD_PTR) &NtHeader32->OptionalHeader.CheckSum), sizeof(NtHeader32->OptionalHeader.CheckSum));
+            ExList.Add(((DWORD_PTR)&NtHeader32->OptionalHeader.CheckSum), sizeof(NtHeader32->OptionalHeader.CheckSum));
 
             // Exclude the Security directory.
-            ExList.Add(((DWORD_PTR) &NtHeader32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]), sizeof(NtHeader32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]));
+            ExList.Add(((DWORD_PTR)&NtHeader32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]), 
+                       sizeof(NtHeader32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]));
 
             // Exclude the certs.
             ExList.Add((DWORD_PTR)NtHeader32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress + (DWORD_PTR)LoadedImage.MappedAddress,
@@ -345,19 +346,20 @@ Return Value:
         } else {
             PIMAGE_NT_HEADERS64 NtHeader64 = (PIMAGE_NT_HEADERS64)(LoadedImage.FileHeader);
             // Exclude the checksum.
-            ExList.Add(((DWORD_PTR) &NtHeader64->OptionalHeader.CheckSum), sizeof(NtHeader64->OptionalHeader.CheckSum));
+            ExList.Add(((DWORD_PTR)&NtHeader64->OptionalHeader.CheckSum), sizeof(NtHeader64->OptionalHeader.CheckSum));
 
             // Exclude the Security directory.
-            ExList.Add(((DWORD_PTR) &NtHeader64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]), sizeof(NtHeader64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]));
+            ExList.Add(((DWORD_PTR)&NtHeader64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]), 
+                       sizeof(NtHeader64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]));
 
             // Exclude the certs.
             ExList.Add((DWORD_PTR)NtHeader64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress + (DWORD_PTR)LoadedImage.MappedAddress,
                        NtHeader64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size);
         }
 
-        ExList.Emit((PBYTE) (LoadedImage.MappedAddress), LoadedImage.SizeOfImage);
+        ExList.Emit((PBYTE)(LoadedImage.MappedAddress), LoadedImage.SizeOfImage);
         rc = ERROR_SUCCESS;
-    } __except(EXCEPTION_EXECUTE_HANDLER) { }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {}
 
     UnmapViewOfFile(LoadedImage.MappedAddress);
 

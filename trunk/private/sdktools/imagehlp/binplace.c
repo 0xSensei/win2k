@@ -11,7 +11,7 @@
 #include "symutil.h"
 
 #ifndef MOVEFILE_CREATE_HARDLINK
-    #define MOVEFILE_CREATE_HARDLINK  0x00000010
+#define MOVEFILE_CREATE_HARDLINK  0x00000010
 #endif
 
 #define BINPLACE_ERR 77
@@ -43,12 +43,12 @@ BOOL fVerifyLc;
 
 HINSTANCE hSetupApi;
 HINSTANCE hLcManager;
-HRESULT (WINAPI * pVerifyLocConstraintA) (IN PCSTR FileName, IN PCSTR LcFileName);
-BOOL (WINAPI * pSetupGetIntField) (IN PINFCONTEXT Context, IN DWORD FieldIndex, OUT PINT IntegerValue);
-BOOL (WINAPI * pSetupFindFirstLineA) (IN HINF InfHandle, IN PCSTR Section, IN PCSTR Key, OPTIONAL OUT PINFCONTEXT Context );
-BOOL (WINAPI * pSetupGetStringFieldA) (IN PINFCONTEXT Context, IN DWORD FieldIndex, OUT PSTR ReturnBuffer, OPTIONAL IN DWORD ReturnBufferSize, OUT PDWORD RequiredSize);
-HINF (WINAPI * pSetupOpenInfFileA) ( IN PCSTR FileName, IN PCSTR InfClass, OPTIONAL IN DWORD InfStyle, OUT PUINT ErrorLine OPTIONAL );
-HINF (WINAPI * pSetupOpenMasterInf) (VOID);
+HRESULT(WINAPI * pVerifyLocConstraintA) (IN PCSTR FileName, IN PCSTR LcFileName);
+BOOL(WINAPI * pSetupGetIntField) (IN PINFCONTEXT Context, IN DWORD FieldIndex, OUT PINT IntegerValue);
+BOOL(WINAPI * pSetupFindFirstLineA) (IN HINF InfHandle, IN PCSTR Section, IN PCSTR Key, OPTIONAL OUT PINFCONTEXT Context);
+BOOL(WINAPI * pSetupGetStringFieldA) (IN PINFCONTEXT Context, IN DWORD FieldIndex, OUT PSTR ReturnBuffer, OPTIONAL IN DWORD ReturnBufferSize, OUT PDWORD RequiredSize);
+HINF(WINAPI * pSetupOpenInfFileA) (IN PCSTR FileName, IN PCSTR InfClass, OPTIONAL IN DWORD InfStyle, OUT PUINT ErrorLine OPTIONAL);
+HINF(WINAPI * pSetupOpenMasterInf) (VOID);
 
 ULONG SplitFlags = 0;
 
@@ -67,17 +67,17 @@ LPSTR LcFilePart;
 
 HINF LayoutInf;
 
-FILE *PlaceFile;
-FILE *LogFile;
-FILE *CommandScriptFile;
-CHAR gFullFileName[MAX_PATH+1];
-UCHAR SetupFilePath[ MAX_PATH+1 ];
-UCHAR DebugFilePath[ MAX_PATH+1 ];
-UCHAR PlaceFilePath[ MAX_PATH+1 ];
-UCHAR ExcludeFilePath[ MAX_PATH+1 ];
-UCHAR DefaultSymbolFilePath[ MAX_PATH+1 ];
-UCHAR szAltPlaceRoot[ MAX_PATH+1 ];
-UCHAR LcFullFileName[ MAX_PATH+1 ];
+FILE * PlaceFile;
+FILE * LogFile;
+FILE * CommandScriptFile;
+CHAR gFullFileName[MAX_PATH + 1];
+UCHAR SetupFilePath[MAX_PATH + 1];
+UCHAR DebugFilePath[MAX_PATH + 1];
+UCHAR PlaceFilePath[MAX_PATH + 1];
+UCHAR ExcludeFilePath[MAX_PATH + 1];
+UCHAR DefaultSymbolFilePath[MAX_PATH + 1];
+UCHAR szAltPlaceRoot[MAX_PATH + 1];
+UCHAR LcFullFileName[MAX_PATH + 1];
 UCHAR szExtraInfo[4096];
 
 PEXCLUDE_LIST ExcludeList;
@@ -92,65 +92,65 @@ PEXCLUDE_LIST ExcludeList;
 typedef struct _CLASS_TABLE {
     LPSTR ClassName;
     LPSTR ClassLocation;
-} CLASS_TABLE, *PCLASS_TABLE;
+} CLASS_TABLE, * PCLASS_TABLE;
 
 BOOL
 PlaceTheFile();
 
 typedef
 BOOL
-(WINAPI *PCREATEHARDLINKA)(
-                          LPCSTR lpFileName,
-                          LPCSTR lpExistingFileName,
-                          LPSECURITY_ATTRIBUTES lpSecurityAttributes
-                          );
+(WINAPI * PCREATEHARDLINKA)(
+    LPCSTR lpFileName,
+    LPCSTR lpExistingFileName,
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes
+    );
 
 PCREATEHARDLINKA pCreateHardLinkA;
 
 BOOL
 CopyTheFile(
-           LPSTR SourceFileName,
-           LPSTR SourceFilePart,
-           LPSTR DestinationSubdir,
-           LPSTR DestinationFilePart
-           );
+    LPSTR SourceFileName,
+    LPSTR SourceFilePart,
+    LPSTR DestinationSubdir,
+    LPSTR DestinationFilePart
+);
 
 BOOL
-BinplaceCopyPdb (
-                LPSTR DestinationFile,
-                LPSTR SourceFileName,       // Used for redist case
-                BOOL  CopyFromSourceOnly,
-                BOOL  StripPrivate
-                );
+BinplaceCopyPdb(
+    LPSTR DestinationFile,
+    LPSTR SourceFileName,       // Used for redist case
+    BOOL  CopyFromSourceOnly,
+    BOOL  StripPrivate
+);
 
 BOOL
 VerifyFinalImage(
-                IN  PCHAR FileName,
-                IN  BOOL  fRetail,
-                OUT PBOOL BinplaceLc
-                );
+    IN  PCHAR FileName,
+    IN  BOOL  fRetail,
+    OUT PBOOL BinplaceLc
+);
 
 BOOL
 SourceIsNewer(
-             IN LPSTR SourceFile,
-             IN LPSTR TargetFile
-             );
+    IN LPSTR SourceFile,
+    IN LPSTR TargetFile
+);
 
 BOOL
 SetupModeRetailFile(
-                   IN  LPSTR FullFileName,
-                   IN  LPSTR FileNamePart,
-                   OUT PBOOL PutInDump
-                   );
+    IN  LPSTR FullFileName,
+    IN  LPSTR FileNamePart,
+    OUT PBOOL PutInDump
+);
 
 __inline BOOL
 SearchOneDirectory(
-                  IN  LPSTR Directory,
-                  IN  LPSTR FileToFind,
-                  IN  LPSTR SourceFullName,
-                  IN  LPSTR SourceFilePart,
-                  OUT PBOOL FoundInTree
-                  )
+    IN  LPSTR Directory,
+    IN  LPSTR FileToFind,
+    IN  LPSTR SourceFullName,
+    IN  LPSTR SourceFilePart,
+    OUT PBOOL FoundInTree
+)
 {
 
     // This was way too slow. Just say we didn't find the file.
@@ -161,13 +161,13 @@ SearchOneDirectory(
 
 BOOL
 FileExists(
-          IN  LPCSTR FileName,
-          OUT PWIN32_FIND_DATA FindData
-          );
+    IN  LPCSTR FileName,
+    OUT PWIN32_FIND_DATA FindData
+);
 
 BOOL
 SignWithIDWKey(
-              IN  LPCSTR  FileName);
+    IN  LPCSTR  FileName);
 
 
 CLASS_TABLE CommonClassTable[] = {
@@ -207,7 +207,7 @@ CLASS_TABLE ia64SpecificClassTable[] = {
     {"printer","system32\\spool\\drivers\\w32ia64"},
     {"prtprocs","system32\\spool\\prtprocs\\w32ia64"},
     {NULL,NULL}
-    };
+};
 
 
 // Names of sections in layout.inx
@@ -215,13 +215,13 @@ CLASS_TABLE ia64SpecificClassTable[] = {
 LPCSTR szSourceDisksFiles = "SourceDisksFiles";
 LPCSTR szSourceDisksAxp64 = "SourceDisksFiles.axp64";
 LPCSTR szSourceDisksAlpha = "SourceDisksFiles.alpha";
-LPCSTR szSourceDisksX86   = "SourceDisksFiles.x86";
-LPCSTR szSourceDisksIA64  = "SourceDisksFiles.ia64";
+LPCSTR szSourceDisksX86 = "SourceDisksFiles.x86";
+LPCSTR szSourceDisksIA64 = "SourceDisksFiles.ia64";
 
 typedef struct _PLACE_FILE_RECORD {
     LPSTR FileNameEntry;
     LPSTR FileClass;
-} PLACE_FILE_RECORD, *PPLACE_FILE_RECORD;
+} PLACE_FILE_RECORD, * PPLACE_FILE_RECORD;
 
 int MaxNumberOfRecords;
 int NumberOfRecords;
@@ -229,9 +229,9 @@ PPLACE_FILE_RECORD PlaceFileRecords;
 
 int __cdecl
 pfcomp(
-      const void *e1,
-      const void *e2
-      )
+    const void * e1,
+    const void * e2
+)
 {
     PPLACE_FILE_RECORD p1;
     PPLACE_FILE_RECORD p2;
@@ -239,7 +239,7 @@ pfcomp(
     p1 = (PPLACE_FILE_RECORD)e1;
     p2 = (PPLACE_FILE_RECORD)e2;
 
-    return (strcmp(p1->FileNameEntry,p2->FileNameEntry));
+    return (strcmp(p1->FileNameEntry, p2->FileNameEntry));
 }
 
 CHAR PlaceFileDir[4096];
@@ -258,70 +258,70 @@ SortPlaceFileRecord()
 
     // get space for 6k records. Grow if need to.
 
-    PlaceFileRecords = (PPLACE_FILE_RECORD) malloc( sizeof(*PlaceFileRecords)*7000 );
-    if ( !PlaceFileRecords ) {
+    PlaceFileRecords = (PPLACE_FILE_RECORD)malloc(sizeof(*PlaceFileRecords) * 7000);
+    if (!PlaceFileRecords) {
         return FALSE;
     }
     MaxNumberOfRecords = 7000;
 
-    fseek(PlaceFile,0,SEEK_SET);
-    while (fgets(PlaceFileDir,sizeof(PlaceFileDir),PlaceFile)) {
+    fseek(PlaceFile, 0, SEEK_SET);
+    while (fgets(PlaceFileDir, sizeof(PlaceFileDir), PlaceFile)) {
 
         PlaceFileEntry[0] = '\0';
         PlaceFileClass[0] = '\0';
 
         cfield = sscanf(
-                       PlaceFileDir,
-//                       "%s %[A-Za-z0-9.,_!@#\\$+=%^&()~ -]s",
-                       "%s %s",
-                       PlaceFileEntry,
-                       PlaceFileClass
-                       );
+            PlaceFileDir,
+            //                       "%s %[A-Za-z0-9.,_!@#\\$+=%^&()~ -]s",
+            "%s %s",
+            PlaceFileEntry,
+            PlaceFileClass
+        );
 
         if (cfield <= 0 || PlaceFileEntry[0] == ';') {
             continue;
         }
 
 #ifdef _AXP64_
-{
-    char *volatile p = PlaceFileEntry;
-    PlaceFileRecords[NumberOfRecords].FileNameEntry = (LPSTR) malloc( strlen(p)+1 );
-    p = PlaceFileClass;
-    PlaceFileRecords[NumberOfRecords].FileClass = (LPSTR) malloc( strlen(p)+1 );
-}
+        {
+            char * volatile p = PlaceFileEntry;
+            PlaceFileRecords[NumberOfRecords].FileNameEntry = (LPSTR)malloc(strlen(p) + 1);
+            p = PlaceFileClass;
+            PlaceFileRecords[NumberOfRecords].FileClass = (LPSTR)malloc(strlen(p) + 1);
+        }
 #else
-        PlaceFileRecords[NumberOfRecords].FileNameEntry = (LPSTR) malloc( strlen(PlaceFileEntry)+1 );
-        PlaceFileRecords[NumberOfRecords].FileClass = (LPSTR) malloc( strlen(PlaceFileClass)+1 );
+        PlaceFileRecords[NumberOfRecords].FileNameEntry = (LPSTR)malloc(strlen(PlaceFileEntry) + 1);
+        PlaceFileRecords[NumberOfRecords].FileClass = (LPSTR)malloc(strlen(PlaceFileClass) + 1);
 #endif
         if (!PlaceFileRecords[NumberOfRecords].FileClass || !PlaceFileRecords[NumberOfRecords].FileNameEntry) {
             free(PlaceFileRecords);
             PlaceFileRecords = NULL;
             return FALSE;
         }
-        strcpy(PlaceFileRecords[NumberOfRecords].FileNameEntry,PlaceFileEntry);
-        strcpy(PlaceFileRecords[NumberOfRecords].FileClass,PlaceFileClass);
+        strcpy(PlaceFileRecords[NumberOfRecords].FileNameEntry, PlaceFileEntry);
+        strcpy(PlaceFileRecords[NumberOfRecords].FileClass, PlaceFileClass);
         NumberOfRecords++;
-        if ( NumberOfRecords >= MaxNumberOfRecords ) {
+        if (NumberOfRecords >= MaxNumberOfRecords) {
             MaxNumberOfRecords += 200;
-            NewRecords = (PPLACE_FILE_RECORD) realloc(
-                                                     PlaceFileRecords,
-                                                     sizeof(*PlaceFileRecords)*MaxNumberOfRecords
-                                                     );
-            if ( !NewRecords ) {
+            NewRecords = (PPLACE_FILE_RECORD)realloc(
+                PlaceFileRecords,
+                sizeof(*PlaceFileRecords) * MaxNumberOfRecords
+            );
+            if (!NewRecords) {
                 PlaceFileRecords = NULL;
                 return FALSE;
             }
             PlaceFileRecords = NewRecords;
         }
     }
-    qsort((void *)PlaceFileRecords,(size_t)NumberOfRecords,(size_t)sizeof(*PlaceFileRecords),pfcomp);
+    qsort((void *)PlaceFileRecords, (size_t)NumberOfRecords, (size_t)sizeof(*PlaceFileRecords), pfcomp);
     return TRUE;
 }
 
 PPLACE_FILE_RECORD
 LookupPlaceFileRecord(
-                     LPSTR FileName
-                     )
+    LPSTR FileName
+)
 {
     LONG High;
     LONG Low;
@@ -332,7 +332,7 @@ LookupPlaceFileRecord(
     // Lookup the name using a binary search.
 
 
-    if ( !PlaceFileRecords ) {
+    if (!PlaceFileRecords) {
         return NULL;
     }
 
@@ -369,13 +369,13 @@ LookupPlaceFileRecord(
 int __cdecl
 main(
     int argc,
-    char *argv[],
-    char *envp[]
-    )
+    char * argv[],
+    char * envp[]
+)
 {
-    char c, *p, *OverrideFlags, *s, **newargv;
+    char c, * p, * OverrideFlags, * s, ** newargv;
     LPSTR LogFileName = NULL;
-    LPSTR LcFileName  = NULL;
+    LPSTR LcFileName = NULL;
     int len = 0;
     int i, n;
     BOOL NoPrivateSplit = FALSE;
@@ -386,8 +386,8 @@ main(
     // Win 95 can't compare file times very well, this hack neuters the SourceIsNewer function
     // on Win 95
 
-    VersionInformation.dwOSVersionInfoSize = sizeof( VersionInformation );
-    if (GetVersionEx( &VersionInformation ) && VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) {
+    VersionInformation.dwOSVersionInfoSize = sizeof(VersionInformation);
+    if (GetVersionEx(&VersionInformation) && VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) {
         fPatheticOS = TRUE;
     }
 
@@ -422,62 +422,62 @@ main(
     setvbuf(stderr, NULL, _IONBF, 0);
     setvbuf(stdout, NULL, _IONBF, 0);
 
-    if (!(PlaceFileName = getenv( "BINPLACE_PLACEFILE" ))) {
+    if (!(PlaceFileName = getenv("BINPLACE_PLACEFILE"))) {
         if ((PlaceFileName = getenv("_NTDRIVE")) == NULL) {
             PlaceFileName = DEFAULT_NTDRIVE;
         }
-        strcpy((PCHAR) PlaceFilePath, PlaceFileName);
+        strcpy((PCHAR)PlaceFilePath, PlaceFileName);
         if ((PlaceFileName = getenv("_NTROOT")) == NULL) {
             PlaceFileName = DEFAULT_NTROOT;
         }
-        strcat((PCHAR) PlaceFilePath, PlaceFileName);
-        strcat((PCHAR) PlaceFilePath, DEFAULT_PLACE_FILE);
-        PlaceFileName = (PCHAR) PlaceFilePath;
+        strcat((PCHAR)PlaceFilePath, PlaceFileName);
+        strcat((PCHAR)PlaceFilePath, DEFAULT_PLACE_FILE);
+        PlaceFileName = (PCHAR)PlaceFilePath;
     }
 
-    if (!(ExcludeFileName = getenv( "BINPLACE_EXCLUDE_FILE" ))) {
+    if (!(ExcludeFileName = getenv("BINPLACE_EXCLUDE_FILE"))) {
         if ((ExcludeFileName = getenv("_NTDRIVE")) == NULL) {
             ExcludeFileName = DEFAULT_NTDRIVE;
         }
-        strcpy((PCHAR) ExcludeFilePath, ExcludeFileName);
+        strcpy((PCHAR)ExcludeFilePath, ExcludeFileName);
         if ((ExcludeFileName = getenv("_NTROOT")) == NULL) {
             ExcludeFileName = DEFAULT_NTROOT;
         }
-        strcat((PCHAR) ExcludeFilePath, ExcludeFileName);
-        strcat((PCHAR) ExcludeFilePath, DEFAULT_EXCLUDE_FILE);
-        ExcludeFileName = (PCHAR) ExcludeFilePath;
+        strcat((PCHAR)ExcludeFilePath, ExcludeFileName);
+        strcat((PCHAR)ExcludeFilePath, DEFAULT_EXCLUDE_FILE);
+        ExcludeFileName = (PCHAR)ExcludeFilePath;
     }
 
-    if (!(BinplaceLcDir = getenv( "BINPLACE_LCDIR" ))) {
+    if (!(BinplaceLcDir = getenv("BINPLACE_LCDIR"))) {
         BinplaceLcDir = DEFAULT_LCDIR;
     }
 
-    if ( getenv("NT_SIGNCODE") != NULL ) {
-        fSignCode=TRUE;
+    if (getenv("NT_SIGNCODE") != NULL) {
+        fSignCode = TRUE;
     }
 
 
     // Support Cross compile as well
 
 #if defined(_AXP64_)
-    PlaceRootName = getenv( "_NTAXP64TREE" );
+    PlaceRootName = getenv("_NTAXP64TREE");
 #elif defined(_ALPHA_)
-    PlaceRootName = getenv( "_NTALPHATREE" );
+    PlaceRootName = getenv("_NTALPHATREE");
     if ((platform = getenv("AXP64")) != NULL) {
-        PlaceRootName = getenv( "_NTAXP64TREE" );
+        PlaceRootName = getenv("_NTAXP64TREE");
     }
 #elif defined(_IA64_)
-    PlaceRootName = getenv( "_NTIA64TREE" );
+    PlaceRootName = getenv("_NTIA64TREE");
 #else // defined(_X86_)
-    PlaceRootName = getenv( "_NT386TREE" );
+    PlaceRootName = getenv("_NT386TREE");
     if ((platform = getenv("IA64")) != NULL) {
-        PlaceRootName = getenv( "_NTIA64TREE" );
+        PlaceRootName = getenv("_NTIA64TREE");
     }
 #endif
 
     CurrentImageName = NULL;
 
-    OverrideFlags = getenv( "BINPLACE_OVERRIDE_FLAGS" );
+    OverrideFlags = getenv("BINPLACE_OVERRIDE_FLAGS");
     if (OverrideFlags != NULL) {
         s = OverrideFlags;
         n = 0;
@@ -495,16 +495,16 @@ main(
         }
 
         if (n) {
-            newargv = malloc( (argc + n + 1) * sizeof( char * ) );
-            memcpy( &newargv[n], argv, argc * sizeof( char * ) );
+            newargv = malloc((argc + n + 1) * sizeof(char *));
+            memcpy(&newargv[n], argv, argc * sizeof(char *));
             argv = newargv;
-            argv[ 0 ] = argv[ n ];
+            argv[0] = argv[n];
             argc += n;
             s = OverrideFlags;
-            for (i=1; i<=n; i++) {
+            for (i = 1; i <= n; i++) {
                 while (*s && *s <= ' ')
                     s += 1;
-                argv[ i ] = s;
+                argv[i] = s;
                 while (*s++)
                     ;
             }
@@ -515,239 +515,239 @@ main(
         p = *++argv;
         if (*p == '/' || *p == '-') {
             while (c = *++p)
-                switch (toupper( c )) {
-                    case '?':
-                        fUsage = TRUE;
-                        break;
+                switch (toupper(c)) {
+                case '?':
+                    fUsage = TRUE;
+                    break;
 
-                    case 'A':
-                        SplitFlags |= SPLITSYM_EXTRACT_ALL;
-                        break;
+                case 'A':
+                    SplitFlags |= SPLITSYM_EXTRACT_ALL;
+                    break;
 
-                    case 'B':
-                        argc--, argv++;
-                        NormalPlaceSubdir = *argv;
-                        break;
+                case 'B':
+                    argc--, argv++;
+                    NormalPlaceSubdir = *argv;
+                    break;
 
-                    case 'C':
-                        fDigitalSign = TRUE;
-                        break;
+                case 'C':
+                    fDigitalSign = TRUE;
+                    break;
 
-                    case 'D':
-                        argc--, argv++;
-                        DumpOverride = *argv;
-                        break;
+                case 'D':
+                    argc--, argv++;
+                    DumpOverride = *argv;
+                    break;
 
-                    case 'E':
-                        fDontExit = TRUE;
-                        break;
+                case 'E':
+                    fDontExit = TRUE;
+                    break;
 
-                    case 'F':
-                        fForcePlace = TRUE;
-                        break;
+                case 'F':
+                    fForcePlace = TRUE;
+                    break;
 
-                    case 'G':
-                        argc--, argv++;
-                        LcFileName = *argv;
-                        break;
+                case 'G':
+                    argc--, argv++;
+                    LcFileName = *argv;
+                    break;
 
-                    case 'H':
-                        if ((VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) ||
-                            (VersionInformation.dwMajorVersion < 5) ||
-                            (pCreateHardLinkA = (PCREATEHARDLINKA)GetProcAddress( GetModuleHandle( "KERNEL32" ),
-                                                                                  "CreateHardLinkA"
-                                                                                )
-                            ) == NULL
-                           ) {
-                            fprintf( stderr, "BINPLACE: Hard links not supported.  Defaulting to CopyFile\n" );
-                            fHardLinks = FALSE;
+                case 'H':
+                    if ((VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) ||
+                        (VersionInformation.dwMajorVersion < 5) ||
+                        (pCreateHardLinkA = (PCREATEHARDLINKA)GetProcAddress(GetModuleHandle("KERNEL32"),
+                                                                             "CreateHardLinkA"
+                        )
+                         ) == NULL
+                        ) {
+                        fprintf(stderr, "BINPLACE: Hard links not supported.  Defaulting to CopyFile\n");
+                        fHardLinks = FALSE;
+                    } else {
+                        fHardLinks = TRUE;
+                    }
+
+                    break;
+
+                case 'I':
+                    argc--, argv++;
+                    LayoutInfName = *argv;
+                    break;
+
+                case 'J':
+                    fSymChecking = TRUE;
+                    break;
+
+                case 'K':
+                    fKeepAttributes = TRUE;
+                    break;
+
+                case 'L':
+                    fLiveSystem++;
+                    break;
+
+                case 'M':
+                    fMakeErrorOnDumpCopy = TRUE;
+                    break;
+
+                case 'N':
+                    argc--, argv++;
+                    PrivateSymbolFilePath = *argv;
+                    break;
+
+                case 'O':
+                    argc--, argv++;
+                    if (PlaceRootName != NULL) {
+                        strcpy(szAltPlaceRoot, PlaceRootName);
+                        strcat(szAltPlaceRoot, "\\");
+                        strcat(szAltPlaceRoot, *argv);
+                        PlaceRootName = szAltPlaceRoot;
+                    }
+                    break;
+
+                case 'P':
+                    argc--, argv++;
+                    PlaceFileName = *argv;
+                    break;
+
+                case 'Q':
+                    fDontLog = TRUE;
+                    break;
+
+                case 'R':
+                    argc--, argv++;
+                    PlaceRootName = *argv;
+                    break;
+
+                case 'S':
+                    argc--, argv++;
+                    SymbolFilePath = *argv;
+                    fSplitSymbols = TRUE;
+                    fIgnoreHardLinks = TRUE;
+                    break;
+
+                case 'T':
+                    fTestMode = TRUE;
+                    break;
+
+                case 'U':
+                    fUpDriver = TRUE;
+                    break;
+
+                case 'V':
+                    fVerbose = TRUE;
+                    break;
+
+                case 'W':
+                    fPlaceWin95SymFile = TRUE;
+                    break;
+
+                case 'X':
+                    SplitFlags |= SPLITSYM_REMOVE_PRIVATE;
+                    break;
+
+                case 'Y':
+                    fNoClassInSymbolsDir = TRUE;
+                    break;
+
+                case 'Z':
+                    NoPrivateSplit = TRUE;
+                    break;
+
+                case '!':
+                    hSetupApi = LoadLibrary("setupapi.dll");
+                    if (hSetupApi) {
+                        (VOID *)pSetupGetIntField = GetProcAddress(hSetupApi, "SetupGetIntField");
+                        (VOID *)pSetupFindFirstLineA = GetProcAddress(hSetupApi, "SetupFindFirstLineA");
+                        (VOID *)pSetupGetStringFieldA = GetProcAddress(hSetupApi, "SetupGetStringFieldA");
+                        (VOID *)pSetupOpenInfFileA = GetProcAddress(hSetupApi, "SetupOpenInfFileA");
+                        (VOID *)pSetupOpenMasterInf = GetProcAddress(hSetupApi, "SetupOpenMasterInf");
+
+                        if (pSetupGetIntField &&
+                            pSetupFindFirstLineA &&
+                            pSetupGetStringFieldA &&
+                            pSetupOpenInfFileA &&
+                            pSetupOpenMasterInf) {
+                            fSetupMode = TRUE;
                         } else {
-                            fHardLinks = TRUE;
+                            printf("Unable to bind to the necessary SETUPAPI.DLL functions... Ignoring setup mode switch\n");
                         }
+                    }
 
-                        break;
+                    if (*(p + 1) == '!') {
+                        p++;
+                        if (fSetupMode)
+                            fSetupModeAllFiles = TRUE;
 
-                    case 'I':
-                        argc--, argv++;
-                        LayoutInfName = *argv;
-                        break;
-
-                    case 'J':
-                        fSymChecking = TRUE;
-                        break;
-
-                    case 'K':
-                        fKeepAttributes = TRUE;
-                        break;
-
-                    case 'L':
-                        fLiveSystem++;
-                        break;
-
-                    case 'M':
-                        fMakeErrorOnDumpCopy = TRUE;
-                        break;
-
-                    case 'N':
-                        argc--, argv++;
-                        PrivateSymbolFilePath = *argv;
-                        break;
-
-                    case 'O':
-                        argc--, argv++;
-                        if (PlaceRootName != NULL) {
-                            strcpy(szAltPlaceRoot,PlaceRootName);
-                            strcat(szAltPlaceRoot,"\\");
-                            strcat(szAltPlaceRoot,*argv);
-                            PlaceRootName = szAltPlaceRoot;
-                        }
-                        break;
-
-                    case 'P':
-                        argc--, argv++;
-                        PlaceFileName = *argv;
-                        break;
-
-                    case 'Q':
-                        fDontLog = TRUE;
-                        break;
-
-                    case 'R':
-                        argc--, argv++;
-                        PlaceRootName = *argv;
-                        break;
-
-                    case 'S':
-                        argc--, argv++;
-                        SymbolFilePath = *argv;
-                        fSplitSymbols = TRUE;
-                        fIgnoreHardLinks = TRUE;
-                        break;
-
-                    case 'T':
-                        fTestMode = TRUE;
-                        break;
-
-                    case 'U':
-                        fUpDriver = TRUE;
-                        break;
-
-                    case 'V':
-                        fVerbose = TRUE;
-                        break;
-
-                    case 'W':
-                        fPlaceWin95SymFile = TRUE;
-                        break;
-
-                    case 'X':
-                        SplitFlags |= SPLITSYM_REMOVE_PRIVATE;
-                        break;
-
-                    case 'Y':
-                        fNoClassInSymbolsDir = TRUE;
-                        break;
-
-                    case 'Z':
-                        NoPrivateSplit = TRUE;
-                        break;
-
-                    case '!':
-                        hSetupApi = LoadLibrary("setupapi.dll");
-                        if (hSetupApi) {
-                            (VOID *) pSetupGetIntField     = GetProcAddress(hSetupApi, "SetupGetIntField");
-                            (VOID *) pSetupFindFirstLineA  = GetProcAddress(hSetupApi, "SetupFindFirstLineA");
-                            (VOID *) pSetupGetStringFieldA = GetProcAddress(hSetupApi, "SetupGetStringFieldA");
-                            (VOID *) pSetupOpenInfFileA    = GetProcAddress(hSetupApi, "SetupOpenInfFileA");
-                            (VOID *) pSetupOpenMasterInf   = GetProcAddress(hSetupApi, "SetupOpenMasterInf");
-
-                            if (pSetupGetIntField     &&
-                                pSetupFindFirstLineA  &&
-                                pSetupGetStringFieldA &&
-                                pSetupOpenInfFileA    &&
-                                pSetupOpenMasterInf) {
-                                fSetupMode = TRUE;
-                            } else {
-                                printf("Unable to bind to the necessary SETUPAPI.DLL functions... Ignoring setup mode switch\n");
-                            }
-                        }
-
-                        if (*(p+1) == '!') {
+                        if (*(p + 1) == '!') {
                             p++;
-                            if (fSetupMode)
-                                fSetupModeAllFiles = TRUE;
-
-                            if (*(p+1) == '!') {
-                                p++;
-                                argc--, argv++;
-                                CommandScriptName = *argv;
-                                if (fSetupMode) {
-                                    fSetupModeScriptFile = TRUE;
-                                    CommandScriptFile = fopen(CommandScriptName, "a");
-                                    if (!CommandScriptFile) {
-                                        fprintf(stderr,"BINPLACE : fatal error BNP0000: fopen of script file %s failed %d\n",CommandScriptName,GetLastError());
-                                        exit(BINPLACE_ERR);
-                                    }
+                            argc--, argv++;
+                            CommandScriptName = *argv;
+                            if (fSetupMode) {
+                                fSetupModeScriptFile = TRUE;
+                                CommandScriptFile = fopen(CommandScriptName, "a");
+                                if (!CommandScriptFile) {
+                                    fprintf(stderr, "BINPLACE : fatal error BNP0000: fopen of script file %s failed %d\n", CommandScriptName, GetLastError());
+                                    exit(BINPLACE_ERR);
                                 }
-                            } else {
-                                fIgnoreHardLinks = TRUE;
                             }
                         } else {
                             fIgnoreHardLinks = TRUE;
                         }
-                        break;
+                    } else {
+                        fIgnoreHardLinks = TRUE;
+                    }
+                    break;
 
-                    default:
-                        fprintf( stderr, "BINPLACE : error BNP0000: Invalid switch - /%c\n", c );
-                        fUsage = TRUE;
-                        break;
+                default:
+                    fprintf(stderr, "BINPLACE : error BNP0000: Invalid switch - /%c\n", c);
+                    fUsage = TRUE;
+                    break;
                 }
 
-            if ( fUsage ) {
-                showUsage:
+            if (fUsage) {
+            showUsage:
                 fputs(
-                     "usage: binplace [switches] image-names... \n"
-                     "where: [-?] display this message\n"
-                     "       [-a] Used with -s, extract all symbols\n"
-                     "       [-b subdir] put file in subdirectory of normal place\n"
-                     "       [-c] digitally sign image with IDW key\n"
-                     "       [-d dump-override]\n"
-                     "       [-e] don't exit if a file in list could not be binplaced\n"
-                     "       [-f] force placement by disregarding file timestamps\n"
-                     "       [-g lc-file] verify image with localization constraint file\n"
-                     "       [-h] modifies behavior to use hard links instead of CopyFile.\n"
-                     "            (ignored if -s, -! or -!! is present)\n"
-                     "       [-i layout-inf] Used with -!, -!! or -!!!, override master inf location\n"
-                     "       [-j] verify proper symbols exist before copying\n"
-                     "       [-k] keep attributes (don't turn off archive)\n"
-                     "       [-l] operate over a live system\n"
-                     "       [-n <Path>] Used with -x - Private pdb symbol path\n"
-                     "       [-o place-root-subdir] alternate project subdirectory\n"
-                     "       [-p place-file]\n"
-                     "       [-q] suppress writing to log file %BINPLACE_LOG%\n"
-                     "       [-r place-root]\n"
-                     "       [-s Symbol file path] split symbols from image files\n"
-                     "       [-t] test mode\n"
-                     "       [-u] UP driver\n"
-                     "       [-v] verbose output\n"
-                     "       [-w] copy the Win95 Sym file to the symbols tree\n"
-                     "       [-x] Used with -s, delete private symbolic when splitting\n"
-                     "       [-y] Used with -s, don't create class subdirs in the symbols tree\n"
-                     "       [-z] ignore -x if present\n"
-                     "       [-!] setup mode (ignore optional files)\n"
-                     "       [-!!] setup mode (copy optional files)\n"
-                     "       [-!!! script-file] setup mode with command script\n"
-                     "\n"
-                     "BINPLACE looks for the following environment variable names:\n"
-                     "   BINPLACE_OVERRIDE_FLAGS - may contain additional switches\n"
-                     "   BINPLACE_PLACEFILE - default value for -p flag\n"
-                     "   _NT386TREE - default value for -r flag on x86 platform\n"
-                     "   _NTALPHATREE - default value for -r flag on Alpha platform\n"
-                     "   _NTAXP64TREE - default value for -r flag on Axp64 platform\n"
-                     "   _NTIA64TREE - default value for -r flag on IA64 platform\n"
-                     "\n"
-                     ,stderr
-                     );
+                    "usage: binplace [switches] image-names... \n"
+                    "where: [-?] display this message\n"
+                    "       [-a] Used with -s, extract all symbols\n"
+                    "       [-b subdir] put file in subdirectory of normal place\n"
+                    "       [-c] digitally sign image with IDW key\n"
+                    "       [-d dump-override]\n"
+                    "       [-e] don't exit if a file in list could not be binplaced\n"
+                    "       [-f] force placement by disregarding file timestamps\n"
+                    "       [-g lc-file] verify image with localization constraint file\n"
+                    "       [-h] modifies behavior to use hard links instead of CopyFile.\n"
+                    "            (ignored if -s, -! or -!! is present)\n"
+                    "       [-i layout-inf] Used with -!, -!! or -!!!, override master inf location\n"
+                    "       [-j] verify proper symbols exist before copying\n"
+                    "       [-k] keep attributes (don't turn off archive)\n"
+                    "       [-l] operate over a live system\n"
+                    "       [-n <Path>] Used with -x - Private pdb symbol path\n"
+                    "       [-o place-root-subdir] alternate project subdirectory\n"
+                    "       [-p place-file]\n"
+                    "       [-q] suppress writing to log file %BINPLACE_LOG%\n"
+                    "       [-r place-root]\n"
+                    "       [-s Symbol file path] split symbols from image files\n"
+                    "       [-t] test mode\n"
+                    "       [-u] UP driver\n"
+                    "       [-v] verbose output\n"
+                    "       [-w] copy the Win95 Sym file to the symbols tree\n"
+                    "       [-x] Used with -s, delete private symbolic when splitting\n"
+                    "       [-y] Used with -s, don't create class subdirs in the symbols tree\n"
+                    "       [-z] ignore -x if present\n"
+                    "       [-!] setup mode (ignore optional files)\n"
+                    "       [-!!] setup mode (copy optional files)\n"
+                    "       [-!!! script-file] setup mode with command script\n"
+                    "\n"
+                    "BINPLACE looks for the following environment variable names:\n"
+                    "   BINPLACE_OVERRIDE_FLAGS - may contain additional switches\n"
+                    "   BINPLACE_PLACEFILE - default value for -p flag\n"
+                    "   _NT386TREE - default value for -r flag on x86 platform\n"
+                    "   _NTALPHATREE - default value for -r flag on Alpha platform\n"
+                    "   _NTAXP64TREE - default value for -r flag on Axp64 platform\n"
+                    "   _NTIA64TREE - default value for -r flag on IA64 platform\n"
+                    "\n"
+                    , stderr
+                );
 
                 exit(BINPLACE_ERR);
             }
@@ -767,12 +767,12 @@ main(
                 SplitFlags &= ~SPLITSYM_REMOVE_PRIVATE;
             }
 
-            h = FindFirstFile(p,&FindData);
+            h = FindFirstFile(p, &FindData);
             if (h != INVALID_HANDLE_VALUE) {
                 FindClose(h);
                 if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                    if ( fVerbose ) {
-                        fprintf(stdout,"BINPLACE : warning BNP0000: ignoring directory %s\n",p);
+                    if (fVerbose) {
+                        fprintf(stdout, "BINPLACE : warning BNP0000: ignoring directory %s\n", p);
                     }
                     continue;
                 }
@@ -785,10 +785,10 @@ main(
             // it up.
 
 
-            if ( !PlaceFile ) {
+            if (!PlaceFile) {
                 PlaceFile = fopen(PlaceFileName, "rt");
                 if (!PlaceFile) {
-                    fprintf(stderr,"BINPLACE : fatal error BNP0000: fopen of placefile %s failed %d\n",PlaceFileName,GetLastError());
+                    fprintf(stderr, "BINPLACE : fatal error BNP0000: fopen of placefile %s failed %d\n", PlaceFileName, GetLastError());
                     exit(BINPLACE_ERR);
                 }
                 if (fSetupMode && !fSetupModeScriptFile) {
@@ -799,12 +799,12 @@ main(
 
             // Check for bogus -g lc-file switch
 
-            if ( LcFileName != NULL ) {
+            if (LcFileName != NULL) {
                 h = FindFirstFile(LcFileName, &FindData);
                 if (h == INVALID_HANDLE_VALUE ||
                     (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                    if (fVerbose ) {
-                        fprintf(stdout,"BINPLACE : warning BNP0000: invalid file %s. Ignoring -G switch.\n", LcFileName);
+                    if (fVerbose) {
+                        fprintf(stdout, "BINPLACE : warning BNP0000: invalid file %s. Ignoring -G switch.\n", LcFileName);
                     }
                     LcFileName = NULL;
                 }
@@ -812,46 +812,46 @@ main(
                     FindClose(h);
                 }
             }
-            if ( LcFileName != NULL ) {
-                DWORD cb = GetFullPathName(LcFileName,MAX_PATH+1,LcFullFileName,&LcFilePart);
-                if (!cb || cb > MAX_PATH+1) {
-                    fprintf(stderr,"BINPLACE : fatal error BNP0000: GetFullPathName %s failed %d\n",LcFileName, GetLastError());
+            if (LcFileName != NULL) {
+                DWORD cb = GetFullPathName(LcFileName, MAX_PATH + 1, LcFullFileName, &LcFilePart);
+                if (!cb || cb > MAX_PATH + 1) {
+                    fprintf(stderr, "BINPLACE : fatal error BNP0000: GetFullPathName %s failed %d\n", LcFileName, GetLastError());
                     exit(BINPLACE_ERR);
                 }
 
                 hLcManager = LoadLibraryA("lcman.DLL");
                 if (hLcManager != NULL) {
-                    (VOID *) pVerifyLocConstraintA = GetProcAddress(hLcManager, "VerifyLocConstraintA");
+                    (VOID *)pVerifyLocConstraintA = GetProcAddress(hLcManager, "VerifyLocConstraintA");
                 }
                 if (pVerifyLocConstraintA != NULL) {
                     fVerifyLc = TRUE;
                 } else {
-                    fprintf(stdout,"BINPLACE : warning BNP0000: Unable to bind to the necessary LCMAN.DLL functions... Ignoring -G switch\n");
+                    fprintf(stdout, "BINPLACE : warning BNP0000: Unable to bind to the necessary LCMAN.DLL functions... Ignoring -G switch\n");
                 }
             }
 
             // Get the Exclude List
 
-            ExcludeList = GetExcludeList( ExcludeFileName );
+            ExcludeList = GetExcludeList(ExcludeFileName);
 
 
             // If the log file has not been opened,
             // and we haven't suppressed logging, open it up
 
 
-            if ( !LogFile && !fDontLog) {
+            if (!LogFile && !fDontLog) {
                 if ((LogFileName = getenv("BINPLACE_LOG")) != NULL) {
                     LogFile = _fsopen(LogFileName, "a", _SH_DENYNO);
-                    if ( !LogFile ) {
-                        fprintf(stderr,"BINPLACE : error BNP0000: fopen of log file %s failed %d\n", LogFileName,GetLastError());
+                    if (!LogFile) {
+                        fprintf(stderr, "BINPLACE : error BNP0000: fopen of log file %s failed %d\n", LogFileName, GetLastError());
                     } else {
                         time_t Time;
-                        FILE *fSlmIni;
+                        FILE * fSlmIni;
                         UCHAR szProject[MAX_PATH];
                         UCHAR szSlmServer[MAX_PATH];
                         UCHAR szEnlistment[MAX_PATH];
                         UCHAR szSlmDir[MAX_PATH];
-                        UCHAR *szTime="";
+                        UCHAR * szTime = "";
                         // Get some other interesting info.
                         fSlmIni = fopen("slm.ini", "r");
                         if (fSlmIni) {
@@ -860,9 +860,9 @@ main(
                             fgets(szEnlistment, sizeof(szEnlistment), fSlmIni);
                             fgets(szSlmDir, sizeof(szSlmDir), fSlmIni);
                             // Get rid of the trailing newlines
-                            szProject[strlen(szProject)-1] = '\0';
-                            szSlmServer[strlen(szSlmServer)-1] = '\0';
-                            szSlmDir[strlen(szSlmDir)-1] = '\0';
+                            szProject[strlen(szProject) - 1] = '\0';
+                            szSlmServer[strlen(szSlmServer) - 1] = '\0';
+                            szSlmDir[strlen(szSlmDir) - 1] = '\0';
                             fclose(fSlmIni);
                         } else {
                             szSlmServer[0] = '\0';
@@ -882,7 +882,7 @@ main(
             }
 
             if (PlaceRootName == NULL) {
-                fprintf(stderr,"BINPLACE : fatal error BNP0000: Place Root not defined - exiting.\n");
+                fprintf(stderr, "BINPLACE : fatal error BNP0000: Place Root not defined - exiting.\n");
                 exit(BINPLACE_ERR);
             }
 
@@ -893,18 +893,18 @@ main(
                 SymbolFilePath = DefaultSymbolFilePath;
             }
 
-            if ( !PlaceTheFile() ) {
+            if (!PlaceTheFile()) {
                 if (fDontExit) {
-                    fprintf(stderr,"BINPLACE : error BNP0000: Unable to place file %s.\n",CurrentImageName);
+                    fprintf(stderr, "BINPLACE : error BNP0000: Unable to place file %s.\n", CurrentImageName);
                 } else {
-                    fprintf(stderr,"BINPLACE : fatal error BNP0000: Unable to place file %s - exiting.\n",CurrentImageName);
+                    fprintf(stderr, "BINPLACE : fatal error BNP0000: Unable to place file %s - exiting.\n", CurrentImageName);
                     exit(BINPLACE_ERR);
                 }
             } else {
-                if ( LogFile ) {
-                    len = fprintf(LogFile,"%s\t%s",gFullFileName,szExtraInfo);
-                    if ( len < 0 ) {
-                        fprintf(stderr,"BINPLACE : error BNP0000: write to log file %s failed %d\n", LogFileName, GetLastError());
+                if (LogFile) {
+                    len = fprintf(LogFile, "%s\t%s", gFullFileName, szExtraInfo);
+                    if (len < 0) {
+                        fprintf(stderr, "BINPLACE : error BNP0000: write to log file %s failed %d\n", LogFileName, GetLastError());
                     }
                 }
             }
@@ -917,7 +917,7 @@ main(
 BOOL
 PlaceTheFile()
 {
-    CHAR FullFileName[MAX_PATH+1];
+    CHAR FullFileName[MAX_PATH + 1];
     LPSTR PlaceFileNewName;
     LPSTR FilePart;
     LPSTR Separator;
@@ -932,27 +932,26 @@ PlaceTheFile()
     BOOL PutInDebug = FALSE;
     BOOL PutInLcDir = FALSE;
 
-    cb = GetFullPathName(CurrentImageName,MAX_PATH+1,FullFileName,&FilePart);
+    cb = GetFullPathName(CurrentImageName, MAX_PATH + 1, FullFileName, &FilePart);
 
-    if (!cb || cb > MAX_PATH+1) {
-        fprintf(stderr,"BINPLACE : fatal error BNP0000: GetFullPathName failed %d\n",GetLastError());
+    if (!cb || cb > MAX_PATH + 1) {
+        fprintf(stderr, "BINPLACE : fatal error BNP0000: GetFullPathName failed %d\n", GetLastError());
         return FALSE;
     }
 
     if (LogFile) {
-        strcpy(gFullFileName,FullFileName);
+        strcpy(gFullFileName, FullFileName);
     }
 
     if (fVerbose) {
-        fprintf(stdout,"BINPLACE : warning BNP0000: Looking at file %s\n",FilePart);
+        fprintf(stdout, "BINPLACE : warning BNP0000: Looking at file %s\n", FilePart);
     }
 
-    Extension = strrchr(FilePart,'.');
+    Extension = strrchr(FilePart, '.');
     if (Extension) {
-        if (!_stricmp(Extension,".DBG")) {
+        if (!_stricmp(Extension, ".DBG")) {
             PutInDebug = TRUE;
-        }
-        else if (!_stricmp(Extension,".LC")) {
+        } else if (!_stricmp(Extension, ".LC")) {
             PutInLcDir = TRUE;
         }
     }
@@ -964,37 +963,37 @@ PlaceTheFile()
 
             PfRec = LookupPlaceFileRecord(FilePart);
 
-            if ( PfRec ) {
-                strncpy(PlaceFileEntry,PfRec->FileNameEntry, sizeof(PlaceFileEntry));
-                strncpy(PlaceFileClass,PfRec->FileClass, sizeof(PlaceFileClass));
+            if (PfRec) {
+                strncpy(PlaceFileEntry, PfRec->FileNameEntry, sizeof(PlaceFileEntry));
+                strncpy(PlaceFileClass, PfRec->FileClass, sizeof(PlaceFileClass));
                 PlaceFileNewName = NULL;
                 goto fastfound;
             }
         }
-        fseek(PlaceFile,0,SEEK_SET);
-        while (fgets(PlaceFileDir,sizeof(PlaceFileDir),PlaceFile)) {
+        fseek(PlaceFile, 0, SEEK_SET);
+        while (fgets(PlaceFileDir, sizeof(PlaceFileDir), PlaceFile)) {
 
             PlaceFileEntry[0] = '\0';
             PlaceFileClass[0] = '\0';
 
             cfield = sscanf(
-                           PlaceFileDir,
-//                           "%s %[A-Za-z0-9.,_!@#\\$+=%^&()~ -]s",
-                           "%s %s",
-                           PlaceFileEntry,
-                           PlaceFileClass
-                           );
+                PlaceFileDir,
+                //                           "%s %[A-Za-z0-9.,_!@#\\$+=%^&()~ -]s",
+                "%s %s",
+                PlaceFileEntry,
+                PlaceFileClass
+            );
 
             if (cfield <= 0 || PlaceFileEntry[0] == ';') {
                 continue;
             }
 
-            if (PlaceFileNewName = strchr(PlaceFileEntry,'!')) {
+            if (PlaceFileNewName = strchr(PlaceFileEntry, '!')) {
                 *PlaceFileNewName++ = '\0';
             }
 
-            if (!_stricmp(FilePart,PlaceFileEntry)) {
-                fastfound:
+            if (!_stricmp(FilePart, PlaceFileEntry)) {
+            fastfound:
 
                 // now that we have the file and class, search the
                 // class tables for the directory.
@@ -1002,8 +1001,8 @@ PlaceTheFile()
                 Separator = PlaceFileClass - 1;
                 while (Separator) {
 
-                    PlaceFileClassPart = Separator+1;
-                    Separator = strchr(PlaceFileClassPart,':');
+                    PlaceFileClassPart = Separator + 1;
+                    Separator = strchr(PlaceFileClassPart, ':');
                     if (Separator) {
                         *Separator = '\0';
                     }
@@ -1014,19 +1013,19 @@ PlaceTheFile()
                     // incrementally binplace files into an existing installation.
 
                     SetupFilePath[0] = '\0';
-                    if (fSetupMode && !_stricmp(PlaceFileClassPart,"retail")) {
-                        if (SetupModeRetailFile(FullFileName,FilePart,&PutInDump)) {
+                    if (fSetupMode && !_stricmp(PlaceFileClassPart, "retail")) {
+                        if (SetupModeRetailFile(FullFileName, FilePart, &PutInDump)) {
 
                             // No error. Either the file was handled or we need to
                             // put it in the dump directory.
 
                             if (PutInDump) {
                                 fCopyResult = CopyTheFile(
-                                                         FullFileName,
-                                                         FilePart,
-                                                         (DumpOverride ? DumpOverride : DEFAULT_DUMP),
-                                                         NULL
-                                                         );
+                                    FullFileName,
+                                    FilePart,
+                                    (DumpOverride ? DumpOverride : DEFAULT_DUMP),
+                                    NULL
+                                );
                             } else {
                                 fCopyResult = TRUE;
                             }
@@ -1042,12 +1041,12 @@ PlaceTheFile()
                         }
                     }
 
-                    PlaceFileDir[0]='\0';
+                    PlaceFileDir[0] = '\0';
                     ClassMatch = FALSE;
                     ClassTablePointer = &CommonClassTable[0];
                     while (ClassTablePointer->ClassName) {
-                        if (!_stricmp(ClassTablePointer->ClassName,PlaceFileClassPart)) {
-                            strcpy(PlaceFileDir,ClassTablePointer->ClassLocation);
+                        if (!_stricmp(ClassTablePointer->ClassName, PlaceFileClassPart)) {
+                            strcpy(PlaceFileDir, ClassTablePointer->ClassLocation);
                             ClassMatch = TRUE;
 
 
@@ -1059,9 +1058,9 @@ PlaceTheFile()
                             // only when actually needed.
 
                             if (fUpDriver
-                                && (   !_stricmp(PlaceFileClass,"drivers")
-                                       || !_stricmp(PlaceFileClass,"retail"))) {
-                                strcat(PlaceFileDir,"\\up");
+                                && (!_stricmp(PlaceFileClass, "drivers")
+                                    || !_stricmp(PlaceFileClass, "retail"))) {
+                                strcat(PlaceFileDir, "\\up");
                             }
                             break;
                         }
@@ -1093,8 +1092,8 @@ PlaceTheFile()
 #endif
                         while (ClassTablePointer->ClassName) {
 
-                            if (!_stricmp(ClassTablePointer->ClassName,PlaceFileClassPart)) {
-                                strcpy(PlaceFileDir,ClassTablePointer->ClassLocation);
+                            if (!_stricmp(ClassTablePointer->ClassName, PlaceFileClassPart)) {
+                                strcpy(PlaceFileDir, ClassTablePointer->ClassLocation);
                                 ClassMatch = TRUE;
                                 break;
                             }
@@ -1112,10 +1111,10 @@ PlaceTheFile()
                         // directory
 
 
-                        if ( fVerbose ) {
-                            fprintf(stderr,"BINPLACE : warning BNP0000: Class %s Not found in Class Tables\n",PlaceFileClassPart);
+                        if (fVerbose) {
+                            fprintf(stderr, "BINPLACE : warning BNP0000: Class %s Not found in Class Tables\n", PlaceFileClassPart);
                         }
-                        if ( asterisk = strchr( PlaceFileClassPart, '*')) {
+                        if (asterisk = strchr(PlaceFileClassPart, '*')) {
 
                             // Expand * to platform
 
@@ -1143,12 +1142,12 @@ PlaceTheFile()
                             }
 #endif
 
-                            strncpy(PlaceFileDir,PlaceFileClassPart, (int)(asterisk - PlaceFileClassPart));
+                            strncpy(PlaceFileDir, PlaceFileClassPart, (int)(asterisk - PlaceFileClassPart));
                             strcpy(PlaceFileDir + (asterisk - PlaceFileClassPart), PlatformPath);
                             strcpy(PlaceFileDir + (asterisk - PlaceFileClassPart) + PlatformSize, asterisk + 1);
 
                         } else {
-                            strcpy(PlaceFileDir,PlaceFileClassPart);
+                            strcpy(PlaceFileDir, PlaceFileClassPart);
                         }
                     }
 
@@ -1159,11 +1158,11 @@ PlaceTheFile()
                     }
 
                     if (NormalPlaceSubdir) {
-                        strcat(PlaceFileDir,"\\");
-                        strcat(PlaceFileDir,NormalPlaceSubdir);
+                        strcat(PlaceFileDir, "\\");
+                        strcat(PlaceFileDir, NormalPlaceSubdir);
                     }
 
-                    fCopyResult = CopyTheFile(FullFileName,FilePart,PlaceFileDir,PlaceFileNewName);
+                    fCopyResult = CopyTheFile(FullFileName, FilePart, PlaceFileDir, PlaceFileNewName);
                     if (!fCopyResult) {
                         break;
                     }
@@ -1179,26 +1178,26 @@ PlaceTheFile()
     }
 
     return CopyTheFile(
-               FullFileName,
-               FilePart,
-               PutInDebug ? "Symbols" : (PutInLcDir ? BinplaceLcDir : (DumpOverride ? DumpOverride : DEFAULT_DUMP)),
-               NULL
-               );
+        FullFileName,
+        FilePart,
+        PutInDebug ? "Symbols" : (PutInLcDir ? BinplaceLcDir : (DumpOverride ? DumpOverride : DEFAULT_DUMP)),
+        NULL
+    );
 
 }
 
 BOOL
 CopyTheFile(
-           LPSTR SourceFileName,
-           LPSTR SourceFilePart,
-           LPSTR DestinationSubdir,
-           LPSTR DestinationFilePart
-           )
+    LPSTR SourceFileName,
+    LPSTR SourceFilePart,
+    LPSTR DestinationSubdir,
+    LPSTR DestinationFilePart
+)
 {
-    CHAR DestinationFile[MAX_PATH+1];
+    CHAR DestinationFile[MAX_PATH + 1];
     CHAR TmpDestinationFile[MAX_PATH];
     CHAR TmpDestinationDir[MAX_PATH];
-    CHAR DestinationLcFile[MAX_PATH+1];
+    CHAR DestinationLcFile[MAX_PATH + 1];
     char Drive[_MAX_DRIVE];
     char Dir[_MAX_DIR];
     char Ext[_MAX_EXT];
@@ -1207,14 +1206,14 @@ CopyTheFile(
     char TmpPath[_MAX_PATH];
     char FileSystemType[8];
     char DriveRoot[4];
-    CHAR *TmpSymbolFilePath;
+    CHAR * TmpSymbolFilePath;
     DWORD dwFileSystemFlags;
     DWORD dwMaxCompLength;
     CHAR ErrMsg[MAX_SYM_ERR];
     BOOL fBinplaceLc;
 
-    if ( !PlaceRootName ) {
-        fprintf(stderr,"BINPLACE : warning BNP0000: PlaceRoot is not specified\n");
+    if (!PlaceRootName) {
+        fprintf(stderr, "BINPLACE : warning BNP0000: PlaceRoot is not specified\n");
         return FALSE;
     }
 
@@ -1228,51 +1227,51 @@ CopyTheFile(
     if (lstrcmpi(FileSystemType, "FAT") == 0 || lstrcmpi(FileSystemType, "FAT32") == 0)
         fPatheticOS = TRUE;
 
-    strcpy(DestinationFile,PlaceRootName);
-    strcat(DestinationFile,"\\");
-    strcat(DestinationFile,DestinationSubdir);
-    strcat(DestinationFile,"\\");
+    strcpy(DestinationFile, PlaceRootName);
+    strcat(DestinationFile, "\\");
+    strcat(DestinationFile, DestinationSubdir);
+    strcat(DestinationFile, "\\");
 
-    strcpy (TmpDestinationDir, DestinationFile);
+    strcpy(TmpDestinationDir, DestinationFile);
 
 
     if (!MakeSureDirectoryPathExists(DestinationFile)) {
         fprintf(stderr, "BINPLACE : error BNP0000: Unable to create directory path '%s' (%u)\n",
                 DestinationFile, GetLastError()
-               );
+        );
     }
 
     if (DestinationFilePart) {
-        strcat(DestinationFile,DestinationFilePart);
+        strcat(DestinationFile, DestinationFilePart);
     } else {
-        strcat(DestinationFile,SourceFilePart);
+        strcat(DestinationFile, SourceFilePart);
     }
 
     if (!fSetupMode && (fVerbose || fTestMode)) {
-        fprintf(stdout,"BINPLACE : warning BNP0000: place %s in %s\n",SourceFileName,DestinationFile);
+        fprintf(stdout, "BINPLACE : warning BNP0000: place %s in %s\n", SourceFileName, DestinationFile);
     }
 
     if (!fSetupMode) {
-        BOOL fRetail = (*DestinationSubdir == '.') && (*(DestinationSubdir+1) == '\0');
-        if (SourceIsNewer(SourceFileName,DestinationFile)) {
+        BOOL fRetail = (*DestinationSubdir == '.') && (*(DestinationSubdir + 1) == '\0');
+        if (SourceIsNewer(SourceFileName, DestinationFile)) {
             fprintf(stdout, "binplace %s\n", SourceFileName);
             if (!VerifyFinalImage(SourceFileName, fRetail, &fBinplaceLc))
                 return FALSE;
 
             // Verify Symbols
             if (fRetail && fSymChecking && !fSignCode) {
-                _splitpath(SourceFileName,Drive, Dir, Name, Ext );
-                strcpy(TmpName,Name);
-                strcat(TmpName,Ext);
-                strcpy(TmpPath,Drive);
-                strcat(TmpPath,Dir);
-                if (!CheckSymbols(ErrMsg, TmpPath,SourceFileName, NULL,
-                                  IGNORE_IF_SPLIT,FALSE) ) {
-                    if ( !InExcludeList(TmpName,ExcludeList) ) {
-                        fprintf(stderr,"BINPLACE : error BNP0000: %s",ErrMsg);
+                _splitpath(SourceFileName, Drive, Dir, Name, Ext);
+                strcpy(TmpName, Name);
+                strcat(TmpName, Ext);
+                strcpy(TmpPath, Drive);
+                strcat(TmpPath, Dir);
+                if (!CheckSymbols(ErrMsg, TmpPath, SourceFileName, NULL,
+                                  IGNORE_IF_SPLIT, FALSE)) {
+                    if (!InExcludeList(TmpName, ExcludeList)) {
+                        fprintf(stderr, "BINPLACE : error BNP0000: %s", ErrMsg);
                         return FALSE;
                     } else {
-                        fprintf(stdout,"BINPLACE : warning BNP0000: %s",ErrMsg);
+                        fprintf(stdout, "BINPLACE : warning BNP0000: %s", ErrMsg);
                     }
                 }
             }
@@ -1285,31 +1284,31 @@ CopyTheFile(
         // the one that's already there.
 
         if (!fSetupModeScriptFile) {
-            if (SourceIsNewer(SourceFileName,DestinationFile)) {
+            if (SourceIsNewer(SourceFileName, DestinationFile)) {
                 if (fVerbose) {
-                    fprintf(stdout,"BINPLACE : warning BNP0000: copy %s to %s\n",SourceFileName,DestinationFile);
+                    fprintf(stdout, "BINPLACE : warning BNP0000: copy %s to %s\n", SourceFileName, DestinationFile);
                 }
             } else {
                 return(TRUE);
             }
         }
 
-        SetFileAttributes(DestinationFile,FILE_ATTRIBUTE_NORMAL);
+        SetFileAttributes(DestinationFile, FILE_ATTRIBUTE_NORMAL);
 
         if (fSetupModeScriptFile) {
-            fprintf( CommandScriptFile, "%s %s\n", DestinationFile, SetupFilePath );
+            fprintf(CommandScriptFile, "%s %s\n", DestinationFile, SetupFilePath);
         }
 
         if (!fIgnoreHardLinks && fHardLinks) {
             if ((*pCreateHardLinkA)(SourceFileName, DestinationFile, NULL)) {
                 if (!fKeepAttributes)
-                    SetFileAttributes(DestinationFile,FILE_ATTRIBUTE_NORMAL);
+                    SetFileAttributes(DestinationFile, FILE_ATTRIBUTE_NORMAL);
                 return(TRUE);
             }
         }
 
-        if ( !CopyFile(SourceFileName,DestinationFile, FALSE)) {
-            fprintf(stderr,"BINPLACE : warning BNP0000: CopyFile(%s,%s) failed %d\n",SourceFileName,DestinationFile,GetLastError());
+        if (!CopyFile(SourceFileName, DestinationFile, FALSE)) {
+            fprintf(stderr, "BINPLACE : warning BNP0000: CopyFile(%s,%s) failed %d\n", SourceFileName, DestinationFile, GetLastError());
 
             if (!fLiveSystem) {
                 return FALSE;
@@ -1318,64 +1317,64 @@ CopyTheFile(
             //  If CopyFile failed and we are instructed to do this over a live
             //  system, attempt to do a safe copy
 
-            if (GetTempFileName (TmpDestinationDir, "bin", 0, TmpDestinationFile) == 0) {
-                fprintf (stderr, "BINPLACE : error BNP0000: GetTempFileName (%s, %s) failed - %d\n",
-                         DestinationSubdir, TmpDestinationFile, GetLastError ());
+            if (GetTempFileName(TmpDestinationDir, "bin", 0, TmpDestinationFile) == 0) {
+                fprintf(stderr, "BINPLACE : error BNP0000: GetTempFileName (%s, %s) failed - %d\n",
+                        DestinationSubdir, TmpDestinationFile, GetLastError());
                 return FALSE;
             }
 
             if (fVerbose) {
-                fprintf (stdout, "BINPLACE : warning BNP0000: temp file name is %s\n", TmpDestinationFile);
+                fprintf(stdout, "BINPLACE : warning BNP0000: temp file name is %s\n", TmpDestinationFile);
             }
 
             //  rename target file to temp file
-            if (!MoveFileEx (DestinationFile, TmpDestinationFile, MOVEFILE_REPLACE_EXISTING)) {
+            if (!MoveFileEx(DestinationFile, TmpDestinationFile, MOVEFILE_REPLACE_EXISTING)) {
                 //  Move failed, get rid of temp file
-                ULONG error = GetLastError ();
+                ULONG error = GetLastError();
                 if (fVerbose) {
-                    fprintf (stdout, "BINPLACE : error BNP0000: MoveFileEx (%s, %s) failed %d",
-                             DestinationFile, TmpDestinationFile, error);
+                    fprintf(stdout, "BINPLACE : error BNP0000: MoveFileEx (%s, %s) failed %d",
+                            DestinationFile, TmpDestinationFile, error);
                 }
-                DeleteFile (TmpDestinationFile);
-                SetLastError (error);
+                DeleteFile(TmpDestinationFile);
+                SetLastError(error);
                 return FALSE;
             }
 
             //  copy again
-            if (!CopyFile (SourceFileName, DestinationFile, TRUE)) {
+            if (!CopyFile(SourceFileName, DestinationFile, TRUE)) {
                 //  Copy failed.  Delete the destination (perhaps due to out of space
                 //  and replace original destination)
-                ULONG error = GetLastError ();
+                ULONG error = GetLastError();
                 if (fVerbose) {
-                    fprintf (stdout, "BINPLACE : error BNP0000: CopyFile (%s, %s) failed %d",
-                             SourceFileName, DestinationFile, error);
+                    fprintf(stdout, "BINPLACE : error BNP0000: CopyFile (%s, %s) failed %d",
+                            SourceFileName, DestinationFile, error);
                 }
-                DeleteFile (DestinationFile);
-                MoveFile (TmpDestinationFile, DestinationFile);
-                SetLastError (error);
+                DeleteFile(DestinationFile);
+                MoveFile(TmpDestinationFile, DestinationFile);
+                SetLastError(error);
                 return FALSE;
             }
 
             //  mark temp for delete
-            if (!MoveFileEx (TmpDestinationFile, NULL, MOVEFILE_DELAY_UNTIL_REBOOT)) {
+            if (!MoveFileEx(TmpDestinationFile, NULL, MOVEFILE_DELAY_UNTIL_REBOOT)) {
                 //  Could not make old file for deletion.  Delete destination
                 //  and replace original destination)
-                ULONG error = GetLastError ();
+                ULONG error = GetLastError();
                 if (fVerbose) {
-                    fprintf (stdout, "BINPLACE : error BNP0000: MoveFileEx (%s, NULL) failed %d",
-                             TmpDestinationFile, error);
+                    fprintf(stdout, "BINPLACE : error BNP0000: MoveFileEx (%s, NULL) failed %d",
+                            TmpDestinationFile, error);
                 }
-                DeleteFile (DestinationFile);
-                MoveFile (TmpDestinationFile, DestinationFile);
+                DeleteFile(DestinationFile);
+                MoveFile(TmpDestinationFile, DestinationFile);
                 return FALSE;
             }
         }
         if (fSetupMode && !fSetupModeScriptFile) {
-            fprintf(stdout,"%s ==> %s\n",SourceFileName,DestinationFile);
+            fprintf(stdout, "%s ==> %s\n", SourceFileName, DestinationFile);
         }
 
         if (!fKeepAttributes)
-            SetFileAttributes(DestinationFile,FILE_ATTRIBUTE_NORMAL);
+            SetFileAttributes(DestinationFile, FILE_ATTRIBUTE_NORMAL);
 
         if (!fNoClassInSymbolsDir) {
             strcpy(TmpDestinationDir, SymbolFilePath);
@@ -1387,10 +1386,9 @@ CopyTheFile(
                 strcat(TmpDestinationDir, "\\");
 
                 pSubdir = DestinationSubdir;
-        if (pSubdir[0] == '.' && pSubdir[1] == '\\')
-        {
-            pSubdir += 2;
-        }
+                if (pSubdir[0] == '.' && pSubdir[1] == '\\') {
+                    pSubdir += 2;
+                }
 
                 // Put the root dir only on the path
                 pTmp = strchr(pSubdir, '\\');
@@ -1411,9 +1409,9 @@ CopyTheFile(
             _splitpath(SourceFileName, Drive, Dir, NULL, Ext);
             _makepath(DebugFilePath, Drive, Dir, NULL, NULL);
             SplitFlags |= SPLITSYM_SYMBOLPATH_IS_SRC;
-            if (SplitSymbols( DestinationFile, TmpSymbolFilePath, (PCHAR) DebugFilePath, SplitFlags )) {
+            if (SplitSymbols(DestinationFile, TmpSymbolFilePath, (PCHAR)DebugFilePath, SplitFlags)) {
                 if (fVerbose)
-                    fprintf( stdout, "BINPLACE : warning BNP0000: Symbols stripped from %s into %s\n", DestinationFile, DebugFilePath );
+                    fprintf(stdout, "BINPLACE : warning BNP0000: Symbols stripped from %s into %s\n", DestinationFile, DebugFilePath);
 
                 if ((SplitFlags & SPLITSYM_REMOVE_PRIVATE) && (PrivateSymbolFilePath != NULL)) {
                     CHAR Dir1[_MAX_PATH];
@@ -1421,13 +1419,13 @@ CopyTheFile(
                     _splitpath(DebugFilePath, Drive, Dir, NULL, NULL);
                     _makepath(Dir1, Drive, Dir, NULL, NULL);
                     strcpy(Dir2, PrivateSymbolFilePath);
-                    strcat(Dir2, Dir1+strlen(SymbolFilePath));
+                    strcat(Dir2, Dir1 + strlen(SymbolFilePath));
                     MakeSureDirectoryPathExists(Dir2);
                     BinplaceCopyPdb(Dir2, SourceFileName, TRUE, FALSE);
                 }
             } else {
                 if (fVerbose)
-                    fprintf( stdout, "BINPLACE : warning BNP0000: No symbols to strip from %s\n", DestinationFile );
+                    fprintf(stdout, "BINPLACE : warning BNP0000: No symbols to strip from %s\n", DestinationFile);
                 strcpy(DebugFilePath, TmpSymbolFilePath);
                 strcat(DebugFilePath, "\\");
                 strcat(DebugFilePath, &Ext[1]);
@@ -1441,7 +1439,7 @@ CopyTheFile(
                 _splitpath(DebugFilePath, Drive, Dir, NULL, NULL);
                 _makepath(Dir1, Drive, Dir, NULL, NULL);
                 strcpy(Dir2, PrivateSymbolFilePath);
-                strcat(Dir2, Dir1+strlen(SymbolFilePath));
+                strcat(Dir2, Dir1 + strlen(SymbolFilePath));
                 MakeSureDirectoryPathExists(Dir2);
                 BinplaceCopyPdb(Dir2, SourceFileName, TRUE, FALSE);
             }
@@ -1475,59 +1473,59 @@ CopyTheFile(
                 if (SourceIsNewer(SrcSymPath, SourceFileName)) {
                     // Only binplace the .sym file if it was built AFTER the image itself.
                     if (!CopyFile(SrcSymPath, DestSymPath, FALSE)) {
-                        fprintf(stderr,"BINPLACE : warning BNP0000: CopyFile(%s,%s) failed %d\n", SrcSymPath, DestSymPath ,GetLastError());
+                        fprintf(stderr, "BINPLACE : warning BNP0000: CopyFile(%s,%s) failed %d\n", SrcSymPath, DestSymPath, GetLastError());
                     }
                 }
 
                 if (!fKeepAttributes)
-                    SetFileAttributes(DestinationFile,FILE_ATTRIBUTE_NORMAL);
+                    SetFileAttributes(DestinationFile, FILE_ATTRIBUTE_NORMAL);
             } else {
                 if (fVerbose) {
-                    fprintf( stdout, "BINPLACE : warning BNP0000: Unable to locate \"%s\" for \"%s\"\n", SrcSymPath, CurrentImageName );
+                    fprintf(stdout, "BINPLACE : warning BNP0000: Unable to locate \"%s\" for \"%s\"\n", SrcSymPath, CurrentImageName);
                 }
             }
 
         }
 
         if (fDigitalSign) {
-            SignWithIDWKey( DestinationFile );
+            SignWithIDWKey(DestinationFile);
         }
 
         if (!fSetupMode && fBinplaceLc) {
-            strcpy(DestinationLcFile,PlaceRootName);
-            strcat(DestinationLcFile,"\\");
-            strcat(DestinationLcFile,BinplaceLcDir);
-            strcat(DestinationLcFile,"\\");
-            strcat(DestinationLcFile,DestinationSubdir);
-            strcat(DestinationLcFile,"\\");
+            strcpy(DestinationLcFile, PlaceRootName);
+            strcat(DestinationLcFile, "\\");
+            strcat(DestinationLcFile, BinplaceLcDir);
+            strcat(DestinationLcFile, "\\");
+            strcat(DestinationLcFile, DestinationSubdir);
+            strcat(DestinationLcFile, "\\");
 
             if (!MakeSureDirectoryPathExists(DestinationLcFile)) {
                 fprintf(stderr, "BINPLACE : error BNP0000: Unable to create directory path '%s' (%u)\n",
                         DestinationLcFile, GetLastError()
-                       );
+                );
             }
 
             strcat(DestinationLcFile, LcFilePart);
 
             if (!CopyFile(LcFullFileName, DestinationLcFile, FALSE)) {
-               fprintf(stderr,"BINPLACE : warning BNP0000: CopyFile(%s,%s) failed %d\n",
-                       LcFullFileName,DestinationLcFile,GetLastError());
+                fprintf(stderr, "BINPLACE : warning BNP0000: CopyFile(%s,%s) failed %d\n",
+                        LcFullFileName, DestinationLcFile, GetLastError());
             }
         }
 
     } else {
         if (fSetupMode) {
-            if (SourceIsNewer(SourceFileName,DestinationFile)) {
+            if (SourceIsNewer(SourceFileName, DestinationFile)) {
                 if (fVerbose) {
-                    fprintf(stdout,"BINPLACE : warning BNP0000: copy %s to %s\n",SourceFileName,DestinationFile);
+                    fprintf(stdout, "BINPLACE : warning BNP0000: copy %s to %s\n", SourceFileName, DestinationFile);
                 }
             } else {
                 return(TRUE);
             }
         }
 
-        if ( fSetupMode ) {
-            fprintf(stdout,"%s ==> %s\n",SourceFileName,DestinationFile);
+        if (fSetupMode) {
+            fprintf(stdout, "%s ==> %s\n", SourceFileName, DestinationFile);
         }
     }
 
@@ -1536,23 +1534,22 @@ CopyTheFile(
 
 
 BOOL VerifyLc(
-             PCHAR FileName,
-             BOOL  fRetail
-             )
+    PCHAR FileName,
+    BOOL  fRetail
+)
 {
     HRESULT hr = (*pVerifyLocConstraintA)(FileName, LcFullFileName);
 
     if (FAILED(hr)) {
         if (hr == HRESULT_FROM_WIN32(ERROR_NO_MATCH)) {
             fprintf(stderr,
-                "BINPLACE : %s BNP0000: resource conflicts with localization constraint \"%s\"\n",
-                fRetail ? "error" : "warning",
-                FileName);
-        }
-        else {
+                    "BINPLACE : %s BNP0000: resource conflicts with localization constraint \"%s\"\n",
+                    fRetail ? "error" : "warning",
+                    FileName);
+        } else {
             fprintf(stderr,
-                "BINPLACE : %s BNP0000: VerifyLc %s failed 0x%lX\n",
-                fRetail ? "error" : "warning", FileName, hr);
+                    "BINPLACE : %s BNP0000: VerifyLc %s failed 0x%lX\n",
+                    fRetail ? "error" : "warning", FileName, hr);
         }
         return FALSE;
     }
@@ -1561,14 +1558,14 @@ BOOL VerifyLc(
 }
 
 
-typedef DWORD (WINAPI *PFNGVS)(LPSTR, LPDWORD);
+typedef DWORD(WINAPI * PFNGVS)(LPSTR, LPDWORD);
 
 BOOL
 VerifyFinalImage(
-                IN  PCHAR FileName,
-                IN  BOOL  fRetail,
-                OUT PBOOL BinplaceLc
-                )
+    IN  PCHAR FileName,
+    IN  BOOL  fRetail,
+    OUT PBOOL BinplaceLc
+)
 {
     HINSTANCE hVersion;
     PFNGVS pfnGetFileVersionInfoSize;
@@ -1591,7 +1588,7 @@ VerifyFinalImage(
         goto End1;
     }
 
-    pfnGetFileVersionInfoSize = (PFNGVS) GetProcAddress(hVersion, "GetFileVersionInfoSizeA");
+    pfnGetFileVersionInfoSize = (PFNGVS)GetProcAddress(hVersion, "GetFileVersionInfoSizeA");
     if (pfnGetFileVersionInfoSize == NULL) {
         goto End2;
     }
@@ -1599,29 +1596,29 @@ VerifyFinalImage(
     if ((dwReturn = pfnGetFileVersionInfoSize(FileName, &dwSize)) == 0) {
 
         // See if this is even a binary
-            LOADED_IMAGE LoadedImage;
-            if (MapAndLoad(FileName, NULL, &LoadedImage, FALSE, TRUE) == FALSE) {
-                // Not a binary.  See if it's one of the other types we care about (like typelibs)
+        LOADED_IMAGE LoadedImage;
+        if (MapAndLoad(FileName, NULL, &LoadedImage, FALSE, TRUE) == FALSE) {
+            // Not a binary.  See if it's one of the other types we care about (like typelibs)
 
-                CHAR szExt[_MAX_EXT];
+            CHAR szExt[_MAX_EXT];
 
-                _splitpath(FileName, NULL, NULL, NULL, szExt);
+            _splitpath(FileName, NULL, NULL, NULL, szExt);
 
-                if (_stricmp(szExt, ".tlb")) {
-                    goto End2;
-                }
-            } else if ((LoadedImage.FileHeader->FileHeader.Machine != IMAGE_FILE_MACHINE_I386) &&
-                (LoadedImage.FileHeader->FileHeader.Machine != IMAGE_FILE_MACHINE_ALPHA)) {
+            if (_stricmp(szExt, ".tlb")) {
                 goto End2;
             }
+        } else if ((LoadedImage.FileHeader->FileHeader.Machine != IMAGE_FILE_MACHINE_I386) &&
+                   (LoadedImage.FileHeader->FileHeader.Machine != IMAGE_FILE_MACHINE_ALPHA)) {
+            goto End2;
+        }
 
-            fRC = fRetail ? FALSE : TRUE;
-            fprintf(stderr,
-                    "BINPLACE : %s BNP0000: no version resource detected for \"%s\"\n",
-                    fRetail ? "error" : "warning",
-                    FileName);
+        fRC = fRetail ? FALSE : TRUE;
+        fprintf(stderr,
+                "BINPLACE : %s BNP0000: no version resource detected for \"%s\"\n",
+                fRetail ? "error" : "warning",
+                FileName);
 
-            UnMapAndLoad(&LoadedImage);
+        UnMapAndLoad(&LoadedImage);
     }
 
 End2:
@@ -1633,9 +1630,9 @@ End1:
 
 BOOL
 SourceIsNewer(
-             IN LPSTR SourceFile,
-             IN LPSTR TargetFile
-             )
+    IN LPSTR SourceFile,
+    IN LPSTR TargetFile
+)
 {
     BOOL Newer;
     WIN32_FIND_DATA TargetInfo;
@@ -1646,11 +1643,11 @@ SourceIsNewer(
     // If the target file doesn't exist, then the source is newer.
     // If the source file doesn't exist, just return TRUE and hope
     // the caller will catch it.
-    if ((fForcePlace == FALSE) && (FileExists(TargetFile,&TargetInfo) && FileExists(SourceFile,&SourceInfo))) {
+    if ((fForcePlace == FALSE) && (FileExists(TargetFile, &TargetInfo) && FileExists(SourceFile, &SourceInfo))) {
 
         Newer = (fLiveSystem || !fPatheticOS)
-                ? (CompareFileTime(&SourceInfo.ftLastWriteTime,&TargetInfo.ftLastWriteTime) > 0)
-                : (CompareFileTime(&SourceInfo.ftLastWriteTime,&TargetInfo.ftLastWriteTime) >= 0);
+            ? (CompareFileTime(&SourceInfo.ftLastWriteTime, &TargetInfo.ftLastWriteTime) > 0)
+            : (CompareFileTime(&SourceInfo.ftLastWriteTime, &TargetInfo.ftLastWriteTime) >= 0);
 
     } else {
 
@@ -1663,10 +1660,10 @@ SourceIsNewer(
 
 BOOL
 SetupModeRetailFile(
-                   IN  LPSTR FullFileName,
-                   IN  LPSTR FileNamePart,
-                   OUT PBOOL PutInDump
-                   )
+    IN  LPSTR FullFileName,
+    IN  LPSTR FileNamePart,
+    OUT PBOOL PutInDump
+)
 {
     BOOL FoundInTree;
     INFCONTEXT InfContext;
@@ -1682,7 +1679,7 @@ SetupModeRetailFile(
 
     *PutInDump = FALSE;
     FoundInTree = FALSE;
-    if (!SearchOneDirectory(PlaceRootName,FileNamePart,FullFileName,FileNamePart,&FoundInTree)) {
+    if (!SearchOneDirectory(PlaceRootName, FileNamePart, FullFileName, FileNamePart, &FoundInTree)) {
         return(FALSE);
     }
 
@@ -1698,8 +1695,8 @@ SetupModeRetailFile(
                 // will be assumed to be in %sysroot%\inf, which is probably not
                 // what people would expect.
 
-                GetFullPathName(LayoutInfName,MAX_PATH,Directory,&p);
-                LayoutInf = (*pSetupOpenInfFileA)(Directory,NULL,INF_STYLE_WIN4,NULL);
+                GetFullPathName(LayoutInfName, MAX_PATH, Directory, &p);
+                LayoutInf = (*pSetupOpenInfFileA)(Directory, NULL, INF_STYLE_WIN4, NULL);
             } else {
                 LayoutInf = (*pSetupOpenMasterInf)();
             }
@@ -1708,10 +1705,10 @@ SetupModeRetailFile(
                 LayoutInf = NULL;
 
                 fprintf(
-                       stderr,
-                       "BINPLACE : error BNP0000: Unable to load %s\n",
-                       LayoutInfName ? LayoutInfName : "%%sysroot%%\\inf\\layout.inf"
-                       );
+                    stderr,
+                    "BINPLACE : error BNP0000: Unable to load %s\n",
+                    LayoutInfName ? LayoutInfName : "%%sysroot%%\\inf\\layout.inf"
+                );
 
                 return(FALSE);
             }
@@ -1720,7 +1717,7 @@ SetupModeRetailFile(
 
         // Look up the file in the master inf.
 
-        if (!(*pSetupFindFirstLineA)(LayoutInf,szSourceDisksFiles,FileNamePart,&InfContext)) {
+        if (!(*pSetupFindFirstLineA)(LayoutInf, szSourceDisksFiles, FileNamePart, &InfContext)) {
 
             LPTSTR platform;
             LPCTSTR szSourceDisksFPlat;
@@ -1748,10 +1745,10 @@ SetupModeRetailFile(
             }
 #endif
 
-            if (!(*pSetupFindFirstLineA)(LayoutInf,szSourceDisksFPlat,FileNamePart,&InfContext)) {
+            if (!(*pSetupFindFirstLineA)(LayoutInf, szSourceDisksFPlat, FileNamePart, &InfContext)) {
 
-                if ( fVerbose ) {
-                    fprintf(stderr,"BINPLACE : warning BNP0000: warning: unknown retail file %s\n",FileNamePart);
+                if (fVerbose) {
+                    fprintf(stderr, "BINPLACE : warning BNP0000: warning: unknown retail file %s\n", FileNamePart);
                 }
                 *PutInDump = TRUE;
                 return(TRUE);
@@ -1762,10 +1759,10 @@ SetupModeRetailFile(
         // See if the file gets renamed in the target tree.
         // If so, try to find the renamed version in the target.
 
-        if ((*pSetupGetStringFieldA)(&InfContext,11,Rename,MAX_PATH,&DontCare)
-            && lstrcmpi(Rename,FileNamePart)) {
+        if ((*pSetupGetStringFieldA)(&InfContext, 11, Rename, MAX_PATH, &DontCare)
+            && lstrcmpi(Rename, FileNamePart)) {
             FoundInTree = FALSE;
-            if (!SearchOneDirectory(PlaceRootName,Rename,FullFileName,FileNamePart,&FoundInTree)) {
+            if (!SearchOneDirectory(PlaceRootName, Rename, FullFileName, FileNamePart, &FoundInTree)) {
                 return(FALSE);
             }
 
@@ -1779,7 +1776,7 @@ SetupModeRetailFile(
 
             // Assume name in target is same as name in source.
 
-            strcpy(Rename,FileNamePart);
+            strcpy(Rename, FileNamePart);
         }
 
 
@@ -1792,7 +1789,7 @@ SetupModeRetailFile(
 
         // This behavior is overrideable by using -!! instead of -!.
 
-        if (!fSetupModeAllFiles && (!(*pSetupGetIntField)(&InfContext,10,&IntVal) || IntVal)) {
+        if (!fSetupModeAllFiles && (!(*pSetupGetIntField)(&InfContext, 10, &IntVal) || IntVal)) {
 
             // File is not marked "copy always" so ignore it, assuming it's
             // configuration-specific and the user doesn't need it.
@@ -1805,12 +1802,12 @@ SetupModeRetailFile(
         // Get the directory spec.
 
         DirSpec[0] = 0;
-        (*pSetupGetStringFieldA)(&InfContext,8,DirSpec,sizeof(DirSpec),&DontCare);
+        (*pSetupGetStringFieldA)(&InfContext, 8, DirSpec, sizeof(DirSpec), &DontCare);
 
-        if (!(*pSetupFindFirstLineA)(LayoutInf,"WinntDirectories",DirSpec,&InfContext)
-            || !(*pSetupGetStringFieldA)(&InfContext,1,Directory,MAX_PATH,&DontCare)) {
+        if (!(*pSetupFindFirstLineA)(LayoutInf, "WinntDirectories", DirSpec, &InfContext)
+            || !(*pSetupGetStringFieldA)(&InfContext, 1, Directory, MAX_PATH, &DontCare)) {
             if (strlen(DirSpec)) {
-                fprintf(stderr,"BINPLACE : error BNP0000: unknown directory spec %s in layout.inf for file %s\n",DirSpec,FileNamePart);
+                fprintf(stderr, "BINPLACE : error BNP0000: unknown directory spec %s in layout.inf for file %s\n", DirSpec, FileNamePart);
                 return(FALSE);
             } else {
                 return(TRUE);
@@ -1825,7 +1822,7 @@ SetupModeRetailFile(
             if (!Directory[1]) {
                 Directory[0] = '.';
             } else {
-                lstrcpy(Directory, Directory+1);
+                lstrcpy(Directory, Directory + 1);
             }
         }
 
@@ -1840,11 +1837,11 @@ SetupModeRetailFile(
         // Got what we need -- copy the file.
 
         return CopyTheFile(
-                          FullFileName,
-                          FileNamePart,
-                          Directory,
-                          Rename
-                          );
+            FullFileName,
+            FileNamePart,
+            Directory,
+            Rename
+        );
     }
 
     return(TRUE);
@@ -1852,32 +1849,32 @@ SetupModeRetailFile(
 
 
 BOOL
-BinplaceCopyPdb (
-                LPSTR DestinationFile,
-                LPSTR SourceFileName,
-                BOOL CopyFromSourceOnly,
-                BOOL StripPrivate
-                )
+BinplaceCopyPdb(
+    LPSTR DestinationFile,
+    LPSTR SourceFileName,
+    BOOL CopyFromSourceOnly,
+    BOOL StripPrivate
+)
 {
     LOADED_IMAGE LoadedImage;
     DWORD DirCnt;
     PIMAGE_DEBUG_DIRECTORY DebugDirs, CvDebugDir;
 
     if (MapAndLoad(
-                   CopyFromSourceOnly ? SourceFileName : DestinationFile,
-                   NULL,
-                   &LoadedImage,
-                   FALSE,
-                   CopyFromSourceOnly ? TRUE : FALSE) == FALSE) {
+        CopyFromSourceOnly ? SourceFileName : DestinationFile,
+        NULL,
+        &LoadedImage,
+        FALSE,
+        CopyFromSourceOnly ? TRUE : FALSE) == FALSE) {
         return (FALSE);
     }
 
-    DebugDirs = (PIMAGE_DEBUG_DIRECTORY) ImageDirectoryEntryToData(
-                                                                  LoadedImage.MappedAddress,
-                                                                  FALSE,
-                                                                  IMAGE_DIRECTORY_ENTRY_DEBUG,
-                                                                  &DirCnt
-                                                                  );
+    DebugDirs = (PIMAGE_DEBUG_DIRECTORY)ImageDirectoryEntryToData(
+        LoadedImage.MappedAddress,
+        FALSE,
+        IMAGE_DIRECTORY_ENTRY_DEBUG,
+        &DirCnt
+    );
 
     if (!DebugDirectoryIsUseful(DebugDirs, DirCnt)) {
         UnMapAndLoad(&LoadedImage);
@@ -1911,9 +1908,9 @@ BinplaceCopyPdb (
             DWORD   age;
         } NB10I;
 
-        NB10I *pNB10Info;
+        NB10I * pNB10Info;
 
-        pNB10Info = (NB10I *) (CvDebugDir->PointerToRawData + (PCHAR)LoadedImage.MappedAddress);
+        pNB10Info = (NB10I *)(CvDebugDir->PointerToRawData + (PCHAR)LoadedImage.MappedAddress);
         if (pNB10Info->nb10 == '01BN') {
             // Got a PDB.  The name immediately follows the signature.
 
@@ -1932,7 +1929,7 @@ BinplaceCopyPdb (
             _makepath(NewPdbName, Drive, Dir, Filename, FileExt);
 
             if (!fSetupMode && (fVerbose || fTestMode)) {
-                fprintf(stdout,"BINPLACE : warning BNP0000: place %s in %s\n", PdbName, NewPdbName);
+                fprintf(stdout, "BINPLACE : warning BNP0000: place %s in %s\n", PdbName, NewPdbName);
             }
 
             if (!MakeSureDirectoryPathExists(NewPdbName)) {
@@ -1940,22 +1937,22 @@ BinplaceCopyPdb (
                         NewPdbName, GetLastError());
             }
 
-            SetFileAttributes(NewPdbName,FILE_ATTRIBUTE_NORMAL);
+            SetFileAttributes(NewPdbName, FILE_ATTRIBUTE_NORMAL);
 
-            if ( !CopyPdb(PdbName, NewPdbName, StripPrivate)) {
+            if (!CopyPdb(PdbName, NewPdbName, StripPrivate)) {
                 if (!fSetupMode && (fVerbose || fTestMode)) {
-                    fprintf(stderr,"BINPLACE : warning BNP0000: Unable to copy (%s,%s) %d\n", PdbName, NewPdbName, GetLastError());
+                    fprintf(stderr, "BINPLACE : warning BNP0000: Unable to copy (%s,%s) %d\n", PdbName, NewPdbName, GetLastError());
                 }
                 // It's possible the name in the pdb isn't in the same location as it was when built.  See if we can
                 //  find it in the same dir as the image...
                 _splitpath(SourceFileName, Drive, Dir, NULL, NULL);
                 _makepath(PdbName, Drive, Dir, Filename, FileExt);
                 if (!fSetupMode && (fVerbose || fTestMode)) {
-                    fprintf(stdout,"BINPLACE : warning BNP0000: place %s in %s\n", PdbName, NewPdbName);
+                    fprintf(stdout, "BINPLACE : warning BNP0000: place %s in %s\n", PdbName, NewPdbName);
                 }
 
-                if ( !CopyPdb(PdbName, NewPdbName, StripPrivate)) {
-                    fprintf(stderr,"BINPLACE : warning BNP0000: CopyPdb(%s,%s) failed %d\n", PdbName, NewPdbName, GetLastError());
+                if (!CopyPdb(PdbName, NewPdbName, StripPrivate)) {
+                    fprintf(stderr, "BINPLACE : warning BNP0000: CopyPdb(%s,%s) failed %d\n", PdbName, NewPdbName, GetLastError());
                 }
             }
 
@@ -1964,10 +1961,10 @@ BinplaceCopyPdb (
 
             if (!CopyFromSourceOnly) {
                 PVOID pCertificates = ImageDirectoryEntryToData(LoadedImage.MappedAddress,
-                                                          FALSE,
-                                                          IMAGE_DIRECTORY_ENTRY_SECURITY,
-                                                          &DirCnt
-                                                          );
+                                                                FALSE,
+                                                                IMAGE_DIRECTORY_ENTRY_SECURITY,
+                                                                &DirCnt
+                );
 
                 if (!pCertificates && !DirCnt) {
                     // Only change the data in the image if it hasn't been signed (otherwise the sig is invalidated).
@@ -1988,9 +1985,9 @@ BinplaceCopyPdb (
 
 BOOL
 FileExists(
-          IN  LPCSTR FileName,
-          OUT PWIN32_FIND_DATA FindData
-          )
+    IN  LPCSTR FileName,
+    OUT PWIN32_FIND_DATA FindData
+)
 {
     UINT OldMode;
     BOOL Found;
@@ -1998,7 +1995,7 @@ FileExists(
 
     OldMode = SetErrorMode(SEM_FAILCRITICALERRORS);
 
-    FindHandle = FindFirstFile(FileName,FindData);
+    FindHandle = FindFirstFile(FileName, FindData);
     if (FindHandle == INVALID_HANDLE_VALUE) {
         Found = FALSE;
     } else {
@@ -2120,7 +2117,7 @@ BOOL initkey(void)
 
 BOOL
 SignWithIDWKey(
-              IN  LPCSTR  FileName)
+    IN  LPCSTR  FileName)
 {
 
     HANDLE  hFile;
@@ -2129,38 +2126,38 @@ SignWithIDWKey(
     HANDLE  hSigFile;
     DWORD   Size;
     MD5_CTX HashState;
-    BYTE    SigHash[ 0x48 ];
-    BYTE    Signature[ 0x48 ];
-    CHAR    SigFilePath[ MAX_PATH ];
+    BYTE    SigHash[0x48];
+    BYTE    Signature[0x48];
+    CHAR    SigFilePath[MAX_PATH];
     PSTR    pszDot;
 
     BOOL    Return = FALSE;
 
     if (!initkey()) {
-        return( FALSE );
+        return(FALSE);
     }
 
-    hFile = CreateFile( FileName, GENERIC_READ,
-                        FILE_SHARE_READ, NULL,
-                        OPEN_EXISTING, 0, NULL );
+    hFile = CreateFile(FileName, GENERIC_READ,
+                       FILE_SHARE_READ, NULL,
+                       OPEN_EXISTING, 0, NULL);
 
     if (hFile != INVALID_HANDLE_VALUE) {
-        hMapping = CreateFileMapping(   hFile, NULL, PAGE_READONLY, 0, 0, NULL );
+        hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
         if (hMapping) {
-            pMap = MapViewOfFileEx( hMapping, FILE_MAP_READ, 0, 0, 0, NULL );
+            pMap = MapViewOfFileEx(hMapping, FILE_MAP_READ, 0, 0, 0, NULL);
             if (pMap) {
-                Size = GetFileSize( hFile, NULL );
+                Size = GetFileSize(hFile, NULL);
 
-                MD5Init( &HashState );
+                MD5Init(&HashState);
 
-                MD5Update( &HashState, pMap, Size );
+                MD5Update(&HashState, pMap, Size);
 
-                MD5Final( &HashState );
+                MD5Final(&HashState);
 
                 memset(SigHash, 0xff, 0x40);
 
-                SigHash[0x40-1] = 0;
-                SigHash[0x40-2] = 1;
+                SigHash[0x40 - 1] = 0;
+                SigHash[0x40 - 2] = 1;
                 SigHash[16] = 0;
 
                 memcpy(SigHash, HashState.digest, 16);
@@ -2169,71 +2166,71 @@ SignWithIDWKey(
                 // Encrypt the signature data
 
 
-                BSafeDecPrivate(PRV, SigHash, Signature );;
+                BSafeDecPrivate(PRV, SigHash, Signature);;
 
 
                 // Create and store it in a .sig file
 
 
-                strcpy( SigFilePath, FileName );
+                strcpy(SigFilePath, FileName);
 
-                pszDot = strrchr( SigFilePath, '.' );
+                pszDot = strrchr(SigFilePath, '.');
 
                 if (!pszDot) {
-                    pszDot = SigFilePath + strlen( SigFilePath );
+                    pszDot = SigFilePath + strlen(SigFilePath);
                 }
 
-                strcpy( pszDot, ".sig");
+                strcpy(pszDot, ".sig");
 
-                hSigFile = CreateFile( SigFilePath, GENERIC_WRITE,
-                                       0, NULL,
-                                       CREATE_ALWAYS, 0, NULL );
+                hSigFile = CreateFile(SigFilePath, GENERIC_WRITE,
+                                      0, NULL,
+                                      CREATE_ALWAYS, 0, NULL);
 
                 if (hSigFile != INVALID_HANDLE_VALUE) {
-                    WriteFile(  hSigFile,
-                                Signature,
-                                sizeof( Signature ),
-                                &Size, NULL );
+                    WriteFile(hSigFile,
+                              Signature,
+                              sizeof(Signature),
+                              &Size, NULL);
 
-                    CloseHandle( hSigFile );
+                    CloseHandle(hSigFile);
 
-                    Return = TRUE ;
+                    Return = TRUE;
 
                     if (fVerbose)
-                        fprintf( stdout, "BINPLACE : warning BNP0000: Signature file generated in %s\n", SigFilePath);
+                        fprintf(stdout, "BINPLACE : warning BNP0000: Signature file generated in %s\n", SigFilePath);
 
                 } else {
-                    fprintf( stderr, "BINPLACE : error BNP0000: Unable to create file %s, %d\n",
-                             SigFilePath, GetLastError() );
+                    fprintf(stderr, "BINPLACE : error BNP0000: Unable to create file %s, %d\n",
+                            SigFilePath, GetLastError());
                 }
 
-                UnmapViewOfFile( pMap );
+                UnmapViewOfFile(pMap);
 
             } else {
                 fprintf(stderr, "BINPLACE : error BNP0000: unable to map view, %d\n", GetLastError());
             }
 
-            CloseHandle( hMapping );
+            CloseHandle(hMapping);
 
         } else {
             fprintf(stderr, "BINPLACE : error BNP0000: CreateFileMapping of %s failed, %d\n",
-                    FileName, GetLastError() );
+                    FileName, GetLastError());
 
         }
 
-        CloseHandle( hFile );
+        CloseHandle(hFile);
     } else {
-        fprintf( stderr, "BINPLACE : error BNP0000: could not open %s, %d\n",
-                 FileName, GetLastError() );
+        fprintf(stderr, "BINPLACE : error BNP0000: could not open %s, %d\n",
+                FileName, GetLastError());
     }
 
-    return( Return );
+    return(Return);
 }
 
 BOOL                            // Keep as BOOL for the future (used by rsa code)
-GenRandom (ULONG huid, BYTE *pbBuffer, size_t dwLength)
+GenRandom(ULONG huid, BYTE * pbBuffer, size_t dwLength)
 {
-    return( FALSE );
+    return(FALSE);
 }
 
 #include <copypdb.c>

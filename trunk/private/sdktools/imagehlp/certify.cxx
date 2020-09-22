@@ -1,19 +1,11 @@
 /*++
-
 Copyright (c) 1995-96  Microsoft Corporation
 
 Module Name:
-
     certify.cxx
 
 Abstract:
-
     This is the command line tool to manipulate certificates on an executable image.
-
-Author:
-
-Revision History:
-
 --*/
 
 #define UNICODE 1
@@ -27,9 +19,8 @@ Revision History:
 #define TEST 0
 #endif
 
-void
-PrintUsage(
-    VOID)
+
+void PrintUsage(VOID)
 {
     fputs("usage: CERTIFY [switches] image-names... \n"
           "            [-?] display this message\n"
@@ -39,9 +30,10 @@ PrintUsage(
           "            [-g:<Filename>] update any associated .DBG file\n"
           "            [-s:<Filename>] used with -r to save the removed certificate\n",
           stderr
-         );
+    );
     exit(-1);
 }
+
 
 #if TEST
 // Test routine
@@ -50,13 +42,8 @@ PVOID pvDataRefTest;
 DWORD FileSize;
 DWORD DataRead;
 
-BOOL
-WINAPI
-DigestRoutine (
-    DIGEST_HANDLE   DataReference,
-    PBYTE           pData,
-    DWORD           dwLength
-    )
+
+BOOL WINAPI DigestRoutine(DIGEST_HANDLE   DataReference, PBYTE pData, DWORD dwLength)
 {
     if (DataReference != pvDataRefTest) {
         return(FALSE);
@@ -79,14 +66,9 @@ DigestRoutine (
 #endif
 
 
-int __cdecl
-main(
-    int argc,
-    char *argv[],
-    char *envp[]
-    )
+int __cdecl main(int argc, char * argv[], char * envp[])
 {
-    char c, *p;
+    char c, * p;
 
     if (argc < 2) {
         PrintUsage();
@@ -96,17 +78,15 @@ main(
         p = *++argv;
         if (*p == '/' || *p == '-') {
             while (c = *++p)
-            switch (toupper( c )) {
+                switch (toupper(c)) {
                 case '?':
                     PrintUsage();
                     break;
-
                 case 'A':
                     c = *++p;
                     if (c != ':') {
                         PrintUsage();
                     } else {
-
                         // Add a certificate file to an image.
 #if TEST
                         // Test code
@@ -119,31 +99,28 @@ main(
                         wc.wCertificateType = WIN_CERT_TYPE_X509;
 
                         if ((Handle = CreateFile(TEXT("test.exe"),
-                                    GENERIC_WRITE | GENERIC_READ,
-                                    0,
-                                    0,
-                                    OPEN_EXISTING,
-                                    FILE_ATTRIBUTE_NORMAL,
-                                    NULL)) == INVALID_HANDLE_VALUE)
-                        {
+                                                 GENERIC_WRITE | GENERIC_READ,
+                                                 0,
+                                                 0,
+                                                 OPEN_EXISTING,
+                                                 FILE_ATTRIBUTE_NORMAL,
+                                                 NULL)) == INVALID_HANDLE_VALUE) {
                             fputs("Unable to open test.exe", stderr);
                             exit(1);
                         }
 
                         printf("ImageAddCertificate on test.exe returned: %d\n",
-                                ImageAddCertificate(Handle, &wc, &Index));
+                               ImageAddCertificate(Handle, &wc, &Index));
 
                         printf("Index #: %d\n", Index);
 
                         CloseHandle(Handle);
-
                         exit(0);
 #else
                     // The real code
 #endif
                     }
                     break;
-
                 case 'L':
                     // List the certificates in an image.
 #if TEST
@@ -153,13 +130,12 @@ main(
                     DWORD   Index;
 
                     if ((Handle = CreateFile(TEXT("test.exe"),
-                                GENERIC_READ,
-                                0,
-                                0,
-                                OPEN_EXISTING,
-                                FILE_ATTRIBUTE_NORMAL,
-                                NULL)) == INVALID_HANDLE_VALUE)
-                    {
+                                             GENERIC_READ,
+                                             0,
+                                             0,
+                                             OPEN_EXISTING,
+                                             FILE_ATTRIBUTE_NORMAL,
+                                             NULL)) == INVALID_HANDLE_VALUE) {
                         fputs("Unable to open test.exe", stderr);
                         exit(1);
                     }
@@ -176,14 +152,12 @@ main(
                     }
 
                     CloseHandle(Handle);
-
                     exit(0);
 
 #else
                     // The real code
 #endif
                     break;
-
                 case 'R':
                     c = *++p;
                     if (c != ':') {
@@ -196,26 +170,24 @@ main(
                         HANDLE  Handle;
 
                         if ((Handle = CreateFile(TEXT("test.exe"),
-                                    GENERIC_WRITE | GENERIC_READ,
-                                    0,
-                                    0,
-                                    OPEN_EXISTING,
-                                    FILE_ATTRIBUTE_NORMAL,
-                                    NULL)) == INVALID_HANDLE_VALUE)
-                        {
+                                                 GENERIC_WRITE | GENERIC_READ,
+                                                 0,
+                                                 0,
+                                                 OPEN_EXISTING,
+                                                 FILE_ATTRIBUTE_NORMAL,
+                                                 NULL)) == INVALID_HANDLE_VALUE) {
                             fputs("Unable to open test.exe", stderr);
                             exit(1);
                         }
 
                         printf("ImageRemoveCertificate(0) on test.exe returned: %d\n",
-                            ImageRemoveCertificate(Handle, 0));
+                               ImageRemoveCertificate(Handle, 0));
                         exit(0);
 #else
                         // The real code
 #endif
                     }
                     break;
-
                 case 'G':
                     c = *++p;
                     if (c != ':') {
@@ -228,13 +200,12 @@ main(
                         HANDLE  Handle;
 
                         if ((Handle = CreateFile(TEXT("test.exe"),
-                                    GENERIC_READ,
-                                    0,
-                                    0,
-                                    OPEN_EXISTING,
-                                    FILE_ATTRIBUTE_NORMAL,
-                                    NULL)) == INVALID_HANDLE_VALUE)
-                        {
+                                                 GENERIC_READ,
+                                                 0,
+                                                 0,
+                                                 OPEN_EXISTING,
+                                                 FILE_ATTRIBUTE_NORMAL,
+                                                 NULL)) == INVALID_HANDLE_VALUE) {
                             fputs("Unable to open test.exe", stderr);
                             exit(1);
                         }
@@ -242,39 +213,39 @@ main(
                         FileSize = GetFileSize(Handle, NULL);
                         DataRead = 0;
 
-                        pvDataRefTest = (PVOID) 1;
+                        pvDataRefTest = (PVOID)1;
                         printf("ImageGetDigestStream debug w/o resources on test.exe returned: %s\tGetLastError(): %d\n",
-                            ImageGetDigestStream(Handle,
-                                                 CERT_PE_IMAGE_DIGEST_DEBUG_INFO,
-                                                 DigestRoutine, pvDataRefTest) ? "TRUE" : "FALSE",
-                            GetLastError());
+                               ImageGetDigestStream(Handle,
+                                                    CERT_PE_IMAGE_DIGEST_DEBUG_INFO,
+                                                    DigestRoutine, pvDataRefTest) ? "TRUE" : "FALSE",
+                               GetLastError());
                         printf("Message Stream Size: %d\n", DataRead);
 
                         DataRead = 0;
-                        pvDataRefTest = (PVOID) 2;
+                        pvDataRefTest = (PVOID)2;
                         printf("ImageGetDigestStream debug w/ resources test.exe returned: %s\tGetLastError(): %d\n",
-                            ImageGetDigestStream(Handle,
-                                                 CERT_PE_IMAGE_DIGEST_DEBUG_INFO | CERT_PE_IMAGE_DIGEST_RESOURCES,
-                                                 DigestRoutine, pvDataRefTest) ? "TRUE" : "FALSE",
-                            GetLastError());
+                               ImageGetDigestStream(Handle,
+                                                    CERT_PE_IMAGE_DIGEST_DEBUG_INFO | CERT_PE_IMAGE_DIGEST_RESOURCES,
+                                                    DigestRoutine, pvDataRefTest) ? "TRUE" : "FALSE",
+                               GetLastError());
                         printf("Message Stream Size: %d\n", DataRead);
 
                         DataRead = 0;
-                        pvDataRefTest = (PVOID) 3;
+                        pvDataRefTest = (PVOID)3;
                         printf("ImageGetDigestStream w/o debug w/o resources on test.exe returned: %s\tGetLastError(): %d\n",
-                            ImageGetDigestStream(Handle,
-                                                 0,
-                                                 DigestRoutine, pvDataRefTest) ? "TRUE" : "FALSE",
-                            GetLastError());
+                               ImageGetDigestStream(Handle,
+                                                    0,
+                                                    DigestRoutine, pvDataRefTest) ? "TRUE" : "FALSE",
+                               GetLastError());
                         printf("Message Stream Size: %d\n", DataRead);
 
                         DataRead = 0;
-                        pvDataRefTest = (PVOID) 4;
+                        pvDataRefTest = (PVOID)4;
                         printf("ImageGetDigestStream w/o debug w/ resources test.exe returned: %s\tGetLastError(): %d\n",
-                            ImageGetDigestStream(Handle,
-                                                 CERT_PE_IMAGE_DIGEST_RESOURCES,
-                                                 DigestRoutine, pvDataRefTest) ? "TRUE" : "FALSE",
-                            GetLastError());
+                               ImageGetDigestStream(Handle,
+                                                    CERT_PE_IMAGE_DIGEST_RESOURCES,
+                                                    DigestRoutine, pvDataRefTest) ? "TRUE" : "FALSE",
+                               GetLastError());
                         printf("Message Stream Size: %d\n", DataRead);
 
                         exit(0);
@@ -284,7 +255,6 @@ main(
 #endif
                     }
                     break;
-
                 case 'S':
                     c = *++p;
                     if (c != ':') {
@@ -293,12 +263,11 @@ main(
                         // Save the certificate in some file.
                     }
                     break;
-
                 default:
-                    fprintf( stderr, "CERTIFY: Invalid switch - /%c\n", c );
+                    fprintf(stderr, "CERTIFY: Invalid switch - /%c\n", c);
                     PrintUsage();
                     break;
-            }
+                }
         }
     }
 
