@@ -27,12 +27,12 @@
 #define PEMAGIC         ((WORD)'P'+((WORD)'E'<<8))
 #define LEMAGIC         ((WORD)'L'+((WORD)'E'<<8))
 
-typedef struct new_exe          NEWEXE,      *LPNEWEXE;
-typedef struct exe_hdr          EXEHDR,      *LPEXEHDR;
-typedef struct rsrc_nameinfo    RESNAMEINFO, *LPRESNAMEINFO;
-typedef struct rsrc_typeinfo    RESTYPEINFO, *LPRESTYPEINFO;
-typedef struct rsrc_typeinfo    UNALIGNED    *ULPRESTYPEINFO;
-typedef struct new_rsrc         RESTABLE,    *LPRESTABLE;
+typedef struct new_exe          NEWEXE, * LPNEWEXE;
+typedef struct exe_hdr          EXEHDR, * LPEXEHDR;
+typedef struct rsrc_nameinfo    RESNAMEINFO, * LPRESNAMEINFO;
+typedef struct rsrc_typeinfo    RESTYPEINFO, * LPRESTYPEINFO;
+typedef struct rsrc_typeinfo    UNALIGNED * ULPRESTYPEINFO;
+typedef struct new_rsrc         RESTABLE, * LPRESTABLE;
 
 #define RESOURCE_VA(x)        ((x)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress)
 #define RESOURCE_SIZE(x)      ((x)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].Size)
@@ -75,13 +75,13 @@ BOOL ReadAByte(LPCVOID pMem)
 LPVOID RVAtoP(LPVOID pBase, DWORD  rva)
 {
     LPEXEHDR             pmz;
-    IMAGE_NT_HEADERS     *ppe;
-    IMAGE_SECTION_HEADER *pSection; // section table
+    IMAGE_NT_HEADERS * ppe;
+    IMAGE_SECTION_HEADER * pSection; // section table
     int                  i;
     DWORD                size;
 
     pmz = (LPEXEHDR)pBase;
-    ppe = (IMAGE_NT_HEADERS*)((BYTE*)pBase + pmz->e_lfanew);
+    ppe = (IMAGE_NT_HEADERS *)((BYTE *)pBase + pmz->e_lfanew);
 
     /*
      * Scan the section table looking for the RVA
@@ -90,7 +90,7 @@ LPVOID RVAtoP(LPVOID pBase, DWORD  rva)
 
     for (i = 0; i < NUMBER_OF_SECTIONS(ppe); i++) {
         size = pSection[i].Misc.VirtualSize ? pSection[i].Misc.VirtualSize : pSection[i].SizeOfRawData;
-        if (rva >= pSection[i].VirtualAddress && rva <  pSection[i].VirtualAddress + size) {
+        if (rva >= pSection[i].VirtualAddress && rva < pSection[i].VirtualAddress + size) {
             return (LPBYTE)pBase + pSection[i].PointerToRawData + (rva - pSection[i].VirtualAddress);
         }
     }
@@ -102,10 +102,10 @@ LPVOID RVAtoP(LPVOID pBase, DWORD  rva)
 LPVOID GetResourceTablePE(LPVOID pBase)
 {
     LPEXEHDR         pmz;
-    IMAGE_NT_HEADERS *ppe;
+    IMAGE_NT_HEADERS * ppe;
 
     pmz = (LPEXEHDR)pBase;
-    ppe = (IMAGE_NT_HEADERS*)((BYTE*)pBase + pmz->e_lfanew);
+    ppe = (IMAGE_NT_HEADERS *)((BYTE *)pBase + pmz->e_lfanew);
 
     if (pmz->e_magic != MZMAGIC)
         return 0;
@@ -132,51 +132,50 @@ LPVOID FindResourcePE(
     LPVOID prt,
     int    iResIndex,
     int    ResType,
-    DWORD  *pcb)
+    DWORD * pcb)
 {
     int                            i;
     int                            cnt;
-    IMAGE_RESOURCE_DIRECTORY       *pdir;
-    IMAGE_RESOURCE_DIRECTORY_ENTRY *pres;
-    IMAGE_RESOURCE_DATA_ENTRY      *pent;
+    IMAGE_RESOURCE_DIRECTORY * pdir;
+    IMAGE_RESOURCE_DIRECTORY_ENTRY * pres;
+    IMAGE_RESOURCE_DATA_ENTRY * pent;
 
     pdir = (IMAGE_RESOURCE_DIRECTORY *)prt;
 
     /*
      * First find the type always a ID so ignore strings totaly
      */
-    cnt  = pdir->NumberOfIdEntries + pdir->NumberOfNamedEntries;
-    pres = (IMAGE_RESOURCE_DIRECTORY_ENTRY*)(pdir+1);
+    cnt = pdir->NumberOfIdEntries + pdir->NumberOfNamedEntries;
+    pres = (IMAGE_RESOURCE_DIRECTORY_ENTRY *)(pdir + 1);
 
     for (i = 0; i < cnt; i++) {
         if (pres[i].Name == (DWORD)ResType)
             break;
     }
 
-    if (i==cnt)             // did not find the type
+    if (i == cnt)             // did not find the type
         return 0;
 
     /*
      * Now go find the actual resource  either by id (iResIndex < 0) or
      * by ordinal (iResIndex >= 0)
      */
-    pdir = (IMAGE_RESOURCE_DIRECTORY*)((LPBYTE)prt +
-        (pres[i].OffsetToData & ~IMAGE_RESOURCE_DATA_IS_DIRECTORY));
+    pdir = (IMAGE_RESOURCE_DIRECTORY *)((LPBYTE)prt +
+                                        (pres[i].OffsetToData & ~IMAGE_RESOURCE_DATA_IS_DIRECTORY));
 
-    cnt  = pdir->NumberOfIdEntries + pdir->NumberOfNamedEntries;
-    pres = (IMAGE_RESOURCE_DIRECTORY_ENTRY*)(pdir+1);
+    cnt = pdir->NumberOfIdEntries + pdir->NumberOfNamedEntries;
+    pres = (IMAGE_RESOURCE_DIRECTORY_ENTRY *)(pdir + 1);
 
     /*
      * If we just want size, do it.
      */
     if (iResIndex == GET_COUNT)
-        return (LPVOID)UIntToPtr( cnt );
+        return (LPVOID)UIntToPtr(cnt);
 
     /*
      * if we are to search for a specific id do it.
      */
     if (iResIndex < 0) {
-
         for (i = 0; i < cnt; i++)
             if (pres[i].Name == (DWORD)(-iResIndex))
                 break;
@@ -196,8 +195,8 @@ LPVOID FindResourcePE(
      * !!!BUGBUG we dont handle multi-language icons
      */
     if (pres[i].OffsetToData & IMAGE_RESOURCE_DATA_IS_DIRECTORY) {
-        pdir = (IMAGE_RESOURCE_DIRECTORY*)((LPBYTE)prt + (pres[i].OffsetToData & ~IMAGE_RESOURCE_DATA_IS_DIRECTORY));
-        pres = (IMAGE_RESOURCE_DIRECTORY_ENTRY*)(pdir+1);
+        pdir = (IMAGE_RESOURCE_DIRECTORY *)((LPBYTE)prt + (pres[i].OffsetToData & ~IMAGE_RESOURCE_DATA_IS_DIRECTORY));
+        pres = (IMAGE_RESOURCE_DIRECTORY_ENTRY *)(pdir + 1);
         i = 0;  // choose first one
     }
 
@@ -207,7 +206,7 @@ LPVOID FindResourcePE(
     if (pres[i].OffsetToData & IMAGE_RESOURCE_DATA_IS_DIRECTORY)
         return 0;
 
-    pent = (IMAGE_RESOURCE_DATA_ENTRY*)((LPBYTE)prt + pres[i].OffsetToData);
+    pent = (IMAGE_RESOURCE_DATA_ENTRY *)((LPBYTE)prt + pres[i].OffsetToData);
 
     /*
      * all OffsetToData fields except the final one are relative to
@@ -268,7 +267,7 @@ LPVOID FindResourceNE(
     LPVOID prt,
     int    iResIndex,
     int    iResType,
-    DWORD  *pcb)
+    DWORD * pcb)
 {
     LPRESTABLE     lpResTable;
     ULPRESTYPEINFO ulpResTypeInfo;
@@ -276,7 +275,7 @@ LPVOID FindResourceNE(
     int            i;
 
     lpResTable = (LPRESTABLE)prt;
-//ulpResTypeInfo = (ULPRESTYPEINFO)(LPWBYTE)&lpResTable->rs_typeinfo;
+    //ulpResTypeInfo = (ULPRESTYPEINFO)(LPWBYTE)&lpResTable->rs_typeinfo;
     ulpResTypeInfo = (ULPRESTYPEINFO)((LPBYTE)lpResTable + 2);
 
     while (ulpResTypeInfo->rt_id) {
@@ -287,7 +286,7 @@ LPVOID FindResourceNE(
                 return (LPVOID)ulpResTypeInfo->rt_nres;
 
             if (iResIndex < 0) {
-                for (i=0; i < (int)ulpResTypeInfo->rt_nres; i++) {
+                for (i = 0; i < (int)ulpResTypeInfo->rt_nres; i++) {
                     if (lpResNameInfo[i].rn_id == ((-iResIndex) | RSORDID))
                         break;
                 }
@@ -315,7 +314,7 @@ UINT ExtractIconFromICO(
     int    nIconIndex,
     int    cxIcon,
     int    cyIcon,
-    HICON  *phicon,
+    HICON * phicon,
     UINT   flags)
 {
     HICON hicon;
@@ -342,7 +341,6 @@ again:
      * Check for large/small icon extract
      */
     if (HIWORD(cxIcon)) {
-
         cxIcon = HIWORD(cxIcon);
         cyIcon = HIWORD(cyIcon);
         phicon++;
@@ -356,7 +354,7 @@ again:
 
 #define ROP_DSna 0x00220326
 
-UINT ExtractIconFromBMP(LPTSTR szFile, int    nIconIndex, int    cxIcon, int    cyIcon, HICON  *phicon, UINT   flags)
+UINT ExtractIconFromBMP(LPTSTR szFile, int    nIconIndex, int    cxIcon, int    cyIcon, HICON * phicon, UINT   flags)
 {
     HICON    hicon;
     HBITMAP  hbm;
@@ -400,11 +398,11 @@ again:
     BitBlt(hdcMask, 0, 0, LOWORD(cxIcon), LOWORD(cyIcon), hdc, 0, 0, SRCCOPY);
     BitBlt(hdc, 0, 0, LOWORD(cxIcon), LOWORD(cyIcon), hdcMask, 0, 0, ROP_DSna);
 
-    ii.fIcon    = TRUE;
+    ii.fIcon = TRUE;
     ii.xHotspot = 0;
     ii.yHotspot = 0;
     ii.hbmColor = hbm;
-    ii.hbmMask  = hbmMask;
+    ii.hbmMask = hbmMask;
     hicon = CreateIconIndirect(&ii);
 
     DeleteObject(hdc);
@@ -433,15 +431,15 @@ UINT ExtractIconFromEXE(
     int    nIconIndex,
     int    cxIconSize,
     int    cyIconSize,
-    HICON  *phicon,
-    UINT   *piconid,
+    HICON * phicon,
+    UINT * piconid,
     UINT   nIcons,
     UINT   flags)
 {
     HANDLE           hFileMap = INVALID_HANDLE_VALUE;
     LPVOID           lpFile = NULL;
-    EXEHDR           *pmz;
-    NEWEXE UNALIGNED *pne;
+    EXEHDR * pmz;
+    NEWEXE UNALIGNED * pne;
     LPVOID           pBase;
     LPVOID           pres = NULL;
     UINT             result = 0;
@@ -450,7 +448,7 @@ UINT ExtractIconFromEXE(
     int              cxIcon;
     int              cyIcon;
 
-    LPVOID (*FindResourceX)(LPVOID pBase, LPVOID prt, int    iResIndex, int    iResType, DWORD  *pcb);
+    LPVOID(*FindResourceX)(LPVOID pBase, LPVOID prt, int    iResIndex, int    iResType, DWORD * pcb);
     FileLength = (LONG)GetFileSize(hFile, NULL);
     hFileMap = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
     if (hFileMap == NULL)
@@ -463,7 +461,7 @@ UINT ExtractIconFromEXE(
     pBase = (LPVOID)lpFile;
     pmz = (struct exe_hdr *)pBase;
 
-    _try {
+    _try{
         if (pmz->e_magic != MZMAGIC)
             goto exit;
 
@@ -473,7 +471,7 @@ UINT ExtractIconFromEXE(
         if (pmz->e_lfanew >= FileLength)    // not a new exe
             goto exit;
 
-        pne = (NEWEXE UNALIGNED *)((BYTE*)pmz + pmz->e_lfanew);
+        pne = (NEWEXE UNALIGNED *)((BYTE *)pmz + pmz->e_lfanew);
 
         switch (pne->ne_magic) {
         case NEMAGIC:
@@ -553,7 +551,7 @@ again:
 
             nIconIndex++;       // next icon index
         }
-    } _except (W32ExceptionHandler(FALSE, RIP_WARNING)) {
+    } _except(W32ExceptionHandler(FALSE, RIP_WARNING)) {
         result = 0;
     }
 
@@ -600,8 +598,8 @@ LPWSTR PathFindExtension(LPWSTR pszPath)
 WINUSERAPI UINT PrivateExtractIconExA(
     LPCSTR szFileName,
     int    nIconIndex,
-    HICON  *phiconLarge,
-    HICON  *phiconSmall,
+    HICON * phiconLarge,
+    HICON * phiconSmall,
     UINT   nIcons)
 {
     LPWSTR szFileNameW;
@@ -633,13 +631,13 @@ DWORD HasExtension(LPWSTR pszPath)
 
         lstrcpynW(szExt, p, 5);
 
-        if (lstrcmpiW(szExt,TEXT(".com")) == 0) return COM_FILE;
-        if (lstrcmpiW(szExt,TEXT(".bat")) == 0) return BAT_FILE;
-        if (lstrcmpiW(szExt,TEXT(".cmd")) == 0) return CMD_FILE;
-        if (lstrcmpiW(szExt,TEXT(".pif")) == 0) return PIF_FILE;
-        if (lstrcmpiW(szExt,TEXT(".lnk")) == 0) return LNK_FILE;
-        if (lstrcmpiW(szExt,TEXT(".ico")) == 0) return ICO_FILE;
-        if (lstrcmpiW(szExt,TEXT(".exe")) == 0) return EXE_FILE;
+        if (lstrcmpiW(szExt, TEXT(".com")) == 0) return COM_FILE;
+        if (lstrcmpiW(szExt, TEXT(".bat")) == 0) return BAT_FILE;
+        if (lstrcmpiW(szExt, TEXT(".cmd")) == 0) return CMD_FILE;
+        if (lstrcmpiW(szExt, TEXT(".pif")) == 0) return PIF_FILE;
+        if (lstrcmpiW(szExt, TEXT(".lnk")) == 0) return LNK_FILE;
+        if (lstrcmpiW(szExt, TEXT(".ico")) == 0) return ICO_FILE;
+        if (lstrcmpiW(szExt, TEXT(".exe")) == 0) return EXE_FILE;
     }
 
     return 0;
@@ -684,8 +682,8 @@ WINUSERAPI UINT WINAPI PrivateExtractIconsW(
     int     nIconIndex,
     int     cxIcon,
     int     cyIcon,
-    HICON   *phicon,
-    UINT    *piconid,
+    HICON * phicon,
+    UINT * piconid,
     UINT    nIcons,
     UINT    flags)
 {
@@ -721,7 +719,7 @@ WINUSERAPI UINT WINAPI PrivateExtractIconsW(
      * Try expanding environment variables in the file name we're passed.
      */
     ExpandEnvironmentStrings(szFileName, szExpFileName, MAX_PATH);
-    szExpFileName[ MAX_PATH-1 ] = (WCHAR)0;
+    szExpFileName[MAX_PATH - 1] = (WCHAR)0;
 
     /*
      * Open the file - First check to see if it is a UNC path.  If it
@@ -735,7 +733,7 @@ WINUSERAPI UINT WINAPI PrivateExtractIconsW(
         }
     }
 
-    hFile = CreateFile(achFileName, GENERIC_READ|FILE_WRITE_ATTRIBUTES, FILE_SHARE_WRITE | FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, 0);
+    hFile = CreateFile(achFileName, GENERIC_READ | FILE_WRITE_ATTRIBUTES, FILE_SHARE_WRITE | FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, 0);
     if (hFile == INVALID_HANDLE_VALUE) {
         hFile = CreateFile(achFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, 0);
         if (hFile == INVALID_HANDLE_VALUE)
@@ -787,7 +785,7 @@ WINUSERAPI UINT WINAPI PrivateExtractIconsW(
     }
 
 exit:
-    if (hFile!=INVALID_HANDLE_VALUE)
+    if (hFile != INVALID_HANDLE_VALUE)
         CloseHandle(hFile);
 
     return result;
@@ -807,8 +805,8 @@ WINUSERAPI UINT WINAPI PrivateExtractIconsA(
     int     nIconIndex,
     int     cxIcon,
     int     cyIcon,
-    HICON   *phicon,
-    UINT    *piconid,
+    HICON * phicon,
+    UINT * piconid,
     UINT    nIcons,
     UINT    flags)
 {
@@ -848,8 +846,8 @@ WINUSERAPI UINT WINAPI PrivateExtractIconsA(
 WINUSERAPI UINT PrivateExtractIconExW(
     LPCWSTR szFileName,
     int     nIconIndex,
-    HICON   *phiconLarge,
-    HICON   *phiconSmall,
+    HICON * phiconLarge,
+    HICON * phiconSmall,
     UINT    nIcons)
 {
     UINT result = 0;

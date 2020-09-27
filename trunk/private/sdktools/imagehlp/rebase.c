@@ -878,12 +878,10 @@ RemoveRelocations(
     }
 
     // Clear out the base reloc entry in the data dir.
-
     OPTIONALHEADER_LV(DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size) = 0;
     OPTIONALHEADER_LV(DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress) = 0;
 
     // Reduce the Init Data size.
-
     OPTIONALHEADER_LV(SizeOfInitializedData) -= RelocSectionHdr.Misc.VirtualSize;
 
     // Reduce the image size.

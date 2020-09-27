@@ -426,11 +426,8 @@ Arguments:
         to store context druing the unwind operation.
 
 Return Value:
-
     None.
-
 --*/
-
 {
     ULONGLONG TargetGp;
     ULONGLONG ImageBase;

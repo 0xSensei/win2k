@@ -1,23 +1,16 @@
 /*++
-
 Copyright (c) 1992  Microsoft Corporation
 
 Module Name:
-
     rebase.c
 
 Abstract:
-
     Source file for the REBASE utility that takes a group of image files and
     rebases them so they are packed as closely together in the virtual address
     space as possible.
 
 Author:
-
     Mark Lucovsky (markl) 30-Apr-1993
-
-Revision History:
-
 --*/
 
 #include <private.h>
@@ -53,42 +46,18 @@ Revision History:
 
 static PVOID RvaToVa(ULONG Rva, PLOADED_IMAGE Image);
 
-typedef
-PIMAGE_BASE_RELOCATION
-(WINAPI * LPRELOCATE_ROUTINE)(
-    IN ULONG_PTR VA,
-    IN ULONG SizeOfBlock,
-    IN PUSHORT NextOffset,
-    IN LONG_PTR Diff
-    );
-
-typedef
-PIMAGE_BASE_RELOCATION
-(WINAPI * LPRELOCATE_ROUTINE64)(
-    IN ULONG_PTR VA,
-    IN ULONG SizeOfBlock,
-    IN PUSHORT NextOffset,
-    IN LONGLONG Diff
-    );
+typedef PIMAGE_BASE_RELOCATION (WINAPI * LPRELOCATE_ROUTINE)(IN ULONG_PTR VA, IN ULONG SizeOfBlock, IN PUSHORT NextOffset, IN LONG_PTR Diff);
+typedef PIMAGE_BASE_RELOCATION (WINAPI * LPRELOCATE_ROUTINE64)(IN ULONG_PTR VA, IN ULONG SizeOfBlock, IN PUSHORT NextOffset, IN LONGLONG Diff);
 
 
 static LPRELOCATE_ROUTINE RelocRoutineNative;
 static LPRELOCATE_ROUTINE64 RelocRoutine64;
 
-PIMAGE_BASE_RELOCATION
-xxLdrProcessRelocationBlock64(
-    IN ULONG_PTR VA,
-    IN ULONG SizeOfBlock,
-    IN PUSHORT NextOffset,
-    IN LONGLONG Diff
-);
-
+PIMAGE_BASE_RELOCATION xxLdrProcessRelocationBlock64(IN ULONG_PTR VA, IN ULONG SizeOfBlock, IN PUSHORT NextOffset, IN LONGLONG Diff);
 
 
 #define x256MEG (256*(1024*1024))
-
 #define x256MEGSHIFT 28
-
 #define ROUND_UP( Size, Amount ) (((ULONG)(Size) + ((Amount) - 1)) & ~((Amount) - 1))
 
 VOID AdjImageBaseSize(PULONG  pImageBase, PULONG  ImageSize, BOOL    fGoingDown);
@@ -206,9 +175,7 @@ ReBaseImage64(
                     while (DebugDirectoriesSize != 0) {
                         if (DebugDirectories->Type == IMAGE_DEBUG_TYPE_MISC) {
                             MiscDebug = (PIMAGE_DEBUG_MISC)
-                                ((PCHAR)CurrentImage.MappedAddress +
-                                 DebugDirectories->PointerToRawData
-                                 );
+                                ((PCHAR)CurrentImage.MappedAddress + DebugDirectories->PointerToRawData);
                             strcpy(DebugFileName, (PCHAR)MiscDebug->Data);
                             break;
                         } else {
@@ -265,10 +232,7 @@ ReBaseImage64(
                     }
                 }
 
-                if ((DesiredImageBase) &&
-                    (DesiredImageBase != *OldImageBase)
-                    ) {
-
+                if ((DesiredImageBase) && (DesiredImageBase != *OldImageBase)) {
                     if (CurrentImage.FileHeader->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
                         OldChecksum = ((PIMAGE_NT_HEADERS32)CurrentImage.FileHeader)->OptionalHeader.CheckSum;
                     } else {
@@ -292,9 +256,7 @@ ReBaseImage64(
                         }
                     }
                 } else {
-
                     // Should this be -1??  shouldn't it be 0 instead? - kentf
-
                     Diff = (ULONG)-1;
                 }
 
@@ -304,7 +266,6 @@ ReBaseImage64(
                         AdjImageBaseSize((PULONG)&DesiredImageBase, &CurrentImageSize, fGoingDown);
                     }
                 }
-
             }
         }
 
@@ -335,43 +296,27 @@ CleanupAndExit:
     ZeroMemory(&CurrentImage, sizeof(CurrentImage));
 
 Exit:
-
     SetLastError(UpdateSymbolsError);
-
     return(TRUE);
 }
 
 
-VOID
-AdjImageBaseSize(
-    PULONG pulImageBase,
-    PULONG pulImageSize,
-    BOOL   fGoingDown
-)
+VOID AdjImageBaseSize(PULONG pulImageBase, PULONG pulImageSize, BOOL   fGoingDown)
 {
-
     DWORD Meg1, Meg2, Delta;
-
 
     // ImageBase is the base for the current image. Make sure that
     // the image does not span a 256Mb boundry. This is due to an r4000
     // chip bug that has problems computing the correct address for absolute
     // jumps that occur in the last few instructions of a 256mb region
 
-
     Meg1 = *pulImageBase >> x256MEGSHIFT;
     Meg2 = (*pulImageBase + ROUND_UP(*pulImageSize, IMAGE_SEPARATION)) >> x256MEGSHIFT;
 
     if (Meg1 != Meg2) {
-
-
         // If we are going down, then subtract the overlap from ThisBase
-
-
         if (fGoingDown) {
-
-            Delta = (*pulImageBase + ROUND_UP(*pulImageSize, IMAGE_SEPARATION)) -
-                (Meg2 << x256MEGSHIFT);
+            Delta = (*pulImageBase + ROUND_UP(*pulImageSize, IMAGE_SEPARATION)) - (Meg2 << x256MEGSHIFT);
             Delta += IMAGE_SEPARATION;
             *pulImageBase = *pulImageBase - Delta;
             *pulImageSize += Delta;
@@ -383,13 +328,8 @@ AdjImageBaseSize(
     }
 }
 
-BOOL
-RelocateImage(
-    PLOADED_IMAGE LoadedImage,
-    ULONG64 NewBase,
-    ULONG64 * Diff,
-    ULONG tstamp
-)
+
+BOOL RelocateImage(PLOADED_IMAGE LoadedImage, ULONG64 NewBase, ULONG64 * Diff, ULONG tstamp)
 {
     ULONG TotalCountBytes;
     ULONG_PTR VA;
@@ -405,7 +345,6 @@ RelocateImage(
     static BOOL  fInit = FALSE;
 
     if (!fInit) {
-
         RelocRoutineNative = (LPRELOCATE_ROUTINE)GetProcAddress(GetModuleHandle("ntdll"), "LdrProcessRelocationBlock");
 
 #ifdef _WIN64
@@ -423,33 +362,19 @@ RelocateImage(
         OldBase = ((PIMAGE_NT_HEADERS64)NtHeaders)->OptionalHeader.ImageBase;
     }
 
-
     // Locate the relocation section.
-
-
-    NextBlock = (PIMAGE_BASE_RELOCATION)ImageDirectoryEntryToData(
-        LoadedImage->MappedAddress,
-        FALSE,
-        IMAGE_DIRECTORY_ENTRY_BASERELOC,
-        &TotalCountBytes
-    );
-
+    NextBlock = (PIMAGE_BASE_RELOCATION)ImageDirectoryEntryToData(LoadedImage->MappedAddress,
+                                                                  FALSE,
+                                                                  IMAGE_DIRECTORY_ENTRY_BASERELOC,
+                                                                  &TotalCountBytes);
     if (!NextBlock || !TotalCountBytes) {
-
-
-        // The image does not contain a relocation table, and therefore
-        // cannot be relocated.
-
-
+        // The image does not contain a relocation table, and therefore cannot be relocated.
         return TRUE;
     }
 
     *Diff = NewBase - OldBase;
 
-
-    // If the image has a relocation table, then apply the specified fixup
-    // information to the image.
-
+    // If the image has a relocation table, then apply the specified fixup information to the image.
 
     while (TotalCountBytes) {
         SizeOfBlock = NextBlock->SizeOfBlock;
@@ -458,9 +383,7 @@ RelocateImage(
         SizeOfBlock /= sizeof(USHORT);
         NextOffset = (PUSHORT)(NextBlock + 1);
 
-
         // Compute the address and value for the fixup.
-
 
         if (SizeOfBlock) {
             VA = (ULONG_PTR)RvaToVa(NextBlock->VirtualAddress, LoadedImage);
@@ -494,15 +417,12 @@ RelocateImage(
     if (NtHeaders->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
         ((PIMAGE_NT_HEADERS32)NtHeaders)->OptionalHeader.ImageBase = (ULONG)NewBase;
         if (LoadedImage->hFile != INVALID_HANDLE_VALUE) {
-
             ((PIMAGE_NT_HEADERS32)NtHeaders)->OptionalHeader.CheckSum = 0;
 
-            CheckSumMappedFile(
-                (PVOID)LoadedImage->MappedAddress,
-                GetFileSize(LoadedImage->hFile, NULL),
-                &HeaderSum,
-                &CheckSum
-            );
+            CheckSumMappedFile((PVOID)LoadedImage->MappedAddress,
+                               GetFileSize(LoadedImage->hFile, NULL),
+                               &HeaderSum,
+                               &CheckSum);
             ((PIMAGE_NT_HEADERS32)NtHeaders)->OptionalHeader.CheckSum = CheckSum;
         }
     } else {
@@ -510,12 +430,10 @@ RelocateImage(
         if (LoadedImage->hFile != INVALID_HANDLE_VALUE) {
             ((PIMAGE_NT_HEADERS64)NtHeaders)->OptionalHeader.CheckSum = 0;
 
-            CheckSumMappedFile(
-                (PVOID)LoadedImage->MappedAddress,
-                GetFileSize(LoadedImage->hFile, NULL),
-                &HeaderSum,
-                &CheckSum
-            );
+            CheckSumMappedFile((PVOID)LoadedImage->MappedAddress,
+                               GetFileSize(LoadedImage->hFile, NULL),
+                               &HeaderSum,
+                               &CheckSum);
 
             ((PIMAGE_NT_HEADERS64)NtHeaders)->OptionalHeader.CheckSum = CheckSum;
         }
@@ -527,13 +445,8 @@ RelocateImage(
 }
 
 
-PVOID
-RvaToVa(
-    ULONG Rva,
-    PLOADED_IMAGE Image
-)
+PVOID RvaToVa(ULONG Rva, PLOADED_IMAGE Image)
 {
-
     PIMAGE_SECTION_HEADER Section;
     ULONG i;
     PVOID Va;
@@ -565,13 +478,11 @@ RvaToVa(
     return Va;
 }
 
-PIMAGE_BASE_RELOCATION
-xxLdrProcessRelocationBlock64(
-    IN ULONG_PTR VA,
-    IN ULONG SizeOfBlock,
-    IN PUSHORT NextOffset,
-    IN LONGLONG Diff
-)
+
+PIMAGE_BASE_RELOCATION xxLdrProcessRelocationBlock64(IN ULONG_PTR VA,
+                                                     IN ULONG SizeOfBlock,
+                                                     IN PUSHORT NextOffset,
+                                                     IN LONGLONG Diff)
 {
     PUCHAR FixupVA;
     USHORT Offset;
@@ -581,38 +492,25 @@ xxLdrProcessRelocationBlock64(
     LONGLONG Temp64;
 
     while (SizeOfBlock--) {
-
         Offset = *NextOffset & (USHORT)0xfff;
         FixupVA = (PUCHAR)(VA + Offset);
 
-
         // Apply the fixups.
-
-
         switch ((*NextOffset) >> 12) {
-
         case IMAGE_REL_BASED_HIGHLOW:
-
             // HighLow - (32-bits) relocate the high and low half
             //      of an address.
-
             *(LONG UNALIGNED *)FixupVA += (ULONG)Diff;
             break;
-
         case IMAGE_REL_BASED_HIGH:
-
             // High - (16-bits) relocate the high half of an address.
-
             Temp = *(PUSHORT)FixupVA << 16;
             Temp += (ULONG)Diff;
             *(PUSHORT)FixupVA = (USHORT)(Temp >> 16);
             break;
-
         case IMAGE_REL_BASED_HIGHADJ:
-
             // Adjust high - (16-bits) relocate the high half of an
             //      address and adjust for sign extension of low half.
-
 
             Temp = *(PUSHORT)FixupVA << 16;
             ++NextOffset;
@@ -622,31 +520,19 @@ xxLdrProcessRelocationBlock64(
             Temp += 0x8000;
             *(PUSHORT)FixupVA = (USHORT)(Temp >> 16);
             break;
-
         case IMAGE_REL_BASED_LOW:
-
             // Low - (16-bit) relocate the low half of an address.
-
             Temp = *(PSHORT)FixupVA;
             Temp += (ULONG)Diff;
             *(PUSHORT)FixupVA = (USHORT)Temp;
             break;
-
         case IMAGE_REL_BASED_IA64_IMM64:
-
-
             // Align it to bundle address before fixing up the
             // 64-bit immediate value of the movl instruction.
-
-
             FixupVA = (PUCHAR)((ULONG_PTR)FixupVA & ~(15));
             Value64 = (ULONGLONG)0;
 
-
             // Extract the lower 32 bits of IMM64 from bundle
-
-
-
             EXT_IMM64(Value64,
                       (PULONG)FixupVA + EMARCH_ENC_I17_IMM7B_INST_WORD_X,
                       EMARCH_ENC_I17_IMM7B_SIZE_X,
@@ -673,17 +559,11 @@ xxLdrProcessRelocationBlock64(
                       EMARCH_ENC_I17_IMM41a_INST_WORD_POS_X,
                       EMARCH_ENC_I17_IMM41a_VAL_POS_X);
 
-
             // Update 64-bit address
-
-
             Value64 += Diff;
             Value64 = (__int64)(__int32)PtrToLong((PULONG)Value64);
 
-
             // Insert IMM64 into bundle
-
-
             INS_IMM64(Value64,
                       ((PULONG)FixupVA + EMARCH_ENC_I17_IMM7B_INST_WORD_X),
                       EMARCH_ENC_I17_IMM7B_SIZE_X,
@@ -725,13 +605,9 @@ xxLdrProcessRelocationBlock64(
                       EMARCH_ENC_I17_SIGN_INST_WORD_POS_X,
                       EMARCH_ENC_I17_SIGN_VAL_POS_X);
             break;
-
         case IMAGE_REL_BASED_DIR64:
-
             *(ULONGLONG UNALIGNED *)FixupVA += Diff;
-
             break;
-
         case IMAGE_REL_BASED_MIPS_JMPADDR:
             // JumpAddress - (32-bits) relocate a MIPS jump address.
 

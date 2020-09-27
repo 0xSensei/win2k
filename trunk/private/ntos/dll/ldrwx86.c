@@ -17,7 +17,7 @@ Revision History:
                         changed to make the Wx86 loader behave like the
                         real loader, which does not throw this exception.
 
-                        Also added a call to the cleanup function when LdrpWx86LoadDll() fails.  
+                        Also added a call to the cleanup function when LdrpWx86LoadDll() fails.
                         There were cases where the CPU failed to initialize but the Wx86 global pointers
                         were not cleared and pointed to a invalid memory because wx86.dll was unloaded.
 --*/
@@ -43,8 +43,8 @@ BOOLEAN Wx86OnTheFly = FALSE;
 ULONG Wx86ProviderUnloadCount = 0;
 
 WCHAR Wx86Dir[] = L"\\sys32x86";
-UNICODE_STRING Wx86SystemDir = { 0,0,NULL };
-UNICODE_STRING NtSystemRoot = { 0,0,NULL };
+UNICODE_STRING Wx86SystemDir = {0,0,NULL};
+UNICODE_STRING NtSystemRoot = {0,0,NULL};
 
 #if defined(BUILD_WOW6432)
 
@@ -62,7 +62,7 @@ typedef struct _Wx86Plugin {
     PVOID DllBase;                            // plugin dll base
     ULONG Count;                              // number of providers
     PVOID Provider[WX86PLUGIN_MAXPROVIDER];   // dll base of providers for this plugin
-} WX86PLUGIN, *PWX86PLUGIN;                 // plugin list entry
+} WX86PLUGIN, * PWX86PLUGIN;                 // plugin list entry
 
 LIST_ENTRY Wx86PluginList = {                // plugin list head
     &Wx86PluginList,
@@ -71,13 +71,13 @@ LIST_ENTRY Wx86PluginList = {                // plugin list head
 
 // Prototypes for plugin provider interfaces
 
-typedef BOOLEAN(*WX86IDENTIFYPLUGIN)(PVOID PluginDll, WCHAR *FullFileName, BOOLEAN NativeToX86);
+typedef BOOLEAN(*WX86IDENTIFYPLUGIN)(PVOID PluginDll, WCHAR * FullFileName, BOOLEAN NativeToX86);
 
 typedef BOOLEAN(*WX86THUNKEXPORT)(PVOID PluginDll,
                                   PCHAR ExportName,
                                   ULONG Ordinal,
                                   PVOID ExportAddress,
-                                  PVOID *ExportThunk,
+                                  PVOID * ExportThunk,
                                   BOOLEAN NativeToX86
                                   );
 
@@ -93,7 +93,11 @@ BOOLEAN DllHasExports(PVOID DllBase)
 }
 
 
-BOOLEAN DllNameMatchesLdrEntry(PUNICODE_STRING BaseDllName, PUNICODE_STRING FullDllName, PLDR_DATA_TABLE_ENTRY LdrEntry, BOOLEAN ImporterX86)
+BOOLEAN DllNameMatchesLdrEntry(PUNICODE_STRING BaseDllName,
+                               PUNICODE_STRING FullDllName,
+                               PLDR_DATA_TABLE_ENTRY LdrEntry,
+                               BOOLEAN ImporterX86
+)
 /*++
 Routine Description:
     Verifies that the LdrEntry matches the specifed dll.
@@ -119,8 +123,8 @@ Return Value:
         return FALSE;
     }
 
-    if (!FullDllName->Length || (FullDllName->Length && RtlEqualUnicodeString(FullDllName, &LdrEntry->FullDllName, TRUE)))
-    {
+    if (!FullDllName->Length ||
+        (FullDllName->Length && RtlEqualUnicodeString(FullDllName, &LdrEntry->FullDllName, TRUE))) {
         FullNameMatches = TRUE;
     }
 
@@ -169,8 +173,7 @@ Return Value:
     }
 
     // Importer is Risc.
-    if (IsNativeMachineType(MachineType))
-    {
+    if (IsNativeMachineType(MachineType)) {
         return FullNameMatches;
     }
 
@@ -178,7 +181,11 @@ Return Value:
 }
 
 
-BOOLEAN SearchWx86Dll(IN  PWSTR DllPath, IN  PUNICODE_STRING BaseName, OUT PUNICODE_STRING FileName, OUT PWSTR *pNextDllPath)
+BOOLEAN SearchWx86Dll(IN  PWSTR DllPath,
+                      IN  PUNICODE_STRING BaseName,
+                      OUT PUNICODE_STRING FileName,
+                      OUT PWSTR * pNextDllPath
+)
 /*++
 Routine Description:
     Search the path for a dll, based on Wx86 altered search path rules.
@@ -241,7 +248,8 @@ Arguments:
 BOOLEAN LdrpWx86DllMapNotify(PVOID DllBase, BOOLEAN Mapped)
 /*++
 Routine Description:
-    Invoked by the nt loader immediately after an x86 Dll is Mapped or unmapped from memory. This routine is not called at a point where
+    Invoked by the nt loader immediately after an x86 Dll is Mapped or unmapped from memory.
+    This routine is not called at a point where
     it is safe to load other dlls. That work should be deferred till
     as late as possible before the x86 code is actually going to be executed.
 
@@ -262,9 +270,9 @@ NTSTATUS LdrpWx86MapDll(
     IN BOOLEAN Wx86KnownDll,
     IN BOOLEAN StaticLink,
     OUT PUNICODE_STRING DllName,
-    OUT PLDR_DATA_TABLE_ENTRY *pEntry,
-    OUT ULONG_PTR *pViewSize,
-    OUT HANDLE *pSection
+    OUT PLDR_DATA_TABLE_ENTRY * pEntry,
+    OUT ULONG_PTR * pViewSize,
+    OUT HANDLE * pSection
 )
 /*++
 Routine Description:
@@ -328,8 +336,7 @@ Return Value:
     // DllPath can be ignored if:
     //    1) DllPath is the null string
     // or 2) DllName contains a hard coded path
-    if (!*DllPath || RtlDetermineDosPathNameType_U(DllName->Buffer) != RtlPathTypeRelative)
-    {
+    if (!*DllPath || RtlDetermineDosPathNameType_U(DllName->Buffer) != RtlPathTypeRelative) {
         DllPath = NULL;
     }
 
@@ -372,8 +379,7 @@ Return Value:
             // It's a thunked dll. Redirect to system32\<thunk dll>
             ForcedDllPath = &LdrpKnownDllPath;
             ForcedDllName = &ThunkDllName;       // use the thunked dll
-        }
-        else if (Wx86KnownRedistDll(&LocalDllName)) {
+        } else if (Wx86KnownRedistDll(&LocalDllName)) {
             // It's a redistributed x86 dll. Redirect to sys32x86\<dll name>
             ForcedDllPath = &Wx86SystemDir;
             ForcedDllName = &LocalDllName;       // use the input dll name
@@ -402,15 +408,13 @@ Return Value:
         // Find the next occurance of the dll in the DllPath directories.
         // If no DllPath then use DllName as provided
         if (DllSearchPath) {
-            if (!SearchWx86Dll(DllSearchPath, pLocalDllName, &FreeUnicode, &DllSearchPath))
-            {
+            if (!SearchWx86Dll(DllSearchPath, pLocalDllName, &FreeUnicode, &DllSearchPath)) {
                 st = STATUS_DLL_NOT_FOUND;
                 break;
             }
 
             pwch = FreeUnicode.Buffer;
-        }
-        else {
+        } else {
             pwch = pLocalDllName->Buffer;
         }
 
@@ -421,13 +425,13 @@ Return Value:
             FullNameUnicode.Buffer,
             &BaseNameUnicode.Buffer
         );
-        if (!FullNameUnicode.Length || FullNameUnicode.Length >= FullNameUnicode.MaximumLength)
-        {
+        if (!FullNameUnicode.Length || FullNameUnicode.Length >= FullNameUnicode.MaximumLength) {
             st = STATUS_OBJECT_PATH_SYNTAX_BAD;
             break;
         }
 
-        BaseNameUnicode.Length = FullNameUnicode.Length - (USHORT)((ULONG_PTR)BaseNameUnicode.Buffer - (ULONG_PTR)FullNameUnicode.Buffer);
+        BaseNameUnicode.Length = FullNameUnicode.Length -
+            (USHORT)((ULONG_PTR)BaseNameUnicode.Buffer - (ULONG_PTR)FullNameUnicode.Buffer);
 
         BaseNameUnicode.MaximumLength = BaseNameUnicode.Length + sizeof(WCHAR);
 
@@ -445,8 +449,7 @@ Return Value:
                 if (RtlDoesFileExists_U(FreeUnicode.Buffer)) {
                     RtlCopyUnicodeString(&FullNameUnicode, &FreeUnicode);
                     BaseNameUnicode.Buffer = pwch;
-                }
-                else {
+                } else {
                     Wx86DirUndone = TRUE;
                 }
             }
@@ -454,8 +457,7 @@ Return Value:
 
     RetryWx86SystemDir:
         // Create the image section.
-        if (!RtlDosPathNameToNtPathName_U(FullNameUnicode.Buffer, &NameUnicode, NULL, NULL))
-        {
+        if (!RtlDosPathNameToNtPathName_U(FullNameUnicode.Buffer, &NameUnicode, NULL, NULL)) {
             st = STATUS_OBJECT_PATH_SYNTAX_BAD;
             break;
         }
@@ -519,7 +521,13 @@ Return Value:
                 st = STATUS_NO_MEMORY;
                 break;
             }
-            st = NtDuplicateObject(NtCurrentProcess(), *pSection, NtCurrentProcess(), &MismatchSection, 0, FALSE, DUPLICATE_SAME_ACCESS);
+            st = NtDuplicateObject(NtCurrentProcess(),
+                                   *pSection,
+                                   NtCurrentProcess(),
+                                   &MismatchSection,
+                                   0,
+                                   FALSE,
+                                   DUPLICATE_SAME_ACCESS);
             if (!NT_SUCCESS(st)) {
                 break;
             }
@@ -589,8 +597,7 @@ Return Value:
             NtClose(MismatchSection);
             MismatchSection = NULL;
             MismatchEncountered = FALSE;
-        }
-        else {
+        } else {
             // No matching DLL found.  Revert back to the image that gave the
             // image type mismatch.
 
@@ -652,8 +659,7 @@ Return Value:
             Temp = LdrpAllocateDataTableEntry(ViewBase);
             if (!Temp) {
                 st = STATUS_NO_MEMORY;
-            }
-            else {
+            } else {
                 Temp->Flags = 0;
                 Temp->LoadCount = 0;
                 Temp->FullDllName = FullNameUnicode;
@@ -679,11 +685,9 @@ Return Value:
 
                     if (st == STATUS_SUCCESS) {
                         Action = "Loaded";
-                    }
-                    else if (st == STATUS_IMAGE_MACHINE_TYPE_MISMATCH) {
+                    } else if (st == STATUS_IMAGE_MACHINE_TYPE_MISMATCH) {
                         Action = "Unsupported";
-                    }
-                    else {
+                    } else {
                         Action = "Failed";
                     }
 
@@ -779,8 +783,7 @@ Return Value:
         Unicode->Buffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(LDR_TAG), Unicode->MaximumLength);
         if (Unicode->Buffer) {
             RtlCopyMemory(Unicode->Buffer, BaseNameUnicode.Buffer, Unicode->MaximumLength);
-        }
-        else {
+        } else {
             st = STATUS_NO_MEMORY;
         }
     }
@@ -829,7 +832,8 @@ LWMDGiveUp:
 PLDR_DATA_TABLE_ENTRY LdrpWx86CheckForLoadedDll(IN PWSTR DllPath OPTIONAL,
                                                 IN PUNICODE_STRING DllName,
                                                 IN BOOLEAN Wx86KnownDll,
-                                                OUT PUNICODE_STRING FullDllName)
+                                                OUT PUNICODE_STRING FullDllName
+)
 /*++
 Routine Description:
     Checks for loaded dlls, ensuring that duplicate module
@@ -865,8 +869,7 @@ Return Value:
     //    1) DllPath is unusable (=1)
     // or 2) DllPath is the null string
     // or 3) DllName contains a hard coded path
-    if ((UINT_PTR)DllPath == 1 || !*DllPath || RtlDetermineDosPathNameType_U(DllName->Buffer) != RtlPathTypeRelative)
-    {
+    if ((UINT_PTR)DllPath == 1 || !*DllPath || RtlDetermineDosPathNameType_U(DllName->Buffer) != RtlPathTypeRelative) {
         DllPath = NULL;
     }
 
@@ -905,14 +908,12 @@ Return Value:
             // It's a thunked dll. Redirect to system32\<thunk dll>
             ForcedDllPath = &LdrpKnownDllPath;
             ForcedDllName = &ThunkDllName;       // use the thunked dll
-        }
-        else if (Wx86KnownRedistDll(&LocalDllName)) {
+        } else if (Wx86KnownRedistDll(&LocalDllName)) {
             // It's a redistributed x86 dll. Redirect to sys32x86\<dll name>
             ForcedDllPath = &Wx86SystemDir;
             ForcedDllName = &LocalDllName;       // use the input dll name
         }
-    }
-    else if (Wx86KnownNativeDll(&LocalDllName)) {
+    } else if (Wx86KnownNativeDll(&LocalDllName)) {
         // It's a native known dll. Redirect to system32\<dll name>
         ForcedDllPath = &LdrpKnownDllPath;
         ForcedDllName = &LocalDllName;
@@ -935,8 +936,7 @@ Return Value:
         Next = Head->Flink;
         while (Next != Head) {
             LdrEntry = CONTAINING_RECORD(Next, LDR_DATA_TABLE_ENTRY, HashLinks);
-            if (DllNameMatchesLdrEntry(&BaseDllName, FullDllName, LdrEntry, Wx86KnownDll))
-            {
+            if (DllNameMatchesLdrEntry(&BaseDllName, FullDllName, LdrEntry, Wx86KnownDll)) {
                 goto FoundMatch;
             }
             Next = Next->Flink;
@@ -950,8 +950,7 @@ Return Value:
     // Search the DllPath, and verify that fullpath and machine type match.
     do {
         if (DllPath) {
-            if (!SearchWx86Dll(DllPath, DllName, &FreeUnicode, &DllPath))
-            {
+            if (!SearchWx86Dll(DllPath, DllName, &FreeUnicode, &DllPath)) {
                 FullDllName->Length = 0;
                 FullDllName->Buffer[0] = L'\0';
                 BaseDllName = *DllName;
@@ -961,8 +960,7 @@ Return Value:
                 Next = Head->Flink;
                 while (Next != Head) {
                     LdrEntry = CONTAINING_RECORD(Next, LDR_DATA_TABLE_ENTRY, HashLinks);
-                    if (DllNameMatchesLdrEntry(&BaseDllName, FullDllName, LdrEntry, Wx86KnownDll))
-                    {
+                    if (DllNameMatchesLdrEntry(&BaseDllName, FullDllName, LdrEntry, Wx86KnownDll)) {
                         goto FoundMatch;
                     }
                     Next = Next->Flink;
@@ -972,8 +970,7 @@ Return Value:
             }
 
             pwch = FreeUnicode.Buffer;
-        }
-        else {
+        } else {
             pwch = DllName->Buffer;
         }
 
@@ -1002,8 +999,7 @@ Return Value:
             Next = Head->Flink;
             while (Next != Head) {
                 LdrEntry = CONTAINING_RECORD(Next, LDR_DATA_TABLE_ENTRY, HashLinks);
-                if (DllNameMatchesLdrEntry(&BaseDllName, FullDllName, LdrEntry, Wx86KnownDll))
-                {
+                if (DllNameMatchesLdrEntry(&BaseDllName, FullDllName, LdrEntry, Wx86KnownDll)) {
                     goto FoundMatch;
                 }
                 Next = Next->Flink;
@@ -1050,8 +1046,7 @@ Return Value:
 
         if (NtHeader->FileHeader.Machine == IMAGE_FILE_MACHINE_I386) {
             (Wx86DllEntryPoint)(InitRoutine, LdrDataTableEntry->DllBase, DLL_PROCESS_DETACH, NULL);
-        }
-        else {
+        } else {
             LdrpCallInitRoutine(InitRoutine, LdrDataTableEntry->DllBase, DLL_PROCESS_DETACH, NULL);
         }
     }
@@ -1060,7 +1055,7 @@ Return Value:
 
 NTSTATUS LdrpRunWx86DllEntryPoint(
     IN PDLL_INIT_ROUTINE InitRoutine,
-    OUT BOOLEAN *pInitStatus,
+    OUT BOOLEAN * pInitStatus,
     IN PVOID DllBase,
     IN ULONG Reason,
     IN PCONTEXT Context
@@ -1149,8 +1144,7 @@ Return Value:
     DllHandle = (PVOID)((UINT_PTR)Context & ~0x80000000);
     if (DllHandle != Context) {
         Context = NULL;
-    }
-    else {
+    } else {
         DllHandle = NULL;
     }
 
@@ -1237,8 +1231,7 @@ Return Value:
         if (!NT_SUCCESS(st)) {
             goto LWx86DllError;
         }
-    }
-    else {
+    } else {
         Wx86OnTheFly = TRUE;
     }
 
@@ -1296,8 +1289,7 @@ Return Value:
 #else
 #error Need to set instruction pointer to Wx86ThreadStartRoutine
 #endif
-        }
-        else {
+        } else {
 #if defined(_MIPS_)
             Context->XIntA1 = (LONG)Wx86ProcessStartRoutine;
 #elif defined(_ALPHA_)
@@ -1362,10 +1354,10 @@ Return Value:
     for (i = 0; i < NtHeaders->FileHeader.NumberOfSections; i++, SectionHeader++) {
         if ((SectionHeader->Characteristics & IMAGE_SCN_MEM_SHARED) &&
             (!(SectionHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE) ||
-            (SectionHeader->Characteristics & IMAGE_SCN_MEM_WRITE))) {
+             (SectionHeader->Characteristics & IMAGE_SCN_MEM_WRITE))) {
             RegionSize = SectionHeader->SizeOfRawData;
             VirtualAddress = (PVOID)((ULONG_PTR)Base +
-                ((NumberOfNativePagesForImage + NumberOfSharedDataPages) << NATIVE_PAGE_SHIFT));
+                                     ((NumberOfNativePagesForImage + NumberOfSharedDataPages) << NATIVE_PAGE_SHIFT));
             NumberOfNativePagesForImage += MI_ROUND_TO_SIZE(RegionSize, NATIVE_PAGE_SIZE) >> NATIVE_PAGE_SHIFT;
 
             if (!(SectionHeader->Characteristics & IMAGE_SCN_MEM_WRITE)) {
@@ -1373,13 +1365,11 @@ Return Value:
                 if (Reset) {
                     if (SectionHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE) {
                         NewProtect = PAGE_EXECUTE;
-                    }
-                    else {
+                    } else {
                         NewProtect = PAGE_READONLY;
                     }
                     NewProtect |= (SectionHeader->Characteristics & IMAGE_SCN_MEM_NOT_CACHED) ? PAGE_NOCACHE : 0;
-                }
-                else {
+                } else {
                     NewProtect = PAGE_READWRITE;
                 }
 
@@ -1399,8 +1389,7 @@ Return Value:
 }
 
 
-PIMAGE_BASE_RELOCATION LdrpWx86ProcessRelocationBlock(
-    IN ULONG_PTR VA,
+PIMAGE_BASE_RELOCATION LdrpWx86ProcessRelocationBlock(IN ULONG_PTR VA,
     IN PUCHAR ImageBase,
     IN ULONG SizeOfBlock,
     IN PUSHORT NextOffset,
@@ -1441,8 +1430,7 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
         // If the first section does not need to be moved then we exclude it
         // from condideration in passes 1 and 2
         FirstSection = SectionTable + 1;
-    }
-    else {
+    } else {
         FirstSection = SectionTable;
     }
 
@@ -1464,8 +1452,7 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
             if (Section->PointerToRawData != 0) {
                 RtlMoveMemory(DestVirtualAddress, SrcVirtualAddress, Section->SizeOfRawData);
             }
-        }
-        else {
+        } else {
             Section->PointerToRawData = 0;
         }
 
@@ -1505,8 +1492,7 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
             if (Section->PointerToRawData != 0) {
                 RtlMoveMemory(DestVirtualAddress, SrcVirtualAddress, SubSectionSize);
             }
-        }
-        else {
+        } else {
             Section->PointerToRawData = 0;
         }
 
@@ -1545,7 +1531,7 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
 
         // Zero out remaining bytes up to the next section
         RtlZeroMemory(DestVirtualAddress + Section->SizeOfRawData,
-            (ULONG)(NextVirtualAddress - DestVirtualAddress - Section->SizeOfRawData)
+                      (ULONG)(NextVirtualAddress - DestVirtualAddress - Section->SizeOfRawData)
         );
 
         NextVirtualAddress = DestVirtualAddress;
@@ -1573,8 +1559,7 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
     NumberOfExtraPagesForImage = 0;
 
     // Account for raw data that extends beyond SizeOfImage
-    for (Section = SectionTable; Section <= LastSection; Section++)
-    {
+    for (Section = SectionTable; Section <= LastSection; Section++) {
         ULONG EndOfSection;
         ULONG ExtraPages;
 
@@ -1591,13 +1576,11 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
 
     NumberOfNativePagesForImage += NumberOfExtraPagesForImage;
     NumberOfSharedDataPages = 0;
-    for (Section = SectionTable; Section <= LastSection; Section++)
-    {
+    for (Section = SectionTable; Section <= LastSection; Section++) {
         ULONG bFirst = 1;
 
         if ((Section->Characteristics & IMAGE_SCN_MEM_SHARED) &&
-            (!(Section->Characteristics & IMAGE_SCN_MEM_EXECUTE) || (Section->Characteristics & IMAGE_SCN_MEM_WRITE)))
-        {
+            (!(Section->Characteristics & IMAGE_SCN_MEM_EXECUTE) || (Section->Characteristics & IMAGE_SCN_MEM_WRITE))) {
             PIMAGE_BASE_RELOCATION NextBlock;
             PUSHORT NextOffset;
             ULONG TotalBytes;
@@ -1609,8 +1592,7 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
             ULONG Diff;
 
             SectionVirtualSize = Section->Misc.VirtualSize;
-            if (SectionVirtualSize == 0)
-            {
+            if (SectionVirtualSize == 0) {
                 SectionVirtualSize = Section->SizeOfRawData;
             }
 
@@ -1618,16 +1600,13 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
             SectionEndVA = SectionStartVA + SectionVirtualSize;
 
             NextBlock = RtlImageDirectoryEntryToData(DllBase, TRUE, IMAGE_DIRECTORY_ENTRY_BASERELOC, &TotalBytes);
-            if (!NextBlock || !TotalBytes)
-            {
+            if (!NextBlock || !TotalBytes) {
                 // Note that if this fails, it should fail in the very
                 // first iteration and no fixups would have been performed
 
-                if (!bFirst)
-                {
+                if (!bFirst) {
                     // Trouble
-                    if (ShowSnaps)
-                    {
+                    if (ShowSnaps) {
                         DbgPrint("LdrpWx86FormatVirtualImage: failure "
                                  "after relocating some sections for image at %x\n",
                                  DllBase);
@@ -1636,8 +1615,7 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
                     return STATUS_INVALID_IMAGE_FORMAT;
                 }
 
-                if (ShowSnaps)
-                {
+                if (ShowSnaps) {
                     DbgPrint("LdrpWx86FormatVirtualImage: No fixup info "
                              "for image at %x; private sections will be "
                              "used for shared data sections.\n",
@@ -1650,30 +1628,25 @@ NTSTATUS LdrpWx86FormatVirtualImage(IN PIMAGE_NT_HEADERS32 NtHeaders, IN PVOID D
             Diff = (NumberOfNativePagesForImage + NumberOfSharedDataPages) << NATIVE_PAGE_SHIFT;
             Diff -= (ULONG)(SectionStartVA - PreferredImageBase);
 
-            if (ShowSnaps)
-            {
+            if (ShowSnaps) {
                 DbgPrint("LdrpWx86FormatVirtualImage: Relocating shared "
                          "data for shared data section 0x%x of image "
                          "at %x by 0x%lx bytes\n",
                          Section - SectionTable + 1, DllBase, Diff);
             }
 
-            while (TotalBytes)
-            {
+            while (TotalBytes) {
                 SizeOfBlock = NextBlock->SizeOfBlock;
                 TotalBytes -= SizeOfBlock;
                 SizeOfBlock -= sizeof(IMAGE_BASE_RELOCATION);
                 SizeOfBlock /= sizeof(USHORT);
-                NextOffset = (PUSHORT)((PCHAR)NextBlock +
-                                       sizeof(IMAGE_BASE_RELOCATION));
+                NextOffset = (PUSHORT)((PCHAR)NextBlock + sizeof(IMAGE_BASE_RELOCATION));
                 VA = (ULONG_PTR)DllBase + NextBlock->VirtualAddress;
 
                 NextBlock = LdrpWx86ProcessRelocationBlock(VA, DllBase, SizeOfBlock, NextOffset, Diff, SectionStartVA, SectionEndVA);
-                if (NextBlock == NULL)
-                {
+                if (NextBlock == NULL) {
                     // Trouble
-                    if (ShowSnaps)
-                    {
+                    if (ShowSnaps) {
                         DbgPrint("LdrpWx86FormatVirtualImage: failure "
                                  "after relocating some sections for image at %x; "
                                  "Relocation information invalid\n",
@@ -1721,8 +1694,7 @@ ULONG LdrpWx86RelocatedFixupDiff(IN PUCHAR ImageBase, IN ULONG  Offset)
     NumberOfNativePagesForImage = NATIVE_BYTES_TO_PAGES(NtHeaders->OptionalHeader.SizeOfImage);
     NumberOfSharedDataPages = 0;
 
-    for (i = 0; i < NtHeaders->FileHeader.NumberOfSections; i++, SectionHeader++)
-    {
+    for (i = 0; i < NtHeaders->FileHeader.NumberOfSections; i++, SectionHeader++) {
         ULONG_PTR SectionStartVA;
         ULONG_PTR SectionEndVA;
         ULONG SectionVirtualSize;
@@ -1738,7 +1710,7 @@ ULONG LdrpWx86RelocatedFixupDiff(IN PUCHAR ImageBase, IN ULONG  Offset)
         if (((ULONG_PTR)FixupAddr >= SectionStartVA) && ((ULONG_PTR)FixupAddr <= SectionEndVA)) {
             if ((SectionHeader->Characteristics & IMAGE_SCN_MEM_SHARED) &&
                 (!(SectionHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE) ||
-                (SectionHeader->Characteristics & IMAGE_SCN_MEM_WRITE))) {
+                 (SectionHeader->Characteristics & IMAGE_SCN_MEM_WRITE))) {
                 Diff = (NumberOfNativePagesForImage + NumberOfSharedDataPages) << NATIVE_PAGE_SHIFT;
                 Diff -= (ULONG)SectionHeader->VirtualAddress;
             }
@@ -1747,7 +1719,7 @@ ULONG LdrpWx86RelocatedFixupDiff(IN PUCHAR ImageBase, IN ULONG  Offset)
 
         if ((SectionHeader->Characteristics & IMAGE_SCN_MEM_SHARED) &&
             (!(SectionHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE) ||
-            (SectionHeader->Characteristics & IMAGE_SCN_MEM_WRITE))) {
+             (SectionHeader->Characteristics & IMAGE_SCN_MEM_WRITE))) {
             NumberOfSharedDataPages += MI_ROUND_TO_SIZE(SectionVirtualSize, NATIVE_PAGE_SIZE) >> NATIVE_PAGE_SHIFT;
         }
     }
@@ -1840,11 +1812,14 @@ BOOLEAN LdrpWx86DllHasRelocatedSharedSection(IN PUCHAR ImageBase)
     ULONG i;
     PIMAGE_NT_HEADERS32 NtHeaders = (PIMAGE_NT_HEADERS32)RtlImageNtHeader(ImageBase);
 
-    SectionHeader = (PIMAGE_SECTION_HEADER)((ULONG_PTR)NtHeaders + sizeof(ULONG) + sizeof(IMAGE_FILE_HEADER) + NtHeaders->FileHeader.SizeOfOptionalHeader);
-    for (i = 0; i < NtHeaders->FileHeader.NumberOfSections; i++, SectionHeader++)
-    {
-        if ((SectionHeader->Characteristics & IMAGE_SCN_MEM_SHARED) && (!(SectionHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE) ||
-            (SectionHeader->Characteristics & IMAGE_SCN_MEM_WRITE))) {
+    SectionHeader = (PIMAGE_SECTION_HEADER)((ULONG_PTR)NtHeaders +
+                                            sizeof(ULONG) +
+                                            sizeof(IMAGE_FILE_HEADER) +
+                                            NtHeaders->FileHeader.SizeOfOptionalHeader);
+    for (i = 0; i < NtHeaders->FileHeader.NumberOfSections; i++, SectionHeader++) {
+        if ((SectionHeader->Characteristics & IMAGE_SCN_MEM_SHARED) &&
+            (!(SectionHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE) ||
+             (SectionHeader->Characteristics & IMAGE_SCN_MEM_WRITE))) {
             return TRUE;
         }
     }
@@ -1865,8 +1840,7 @@ BOOLEAN LdrpWx86DllHasRelocatedSharedSection(IN PUCHAR ImageBase)
 // which is pretty much the entire function. So we chose to replicate the
 // function as it was and change it to make the test.
 
-PIMAGE_BASE_RELOCATION LdrpWx86ProcessRelocationBlock(
-    IN ULONG_PTR VA,
+PIMAGE_BASE_RELOCATION LdrpWx86ProcessRelocationBlock(IN ULONG_PTR VA,
     IN PUCHAR ImageBase,
     IN ULONG SizeOfBlock,
     IN PUSHORT NextOffset,
@@ -1879,22 +1853,19 @@ PIMAGE_BASE_RELOCATION LdrpWx86ProcessRelocationBlock(
     LONG Temp;
     ULONG_PTR DataVA;
 
-    while (SizeOfBlock--)
-    {
+    while (SizeOfBlock--) {
         Offset = *NextOffset & (USHORT)0xfff;
         FixupVA = (PUCHAR)(VA + Offset);
 
         // Apply the fixups.
-        switch ((*NextOffset) >> 12)
-        {
+        switch ((*NextOffset) >> 12) {
         case IMAGE_REL_BASED_HIGHLOW:
             // HighLow - (32-bits) relocate the high and low half
             //      of an address.
 
             Temp = *(LONG UNALIGNED *)FixupVA;
             DataVA = (ULONG_PTR)Temp;
-            if (DataVA >= SectionStartVA && DataVA <= SectionEndVA)
-            {
+            if (DataVA >= SectionStartVA && DataVA <= SectionEndVA) {
                 Temp += (ULONG)Diff;
                 *(LONG UNALIGNED *)FixupVA = Temp;
             }
@@ -1905,8 +1876,7 @@ PIMAGE_BASE_RELOCATION LdrpWx86ProcessRelocationBlock(
 
             Temp = *(PUSHORT)FixupVA << 16;
             DataVA = (ULONG_PTR)Temp;
-            if (DataVA >= SectionStartVA && DataVA <= SectionEndVA)
-            {
+            if (DataVA >= SectionStartVA && DataVA <= SectionEndVA) {
                 Temp += (ULONG)Diff;
                 *(PUSHORT)FixupVA = (USHORT)(Temp >> 16);
             }
@@ -1920,8 +1890,7 @@ PIMAGE_BASE_RELOCATION LdrpWx86ProcessRelocationBlock(
             --SizeOfBlock;
             Temp += (LONG)(*(PSHORT)NextOffset);
             DataVA = (ULONG_PTR)Temp;
-            if (DataVA >= SectionStartVA && DataVA <= SectionEndVA)
-            {
+            if (DataVA >= SectionStartVA && DataVA <= SectionEndVA) {
                 Temp += (ULONG)Diff;
                 Temp += 0x8000;
                 *(PUSHORT)FixupVA = (USHORT)(Temp >> 16);
@@ -1931,8 +1900,7 @@ PIMAGE_BASE_RELOCATION LdrpWx86ProcessRelocationBlock(
             // Low - (16-bit) relocate the low half of an address.
             Temp = *(PSHORT)FixupVA;
             DataVA = (ULONG_PTR)Temp;
-            if (DataVA >= SectionStartVA && DataVA <= SectionEndVA)
-            {
+            if (DataVA >= SectionStartVA && DataVA <= SectionEndVA) {
                 Temp += (ULONG)Diff;
                 *(PUSHORT)FixupVA = (USHORT)Temp;
             }
@@ -2075,8 +2043,7 @@ Return Value:
     Index = 0;
     st = STATUS_SUCCESS;
     KeyBasicInfo = (PKEY_BASIC_INFORMATION)DataBuffer;
-    do
-    {
+    do {
         st = NtEnumerateKey(hProviderKey, Index, KeyBasicInformation, DataBuffer, sizeof(DataBuffer) - 2, &Length);
         if (st == STATUS_NO_MORE_ENTRIES) {
             st = STATUS_SUCCESS;
@@ -2152,8 +2119,7 @@ Return Value:
 
                 if (CanThunk) {
                     Count++;
-                }
-                else {
+                } else {
                     LdrUnloadDll(Provider[Count]);
                     Provider[Count] = NULL;
                 }
@@ -2178,8 +2144,7 @@ Return Value:
         InsertTailList(&Wx86PluginList, &Wx86Plugin->Links);
 
         st = STATUS_SUCCESS;
-    }
-    else {
+    } else {
         st = STATUS_IMAGE_MACHINE_TYPE_MISMATCH;
     }
     st = Count ? STATUS_SUCCESS : STATUS_IMAGE_MACHINE_TYPE_MISMATCH;
@@ -2208,7 +2173,7 @@ NTSTATUS Wx86ThunkPluginExport(
     IN PCHAR ExportName,
     IN ULONG Ordinal,
     IN PVOID ExportAddress,
-    OUT PVOID *ExportThunk
+    OUT PVOID * ExportThunk
 )
 /*++
 Routine Description:
@@ -2286,7 +2251,8 @@ BOOLEAN Wx86UnloadProviders(IN PVOID DllBase)
 Routine Description:
     Handle unloading of plugin dlls.
 
-    The DllBase passed in may have already been unloaded. However, it is used here only to find the associated plugin provider dll.
+    The DllBase passed in may have already been unloaded.
+    However, it is used here only to find the associated plugin provider dll.
 Return Value:
     FALSE on failure, TRUE on success.
 --*/
@@ -2306,14 +2272,12 @@ Return Value:
             // Find the the entry for this plugin dll
             Head = &Wx86PluginList;
             Next = Head->Flink;
-            while (Next != Head)
-            {
+            while (Next != Head) {
                 Wx86Plugin = CONTAINING_RECORD(Next, WX86PLUGIN, Links);
                 if (Wx86Plugin->DllBase == DllBase) {
                     // If the plugin dll is no longer mapped then unload the providers and free the Wx86PluginList entry
                     if (!LdrpCheckForLoadedDllHandle(DllBase, &PluginEntry)) {
-                        for (Index = 0; Index < Wx86Plugin->Count; Index++)
-                        {
+                        for (Index = 0; Index < Wx86Plugin->Count; Index++) {
                             Status = LdrUnloadDll(Wx86Plugin->Provider[Index]);
                         }
                         RemoveEntryList(&Wx86Plugin->Links);
@@ -2323,9 +2287,8 @@ Return Value:
                 }
                 Next = Next->Flink;
             }
-        }
-        finally{
-         Wx86ProviderUnloadCount--;
+        } finally {
+            Wx86ProviderUnloadCount--;
         }
     }
 

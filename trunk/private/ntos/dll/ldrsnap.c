@@ -1499,12 +1499,7 @@ Arguments:
 }
 
 
-VOID
-AlphaFindArchitectureFixups(
-    PIMAGE_NT_HEADERS NtHeaders,
-    PVOID ViewBase,
-    BOOLEAN StaticLink
-)
+VOID AlphaFindArchitectureFixups(PIMAGE_NT_HEADERS NtHeaders, PVOID ViewBase, BOOLEAN StaticLink)
 /*++
 Routine Description:
     This routine runs through a mapped image/dll looking for an architecture enhancement section (.arch).
@@ -1519,7 +1514,6 @@ Arguments:
     PIMAGE_ARCHITECTURE_HEADER ImageArchData;
 
     if (NtHeaders->FileHeader.Machine != IMAGE_FILE_MACHINE_ALPHA) {
-
         // If the image isnt Alpha, don't try to find/apply Alpha fixups.
         // The image may be an x86 image linked with the x86 Watcom
         // linker which stuffed its version number in the .arch directory
@@ -1533,13 +1527,11 @@ Arguments:
             ViewBase,
             TRUE,
             IMAGE_DIRECTORY_ENTRY_ARCHITECTURE,
-            &Size
-        );
+            &Size);
     if (ImageArchData) {
         NTSTATUS st;
 
         st = LdrpSetProtection(ViewBase, FALSE, StaticLink); // access to r/w
-
         if (NT_SUCCESS(st)) {
             AlphaApplyArchitectureFixups(ImageArchData, Size, (ULONG_PTR)ViewBase);
             LdrpSetProtection(ViewBase, TRUE, StaticLink); // back to r/o

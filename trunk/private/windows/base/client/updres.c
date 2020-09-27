@@ -1,5 +1,4 @@
 /*
-
     PROGRAM: updres.c
 
     PURPOSE: Contains API Entry points and routines for updating resource
@@ -24,29 +23,20 @@
 #define DPrintfu( a )
 
 #define cbPadMax    16L
-char    *pchPad = "PADDINGXXPADDING";
-char    *pchZero = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+char * pchPad = "PADDINGXXPADDING";
+char * pchZero = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
 
 /*
-
 ** API entry points
-
 */
 
 
-HANDLE
-APIENTRY
-BeginUpdateResourceW(
-                    LPCWSTR pwch,
-                    BOOL bDeleteExistingResources
-                    )
-
+HANDLE APIENTRY BeginUpdateResourceW(LPCWSTR pwch, BOOL bDeleteExistingResources)
 /*++
     Routine Description
         Begins an update of resources.  Save away the name
-        and current resources in a list, using EnumResourceXxx
-        api set.
+        and current resources in a list, using EnumResourceXxx api set.
 
     Parameters:
 
@@ -69,10 +59,8 @@ BeginUpdateResourceW(
     already loaded, or the filename did not exist.  More information may
     be available via GetLastError api.
 
-    HANDLE - A handle to be passed to the UpdateResource and
-    EndUpdateResources function.
+    HANDLE - A handle to be passed to the UpdateResource and EndUpdateResources function.
 --*/
-
 {
     HMODULE     hModule;
     PUPDATEDATA pUpdate;
@@ -98,7 +86,7 @@ BeginUpdateResourceW(
     }
 
     pUpdate->Status = NO_ERROR;
-    pUpdate->hFileName = GlobalAlloc(GHND, (wcslen(pwch)+1)*sizeof(WCHAR));
+    pUpdate->hFileName = GlobalAlloc(GHND, (wcslen(pwch) + 1) * sizeof(WCHAR));
     if (pUpdate->hFileName == NULL) {
         GlobalUnlock(hUpdate);
         GlobalFree(hUpdate);
@@ -120,10 +108,7 @@ BeginUpdateResourceW(
         GlobalUnlock(hUpdate);
         GlobalFree(hUpdate);
         return NULL;
-    } else if (attr & (FILE_ATTRIBUTE_READONLY |
-                       FILE_ATTRIBUTE_SYSTEM |
-                       FILE_ATTRIBUTE_HIDDEN |
-                       FILE_ATTRIBUTE_DIRECTORY)) {
+    } else if (attr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_DIRECTORY)) {
         GlobalUnlock(hUpdate);
         GlobalFree(hUpdate);
         SetLastError(ERROR_WRITE_PROTECT);
@@ -133,7 +118,7 @@ BeginUpdateResourceW(
     if (bDeleteExistingResources)
         ;
     else {
-        hModule = LoadLibraryExW(pwch, NULL,LOAD_LIBRARY_AS_DATAFILE| DONT_RESOLVE_DLL_REFERENCES);
+        hModule = LoadLibraryExW(pwch, NULL, LOAD_LIBRARY_AS_DATAFILE | DONT_RESOLVE_DLL_REFERENCES);
         if (hModule == NULL) {
             GlobalUnlock(hUpdate);
             GlobalFree(hUpdate);
@@ -156,22 +141,12 @@ BeginUpdateResourceW(
 }
 
 
-
-HANDLE
-APIENTRY
-BeginUpdateResourceA(
-                    LPCSTR pch,
-                    BOOL bDeleteExistingResources
-                    )
-
+HANDLE APIENTRY BeginUpdateResourceA(LPCSTR pch, BOOL bDeleteExistingResources)
 /*++
     Routine Description
 
-    ASCII entry point.  Convert filename to UNICODE and call
-    the UNICODE entry point.
-
+    ASCII entry point.  Convert filename to UNICODE and call the UNICODE entry point.
 --*/
-
 {
     PUNICODE_STRING Unicode;
     ANSI_STRING AnsiString;
@@ -180,8 +155,8 @@ BeginUpdateResourceA(
     Unicode = &NtCurrentTeb()->StaticUnicodeString;
     RtlInitAnsiString(&AnsiString, pch);
     Status = RtlAnsiStringToUnicodeString(Unicode, &AnsiString, FALSE);
-    if ( !NT_SUCCESS(Status) ) {
-        if ( Status == STATUS_BUFFER_OVERFLOW ) {
+    if (!NT_SUCCESS(Status)) {
+        if (Status == STATUS_BUFFER_OVERFLOW) {
             SetLastError(ERROR_FILENAME_EXCED_RANGE);
         } else {
             //BaseSetLastNTError(Status);
@@ -190,22 +165,18 @@ BeginUpdateResourceA(
         return FALSE;
     }
 
-    return BeginUpdateResourceW((LPCWSTR)Unicode->Buffer,bDeleteExistingResources);
+    return BeginUpdateResourceW((LPCWSTR)Unicode->Buffer, bDeleteExistingResources);
 }
 
 
-
-BOOL
-APIENTRY
-UpdateResourceW(
-               HANDLE      hUpdate,
-               LPCWSTR     lpType,
-               LPCWSTR     lpName,
-               WORD        language,
-               LPVOID      lpData,
-               ULONG       cb
-               )
-
+BOOL APIENTRY UpdateResourceW(
+    HANDLE      hUpdate,
+    LPCWSTR     lpType,
+    LPCWSTR     lpName,
+    WORD        language,
+    LPVOID      lpData,
+    ULONG       cb
+)
 /*++
     Routine Description
         This routine adds, deletes or modifies the input resource
@@ -214,9 +185,7 @@ UpdateResourceW(
         The ASCII entry point converts inputs to UNICODE.
 
     Parameters:
-
-        hUpdateFile - The handle returned by the BeginUpdateResources
-        function.
+        hUpdateFile - The handle returned by the BeginUpdateResources function.
 
         lpType - Points to a null-terminated character string that
         represents the type name of the resource to be updated or
@@ -234,8 +203,6 @@ UpdateResourceW(
           RT_VERSION - Version resource
           RT_ICON - Icon resource
           RT_CURSOR - Cursor resource
-
-
 
         lpName - Points to a null-terminated character string that
         represents the name of the resource to be updated or added.
@@ -259,11 +226,8 @@ UpdateResourceW(
     to, the specified executable image.
 
     FALSE/NULL - The resource specified was not successfully added to or
-    updated in the executable image.  More information may be available
-    via GetLastError api.
+    updated in the executable image.  More information may be available via GetLastError api.
 --*/
-
-
 {
     PUPDATEDATA pUpdate;
     PSDATA      Type;
@@ -290,7 +254,7 @@ UpdateResourceW(
     if (cb == 0) {
         lpCopy = NULL;
     } else {
-        lpCopy = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), cb);
+        lpCopy = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), cb);
         if (lpCopy == NULL) {
             pUpdate->Status = ERROR_NOT_ENOUGH_MEMORY;
             GlobalUnlock(hUpdate);
@@ -312,17 +276,14 @@ UpdateResourceW(
 }
 
 
-
-BOOL
-APIENTRY
-UpdateResourceA(
-               HANDLE      hUpdate,
-               LPCSTR      lpType,
-               LPCSTR      lpName,
-               WORD        language,
-               LPVOID      lpData,
-               ULONG       cb
-               )
+BOOL APIENTRY UpdateResourceA(
+    HANDLE      hUpdate,
+    LPCSTR      lpType,
+    LPCSTR      lpName,
+    WORD        language,
+    LPVOID      lpData,
+    ULONG       cb
+)
 {
     LPCWSTR     lpwType;
     LPCWSTR     lpwName;
@@ -362,24 +323,14 @@ UpdateResourceA(
 }
 
 
-BOOL
-APIENTRY
-EndUpdateResourceW(
-                  HANDLE      hUpdate,
-                  BOOL        fDiscard
-                  )
-
+BOOL APIENTRY EndUpdateResourceW(HANDLE      hUpdate, BOOL        fDiscard)
 /*++
     Routine Description
         Finishes the UpdateResource action.  Copies the
-        input file to a temporary, adds the resources left
-        in the list (hUpdate) to the exe.
+        input file to a temporary, adds the resources left in the list (hUpdate) to the exe.
 
     Parameters:
-
-        hUpdateFile - The handle returned by the BeginUpdateResources
-        function.
-
+        hUpdateFile - The handle returned by the BeginUpdateResources function.
         fDiscard - If TRUE, discards all the updates, frees all memory.
 
     Return Value:
@@ -388,10 +339,8 @@ EndUpdateResourceW(
     information may be available via GetLastError api.
 
     TRUE -  The accumulated resources specified by UpdateResource calls
-    were written to the executable file specified by the hUpdateFile
-    handle.
+    were written to the executable file specified by the hUpdateFile handle.
 --*/
-
 {
     LPWSTR      pFileName;
     PUPDATEDATA pUpdate;
@@ -411,7 +360,7 @@ EndUpdateResourceW(
         p = pTempFileName + cch;
         while (*p != L'\\' && p >= pTempFileName)
             p--;
-        *(p+1) = 0;
+        *(p + 1) = 0;
         rc = GetTempFileNameW(pTempFileName, L"RCX", 0, pTempFileName);
         if (rc == 0) {
             rc = GetTempPathW(MAX_PATH, pTempFileName);
@@ -450,72 +399,42 @@ EndUpdateResourceW(
     FreeData(pUpdate);
     GlobalUnlock(hUpdate);
     GlobalFree(hUpdate);
-    return rc?FALSE:TRUE;
+    return rc ? FALSE : TRUE;
 }
 
 
-BOOL
-APIENTRY
-EndUpdateResourceA(
-                  HANDLE      hUpdate,
-                  BOOL        fDiscard)
-/*++
-    Routine Description
-        Ascii version - see above for description.
---*/
+BOOL APIENTRY EndUpdateResourceA(HANDLE      hUpdate, BOOL        fDiscard)
+    /*++
+        Routine Description
+            Ascii version - see above for description.
+    --*/
 {
     return EndUpdateResourceW(hUpdate, fDiscard);
 }
 
 
 /*
-
 **  End of API entry points.
 
 **  Beginning of private entry points for worker routines to do the
 **  real work.
-
 */
-
-
-BOOL
-EnumTypesFunc(
-             HANDLE hModule,
-             LPWSTR lpType,
-             LPARAM lParam
-             )
+BOOL EnumTypesFunc(HANDLE hModule, LPWSTR lpType, LPARAM lParam)
 {
-
     EnumResourceNamesW(hModule, lpType, (ENUMRESNAMEPROCW)EnumNamesFunc, lParam);
 
     return TRUE;
 }
 
 
-
-BOOL
-EnumNamesFunc(
-             HANDLE hModule,
-             LPWSTR lpType,
-             LPWSTR lpName,
-             LPARAM lParam
-             )
+BOOL EnumNamesFunc(HANDLE hModule, LPWSTR lpType, LPWSTR lpName, LPARAM lParam)
 {
-
     EnumResourceLanguagesW(hModule, lpType, lpName, (ENUMRESLANGPROCW)EnumLangsFunc, lParam);
     return TRUE;
 }
 
 
-
-BOOL
-EnumLangsFunc(
-             HANDLE hModule,
-             LPWSTR lpType,
-             LPWSTR lpName,
-             WORD language,
-             LPARAM lParam
-             )
+BOOL EnumLangsFunc(HANDLE hModule, LPWSTR lpType, LPWSTR lpName, WORD language, LPARAM lParam)
 {
     HANDLE      hResInfo;
     LONG        fError;
@@ -545,7 +464,7 @@ EnumLangsFunc(
         if (cb == 0) {
             return FALSE;
         }
-        lpData = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), cb);
+        lpData = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), cb);
         if (lpData == NULL) {
             return FALSE;
         }
@@ -580,8 +499,8 @@ EnumLangsFunc(
 
 VOID
 FreeOne(
-       PRESNAME pRes
-       )
+    PRESNAME pRes
+)
 {
     RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)pRes->OffsetToDataEntry);
     if (IS_ID == pRes->Name->discriminant) {
@@ -596,22 +515,22 @@ FreeOne(
 
 VOID
 FreeData(
-        PUPDATEDATA pUpd
-        )
+    PUPDATEDATA pUpd
+)
 {
     PRESTYPE    pType;
     PRESNAME    pRes;
     PSDATA      pstring, pStringTmp;
 
-    for (pType=pUpd->ResTypeHeadID ; pUpd->ResTypeHeadID ; pType=pUpd->ResTypeHeadID) {
+    for (pType = pUpd->ResTypeHeadID; pUpd->ResTypeHeadID; pType = pUpd->ResTypeHeadID) {
         pUpd->ResTypeHeadID = pUpd->ResTypeHeadID->pnext;
 
-        for (pRes=pType->NameHeadID ; pType->NameHeadID ; pRes=pType->NameHeadID ) {
+        for (pRes = pType->NameHeadID; pType->NameHeadID; pRes = pType->NameHeadID) {
             pType->NameHeadID = pType->NameHeadID->pnext;
             FreeOne(pRes);
         }
 
-        for (pRes=pType->NameHeadName ; pType->NameHeadName ; pRes=pType->NameHeadName ) {
+        for (pRes = pType->NameHeadName; pType->NameHeadName; pRes = pType->NameHeadName) {
             pType->NameHeadName = pType->NameHeadName->pnext;
             FreeOne(pRes);
         }
@@ -619,15 +538,15 @@ FreeData(
         RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)pType);
     }
 
-    for (pType=pUpd->ResTypeHeadName ; pUpd->ResTypeHeadName ; pType=pUpd->ResTypeHeadName) {
+    for (pType = pUpd->ResTypeHeadName; pUpd->ResTypeHeadName; pType = pUpd->ResTypeHeadName) {
         pUpd->ResTypeHeadName = pUpd->ResTypeHeadName->pnext;
 
-        for (pRes=pType->NameHeadID ; pType->NameHeadID ; pRes=pType->NameHeadID ) {
+        for (pRes = pType->NameHeadID; pType->NameHeadID; pRes = pType->NameHeadID) {
             pType->NameHeadID = pType->NameHeadID->pnext;
             FreeOne(pRes);
         }
 
-        for (pRes=pType->NameHeadName ; pType->NameHeadName ; pRes=pType->NameHeadName ) {
+        for (pRes = pType->NameHeadName; pType->NameHeadName; pRes = pType->NameHeadName) {
             pType->NameHeadName = pType->NameHeadName->pnext;
             FreeOne(pRes);
         }
@@ -665,9 +584,9 @@ FreeData(
 
 PSDATA
 AddStringOrID(
-             LPCWSTR     lp,
-             PUPDATEDATA pupd
-             )
+    LPCWSTR     lp,
+    PUPDATEDATA pupd
+)
 {
     USHORT cb;
     PSDATA pstring;
@@ -677,7 +596,7 @@ AddStringOrID(
 
         // an ID
 
-        pstring = (PSDATA)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), sizeof(SDATA));
+        pstring = (PSDATA)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), sizeof(SDATA));
         if (pstring == NULL)
             return NULL;
         RtlZeroMemory((PVOID)pstring, sizeof(SDATA));
@@ -699,12 +618,12 @@ AddStringOrID(
 
         if (!pstring) {
             // allocate a new one
-            pstring = (PSDATA)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ) | HEAP_ZERO_MEMORY, sizeof(SDATA));
+            pstring = (PSDATA)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG) | HEAP_ZERO_MEMORY, sizeof(SDATA));
             if (pstring == NULL)
                 return NULL;
             RtlZeroMemory((PVOID)pstring, sizeof(SDATA));
 
-            pstring->szStr = (WCHAR*)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), cb*sizeof(WCHAR));
+            pstring->szStr = (WCHAR *)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), cb * sizeof(WCHAR));
             if (pstring->szStr == NULL) {
                 RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)pstring);
                 return NULL;
@@ -714,12 +633,12 @@ AddStringOrID(
 
             pstring->cbData = sizeof(pstring->cbsz) + cb * sizeof(WCHAR);
             pstring->cbsz = cb - 1;     /* don't include zero terminator */
-            RtlCopyMemory(pstring->szStr, lp, cb*sizeof(WCHAR));
+            RtlCopyMemory(pstring->szStr, lp, cb * sizeof(WCHAR));
 
             pupd->cbStringTable += pstring->cbData;
 
-            pstring->uu.ss.pnext=NULL;
-            *ppstring=pstring;
+            pstring->uu.ss.pnext = NULL;
+            *ppstring = pstring;
         }
     }
 
@@ -732,22 +651,22 @@ AddStringOrID(
 
 LONG
 AddResource(
-           IN PSDATA Type,
-           IN PSDATA Name,
-           IN WORD Language,
-           IN PUPDATEDATA pupd,
-           IN PVOID lpData,
-           IN ULONG cb
-           )
+    IN PSDATA Type,
+    IN PSDATA Name,
+    IN WORD Language,
+    IN PUPDATEDATA pupd,
+    IN PVOID lpData,
+    IN ULONG cb
+)
 {
     PRESTYPE  pType;
     PPRESTYPE ppType;
     PRESNAME  pName;
     PRESNAME  pNameM;
     PPRESNAME ppName = NULL;
-    BOOL fTypeID=(Type->discriminant == IS_ID);
-    BOOL fNameID=(Name->discriminant == IS_ID);
-    BOOL fSame=FALSE;
+    BOOL fTypeID = (Type->discriminant == IS_ID);
+    BOOL fNameID = (Name->discriminant == IS_ID);
+    BOOL fSame = FALSE;
     int iCompare;
 
 
@@ -760,7 +679,7 @@ AddResource(
     // Try to find the Type in the list
 
 
-    while ((pType=*ppType) != NULL) {
+    while ((pType = *ppType) != NULL) {
         if (pType->Type->uu.Ordinal == Type->uu.Ordinal) {
             ppName = fNameID ? &pType->NameHeadID : &pType->NameHeadName;
             break;
@@ -780,7 +699,7 @@ AddResource(
 
 
     if (ppName == NULL) {
-        pType = (PRESTYPE)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), sizeof(RESTYPE));
+        pType = (PRESTYPE)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), sizeof(RESTYPE));
         if (pType == NULL)
             return ERROR_NOT_ENOUGH_MEMORY;
         RtlZeroMemory((PVOID)pType, sizeof(RESTYPE));
@@ -794,7 +713,7 @@ AddResource(
     // Find proper place for name
 
 
-    while ( (pName = *ppName) != NULL) {
+    while ((pName = *ppName) != NULL) {
         if (fNameID) {
             if (Name->uu.Ordinal == pName->Name->uu.Ordinal) {
                 fSame = TRUE;
@@ -803,7 +722,7 @@ AddResource(
             if (Name->uu.Ordinal < pName->Name->uu.Ordinal)
                 break;
         } else {
-            iCompare = wcscmp(Name->szStr, pName->Name->szStr );
+            iCompare = wcscmp(Name->szStr, pName->Name->szStr);
             if (iCompare == 0) {
                 fSame = TRUE;
                 break;
@@ -825,7 +744,7 @@ AddResource(
                 if (lpData == NULL) {                   /* DELETE */
                     return DeleteResourceFromList(pupd, pType, pName, Language, fTypeID, fNameID);
                 }
-                RtlFreeHeap(RtlProcessHeap(),0,(PVOID)pName->OffsetToDataEntry);
+                RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)pName->OffsetToDataEntry);
                 if (IS_ID == Type->discriminant) {
                     RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)Type);
                 }
@@ -842,7 +761,7 @@ AddResource(
             }
         } else {                                  /* many languages currently */
             pNameM = pName;                     /* save head of lang list   */
-            while ( (pName = *ppName) != NULL) {/* find insertion point     */
+            while ((pName = *ppName) != NULL) {/* find insertion point     */
                 if (!(fNameID ? pName->Name->uu.Ordinal == (*ppName)->Name->uu.Ordinal :
                       !wcscmp(pName->Name->uu.ss.sz, (*ppName)->Name->uu.ss.sz)) ||
                     Language <= pName->LanguageId)      /* here? */
@@ -856,7 +775,7 @@ AddResource(
                 }
 
                 pName->DataSize = cb;                   /* REPLACE */
-                RtlFreeHeap(RtlProcessHeap(),0,(PVOID)pName->OffsetToDataEntry);
+                RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)pName->OffsetToDataEntry);
                 if (IS_ID == Type->discriminant) {
                     RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)Type);
                 }
@@ -886,7 +805,7 @@ AddResource(
             pType->NumberOfNamesName++;
     }
 
-    pName = (PRESNAME)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), sizeof(RESNAME));
+    pName = (PRESNAME)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), sizeof(RESNAME));
     if (pName == NULL)
         return ERROR_NOT_ENOUGH_MEMORY;
 
@@ -906,13 +825,13 @@ AddResource(
 
 BOOL
 DeleteResourceFromList(
-                      PUPDATEDATA pUpd,
-                      PRESTYPE pType,
-                      PRESNAME pName,
-                      INT Language,
-                      INT fType,
-                      INT fName
-                      )
+    PUPDATEDATA pUpd,
+    PRESTYPE pType,
+    PRESNAME pName,
+    INT Language,
+    INT fType,
+    INT fName
+)
 {
     PPRESTYPE   ppType;
     PPRESNAME   ppName;
@@ -981,22 +900,22 @@ DeleteResourceFromList(
 
 BOOL
 InsertResourceIntoLangList(
-                          PUPDATEDATA pUpd,
-                          PSDATA Type,
-                          PSDATA Name,
-                          PRESTYPE pType,
-                          PRESNAME pName,
-                          INT Language,
-                          INT fName,
-                          INT cb,
-                          PVOID lpData
-                          )
+    PUPDATEDATA pUpd,
+    PSDATA Type,
+    PSDATA Name,
+    PRESTYPE pType,
+    PRESNAME pName,
+    INT Language,
+    INT fName,
+    INT cb,
+    PVOID lpData
+)
 {
     PRESNAME    pNameM;
     PRESNAME    pNameNew;
     PPRESNAME   ppName;
 
-    pNameNew = (PRESNAME)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), sizeof(RESNAME));
+    pNameNew = (PRESNAME)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), sizeof(RESNAME));
     if (pNameNew == NULL)
         return ERROR_NOT_ENOUGH_MEMORY;
     RtlZeroMemory((PVOID)pNameNew, sizeof(RESNAME));
@@ -1020,9 +939,9 @@ InsertResourceIntoLangList(
     } else {
         pNameM = pName;
         pName->NumberOfLanguages += 1;
-        while ( (pName != NULL) &&
-                (fName ? Name->uu.Ordinal == pName->Name->uu.Ordinal :
-                 !wcscmp(Name->uu.ss.sz, pName->Name->uu.ss.sz))) {                        /* find insertion point        */
+        while ((pName != NULL) &&
+               (fName ? Name->uu.Ordinal == pName->Name->uu.Ordinal :
+                !wcscmp(Name->uu.ss.sz, pName->Name->uu.ss.sz))) {                        /* find insertion point        */
             if (Language <= pName->LanguageId)      /* here?                    */
                 break;                                /* yes                        */
             pNameM = pName;
@@ -1051,15 +970,15 @@ FilePos(int fh)
 
 
 ULONG
-MuMoveFilePos( INT fh, ULONG pos )
+MuMoveFilePos(INT fh, ULONG pos)
 {
-    return _llseek( fh, pos, SEEK_SET );
+    return _llseek(fh, pos, SEEK_SET);
 }
 
 
 
 ULONG
-MuWrite( INT fh, UCHAR*p, ULONG n )
+MuWrite(INT fh, UCHAR * p, ULONG n)
 {
     ULONG       n1;
 
@@ -1072,11 +991,11 @@ MuWrite( INT fh, UCHAR*p, ULONG n )
 
 
 ULONG
-MuRead(INT fh, UCHAR*p, ULONG n )
+MuRead(INT fh, UCHAR * p, ULONG n)
 {
     ULONG       n1;
 
-    if ((n1 = _lread( fh, p, n )) != n) {
+    if ((n1 = _lread(fh, p, n)) != n) {
         return n1;
     } else
         return 0;
@@ -1085,13 +1004,13 @@ MuRead(INT fh, UCHAR*p, ULONG n )
 
 
 BOOL
-MuCopy( INT srcfh, INT dstfh, ULONG nbytes )
+MuCopy(INT srcfh, INT dstfh, ULONG nbytes)
 {
     ULONG       n;
-    ULONG       cb=0L;
+    ULONG       cb = 0L;
     PUCHAR      pb;
 
-    pb = (PUCHAR)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), BUFSIZE);
+    pb = (PUCHAR)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), BUFSIZE);
     if (pb == NULL)
         return 0;
     RtlZeroMemory((PVOID)pb, BUFSIZE);
@@ -1103,9 +1022,9 @@ MuCopy( INT srcfh, INT dstfh, ULONG nbytes )
             n = BUFSIZE;
         nbytes -= n;
 
-        if (!MuRead( srcfh, pb, n )) {
+        if (!MuRead(srcfh, pb, n)) {
             cb += n;
-            MuWrite( dstfh, pb, n );
+            MuWrite(dstfh, pb, n);
         } else {
             RtlFreeHeap(RtlProcessHeap(), 0, pb);
             return cb;
@@ -1119,9 +1038,9 @@ MuCopy( INT srcfh, INT dstfh, ULONG nbytes )
 
 VOID
 SetResdata(
-          PIMAGE_RESOURCE_DATA_ENTRY  pResData,
-          ULONG                       offset,
-          ULONG                       size)
+    PIMAGE_RESOURCE_DATA_ENTRY  pResData,
+    ULONG                       offset,
+    ULONG                       size)
 {
     pResData->OffsetToData = offset;
     pResData->Size = size;
@@ -1132,10 +1051,10 @@ SetResdata(
 
 __inline VOID
 SetRestab(
-         PIMAGE_RESOURCE_DIRECTORY   pRestab,
-         LONG                        time,
-         WORD                        cNamed,
-         WORD                        cId)
+    PIMAGE_RESOURCE_DIRECTORY   pRestab,
+    LONG                        time,
+    WORD                        cNamed,
+    WORD                        cId)
 {
     pRestab->Characteristics = 0L;
     pRestab->TimeDateStamp = time;
@@ -1148,10 +1067,10 @@ SetRestab(
 
 PIMAGE_SECTION_HEADER
 FindSection(
-           PIMAGE_SECTION_HEADER       pObjBottom,
-           PIMAGE_SECTION_HEADER       pObjTop,
-           LPSTR pName
-           )
+    PIMAGE_SECTION_HEADER       pObjBottom,
+    PIMAGE_SECTION_HEADER       pObjTop,
+    LPSTR pName
+)
 {
     while (pObjBottom < pObjTop) {
         if (strcmp(pObjBottom->Name, pName) == 0)
@@ -1165,18 +1084,18 @@ FindSection(
 
 ULONG
 AssignResourceToSection(
-                       PRESNAME    *ppRes,         /* resource to assign */
-                       ULONG       ExtraSectionOffset,     /* offset between .rsrc and .rsrc1 */
-                       ULONG       Offset,         /* next available offset in section */
-                       LONG        Size,           /* Maximum size of .rsrc */
-                       PLONG       pSizeRsrc1
-                       )
+    PRESNAME * ppRes,         /* resource to assign */
+    ULONG       ExtraSectionOffset,     /* offset between .rsrc and .rsrc1 */
+    ULONG       Offset,         /* next available offset in section */
+    LONG        Size,           /* Maximum size of .rsrc */
+    PLONG       pSizeRsrc1
+)
 {
     ULONG       cb;
 
     /* Assign this res to this section */
     cb = ROUNDUP((*ppRes)->DataSize, CBLONG);
-    if (Offset < ExtraSectionOffset && Offset + cb > (ULONG)Size) {
+    if (Offset < ExtraSectionOffset && Offset + cb >(ULONG)Size) {
         *pSizeRsrc1 = Offset;
         Offset = ExtraSectionOffset;
         DPrintf((DebugBuf, "<<< Secondary resource section @%#08lx >>>\n", Offset));
@@ -1225,23 +1144,23 @@ AssignResourceToSection(
 */
 LONG
 PEWriteResFile(
-              INT         inpfh,
-              INT         outfh,
-              ULONG       cbOldexe,
-              PUPDATEDATA pUpdate
-              )
+    INT         inpfh,
+    INT         outfh,
+    ULONG       cbOldexe,
+    PUPDATEDATA pUpdate
+)
 {
     IMAGE_NT_HEADERS Old;       /* original header              */
     IMAGE_NT_HEADERS New;       /* working header       */
     PRESNAME    pRes;
     PRESNAME    pResSave;
     PRESTYPE    pType;
-//    ULONG       clock = GetTickCount(); /* current time */
+    //    ULONG       clock = GetTickCount(); /* current time */
     ULONG       clock = 0;
-    ULONG       cbName=0;       /* count of bytes in name strings */
-    ULONG       cbType=0;       /* count of bytes in type strings */
-    ULONG       cTypeStr=0;     /* count of strings */
-    ULONG       cNameStr=0;     /* count of strings */
+    ULONG       cbName = 0;       /* count of bytes in name strings */
+    ULONG       cbType = 0;       /* count of bytes in type strings */
+    ULONG       cTypeStr = 0;     /* count of strings */
+    ULONG       cNameStr = 0;     /* count of strings */
     LONG        cb;             /* temp byte count and file index */
     ULONG       cTypes = 0L;    /* count of resource types      */
     ULONG       cNames = 0L;    /* Count of names for multiple languages/name */
@@ -1252,18 +1171,18 @@ PEWriteResFile(
     ULONG       ibObjTabEnd;
     ULONG       ibNewObjTabEnd;
     ULONG       ibSave;
-    ULONG       adjust=0;
+    ULONG       adjust = 0;
     PIMAGE_SECTION_HEADER       pObjtblOld,
-    pObjtblNew,
-    pObjDebug,
-    pObjResourceOld,
-    pObjResourceNew,
-    pObjResourceOldX,
-    pObjDebugDirOld,
-    pObjDebugDirNew,
-    pObjNew,
-    pObjOld,
-    pObjLast;
+        pObjtblNew,
+        pObjDebug,
+        pObjResourceOld,
+        pObjResourceNew,
+        pObjResourceOldX,
+        pObjDebugDirOld,
+        pObjDebugDirNew,
+        pObjNew,
+        pObjOld,
+        pObjLast;
     PUCHAR      p;
     PIMAGE_RESOURCE_DIRECTORY   pResTab;
     PIMAGE_RESOURCE_DIRECTORY   pResTabN;
@@ -1275,8 +1194,8 @@ PEWriteResFile(
     PUSHORT     pResStr;
     PUSHORT     pResStrEnd;
     PSDATA      pPreviousName;
-    LONG        nObjResource=-1;
-    LONG        nObjResourceX=-1;
+    LONG        nObjResource = -1;
+    LONG        nObjResourceX = -1;
     ULONG       cbResource;
     ULONG       cbMustPad = 0;
     ULONG       ibMaxDbgOffsetOld;
@@ -1284,7 +1203,7 @@ PEWriteResFile(
     MuMoveFilePos(inpfh, cbOldexe);
     MuRead(inpfh, (PUCHAR)&Old, sizeof(IMAGE_NT_HEADERS));
     ibObjTab = cbOldexe + sizeof(ULONG) + sizeof(IMAGE_FILE_HEADER) +
-               Old.FileHeader.SizeOfOptionalHeader;
+        Old.FileHeader.SizeOfOptionalHeader;
     ibObjTabEnd = ibObjTab + Old.FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER);
     ibNewObjTabEnd = ibObjTabEnd;
 
@@ -1301,12 +1220,12 @@ PEWriteResFile(
     RtlCopyMemory(&New, &Old, sizeof(IMAGE_NT_HEADERS));
 
     /* Read section table */
-    pObjtblOld = (PIMAGE_SECTION_HEADER)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), Old.FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER));
+    pObjtblOld = (PIMAGE_SECTION_HEADER)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), Old.FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER));
     if (pObjtblOld == NULL) {
         cb = ERROR_NOT_ENOUGH_MEMORY;
         goto AbortExit;
     }
-    RtlZeroMemory((PVOID)pObjtblOld, Old.FileHeader.NumberOfSections*sizeof(IMAGE_SECTION_HEADER));
+    RtlZeroMemory((PVOID)pObjtblOld, Old.FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER));
     DPrintf((DebugBuf, "Old section table: %#08lx bytes at %#08lx(mem)\n",
              Old.FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER),
              pObjtblOld));
@@ -1315,12 +1234,12 @@ PEWriteResFile(
            Old.FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER));
     pObjLast = pObjtblOld + Old.FileHeader.NumberOfSections;
     ibMaxDbgOffsetOld = 0;
-    for (pObjOld=pObjtblOld ; pObjOld<pObjLast ; pObjOld++) {
+    for (pObjOld = pObjtblOld; pObjOld < pObjLast; pObjOld++) {
         if (pObjOld->PointerToRawData > ibMaxDbgOffsetOld) {
             ibMaxDbgOffsetOld = pObjOld->PointerToRawData + pObjOld->SizeOfRawData;
         }
     }
-    DPrintf((DebugBuf, "Maximum debug offset in old file: %08x\n", ibMaxDbgOffsetOld ));
+    DPrintf((DebugBuf, "Maximum debug offset in old file: %08x\n", ibMaxDbgOffsetOld));
 
     /*
      * First, count up the resources.  We need this information
@@ -1433,15 +1352,15 @@ PEWriteResFile(
      * some extra padding to attain the desired alignment, and the space for
      * cRes data entry headers.
      */
-    cbRestab =   sizeof(IMAGE_RESOURCE_DIRECTORY) +     /* root dir (types) */
-                 cTypes * sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY) +
-                 cTypes * sizeof(IMAGE_RESOURCE_DIRECTORY) +     /* subdir2 (names) */
-                 cNames * sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY) +
-                 cNames * sizeof(IMAGE_RESOURCE_DIRECTORY) +     /* subdir3 (langs) */
-                 cRes   * sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY) +
-                 (cbName + cbType) +                             /* name/type strings */
-                 cb +                                            /* padding */
-                 cRes   * sizeof(IMAGE_RESOURCE_DATA_ENTRY);     /* data entries */
+    cbRestab = sizeof(IMAGE_RESOURCE_DIRECTORY) +     /* root dir (types) */
+        cTypes * sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY) +
+        cTypes * sizeof(IMAGE_RESOURCE_DIRECTORY) +     /* subdir2 (names) */
+        cNames * sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY) +
+        cNames * sizeof(IMAGE_RESOURCE_DIRECTORY) +     /* subdir3 (langs) */
+        cRes * sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY) +
+        (cbName + cbType) +                             /* name/type strings */
+        cb +                                            /* padding */
+        cRes * sizeof(IMAGE_RESOURCE_DATA_ENTRY);     /* data entries */
 
     cbResource += cbRestab;             /* add in the resource table */
 
@@ -1455,14 +1374,14 @@ PEWriteResFile(
         cb = 0x7fffffff;                /* can fill forever */
     } else if (pObjResourceOld + 1 == pObjResourceOldX) {
         nObjResource = (ULONG)(pObjResourceOld - pObjtblOld);
-        DPrintf((DebugBuf,"Old Resource section #%lu\n", nObjResource+1));
-        DPrintf((DebugBuf,"Merging old Resource extra section #%lu\n", nObjResource+2));
+        DPrintf((DebugBuf, "Old Resource section #%lu\n", nObjResource + 1));
+        DPrintf((DebugBuf, "Merging old Resource extra section #%lu\n", nObjResource + 2));
         cb = 0x7fffffff;                /* merge resource sections */
     } else {
         nObjResource = (ULONG)(pObjResourceOld - pObjtblOld);
-        DPrintf((DebugBuf,"Old Resource section #%lu\n", nObjResource+1));
+        DPrintf((DebugBuf, "Old Resource section #%lu\n", nObjResource + 1));
         if (pObjOld) {
-            cb = (pObjResourceOld+1)->VirtualAddress - pObjResourceOld->VirtualAddress;
+            cb = (pObjResourceOld + 1)->VirtualAddress - pObjResourceOld->VirtualAddress;
         } else {
             cb = 0x7fffffff;
         }
@@ -1492,7 +1411,7 @@ PEWriteResFile(
         } else {          /* have already merged .rsrc & .rsrc1, if possible */
             DPrintf((DebugBuf, ".rsrc1 section not empty\n"));
             nObjResourceX = (ULONG)(pObjResourceOldX - pObjtblOld);
-            adjust = pObjResourceOldX->VirtualAddress - pObjResourceOld ->VirtualAddress;
+            adjust = pObjResourceOldX->VirtualAddress - pObjResourceOld->VirtualAddress;
         }
     }
 
@@ -1568,11 +1487,11 @@ PEWriteResFile(
      */
     pObjDebug = FindSection(pObjtblOld, pObjLast, ".debug");
     if (pObjDebug != NULL) {
-        if (Old.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress  == 0) {
+        if (Old.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress == 0) {
             DPrintf((DebugBuf, ".debug section but no debug directory\n"));
             return ERROR_INVALID_DATA;
         }
-        if (pObjDebug != pObjLast-1) {
+        if (pObjDebug != pObjLast - 1) {
             DPrintf((DebugBuf, "debug section not last section in file\n"));
             return ERROR_INVALID_DATA;
         }
@@ -1581,9 +1500,9 @@ PEWriteResFile(
                  pObjDebug->PointerToRawData));
     }
     pObjDebugDirOld = NULL;
-    for (pObjOld=pObjtblOld ; pObjOld<pObjLast ; pObjOld++) {
+    for (pObjOld = pObjtblOld; pObjOld < pObjLast; pObjOld++) {
         if (Old.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress >= pObjOld->VirtualAddress &&
-            Old.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress < pObjOld->VirtualAddress+pObjOld->SizeOfRawData) {
+            Old.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress < pObjOld->VirtualAddress + pObjOld->SizeOfRawData) {
             pObjDebugDirOld = pObjOld;
             break;
         }
@@ -1609,7 +1528,7 @@ PEWriteResFile(
         New.FileHeader.NumberOfSections++;
     }
 
-    DPrintf((DebugBuf, "Resources assigned to section #%lu\n", nObjResource+1));
+    DPrintf((DebugBuf, "Resources assigned to section #%lu\n", nObjResource + 1));
     if (nObjResourceX != -1) {
         if (pObjResourceOldX != NULL) {
             nObjResourceX = (ULONG)(pObjResourceOldX - pObjtblOld);
@@ -1621,7 +1540,7 @@ PEWriteResFile(
         else
             nObjResourceX = New.FileHeader.NumberOfSections;
         New.FileHeader.NumberOfSections++;
-        DPrintf((DebugBuf, "Extra resources assigned to section #%lu\n", nObjResourceX+1));
+        DPrintf((DebugBuf, "Extra resources assigned to section #%lu\n", nObjResourceX + 1));
     } else if (pObjResourceOldX != NULL) {        /* Was old .rsrc1 section? */
         DPrintf((DebugBuf, "Extra resource section deleted\n"));
         New.FileHeader.NumberOfSections--;      /* yes, delete it */
@@ -1633,14 +1552,14 @@ PEWriteResFile(
      */
     adjust = (New.FileHeader.NumberOfSections - Old.FileHeader.NumberOfSections) * sizeof(IMAGE_SECTION_HEADER);
     cb = Old.OptionalHeader.SizeOfHeaders -
-         (Old.FileHeader.NumberOfSections*sizeof(IMAGE_SECTION_HEADER) +
-          sizeof(IMAGE_NT_HEADERS) + cbOldexe );
+        (Old.FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER) +
+         sizeof(IMAGE_NT_HEADERS) + cbOldexe);
     if (adjust > (ULONG)cb) {
         int i;
 
         adjust -= cb;
         DPrintf((DebugBuf, "Adjusting header RVAs by %#08lx\n", adjust));
-        for (i = 0; i < IMAGE_NUMBEROF_DIRECTORY_ENTRIES ; i++) {
+        for (i = 0; i < IMAGE_NUMBEROF_DIRECTORY_ENTRIES; i++) {
             if (New.OptionalHeader.DataDirectory[i].VirtualAddress &&
                 New.OptionalHeader.DataDirectory[i].VirtualAddress < New.OptionalHeader.SizeOfHeaders) {
                 DPrintf((DebugBuf, "Adjusting unit[%s] RVA from %#08lx to %#08lx\n",
@@ -1660,7 +1579,7 @@ PEWriteResFile(
         // the SizeOfHeaders length.
 
         DPrintf((DebugBuf, "Checking header RVAs for 'dead' space usage\n"));
-        for (i = 0; i < IMAGE_NUMBEROF_DIRECTORY_ENTRIES ; i++) {
+        for (i = 0; i < IMAGE_NUMBEROF_DIRECTORY_ENTRIES; i++) {
             if (New.OptionalHeader.DataDirectory[i].VirtualAddress &&
                 New.OptionalHeader.DataDirectory[i].VirtualAddress < Old.OptionalHeader.SizeOfHeaders) {
                 DPrintf((DebugBuf, "Adjusting unit[%s] RVA from %#08lx to %#08lx\n",
@@ -1675,7 +1594,7 @@ PEWriteResFile(
 
     /* Allocate storage for new section table                */
     cb = New.FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER);
-    pObjtblNew = (PIMAGE_SECTION_HEADER)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), (short)cb);
+    pObjtblNew = (PIMAGE_SECTION_HEADER)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), (short)cb);
     if (pObjtblNew == NULL) {
         cb = ERROR_NOT_ENOUGH_MEMORY;
         goto AbortExit;
@@ -1688,17 +1607,17 @@ PEWriteResFile(
      * copy old section table to new
      */
     adjust = 0;                 /* adjustment to virtual address */
-    for (pObjOld=pObjtblOld,pObjNew=pObjtblNew ; pObjOld<pObjLast ; pObjOld++) {
+    for (pObjOld = pObjtblOld, pObjNew = pObjtblNew; pObjOld < pObjLast; pObjOld++) {
         if (pObjOld == pObjResourceOldX) {
             if (nObjResourceX == -1) {
                 // we have to move back all the other section.
                 // the .rsrc1 is bigger than what we need
                 // adjust must be a negative number
-                adjust -= (pObjOld+1)->VirtualAddress - pObjOld->VirtualAddress;
+                adjust -= (pObjOld + 1)->VirtualAddress - pObjOld->VirtualAddress;
             }
             continue;
         } else if (pObjNew == pObjResourceNew) {
-            DPrintf((DebugBuf, "Resource Section %i\n", nObjResource+1));
+            DPrintf((DebugBuf, "Resource Section %i\n", nObjResource + 1));
             cb = ROUNDUP(cbNew, New.OptionalHeader.FileAlignment);
             if (pObjResourceOld == NULL) {
                 adjust = ROUNDUP(cbNew, New.OptionalHeader.SectionAlignment);
@@ -1717,8 +1636,8 @@ PEWriteResFile(
                     adjust = 0;
                 } else if (pObjNew->SizeOfRawData > pObjOld->SizeOfRawData) {
                     adjust +=
-                    ROUNDUP(cbNew, New.OptionalHeader.SectionAlignment) -
-                    ((pObjOld+1)->VirtualAddress-pObjOld->VirtualAddress);
+                        ROUNDUP(cbNew, New.OptionalHeader.SectionAlignment) -
+                        ((pObjOld + 1)->VirtualAddress - pObjOld->VirtualAddress);
                 } else {          /* is smaller, but pad so will be valid */
                     adjust = 0;
                     pObjNew->SizeOfRawData = pObjResourceOld->SizeOfRawData;
@@ -1732,7 +1651,7 @@ PEWriteResFile(
                 goto rest_of_table;
         } else if (nObjResourceX != -1 && pObjNew == pObjtblNew + nObjResourceX) {
             DPrintf((DebugBuf, "Additional Resource Section %i\n",
-                     nObjResourceX+1));
+                     nObjResourceX + 1));
             RtlZeroMemory(pObjNew, sizeof(IMAGE_SECTION_HEADER));
             strcpy(pObjNew->Name, ".rsrc1");
             /*
@@ -1746,27 +1665,27 @@ PEWriteResFile(
                 pObjNew->VirtualAddress = pObjOld->VirtualAddress;
                 pObjNew->Characteristics = IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE | IMAGE_SCN_CNT_INITIALIZED_DATA;
                 adjust = ROUNDUP(cbResource, New.OptionalHeader.SectionAlignment) +
-                         pObjResourceNew->VirtualAddress - pObjNew->VirtualAddress;
-                DPrintf((DebugBuf, "Added .rsrc1. VirtualAddress %lu\t adjust: %lu\n", pObjNew->VirtualAddress, adjust ));
+                    pObjResourceNew->VirtualAddress - pObjNew->VirtualAddress;
+                DPrintf((DebugBuf, "Added .rsrc1. VirtualAddress %lu\t adjust: %lu\n", pObjNew->VirtualAddress, adjust));
             } else {
                 // we already have an .rsrc1 use the position of that and
                 // calculate the new adjust
                 pObjNew->VirtualAddress = pObjResourceOldX->VirtualAddress;
                 pObjNew->Characteristics = IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE | IMAGE_SCN_CNT_INITIALIZED_DATA;
 
-                DPrintf((DebugBuf, ".rsrc1 Keep old position.\t\tVirtualAddress %lu\t", pObjNew->VirtualAddress ));
+                DPrintf((DebugBuf, ".rsrc1 Keep old position.\t\tVirtualAddress %lu\t", pObjNew->VirtualAddress));
                 // Check if we have enough room in the old .rsrc1
                 // Include the full size of the section, data + roundup
                 if (cbResource -
                     (pObjResourceOldX->VirtualAddress - pObjResourceOld->VirtualAddress) <=
-                    pObjOld->VirtualAddress - pObjNew->VirtualAddress ) {
+                    pObjOld->VirtualAddress - pObjNew->VirtualAddress) {
                     // we have to move back all the other section.
                     // the .rsrc1 is bigger than what we need
                     // adjust must be a negative number
                     // calc new adjust size
                     adjust = ROUNDUP(cbResource, New.OptionalHeader.SectionAlignment) +
-                             pObjResourceNew->VirtualAddress -
-                             pObjOld->VirtualAddress;
+                        pObjResourceNew->VirtualAddress -
+                        pObjOld->VirtualAddress;
                     DPrintf((DebugBuf, "adjust: %ld\tsmall: New %lu\tOld %lu\n", adjust,
                              cbResource -
                              (pObjResourceOldX->VirtualAddress - pObjResourceOld->VirtualAddress),
@@ -1776,8 +1695,8 @@ PEWriteResFile(
                     // The .rsrc1 is too small
 
                     adjust = ROUNDUP(cbResource, New.OptionalHeader.SectionAlignment) +
-                             pObjResourceNew->VirtualAddress -
-                             pObjOld->VirtualAddress;
+                        pObjResourceNew->VirtualAddress -
+                        pObjOld->VirtualAddress;
                     DPrintf((DebugBuf, "adjust: %lu\tsmall: New %lu\tOld %lu\n", adjust,
                              cbResource -
                              (pObjResourceOldX->VirtualAddress - pObjResourceOld->VirtualAddress),
@@ -1791,12 +1710,12 @@ PEWriteResFile(
                      pObjOld - pObjtblOld + 1, pObjNew));
             *pObjNew++ = *pObjOld;              /* copy obj table entry */
         } else {
-            rest_of_table:
+        rest_of_table:
             DPrintf((DebugBuf, "copying section table entry %i@%#08lx\n",
                      pObjOld - pObjtblOld + 1, pObjNew));
             DPrintf((DebugBuf, "adjusting VirtualAddress by %#08lx\n", adjust));
             *pObjNew++ = *pObjOld;
-            (pObjNew-1)->VirtualAddress += adjust;
+            (pObjNew - 1)->VirtualAddress += adjust;
         }
     }
 
@@ -1807,7 +1726,7 @@ PEWriteResFile(
                                              New.OptionalHeader.SectionAlignment);
 
     /* allocate room to build the resource directory/tables in */
-    pResTab = (PIMAGE_RESOURCE_DIRECTORY)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), cbRestab);
+    pResTab = (PIMAGE_RESOURCE_DIRECTORY)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), cbRestab);
     if (pResTab == NULL) {
         cb = ERROR_NOT_ENOUGH_MEMORY;
         goto AbortExit;
@@ -1838,8 +1757,8 @@ PEWriteResFile(
                                             cNames * sizeof(IMAGE_RESOURCE_DIRECTORY) +
                                             cRes * sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
 
-    pResStr  = (PUSHORT)(((PUCHAR)pResData) +
-                         cRes * sizeof(IMAGE_RESOURCE_DATA_ENTRY));
+    pResStr = (PUSHORT)(((PUCHAR)pResData) +
+                        cRes * sizeof(IMAGE_RESOURCE_DATA_ENTRY));
 
     pResStrEnd = (PUSHORT)(((PUCHAR)pResStr) + cbName + cbType);
 
@@ -1847,14 +1766,14 @@ PEWriteResFile(
      * Loop over type table, building the PE resource table.
      */
 
-    /*
-     * **
-     * This code doesn't sort the table - the TYPEINFO and RESINFO    **
-     * insertion code in rcp.c (AddResType and SaveResFile) do the    **
-     * insertion by ordinal type and name, so we don't have to sort   **
-     * it at this point.                                              **
-     * **
-     */
+     /*
+      * **
+      * This code doesn't sort the table - the TYPEINFO and RESINFO    **
+      * insertion code in rcp.c (AddResType and SaveResFile) do the    **
+      * insertion by ordinal type and name, so we don't have to sort   **
+      * it at this point.                                              **
+      * **
+      */
     DPrintf((DebugBuf, "building resource directory\n"));
 
     // First, add all the entries in the Types: Alpha list.
@@ -1873,7 +1792,7 @@ PEWriteResFile(
         pResDirT++;
 
         *pResStr = pType->Type->cbsz;
-        wcsncpy((WCHAR*)(pResStr+1), pType->Type->szStr, pType->Type->cbsz);
+        wcsncpy((WCHAR *)(pResStr + 1), pType->Type->szStr, pType->Type->cbsz);
         pResStr += pType->Type->cbsz + 1;
 
         pResTabN = (PIMAGE_RESOURCE_DIRECTORY)pResDirN;
@@ -1888,19 +1807,19 @@ PEWriteResFile(
             DPrintfu((pRes->Name->szStr));
             DPrintfn((DebugBuf, "\n"));
 
-            if (pPreviousName == NULL || wcscmp(pPreviousName->szStr,pRes->Name->szStr) != 0) {
+            if (pPreviousName == NULL || wcscmp(pPreviousName->szStr, pRes->Name->szStr) != 0) {
                 // Setup a new name directory
 
-                pResDirN->Name = (ULONG)((((PUCHAR)pResStr)-p) |
+                pResDirN->Name = (ULONG)((((PUCHAR)pResStr) - p) |
                                          IMAGE_RESOURCE_NAME_IS_STRING);
-                pResDirN->OffsetToData = (ULONG)((((PUCHAR)pResDirL)-p) |
+                pResDirN->OffsetToData = (ULONG)((((PUCHAR)pResDirL) - p) |
                                                  IMAGE_RESOURCE_DATA_IS_DIRECTORY);
                 pResDirN++;
 
                 // Copy the alpha name to a string entry
 
                 *pResStr = pRes->Name->cbsz;
-                wcsncpy((WCHAR*)(pResStr+1),pRes->Name->szStr,pRes->Name->cbsz);
+                wcsncpy((WCHAR *)(pResStr + 1), pRes->Name->szStr, pRes->Name->cbsz);
                 pResStr += pRes->Name->cbsz + 1;
 
                 pPreviousName = pRes->Name;
@@ -1921,7 +1840,7 @@ PEWriteResFile(
             // Setup a new resource data entry
 
             SetResdata(pResData,
-                       pRes->OffsetToData+pObjtblNew[nObjResource].VirtualAddress,
+                       pRes->OffsetToData + pObjtblNew[nObjResource].VirtualAddress,
                        pRes->DataSize);
             pResData++;
 
@@ -1939,7 +1858,7 @@ PEWriteResFile(
                 // table
 
                 pResDirN->Name = pRes->Name->uu.Ordinal;
-                pResDirN->OffsetToData = (ULONG)((((PUCHAR)pResDirL)-p) |
+                pResDirN->OffsetToData = (ULONG)((((PUCHAR)pResDirL) - p) |
                                                  IMAGE_RESOURCE_DATA_IS_DIRECTORY);
                 pResDirN++;
 
@@ -1962,7 +1881,7 @@ PEWriteResFile(
             // Setup a new resource data entry
 
             SetResdata(pResData,
-                       pRes->OffsetToData+pObjtblNew[nObjResource].VirtualAddress,
+                       pRes->OffsetToData + pObjtblNew[nObjResource].VirtualAddress,
                        pRes->DataSize);
             pResData++;
 
@@ -1996,19 +1915,19 @@ PEWriteResFile(
             DPrintfu((pRes->Name->szStr));
             DPrintfn((DebugBuf, "\n"));
 
-            if (pPreviousName == NULL || wcscmp(pPreviousName->szStr,pRes->Name->szStr) != 0) {
+            if (pPreviousName == NULL || wcscmp(pPreviousName->szStr, pRes->Name->szStr) != 0) {
                 // Setup a new name directory
 
-                pResDirN->Name = (ULONG)((((PUCHAR)pResStr)-p) |
+                pResDirN->Name = (ULONG)((((PUCHAR)pResStr) - p) |
                                          IMAGE_RESOURCE_NAME_IS_STRING);
-                pResDirN->OffsetToData = (ULONG)((((PUCHAR)pResDirL)-p) |
+                pResDirN->OffsetToData = (ULONG)((((PUCHAR)pResDirL) - p) |
                                                  IMAGE_RESOURCE_DATA_IS_DIRECTORY);
                 pResDirN++;
 
                 // Copy the alpha name to a string entry.
 
                 *pResStr = pRes->Name->cbsz;
-                wcsncpy((WCHAR*)(pResStr+1),pRes->Name->szStr,pRes->Name->cbsz);
+                wcsncpy((WCHAR *)(pResStr + 1), pRes->Name->szStr, pRes->Name->cbsz);
                 pResStr += pRes->Name->cbsz + 1;
 
                 pPreviousName = pRes->Name;
@@ -2029,7 +1948,7 @@ PEWriteResFile(
             // Setup a new resource data entry
 
             SetResdata(pResData,
-                       pRes->OffsetToData+pObjtblNew[nObjResource].VirtualAddress,
+                       pRes->OffsetToData + pObjtblNew[nObjResource].VirtualAddress,
                        pRes->DataSize);
             pResData++;
 
@@ -2047,7 +1966,7 @@ PEWriteResFile(
                 // table
 
                 pResDirN->Name = pRes->Name->uu.Ordinal;
-                pResDirN->OffsetToData = (ULONG)((((PUCHAR)pResDirL)-p) |
+                pResDirN->OffsetToData = (ULONG)((((PUCHAR)pResDirL) - p) |
                                                  IMAGE_RESOURCE_DATA_IS_DIRECTORY);
                 pResDirN++;
 
@@ -2070,7 +1989,7 @@ PEWriteResFile(
             // Setup a new resource data entry
 
             SetResdata(pResData,
-                       pRes->OffsetToData+pObjtblNew[nObjResource].VirtualAddress,
+                       pRes->OffsetToData + pObjtblNew[nObjResource].VirtualAddress,
                        pRes->DataSize);
             pResData++;
 
@@ -2136,7 +2055,7 @@ PEWriteResFile(
      * copy existing image sections
      */
 
-    /* Align data sections on sector boundary           */
+     /* Align data sections on sector boundary           */
     cb = REMAINDER(New.OptionalHeader.SizeOfHeaders, New.OptionalHeader.FileAlignment);
     New.OptionalHeader.SizeOfHeaders += cb;
     DPrintf((DebugBuf, "padding header with %#08lx bytes @%#08lx\n", cb, FilePos(outfh)));
@@ -2151,15 +2070,15 @@ PEWriteResFile(
 
     /* copy one section at a time */
     New.OptionalHeader.SizeOfInitializedData = 0;
-    for (pObjOld = pObjtblOld , pObjNew = pObjtblNew ;
-        pObjOld < pObjLast ;
-        pObjNew++) {
+    for (pObjOld = pObjtblOld, pObjNew = pObjtblNew;
+         pObjOld < pObjLast;
+         pObjNew++) {
         if (pObjOld == pObjResourceOldX)
             pObjOld++;
         if (pObjNew == pObjResourceNew) {
 
             /* Write new resource section */
-            DPrintf((DebugBuf, "Primary resource section %i to %#08lx\n", nObjResource+1, FilePos(outfh)));
+            DPrintf((DebugBuf, "Primary resource section %i to %#08lx\n", nObjResource + 1, FilePos(outfh)));
 
             pObjNew->PointerToRawData = FilePos(outfh);
             New.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress = pObjResourceNew->VirtualAddress;
@@ -2170,15 +2089,14 @@ PEWriteResFile(
 
             pResSave = WriteResSection(pUpdate, outfh,
                                        New.OptionalHeader.FileAlignment,
-                                       pObjResourceNew->SizeOfRawData-cbRestab,
+                                       pObjResourceNew->SizeOfRawData - cbRestab,
                                        NULL);
             cb = FilePos(outfh);
             DPrintf((DebugBuf, "wrote resource data: %#08lx bytes @%#08lx\n",
                      cb - ibSave - cbRestab, ibSave + cbRestab));
             if (cbMustPad != 0) {
                 cbMustPad -= cb - ibSave;
-                DPrintf((DebugBuf, "writing MUNGE pad: %#04lx bytes @%#08lx\n",
-                         cbMustPad, cb));
+                DPrintf((DebugBuf, "writing MUNGE pad: %#04lx bytes @%#08lx\n", cbMustPad, cb));
                 /* assumes that cbMustPad % cbpadMax == 0 */
                 while (cbMustPad > 0) {
                     MuWrite(outfh, pchZero, cbPadMax);
@@ -2194,7 +2112,7 @@ PEWriteResFile(
                 MuWrite(outfh, (PUCHAR)pResTab, cbRestab);
                 MuMoveFilePos(outfh, cb);
                 cb = FilePos(inpfh);
-                MuMoveFilePos(inpfh, cb+pObjOld->SizeOfRawData);
+                MuMoveFilePos(inpfh, cb + pObjOld->SizeOfRawData);
             }
             New.OptionalHeader.SizeOfInitializedData += pObjNew->SizeOfRawData;
             if (pObjResourceOld == NULL) {
@@ -2205,7 +2123,7 @@ PEWriteResFile(
         } else if (nObjResourceX != -1 && pObjNew == pObjtblNew + nObjResourceX) {
 
             /* Write new resource section */
-            DPrintf((DebugBuf, "Secondary resource section %i @%#08lx\n", nObjResourceX+1, FilePos(outfh)));
+            DPrintf((DebugBuf, "Secondary resource section %i @%#08lx\n", nObjResourceX + 1, FilePos(outfh)));
 
             pObjNew->PointerToRawData = FilePos(outfh);
             (void)WriteResSection(pUpdate, outfh,
@@ -2230,8 +2148,8 @@ PEWriteResFile(
                 pObjOld->PointerToRawData != FilePos(outfh)) {
                 MuMoveFilePos(outfh, pObjOld->PointerToRawData);
             }
-            next_section:
-            DPrintf((DebugBuf, "copying section %i @%#08lx\n", pObjNew-pObjtblNew+1, FilePos(outfh)));
+        next_section:
+            DPrintf((DebugBuf, "copying section %i @%#08lx\n", pObjNew - pObjtblNew + 1, FilePos(outfh)));
             if (pObjOld->PointerToRawData != 0) {
                 pObjNew->PointerToRawData = FilePos(outfh);
                 MuMoveFilePos(inpfh, pObjOld->PointerToRawData);
@@ -2240,7 +2158,7 @@ PEWriteResFile(
             if (pObjOld == pObjDebugDirOld) {
                 pObjDebugDirNew = pObjNew;
             }
-            if ((pObjNew->Characteristics&IMAGE_SCN_CNT_INITIALIZED_DATA) != 0)
+            if ((pObjNew->Characteristics & IMAGE_SCN_CNT_INITIALIZED_DATA) != 0)
                 New.OptionalHeader.SizeOfInitializedData += pObjNew->SizeOfRawData;
             pObjOld++;
         }
@@ -2251,7 +2169,7 @@ PEWriteResFile(
 
     /* Update the address of the relocation table */
     pObjNew = FindSection(pObjtblNew,
-                          pObjtblNew+New.FileHeader.NumberOfSections,
+                          pObjtblNew + New.FileHeader.NumberOfSections,
                           ".reloc");
     if (pObjNew != NULL) {
         New.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress = pObjNew->VirtualAddress;
@@ -2272,7 +2190,7 @@ PEWriteResFile(
     DPrintf((DebugBuf, "File size is: %#08lx\n", adjust));
 
     /* If a debug section, fix up the debug table */
-    pObjNew = FindSection(pObjtblNew, pObjtblNew+New.FileHeader.NumberOfSections, ".debug");
+    pObjNew = FindSection(pObjtblNew, pObjtblNew + New.FileHeader.NumberOfSections, ".debug");
     cb = PatchDebug(inpfh, outfh, pObjDebug, pObjNew, pObjDebugDirOld, pObjDebugDirNew,
                     &Old, &New, ibMaxDbgOffsetOld, &adjust);
 
@@ -2296,8 +2214,8 @@ PEWriteResFile(
         if (New.FileHeader.PointerToSymbolTable != 0)
             New.FileHeader.PointerToSymbolTable += ibt - adjust;
         MuMoveFilePos(inpfh, adjust);   /* returned by PatchDebug */
-        DPrintf((DebugBuf, "Copying NOTMAPPED Debug Information, %#08lx bytes\n", ibSave-adjust));
-        MuCopy(inpfh, outfh, ibSave-adjust);
+        DPrintf((DebugBuf, "Copying NOTMAPPED Debug Information, %#08lx bytes\n", ibSave - adjust));
+        MuCopy(inpfh, outfh, ibSave - adjust);
     }
 
     /*
@@ -2305,7 +2223,7 @@ PEWriteResFile(
      */
     DPrintf((DebugBuf, "Writing updated file header: %#08x bytes @%#08lx\n", sizeof(IMAGE_NT_HEADERS), cbOldexe));
     MuMoveFilePos(outfh, (long)cbOldexe);
-    MuWrite(outfh, (char*)&New, sizeof(IMAGE_NT_HEADERS));
+    MuWrite(outfh, (char *)&New, sizeof(IMAGE_NT_HEADERS));
 
     /* free up allocated memory */
 
@@ -2314,7 +2232,7 @@ PEWriteResFile(
     DPrintf((DebugBuf, "Freeing resource directory: %#08lx(mem)\n", pResTab));
     RtlFreeHeap(RtlProcessHeap(), 0, pResTab);
 
-    AbortExit:
+AbortExit:
     DPrintf((DebugBuf, "Freeing new section table: %#08lx(mem)\n", pObjtblNew));
     RtlFreeHeap(RtlProcessHeap(), 0, pObjtblNew);
     return cb;
@@ -2330,14 +2248,14 @@ PEWriteResFile(
 
 PRESNAME
 WriteResSection(
-               PUPDATEDATA pUpdate,
-               INT outfh,
-               ULONG align,
-               ULONG cbLeft,
-               PRESNAME    pResSave
-               )
+    PUPDATEDATA pUpdate,
+    INT outfh,
+    ULONG align,
+    ULONG cbLeft,
+    PRESNAME    pResSave
+)
 {
-    ULONG   cbB=0;            /* bytes in current section    */
+    ULONG   cbB = 0;            /* bytes in current section    */
     ULONG   cbT;            /* bytes in current section    */
     ULONG   size;
     PRESNAME    pRes;
@@ -2350,8 +2268,8 @@ WriteResSection(
     while (pType) {
         pRes = pType->NameHeadName;
         fName = TRUE;
-        loop1:
-        for ( ; pRes ; pRes = pRes->pnext) {
+    loop1:
+        for (; pRes; pRes = pRes->pnext) {
             if (pResSave != NULL && pRes != pResSave)
                 continue;
             pResSave = NULL;
@@ -2361,12 +2279,12 @@ WriteResSection(
                 DPrintfu((pType->Type->szStr));
                 DPrintfn((DebugBuf, "."));
             } else {
-                DPrintf(( DebugBuf, "    %d.", pType->Type->uu.Ordinal ));
+                DPrintf((DebugBuf, "    %d.", pType->Type->uu.Ordinal));
             }
             if (pRes->Name->discriminant == IS_STRING) {
                 DPrintfu((pRes->Name->szStr));
             } else {
-                DPrintfn(( DebugBuf, "%d", pRes->Name->uu.Ordinal ));
+                DPrintfn((DebugBuf, "%d", pRes->Name->uu.Ordinal));
             }
 #endif
             lpData = (PVOID)pRes->OffsetToDataEntry;
@@ -2404,8 +2322,8 @@ WriteResSection(
     while (pType) {
         pRes = pType->NameHeadName;
         fName = TRUE;
-        loop2:
-        for ( ; pRes ; pRes = pRes->pnext) {
+    loop2:
+        for (; pRes; pRes = pRes->pnext) {
             if (pResSave != NULL && pRes != pResSave)
                 continue;
             pResSave = NULL;
@@ -2415,12 +2333,12 @@ WriteResSection(
                 DPrintfu((pType->Type->szStr));
                 DPrintfn((DebugBuf, "."));
             } else {
-                DPrintf(( DebugBuf, "    %d.", pType->Type->uu.Ordinal ));
+                DPrintf((DebugBuf, "    %d.", pType->Type->uu.Ordinal));
             }
             if (pRes->Name->discriminant == IS_STRING) {
                 DPrintfu((pRes->Name->szStr));
             } else {
-                DPrintfn(( DebugBuf, "%d", pRes->Name->uu.Ordinal ));
+                DPrintfn((DebugBuf, "%d", pRes->Name->uu.Ordinal));
             }
 #endif
             lpData = (PVOID)pRes->OffsetToDataEntry;
@@ -2455,7 +2373,7 @@ WriteResSection(
     }
     pRes = NULL;
 
-    write_pad:
+write_pad:
     /* pad to alignment boundary */
     cbB = FilePos(outfh);
     cbT = ROUNDUP(cbB, align);
@@ -2474,7 +2392,7 @@ WriteResSection(
 
 
 #if DBG
-void wchprintf(WCHAR*wch)
+void wchprintf(WCHAR * wch)
 {
     UNICODE_STRING ustring;
     STRING      string;
@@ -2515,10 +2433,10 @@ PatchDebug(int  inpfh,
     ULONG       adjust;
     ULONG       ibNew;
 
-    if (pDebugDirOld == NULL || pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size==0)
+    if (pDebugDirOld == NULL || pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size == 0)
         return NO_ERROR;
 
-    pDbgSave = pDbg = (PIMAGE_DEBUG_DIRECTORY)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( RES_TAG ), pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size);
+    pDbgSave = pDbg = (PIMAGE_DEBUG_DIRECTORY)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size);
     if (pDbg == NULL)
         return ERROR_NOT_ENOUGH_MEMORY;
 
@@ -2529,24 +2447,24 @@ PatchDebug(int  inpfh,
         adjust = *pPointerToRawData;    /* passed in EOF of new file */
 
     ib = pOld->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress - pDebugDirOld->VirtualAddress;
-    MuMoveFilePos(inpfh, pDebugDirOld->PointerToRawData+ib);
-    pDbgLast = pDbg + (pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size)/sizeof(IMAGE_DEBUG_DIRECTORY);
+    MuMoveFilePos(inpfh, pDebugDirOld->PointerToRawData + ib);
+    pDbgLast = pDbg + (pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size) / sizeof(IMAGE_DEBUG_DIRECTORY);
     MuRead(inpfh, (PUCHAR)pDbg, pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size);
 
     if (pDebugOld == NULL) {
         /* find 1st entry - use for offset */
-        DPrintf((DebugBuf, "Adjust: %#08lx\n",adjust));
-        for (ibNew=0xffffffff ; pDbg<pDbgLast ; pDbg++)
+        DPrintf((DebugBuf, "Adjust: %#08lx\n", adjust));
+        for (ibNew = 0xffffffff; pDbg < pDbgLast; pDbg++)
             if (pDbg->PointerToRawData >= ibMaxDbgOffsetOld &&
                 pDbg->PointerToRawData < ibNew
-               )
+                )
                 ibNew = pDbg->PointerToRawData;
 
         if (ibNew != 0xffffffff)
             *pPointerToRawData = ibNew;
         else
             *pPointerToRawData = _llseek(inpfh, 0L, SEEK_END);
-        for (pDbg=pDbgSave ; pDbg<pDbgLast ; pDbg++) {
+        for (pDbg = pDbgSave; pDbg < pDbgLast; pDbg++) {
             DPrintf((DebugBuf, "Old debug file offset: %#08lx\n",
                      pDbg->PointerToRawData));
             if (pDbg->PointerToRawData >= ibMaxDbgOffsetOld)
@@ -2555,21 +2473,21 @@ PatchDebug(int  inpfh,
                      pDbg->PointerToRawData));
         }
     } else {
-        for ( ; pDbg<pDbgLast ; pDbg++) {
+        for (; pDbg < pDbgLast; pDbg++) {
             DPrintf((DebugBuf, "Old debug addr: %#08lx, file offset: %#08lx\n",
                      pDbg->AddressOfRawData,
                      pDbg->PointerToRawData));
             pDbg->AddressOfRawData += pDebugNew->VirtualAddress -
-                                      pDebugOld->VirtualAddress;
+                pDebugOld->VirtualAddress;
             pDbg->PointerToRawData += pDebugNew->PointerToRawData -
-                                      pDebugOld->PointerToRawData;
+                pDebugOld->PointerToRawData;
             DPrintf((DebugBuf, "New debug addr: %#08lx, file offset: %#08lx\n",
                      pDbg->AddressOfRawData,
                      pDbg->PointerToRawData));
         }
     }
 
-    MuMoveFilePos(outfh, pDebugDirNew->PointerToRawData+ib);
+    MuMoveFilePos(outfh, pDebugDirNew->PointerToRawData + ib);
     MuWrite(outfh, (PUCHAR)pDbgSave, pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size);
     RtlFreeHeap(RtlProcessHeap(), 0, pDbgSave);
 
@@ -2611,13 +2529,13 @@ PatchRVAs(int   inpfh,
         DPrintf((DebugBuf, "No exports in header to patch\n"));
     } else {
         MuMoveFilePos(inpfh, offset - hdrdelta);
-        MuRead(inpfh, (PUCHAR) &Exp, sizeof(Exp));
+        MuRead(inpfh, (PUCHAR)&Exp, sizeof(Exp));
         Exp.Name += hdrdelta;
         (ULONG)Exp.AddressOfFunctions += hdrdelta;
         (ULONG)Exp.AddressOfNames += hdrdelta;
         (ULONG)Exp.AddressOfNameOrdinals += hdrdelta;
         MuMoveFilePos(outfh, offset);
-        MuWrite(outfh, (PUCHAR) &Exp, sizeof(Exp));
+        MuWrite(outfh, (PUCHAR)&Exp, sizeof(Exp));
     }
 
 
@@ -2634,13 +2552,13 @@ PatchRVAs(int   inpfh,
     } else {
         for (cimp = cmod = 0; ; cmod++) {
             MuMoveFilePos(inpfh, offset + cmod * sizeof(Imp) - hdrdelta);
-            MuRead(inpfh, (PUCHAR) &Imp, sizeof(Imp));
+            MuRead(inpfh, (PUCHAR)&Imp, sizeof(Imp));
             if (Imp.FirstThunk == 0) {
                 break;
             }
             Imp.Name += hdrdelta;
             MuMoveFilePos(outfh, offset + cmod * sizeof(Imp));
-            MuWrite(outfh, (PUCHAR) &Imp, sizeof(Imp));
+            MuWrite(outfh, (PUCHAR)&Imp, sizeof(Imp));
 
             rvaiat = (ULONG)Imp.FirstThunk;
             DPrintf((DebugBuf, "RVAIAT = %#08lx\n", (ULONG)rvaiat));
@@ -2654,14 +2572,14 @@ PatchRVAs(int   inpfh,
             }
             DPrintf((DebugBuf, "IAT not found\n"));
             return ERROR_INVALID_DATA;
-            found:
+        found:
             DPrintf((DebugBuf, "IAT offset: @%#08lx ==> @%#08lx\n",
                      offiat - pagedelta,
                      offiat));
             MuMoveFilePos(inpfh, offiat - pagedelta);
             MuMoveFilePos(outfh, offiat);
             for (;;) {
-                MuRead(inpfh, (PUCHAR) &iat, sizeof(iat));
+                MuRead(inpfh, (PUCHAR)&iat, sizeof(iat));
                 if (iat == 0) {
                     break;
                 }
@@ -2673,7 +2591,7 @@ PatchRVAs(int   inpfh,
                     iat += hdrdelta;
                     cimp++;
                 }
-                MuWrite(outfh, (PUCHAR) &iat, sizeof(iat)); // Avoids seeking
+                MuWrite(outfh, (PUCHAR)&iat, sizeof(iat)); // Avoids seeking
             }
         }
         DPrintf((DebugBuf, "%u import module name RVAs patched\n", cmod));
@@ -2692,8 +2610,8 @@ PatchRVAs(int   inpfh,
 
 LONG
 WriteResFile(
-            HANDLE      hUpdate,
-            WCHAR       *pDstname)
+    HANDLE      hUpdate,
+    WCHAR * pDstname)
 {
     INT         inpfh;
     INT         outfh;
@@ -2701,15 +2619,15 @@ WriteResFile(
     IMAGE_DOS_HEADER    oldexe;
     PUPDATEDATA pUpdate;
     INT         rc;
-    WCHAR       *pFilename;
+    WCHAR * pFilename;
 
     pUpdate = (PUPDATEDATA)GlobalLock(hUpdate);
-    pFilename = (WCHAR*)GlobalLock(pUpdate->hFileName);
+    pFilename = (WCHAR *)GlobalLock(pUpdate->hFileName);
 
     /* open the original exe file */
     inpfh = HandleToUlong(CreateFileW(pFilename, GENERIC_READ,
-                             0 /*exclusive access*/, NULL /* security attr */,
-                             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL));
+                                      0 /*exclusive access*/, NULL /* security attr */,
+                                      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL));
     GlobalUnlock(pUpdate->hFileName);
     if (inpfh == -1) {
         GlobalUnlock(hUpdate);
@@ -2717,7 +2635,7 @@ WriteResFile(
     }
 
     /* read the old format EXE header */
-    rc = _lread(inpfh, (char*)&oldexe, sizeof(oldexe));
+    rc = _lread(inpfh, (char *)&oldexe, sizeof(oldexe));
     if (rc != sizeof(oldexe)) {
         _lclose(inpfh);
         GlobalUnlock(hUpdate);
@@ -2738,9 +2656,9 @@ WriteResFile(
         return ERROR_BAD_EXE_FORMAT;
     }
 
-    outfh = HandleToUlong(CreateFileW(pDstname, GENERIC_READ|GENERIC_WRITE,
-                             0 /*exclusive access*/, NULL /* security attr */,
-                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
+    outfh = HandleToUlong(CreateFileW(pDstname, GENERIC_READ | GENERIC_WRITE,
+                                      0 /*exclusive access*/, NULL /* security attr */,
+                                      CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
 
     if (outfh != -1) {
         rc = PEWriteResFile(inpfh, outfh, onewexe, pUpdate);
