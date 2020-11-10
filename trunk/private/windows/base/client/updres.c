@@ -404,10 +404,10 @@ BOOL APIENTRY EndUpdateResourceW(HANDLE      hUpdate, BOOL        fDiscard)
 
 
 BOOL APIENTRY EndUpdateResourceA(HANDLE      hUpdate, BOOL        fDiscard)
-    /*++
-        Routine Description
-            Ascii version - see above for description.
-    --*/
+/*++
+    Routine Description
+        Ascii version - see above for description.
+--*/
 {
     return EndUpdateResourceW(hUpdate, fDiscard);
 }
@@ -497,10 +497,7 @@ BOOL EnumLangsFunc(HANDLE hModule, LPWSTR lpType, LPWSTR lpName, WORD language, 
 }
 
 
-VOID
-FreeOne(
-    PRESNAME pRes
-)
+VOID FreeOne(PRESNAME pRes)
 {
     RtlFreeHeap(RtlProcessHeap(), 0, (PVOID)pRes->OffsetToDataEntry);
     if (IS_ID == pRes->Name->discriminant) {
@@ -513,10 +510,7 @@ FreeOne(
 }
 
 
-VOID
-FreeData(
-    PUPDATEDATA pUpd
-)
+VOID FreeData(PUPDATEDATA pUpd)
 {
     PRESTYPE    pType;
     PRESNAME    pRes;
@@ -2029,8 +2023,7 @@ PEWriteResFile(
     /*
      * copy the Old exe header and stub, and allocate room for the PE header.
      */
-    DPrintf((DebugBuf, "copying through PE header: %#08lx bytes @0x0\n",
-             cbOldexe + sizeof(IMAGE_NT_HEADERS)));
+    DPrintf((DebugBuf, "copying through PE header: %#08lx bytes @0x0\n", cbOldexe + sizeof(IMAGE_NT_HEADERS)));
     MuMoveFilePos(inpfh, 0L);
     MuCopy(inpfh, outfh, cbOldexe + sizeof(IMAGE_NT_HEADERS));
 
@@ -2070,13 +2063,10 @@ PEWriteResFile(
 
     /* copy one section at a time */
     New.OptionalHeader.SizeOfInitializedData = 0;
-    for (pObjOld = pObjtblOld, pObjNew = pObjtblNew;
-         pObjOld < pObjLast;
-         pObjNew++) {
+    for (pObjOld = pObjtblOld, pObjNew = pObjtblNew; pObjOld < pObjLast; pObjNew++) {
         if (pObjOld == pObjResourceOldX)
             pObjOld++;
         if (pObjNew == pObjResourceNew) {
-
             /* Write new resource section */
             DPrintf((DebugBuf, "Primary resource section %i to %#08lx\n", nObjResource + 1, FilePos(outfh)));
 
@@ -2106,9 +2096,7 @@ PEWriteResFile(
             }
             if (nObjResourceX == -1) {
                 MuMoveFilePos(outfh, ibSave);
-                DPrintf((DebugBuf,
-                         "re-writing resource directory: %#08x bytes @%#08lx\n",
-                         cbRestab, ibSave));
+                DPrintf((DebugBuf, "re-writing resource directory: %#08x bytes @%#08lx\n", cbRestab, ibSave));
                 MuWrite(outfh, (PUCHAR)pResTab, cbRestab);
                 MuMoveFilePos(outfh, cb);
                 cb = FilePos(inpfh);
@@ -2121,13 +2109,11 @@ PEWriteResFile(
             } else
                 pObjOld++;
         } else if (nObjResourceX != -1 && pObjNew == pObjtblNew + nObjResourceX) {
-
             /* Write new resource section */
             DPrintf((DebugBuf, "Secondary resource section %i @%#08lx\n", nObjResourceX + 1, FilePos(outfh)));
 
             pObjNew->PointerToRawData = FilePos(outfh);
-            (void)WriteResSection(pUpdate, outfh,
-                                  New.OptionalHeader.FileAlignment, 0xffffffff, pResSave);
+            (void)WriteResSection(pUpdate, outfh, New.OptionalHeader.FileAlignment, 0xffffffff, pResSave);
             cb = FilePos(outfh);
             pObjNew->SizeOfRawData = cb - pObjNew->PointerToRawData;
             pObjNew->Misc.VirtualSize = ROUNDUP(pObjNew->SizeOfRawData, New.OptionalHeader.SectionAlignment);
@@ -2436,7 +2422,9 @@ PatchDebug(int  inpfh,
     if (pDebugDirOld == NULL || pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size == 0)
         return NO_ERROR;
 
-    pDbgSave = pDbg = (PIMAGE_DEBUG_DIRECTORY)RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(RES_TAG), pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size);
+    pDbgSave = pDbg = (PIMAGE_DEBUG_DIRECTORY)RtlAllocateHeap(RtlProcessHeap(), 
+                                                              MAKE_TAG(RES_TAG), 
+                                                              pNew->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size);
     if (pDbg == NULL)
         return ERROR_NOT_ENOUGH_MEMORY;
 
@@ -2455,9 +2443,7 @@ PatchDebug(int  inpfh,
         /* find 1st entry - use for offset */
         DPrintf((DebugBuf, "Adjust: %#08lx\n", adjust));
         for (ibNew = 0xffffffff; pDbg < pDbgLast; pDbg++)
-            if (pDbg->PointerToRawData >= ibMaxDbgOffsetOld &&
-                pDbg->PointerToRawData < ibNew
-                )
+            if (pDbg->PointerToRawData >= ibMaxDbgOffsetOld && pDbg->PointerToRawData < ibNew)
                 ibNew = pDbg->PointerToRawData;
 
         if (ibNew != 0xffffffff)
@@ -2465,12 +2451,10 @@ PatchDebug(int  inpfh,
         else
             *pPointerToRawData = _llseek(inpfh, 0L, SEEK_END);
         for (pDbg = pDbgSave; pDbg < pDbgLast; pDbg++) {
-            DPrintf((DebugBuf, "Old debug file offset: %#08lx\n",
-                     pDbg->PointerToRawData));
+            DPrintf((DebugBuf, "Old debug file offset: %#08lx\n", pDbg->PointerToRawData));
             if (pDbg->PointerToRawData >= ibMaxDbgOffsetOld)
                 pDbg->PointerToRawData += adjust - ibNew;
-            DPrintf((DebugBuf, "New debug file offset: %#08lx\n",
-                     pDbg->PointerToRawData));
+            DPrintf((DebugBuf, "New debug file offset: %#08lx\n", pDbg->PointerToRawData));
         }
     } else {
         for (; pDbg < pDbgLast; pDbg++) {
